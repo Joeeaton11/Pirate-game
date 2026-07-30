@@ -15,9 +15,12 @@ export interface WildEncounter {
   faction: EncounterFaction;
 }
 
+export const SHIP_CREW_CAP = 6;
+
 interface GameState {
   gold: number;
   crew: OwnedCrewMember[];
+  shipCrewIds: string[];
   activeCrewId: string | null;
   hasHydrated: boolean;
   wildEncounter: WildEncounter | null;
@@ -32,9 +35,11 @@ interface GameState {
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
-  addCrewMember: (templateId: string, level: number) => void;
+  addCrewMember: (templateId: string, level: number) => boolean;
   removeCrewMember: (instanceId: string) => boolean;
   setActiveCrew: (instanceId: string) => void;
+  sendToQuarters: (instanceId: string) => void;
+  bringAboard: (instanceId: string) => boolean;
   setCrewHp: (instanceId: string, hp: number) => void;
   gainXp: (instanceId: string, amount: number) => string | null;
   addGold: (amount: number) => void;
@@ -42,7 +47,12 @@ interface GameState {
   addHeat: (amount: number) => void;
   setHeat: (value: number) => void;
   setCurrentBuilding: (buildingId: string | null) => void;
-  hireFromBuilding: (buildingId: string, templateId: string, level: number, cost: number) => boolean;
+  hireFromBuilding: (
+    buildingId: string,
+    templateId: string,
+    level: number,
+    cost: number
+  ) => { success: boolean; boardedShip: boolean };
   buyItem: (itemId: string, price: number) => boolean;
   consumeItem: (itemId: string) => boolean;
   setCurrentPirateLord: (lordId: string | null) => void;
@@ -59,6 +69,7 @@ type InitialState = Pick<
   GameState,
   | 'gold'
   | 'crew'
+  | 'shipCrewIds'
   | 'activeCrewId'
   | 'wildEncounter'
   | 'heat'
@@ -76,6 +87,7 @@ function createInitialState(): InitialState {
   return {
     gold: 20,
     crew: [starterCrewMember],
+    shipCrewIds: [starterCrewMember.instanceId],
     activeCrewId: starterCrewMember.instanceId,
     wildEncounter: null,
     heat: 0,
@@ -104,20 +116,25 @@ export const useGameStore = create<GameState>()(
             : null,
         })),
 
-      addCrewMember: (templateId, level) =>
-        set((state) => {
-          const newMember = createOwnedCrewMember(templateId, level);
-          return {
-            crew: [...state.crew, newMember],
-            activeCrewId: state.activeCrewId ?? newMember.instanceId,
-            seenTemplateIds: state.seenTemplateIds.includes(templateId)
-              ? state.seenTemplateIds
-              : [...state.seenTemplateIds, templateId],
-            recruitedTemplateIds: state.recruitedTemplateIds.includes(templateId)
-              ? state.recruitedTemplateIds
-              : [...state.recruitedTemplateIds, templateId],
-          };
-        }),
+      addCrewMember: (templateId, level) => {
+        const state = get();
+        const newMember = createOwnedCrewMember(templateId, level);
+        const boardedShip = state.shipCrewIds.length < SHIP_CREW_CAP;
+        set({
+          crew: [...state.crew, newMember],
+          shipCrewIds: boardedShip
+            ? [...state.shipCrewIds, newMember.instanceId]
+            : state.shipCrewIds,
+          activeCrewId: state.activeCrewId ?? newMember.instanceId,
+          seenTemplateIds: state.seenTemplateIds.includes(templateId)
+            ? state.seenTemplateIds
+            : [...state.seenTemplateIds, templateId],
+          recruitedTemplateIds: state.recruitedTemplateIds.includes(templateId)
+            ? state.recruitedTemplateIds
+            : [...state.recruitedTemplateIds, templateId],
+        });
+        return boardedShip;
+      },
 
       removeCrewMember: (instanceId) => {
         const state = get();
@@ -126,6 +143,7 @@ export const useGameStore = create<GameState>()(
           const rescue = createOwnedCrewMember('cabin_hand', 2);
           set({
             crew: [rescue],
+            shipCrewIds: [rescue.instanceId],
             activeCrewId: rescue.instanceId,
             seenTemplateIds: state.seenTemplateIds.includes('cabin_hand')
               ? state.seenTemplateIds
@@ -136,15 +154,38 @@ export const useGameStore = create<GameState>()(
           });
           return true;
         }
+        let newShipCrewIds = state.shipCrewIds.filter((id) => id !== instanceId);
+        if (newShipCrewIds.length === 0) {
+          newShipCrewIds = [remaining[0].instanceId];
+        }
         const newActiveId =
           state.activeCrewId === instanceId
-            ? remaining.find((m) => m.currentHp > 0)?.instanceId ?? remaining[0].instanceId
+            ? remaining.find((m) => newShipCrewIds.includes(m.instanceId) && m.currentHp > 0)
+                ?.instanceId ?? newShipCrewIds[0]
             : state.activeCrewId;
-        set({ crew: remaining, activeCrewId: newActiveId });
+        set({ crew: remaining, shipCrewIds: newShipCrewIds, activeCrewId: newActiveId });
         return false;
       },
 
       setActiveCrew: (instanceId) => set({ activeCrewId: instanceId }),
+
+      sendToQuarters: (instanceId) => {
+        const state = get();
+        if (state.shipCrewIds.length <= 1 || !state.shipCrewIds.includes(instanceId)) return;
+        const newShipCrewIds = state.shipCrewIds.filter((id) => id !== instanceId);
+        const newActiveId =
+          state.activeCrewId === instanceId ? newShipCrewIds[0] : state.activeCrewId;
+        set({ shipCrewIds: newShipCrewIds, activeCrewId: newActiveId });
+      },
+
+      bringAboard: (instanceId) => {
+        const state = get();
+        if (state.shipCrewIds.length >= SHIP_CREW_CAP || state.shipCrewIds.includes(instanceId)) {
+          return false;
+        }
+        set({ shipCrewIds: [...state.shipCrewIds, instanceId] });
+        return true;
+      },
 
       setCrewHp: (instanceId, hp) =>
         set((state) => ({
@@ -214,12 +255,16 @@ export const useGameStore = create<GameState>()(
       hireFromBuilding: (buildingId, templateId, level, cost) => {
         const state = get();
         if (state.hiredBuildingIds.includes(buildingId) || state.gold < cost) {
-          return false;
+          return { success: false, boardedShip: false };
         }
         const newMember = createOwnedCrewMember(templateId, level);
+        const boardedShip = state.shipCrewIds.length < SHIP_CREW_CAP;
         set({
           gold: state.gold - cost,
           crew: [...state.crew, newMember],
+          shipCrewIds: boardedShip
+            ? [...state.shipCrewIds, newMember.instanceId]
+            : state.shipCrewIds,
           activeCrewId: state.activeCrewId ?? newMember.instanceId,
           hiredBuildingIds: [...state.hiredBuildingIds, buildingId],
           seenTemplateIds: state.seenTemplateIds.includes(templateId)
@@ -229,7 +274,7 @@ export const useGameStore = create<GameState>()(
             ? state.recruitedTemplateIds
             : [...state.recruitedTemplateIds, templateId],
         });
-        return true;
+        return { success: true, boardedShip };
       },
 
       buyItem: (itemId, price) => {
@@ -300,6 +345,7 @@ export const useGameStore = create<GameState>()(
       partialize: (state) => ({
         gold: state.gold,
         crew: state.crew,
+        shipCrewIds: state.shipCrewIds,
         activeCrewId: state.activeCrewId,
         heat: state.heat,
         hiredBuildingIds: state.hiredBuildingIds,

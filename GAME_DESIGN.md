@@ -98,12 +98,14 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 
 ## Crew Management (Party equivalent)
 - ✅ Roster list, active-member selection, HP/level/XP display
-- ✅ No hard party-size cap yet (Pokémon caps active party at 6, extra go to PC boxes)
-- ⬜ Should add a cap (e.g., 6 "on-ship" active crew) plus a **Crew Quarters / PC-box equivalent**
-  for overflow — ties in nicely with a future "ship capacity" upgrade system. **Bumped priority**:
-  the Debug screen's forced-encounter shortcuts make it trivial to stack up a dozen-plus crew in
-  minutes, which will expose Crew screen/roster UI problems well before organic play would —
-  worth doing this before the roster list gets exercised much further
+- ✅ **6-crew "on-ship" cap + Crew Quarters (PC-box equivalent)**: recruiting past the cap
+  (wild-encounter recruit or building hire) auto-benches the new hire to Crew Quarters instead of
+  failing outright; Crew screen shows Ship's Crew and Crew Quarters as separate sections with
+  **Send to Quarters** / **Bring Aboard** buttons (always at least 1 onboard — the button is
+  disabled rather than letting the ship empty out). Quarters members aren't present during battles:
+  the mid-battle crew-switch prompt only offers onboard crew, and if permadeath wipes the entire
+  onboard party while Quarters has spares, the next voyage auto-boards one so you're never stuck
+  with zero deployable crew
 - ⬜ Nicknaming crew members (Pokémon lets you rename any caught Pokémon)
 - ⬜ Per-crew-member move/skill loadout management screen (currently moves are fixed per template)
 
@@ -270,10 +272,11 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
    available now prompts a switch instead of always ending the battle (permadeath still applies for
    navy/rival ambushes regardless — only the *battle outcome* changes, not the removal); battle only
    ends outright when no healthy crew member remains
+7. ✅ **Party cap + Crew Quarters (PC-box equivalent)** — 6-crew onboard cap, overflow auto-benched
+   to Crew Quarters, Send to Quarters / Bring Aboard in the Crew screen, mid-battle switch limited
+   to onboard crew, auto-refill from Quarters if the whole onboard party is wiped by permadeath
 
 ### Now (next up)
-7. **Party cap + Crew Quarters (PC-box equivalent)** — bumped up from "Later": the debug panel
-   makes over-recruiting trivial and will surface roster UI problems sooner than expected
 8. **Side quests + resource gathering** — bounties/fetch/escort per island, gatherable materials
    (fish/timber/rum/gunpowder) distinct from gold; this is the "specific skills gate specific
    quests" vision item and the biggest open gap in actual playable content

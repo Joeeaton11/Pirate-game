@@ -56,6 +56,7 @@ export default function EncounterScreen({ navigation }: Props) {
   const defeatPirateLord = useGameStore((s) => s.defeatPirateLord);
   const markSeen = useGameStore((s) => s.markSeen);
   const crew = useGameStore((s) => s.crew);
+  const shipCrewIds = useGameStore((s) => s.shipCrewIds);
   const setActiveCrew = useGameStore((s) => s.setActiveCrew);
   const activeCrew = useActiveCrewMember();
   const liveCrewMember = useGameStore((s) =>
@@ -149,7 +150,7 @@ export default function EncounterScreen({ navigation }: Props) {
       });
       setFallenInstanceId(crewMember.instanceId);
       const otherFighterAvailable = crew.some(
-        (m) => m.instanceId !== crewMember.instanceId && m.currentHp > 0
+        (m) => m.instanceId !== crewMember.instanceId && shipCrewIds.includes(m.instanceId) && m.currentHp > 0
       );
 
       if (encounter.faction === 'navy' || encounter.faction === 'rival') {
@@ -267,8 +268,12 @@ export default function EncounterScreen({ navigation }: Props) {
     const chance = forced ? 1 : recruitChance(encounter.templateId, encounter.currentHp, wildMaxHp);
     const success = Math.random() < chance;
     if (success) {
-      addCrewMember(encounter.templateId, encounter.level);
-      appendLog(`${wildTemplate.name} joins your crew!`);
+      const boardedShip = addCrewMember(encounter.templateId, encounter.level);
+      appendLog(
+        boardedShip
+          ? `${wildTemplate.name} joins your crew!`
+          : `${wildTemplate.name} joins your crew, but your ship is full — they wait in the Crew Quarters.`
+      );
       addHeat(2);
       endBattle('recruited');
       setBusy(false);
@@ -378,7 +383,12 @@ export default function EncounterScreen({ navigation }: Props) {
         <View style={styles.actions}>
           <Text style={styles.switchPromptText}>Choose your next fighter:</Text>
           {crew
-            .filter((m) => m.instanceId !== fallenInstanceId && m.currentHp > 0)
+            .filter(
+              (m) =>
+                m.instanceId !== fallenInstanceId &&
+                shipCrewIds.includes(m.instanceId) &&
+                m.currentHp > 0
+            )
             .map((member) => {
               const template = CREW_TEMPLATES[member.templateId];
               const memberMaxHp = maxHpFor(member);

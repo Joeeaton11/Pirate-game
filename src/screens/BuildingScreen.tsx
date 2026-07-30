@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BUILDINGS, BuildingType } from '../data/buildings';
@@ -28,6 +28,7 @@ export default function BuildingScreen({ navigation }: Props) {
   const buyItem = useGameStore((s) => s.buyItem);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const markSeen = useGameStore((s) => s.markSeen);
+  const [sentToQuarters, setSentToQuarters] = useState(false);
 
   const building = BUILDINGS.find((b) => b.id === currentBuildingId);
 
@@ -59,7 +60,8 @@ export default function BuildingScreen({ navigation }: Props) {
   const shopItems = building.itemsForSale ?? [];
 
   function handleHire() {
-    hireFromBuilding(buildingId, recruit.templateId, recruit.level, recruit.cost);
+    const result = hireFromBuilding(buildingId, recruit.templateId, recruit.level, recruit.cost);
+    if (result.success) setSentToQuarters(!result.boardedShip);
   }
 
   return (
@@ -93,7 +95,11 @@ export default function BuildingScreen({ navigation }: Props) {
 
         {alreadyHired ? (
           <View style={styles.hiredBanner}>
-            <Text style={styles.hiredBannerText}>Already signed on with your crew.</Text>
+            <Text style={styles.hiredBannerText}>
+              {sentToQuarters
+                ? 'Signed on, but your ship is full — waiting in the Crew Quarters.'
+                : 'Already signed on with your crew.'}
+            </Text>
           </View>
         ) : (
           <Pressable
