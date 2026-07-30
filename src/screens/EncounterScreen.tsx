@@ -55,6 +55,8 @@ export default function EncounterScreen({ navigation }: Props) {
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const defeatPirateLord = useGameStore((s) => s.defeatPirateLord);
   const markSeen = useGameStore((s) => s.markSeen);
+  const crew = useGameStore((s) => s.crew);
+  const setActiveCrew = useGameStore((s) => s.setActiveCrew);
   const activeCrew = useActiveCrewMember();
   const liveCrewMember = useGameStore((s) =>
     s.crew.find((m) => m.instanceId === activeCrew?.instanceId)
@@ -66,10 +68,12 @@ export default function EncounterScreen({ navigation }: Props) {
   const [phase, setPhase] = useState<Phase>('battling');
   const [busy, setBusy] = useState(false);
   const [fallenSnapshot, setFallenSnapshot] = useState<FallenSnapshot | null>(null);
+  const [fallenInstanceId, setFallenInstanceId] = useState<string | null>(null);
   const [rescueMessage, setRescueMessage] = useState<string | null>(null);
   const [showItemMenu, setShowItemMenu] = useState(false);
   const [nextAttackBoost, setNextAttackBoost] = useState(1);
   const [guaranteedRecruit, setGuaranteedRecruit] = useState(false);
+  const [awaitingSwitch, setAwaitingSwitch] = useState(false);
 
   useEffect(() => {
     if (wildEncounter?.faction === 'wild') {
@@ -143,34 +147,62 @@ export default function EncounterScreen({ navigation }: Props) {
         level: crewMember.level,
         maxHp: playerMaxHp,
       });
-      if (encounter.faction === 'navy') {
-        const goldLost = Math.round(gold * 0.3);
-        appendLog(`${crewMember.nickname} is captured and pressed into naval service — gone for good.`);
-        if (goldLost > 0) {
-          appendLog(`The crown seizes ${goldLost} gold from your hold.`);
-          addGold(-goldLost);
+      setFallenInstanceId(crewMember.instanceId);
+      const otherFighterAvailable = crew.some(
+        (m) => m.instanceId !== crewMember.instanceId && m.currentHp > 0
+      );
+
+      if (encounter.faction === 'navy' || encounter.faction === 'rival') {
+        if (encounter.faction === 'navy') {
+          const goldLost = Math.round(gold * 0.3);
+          appendLog(
+            `${crewMember.nickname} is captured and pressed into naval service — gone for good.`
+          );
+          if (goldLost > 0) {
+            appendLog(`The crown seizes ${goldLost} gold from your hold.`);
+            addGold(-goldLost);
+          }
+          setHeat(0);
+        } else {
+          appendLog(
+            `${crewMember.nickname} is overwhelmed and taken prisoner by the rival crew — gone for good.`
+          );
         }
-        setHeat(0);
         const rescued = removeCrewMember(crewMember.instanceId);
         if (rescued) {
           setRescueMessage(
             'Your crew is gone. A tavern drunk owes you a favor and signs on as your new cabin hand.'
           );
+          endBattle('defeat');
+          return;
         }
-      } else if (encounter.faction === 'rival') {
-        appendLog(`${crewMember.nickname} is overwhelmed and taken prisoner by the rival crew — gone for good.`);
-        const rescued = removeCrewMember(crewMember.instanceId);
-        if (rescued) {
-          setRescueMessage(
-            'Your crew is gone. A tavern drunk owes you a favor and signs on as your new cabin hand.'
-          );
+        if (otherFighterAvailable) {
+          setAwaitingSwitch(true);
+        } else {
+          healAllCrew();
+          endBattle('defeat');
         }
-      } else {
-        appendLog(`${crewMember.nickname} has fainted! You retreat to Tortuga Cove.`);
-        healAllCrew();
+        return;
       }
-      endBattle('defeat');
+
+      appendLog(`${crewMember.nickname} has fainted!`);
+      if (otherFighterAvailable) {
+        setAwaitingSwitch(true);
+      } else {
+        appendLog('You retreat to Tortuga Cove.');
+        healAllCrew();
+        endBattle('defeat');
+      }
     }
+  }
+
+  function handleSwitchCrew(instanceId: string) {
+    setActiveCrew(instanceId);
+    setFallenSnapshot(null);
+    setFallenInstanceId(null);
+    setAwaitingSwitch(false);
+    const next = crew.find((m) => m.instanceId === instanceId);
+    if (next) appendLog(`Go, ${next.nickname}!`);
   }
 
   function handleAttack(moveId: string) {
@@ -342,7 +374,31 @@ export default function EncounterScreen({ navigation }: Props) {
         {rescueMessage && <Text style={styles.rescueText}>{rescueMessage}</Text>}
       </ScrollView>
 
-      {!resolved && showItemMenu && (
+      {!resolved && awaitingSwitch && (
+        <View style={styles.actions}>
+          <Text style={styles.switchPromptText}>Choose your next fighter:</Text>
+          {crew
+            .filter((m) => m.instanceId !== fallenInstanceId && m.currentHp > 0)
+            .map((member) => {
+              const template = CREW_TEMPLATES[member.templateId];
+              const memberMaxHp = maxHpFor(member);
+              return (
+                <Pressable
+                  key={member.instanceId}
+                  style={styles.itemMenuButton}
+                  onPress={() => handleSwitchCrew(member.instanceId)}
+                >
+                  <Text style={styles.itemMenuButtonText}>
+                    {template.emoji} {member.nickname} Lv.{member.level} ({member.currentHp}/
+                    {memberMaxHp} HP)
+                  </Text>
+                </Pressable>
+              );
+            })}
+        </View>
+      )}
+
+      {!resolved && !awaitingSwitch && showItemMenu && (
         <View style={styles.actions}>
           {usableItems.map((item) => (
             <Pressable
@@ -362,7 +418,7 @@ export default function EncounterScreen({ navigation }: Props) {
         </View>
       )}
 
-      {!resolved && !showItemMenu && (
+      {!resolved && !awaitingSwitch && !showItemMenu && (
         <View style={styles.actions}>
           <View style={styles.movesRow}>
             {playerTemplate.moveIds.map((moveId) => (
@@ -470,6 +526,13 @@ const styles = StyleSheet.create({
   },
   logText: { color: '#f4e9cd', marginBottom: 4 },
   rescueText: { color: '#ffd166', fontWeight: '700', marginTop: 8 },
+  switchPromptText: {
+    color: '#ffd166',
+    fontWeight: '800',
+    fontSize: 14,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
   actions: { padding: 12 },
   movesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
   moveButton: {

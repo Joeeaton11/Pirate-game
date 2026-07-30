@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { CREW_TEMPLATES } from '../data/crew';
-import { promotionFor } from '../data/promotions';
+import { promotionFor, resolvePromotion } from '../data/promotions';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
@@ -48,28 +48,52 @@ interface GameState {
   setCurrentPirateLord: (lordId: string | null) => void;
   defeatPirateLord: (lordId: string) => void;
   markSeen: (templateId: string) => void;
+  debugSetCrewLevel: (instanceId: string, level: number) => void;
+  debugResetSave: () => void;
   setHasHydrated: (value: boolean) => void;
 }
 
 const STARTER_TEMPLATE_ID = 'deckhand_swordsman';
-const starterCrewMember = createOwnedCrewMember(STARTER_TEMPLATE_ID, 3);
+
+type InitialState = Pick<
+  GameState,
+  | 'gold'
+  | 'crew'
+  | 'activeCrewId'
+  | 'wildEncounter'
+  | 'heat'
+  | 'currentBuildingId'
+  | 'hiredBuildingIds'
+  | 'inventory'
+  | 'currentPirateLordId'
+  | 'defeatedLordIds'
+  | 'seenTemplateIds'
+  | 'recruitedTemplateIds'
+>;
+
+function createInitialState(): InitialState {
+  const starterCrewMember = createOwnedCrewMember(STARTER_TEMPLATE_ID, 3);
+  return {
+    gold: 20,
+    crew: [starterCrewMember],
+    activeCrewId: starterCrewMember.instanceId,
+    wildEncounter: null,
+    heat: 0,
+    currentBuildingId: null,
+    hiredBuildingIds: [],
+    inventory: {},
+    currentPirateLordId: null,
+    defeatedLordIds: [],
+    seenTemplateIds: [STARTER_TEMPLATE_ID],
+    recruitedTemplateIds: [STARTER_TEMPLATE_ID],
+  };
+}
 
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
-      gold: 20,
-      crew: [starterCrewMember],
-      activeCrewId: starterCrewMember.instanceId,
+      ...createInitialState(),
       hasHydrated: false,
-      wildEncounter: null,
-      heat: 0,
-      currentBuildingId: null,
-      hiredBuildingIds: [],
-      inventory: {},
-      currentPirateLordId: null,
-      defeatedLordIds: [],
-      seenTemplateIds: [STARTER_TEMPLATE_ID],
-      recruitedTemplateIds: [STARTER_TEMPLATE_ID],
 
       setWildEncounter: (encounter) => set({ wildEncounter: encounter }),
 
@@ -241,6 +265,32 @@ export const useGameStore = create<GameState>()(
             ? state
             : { seenTemplateIds: [...state.seenTemplateIds, templateId] }
         ),
+
+      debugSetCrewLevel: (instanceId, level) => {
+        const state = get();
+        let promotedTo: string | null = null;
+        const crew = state.crew.map((member) => {
+          if (member.instanceId !== instanceId) return member;
+          const templateId = resolvePromotion(member.templateId, level);
+          if (templateId !== member.templateId) promotedTo = templateId;
+          const nickname = templateId !== member.templateId ? CREW_TEMPLATES[templateId].name : member.nickname;
+          const newMaxHp = maxHpFor({ ...member, level, templateId });
+          return { ...member, level, xp: 0, currentHp: newMaxHp, templateId, nickname };
+        });
+        set({
+          crew,
+          seenTemplateIds:
+            promotedTo && !state.seenTemplateIds.includes(promotedTo)
+              ? [...state.seenTemplateIds, promotedTo]
+              : state.seenTemplateIds,
+          recruitedTemplateIds:
+            promotedTo && !state.recruitedTemplateIds.includes(promotedTo)
+              ? [...state.recruitedTemplateIds, promotedTo]
+              : state.recruitedTemplateIds,
+        });
+      },
+
+      debugResetSave: () => set({ ...createInitialState(), hasHydrated: true }),
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),

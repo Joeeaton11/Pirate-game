@@ -6,4 +6,5 @@ export type RootStackParamList = {
   PirateLord: undefined;
   Quests: undefined;
   CrewLog: undefined;
+  Debug: undefined;
 };

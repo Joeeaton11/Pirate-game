@@ -24,3 +24,14 @@ export const PROMOTIONS: PromotionRule[] = [
 export function promotionFor(templateId: string): PromotionRule | undefined {
   return PROMOTIONS.find((p) => p.templateId === templateId);
 }
+
+/** Cascades through as many promotion stages as `level` qualifies for in one jump. */
+export function resolvePromotion(templateId: string, level: number): string {
+  let current = templateId;
+  let promo = promotionFor(current);
+  while (promo && level >= promo.level) {
+    current = promo.nextTemplateId;
+    promo = promotionFor(current);
+  }
+  return current;
+}

@@ -303,7 +303,14 @@ export default function MapScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>🏴‍☠️ {zoneLabel}</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>🏴‍☠️ {zoneLabel}</Text>
+          {__DEV__ && (
+            <Pressable onPress={() => navigation.navigate('Debug')} style={styles.debugButton}>
+              <Text style={styles.debugButtonText}>🛠</Text>
+            </Pressable>
+          )}
+        </View>
         <View style={styles.headerRow}>
           <Text style={styles.headerText}>💰 {gold} gold</Text>
           <View style={styles.headerButtons}>
@@ -472,6 +479,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#f4e9cd',
   },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  debugButton: {
+    backgroundColor: '#444',
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  debugButtonText: { fontSize: 14 },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

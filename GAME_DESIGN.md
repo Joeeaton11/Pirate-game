@@ -242,7 +242,14 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 3. ✅ **Crew Log (Pokédex equivalent)** — done: unseen/seen/recruited states, completion counter
 4. ✅ **Promotions (evolution equivalent)** — done: level-based promotion lines across all 5
    specialties, HP/moves/stats carry over automatically, Crew Log + battle log integration
-5. Side quests + resource gathering, island "puzzle" gauntlets before each Pirate Lord
-6. Pirate Council + final superboss (Elite Four/Champion equivalent) — natural finale once the
+5. ✅ **Dev debug/QA panel** — done: `__DEV__`-gated Debug screen reachable from a 🛠 button on the
+   Map, with level-jump, gold, heat, force-encounter (wild/rival/navy), jump-to-Pirate-Lord-fort,
+   and reset-save shortcuts for fast manual testing without grinding
+6. ✅ **Mid-battle crew switch on faint** — done: fainting a crew member with a healthy bench member
+   available now prompts a switch instead of always ending the battle (permadeath still applies for
+   navy/rival ambushes regardless — only the *battle outcome* changes, not the removal); battle only
+   ends outright when no healthy crew member remains
+7. Side quests + resource gathering, island "puzzle" gauntlets before each Pirate Lord
+8. Pirate Council + final superboss (Elite Four/Champion equivalent) — natural finale once the
    5 Lords have side-quest content built around them
-7. GTA-style character switching (biggest, most novel, probably last)
+9. GTA-style character switching (biggest, most novel, probably last)
