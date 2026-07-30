@@ -182,6 +182,48 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   complete, forcing you to go recruit one
 - ✅ Quest log / journal UI (the new Quests screen) — currently only tracks Pirate Lord progress;
   will need to expand once side quests exist
+- ⬜ **v1 build slice**: one bounty quest, one fetch quest, and one specialty-gated quest, wired
+  into the existing Quest Log screen — proves the side-quest pattern end-to-end before expanding
+  to the fuller concept/style list below
+
+### Side Quest Concepts (brainstormed)
+- ⬜ **Smuggling runs** — timed delivery of contraband cargo; a navy patrol encounter en route adds
+  heat on top of losing the goods, turning the heat system into an active quest risk
+- ⬜ **Prisoner rescue** — since permadeath already frames losses as "captured"/"imprisoned" rather
+  than killed, a later quest could let you break a *specific* named crew member back out of a navy
+  fort or rival camp — gives permadeath a narrative payoff, not just a stat loss
+- ⬜ **Bounty board with heat payoff** — turn in defeated rival/navy targets for gold *and* a heat
+  reduction, making bounty hunting a deliberate way to cool off instead of only fleeing and waiting
+- ⬜ **Buried treasure maps** — already stubbed as a General Store item; sell as a map-marker + dig
+  quest rather than an instant reward, giving a reason to sail somewhere new
+- ⬜ **Specialty-gated hidden areas** — HM-reskin: a sealed cave needs a Cannon-type to blast open,
+  a locked door needs a Blade-type to force — same "recruit to progress" idea, applied to
+  exploration instead of just quest-gating
+- ⬜ **Crew loyalty questline** — a personal backstory quest tied to one specific recruited crew
+  member (old captain, a debt, a grudge); completing it grants a small permanent bonus. Reuses the
+  "prove it to a rival captain" trade-evolution idea as its own side content
+- ⬜ **Weather-gated resource nodes** — once the (currently unbuilt) weather system exists: rum/fish
+  easier to gather in calm weather, storms make gathering riskier but higher-yield — a "later" hook
+
+### Mini-Quest Styles (mechanical archetypes, not tied to one concept above)
+- ⬜ **Escort/protect** — guard an NPC ship through a zone; encounter rolls still fire, but you're
+  defending them, failing if they take too much damage before making port
+- ⬜ **Timed race** — a regatta or delivery deadline between two points; pure movement/navigation
+  test, no combat at all
+- ⬜ **Clear-the-area** — defeat N enemies in a zone rather than one named target; cheap filler
+  content generated from existing threat templates
+- ⬜ **Defend-the-port** — survive a wave of incoming navy/rival attackers at Tortuga Cove itself,
+  inverting the usual "you're the aggressor" framing
+- ⬜ **Infiltration/heist** — sneak into a manor/fort and get out without triggering a fight, rather
+  than winning one; a natural setup for GTA-style character switching (see below)
+- ⬜ **Branching/moral choice** — help the rival crew or turn them in to the Navy; no clean right
+  answer, each path changes heat/reputation differently rather than just paying out gold
+- ⬜ **Rival race** — a named rival crew is chasing the same prize; first to reach it wins, adding
+  urgency without adding a new mechanic
+- ⬜ **Investigation** — talk to a string of NPCs to piece together a clue before acting, rather
+  than fighting or gathering; dialogue-only, detective-lite
+- ⬜ **Recurring board quest** — a repeatable, low-narrative bounty/gather quest that resets; this
+  is the side-content-for-engagement gap already flagged under Scope & Pacing
 
 ## GTA-style Character Switching (open gap)
 - ⬜ Distinct from crew battle-switching (which already exists) — this means directly controlling
