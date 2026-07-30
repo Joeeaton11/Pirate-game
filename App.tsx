@@ -9,6 +9,7 @@ import { RootStackParamList } from './src/navigation/types';
 import MapScreen from './src/screens/MapScreen';
 import EncounterScreen from './src/screens/EncounterScreen';
 import CrewScreen from './src/screens/CrewScreen';
+import BuildingScreen from './src/screens/BuildingScreen';
 import { useGameStore } from './src/store/gameStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -37,6 +38,7 @@ export default function App() {
               options={{ gestureEnabled: false }}
             />
             <Stack.Screen name="Crew" component={CrewScreen} />
+            <Stack.Screen name="Building" component={BuildingScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

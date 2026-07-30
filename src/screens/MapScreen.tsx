@@ -4,9 +4,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import {
   ISLAND_LIST,
+  ISLANDS,
   SEA_ENCOUNTER_CHANCE,
   SEA_ENCOUNTER_TABLE,
   START_POSITION,
@@ -29,6 +31,7 @@ import { maxHpFor, pickWildEncounter } from '../utils/battle';
 type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 
 const PLAYER_SIZE = 40;
+const BUILDING_SIZE = 44;
 const SEA_SPEED = 260; // world units per second
 const LAND_SPEED = 140;
 const DEADZONE = 12; // px of drag before movement starts
@@ -57,6 +60,7 @@ export default function MapScreen({ navigation }: Props) {
   const healAllCrew = useGameStore((s) => s.healAllCrew);
   const setWildEncounter = useGameStore((s) => s.setWildEncounter);
   const addHeat = useGameStore((s) => s.addHeat);
+  const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const playerRef = useRef(player);
@@ -175,6 +179,20 @@ export default function MapScreen({ navigation }: Props) {
       setPlayer(nextPosition);
 
       const nextIsland = islandAtPoint(nextPosition);
+
+      if (nextIsland) {
+        const nearbyBuilding = buildingsForIsland(nextIsland.id).find((building) => {
+          const pos = buildingWorldPosition(building, nextIsland.position);
+          return Math.hypot(nextPosition.x - pos.x, nextPosition.y - pos.y) <= ENTER_RADIUS;
+        });
+        if (nearbyBuilding) {
+          directionRef.current = null;
+          setCurrentBuilding(nearbyBuilding.id);
+          navigation.navigate('Building');
+          return;
+        }
+      }
+
       const nextZoneId = nextIsland?.id ?? null;
       if (nextZoneId !== lastZoneIdRef.current) {
         lastZoneIdRef.current = nextZoneId;
@@ -282,6 +300,25 @@ export default function MapScreen({ navigation }: Props) {
                 <Text style={styles.islandName}>{island.name}</Text>
               </View>
             ))}
+
+            {BUILDINGS.map((building) => {
+              const islandPos = ISLANDS[building.islandId].position;
+              const pos = buildingWorldPosition(building, islandPos);
+              return (
+                <View
+                  key={building.id}
+                  style={[
+                    styles.building,
+                    {
+                      left: pos.x - BUILDING_SIZE / 2,
+                      top: pos.y - BUILDING_SIZE / 2,
+                    },
+                  ]}
+                >
+                  <Text style={styles.buildingEmoji}>{building.emoji}</Text>
+                </View>
+              );
+            })}
           </View>
         )}
 
@@ -411,6 +448,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 4,
     textAlign: 'center',
+  },
+  building: {
+    position: 'absolute',
+    width: BUILDING_SIZE,
+    height: BUILDING_SIZE,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#f4e9cd',
+  },
+  buildingEmoji: {
+    fontSize: 24,
   },
   player: {
     position: 'absolute',

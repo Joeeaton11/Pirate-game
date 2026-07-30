@@ -20,6 +20,8 @@ interface GameState {
   hasHydrated: boolean;
   wildEncounter: WildEncounter | null;
   heat: number;
+  currentBuildingId: string | null;
+  hiredBuildingIds: string[];
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -32,6 +34,8 @@ interface GameState {
   healAllCrew: () => void;
   addHeat: (amount: number) => void;
   setHeat: (value: number) => void;
+  setCurrentBuilding: (buildingId: string | null) => void;
+  hireFromBuilding: (buildingId: string, templateId: string, level: number, cost: number) => boolean;
   setHasHydrated: (value: boolean) => void;
 }
 
@@ -47,6 +51,8 @@ export const useGameStore = create<GameState>()(
       hasHydrated: false,
       wildEncounter: null,
       heat: 0,
+      currentBuildingId: null,
+      hiredBuildingIds: [],
 
       setWildEncounter: (encounter) => set({ wildEncounter: encounter }),
 
@@ -126,6 +132,23 @@ export const useGameStore = create<GameState>()(
 
       setHeat: (value) => set({ heat: Math.min(100, Math.max(0, value)) }),
 
+      setCurrentBuilding: (buildingId) => set({ currentBuildingId: buildingId }),
+
+      hireFromBuilding: (buildingId, templateId, level, cost) => {
+        const state = get();
+        if (state.hiredBuildingIds.includes(buildingId) || state.gold < cost) {
+          return false;
+        }
+        const newMember = createOwnedCrewMember(templateId, level);
+        set({
+          gold: state.gold - cost,
+          crew: [...state.crew, newMember],
+          activeCrewId: state.activeCrewId ?? newMember.instanceId,
+          hiredBuildingIds: [...state.hiredBuildingIds, buildingId],
+        });
+        return true;
+      },
+
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
@@ -136,6 +159,7 @@ export const useGameStore = create<GameState>()(
         crew: state.crew,
         activeCrewId: state.activeCrewId,
         heat: state.heat,
+        hiredBuildingIds: state.hiredBuildingIds,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
