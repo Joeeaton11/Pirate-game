@@ -7,4 +7,5 @@ export type RootStackParamList = {
   Quests: undefined;
   CrewLog: undefined;
   Debug: undefined;
+  SideQuest: undefined;
 };

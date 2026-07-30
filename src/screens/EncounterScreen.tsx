@@ -6,6 +6,7 @@ import { CREW_TEMPLATES } from '../data/crew';
 import { ITEM_LIST, ITEMS } from '../data/items';
 import { MOVES } from '../data/moves';
 import { PIRATE_LORDS, PIRATE_LORD_TEMPLATES } from '../data/pirateLords';
+import { BOUNTY_TEMPLATES, SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
 import { EncounterFaction, useActiveCrewMember, useGameStore } from '../store/gameStore';
@@ -22,12 +23,18 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Encounter'>;
 
 type Phase = 'battling' | 'victory' | 'defeat' | 'fled' | 'recruited';
 
-const ALL_TEMPLATES = { ...CREW_TEMPLATES, ...THREAT_TEMPLATES, ...PIRATE_LORD_TEMPLATES };
+const ALL_TEMPLATES = {
+  ...CREW_TEMPLATES,
+  ...THREAT_TEMPLATES,
+  ...PIRATE_LORD_TEMPLATES,
+  ...BOUNTY_TEMPLATES,
+};
 
 function openingLine(faction: EncounterFaction | undefined): string {
   if (faction === 'rival') return 'A rival pirate crew ambushes you!';
   if (faction === 'navy') return "Navy patrol closes in — you're a wanted pirate!";
   if (faction === 'lord') return 'The duel for a Letter of Marque begins!';
+  if (faction === 'bounty') return 'You track down your bounty target!';
   return 'A wild pirate blocks your path!';
 }
 
@@ -54,6 +61,7 @@ export default function EncounterScreen({ navigation }: Props) {
   const consumeItem = useGameStore((s) => s.consumeItem);
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const defeatPirateLord = useGameStore((s) => s.defeatPirateLord);
+  const completeSideQuest = useGameStore((s) => s.completeSideQuest);
   const markSeen = useGameStore((s) => s.markSeen);
   const crew = useGameStore((s) => s.crew);
   const shipCrewIds = useGameStore((s) => s.shipCrewIds);
@@ -232,10 +240,14 @@ export default function EncounterScreen({ navigation }: Props) {
     if (newWildHp <= 0) {
       const reward = xpRewardFor(encounter.templateId, encounter.level, wildTemplate);
       const isLordFight = encounter.faction === 'lord';
-      const goldReward = isLordFight ? 50 + encounter.level * 5 : 5 + encounter.level * 2;
+      const bountyQuest =
+        encounter.faction === 'bounty' && encounter.questId
+          ? SIDE_QUESTS.find((q) => q.id === encounter.questId)
+          : undefined;
       const promotedTo = gainXp(crewMember.instanceId, reward);
-      addGold(goldReward);
       if (isLordFight) {
+        const goldReward = 50 + encounter.level * 5;
+        addGold(goldReward);
         const lord = PIRATE_LORDS.find((l) => l.id === encounter.templateId);
         defeatPirateLord(encounter.templateId);
         appendLog(
@@ -243,7 +255,14 @@ export default function EncounterScreen({ navigation }: Props) {
             lord?.badgeName ?? 'marque'
           } is yours!`
         );
+      } else if (bountyQuest) {
+        completeSideQuest(bountyQuest.id, bountyQuest.goldReward);
+        appendLog(
+          `${wildTemplate.name} is defeated! +${reward} XP, +${bountyQuest.goldReward} gold. Bounty claimed!`
+        );
       } else {
+        const goldReward = 5 + encounter.level * 2;
+        addGold(goldReward);
         appendLog(`${wildTemplate.name} is defeated! +${reward} XP, +${goldReward} gold.`);
         addHeat(encounter.faction === 'navy' ? 6 : encounter.faction === 'rival' ? 4 : 2);
       }
@@ -347,6 +366,8 @@ export default function EncounterScreen({ navigation }: Props) {
               ? '⚜️ NAVY AMBUSH'
               : encounter.faction === 'lord'
               ? '🏆 LETTER OF MARQUE DUEL'
+              : encounter.faction === 'bounty'
+              ? '📜 BOUNTY HUNT'
               : '☠️ RIVAL AMBUSH'}
           </Text>
         </View>

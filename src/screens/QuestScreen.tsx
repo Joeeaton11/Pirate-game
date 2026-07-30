@@ -1,9 +1,10 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ISLANDS } from '../data/islands';
 import { isLordUnlocked, PIRATE_LORDS, PirateLord } from '../data/pirateLords';
+import { SIDE_QUESTS, SideQuest } from '../data/sideQuests';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
@@ -11,10 +12,12 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Quests'>;
 
 export default function QuestScreen({ navigation }: Props) {
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
+  const acceptedQuestIds = useGameStore((s) => s.acceptedQuestIds);
+  const completedQuestIds = useGameStore((s) => s.completedQuestIds);
   const sortedLords = [...PIRATE_LORDS].sort((a, b) => a.order - b.order);
   const allDefeated = defeatedLordIds.length === PIRATE_LORDS.length;
 
-  function renderItem({ item: lord }: { item: PirateLord }) {
+  function renderLordCard(lord: PirateLord) {
     const isDefeated = defeatedLordIds.includes(lord.id);
     const isUnlocked = isLordUnlocked(lord, defeatedLordIds);
     const island = ISLANDS[lord.islandId];
@@ -22,7 +25,7 @@ export default function QuestScreen({ navigation }: Props) {
     const statusColor = isDefeated ? '#4caf50' : isUnlocked ? '#ffd166' : '#777';
 
     return (
-      <View style={[styles.card, isDefeated && styles.cardDefeated]}>
+      <View key={lord.id} style={[styles.card, isDefeated && styles.cardDefeated]}>
         <Text style={styles.emoji}>{lord.emoji}</Text>
         <View style={styles.info}>
           <Text style={styles.name}>
@@ -30,6 +33,29 @@ export default function QuestScreen({ navigation }: Props) {
           </Text>
           <Text style={styles.subtext}>
             {lord.title} · {island.name} · Lv.{lord.level}
+          </Text>
+          <Text style={[styles.status, { color: statusColor }]}>{status}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  function renderQuestCard(quest: SideQuest) {
+    const isCompleted = completedQuestIds.includes(quest.id);
+    const isAccepted = acceptedQuestIds.includes(quest.id);
+    const island = ISLANDS[quest.islandId];
+    const status = isCompleted ? 'Completed' : isAccepted ? 'Accepted' : 'Available';
+    const statusColor = isCompleted ? '#4caf50' : isAccepted ? '#ff8c42' : '#ffd166';
+    const typeLabel =
+      quest.type === 'bounty' ? 'Bounty' : quest.type === 'fetch' ? 'Fetch' : 'Specialty';
+
+    return (
+      <View key={quest.id} style={[styles.card, isCompleted && styles.cardDefeated]}>
+        <Text style={styles.emoji}>{quest.npcEmoji}</Text>
+        <View style={styles.info}>
+          <Text style={styles.name}>{quest.title}</Text>
+          <Text style={styles.subtext}>
+            {typeLabel} · {island.name} · {quest.goldReward} gold
           </Text>
           <Text style={[styles.status, { color: statusColor }]}>{status}</Text>
         </View>
@@ -52,12 +78,14 @@ export default function QuestScreen({ navigation }: Props) {
           </Text>
         </View>
       )}
-      <FlatList
-        data={sortedLords}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-      />
+      <ScrollView contentContainerStyle={styles.listContent}>
+        {sortedLords.map(renderLordCard)}
+
+        <Text style={styles.sectionHeading}>
+          Side Quests ({completedQuestIds.length}/{SIDE_QUESTS.length})
+        </Text>
+        {SIDE_QUESTS.map(renderQuestCard)}
+      </ScrollView>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>Back to Map</Text>
       </Pressable>
@@ -86,6 +114,7 @@ const styles = StyleSheet.create({
   },
   completeBannerText: { color: '#ffd166', fontWeight: '700', textAlign: 'center' },
   listContent: { paddingHorizontal: 12, paddingBottom: 12, gap: 10 },
+  sectionHeading: { color: '#ffd166', fontWeight: '800', fontSize: 14, marginTop: 8 },
   card: {
     flexDirection: 'row',
     backgroundColor: '#124d73',

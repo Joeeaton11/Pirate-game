@@ -177,14 +177,19 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ## Quests & Main Story
 - ✅ Main questline spine: the 5 sequential Pirate Lord fights above now give the world a goal
   structure the way Pokémon's Gym order does. This is the "direction" the game was missing
-- ⬜ Side quests per island (bounties, fetch/deliver, escort, resource-gathering) — this is where
-  "specific skills gate specific quests" lives: a quest needs a Navigator-type crew member to
-  complete, forcing you to go recruit one
-- ✅ Quest log / journal UI (the new Quests screen) — currently only tracks Pirate Lord progress;
-  will need to expand once side quests exist
-- ⬜ **v1 build slice**: one bounty quest, one fetch quest, and one specialty-gated quest, wired
-  into the existing Quest Log screen — proves the side-quest pattern end-to-end before expanding
-  to the fuller concept/style list below
+- ✅ **v1 side quests**: one bounty quest (Cull the Marsh Viper — confront and defeat a named
+  bounty target in battle, faction `bounty`: no permadeath, no recruiting the target, flee
+  allowed), one fetch quest (A Toast for the Fallen — deliver a General Store item), and one
+  specialty-gated quest (The Locked Vault — needs a Cannon-type crew member **onboard the ship**,
+  not just anywhere in the roster, to fulfill). Quest givers are walk-up map markers (📜, same
+  proximity-trigger pattern as buildings/forts) with a new SideQuest screen for the
+  accept/progress/complete dialogue flow. Proves the "specific skills gate specific quests"
+  pillar end-to-end
+- ⬜ More side quests per island (escort, resource-gathering, and the rest of the brainstormed
+  concepts/styles above) — the v1 pattern (data file + store accept/complete tracking + map
+  marker + SideQuest screen) is now proven and ready to extend
+- ✅ Quest log / journal UI (the new Quests screen) now lists both Pirate Lord progress and side
+  quests with Available/Accepted/Completed status
 
 ### Side Quest Concepts (brainstormed)
 - ⬜ **Smuggling runs** — timed delivery of contraband cargo; a navy patrol encounter en route adds
@@ -317,23 +322,25 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 7. ✅ **Party cap + Crew Quarters (PC-box equivalent)** — 6-crew onboard cap, overflow auto-benched
    to Crew Quarters, Send to Quarters / Bring Aboard in the Crew screen, mid-battle switch limited
    to onboard crew, auto-refill from Quarters if the whole onboard party is wiped by permadeath
+8. ✅ **v1 side quests** — one bounty, one fetch, one specialty-gated quest, proving the
+   data-file + store-tracking + map-marker + dedicated-screen pattern end-to-end
 
 ### Now (next up)
-8. **Side quests + resource gathering** — bounties/fetch/escort per island, gatherable materials
-   (fish/timber/rum/gunpowder) distinct from gold; this is the "specific skills gate specific
-   quests" vision item and the biggest open gap in actual playable content
+9. **Expand side quests + add resource gathering** — more quests from the brainstormed
+   concepts/styles list (escort, timed race, recurring board quest, etc.) using the now-proven v1
+   pattern, plus gatherable materials (fish/timber/rum/gunpowder) distinct from gold
 
 ### Next
-9. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
-   direct walk-in-and-fight with no lead-up layer
-10. **Ship upgrades as soft gates + reputation-gated ports** — the traversal-gating system the
+10. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+    direct walk-in-and-fight with no lead-up layer
+11. **Ship upgrades as soft gates + reputation-gated ports** — the traversal-gating system the
     open world currently lacks entirely
-11. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
+12. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
     the 5 Lords have side-quest content built around them
 
 ### Later
-12. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+13. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template)
-13. **GTA-style character switching** (biggest, most novel, probably last)
+14. **GTA-style character switching** (biggest, most novel, probably last)
 14. Automated test suite, IAP integration, real art asset pipeline, onboarding tutorial —
     pre-launch/production concerns rather than gameplay-loop gaps

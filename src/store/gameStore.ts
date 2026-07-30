@@ -6,13 +6,14 @@ import { promotionFor, resolvePromotion } from '../data/promotions';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
-export type EncounterFaction = 'wild' | 'rival' | 'navy' | 'lord';
+export type EncounterFaction = 'wild' | 'rival' | 'navy' | 'lord' | 'bounty';
 
 export interface WildEncounter {
   templateId: string;
   level: number;
   currentHp: number;
   faction: EncounterFaction;
+  questId?: string;
 }
 
 export const SHIP_CREW_CAP = 6;
@@ -32,6 +33,9 @@ interface GameState {
   defeatedLordIds: string[];
   seenTemplateIds: string[];
   recruitedTemplateIds: string[];
+  currentSideQuestId: string | null;
+  acceptedQuestIds: string[];
+  completedQuestIds: string[];
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -58,6 +62,9 @@ interface GameState {
   setCurrentPirateLord: (lordId: string | null) => void;
   defeatPirateLord: (lordId: string) => void;
   markSeen: (templateId: string) => void;
+  setCurrentSideQuest: (questId: string | null) => void;
+  acceptSideQuest: (questId: string) => void;
+  completeSideQuest: (questId: string, goldReward: number) => void;
   debugSetCrewLevel: (instanceId: string, level: number) => void;
   debugResetSave: () => void;
   setHasHydrated: (value: boolean) => void;
@@ -80,6 +87,9 @@ type InitialState = Pick<
   | 'defeatedLordIds'
   | 'seenTemplateIds'
   | 'recruitedTemplateIds'
+  | 'currentSideQuestId'
+  | 'acceptedQuestIds'
+  | 'completedQuestIds'
 >;
 
 function createInitialState(): InitialState {
@@ -98,6 +108,9 @@ function createInitialState(): InitialState {
     defeatedLordIds: [],
     seenTemplateIds: [STARTER_TEMPLATE_ID],
     recruitedTemplateIds: [STARTER_TEMPLATE_ID],
+    currentSideQuestId: null,
+    acceptedQuestIds: [],
+    completedQuestIds: [],
   };
 }
 
@@ -311,6 +324,25 @@ export const useGameStore = create<GameState>()(
             : { seenTemplateIds: [...state.seenTemplateIds, templateId] }
         ),
 
+      setCurrentSideQuest: (questId) => set({ currentSideQuestId: questId }),
+
+      acceptSideQuest: (questId) =>
+        set((state) =>
+          state.acceptedQuestIds.includes(questId)
+            ? state
+            : { acceptedQuestIds: [...state.acceptedQuestIds, questId] }
+        ),
+
+      completeSideQuest: (questId, goldReward) =>
+        set((state) =>
+          state.completedQuestIds.includes(questId)
+            ? state
+            : {
+                completedQuestIds: [...state.completedQuestIds, questId],
+                gold: state.gold + goldReward,
+              }
+        ),
+
       debugSetCrewLevel: (instanceId, level) => {
         const state = get();
         let promotedTo: string | null = null;
@@ -353,6 +385,8 @@ export const useGameStore = create<GameState>()(
         defeatedLordIds: state.defeatedLordIds,
         seenTemplateIds: state.seenTemplateIds,
         recruitedTemplateIds: state.recruitedTemplateIds,
+        acceptedQuestIds: state.acceptedQuestIds,
+        completedQuestIds: state.completedQuestIds,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

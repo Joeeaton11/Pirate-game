@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATE_LIST } from '../data/crew';
 import { PIRATE_LORDS } from '../data/pirateLords';
+import { SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
 import { useActiveCrewMember, useGameStore } from '../store/gameStore';
@@ -25,6 +26,7 @@ export default function DebugScreen({ navigation }: Props) {
   const healAllCrew = useGameStore((s) => s.healAllCrew);
   const setWildEncounter = useGameStore((s) => s.setWildEncounter);
   const setCurrentPirateLord = useGameStore((s) => s.setCurrentPirateLord);
+  const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
 
   function forceEncounter(
     templateId: string,
@@ -58,6 +60,11 @@ export default function DebugScreen({ navigation }: Props) {
   function handleJumpToFort(lordId: string) {
     setCurrentPirateLord(lordId);
     navigation.navigate('PirateLord');
+  }
+
+  function handleJumpToQuest(questId: string) {
+    setCurrentSideQuest(questId);
+    navigation.navigate('SideQuest');
   }
 
   function handleReset() {
@@ -132,6 +139,15 @@ export default function DebugScreen({ navigation }: Props) {
               <Text style={styles.buttonText}>
                 {lord.order}. {lord.name}
               </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Text style={styles.sectionHeading}>Jump to Side Quest</Text>
+        <View style={styles.row}>
+          {SIDE_QUESTS.map((quest) => (
+            <Pressable key={quest.id} style={styles.button} onPress={() => handleJumpToQuest(quest.id)}>
+              <Text style={styles.buttonText}>{quest.title}</Text>
             </Pressable>
           ))}
         </View>

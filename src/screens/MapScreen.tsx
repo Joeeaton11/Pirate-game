@@ -22,6 +22,7 @@ import {
   pirateLordForIsland,
   pirateLordWorldPosition,
 } from '../data/pirateLords';
+import { SIDE_QUESTS, sideQuestWorldPosition } from '../data/sideQuests';
 import {
   THREAT_TEMPLATES,
   ThreatFaction,
@@ -69,6 +70,9 @@ export default function MapScreen({ navigation }: Props) {
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const setCurrentPirateLord = useGameStore((s) => s.setCurrentPirateLord);
+  const acceptedQuestIds = useGameStore((s) => s.acceptedQuestIds);
+  const completedQuestIds = useGameStore((s) => s.completedQuestIds);
+  const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const playerRef = useRef(player);
@@ -185,6 +189,15 @@ export default function MapScreen({ navigation }: Props) {
     return Math.hypot(pos.x - lp.x, pos.y - lp.y) <= ENTER_RADIUS ? lp : null;
   }
 
+  function nearbySideQuestPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
+    const quest = SIDE_QUESTS.find((q) => {
+      if (q.islandId !== island.id) return false;
+      const qp = sideQuestWorldPosition(q, island.position);
+      return Math.hypot(pos.x - qp.x, pos.y - qp.y) <= ENTER_RADIUS;
+    });
+    return quest ? sideQuestWorldPosition(quest, island.position) : null;
+  }
+
   useEffect(() => {
     if (!isFocused) return;
 
@@ -194,7 +207,8 @@ export default function MapScreen({ navigation }: Props) {
     const pos = playerRef.current;
     const island = islandAtPoint(pos);
     if (island) {
-      const nearbyPos = nearbyBuildingPos(pos, island) ?? nearbyLordPos(pos, island);
+      const nearbyPos =
+        nearbyBuildingPos(pos, island) ?? nearbyLordPos(pos, island) ?? nearbySideQuestPos(pos, island);
       if (nearbyPos) {
         const bp = nearbyPos;
         let dx = pos.x - bp.x;
@@ -252,6 +266,18 @@ export default function MapScreen({ navigation }: Props) {
             navigation.navigate('PirateLord');
             return;
           }
+        }
+
+        const nearbyQuest = SIDE_QUESTS.find((q) => {
+          if (q.islandId !== nextIsland.id) return false;
+          const qp = sideQuestWorldPosition(q, nextIsland.position);
+          return Math.hypot(nextPosition.x - qp.x, nextPosition.y - qp.y) <= ENTER_RADIUS;
+        });
+        if (nearbyQuest) {
+          directionRef.current = null;
+          setCurrentSideQuest(nearbyQuest.id);
+          navigation.navigate('SideQuest');
+          return;
         }
       }
 
@@ -392,6 +418,33 @@ export default function MapScreen({ navigation }: Props) {
                   ]}
                 >
                   <Text style={styles.buildingEmoji}>{building.emoji}</Text>
+                </View>
+              );
+            })}
+
+            {SIDE_QUESTS.map((quest) => {
+              const islandPos = ISLANDS[quest.islandId].position;
+              const pos = sideQuestWorldPosition(quest, islandPos);
+              const isCompleted = completedQuestIds.includes(quest.id);
+              const isAccepted = acceptedQuestIds.includes(quest.id);
+              const questStyle = isCompleted
+                ? styles.questMarkerDone
+                : isAccepted
+                ? styles.questMarkerAccepted
+                : styles.questMarkerAvailable;
+              return (
+                <View
+                  key={quest.id}
+                  style={[
+                    styles.building,
+                    questStyle,
+                    {
+                      left: pos.x - BUILDING_SIZE / 2,
+                      top: pos.y - BUILDING_SIZE / 2,
+                    },
+                  ]}
+                >
+                  <Text style={styles.buildingEmoji}>📜</Text>
                 </View>
               );
             })}
@@ -589,6 +642,16 @@ const styles = StyleSheet.create({
   },
   buildingEmoji: {
     fontSize: 24,
+  },
+  questMarkerAvailable: {
+    borderColor: '#ffd166',
+  },
+  questMarkerAccepted: {
+    borderColor: '#ff8c42',
+  },
+  questMarkerDone: {
+    borderColor: '#4caf50',
+    opacity: 0.6,
   },
   fort: {
     position: 'absolute',
