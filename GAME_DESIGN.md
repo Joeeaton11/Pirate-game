@@ -18,19 +18,48 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - 🔄 Currently fully open with no gating at all — Pokémon's world *feels* open but is actually
   gated hard by HMs/Badges. We have zero equivalent gating yet, which makes "danger scales with
   distance from home" the only progression signal. Needs:
-  - ⬜ **Ship upgrades as soft gates** (Sea equivalent of HMs): can't survive Serpent's Maw's
+  - ⬜ **Ship upgrades as soft gates** (Sea equivalent of HMs): can't survive Île Sainte-Marie's
     waters without a "Reinforced Hull," can't outrun Navy patrols without a "Swift Rigging," can't
     dive for underwater ruins without a "Diving Bell," etc.
   - ⬜ **Reputation-gated ports**: some islands refuse to let you dock/enter buildings until you
     hold a certain Letter of Marque tier (see Progression below), mirroring Badges gating HM use
-- ⬜ More islands over time (currently 6); each should get a distinct identity like Pokémon's
-  per-city gimmick (a fog cave, a plantation island, a colonial capital, a pirate-controlled black
-  market island, a naval fortress island)
+- ✅ **DECIDED: real 17th/18th-century pirate locations, not invented islands.** Each of the 6
+  current islands is a real Golden Age of Piracy location, chosen because its real history already
+  supplies a distinct per-island identity/gimmick (Pokémon's per-city-gimmick equivalent) that
+  matches mechanics already built or already planned, rather than needing an invented hook. See
+  the **Island Layout** subsection below for the full list and rationale. Supernatural elements
+  (curses, krakens, ghosts) are kept as a folklore layer on top of real places — period sailor lore
+  genuinely included ghost ships and sea monsters, so this isn't a contradiction
+- ⬜ More islands over time beyond the current 6 + endgame zone — candidates already scouted:
+  Cartagena/Havana/Panama/Maracaibo (raid-heist content), Bermuda (supernatural side zone, real
+  "Isle of Devils" nickname), the Whydah wreck site off Cape Cod (shipwreck-salvage dive quest),
+  Bath NC (real site of Blackbeard's pardon — a narrative hook for the Letter-of-Pardon monetization
+  idea below)
 - ⬜ A "Safari Zone" equivalent: a paid-entry, limited-turns treasure island with exclusive rare
   crew/resources and its own catch-without-battle mechanic (e.g., pay coin to attempt recruitment
   via a persuasion mini-game instead of combat)
-- ⬜ A post-game superboss zone (Cerulean Cave equivalent): unlocked only after finishing the main
-  quest, home to a "Kraken" or legendary pirate-ghost final superboss
+- ✅ A post-game superboss zone (Cerulean Cave equivalent) is now planned at **Ocracoke Inlet**
+  (Blackbeard's real base and death site) — see Island Layout below
+
+### Island Layout (real locations, chosen 2026-07-30)
+- ✅ **Tortuga** *(home port, unchanged)* — the real historical pirate free port. Stays the safe
+  zone / bounty board home
+- ✅ **Cow Island (Île à Vache)** — Order 1 Pirate Lord, Blade, Lv.6. A real fleet-muster point
+  where green crews assembled before Henry Morgan's raids — a natural "cut your teeth" starting
+  zone
+- ✅ **New Providence (Nassau)** — Order 2 Pirate Lord, Musket, Lv.9. The real pirate-run republic
+  (no crown authority) — gunfights and taverns, fits the musket specialty better than an invented
+  island could
+- ✅ **Roatán (Bay Islands)** — Order 3 Pirate Lord, Cannon, Lv.12. A real careening/ship-repair
+  site — literally a shipyard, which is why the Cannon-specialty-gated side quest lives here
+- ✅ **Port Royal** — Order 4 Pirate Lord, Curse, Lv.15. Sank into the sea in a real 1692
+  earthquake — the existing "Drowned Widow" lord and her drowned/ghost lore needed almost no
+  rewriting, since the real history already matched the invented fiction
+- ✅ **Île Sainte-Marie** — Order 5 Pirate Lord (final), Curse, Lv.20. The real remote pirate haven
+  tied to the Libertalia legend — the hardest, most exotic challenge before the endgame
+- ✅ **Ocracoke Inlet** *(endgame, not yet built)* — Blackbeard's actual base and death site.
+  Planned home for the Pirate Council/final-superboss content and a natural convergence point for
+  the still-unbuilt recurring named rival captain arc
 
 ## Movement & Exploration
 - ✅ **Deliberately not grid-based** — this is our biggest intentional divergence from Pokémon.
@@ -177,15 +206,15 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ## Quests & Main Story
 - ✅ Main questline spine: the 5 sequential Pirate Lord fights above now give the world a goal
   structure the way Pokémon's Gym order does. This is the "direction" the game was missing
-- ✅ **v1 side quests**: one bounty quest (Cull the Marsh Viper — confront and defeat a named
-  bounty target in battle, faction `bounty`: no permadeath, no recruiting the target, flee
-  allowed), one fetch quest (A Toast for the Fallen — deliver a General Store item), and one
-  specialty-gated quest (The Locked Vault — needs a Cannon-type crew member **onboard the ship**,
-  not just anywhere in the roster, to fulfill). Quest givers are walk-up map markers (📜, same
-  proximity-trigger pattern as buildings/forts) with a new SideQuest screen for the
-  accept/progress/complete dialogue flow. Proves the "specific skills gate specific quests"
-  pillar end-to-end
-- ✅ **Escort quest** (Escort the Merchant Convoy, Widow's Reef): a back-to-back wave gauntlet
+- ✅ **v1 side quests**: one bounty quest (Cull the Cattle Rustler, Cow Island — confront and
+  defeat a named bounty target in battle, faction `bounty`: no permadeath, no recruiting the
+  target, flee allowed), one fetch quest (A Toast for the Fallen, New Providence — deliver a
+  General Store item), and one specialty-gated quest (The Locked Vault, Roatán — needs a
+  Cannon-type crew member **onboard the ship**, not just anywhere in the roster, to fulfill).
+  Quest givers are walk-up map markers (📜, same proximity-trigger pattern as buildings/forts)
+  with a new SideQuest screen for the accept/progress/complete dialogue flow. Proves the
+  "specific skills gate specific quests" pillar end-to-end
+- ✅ **Escort quest** (Escort the Merchant Convoy, Port Royal): a back-to-back wave gauntlet
   (2 waves, no healing between) — confront-per-wave via the same `bounty` encounter faction,
   progress tracked in `questWaveProgress`, only completes (and pays out) after the final wave;
   losing a wave doesn't reset progress, just retries that wave
