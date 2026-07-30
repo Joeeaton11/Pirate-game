@@ -133,17 +133,24 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   fixed story beats
 
 ## Evolution equivalent (Promotions)
-- 🔄 Currently every crew template is a flat, standalone "species" — no growth *line*. Pokémon's
-  evolution hook (a Cabin Hand becoming something visibly better) is one of its most satisfying
-  loops and we're not using it yet
-- ⬜ Restructure common templates into promotion lines: Cabin Hand (lvl 1-9) → Deckhand Swordsman
-  (lvl 10+) → Boarding Captain (lvl 20+ or via item) → a rare named endpoint
-- ⬜ Stone equivalent: consumable items ("Captain's Commission," "Cursed Rum," "Letter of Marque")
-  that force-promote a crew member outside the normal level path
+- ✅ Level-based promotion lines built from the existing specialty/rarity tiers: **blade**
+  (Deckhand Swordsman → Boarding Captain at Lv.10 → Duelist First Mate at Lv.20), **cannon**
+  (Powder Monkey → Gun Deck Veteran at Lv.10 → Master Gunner at Lv.20), **musket** (Dockside
+  Sharpshooter → Musketeer Marksman at Lv.10), **brawler** (Cabin Hand → Tavern Brawler at
+  Lv.10), **curse** (Cursed Bosun → Kraken-Bound Captain at Lv.30). Mixed 2/3-stage lines,
+  matching real Pokémon evolution families
+- ✅ Promoting swaps templateId + nickname, carries HP forward by the max-HP delta (not reset,
+  same continuity Pokémon uses on evolution), and picks up the new template's moves and stats
+  automatically since both are looked up live from the template rather than stored per-instance
+- ✅ Promoting into a new species marks it seen + recruited in the Crew Log, same as catching it
+  directly
+- ✅ A Pokémon-style log line on the battle screen ("X is promoted to Y!") when it happens
+- ⬜ Stone equivalent: consumable items that force-promote a crew member outside the normal level
+  path — not built
 - ⬜ Trade-evolution equivalent (no multiplayer trading, so reskin it): certain elite crew only
   promote after you **duel and beat a specific named rival captain while that crew member is
   active** — mirrors the "prove it to someone else" flavor of trade evolution without needing a
-  second cartridge
+  second cartridge. Not built
 
 ## Permadeath & Threat System (no Pokémon equivalent — our differentiator)
 - ✅ Heat/wanted meter, rival ambushes, navy ambushes once heat crosses a threshold
@@ -233,8 +240,8 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 2. ✅ **Main quest spine + Pirate Lords (Gym/Badge equivalent)** — done: 5 sequential named boss
    forts, Letters of Marque with a permanent stat boost, Quest Log screen
 3. ✅ **Crew Log (Pokédex equivalent)** — done: unseen/seen/recruited states, completion counter
-4. **Promotions (evolution equivalent)** — medium, makes leveling feel like Pokémon instead of a
-   flat number-go-up
+4. ✅ **Promotions (evolution equivalent)** — done: level-based promotion lines across all 5
+   specialties, HP/moves/stats carry over automatically, Crew Log + battle log integration
 5. Side quests + resource gathering, island "puzzle" gauntlets before each Pirate Lord
 6. Pirate Council + final superboss (Elite Four/Champion equivalent) — natural finale once the
    5 Lords have side-quest content built around them

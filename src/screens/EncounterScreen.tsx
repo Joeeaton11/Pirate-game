@@ -200,7 +200,7 @@ export default function EncounterScreen({ navigation }: Props) {
       const reward = xpRewardFor(encounter.templateId, encounter.level, wildTemplate);
       const isLordFight = encounter.faction === 'lord';
       const goldReward = isLordFight ? 50 + encounter.level * 5 : 5 + encounter.level * 2;
-      gainXp(crewMember.instanceId, reward);
+      const promotedTo = gainXp(crewMember.instanceId, reward);
       addGold(goldReward);
       if (isLordFight) {
         const lord = PIRATE_LORDS.find((l) => l.id === encounter.templateId);
@@ -213,6 +213,9 @@ export default function EncounterScreen({ navigation }: Props) {
       } else {
         appendLog(`${wildTemplate.name} is defeated! +${reward} XP, +${goldReward} gold.`);
         addHeat(encounter.faction === 'navy' ? 6 : encounter.faction === 'rival' ? 4 : 2);
+      }
+      if (promotedTo) {
+        appendLog(`${crewMember.nickname} is promoted to ${CREW_TEMPLATES[promotedTo].name}!`);
       }
       endBattle('victory');
       setBusy(false);

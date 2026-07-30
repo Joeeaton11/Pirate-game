@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { CREW_TEMPLATES } from '../data/crew';
+import { promotionFor } from '../data/promotions';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
@@ -34,7 +36,7 @@ interface GameState {
   removeCrewMember: (instanceId: string) => boolean;
   setActiveCrew: (instanceId: string) => void;
   setCrewHp: (instanceId: string, hp: number) => void;
-  gainXp: (instanceId: string, amount: number) => void;
+  gainXp: (instanceId: string, amount: number) => string | null;
   addGold: (amount: number) => void;
   healAllCrew: () => void;
   addHeat: (amount: number) => void;
@@ -129,23 +131,44 @@ export const useGameStore = create<GameState>()(
           ),
         })),
 
-      gainXp: (instanceId, amount) =>
-        set((state) => ({
-          crew: state.crew.map((member) => {
-            if (member.instanceId !== instanceId) return member;
-            let level = member.level;
-            let xp = member.xp + amount;
-            let currentHp = member.currentHp;
-            while (xp >= xpToNextLevel(level)) {
-              xp -= xpToNextLevel(level);
-              const prevMaxHp = maxHpFor({ ...member, level });
-              level += 1;
-              const newMaxHp = maxHpFor({ ...member, level });
-              currentHp = Math.min(newMaxHp, currentHp + (newMaxHp - prevMaxHp));
+      gainXp: (instanceId, amount) => {
+        const state = get();
+        let promotedTo: string | null = null;
+        const crew = state.crew.map((member) => {
+          if (member.instanceId !== instanceId) return member;
+          let level = member.level;
+          let xp = member.xp + amount;
+          let currentHp = member.currentHp;
+          let templateId = member.templateId;
+          let nickname = member.nickname;
+          while (xp >= xpToNextLevel(level)) {
+            xp -= xpToNextLevel(level);
+            const prevMaxHp = maxHpFor({ ...member, level, templateId });
+            level += 1;
+            const promo = promotionFor(templateId);
+            if (promo && level >= promo.level) {
+              templateId = promo.nextTemplateId;
+              nickname = CREW_TEMPLATES[templateId].name;
+              promotedTo = templateId;
             }
-            return { ...member, level, xp, currentHp };
-          }),
-        })),
+            const newMaxHp = maxHpFor({ ...member, level, templateId });
+            currentHp = Math.min(newMaxHp, currentHp + (newMaxHp - prevMaxHp));
+          }
+          return { ...member, level, xp, currentHp, templateId, nickname };
+        });
+        set({
+          crew,
+          seenTemplateIds:
+            promotedTo && !state.seenTemplateIds.includes(promotedTo)
+              ? [...state.seenTemplateIds, promotedTo]
+              : state.seenTemplateIds,
+          recruitedTemplateIds:
+            promotedTo && !state.recruitedTemplateIds.includes(promotedTo)
+              ? [...state.recruitedTemplateIds, promotedTo]
+              : state.recruitedTemplateIds,
+        });
+        return promotedTo;
+      },
 
       addGold: (amount) => set((state) => ({ gold: Math.max(0, state.gold + amount) })),
 
