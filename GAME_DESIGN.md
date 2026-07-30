@@ -100,7 +100,10 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ✅ Roster list, active-member selection, HP/level/XP display
 - ✅ No hard party-size cap yet (Pokémon caps active party at 6, extra go to PC boxes)
 - ⬜ Should add a cap (e.g., 6 "on-ship" active crew) plus a **Crew Quarters / PC-box equivalent**
-  for overflow — ties in nicely with a future "ship capacity" upgrade system
+  for overflow — ties in nicely with a future "ship capacity" upgrade system. **Bumped priority**:
+  the Debug screen's forced-encounter shortcuts make it trivial to stack up a dozen-plus crew in
+  minutes, which will expose Crew screen/roster UI problems well before organic play would —
+  worth doing this before the roster list gets exercised much further
 - ⬜ Nicknaming crew members (Pokémon lets you rename any caught Pokémon)
 - ⬜ Per-crew-member move/skill loadout management screen (currently moves are fixed per template)
 
@@ -200,6 +203,22 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ Likely a lightweight, skippable, one-time flow rather than a forced walled tutorial, given the
   mobile audience
 
+## Testing & QA
+- ✅ **Dev debug panel**: a `__DEV__`-gated Debug screen (🛠 button on the Map, stripped from
+  production builds) for fast manual QA without grinding — jump any crew member to a level
+  (cascades promotions correctly), add gold, set heat, force a wild/rival/navy encounter, jump
+  straight to any Pirate Lord fort, heal the whole crew, or wipe the save back to a fresh start
+- ✅ **Convention**: features get verified in-browser (Expo web build, Playwright + Chromium)
+  before being called done, not just type-checked. Run the dev server with
+  `npx expo start --web --port 8081` — **not** `CI=1`, which disables Metro's file-watcher/cache
+  invalidation and serves stale bundles
+- ✅ For logic too RNG-fragile to reliably trigger through the UI (e.g. grinding a real crew member
+  to a specific level), an isolated script run via `npx tsx` that imports and exercises the real
+  exported functions directly is an acceptable substitute — used once for verifying promotions
+- ⬜ No automated test suite (unit or e2e) yet — everything above is manual, ad hoc, and doesn't
+  run in CI. Worth adding once the core loop stabilizes enough that regressions become a real risk
+  rather than a hypothetical one
+
 ## Tone & Content Rating — DECIDED: Moderate / Teen
 - ✅ Target Teen/PEGI 12. Permadeath framing is now: navy captures **press crew into naval
   service**, rivals **take crew prisoner** — permanent and stakes-carrying, but no execution
@@ -235,21 +254,41 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ---
 
 ## Suggested build order (biggest gaps first, matching what makes it "feel like Pokémon")
-1. ✅ **General Store + Item system** — done: Rum Ration, Grapeshot Charge, Forged Papers, buyable
+
+### Done
+1. ✅ **General Store + Item system** — Rum Ration, Grapeshot Charge, Forged Papers, buyable
    from shop buildings, usable in battle and (heal) from the Crew screen
-2. ✅ **Main quest spine + Pirate Lords (Gym/Badge equivalent)** — done: 5 sequential named boss
+2. ✅ **Main quest spine + Pirate Lords (Gym/Badge equivalent)** — 5 sequential named boss
    forts, Letters of Marque with a permanent stat boost, Quest Log screen
-3. ✅ **Crew Log (Pokédex equivalent)** — done: unseen/seen/recruited states, completion counter
-4. ✅ **Promotions (evolution equivalent)** — done: level-based promotion lines across all 5
+3. ✅ **Crew Log (Pokédex equivalent)** — unseen/seen/recruited states, completion counter
+4. ✅ **Promotions (evolution equivalent)** — level-based promotion lines across all 5
    specialties, HP/moves/stats carry over automatically, Crew Log + battle log integration
-5. ✅ **Dev debug/QA panel** — done: `__DEV__`-gated Debug screen reachable from a 🛠 button on the
+5. ✅ **Dev debug/QA panel** — `__DEV__`-gated Debug screen reachable from a 🛠 button on the
    Map, with level-jump, gold, heat, force-encounter (wild/rival/navy), jump-to-Pirate-Lord-fort,
    and reset-save shortcuts for fast manual testing without grinding
-6. ✅ **Mid-battle crew switch on faint** — done: fainting a crew member with a healthy bench member
+6. ✅ **Mid-battle crew switch on faint** — fainting a crew member with a healthy bench member
    available now prompts a switch instead of always ending the battle (permadeath still applies for
    navy/rival ambushes regardless — only the *battle outcome* changes, not the removal); battle only
    ends outright when no healthy crew member remains
-7. Side quests + resource gathering, island "puzzle" gauntlets before each Pirate Lord
-8. Pirate Council + final superboss (Elite Four/Champion equivalent) — natural finale once the
-   5 Lords have side-quest content built around them
-9. GTA-style character switching (biggest, most novel, probably last)
+
+### Now (next up)
+7. **Party cap + Crew Quarters (PC-box equivalent)** — bumped up from "Later": the debug panel
+   makes over-recruiting trivial and will surface roster UI problems sooner than expected
+8. **Side quests + resource gathering** — bounties/fetch/escort per island, gatherable materials
+   (fish/timber/rum/gunpowder) distinct from gold; this is the "specific skills gate specific
+   quests" vision item and the biggest open gap in actual playable content
+
+### Next
+9. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+   direct walk-in-and-fight with no lead-up layer
+10. **Ship upgrades as soft gates + reputation-gated ports** — the traversal-gating system the
+    open world currently lacks entirely
+11. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
+    the 5 Lords have side-quest content built around them
+
+### Later
+12. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+    hostile template)
+13. **GTA-style character switching** (biggest, most novel, probably last)
+14. Automated test suite, IAP integration, real art asset pipeline, onboarding tutorial —
+    pre-launch/production concerns rather than gameplay-loop gaps
