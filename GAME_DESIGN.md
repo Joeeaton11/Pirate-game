@@ -133,8 +133,9 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 
 ## Permadeath & Threat System (no Pokémon equivalent — our differentiator)
 - ✅ Heat/wanted meter, rival ambushes, navy ambushes once heat crosses a threshold
-- ✅ Permanent crew loss on ambush defeat (arrested/hanged or killed), with gold seizure + heat
-  reset on capture
+- ✅ Permanent crew loss on ambush defeat (pressed into naval service, or taken prisoner by
+  rivals — Moderate/Teen framing, not explicit execution), with gold seizure + heat reset on
+  capture
 - ✅ Roster-wipe rescue (free cabin hand) so players are never permanently soft-locked
 - ⬜ This is the system that should carry most of the "GTA" chaos-and-consequence feeling — worth
   leaning into harder than Pokémon ever needed to, since Pokémon has zero permadeath or stakes-of-
@@ -177,26 +178,37 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ Likely a lightweight, skippable, one-time flow rather than a forced walled tutorial, given the
   mobile audience
 
-## Tone & Content Rating
-- ⬜ Decision pending — see options under discussion. Affects: how permadeath/ambush outcomes are
-  worded (execution language vs. capture/imprisonment framing), age rating on both app stores, and
-  how monetization can be marketed to the resulting audience
+## Tone & Content Rating — DECIDED: Moderate / Teen
+- ✅ Target Teen/PEGI 12. Permadeath framing is now: navy captures **press crew into naval
+  service**, rivals **take crew prisoner** — permanent and stakes-carrying, but no execution
+  imagery or gore
 
-## Art Direction
-- ⬜ Decision pending — see options under discussion. Currently everything is emoji-as-sprite
-  placeholders, which is fine for prototyping but not for a shippable/brandable product. This is
-  a foundational decision worth locking in before much more content gets built around emoji,
-  since re-skinning later gets more expensive the more islands/crew/buildings exist
+## Art Direction — DECIDED: Pixel art (16/32-bit RPG style)
+- ✅ Target look: SNES-era JRPG pixel art, not strict 2-bit Game Boy — richer color, still readable
+  at small mobile sizes, animates cheaply via spritesheets
+- ⬜ Everything is currently emoji-as-sprite placeholders. Needs a real asset pipeline (character
+  sprites, island/building tiles, battle backdrops, UI chrome) before this can ship or brand
+  properly. Worth tackling incrementally per-screen rather than as one giant art pass
 
-## Monetization
-- ⬜ Decision pending — see options under discussion. Whatever model is chosen needs to be designed
-  together with the permadeath system rather than bolted on after, since "pay to undo a loss" and
-  "pay to avoid a loss" have very different fairness/trust implications
+## Monetization — DECIDED: F2P + cosmetic/convenience IAP
+- ✅ Free download. Sell ship/crew cosmetics, time-savers (e.g. instant heal, faster travel), extra
+  crew-quarters slots. No pay-to-win, no randomized/gacha pulls, no "revive a permadeath'd crew
+  member" purchase — that pattern is the one that erodes trust and draws regulatory scrutiny
+  precisely because it sells undoing a loss after the fact
+- ⬜ If we ever want a proactive risk-mitigation purchase, the fair version is something bought
+  *before* a loss happens (e.g. a "Letter of Pardon" held in inventory that auto-triggers instead
+  of a permadeath once), not an after-the-fact revive
+- ⬜ Optional rewarded ads for bonus gold/items, opt-in only, never forced between screens
+- ⬜ Needs an IAP SDK integrated (Expo's in-app-purchases / RevenueCat or similar) before shipping
 
 ## Scope & Pacing
-- ⬜ Not yet decided: target main-quest length and session length. Worth deciding deliberately
-  rather than defaulting to "however long it ends up being" — see discussion for a mobile-oriented
-  recommendation vs. Pokémon's own ~20-26 hour campaign
+- ✅ Target ~6-10 hours of main-quest content at launch (leaner than Pokémon's ~20-26 hour
+  campaign), designed around short 5-15 minute mobile sessions rather than long sit-downs
+- ✅ Difficulty curve: easy/forgiving early (matches Pokémon's own approachability plus our rescue
+  mechanic), real tension emerging mid-to-late game as heat rises — that's the differentiator,
+  not overall length or raw combat difficulty
+- ⬜ Side content/live-ops (events, dailies) intended to extend engagement beyond the main quest
+  once there's a content cadence to support it
 
 ---
 

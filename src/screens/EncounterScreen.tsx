@@ -129,7 +129,7 @@ export default function EncounterScreen({ navigation }: Props) {
       });
       if (encounter.faction === 'navy') {
         const goldLost = Math.round(gold * 0.3);
-        appendLog(`${crewMember.nickname} is captured, arrested, and hanged at the gallows!`);
+        appendLog(`${crewMember.nickname} is captured and pressed into naval service — gone for good.`);
         if (goldLost > 0) {
           appendLog(`The crown seizes ${goldLost} gold from your hold.`);
           addGold(-goldLost);
@@ -142,7 +142,7 @@ export default function EncounterScreen({ navigation }: Props) {
           );
         }
       } else if (encounter.faction === 'rival') {
-        appendLog(`${crewMember.nickname} is cut down by the rival crew!`);
+        appendLog(`${crewMember.nickname} is overwhelmed and taken prisoner by the rival crew — gone for good.`);
         const rescued = removeCrewMember(crewMember.instanceId);
         if (rescued) {
           setRescueMessage(
