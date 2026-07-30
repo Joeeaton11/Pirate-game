@@ -14,8 +14,16 @@ import {
   WORLD_WIDTH,
   islandAtPoint,
 } from '../data/islands';
+import {
+  THREAT_TEMPLATES,
+  ThreatFaction,
+  ambushChance,
+  navyTableForHeat,
+  rivalTableForHeat,
+} from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
-import { useGameStore } from '../store/gameStore';
+import { EncounterFaction, useGameStore } from '../store/gameStore';
+import { CrewTemplate } from '../types';
 import { maxHpFor, pickWildEncounter } from '../utils/battle';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
@@ -45,8 +53,10 @@ export default function MapScreen({ navigation }: Props) {
 
   const crew = useGameStore((s) => s.crew);
   const gold = useGameStore((s) => s.gold);
+  const heat = useGameStore((s) => s.heat);
   const healAllCrew = useGameStore((s) => s.healAllCrew);
   const setWildEncounter = useGameStore((s) => s.setWildEncounter);
+  const addHeat = useGameStore((s) => s.addHeat);
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const playerRef = useRef(player);
@@ -54,6 +64,8 @@ export default function MapScreen({ navigation }: Props) {
   const lastEncounterCheckRef = useRef(0);
   const crewRef = useRef(crew);
   crewRef.current = crew;
+  const heatRef = useRef(heat);
+  heatRef.current = heat;
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
 
   function clearDrag() {
@@ -101,6 +113,28 @@ export default function MapScreen({ navigation }: Props) {
     setViewport({ width, height });
   }
 
+  function startEncounter(
+    templateId: string,
+    level: number,
+    faction: EncounterFaction,
+    template: CrewTemplate
+  ) {
+    const wildMaxHp = maxHpFor(
+      {
+        instanceId: 'wild',
+        templateId,
+        nickname: template.name,
+        level,
+        xp: 0,
+        currentHp: 0,
+      },
+      template
+    );
+    directionRef.current = null;
+    setWildEncounter({ templateId, level, currentHp: wildMaxHp, faction });
+    navigation.navigate('Encounter');
+  }
+
   function triggerEncounter(isLand: boolean, islandId: string | null) {
     const island = islandId ? ISLAND_LIST.find((i) => i.id === islandId) : null;
     const table = isLand && island ? island.encounterTable : SEA_ENCOUNTER_TABLE;
@@ -110,18 +144,18 @@ export default function MapScreen({ navigation }: Props) {
     if (!isAlive) return;
 
     const { templateId, level } = pickWildEncounter(table);
-    const template = CREW_TEMPLATES[templateId];
-    const wildMaxHp = maxHpFor({
-      instanceId: 'wild',
-      templateId,
-      nickname: template.name,
-      level,
-      xp: 0,
-      currentHp: 0,
-    });
-    directionRef.current = null;
-    setWildEncounter({ templateId, level, currentHp: wildMaxHp });
-    navigation.navigate('Encounter');
+    startEncounter(templateId, level, 'wild', CREW_TEMPLATES[templateId]);
+  }
+
+  function triggerAmbush(faction: ThreatFaction) {
+    const table = faction === 'rival' ? rivalTableForHeat(heatRef.current) : navyTableForHeat(heatRef.current);
+    if (!table) return;
+
+    const isAlive = crewRef.current.some((member) => member.currentHp > 0);
+    if (!isAlive) return;
+
+    const { templateId, level } = pickWildEncounter(table);
+    startEncounter(templateId, level, faction, THREAT_TEMPLATES[templateId]);
   }
 
   useEffect(() => {
@@ -149,6 +183,7 @@ export default function MapScreen({ navigation }: Props) {
           setZoneDescription(nextIsland.description);
           if (nextIsland.isSafeZone) {
             healAllCrew();
+            addHeat(-40);
           }
         } else {
           setZoneLabel('The Open Sea');
@@ -161,9 +196,18 @@ export default function MapScreen({ navigation }: Props) {
         lastEncounterCheckRef.current = now;
         const isSafe = nextIsland?.isSafeZone;
         if (!isSafe) {
-          const chance = nextIsland ? nextIsland.encounterChance : SEA_ENCOUNTER_CHANCE;
-          if (Math.random() < chance) {
-            triggerEncounter(!!nextIsland, nextIsland?.id ?? null);
+          const navyRoll = Math.random();
+          const rivalRoll = Math.random();
+          const wildRoll = Math.random();
+          if (navyRoll < ambushChance('navy', heatRef.current)) {
+            triggerAmbush('navy');
+          } else if (rivalRoll < ambushChance('rival', heatRef.current)) {
+            triggerAmbush('rival');
+          } else {
+            const chance = nextIsland ? nextIsland.encounterChance : SEA_ENCOUNTER_CHANCE;
+            if (wildRoll < chance) {
+              triggerEncounter(!!nextIsland, nextIsland?.id ?? null);
+            }
           }
         }
       }
@@ -185,6 +229,18 @@ export default function MapScreen({ navigation }: Props) {
           <Pressable onPress={() => navigation.navigate('Crew')} style={styles.crewButton}>
             <Text style={styles.crewButtonText}>Crew ({crew.length}) ▸</Text>
           </Pressable>
+        </View>
+        <View style={styles.heatTrack}>
+          <View
+            style={[
+              styles.heatFill,
+              {
+                width: `${heat}%`,
+                backgroundColor: heat > 60 ? '#e53935' : heat > 25 ? '#ffb300' : '#4caf50',
+              },
+            ]}
+          />
+          <Text style={styles.heatLabel}>⚠️ Heat {Math.round(heat)}%</Text>
         </View>
       </View>
 
@@ -298,6 +354,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
+  },
+  heatTrack: {
+    height: 18,
+    backgroundColor: '#062331',
+    borderRadius: 9,
+    marginTop: 8,
+    overflow: 'hidden',
+    justifyContent: 'center',
+  },
+  heatFill: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    borderRadius: 9,
+  },
+  heatLabel: {
+    fontSize: 11,
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '700',
   },
   crewButtonText: {
     color: '#0b3d5c',

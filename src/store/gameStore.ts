@@ -4,10 +4,13 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
+export type EncounterFaction = 'wild' | 'rival' | 'navy';
+
 export interface WildEncounter {
   templateId: string;
   level: number;
   currentHp: number;
+  faction: EncounterFaction;
 }
 
 interface GameState {
@@ -16,15 +19,19 @@ interface GameState {
   activeCrewId: string | null;
   hasHydrated: boolean;
   wildEncounter: WildEncounter | null;
+  heat: number;
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
   addCrewMember: (templateId: string, level: number) => void;
+  removeCrewMember: (instanceId: string) => boolean;
   setActiveCrew: (instanceId: string) => void;
   setCrewHp: (instanceId: string, hp: number) => void;
   gainXp: (instanceId: string, amount: number) => void;
   addGold: (amount: number) => void;
   healAllCrew: () => void;
+  addHeat: (amount: number) => void;
+  setHeat: (value: number) => void;
   setHasHydrated: (value: boolean) => void;
 }
 
@@ -39,6 +46,7 @@ export const useGameStore = create<GameState>()(
       activeCrewId: starterCrewMember.instanceId,
       hasHydrated: false,
       wildEncounter: null,
+      heat: 0,
 
       setWildEncounter: (encounter) => set({ wildEncounter: encounter }),
 
@@ -57,6 +65,22 @@ export const useGameStore = create<GameState>()(
             activeCrewId: state.activeCrewId ?? newMember.instanceId,
           };
         }),
+
+      removeCrewMember: (instanceId) => {
+        const state = get();
+        const remaining = state.crew.filter((m) => m.instanceId !== instanceId);
+        if (remaining.length === 0) {
+          const rescue = createOwnedCrewMember('cabin_hand', 2);
+          set({ crew: [rescue], activeCrewId: rescue.instanceId });
+          return true;
+        }
+        const newActiveId =
+          state.activeCrewId === instanceId
+            ? remaining.find((m) => m.currentHp > 0)?.instanceId ?? remaining[0].instanceId
+            : state.activeCrewId;
+        set({ crew: remaining, activeCrewId: newActiveId });
+        return false;
+      },
 
       setActiveCrew: (instanceId) => set({ activeCrewId: instanceId }),
 
@@ -97,6 +121,11 @@ export const useGameStore = create<GameState>()(
           })),
         })),
 
+      addHeat: (amount) =>
+        set((state) => ({ heat: Math.min(100, Math.max(0, state.heat + amount)) })),
+
+      setHeat: (value) => set({ heat: Math.min(100, Math.max(0, value)) }),
+
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
@@ -106,6 +135,7 @@ export const useGameStore = create<GameState>()(
         gold: state.gold,
         crew: state.crew,
         activeCrewId: state.activeCrewId,
+        heat: state.heat,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

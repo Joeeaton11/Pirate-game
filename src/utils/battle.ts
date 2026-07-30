@@ -32,9 +32,10 @@ export function statsAtLevel(template: CrewTemplate, level: number): Stats {
   };
 }
 
-export function maxHpFor(owned: OwnedCrewMember): number {
-  const template = CREW_TEMPLATES[owned.templateId];
-  return statsAtLevel(template, owned.level).hp;
+/** Pass `template` explicitly for wild/threat creatures that aren't in CREW_TEMPLATES. */
+export function maxHpFor(owned: OwnedCrewMember, template?: CrewTemplate): number {
+  const resolved = template ?? CREW_TEMPLATES[owned.templateId];
+  return statsAtLevel(resolved, owned.level).hp;
 }
 
 let instanceCounter = 0;
@@ -83,14 +84,14 @@ export function xpToNextLevel(level: number): number {
   return Math.round(20 * Math.pow(level, 1.4));
 }
 
-export function xpRewardFor(templateId: string, level: number): number {
-  const template = CREW_TEMPLATES[templateId];
+export function xpRewardFor(templateId: string, level: number, template?: CrewTemplate): number {
+  const resolved = template ?? CREW_TEMPLATES[templateId];
   const rarityMultiplier =
-    template.rarity === 'legendary'
+    resolved.rarity === 'legendary'
       ? 4
-      : template.rarity === 'rare'
+      : resolved.rarity === 'rare'
       ? 2.5
-      : template.rarity === 'uncommon'
+      : resolved.rarity === 'uncommon'
       ? 1.5
       : 1;
   return Math.round(8 * level * rarityMultiplier);
