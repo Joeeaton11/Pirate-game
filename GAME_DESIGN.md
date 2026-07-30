@@ -170,6 +170,34 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   Options — right now these are separate screens with no single hub
 - ⬜ Party/move-management screen (nicknames, move loadouts)
 
+## Onboarding & Tutorial
+- ⬜ Not a current priority, but noted here so it doesn't get lost: a short first-time-only overlay
+  sequence teaching drag-to-sail, the heat meter, and that walking into a building enters it —
+  a brand-new player has no in-game explanation of any of this right now
+- ⬜ Likely a lightweight, skippable, one-time flow rather than a forced walled tutorial, given the
+  mobile audience
+
+## Tone & Content Rating
+- ⬜ Decision pending — see options under discussion. Affects: how permadeath/ambush outcomes are
+  worded (execution language vs. capture/imprisonment framing), age rating on both app stores, and
+  how monetization can be marketed to the resulting audience
+
+## Art Direction
+- ⬜ Decision pending — see options under discussion. Currently everything is emoji-as-sprite
+  placeholders, which is fine for prototyping but not for a shippable/brandable product. This is
+  a foundational decision worth locking in before much more content gets built around emoji,
+  since re-skinning later gets more expensive the more islands/crew/buildings exist
+
+## Monetization
+- ⬜ Decision pending — see options under discussion. Whatever model is chosen needs to be designed
+  together with the permadeath system rather than bolted on after, since "pay to undo a loss" and
+  "pay to avoid a loss" have very different fairness/trust implications
+
+## Scope & Pacing
+- ⬜ Not yet decided: target main-quest length and session length. Worth deciding deliberately
+  rather than defaulting to "however long it ends up being" — see discussion for a mobile-oriented
+  recommendation vs. Pokémon's own ~20-26 hour campaign
+
 ---
 
 ## Suggested build order (biggest gaps first, matching what makes it "feel like Pokémon")
