@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
-export type EncounterFaction = 'wild' | 'rival' | 'navy';
+export type EncounterFaction = 'wild' | 'rival' | 'navy' | 'lord';
 
 export interface WildEncounter {
   templateId: string;
@@ -23,6 +23,8 @@ interface GameState {
   currentBuildingId: string | null;
   hiredBuildingIds: string[];
   inventory: Record<string, number>;
+  currentPirateLordId: string | null;
+  defeatedLordIds: string[];
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -39,6 +41,8 @@ interface GameState {
   hireFromBuilding: (buildingId: string, templateId: string, level: number, cost: number) => boolean;
   buyItem: (itemId: string, price: number) => boolean;
   consumeItem: (itemId: string) => boolean;
+  setCurrentPirateLord: (lordId: string | null) => void;
+  defeatPirateLord: (lordId: string) => void;
   setHasHydrated: (value: boolean) => void;
 }
 
@@ -57,6 +61,8 @@ export const useGameStore = create<GameState>()(
       currentBuildingId: null,
       hiredBuildingIds: [],
       inventory: {},
+      currentPirateLordId: null,
+      defeatedLordIds: [],
 
       setWildEncounter: (encounter) => set({ wildEncounter: encounter }),
 
@@ -171,6 +177,15 @@ export const useGameStore = create<GameState>()(
         return true;
       },
 
+      setCurrentPirateLord: (lordId) => set({ currentPirateLordId: lordId }),
+
+      defeatPirateLord: (lordId) =>
+        set((state) =>
+          state.defeatedLordIds.includes(lordId)
+            ? state
+            : { defeatedLordIds: [...state.defeatedLordIds, lordId] }
+        ),
+
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
@@ -183,6 +198,7 @@ export const useGameStore = create<GameState>()(
         heat: state.heat,
         hiredBuildingIds: state.hiredBuildingIds,
         inventory: state.inventory,
+        defeatedLordIds: state.defeatedLordIds,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

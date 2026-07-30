@@ -38,6 +38,16 @@ export function maxHpFor(owned: OwnedCrewMember, template?: CrewTemplate): numbe
   return statsAtLevel(resolved, owned.level).hp;
 }
 
+/** Permanent Atk/Def boost from Letters of Marque earned by defeating Pirate Lords. */
+export function applyBadgeBoost(stats: Stats, badgeCount: number): Stats {
+  const multiplier = 1 + badgeCount * 0.03;
+  return {
+    ...stats,
+    atk: Math.round(stats.atk * multiplier),
+    def: Math.round(stats.def * multiplier),
+  };
+}
+
 let instanceCounter = 0;
 export function createOwnedCrewMember(templateId: string, level: number): OwnedCrewMember {
   const template = CREW_TEMPLATES[templateId];

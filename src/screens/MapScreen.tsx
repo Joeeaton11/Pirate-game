@@ -17,6 +17,12 @@ import {
   islandAtPoint,
 } from '../data/islands';
 import {
+  PIRATE_LORDS,
+  isLordUnlocked,
+  pirateLordForIsland,
+  pirateLordWorldPosition,
+} from '../data/pirateLords';
+import {
   THREAT_TEMPLATES,
   ThreatFaction,
   ambushChance,
@@ -61,6 +67,8 @@ export default function MapScreen({ navigation }: Props) {
   const setWildEncounter = useGameStore((s) => s.setWildEncounter);
   const addHeat = useGameStore((s) => s.addHeat);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
+  const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
+  const setCurrentPirateLord = useGameStore((s) => s.setCurrentPirateLord);
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const playerRef = useRef(player);
@@ -162,21 +170,33 @@ export default function MapScreen({ navigation }: Props) {
     startEncounter(templateId, level, faction, THREAT_TEMPLATES[templateId]);
   }
 
+  function nearbyBuildingPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
+    const b = buildingsForIsland(island.id).find((b) => {
+      const bp = buildingWorldPosition(b, island.position);
+      return Math.hypot(pos.x - bp.x, pos.y - bp.y) <= ENTER_RADIUS;
+    });
+    return b ? buildingWorldPosition(b, island.position) : null;
+  }
+
+  function nearbyLordPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
+    const lord = pirateLordForIsland(island.id);
+    if (!lord) return null;
+    const lp = pirateLordWorldPosition(lord, island.position);
+    return Math.hypot(pos.x - lp.x, pos.y - lp.y) <= ENTER_RADIUS ? lp : null;
+  }
+
   useEffect(() => {
     if (!isFocused) return;
 
-    // Returning from the Building screen can leave the player still standing inside that
-    // building's trigger radius, which would instantly re-enter it on the next tick. Nudge
+    // Returning from the Building/PirateLord screen can leave the player still standing inside
+    // that structure's trigger radius, which would instantly re-enter it on the next tick. Nudge
     // them just outside it first.
     const pos = playerRef.current;
     const island = islandAtPoint(pos);
     if (island) {
-      const nearby = buildingsForIsland(island.id).find((b) => {
-        const bp = buildingWorldPosition(b, island.position);
-        return Math.hypot(pos.x - bp.x, pos.y - bp.y) <= ENTER_RADIUS;
-      });
-      if (nearby) {
-        const bp = buildingWorldPosition(nearby, island.position);
+      const nearbyPos = nearbyBuildingPos(pos, island) ?? nearbyLordPos(pos, island);
+      if (nearbyPos) {
+        const bp = nearbyPos;
         let dx = pos.x - bp.x;
         let dy = pos.y - bp.y;
         let dist = Math.hypot(dx, dy);
@@ -221,6 +241,17 @@ export default function MapScreen({ navigation }: Props) {
           setCurrentBuilding(nearbyBuilding.id);
           navigation.navigate('Building');
           return;
+        }
+
+        const lord = pirateLordForIsland(nextIsland.id);
+        if (lord) {
+          const lp = pirateLordWorldPosition(lord, nextIsland.position);
+          if (Math.hypot(nextPosition.x - lp.x, nextPosition.y - lp.y) <= ENTER_RADIUS) {
+            directionRef.current = null;
+            setCurrentPirateLord(lord.id);
+            navigation.navigate('PirateLord');
+            return;
+          }
         }
       }
 
@@ -275,9 +306,16 @@ export default function MapScreen({ navigation }: Props) {
         <Text style={styles.title}>🏴‍☠️ {zoneLabel}</Text>
         <View style={styles.headerRow}>
           <Text style={styles.headerText}>💰 {gold} gold</Text>
-          <Pressable onPress={() => navigation.navigate('Crew')} style={styles.crewButton}>
-            <Text style={styles.crewButtonText}>Crew ({crew.length}) ▸</Text>
-          </Pressable>
+          <View style={styles.headerButtons}>
+            <Pressable onPress={() => navigation.navigate('Quests')} style={styles.questButton}>
+              <Text style={styles.crewButtonText}>
+                🎖️ {defeatedLordIds.length}/{PIRATE_LORDS.length}
+              </Text>
+            </Pressable>
+            <Pressable onPress={() => navigation.navigate('Crew')} style={styles.crewButton}>
+              <Text style={styles.crewButtonText}>Crew ({crew.length}) ▸</Text>
+            </Pressable>
+          </View>
         </View>
         <View style={styles.heatTrack}>
           <View
@@ -350,6 +388,33 @@ export default function MapScreen({ navigation }: Props) {
                 </View>
               );
             })}
+
+            {PIRATE_LORDS.map((lord) => {
+              const islandPos = ISLANDS[lord.islandId].position;
+              const pos = pirateLordWorldPosition(lord, islandPos);
+              const isDefeated = defeatedLordIds.includes(lord.id);
+              const isUnlocked = isLordUnlocked(lord, defeatedLordIds);
+              const fortStyle = isDefeated
+                ? styles.fortDefeated
+                : isUnlocked
+                ? styles.fortAvailable
+                : styles.fortLocked;
+              return (
+                <View
+                  key={lord.id}
+                  style={[
+                    styles.fort,
+                    fortStyle,
+                    {
+                      left: pos.x - BUILDING_SIZE / 2,
+                      top: pos.y - BUILDING_SIZE / 2,
+                    },
+                  ]}
+                >
+                  <Text style={styles.buildingEmoji}>🏰</Text>
+                </View>
+              );
+            })}
           </View>
         )}
 
@@ -417,8 +482,18 @@ const styles = StyleSheet.create({
     color: '#f4e9cd',
     fontSize: 15,
   },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
   crewButton: {
     backgroundColor: '#f4e9cd',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  questButton: {
+    backgroundColor: '#ffd166',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -493,6 +568,28 @@ const styles = StyleSheet.create({
   },
   buildingEmoji: {
     fontSize: 24,
+  },
+  fort: {
+    position: 'absolute',
+    width: BUILDING_SIZE,
+    height: BUILDING_SIZE,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+  },
+  fortLocked: {
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    borderColor: '#777',
+    opacity: 0.6,
+  },
+  fortAvailable: {
+    backgroundColor: 'rgba(122, 31, 31, 0.5)',
+    borderColor: '#ffd166',
+  },
+  fortDefeated: {
+    backgroundColor: 'rgba(44, 122, 75, 0.5)',
+    borderColor: '#4caf50',
   },
   player: {
     position: 'absolute',

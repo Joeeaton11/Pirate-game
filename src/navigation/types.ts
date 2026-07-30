@@ -3,4 +3,6 @@ export type RootStackParamList = {
   Encounter: undefined;
   Crew: undefined;
   Building: undefined;
+  PirateLord: undefined;
+  Quests: undefined;
 };

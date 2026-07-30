@@ -5,10 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ITEM_LIST, ITEMS } from '../data/items';
 import { MOVES } from '../data/moves';
+import { PIRATE_LORDS, PIRATE_LORD_TEMPLATES } from '../data/pirateLords';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
-import { useActiveCrewMember, useGameStore } from '../store/gameStore';
+import { EncounterFaction, useActiveCrewMember, useGameStore } from '../store/gameStore';
 import {
+  applyBadgeBoost,
   calcDamage,
   maxHpFor,
   recruitChance,
@@ -20,11 +22,12 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Encounter'>;
 
 type Phase = 'battling' | 'victory' | 'defeat' | 'fled' | 'recruited';
 
-const ALL_TEMPLATES = { ...CREW_TEMPLATES, ...THREAT_TEMPLATES };
+const ALL_TEMPLATES = { ...CREW_TEMPLATES, ...THREAT_TEMPLATES, ...PIRATE_LORD_TEMPLATES };
 
-function openingLine(faction: 'wild' | 'rival' | 'navy' | undefined): string {
+function openingLine(faction: EncounterFaction | undefined): string {
   if (faction === 'rival') return 'A rival pirate crew ambushes you!';
   if (faction === 'navy') return "Navy patrol closes in — you're a wanted pirate!";
+  if (faction === 'lord') return 'The duel for a Letter of Marque begins!';
   return 'A wild pirate blocks your path!';
 }
 
@@ -49,6 +52,8 @@ export default function EncounterScreen({ navigation }: Props) {
   const setHeat = useGameStore((s) => s.setHeat);
   const inventory = useGameStore((s) => s.inventory);
   const consumeItem = useGameStore((s) => s.consumeItem);
+  const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
+  const defeatPirateLord = useGameStore((s) => s.defeatPirateLord);
   const activeCrew = useActiveCrewMember();
   const liveCrewMember = useGameStore((s) =>
     s.crew.find((m) => m.instanceId === activeCrew?.instanceId)
@@ -96,7 +101,10 @@ export default function EncounterScreen({ navigation }: Props) {
   );
   const playerMaxHp = maxHpFor(crewMember);
   const wildStats = statsAtLevel(wildTemplate, encounter.level);
-  const playerStats = statsAtLevel(playerTemplate, crewMember.level);
+  const playerStats = applyBadgeBoost(
+    statsAtLevel(playerTemplate, crewMember.level),
+    defeatedLordIds.length
+  );
 
   function appendLog(line: string) {
     setLog((prev) => [...prev.slice(-5), line]);
@@ -182,11 +190,22 @@ export default function EncounterScreen({ navigation }: Props) {
 
     if (newWildHp <= 0) {
       const reward = xpRewardFor(encounter.templateId, encounter.level, wildTemplate);
-      const goldReward = 5 + encounter.level * 2;
-      appendLog(`${wildTemplate.name} is defeated! +${reward} XP, +${goldReward} gold.`);
+      const isLordFight = encounter.faction === 'lord';
+      const goldReward = isLordFight ? 50 + encounter.level * 5 : 5 + encounter.level * 2;
       gainXp(crewMember.instanceId, reward);
       addGold(goldReward);
-      addHeat(encounter.faction === 'navy' ? 6 : encounter.faction === 'rival' ? 4 : 2);
+      if (isLordFight) {
+        const lord = PIRATE_LORDS.find((l) => l.id === encounter.templateId);
+        defeatPirateLord(encounter.templateId);
+        appendLog(
+          `${wildTemplate.name} concedes! +${reward} XP, +${goldReward} gold, and the ${
+            lord?.badgeName ?? 'marque'
+          } is yours!`
+        );
+      } else {
+        appendLog(`${wildTemplate.name} is defeated! +${reward} XP, +${goldReward} gold.`);
+        addHeat(encounter.faction === 'navy' ? 6 : encounter.faction === 'rival' ? 4 : 2);
+      }
       endBattle('victory');
       setBusy(false);
       return;
@@ -258,6 +277,7 @@ export default function EncounterScreen({ navigation }: Props) {
   }
 
   const resolved = phase !== 'battling';
+  const canFlee = encounter.faction !== 'lord';
   const usableItems = ITEM_LIST.filter(
     (item) =>
       item.usableInBattle &&
@@ -275,7 +295,11 @@ export default function EncounterScreen({ navigation }: Props) {
       {isAmbush && (
         <View style={styles.ambushBanner}>
           <Text style={styles.ambushBannerText}>
-            {encounter.faction === 'navy' ? '⚜️ NAVY AMBUSH' : '☠️ RIVAL AMBUSH'}
+            {encounter.faction === 'navy'
+              ? '⚜️ NAVY AMBUSH'
+              : encounter.faction === 'lord'
+              ? '🏆 LETTER OF MARQUE DUEL'
+              : '☠️ RIVAL AMBUSH'}
           </Text>
         </View>
       )}
@@ -354,9 +378,11 @@ export default function EncounterScreen({ navigation }: Props) {
                 <Text style={styles.secondaryButtonText}>Recruit</Text>
               </Pressable>
             )}
-            <Pressable style={styles.secondaryButton} onPress={handleFlee} disabled={busy}>
-              <Text style={styles.secondaryButtonText}>Flee</Text>
-            </Pressable>
+            {canFlee && (
+              <Pressable style={styles.secondaryButton} onPress={handleFlee} disabled={busy}>
+                <Text style={styles.secondaryButtonText}>Flee</Text>
+              </Pressable>
+            )}
           </View>
         </View>
       )}

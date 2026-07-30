@@ -103,15 +103,27 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ Per-crew-member move/skill loadout management screen (currently moves are fixed per template)
 
 ## Progression & Story Structure (Gyms/Badges + Elite Four equivalent)
-- ⬜ **8ish "Pirate Lords"/Port Governors** as Gym Leader equivalents — each controls a region, has
-  a themed crew, and a themed island "puzzle" (navigate a reef maze, solve a smuggler's lock,
-  survive a bar brawl gauntlet) before the boss fight
-- ⬜ Defeating one grants a **Letter of Marque** (Badge equivalent): permanent stat boost to your
-  crew, raises the level at which recruited crew "obey" you (direct obey-mechanic reskin), and
-  unlocks a traversal gate (ship upgrade, reputation-gated port, etc.)
+- ✅ **5 named Pirate Lords** as Gym Leader equivalents, one per non-home island (Redbeard Sully →
+  Iron Jenny → Captain Bellows → Marietta Graves → Ezra Vane), each a unique boss fort you walk
+  into on the map, gated **sequentially** — you can't challenge Lord N until Lord N-1 is defeated
+- ⬜ Themed island "puzzle" before each boss fight (reef maze, smuggler's lock, bar brawl gauntlet)
+  not built — forts are currently a direct walk-in-and-fight, no puzzle layer yet
+- ✅ Defeating a Lord grants a **Letter of Marque** (Badge equivalent): a permanent +3%/badge
+  Atk/Def boost applied to your active crew member in every battle, big XP/gold rewards (badge
+  fights use the same 'legendary' rarity multiplier as top-tier wild encounters), and unlocks the
+  next Lord. Tracked in a **Quest Log** screen (accessible from a new header button on the map)
+  showing all 5 with Locked/Available/Defeated status
+- ✅ Lord fights disable Flee (you commit to the duel, matching Pokémon's own no-running-from-
+  trainer-battles rule) and Recruit (Lords aren't recruitable); losing gives the normal
+  faint-and-heal-at-Tortuga outcome, **not** permadeath — that stays reserved for rival/navy
+  ambushes since a sanctioned duel isn't the same as being caught unawares
+- ⬜ Raising the level at which recruited crew "obey" you (direct obey-mechanic reskin) — not
+  built, and not very meaningful yet without a level-cap concept tied to badge count
+- ⬜ Traversal gate unlocked per badge (ship upgrade, reputation-gated port) — not built, waiting
+  on the ship-upgrade system
 - ⬜ Endgame: a **Pirate Council** (Elite Four equivalent) — back-to-back fights, no free healing
   between them — followed by a final Pirate King/Queen or Kraken-type superboss (Champion
-  equivalent), credits, then post-game content unlocks
+  equivalent), credits, then post-game content unlocks. Natural next step after these 5 Lords
 - ⬜ Antagonist faction with escalating set-piece confrontations across the story (Team Rocket
   equivalent) — **the Navy is already built for this mechanically** (ambushes scale with heat) and
   just needs scripted story beats layered on top instead of only random encounters
@@ -148,13 +160,14 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ Resource gathering (the vision item not yet built): fish/timber/rum/gunpowder as gatherable
   materials feeding crafting or ship upgrades, distinct from gold
 
-## Quests & Main Story (biggest open gap)
-- ⬜ Main questline strung through the Pirate Lord fights above, giving the world a spine the way
-  Pokémon's Gym order does
+## Quests & Main Story
+- ✅ Main questline spine: the 5 sequential Pirate Lord fights above now give the world a goal
+  structure the way Pokémon's Gym order does. This is the "direction" the game was missing
 - ⬜ Side quests per island (bounties, fetch/deliver, escort, resource-gathering) — this is where
   "specific skills gate specific quests" lives: a quest needs a Navigator-type crew member to
   complete, forcing you to go recruit one
-- ⬜ Quest log / journal UI
+- ✅ Quest log / journal UI (the new Quests screen) — currently only tracks Pirate Lord progress;
+  will need to expand once side quests exist
 
 ## GTA-style Character Switching (open gap)
 - ⬜ Distinct from crew battle-switching (which already exists) — this means directly controlling
@@ -215,10 +228,12 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ## Suggested build order (biggest gaps first, matching what makes it "feel like Pokémon")
 1. ✅ **General Store + Item system** — done: Rum Ration, Grapeshot Charge, Forged Papers, buyable
    from shop buildings, usable in battle and (heal) from the Crew screen
-2. **Crew Log (Pokédex equivalent)** — small-medium, huge "collect 'em all" motivation payoff
-3. **Promotions (evolution equivalent)** — medium, makes leveling feel like Pokémon instead of a
+2. ✅ **Main quest spine + Pirate Lords (Gym/Badge equivalent)** — done: 5 sequential named boss
+   forts, Letters of Marque with a permanent stat boost, Quest Log screen
+3. **Crew Log (Pokédex equivalent)** — small-medium, huge "collect 'em all" motivation payoff
+4. **Promotions (evolution equivalent)** — medium, makes leveling feel like Pokémon instead of a
    flat number-go-up
-4. **Main quest spine + Pirate Lords (Gym/Badge equivalent)** — large, this is the story backbone
-   everything else hangs off
-5. Side quests + resource gathering
-6. GTA-style character switching (biggest, most novel, probably last)
+5. Side quests + resource gathering, island "puzzle" gauntlets before each Pirate Lord
+6. Pirate Council + final superboss (Elite Four/Champion equivalent) — natural finale once the
+   5 Lords have side-quest content built around them
+7. GTA-style character switching (biggest, most novel, probably last)
