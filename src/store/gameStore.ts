@@ -3,7 +3,6 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
-import { START_ISLAND_ID } from '../data/islands';
 
 export interface WildEncounter {
   templateId: string;
@@ -12,14 +11,12 @@ export interface WildEncounter {
 }
 
 interface GameState {
-  currentIslandId: string;
   gold: number;
   crew: OwnedCrewMember[];
   activeCrewId: string | null;
   hasHydrated: boolean;
   wildEncounter: WildEncounter | null;
 
-  sailTo: (islandId: string) => void;
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
   addCrewMember: (templateId: string, level: number) => void;
@@ -37,14 +34,11 @@ const starterCrewMember = createOwnedCrewMember(STARTER_TEMPLATE_ID, 3);
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
-      currentIslandId: START_ISLAND_ID,
       gold: 20,
       crew: [starterCrewMember],
       activeCrewId: starterCrewMember.instanceId,
       hasHydrated: false,
       wildEncounter: null,
-
-      sailTo: (islandId) => set({ currentIslandId: islandId }),
 
       setWildEncounter: (encounter) => set({ wildEncounter: encounter }),
 
@@ -109,7 +103,6 @@ export const useGameStore = create<GameState>()(
       name: 'pirate-game-storage',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
-        currentIslandId: state.currentIslandId,
         gold: state.gold,
         crew: state.crew,
         activeCrewId: state.activeCrewId,

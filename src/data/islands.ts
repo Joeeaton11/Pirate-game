@@ -1,4 +1,7 @@
-import { Island } from '../types';
+import { EncounterSlot, Island } from '../types';
+
+export const WORLD_WIDTH = 1800;
+export const WORLD_HEIGHT = 2600;
 
 export const ISLANDS: Record<string, Island> = {
   tortuga_cove: {
@@ -6,8 +9,9 @@ export const ISLANDS: Record<string, Island> = {
     name: 'Tortuga Cove',
     emoji: '🏝️',
     description: 'Your home port. Calm waters, no trouble here.',
-    position: { x: 0.5, y: 0.88 },
-    connections: ['salt_marsh_isle', 'gullwing_rock'],
+    position: { x: 900, y: 2280 },
+    radius: 190,
+    isSafeZone: true,
     encounterChance: 0,
     encounterTable: [],
   },
@@ -16,9 +20,9 @@ export const ISLANDS: Record<string, Island> = {
     name: 'Salt Marsh Isle',
     emoji: '🌾',
     description: 'Reedy shallows where green crews cut their teeth.',
-    position: { x: 0.24, y: 0.68 },
-    connections: ['tortuga_cove', 'blackrock_shoals'],
-    encounterChance: 0.55,
+    position: { x: 430, y: 1770 },
+    radius: 220,
+    encounterChance: 0.09,
     encounterTable: [
       { templateId: 'cabin_hand', weight: 4, minLevel: 2, maxLevel: 4 },
       { templateId: 'deckhand_swordsman', weight: 3, minLevel: 2, maxLevel: 5 },
@@ -31,9 +35,9 @@ export const ISLANDS: Record<string, Island> = {
     name: 'Gullwing Rock',
     emoji: '🪨',
     description: 'Windswept crags patrolled by scrappy dockside brawlers.',
-    position: { x: 0.76, y: 0.68 },
-    connections: ['tortuga_cove', 'widows_reef'],
-    encounterChance: 0.55,
+    position: { x: 1370, y: 1770 },
+    radius: 220,
+    encounterChance: 0.09,
     encounterTable: [
       { templateId: 'cabin_hand', weight: 3, minLevel: 3, maxLevel: 5 },
       { templateId: 'dockside_sharpshooter', weight: 3, minLevel: 3, maxLevel: 6 },
@@ -46,9 +50,9 @@ export const ISLANDS: Record<string, Island> = {
     name: 'Blackrock Shoals',
     emoji: '⛰️',
     description: 'Jagged reefs where hardened boarding crews lie in wait.',
-    position: { x: 0.22, y: 0.42 },
-    connections: ['salt_marsh_isle', 'serpents_maw'],
-    encounterChance: 0.6,
+    position: { x: 400, y: 1090 },
+    radius: 230,
+    encounterChance: 0.1,
     encounterTable: [
       { templateId: 'tavern_brawler', weight: 3, minLevel: 6, maxLevel: 9 },
       { templateId: 'boarding_captain', weight: 3, minLevel: 7, maxLevel: 10 },
@@ -61,9 +65,9 @@ export const ISLANDS: Record<string, Island> = {
     name: "Widow's Reef",
     emoji: '🌊',
     description: 'Fog-shrouded waters where things below start to stir.',
-    position: { x: 0.78, y: 0.42 },
-    connections: ['gullwing_rock', 'serpents_maw'],
-    encounterChance: 0.6,
+    position: { x: 1400, y: 1090 },
+    radius: 230,
+    encounterChance: 0.1,
     encounterTable: [
       { templateId: 'boarding_captain', weight: 3, minLevel: 7, maxLevel: 10 },
       { templateId: 'gun_deck_veteran', weight: 2, minLevel: 7, maxLevel: 10 },
@@ -76,9 +80,9 @@ export const ISLANDS: Record<string, Island> = {
     name: "Serpent's Maw",
     emoji: '🌀',
     description: 'A cursed whirlpool strait. Only seasoned crews return.',
-    position: { x: 0.5, y: 0.16 },
-    connections: ['blackrock_shoals', 'widows_reef'],
-    encounterChance: 0.65,
+    position: { x: 900, y: 420 },
+    radius: 240,
+    encounterChance: 0.12,
     encounterTable: [
       { templateId: 'cursed_bosun', weight: 3, minLevel: 10, maxLevel: 14 },
       { templateId: 'master_gunner', weight: 3, minLevel: 10, maxLevel: 14 },
@@ -89,4 +93,25 @@ export const ISLANDS: Record<string, Island> = {
 };
 
 export const ISLAND_LIST = Object.values(ISLANDS);
-export const START_ISLAND_ID = 'tortuga_cove';
+export const START_POSITION = { ...ISLANDS.tortuga_cove.position };
+
+/** Wild encounters rolled while sailing open water, away from any island. */
+export const SEA_ENCOUNTER_CHANCE = 0.05;
+export const SEA_ENCOUNTER_TABLE: EncounterSlot[] = [
+  { templateId: 'powder_monkey', weight: 3, minLevel: 2, maxLevel: 6 },
+  { templateId: 'dockside_sharpshooter', weight: 3, minLevel: 3, maxLevel: 7 },
+  { templateId: 'gun_deck_veteran', weight: 2, minLevel: 6, maxLevel: 10 },
+  { templateId: 'master_gunner', weight: 1, minLevel: 9, maxLevel: 13 },
+];
+
+/** Returns the island whose landmass contains the given world point, if any. */
+export function islandAtPoint(point: { x: number; y: number }): Island | null {
+  for (const island of ISLAND_LIST) {
+    const dx = point.x - island.position.x;
+    const dy = point.y - island.position.y;
+    if (Math.sqrt(dx * dx + dy * dy) <= island.radius) {
+      return island;
+    }
+  }
+  return null;
+}

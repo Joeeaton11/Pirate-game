@@ -46,9 +46,10 @@ export interface Island {
   name: string;
   emoji: string;
   description: string;
-  position: { x: number; y: number };
-  connections: string[];
-  encounterChance: number; // 0-1 chance per sail
+  position: { x: number; y: number }; // absolute world coordinates (center of landmass)
+  radius: number; // landmass radius in world units, for land/sea detection
+  isSafeZone?: boolean; // no encounters, heals crew on arrival
+  encounterChance: number; // 0-1 chance rolled per movement tick while on land here
   encounterTable: EncounterSlot[];
 }
 

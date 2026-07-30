@@ -1,94 +1,185 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
-import {
-  LayoutChangeEvent,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
+import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MapLine } from '../components/MapLine';
 import { CREW_TEMPLATES } from '../data/crew';
-import { ISLAND_LIST, ISLANDS } from '../data/islands';
+import {
+  ISLAND_LIST,
+  SEA_ENCOUNTER_CHANCE,
+  SEA_ENCOUNTER_TABLE,
+  START_POSITION,
+  WORLD_HEIGHT,
+  WORLD_WIDTH,
+  islandAtPoint,
+} from '../data/islands';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 import { maxHpFor, pickWildEncounter } from '../utils/battle';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 
-const ISLAND_SIZE = 64;
+const PLAYER_SIZE = 40;
+const SEA_SPEED = 260; // world units per second
+const LAND_SPEED = 140;
+const DEADZONE = 12; // px of drag before movement starts
+const MAX_DRAG = 70; // px of drag for full speed
+const ENCOUNTER_TICK_MS = 1400;
+const TICK_MS = 33;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
 
 export default function MapScreen({ navigation }: Props) {
-  const [layout, setLayout] = useState({ width: 0, height: 0 });
-  const currentIslandId = useGameStore((s) => s.currentIslandId);
-  const gold = useGameStore((s) => s.gold);
-  const crew = useGameStore((s) => s.crew);
-  const sailTo = useGameStore((s) => s.sailTo);
-  const healAllCrew = useGameStore((s) => s.healAllCrew);
-  const setWildEncounter = useGameStore((s) => s.setWildEncounter);
-  const [statusMessage, setStatusMessage] = useState(
-    'Tap a connected island to set sail.'
+  const isFocused = useIsFocused();
+  const [viewport, setViewport] = useState({ width: 0, height: 0 });
+  const [player, setPlayer] = useState(START_POSITION);
+  const [dragKnob, setDragKnob] = useState<{ x: number; y: number } | null>(null);
+  const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number } | null>(null);
+  const [zoneLabel, setZoneLabel] = useState('Tortuga Cove');
+  const [zoneDescription, setZoneDescription] = useState(
+    'Your home port. Calm waters, no trouble here.'
   );
 
-  const currentIsland = ISLANDS[currentIslandId];
+  const crew = useGameStore((s) => s.crew);
+  const gold = useGameStore((s) => s.gold);
+  const healAllCrew = useGameStore((s) => s.healAllCrew);
+  const setWildEncounter = useGameStore((s) => s.setWildEncounter);
+
+  const directionRef = useRef<{ x: number; y: number } | null>(null);
+  const playerRef = useRef(player);
+  const lastZoneIdRef = useRef<string | null>('tortuga_cove');
+  const lastEncounterCheckRef = useRef(0);
+  const crewRef = useRef(crew);
+  crewRef.current = crew;
+  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+
+  function clearDrag() {
+    directionRef.current = null;
+    dragOriginRef.current = null;
+    setDragOrigin(null);
+    setDragKnob(null);
+  }
+
+  const panGesture = Gesture.Pan()
+    .minDistance(0)
+    .shouldCancelWhenOutside(false)
+    .onBegin((e) => {
+      dragOriginRef.current = { x: e.x, y: e.y };
+      setDragOrigin({ x: e.x, y: e.y });
+      setDragKnob({ x: e.x, y: e.y });
+    })
+    .onUpdate((e) => {
+      const dist = Math.hypot(e.translationX, e.translationY);
+      if (dist > DEADZONE) {
+        const clampedDist = Math.min(dist, MAX_DRAG);
+        directionRef.current = {
+          x: (e.translationX / dist) * (clampedDist / MAX_DRAG),
+          y: (e.translationY / dist) * (clampedDist / MAX_DRAG),
+        };
+      } else {
+        directionRef.current = null;
+      }
+      const origin = dragOriginRef.current;
+      if (origin) {
+        const knobDist = Math.min(dist, MAX_DRAG);
+        const angle = Math.atan2(e.translationY, e.translationX);
+        setDragKnob({
+          x: origin.x + Math.cos(angle) * knobDist,
+          y: origin.y + Math.sin(angle) * knobDist,
+        });
+      }
+    })
+    .onFinalize(() => {
+      clearDrag();
+    });
 
   function onLayoutContainer(event: LayoutChangeEvent) {
     const { width, height } = event.nativeEvent.layout;
-    setLayout({ width, height });
+    setViewport({ width, height });
   }
 
-  function toPixels(pos: { x: number; y: number }) {
-    return {
-      x: pos.x * layout.width,
-      y: pos.y * layout.height,
-    };
+  function triggerEncounter(isLand: boolean, islandId: string | null) {
+    const island = islandId ? ISLAND_LIST.find((i) => i.id === islandId) : null;
+    const table = isLand && island ? island.encounterTable : SEA_ENCOUNTER_TABLE;
+    if (table.length === 0) return;
+
+    const isAlive = crewRef.current.some((member) => member.currentHp > 0);
+    if (!isAlive) return;
+
+    const { templateId, level } = pickWildEncounter(table);
+    const template = CREW_TEMPLATES[templateId];
+    const wildMaxHp = maxHpFor({
+      instanceId: 'wild',
+      templateId,
+      nickname: template.name,
+      level,
+      xp: 0,
+      currentHp: 0,
+    });
+    directionRef.current = null;
+    setWildEncounter({ templateId, level, currentHp: wildMaxHp });
+    navigation.navigate('Encounter');
   }
 
-  function handleIslandPress(islandId: string) {
-    if (islandId === currentIslandId) {
-      setStatusMessage(`You're already at ${ISLANDS[islandId].name}.`);
-      return;
-    }
-    if (!currentIsland.connections.includes(islandId)) {
-      setStatusMessage('No direct route to that island from here.');
-      return;
-    }
+  useEffect(() => {
+    if (!isFocused) return;
+    const interval = setInterval(() => {
+      const direction = directionRef.current;
+      if (!direction) return;
 
-    const destination = ISLANDS[islandId];
-    sailTo(islandId);
+      const currentIsland = islandAtPoint(playerRef.current);
+      const speed = currentIsland ? LAND_SPEED : SEA_SPEED;
+      const dt = TICK_MS / 1000;
 
-    if (destination.id === 'tortuga_cove') {
-      healAllCrew();
-      setStatusMessage('You dock at Tortuga Cove. Your crew rests and heals up.');
-      return;
-    }
+      const nextX = clamp(playerRef.current.x + direction.x * speed * dt, 0, WORLD_WIDTH);
+      const nextY = clamp(playerRef.current.y + direction.y * speed * dt, 0, WORLD_HEIGHT);
+      const nextPosition = { x: nextX, y: nextY };
+      playerRef.current = nextPosition;
+      setPlayer(nextPosition);
 
-    const isAlive = crew.some((member) => member.currentHp > 0);
-    const roll = Math.random();
-    if (isAlive && destination.encounterTable.length > 0 && roll < destination.encounterChance) {
-      const { templateId, level } = pickWildEncounter(destination.encounterTable);
-      const template = CREW_TEMPLATES[templateId];
-      const wildMaxHp = maxHpFor({
-        instanceId: 'wild',
-        templateId,
-        nickname: template.name,
-        level,
-        xp: 0,
-        currentHp: 0,
-      });
-      setWildEncounter({ templateId, level, currentHp: wildMaxHp });
-      navigation.navigate('Encounter');
-      return;
-    }
+      const nextIsland = islandAtPoint(nextPosition);
+      const nextZoneId = nextIsland?.id ?? null;
+      if (nextZoneId !== lastZoneIdRef.current) {
+        lastZoneIdRef.current = nextZoneId;
+        if (nextIsland) {
+          setZoneLabel(nextIsland.name);
+          setZoneDescription(nextIsland.description);
+          if (nextIsland.isSafeZone) {
+            healAllCrew();
+          }
+        } else {
+          setZoneLabel('The Open Sea');
+          setZoneDescription('Nothing but waves in every direction.');
+        }
+      }
 
-    setStatusMessage(`You arrive at ${destination.name} without incident.`);
-  }
+      const now = Date.now();
+      if (now - lastEncounterCheckRef.current > ENCOUNTER_TICK_MS) {
+        lastEncounterCheckRef.current = now;
+        const isSafe = nextIsland?.isSafeZone;
+        if (!isSafe) {
+          const chance = nextIsland ? nextIsland.encounterChance : SEA_ENCOUNTER_CHANCE;
+          if (Math.random() < chance) {
+            triggerEncounter(!!nextIsland, nextIsland?.id ?? null);
+          }
+        }
+      }
+    }, TICK_MS);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFocused]);
+
+  const currentIsland = islandAtPoint(player);
+  const playerEmoji = currentIsland ? '🧍' : '⛵';
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>⚓ Pirate's Chart</Text>
+        <Text style={styles.title}>🏴‍☠️ {zoneLabel}</Text>
         <View style={styles.headerRow}>
           <Text style={styles.headerText}>💰 {gold} gold</Text>
           <Pressable onPress={() => navigation.navigate('Crew')} style={styles.crewButton}>
@@ -97,52 +188,81 @@ export default function MapScreen({ navigation }: Props) {
         </View>
       </View>
 
-      <View style={styles.mapContainer} onLayout={onLayoutContainer}>
-        {layout.width > 0 &&
-          ISLAND_LIST.flatMap((island) =>
-            island.connections
-              .filter((connId) => connId > island.id)
-              .map((connId) => (
-                <MapLine
-                  key={`${island.id}-${connId}`}
-                  from={toPixels(island.position)}
-                  to={toPixels(ISLANDS[connId].position)}
-                />
-              ))
-          )}
-
-        {layout.width > 0 &&
-          ISLAND_LIST.map((island) => {
-            const pixelPos = toPixels(island.position);
-            const isCurrent = island.id === currentIslandId;
-            const isReachable = currentIsland.connections.includes(island.id);
-            return (
-              <Pressable
+      <GestureDetector gesture={panGesture}>
+      <View
+        style={styles.mapContainer}
+        onLayout={onLayoutContainer}
+      >
+        {viewport.width > 0 && (
+          <View
+            style={[
+              styles.world,
+              {
+                width: WORLD_WIDTH,
+                height: WORLD_HEIGHT,
+                transform: [
+                  { translateX: viewport.width / 2 - player.x },
+                  { translateY: viewport.height / 2 - player.y },
+                ],
+              },
+            ]}
+          >
+            {ISLAND_LIST.map((island) => (
+              <View
                 key={island.id}
-                onPress={() => handleIslandPress(island.id)}
                 style={[
-                  styles.islandButton,
+                  styles.island,
                   {
-                    left: pixelPos.x - ISLAND_SIZE / 2,
-                    top: pixelPos.y - ISLAND_SIZE / 2,
+                    left: island.position.x - island.radius,
+                    top: island.position.y - island.radius,
+                    width: island.radius * 2,
+                    height: island.radius * 2,
+                    borderRadius: island.radius,
                   },
-                  isCurrent && styles.islandCurrent,
-                  !isCurrent && !isReachable && styles.islandUnreachable,
+                  island.isSafeZone && styles.islandSafe,
                 ]}
               >
                 <Text style={styles.islandEmoji}>{island.emoji}</Text>
-                <Text style={styles.islandName} numberOfLines={1}>
-                  {island.name}
-                </Text>
-                {isCurrent && <Text style={styles.shipMarker}>⛵</Text>}
-              </Pressable>
-            );
-          })}
+                <Text style={styles.islandName}>{island.name}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {viewport.width > 0 && (
+          <View
+            style={[
+              styles.player,
+              {
+                left: viewport.width / 2 - PLAYER_SIZE / 2,
+                top: viewport.height / 2 - PLAYER_SIZE / 2,
+              },
+            ]}
+          >
+            <Text style={styles.playerEmoji}>{playerEmoji}</Text>
+          </View>
+        )}
+
+        {dragOrigin && (
+          <View
+            pointerEvents="none"
+            style={[styles.joystickBase, { left: dragOrigin.x - 45, top: dragOrigin.y - 45 }]}
+          />
+        )}
+        {dragKnob && (
+          <View
+            pointerEvents="none"
+            style={[styles.joystickKnob, { left: dragKnob.x - 20, top: dragKnob.y - 20 }]}
+          />
+        )}
       </View>
+      </GestureDetector>
 
       <View style={styles.footer}>
-        <Text style={styles.islandDescription}>{currentIsland.description}</Text>
-        <Text style={styles.statusMessage}>{statusMessage}</Text>
+        <Text style={styles.islandDescription}>{zoneDescription}</Text>
+        <Text style={styles.statusMessage}>
+          Touch and drag anywhere to sail. Let go to stop.
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -159,7 +279,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     color: '#f4e9cd',
   },
@@ -190,40 +310,56 @@ const styles = StyleSheet.create({
     backgroundColor: '#124d73',
     overflow: 'hidden',
   },
-  islandButton: {
+  world: {
     position: 'absolute',
-    width: ISLAND_SIZE,
-    height: ISLAND_SIZE,
-    borderRadius: ISLAND_SIZE / 2,
+    backgroundColor: '#124d73',
+  },
+  island: {
+    position: 'absolute',
     backgroundColor: '#2c7a4b',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#f4e9cd',
-  },
-  islandCurrent: {
-    borderColor: '#ffd166',
     borderWidth: 3,
+    borderColor: '#1f5a37',
   },
-  islandUnreachable: {
-    opacity: 0.45,
+  islandSafe: {
+    borderColor: '#ffd166',
   },
   islandEmoji: {
-    fontSize: 24,
+    fontSize: 40,
   },
   islandName: {
-    fontSize: 9,
+    fontSize: 13,
     color: '#f4e9cd',
-    fontWeight: '600',
-    position: 'absolute',
-    bottom: -16,
-    width: 90,
+    fontWeight: '700',
+    marginTop: 4,
     textAlign: 'center',
   },
-  shipMarker: {
+  player: {
     position: 'absolute',
-    top: -22,
-    fontSize: 18,
+    width: PLAYER_SIZE,
+    height: PLAYER_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playerEmoji: {
+    fontSize: 30,
+  },
+  joystickBase: {
+    position: 'absolute',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(244, 233, 205, 0.15)',
+    borderWidth: 2,
+    borderColor: 'rgba(244, 233, 205, 0.4)',
+  },
+  joystickKnob: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 209, 102, 0.85)',
   },
   footer: {
     padding: 16,
@@ -237,7 +373,7 @@ const styles = StyleSheet.create({
   statusMessage: {
     color: '#ffd166',
     marginTop: 6,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
 });
