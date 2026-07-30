@@ -22,6 +22,7 @@ interface GameState {
   heat: number;
   currentBuildingId: string | null;
   hiredBuildingIds: string[];
+  inventory: Record<string, number>;
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -36,6 +37,8 @@ interface GameState {
   setHeat: (value: number) => void;
   setCurrentBuilding: (buildingId: string | null) => void;
   hireFromBuilding: (buildingId: string, templateId: string, level: number, cost: number) => boolean;
+  buyItem: (itemId: string, price: number) => boolean;
+  consumeItem: (itemId: string) => boolean;
   setHasHydrated: (value: boolean) => void;
 }
 
@@ -53,6 +56,7 @@ export const useGameStore = create<GameState>()(
       heat: 0,
       currentBuildingId: null,
       hiredBuildingIds: [],
+      inventory: {},
 
       setWildEncounter: (encounter) => set({ wildEncounter: encounter }),
 
@@ -149,6 +153,24 @@ export const useGameStore = create<GameState>()(
         return true;
       },
 
+      buyItem: (itemId, price) => {
+        const state = get();
+        if (state.gold < price) return false;
+        set({
+          gold: state.gold - price,
+          inventory: { ...state.inventory, [itemId]: (state.inventory[itemId] ?? 0) + 1 },
+        });
+        return true;
+      },
+
+      consumeItem: (itemId) => {
+        const state = get();
+        const count = state.inventory[itemId] ?? 0;
+        if (count <= 0) return false;
+        set({ inventory: { ...state.inventory, [itemId]: count - 1 } });
+        return true;
+      },
+
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
@@ -160,6 +182,7 @@ export const useGameStore = create<GameState>()(
         activeCrewId: state.activeCrewId,
         heat: state.heat,
         hiredBuildingIds: state.hiredBuildingIds,
+        inventory: state.inventory,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

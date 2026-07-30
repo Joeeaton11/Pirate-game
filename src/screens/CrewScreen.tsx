@@ -3,6 +3,7 @@ import React from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATES } from '../data/crew';
+import { ITEMS } from '../data/items';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 import { maxHpFor, xpToNextLevel } from '../utils/battle';
@@ -10,17 +11,33 @@ import { OwnedCrewMember } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Crew'>;
 
+const HEAL_ITEM_ID = 'rum_ration';
+
 export default function CrewScreen({ navigation }: Props) {
   const crew = useGameStore((s) => s.crew);
   const activeCrewId = useGameStore((s) => s.activeCrewId);
   const setActiveCrew = useGameStore((s) => s.setActiveCrew);
+  const setCrewHp = useGameStore((s) => s.setCrewHp);
   const gold = useGameStore((s) => s.gold);
+  const inventory = useGameStore((s) => s.inventory);
+  const consumeItem = useGameStore((s) => s.consumeItem);
+
+  const healItem = ITEMS[HEAL_ITEM_ID];
+  const healItemCount = inventory[HEAL_ITEM_ID] ?? 0;
+
+  function handleHeal(member: OwnedCrewMember, maxHp: number) {
+    if (healItemCount <= 0 || member.currentHp >= maxHp) return;
+    consumeItem(HEAL_ITEM_ID);
+    const healAmount = Math.round(maxHp * (healItem.healPercent ?? 0));
+    setCrewHp(member.instanceId, Math.min(maxHp, member.currentHp + healAmount));
+  }
 
   function renderItem({ item }: { item: OwnedCrewMember }) {
     const template = CREW_TEMPLATES[item.templateId];
     const maxHp = maxHpFor(item);
     const isActive = item.instanceId === activeCrewId;
     const isFainted = item.currentHp <= 0;
+    const canHeal = healItemCount > 0 && item.currentHp < maxHp;
 
     return (
       <Pressable
@@ -52,6 +69,11 @@ export default function CrewScreen({ navigation }: Props) {
             {xpToNextLevel(item.level)}
           </Text>
         </View>
+        {canHeal && (
+          <Pressable style={styles.healButton} onPress={() => handleHeal(item, maxHp)}>
+            <Text style={styles.healButtonText}>{healItem.emoji} Heal</Text>
+          </Pressable>
+        )}
       </Pressable>
     );
   }
@@ -68,6 +90,22 @@ export default function CrewScreen({ navigation }: Props) {
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
       />
+      <View style={styles.bag}>
+        <Text style={styles.bagHeading}>Bag</Text>
+        {Object.entries(inventory).filter(([, count]) => count > 0).length === 0 ? (
+          <Text style={styles.bagEmpty}>No items yet — visit a General Store.</Text>
+        ) : (
+          <View style={styles.bagRow}>
+            {Object.entries(inventory)
+              .filter(([, count]) => count > 0)
+              .map(([itemId, count]) => (
+                <Text key={itemId} style={styles.bagItem}>
+                  {ITEMS[itemId].emoji} {ITEMS[itemId].name} x{count}
+                </Text>
+              ))}
+          </View>
+        )}
+      </View>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>Back to Map</Text>
       </Pressable>
@@ -109,6 +147,24 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   hpBarFill: { height: '100%', borderRadius: 4 },
+  healButton: {
+    backgroundColor: '#2c7a4b',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  healButtonText: { color: '#f4e9cd', fontWeight: '700', fontSize: 12 },
+  bag: {
+    marginHorizontal: 12,
+    marginTop: 4,
+    padding: 12,
+    backgroundColor: '#062331',
+    borderRadius: 12,
+  },
+  bagHeading: { color: '#ffd166', fontWeight: '800', fontSize: 14, marginBottom: 6 },
+  bagEmpty: { color: '#cfe3ee', fontSize: 12, fontStyle: 'italic' },
+  bagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  bagItem: { color: '#f4e9cd', fontSize: 12 },
   backButton: {
     margin: 16,
     backgroundColor: '#f4e9cd',

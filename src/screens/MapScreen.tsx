@@ -164,6 +164,37 @@ export default function MapScreen({ navigation }: Props) {
 
   useEffect(() => {
     if (!isFocused) return;
+
+    // Returning from the Building screen can leave the player still standing inside that
+    // building's trigger radius, which would instantly re-enter it on the next tick. Nudge
+    // them just outside it first.
+    const pos = playerRef.current;
+    const island = islandAtPoint(pos);
+    if (island) {
+      const nearby = buildingsForIsland(island.id).find((b) => {
+        const bp = buildingWorldPosition(b, island.position);
+        return Math.hypot(pos.x - bp.x, pos.y - bp.y) <= ENTER_RADIUS;
+      });
+      if (nearby) {
+        const bp = buildingWorldPosition(nearby, island.position);
+        let dx = pos.x - bp.x;
+        let dy = pos.y - bp.y;
+        let dist = Math.hypot(dx, dy);
+        if (dist < 1) {
+          dx = 0;
+          dy = 1;
+          dist = 1;
+        }
+        const pushDist = ENTER_RADIUS + 15;
+        const pushed = {
+          x: clamp(bp.x + (dx / dist) * pushDist, 0, WORLD_WIDTH),
+          y: clamp(bp.y + (dy / dist) * pushDist, 0, WORLD_HEIGHT),
+        };
+        playerRef.current = pushed;
+        setPlayer(pushed);
+      }
+    }
+
     const interval = setInterval(() => {
       const direction = directionRef.current;
       if (!direction) return;

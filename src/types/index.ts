@@ -57,3 +57,18 @@ export interface BattleLogEntry {
   id: string;
   text: string;
 }
+
+export type ItemEffect = 'heal' | 'battle_boost' | 'guaranteed_recruit';
+
+export interface Item {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  price: number;
+  effect: ItemEffect;
+  healPercent?: number; // for 'heal': fraction of max HP restored
+  boostMultiplier?: number; // for 'battle_boost': damage multiplier on next attack
+  usableOutsideBattle?: boolean;
+  usableInBattle?: boolean;
+}

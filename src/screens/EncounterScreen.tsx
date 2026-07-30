@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATES } from '../data/crew';
+import { ITEM_LIST, ITEMS } from '../data/items';
 import { MOVES } from '../data/moves';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
@@ -46,6 +47,8 @@ export default function EncounterScreen({ navigation }: Props) {
   const healAllCrew = useGameStore((s) => s.healAllCrew);
   const addHeat = useGameStore((s) => s.addHeat);
   const setHeat = useGameStore((s) => s.setHeat);
+  const inventory = useGameStore((s) => s.inventory);
+  const consumeItem = useGameStore((s) => s.consumeItem);
   const activeCrew = useActiveCrewMember();
   const liveCrewMember = useGameStore((s) =>
     s.crew.find((m) => m.instanceId === activeCrew?.instanceId)
@@ -58,6 +61,9 @@ export default function EncounterScreen({ navigation }: Props) {
   const [busy, setBusy] = useState(false);
   const [fallenSnapshot, setFallenSnapshot] = useState<FallenSnapshot | null>(null);
   const [rescueMessage, setRescueMessage] = useState<string | null>(null);
+  const [showItemMenu, setShowItemMenu] = useState(false);
+  const [nextAttackBoost, setNextAttackBoost] = useState(1);
+  const [guaranteedRecruit, setGuaranteedRecruit] = useState(false);
 
   if (!wildEncounter || !activeCrew || !liveCrewMember) {
     return (
@@ -154,6 +160,9 @@ export default function EncounterScreen({ navigation }: Props) {
   function handleAttack(moveId: string) {
     if (busy || phase !== 'battling') return;
     setBusy(true);
+    setShowItemMenu(false);
+    const boost = nextAttackBoost;
+    if (boost !== 1) setNextAttackBoost(1);
     const result = calcDamage(moveId, playerStats, wildStats, wildTemplate.specialty);
     if (!result.hit) {
       appendLog(`${crewMember.nickname}'s ${MOVES[moveId].name} missed!`);
@@ -162,11 +171,13 @@ export default function EncounterScreen({ navigation }: Props) {
       return;
     }
 
-    const newWildHp = Math.max(0, encounter.currentHp - result.damage);
+    const damage = Math.round(result.damage * boost);
+    const newWildHp = Math.max(0, encounter.currentHp - damage);
     setWildEncounter({ ...encounter, currentHp: newWildHp });
     appendLog(
-      `${crewMember.nickname} uses ${MOVES[moveId].name} for ${result.damage} damage.` +
-        (result.effectivenessLabel ? ` ${result.effectivenessLabel}` : '')
+      `${crewMember.nickname} uses ${MOVES[moveId].name} for ${damage} damage.` +
+        (result.effectivenessLabel ? ` ${result.effectivenessLabel}` : '') +
+        (boost > 1 ? ' Empowered by grapeshot!' : '')
     );
 
     if (newWildHp <= 0) {
@@ -188,7 +199,10 @@ export default function EncounterScreen({ navigation }: Props) {
   function handleRecruit() {
     if (busy || phase !== 'battling' || isAmbush) return;
     setBusy(true);
-    const chance = recruitChance(encounter.templateId, encounter.currentHp, wildMaxHp);
+    setShowItemMenu(false);
+    const forced = guaranteedRecruit;
+    if (forced) setGuaranteedRecruit(false);
+    const chance = forced ? 1 : recruitChance(encounter.templateId, encounter.currentHp, wildMaxHp);
     const success = Math.random() < chance;
     if (success) {
       addCrewMember(encounter.templateId, encounter.level);
@@ -203,9 +217,34 @@ export default function EncounterScreen({ navigation }: Props) {
     setBusy(false);
   }
 
+  function handleUseItem(itemId: string) {
+    if (busy || phase !== 'battling') return;
+    const item = ITEMS[itemId];
+    if ((inventory[itemId] ?? 0) <= 0) return;
+    setBusy(true);
+    setShowItemMenu(false);
+    consumeItem(itemId);
+    if (item.effect === 'heal') {
+      const healAmount = Math.round(playerMaxHp * (item.healPercent ?? 0));
+      const newHp = Math.min(playerMaxHp, crewMember.currentHp + healAmount);
+      const actualHealed = newHp - crewMember.currentHp;
+      setCrewHp(crewMember.instanceId, newHp);
+      appendLog(`${crewMember.nickname} uses ${item.name} and recovers ${actualHealed} HP.`);
+    } else if (item.effect === 'battle_boost') {
+      setNextAttackBoost(item.boostMultiplier ?? 1);
+      appendLog(`${crewMember.nickname} primes a ${item.name} for the next strike!`);
+    } else if (item.effect === 'guaranteed_recruit') {
+      setGuaranteedRecruit(true);
+      appendLog(`You ready the ${item.name}, certain it'll seal the deal.`);
+    }
+    enemyTurn();
+    setBusy(false);
+  }
+
   function handleFlee() {
     if (busy || phase !== 'battling') return;
     setBusy(true);
+    setShowItemMenu(false);
     const success = Math.random() < 0.7;
     if (success) {
       appendLog('You slip away safely.');
@@ -219,6 +258,12 @@ export default function EncounterScreen({ navigation }: Props) {
   }
 
   const resolved = phase !== 'battling';
+  const usableItems = ITEM_LIST.filter(
+    (item) =>
+      item.usableInBattle &&
+      (inventory[item.id] ?? 0) > 0 &&
+      !(isAmbush && item.effect === 'guaranteed_recruit')
+  );
   const displayEmoji = fallenSnapshot ? fallenSnapshot.emoji : playerTemplate.emoji;
   const displayName = fallenSnapshot ? fallenSnapshot.nickname : crewMember.nickname;
   const displayLevel = fallenSnapshot ? fallenSnapshot.level : crewMember.level;
@@ -262,7 +307,27 @@ export default function EncounterScreen({ navigation }: Props) {
         {rescueMessage && <Text style={styles.rescueText}>{rescueMessage}</Text>}
       </ScrollView>
 
-      {!resolved && (
+      {!resolved && showItemMenu && (
+        <View style={styles.actions}>
+          {usableItems.map((item) => (
+            <Pressable
+              key={item.id}
+              style={styles.itemMenuButton}
+              onPress={() => handleUseItem(item.id)}
+              disabled={busy}
+            >
+              <Text style={styles.itemMenuButtonText}>
+                {item.emoji} {item.name} (x{inventory[item.id] ?? 0})
+              </Text>
+            </Pressable>
+          ))}
+          <Pressable style={styles.secondaryButton} onPress={() => setShowItemMenu(false)}>
+            <Text style={styles.secondaryButtonText}>Back</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {!resolved && !showItemMenu && (
         <View style={styles.actions}>
           <View style={styles.movesRow}>
             {playerTemplate.moveIds.map((moveId) => (
@@ -277,6 +342,13 @@ export default function EncounterScreen({ navigation }: Props) {
             ))}
           </View>
           <View style={styles.movesRow}>
+            <Pressable
+              style={styles.secondaryButton}
+              onPress={() => setShowItemMenu(true)}
+              disabled={busy || usableItems.length === 0}
+            >
+              <Text style={styles.secondaryButtonText}>Item</Text>
+            </Pressable>
             {!isAmbush && (
               <Pressable style={styles.secondaryButton} onPress={handleRecruit} disabled={busy}>
                 <Text style={styles.secondaryButtonText}>Recruit</Text>
@@ -380,6 +452,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondaryButtonText: { color: '#f4e9cd', fontWeight: '700' },
+  itemMenuButton: {
+    backgroundColor: '#2c5a7a',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  itemMenuButtonText: { color: '#f4e9cd', fontWeight: '700' },
   actionButton: {
     backgroundColor: '#f4e9cd',
     paddingVertical: 14,
