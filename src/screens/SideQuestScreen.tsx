@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ITEMS } from '../data/items';
 import { BOUNTY_TEMPLATES, SIDE_QUESTS } from '../data/sideQuests';
+import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 import { maxHpFor } from '../utils/battle';
@@ -23,6 +24,8 @@ export default function SideQuestScreen({ navigation }: Props) {
   const consumeItem = useGameStore((s) => s.consumeItem);
   const crew = useGameStore((s) => s.crew);
   const shipCrewIds = useGameStore((s) => s.shipCrewIds);
+  const questWaveProgress = useGameStore((s) => s.questWaveProgress);
+  const questTurnInCounts = useGameStore((s) => s.questTurnInCounts);
 
   const quest = SIDE_QUESTS.find((q) => q.id === currentSideQuestId);
 
@@ -87,6 +90,34 @@ export default function SideQuestScreen({ navigation }: Props) {
     completeSideQuest(quest.id, quest.goldReward);
   }
 
+  function handleConfrontEscortWave() {
+    if (!quest || quest.type !== 'escort') return;
+    const waveIndex = questWaveProgress[quest.id] ?? 0;
+    const templateId = quest.waveTemplateIds[waveIndex];
+    const level = quest.waveLevels[waveIndex];
+    const template = THREAT_TEMPLATES[templateId];
+    const maxHp = maxHpFor(
+      { instanceId: 'escort', templateId, nickname: template.name, level, xp: 0, currentHp: 0 },
+      template
+    );
+    setWildEncounter({ templateId, level, currentHp: maxHp, faction: 'bounty', questId: quest.id });
+    navigation.navigate('Encounter');
+  }
+
+  function handleConfrontHeatBounty() {
+    if (!quest || quest.type !== 'heat_bounty') return;
+    const pool = ['rival_deckhand', 'rival_corsair', 'navy_marine'];
+    const templateId = pool[Math.floor(Math.random() * pool.length)];
+    const level = 4 + Math.floor(Math.random() * 6);
+    const template = THREAT_TEMPLATES[templateId];
+    const maxHp = maxHpFor(
+      { instanceId: 'heat_bounty', templateId, nickname: template.name, level, xp: 0, currentHp: 0 },
+      template
+    );
+    setWildEncounter({ templateId, level, currentHp: maxHp, faction: 'bounty', questId: quest.id });
+    navigation.navigate('Encounter');
+  }
+
   const fetchItem = quest.type === 'fetch' ? ITEMS[quest.fetchItemId] : null;
   const fetchOwned = fetchItem ? inventory[fetchItem.id] ?? 0 : 0;
   const canDeliver = quest.type === 'fetch' && fetchOwned >= quest.fetchCount;
@@ -139,6 +170,22 @@ export default function SideQuestScreen({ navigation }: Props) {
         </View>
       )}
 
+      {isAccepted && !isCompleted && quest.type === 'escort' && (
+        <View style={styles.progressCard}>
+          <Text style={styles.progressText}>
+            Wave {(questWaveProgress[quest.id] ?? 0) + 1}/{quest.waveTemplateIds.length}
+          </Text>
+        </View>
+      )}
+
+      {isAccepted && quest.type === 'heat_bounty' && (questTurnInCounts[quest.id] ?? 0) > 0 && (
+        <View style={styles.progressCard}>
+          <Text style={styles.progressText}>
+            Turned in {questTurnInCounts[quest.id]} time{questTurnInCounts[quest.id] === 1 ? '' : 's'}
+          </Text>
+        </View>
+      )}
+
       <View style={styles.actions}>
         {!isAccepted && !isCompleted && (
           <Pressable style={styles.acceptButton} onPress={handleAccept}>
@@ -166,6 +213,18 @@ export default function SideQuestScreen({ navigation }: Props) {
             disabled={!hasRequiredSpecialty}
           >
             <Text style={styles.actionButtonText}>Open the Vault</Text>
+          </Pressable>
+        )}
+        {isAccepted && !isCompleted && quest.type === 'escort' && (
+          <Pressable style={styles.actionButton} onPress={handleConfrontEscortWave}>
+            <Text style={styles.actionButtonText}>
+              Confront Wave {(questWaveProgress[quest.id] ?? 0) + 1}
+            </Text>
+          </Pressable>
+        )}
+        {isAccepted && quest.type === 'heat_bounty' && (
+          <Pressable style={styles.actionButton} onPress={handleConfrontHeatBounty}>
+            <Text style={styles.actionButtonText}>Confront a Target</Text>
           </Pressable>
         )}
         <Pressable style={styles.leaveButton} onPress={handleLeave}>

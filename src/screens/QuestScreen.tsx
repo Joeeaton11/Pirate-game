@@ -14,6 +14,7 @@ export default function QuestScreen({ navigation }: Props) {
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const acceptedQuestIds = useGameStore((s) => s.acceptedQuestIds);
   const completedQuestIds = useGameStore((s) => s.completedQuestIds);
+  const questTurnInCounts = useGameStore((s) => s.questTurnInCounts);
   const sortedLords = [...PIRATE_LORDS].sort((a, b) => a.order - b.order);
   const allDefeated = defeatedLordIds.length === PIRATE_LORDS.length;
 
@@ -43,11 +44,29 @@ export default function QuestScreen({ navigation }: Props) {
   function renderQuestCard(quest: SideQuest) {
     const isCompleted = completedQuestIds.includes(quest.id);
     const isAccepted = acceptedQuestIds.includes(quest.id);
+    const turnIns = questTurnInCounts[quest.id] ?? 0;
     const island = ISLANDS[quest.islandId];
-    const status = isCompleted ? 'Completed' : isAccepted ? 'Accepted' : 'Available';
+    const status =
+      quest.type === 'heat_bounty'
+        ? isAccepted
+          ? `Open${turnIns > 0 ? ` · ${turnIns} turned in` : ''}`
+          : 'Available'
+        : isCompleted
+        ? 'Completed'
+        : isAccepted
+        ? 'Accepted'
+        : 'Available';
     const statusColor = isCompleted ? '#4caf50' : isAccepted ? '#ff8c42' : '#ffd166';
     const typeLabel =
-      quest.type === 'bounty' ? 'Bounty' : quest.type === 'fetch' ? 'Fetch' : 'Specialty';
+      quest.type === 'bounty'
+        ? 'Bounty'
+        : quest.type === 'fetch'
+        ? 'Fetch'
+        : quest.type === 'escort'
+        ? 'Escort'
+        : quest.type === 'heat_bounty'
+        ? 'Bounty Board'
+        : 'Specialty';
 
     return (
       <View key={quest.id} style={[styles.card, isCompleted && styles.cardDefeated]}>

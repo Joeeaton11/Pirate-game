@@ -36,6 +36,8 @@ interface GameState {
   currentSideQuestId: string | null;
   acceptedQuestIds: string[];
   completedQuestIds: string[];
+  questWaveProgress: Record<string, number>;
+  questTurnInCounts: Record<string, number>;
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -65,6 +67,8 @@ interface GameState {
   setCurrentSideQuest: (questId: string | null) => void;
   acceptSideQuest: (questId: string) => void;
   completeSideQuest: (questId: string, goldReward: number) => void;
+  advanceQuestWave: (questId: string) => void;
+  completeRepeatableQuest: (questId: string, goldReward: number, heatReduction: number) => void;
   debugSetCrewLevel: (instanceId: string, level: number) => void;
   debugResetSave: () => void;
   setHasHydrated: (value: boolean) => void;
@@ -90,6 +94,8 @@ type InitialState = Pick<
   | 'currentSideQuestId'
   | 'acceptedQuestIds'
   | 'completedQuestIds'
+  | 'questWaveProgress'
+  | 'questTurnInCounts'
 >;
 
 function createInitialState(): InitialState {
@@ -111,6 +117,8 @@ function createInitialState(): InitialState {
     currentSideQuestId: null,
     acceptedQuestIds: [],
     completedQuestIds: [],
+    questWaveProgress: {},
+    questTurnInCounts: {},
   };
 }
 
@@ -343,6 +351,24 @@ export const useGameStore = create<GameState>()(
               }
         ),
 
+      advanceQuestWave: (questId) =>
+        set((state) => ({
+          questWaveProgress: {
+            ...state.questWaveProgress,
+            [questId]: (state.questWaveProgress[questId] ?? 0) + 1,
+          },
+        })),
+
+      completeRepeatableQuest: (questId, goldReward, heatReduction) =>
+        set((state) => ({
+          gold: state.gold + goldReward,
+          heat: Math.min(100, Math.max(0, state.heat - heatReduction)),
+          questTurnInCounts: {
+            ...state.questTurnInCounts,
+            [questId]: (state.questTurnInCounts[questId] ?? 0) + 1,
+          },
+        })),
+
       debugSetCrewLevel: (instanceId, level) => {
         const state = get();
         let promotedTo: string | null = null;
@@ -387,6 +413,8 @@ export const useGameStore = create<GameState>()(
         recruitedTemplateIds: state.recruitedTemplateIds,
         acceptedQuestIds: state.acceptedQuestIds,
         completedQuestIds: state.completedQuestIds,
+        questWaveProgress: state.questWaveProgress,
+        questTurnInCounts: state.questTurnInCounts,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

@@ -30,11 +30,15 @@ const ALL_TEMPLATES = {
   ...BOUNTY_TEMPLATES,
 };
 
-function openingLine(faction: EncounterFaction | undefined): string {
+function openingLine(faction: EncounterFaction | undefined, questId: string | undefined): string {
   if (faction === 'rival') return 'A rival pirate crew ambushes you!';
   if (faction === 'navy') return "Navy patrol closes in — you're a wanted pirate!";
   if (faction === 'lord') return 'The duel for a Letter of Marque begins!';
-  if (faction === 'bounty') return 'You track down your bounty target!';
+  if (faction === 'bounty') {
+    const quest = questId ? SIDE_QUESTS.find((q) => q.id === questId) : undefined;
+    if (quest?.type === 'escort') return 'Raiders close in on the convoy!';
+    return 'You track down your bounty target!';
+  }
   return 'A wild pirate blocks your path!';
 }
 
@@ -62,6 +66,9 @@ export default function EncounterScreen({ navigation }: Props) {
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const defeatPirateLord = useGameStore((s) => s.defeatPirateLord);
   const completeSideQuest = useGameStore((s) => s.completeSideQuest);
+  const advanceQuestWave = useGameStore((s) => s.advanceQuestWave);
+  const completeRepeatableQuest = useGameStore((s) => s.completeRepeatableQuest);
+  const questWaveProgress = useGameStore((s) => s.questWaveProgress);
   const markSeen = useGameStore((s) => s.markSeen);
   const crew = useGameStore((s) => s.crew);
   const shipCrewIds = useGameStore((s) => s.shipCrewIds);
@@ -72,7 +79,10 @@ export default function EncounterScreen({ navigation }: Props) {
   );
 
   const [log, setLog] = useState<string[]>(() => [
-    openingLine(useGameStore.getState().wildEncounter?.faction),
+    openingLine(
+      useGameStore.getState().wildEncounter?.faction,
+      useGameStore.getState().wildEncounter?.questId
+    ),
   ]);
   const [phase, setPhase] = useState<Phase>('battling');
   const [busy, setBusy] = useState(false);
@@ -255,6 +265,27 @@ export default function EncounterScreen({ navigation }: Props) {
             lord?.badgeName ?? 'marque'
           } is yours!`
         );
+      } else if (bountyQuest?.type === 'escort') {
+        const waveIndex = questWaveProgress[bountyQuest.id] ?? 0;
+        const isFinalWave = waveIndex + 1 >= bountyQuest.waveTemplateIds.length;
+        if (isFinalWave) {
+          completeSideQuest(bountyQuest.id, bountyQuest.goldReward);
+          appendLog(
+            `${wildTemplate.name} is driven off! The convoy makes it through — +${reward} XP, +${bountyQuest.goldReward} gold.`
+          );
+        } else {
+          advanceQuestWave(bountyQuest.id);
+          appendLog(
+            `${wildTemplate.name} is driven off! Wave ${waveIndex + 1}/${
+              bountyQuest.waveTemplateIds.length
+            } survived — brace for the next. +${reward} XP.`
+          );
+        }
+      } else if (bountyQuest?.type === 'heat_bounty') {
+        completeRepeatableQuest(bountyQuest.id, bountyQuest.goldReward, bountyQuest.heatReduction);
+        appendLog(
+          `${wildTemplate.name} is defeated! +${reward} XP, +${bountyQuest.goldReward} gold, heat reduced by ${bountyQuest.heatReduction}.`
+        );
       } else if (bountyQuest) {
         completeSideQuest(bountyQuest.id, bountyQuest.goldReward);
         appendLog(
@@ -345,6 +376,10 @@ export default function EncounterScreen({ navigation }: Props) {
 
   const resolved = phase !== 'battling';
   const canFlee = encounter.faction !== 'lord';
+  const activeSideQuest =
+    encounter.faction === 'bounty' && encounter.questId
+      ? SIDE_QUESTS.find((q) => q.id === encounter.questId)
+      : undefined;
   const usableItems = ITEM_LIST.filter(
     (item) =>
       item.usableInBattle &&
@@ -367,7 +402,9 @@ export default function EncounterScreen({ navigation }: Props) {
               : encounter.faction === 'lord'
               ? '🏆 LETTER OF MARQUE DUEL'
               : encounter.faction === 'bounty'
-              ? '📜 BOUNTY HUNT'
+              ? activeSideQuest?.type === 'escort'
+                ? '⚔️ CONVOY UNDER ATTACK'
+                : '📜 BOUNTY HUNT'
               : '☠️ RIVAL AMBUSH'}
           </Text>
         </View>

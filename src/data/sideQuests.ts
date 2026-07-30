@@ -1,6 +1,6 @@
 import { CrewTemplate, Specialty } from '../types';
 
-export type SideQuestType = 'bounty' | 'fetch' | 'specialty_gate';
+export type SideQuestType = 'bounty' | 'fetch' | 'specialty_gate' | 'escort' | 'heat_bounty';
 
 interface SideQuestBase {
   id: string;
@@ -32,7 +32,25 @@ export interface SpecialtyGateSideQuest extends SideQuestBase {
   requiredSpecialty: Specialty;
 }
 
-export type SideQuest = BountySideQuest | FetchSideQuest | SpecialtyGateSideQuest;
+/** A back-to-back wave gauntlet with no healing between waves; fails back to the same wave on defeat. */
+export interface EscortSideQuest extends SideQuestBase {
+  type: 'escort';
+  waveTemplateIds: string[];
+  waveLevels: number[];
+}
+
+/** Repeatable: never enters completedQuestIds, tracked instead via questTurnInCounts. */
+export interface HeatBountySideQuest extends SideQuestBase {
+  type: 'heat_bounty';
+  heatReduction: number;
+}
+
+export type SideQuest =
+  | BountySideQuest
+  | FetchSideQuest
+  | SpecialtyGateSideQuest
+  | EscortSideQuest
+  | HeatBountySideQuest;
 
 /** Bounty targets: hostile-only, never recruitable, fought only via a side quest confrontation. */
 export const BOUNTY_TEMPLATES: Record<string, CrewTemplate> = {
@@ -103,6 +121,41 @@ export const SIDE_QUESTS: SideQuest[] = [
       "Your gunner made short work of that door. Fair's fair — here's your share.",
     goldReward: 80,
     requiredSpecialty: 'cannon',
+  },
+  {
+    id: 'quest_merchant_convoy',
+    type: 'escort',
+    islandId: 'widows_reef',
+    offset: { x: -150, y: 120 },
+    title: 'Escort the Merchant Convoy',
+    npcName: 'Captain Osei',
+    npcEmoji: '🧑‍✈️',
+    introDialogue:
+      "My convoy's due through this fog, and rival raiders have been circling like sharks. Sail escort for us — two waves, maybe more — and there's a cut of the cargo in it for you.",
+    acceptedDialogue:
+      "The raiders won't wait for you to catch your breath between waves. Brace yourself and confront them when you're ready.",
+    completeDialogue:
+      "We made it through without losing a crate. You've got a standing invitation on any of my ships, captain.",
+    goldReward: 90,
+    waveTemplateIds: ['rival_deckhand', 'rival_corsair'],
+    waveLevels: [7, 10],
+  },
+  {
+    id: 'quest_bounty_board',
+    type: 'heat_bounty',
+    islandId: 'tortuga_cove',
+    offset: { x: 0, y: 130 },
+    title: 'The Bounty Board',
+    npcName: 'Constable Duval',
+    npcEmoji: '📋',
+    introDialogue:
+      "Crown pays well for pirates and privateers brought to heel. Bring me proof of a fight won, and I'll square things with the crown on your behalf.",
+    acceptedDialogue:
+      "The board's always open, captain. Bring me a fight won and I'll pay out and cool your name with the crown.",
+    completeDialogue:
+      "The board's always open, captain. Bring me a fight won and I'll pay out and cool your name with the crown.",
+    goldReward: 20,
+    heatReduction: 15,
   },
 ];
 

@@ -185,11 +185,26 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   proximity-trigger pattern as buildings/forts) with a new SideQuest screen for the
   accept/progress/complete dialogue flow. Proves the "specific skills gate specific quests"
   pillar end-to-end
-- ⬜ More side quests per island (escort, resource-gathering, and the rest of the brainstormed
-  concepts/styles above) — the v1 pattern (data file + store accept/complete tracking + map
-  marker + SideQuest screen) is now proven and ready to extend
+- ✅ **Escort quest** (Escort the Merchant Convoy, Widow's Reef): a back-to-back wave gauntlet
+  (2 waves, no healing between) — confront-per-wave via the same `bounty` encounter faction,
+  progress tracked in `questWaveProgress`, only completes (and pays out) after the final wave;
+  losing a wave doesn't reset progress, just retries that wave
+- ✅ **Repeatable heat-bounty quest** (The Bounty Board, Tortuga Cove): combines two brainstormed
+  concepts — the recurring board quest style and the bounty-with-heat-payoff idea. Confronting
+  picks a random rival/navy target; each win pays gold **and** reduces heat, and the quest never
+  enters `completedQuestIds` — it stays open indefinitely, tracked instead via a
+  `questTurnInCounts` counter, so heat management becomes an active, repeatable choice rather than
+  only fleeing and waiting
+- ⬜ More side quests per island (resource-gathering, and the rest of the brainstormed
+  concepts/styles above) — the pattern (data file + store accept/complete tracking + map
+  marker + SideQuest screen) is now proven across one-shot, multi-stage, and repeatable quests
+- ⬜ **Prisoner rescue** (deferred, needs its own build): the store currently deletes a permadeath
+  victim's data entirely, so there's nothing to reference for a "rescue this specific crew member"
+  quest yet — building this for real means persisting captured-crew identity in `removeCrewMember`
+  first, which is a bigger, separate feature from the rest of this list
 - ✅ Quest log / journal UI (the new Quests screen) now lists both Pirate Lord progress and side
-  quests with Available/Accepted/Completed status
+  quests with Available/Accepted/Completed status (heat-bounty shows "Open · N turned in" instead,
+  since it never reaches a terminal Completed state)
 
 ### Side Quest Concepts (brainstormed)
 - ⬜ **Smuggling runs** — timed delivery of contraband cargo; a navy patrol encounter en route adds
@@ -324,23 +339,31 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
    to onboard crew, auto-refill from Quarters if the whole onboard party is wiped by permadeath
 8. ✅ **v1 side quests** — one bounty, one fetch, one specialty-gated quest, proving the
    data-file + store-tracking + map-marker + dedicated-screen pattern end-to-end
+9. ✅ **Escort + repeatable heat-bounty quests** — a 2-wave escort gauntlet and a repeatable
+   bounty-board quest with heat payoff, proving the pattern also handles multi-stage and
+   never-terminally-completed quests, not just one-shot ones
 
 ### Now (next up)
-9. **Expand side quests + add resource gathering** — more quests from the brainstormed
-   concepts/styles list (escort, timed race, recurring board quest, etc.) using the now-proven v1
-   pattern, plus gatherable materials (fish/timber/rum/gunpowder) distinct from gold
+10. **Resource gathering** — gatherable materials (fish/timber/rum/gunpowder) distinct from gold,
+    feeding a crafting/ship-upgrade sink; the remaining half of the "side quests + resource
+    gathering" build-order item, and the biggest piece of the original vision still unbuilt
+11. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+    investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
+    patterns
+12. **Prisoner rescue** — needs `removeCrewMember` to persist captured-crew identity first (it
+    currently just deletes it), so a rescue quest has something real to reference
 
 ### Next
-10. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+13. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-11. **Ship upgrades as soft gates + reputation-gated ports** — the traversal-gating system the
+14. **Ship upgrades as soft gates + reputation-gated ports** — the traversal-gating system the
     open world currently lacks entirely
-12. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
+15. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
     the 5 Lords have side-quest content built around them
 
 ### Later
-13. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+16. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template)
-14. **GTA-style character switching** (biggest, most novel, probably last)
+17. **GTA-style character switching** (biggest, most novel, probably last)
 14. Automated test suite, IAP integration, real art asset pipeline, onboarding tutorial —
     pre-launch/production concerns rather than gameplay-loop gaps
