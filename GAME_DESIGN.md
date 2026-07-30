@@ -56,25 +56,26 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   least the safe ones) for full-crew healing without needing to sail back to Tortuga Cove
   specifically. Right now Tortuga Cove is the *only* heal point, which is more restrictive than
   Pokémon (every town has a Center)
-- ⬜ Needs the Poké Mart equivalent: a **General Store** building type selling consumables and
-  gear:
-  - Rum Ration (heal item), Bandages (cure status), Grapeshot Charge (battle item, guaranteed hit
-    or bonus damage), Spyglass (reveals a zone's encounter table before you sail in), Ship upgrades
-    (see gating above), Treasure Maps (point toward a resource/quest node)
+- ✅ Poké Mart equivalent: General Store items sold from shop-type buildings (Harbor Trading Post,
+  Smuggler's Den) — Rum Ration (heal), Grapeshot Charge (boosts next attack), Forged Papers
+  (guarantees next recruit attempt). Usable mid-battle via an Item menu (consumes a turn, like
+  Pokémon's Bag) and Rum Ration is also usable directly from the Crew screen outside of battle
+- ⬜ More item variety: Bandages (cure status, once status conditions exist), Spyglass (reveals a
+  zone's encounter table before you sail in), Ship upgrades (see gating above), Treasure Maps
+  (point toward a resource/quest node)
 - ⬜ Multiple buildings per island once islands get bigger — currently 1-2 per island, Pokémon
   towns often have 3-5 functional buildings
 - ⬜ A Fan-Club/Hall-of-Fame equivalent: a building that reacts to your reputation/quest progress
   with flavor dialogue and rewards, giving repeat reasons to revisit early islands
 
 ## Battle System
-- ✅ Turn-based, menu-driven (Attack moves / Recruit / Flee — Item slot not built yet)
+- ✅ Turn-based, menu-driven (Attack moves / Item / Recruit / Flee)
 - ✅ Type effectiveness triangle (blade/musket/cannon) plus two off-triangle types
   (brawler/curse), mirroring Pokémon's type chart in miniature
 - ✅ HP bars, damage formula with variance, effectiveness messages ("It worked wonders!"/"It
   barely helped." — direct reskin of Pokémon's own text)
 - ✅ Leveling via XP, stat growth by level formula
-- 🔄 No Item option in battle yet (Pokémon's Bag menu) — needs the General Store items above to
-  have somewhere to be used
+- ✅ Item option in battle (Pokémon's Bag menu), consumes a turn like Pokémon's own items
 - ⬜ No status conditions yet (Poison/Burn/Paralysis equivalent) — pirate-flavored options:
   Bleeding (poison-like DoT), Drunk (paralysis-like, may skip turn), Cursed (confusion-like)
 - ⬜ No critical hits / stat stages yet
@@ -88,8 +89,8 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     addition, good differentiator)
 - ⬜ Crew Log (Pokédex equivalent): track every template you've *seen* vs *recruited*, viewable
   from a menu, with a completion percentage
-- ⬜ A "Master Ball" equivalent: a rare guaranteed-recruit item for when RNG has been unkind on a
-  rare wild encounter
+- ✅ A "Master Ball" equivalent: Forged Papers, a General Store item that guarantees the next
+  recruit attempt succeeds
 - 🔄 No trading between players — Pokémon's trade-evolution mechanic has no equivalent yet (see
   Evolution below for how this could still work single-player)
 
@@ -141,8 +142,7 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 
 ## Economy (Poké Mart equivalent)
 - ✅ Gold from battles and quests
-- 🔄 Currently gold only spends on building hires — needs the General Store item shop (above) to
-  give gold an ongoing sink beyond recruiting
+- ✅ Gold sinks: building hires and General Store items
 - ⬜ Selling looted goods/resources back to shops for gold (Pokémon's sell-half-price mechanic)
 - ⬜ Resource gathering (the vision item not yet built): fish/timber/rum/gunpowder as gatherable
   materials feeding crafting or ship upgrades, distinct from gold
@@ -173,7 +173,8 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ---
 
 ## Suggested build order (biggest gaps first, matching what makes it "feel like Pokémon")
-1. **General Store + Item system** — small build, unlocks the Bag/battle-item loop immediately
+1. ✅ **General Store + Item system** — done: Rum Ration, Grapeshot Charge, Forged Papers, buyable
+   from shop buildings, usable in battle and (heal) from the Crew screen
 2. **Crew Log (Pokédex equivalent)** — small-medium, huge "collect 'em all" motivation payoff
 3. **Promotions (evolution equivalent)** — medium, makes leveling feel like Pokémon instead of a
    flat number-go-up
