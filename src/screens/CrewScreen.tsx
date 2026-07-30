@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CREW_TEMPLATES } from '../data/crew';
+import { CREW_TEMPLATE_LIST, CREW_TEMPLATES } from '../data/crew';
 import { ITEMS } from '../data/items';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
@@ -21,6 +21,7 @@ export default function CrewScreen({ navigation }: Props) {
   const gold = useGameStore((s) => s.gold);
   const inventory = useGameStore((s) => s.inventory);
   const consumeItem = useGameStore((s) => s.consumeItem);
+  const recruitedTemplateIds = useGameStore((s) => s.recruitedTemplateIds);
 
   const healItem = ITEMS[HEAL_ITEM_ID];
   const healItemCount = inventory[HEAL_ITEM_ID] ?? 0;
@@ -82,7 +83,14 @@ export default function CrewScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Crew Roster</Text>
-        <Text style={styles.headerText}>💰 {gold} gold</Text>
+        <View style={styles.headerRight}>
+          <Text style={styles.headerText}>💰 {gold} gold</Text>
+          <Pressable style={styles.logButton} onPress={() => navigation.navigate('CrewLog')}>
+            <Text style={styles.logButtonText}>
+              Log {recruitedTemplateIds.length}/{CREW_TEMPLATE_LIST.length} ▸
+            </Text>
+          </Pressable>
+        </View>
       </View>
       <FlatList
         data={crew}
@@ -122,7 +130,15 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: { fontSize: 22, fontWeight: '700', color: '#f4e9cd' },
+  headerRight: { alignItems: 'flex-end', gap: 6 },
   headerText: { color: '#f4e9cd', fontSize: 15 },
+  logButton: {
+    backgroundColor: '#ffd166',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  logButtonText: { color: '#0b3d5c', fontWeight: '700', fontSize: 12 },
   listContent: { paddingHorizontal: 12, paddingBottom: 12, gap: 10 },
   card: {
     flexDirection: 'row',

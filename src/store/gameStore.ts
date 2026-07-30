@@ -25,6 +25,8 @@ interface GameState {
   inventory: Record<string, number>;
   currentPirateLordId: string | null;
   defeatedLordIds: string[];
+  seenTemplateIds: string[];
+  recruitedTemplateIds: string[];
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -43,6 +45,7 @@ interface GameState {
   consumeItem: (itemId: string) => boolean;
   setCurrentPirateLord: (lordId: string | null) => void;
   defeatPirateLord: (lordId: string) => void;
+  markSeen: (templateId: string) => void;
   setHasHydrated: (value: boolean) => void;
 }
 
@@ -63,6 +66,8 @@ export const useGameStore = create<GameState>()(
       inventory: {},
       currentPirateLordId: null,
       defeatedLordIds: [],
+      seenTemplateIds: [STARTER_TEMPLATE_ID],
+      recruitedTemplateIds: [STARTER_TEMPLATE_ID],
 
       setWildEncounter: (encounter) => set({ wildEncounter: encounter }),
 
@@ -79,6 +84,12 @@ export const useGameStore = create<GameState>()(
           return {
             crew: [...state.crew, newMember],
             activeCrewId: state.activeCrewId ?? newMember.instanceId,
+            seenTemplateIds: state.seenTemplateIds.includes(templateId)
+              ? state.seenTemplateIds
+              : [...state.seenTemplateIds, templateId],
+            recruitedTemplateIds: state.recruitedTemplateIds.includes(templateId)
+              ? state.recruitedTemplateIds
+              : [...state.recruitedTemplateIds, templateId],
           };
         }),
 
@@ -87,7 +98,16 @@ export const useGameStore = create<GameState>()(
         const remaining = state.crew.filter((m) => m.instanceId !== instanceId);
         if (remaining.length === 0) {
           const rescue = createOwnedCrewMember('cabin_hand', 2);
-          set({ crew: [rescue], activeCrewId: rescue.instanceId });
+          set({
+            crew: [rescue],
+            activeCrewId: rescue.instanceId,
+            seenTemplateIds: state.seenTemplateIds.includes('cabin_hand')
+              ? state.seenTemplateIds
+              : [...state.seenTemplateIds, 'cabin_hand'],
+            recruitedTemplateIds: state.recruitedTemplateIds.includes('cabin_hand')
+              ? state.recruitedTemplateIds
+              : [...state.recruitedTemplateIds, 'cabin_hand'],
+          });
           return true;
         }
         const newActiveId =
@@ -155,6 +175,12 @@ export const useGameStore = create<GameState>()(
           crew: [...state.crew, newMember],
           activeCrewId: state.activeCrewId ?? newMember.instanceId,
           hiredBuildingIds: [...state.hiredBuildingIds, buildingId],
+          seenTemplateIds: state.seenTemplateIds.includes(templateId)
+            ? state.seenTemplateIds
+            : [...state.seenTemplateIds, templateId],
+          recruitedTemplateIds: state.recruitedTemplateIds.includes(templateId)
+            ? state.recruitedTemplateIds
+            : [...state.recruitedTemplateIds, templateId],
         });
         return true;
       },
@@ -186,6 +212,13 @@ export const useGameStore = create<GameState>()(
             : { defeatedLordIds: [...state.defeatedLordIds, lordId] }
         ),
 
+      markSeen: (templateId) =>
+        set((state) =>
+          state.seenTemplateIds.includes(templateId)
+            ? state
+            : { seenTemplateIds: [...state.seenTemplateIds, templateId] }
+        ),
+
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
@@ -199,6 +232,8 @@ export const useGameStore = create<GameState>()(
         hiredBuildingIds: state.hiredBuildingIds,
         inventory: state.inventory,
         defeatedLordIds: state.defeatedLordIds,
+        seenTemplateIds: state.seenTemplateIds,
+        recruitedTemplateIds: state.recruitedTemplateIds,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

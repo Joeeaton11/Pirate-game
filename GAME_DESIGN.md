@@ -87,8 +87,10 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   - Battle-then-recruit on wild encounters, HP-based success chance (direct catch-mechanic analog)
   - Gold-priced one-time hire from named building NPCs (no Pokémon equivalent — this is our own
     addition, good differentiator)
-- ⬜ Crew Log (Pokédex equivalent): track every template you've *seen* vs *recruited*, viewable
-  from a menu, with a completion percentage
+- ✅ Crew Log (Pokédex equivalent): tracks every template as unseen (❓), seen-but-not-recruited
+  (name/specialty/rarity, no flavor text), or recruited (full card + flavor text), with a
+  completion counter. Seen on wild encounter start or viewing a building's NPC offer; accessible
+  from a button on the Crew roster screen
 - ✅ A "Master Ball" equivalent: Forged Papers, a General Store item that guarantees the next
   recruit attempt succeeds
 - 🔄 No trading between players — Pokémon's trade-evolution mechanic has no equivalent yet (see
@@ -230,7 +232,7 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
    from shop buildings, usable in battle and (heal) from the Crew screen
 2. ✅ **Main quest spine + Pirate Lords (Gym/Badge equivalent)** — done: 5 sequential named boss
    forts, Letters of Marque with a permanent stat boost, Quest Log screen
-3. **Crew Log (Pokédex equivalent)** — small-medium, huge "collect 'em all" motivation payoff
+3. ✅ **Crew Log (Pokédex equivalent)** — done: unseen/seen/recruited states, completion counter
 4. **Promotions (evolution equivalent)** — medium, makes leveling feel like Pokémon instead of a
    flat number-go-up
 5. Side quests + resource gathering, island "puzzle" gauntlets before each Pirate Lord

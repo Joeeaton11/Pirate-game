@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BUILDINGS, BuildingType } from '../data/buildings';
@@ -27,8 +27,16 @@ export default function BuildingScreen({ navigation }: Props) {
   const hireFromBuilding = useGameStore((s) => s.hireFromBuilding);
   const buyItem = useGameStore((s) => s.buyItem);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
+  const markSeen = useGameStore((s) => s.markSeen);
 
   const building = BUILDINGS.find((b) => b.id === currentBuildingId);
+
+  useEffect(() => {
+    if (building) {
+      markSeen(building.recruit.templateId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [building?.id]);
 
   if (!building) {
     return (

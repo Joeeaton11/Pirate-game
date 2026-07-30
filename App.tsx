@@ -12,6 +12,7 @@ import CrewScreen from './src/screens/CrewScreen';
 import BuildingScreen from './src/screens/BuildingScreen';
 import PirateLordScreen from './src/screens/PirateLordScreen';
 import QuestScreen from './src/screens/QuestScreen';
+import CrewLogScreen from './src/screens/CrewLogScreen';
 import { useGameStore } from './src/store/gameStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -43,6 +44,7 @@ export default function App() {
             <Stack.Screen name="Building" component={BuildingScreen} />
             <Stack.Screen name="PirateLord" component={PirateLordScreen} />
             <Stack.Screen name="Quests" component={QuestScreen} />
+            <Stack.Screen name="CrewLog" component={CrewLogScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

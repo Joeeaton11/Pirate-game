@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -54,6 +54,7 @@ export default function EncounterScreen({ navigation }: Props) {
   const consumeItem = useGameStore((s) => s.consumeItem);
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const defeatPirateLord = useGameStore((s) => s.defeatPirateLord);
+  const markSeen = useGameStore((s) => s.markSeen);
   const activeCrew = useActiveCrewMember();
   const liveCrewMember = useGameStore((s) =>
     s.crew.find((m) => m.instanceId === activeCrew?.instanceId)
@@ -69,6 +70,13 @@ export default function EncounterScreen({ navigation }: Props) {
   const [showItemMenu, setShowItemMenu] = useState(false);
   const [nextAttackBoost, setNextAttackBoost] = useState(1);
   const [guaranteedRecruit, setGuaranteedRecruit] = useState(false);
+
+  useEffect(() => {
+    if (wildEncounter?.faction === 'wild') {
+      markSeen(wildEncounter.templateId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wildEncounter?.templateId, wildEncounter?.faction]);
 
   if (!wildEncounter || !activeCrew || !liveCrewMember) {
     return (
