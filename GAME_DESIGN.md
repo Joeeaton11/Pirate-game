@@ -80,6 +80,21 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ## Islands, Ports & Buildings (Towns equivalent)
 - ✅ Buildings exist and are walk-in-to-enter, Pokémon-style (proximity-triggered, no button
   press) — tavern, beach camp, smuggler's den, naval college, manor, shrine, trading post
+- ✅ **Real walkable interiors, built 2026-07-31**: walking into a building no longer jumps
+  straight to a menu-like summary — it cuts to an actual small floor-plan room (furniture rendered
+  as styled shapes: a bar counter, stools, tables, a rug, a barrel) that you walk around in with
+  the same drag-gesture movement used outdoors, just bounded to the room instead of the world.
+  NPCs (the building's own NPC plus any hosted Patrons) are positioned in the room as walk-up-to
+  tokens rather than list rows; getting close to one surfaces a "Talk to X" prompt. Talking to the
+  main NPC opens the existing hire/shop/craft/sell/steal/upgrades content (unchanged, just now
+  reached this way instead of always being shown) with a Back button returning to the room; talking
+  to a patron opens the same `SideQuestScreen` flow as before, completely unmodified. Buildings
+  without a hand-authored floor plan yet (`src/data/interiors.ts` → `BUILDING_INTERIORS`) get a
+  generic fallback room (main NPC up top, patrons arranged below, light decoration) so nothing is
+  left non-functional — only Tortuga's tavern has a bespoke layout so far, matching Pokémon's own
+  pattern of walking into a real tile room rather than a menu. Room player position is local to
+  each visit (resets to the door on re-entry), and this is exactly the interior variant of the
+  overworld's drag-to-sail movement, not a new engine built from scratch
 - ✅ Each building = one named NPC, one line of dialogue, one one-time gold-priced hire
 - 🔄 Needs the Pokémon-Center equivalent: a **Shipwright/Surgeon building** on every island (or at
   least the safe ones) for full-crew healing without needing to sail back to Tortuga Cove
@@ -538,37 +553,45 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     real ending state to point playtesters at, built almost entirely by reusing existing fort/quest/
     badge machinery rather than inventing new screens
 17. ✅ **Patrons system foundation** — `SideQuestBase` gained an optional `hostedByBuildingId`
-    (offset becomes optional alongside it) and `BuildingScreen` gained a Patrons section, so a
-    quest can be reached by walking into an existing building instead of needing its own map
-    marker. Proven with 2 example patrons at Tortuga's tavern (a fetch and a bounty, both tested
-    end-to-end). This is the engineering prerequisite for scaling to 150+ mini quests — content
-    authoring across the other buildings happens in future batches, not all at once
+    (offset becomes optional alongside it), so a quest can be reached by walking into an existing
+    building instead of needing its own map marker. Proven with 2 example patrons at Tortuga's
+    tavern (a fetch and a bounty, both tested end-to-end). This is the engineering prerequisite
+    for scaling to 150+ mini quests — content authoring across the other buildings happens in
+    future batches, not all at once
+18. ✅ **Walkable building interiors** — building interiors are now real small floor-plan rooms
+    (furniture as styled shapes, walk-up-to NPC tokens) instead of a static list-menu, matching
+    Pokémon's actual walk-into-a-room pattern. `src/data/interiors.ts` holds hand-authored layouts
+    plus a fallback generator so every building works even before it gets a bespoke floor plan.
+    Reuses the outdoor drag-movement engine at room scale — no new movement tech, no new quest
+    mechanics, just a new way of *arriving* at the same hire/shop/craft/patron content that already
+    existed
 
 ### Now (next up)
-18. **Author Patron quest batches building-by-building** — apply the proven pattern to the
-    remaining ~11 buildings (2-4 patrons each), drawing from the reusable archetype roster
-    (Barkeep, Local, Drunk, Rival Pirate, Smuggler, Fortune Teller, etc.) toward the 150+ target
-19. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+19. **Author Patron quest batches + bespoke floor plans, building-by-building** — apply the proven
+    patterns to the remaining ~11 buildings (2-4 patrons each, drawing from the reusable archetype
+    roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler, Fortune Teller, etc.), giving each a real
+    floor plan instead of the generic fallback room as content is authored, toward the 150+ target
+20. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-20. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+21. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-21. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+22. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-22. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+23. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-23. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+24. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-24. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+25. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-25. **GTA-style character switching** (biggest, most novel, probably last)
-26. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+26. **GTA-style character switching** (biggest, most novel, probably last)
+27. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-27. Full e2e test automation, IAP integration, real art asset pipeline —
+28. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
