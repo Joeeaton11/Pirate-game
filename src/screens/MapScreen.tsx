@@ -18,6 +18,7 @@ import {
   WORLD_WIDTH,
   islandAtPoint,
 } from '../data/islands';
+import { HOUSES, houseWorldPosition } from '../data/houses';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
 import {
   PIRATE_LORDS,
@@ -48,6 +49,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 
 const PLAYER_SIZE = 40;
 const BUILDING_SIZE = 44;
+const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 const SEA_SPEED = 260; // world units per second
 const LAND_SPEED = 140;
 const DEADZONE = 12; // px of drag before movement starts
@@ -572,6 +574,21 @@ export default function MapScreen({ navigation }: Props) {
               })}
             </Svg>
 
+            {HOUSES.map((house, i) => {
+              const islandPos = ISLANDS[house.islandId].position;
+              const pos = houseWorldPosition(house, islandPos);
+              const emoji = HOUSE_EMOJIS[i % HOUSE_EMOJIS.length];
+              return (
+                <View
+                  key={i}
+                  style={[styles.house, { left: pos.x - 13, top: pos.y - 13 }]}
+                  pointerEvents="none"
+                >
+                  <Text style={styles.houseEmoji}>{emoji}</Text>
+                </View>
+              );
+            })}
+
             {ISLAND_LIST.map((island) => (
               <View
                 key={island.id}
@@ -933,6 +950,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#f4e9cd',
     textAlign: 'center',
+  },
+  house: {
+    position: 'absolute',
+    width: 26,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  houseEmoji: {
+    fontSize: 18,
   },
   streetNpc: {
     position: 'absolute',

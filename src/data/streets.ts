@@ -34,6 +34,18 @@ export const STREETS: StreetSegment[] = [
   // Rural outskirts, reached by coastal trail / farm track rather than a paved town street.
   { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: -190, y: 10 }, style: 'path' }, // -> West Point Shack
   { islandId: 'tortuga_cove', from: { x: 100, y: 65 }, to: { x: 140, y: 110 }, style: 'path' }, // -> La Ringot Fields
+  // Residential grid: 5 horizontal avenues x 5 vertical cross streets, lined with row houses
+  // (src/data/houses.ts) on both sides — the dense town blocks proper, south of the harbor road.
+  { islandId: 'tortuga_cove', from: { x: -130, y: -10 }, to: { x: 150, y: -10 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -140, y: 30 }, to: { x: 155, y: 30 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -130, y: 70 }, to: { x: 150, y: 70 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -120, y: 110 }, to: { x: 130, y: 110 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -95, y: 145 }, to: { x: 85, y: 145 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -110, y: -10 }, to: { x: -110, y: 145 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -60, y: -10 }, to: { x: -60, y: 150 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 0, y: -10 }, to: { x: 0, y: 150 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 60, y: -10 }, to: { x: 60, y: 150 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 110, y: -10 }, to: { x: 110, y: 140 }, style: 'main' },
 ];
 
 export function streetsForIsland(islandId: string): StreetSegment[] {

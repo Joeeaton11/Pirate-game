@@ -169,6 +169,20 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   - 6 new Patron quests came free with the 6 new buildings across both passes (fort, chapel,
     warehouse, West Point Shack, Customs House, Anchor & Forge), pushing Tortuga Cove's own quest
     count higher toward the 150+ target without inventing new mechanics
+  - **A real concentrated town, not scattered buildings, 2026-07-31**: matched the composition of
+    a real fantasy-map reference — one dense town, a small satellite settlement, a few scattered
+    outliers — instead of markers spread evenly over the whole island. Added `src/data/houses.ts`:
+    79 purely-visual row houses (procedurally generated along a 5-avenue × 5-cross-street grid,
+    every position validated on-land against Tortuga's coastline polygon and kept clear of every
+    other marker before being written down) filling the blocks between the new grid streets with
+    actual rows of houses lining both sides, the way a real street looks. Houses are intentionally
+    the lightest-weight content tier yet — no interior, no interaction, not even a proximity check
+    in the movement loop, purely a footprint on the map, like background buildings in GTA. 4 more
+    ambient street NPCs (residents, a fishwife, a child, an old fisherman) patrol through the new
+    residential blocks, for 7 wandering NPCs total. West Point Shack (far west) now reads clearly
+    as the "small settlement," and Fort de Rocher / Harbor Pier / La Ringot Fields as the "few
+    buildings scattered around the island," while everything from the harbor road south is one
+    unbroken, dense downtown — Tortuga Cove is now well past 60 total structures
   - **Placeholder art note**: everything above renders with the same emoji + colored-shape
     primitives used everywhere else in the game (no real pixel art asset pipeline exists yet — see
     `TileLayer.tsx`, built but unused, waiting on a real licensed tileset). The specific places a
