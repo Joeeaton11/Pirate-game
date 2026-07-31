@@ -107,7 +107,13 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   West Point — for 15 wandering NPCs total, spread across the whole town instead of clustered near
   the square. Same mechanism throughout: deterministic waypoint patrol, one-shot flavor toast on
   approach, every waypoint validated on-land before being added
-- ✅ **Map decluttered, 2026-07-31**: at 5x zoom, two always-on floating text labels — the island
+- ✅ **Simple filler townspeople, 2026-07-31**: 15 more street NPCs using plain "generic person"
+  emoji (🕺💃🚶🏃🧍👫🧌🧞) rather than named trades — a couple of dancers, passersby, runners,
+  locals, a couple, and even a troll and three genies (fitting, given the game already has
+  curse-type crew and dark-forces quest flavor). Deliberately undifferentiated: same short generic
+  flavor line shared across variants of the same "type" (e.g. all 3 "Passerby" NPCs say the same
+  thing) rather than bespoke lore per NPC — 30 wandering NPCs total now, just more bodies making
+  the town feel busy, not more content to author or maintain
   name+emoji badge and each landmark's name — turned out to be sized for the old unzoomed 1:1 view
   and never got revisited when `ZOOM` was introduced. The island label box alone rendered wider
   than the phone screen. Removed both: the island name is redundant with the header bar (which
