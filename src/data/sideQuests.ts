@@ -5,7 +5,11 @@ export type SideQuestType = 'bounty' | 'fetch' | 'specialty_gate' | 'escort' | '
 interface SideQuestBase {
   id: string;
   islandId: string;
-  offset: { x: number; y: number }; // relative to island center, in world units
+  // Standalone quests get their own walk-up map marker via `offset`. A quest hosted by a
+  // building instead (a "patron" you talk to inside) sets `hostedByBuildingId` and omits
+  // `offset` entirely — no marker of its own, reached via that building's Patrons section.
+  offset?: { x: number; y: number }; // relative to island center, in world units
+  hostedByBuildingId?: string;
   title: string;
   npcName: string;
   npcEmoji: string;
@@ -67,6 +71,19 @@ export const BOUNTY_TEMPLATES: Record<string, CrewTemplate> = {
     baseSpeed: 18,
     moveIds: ['cutlass_slash', 'boarding_rush'],
     flavor: "A rustler who's been raiding the muster camp's cattle and supply boats for months.",
+  },
+  tavern_troublemaker: {
+    id: 'tavern_troublemaker',
+    name: 'The Troublemaker',
+    specialty: 'brawler',
+    emoji: '🤛',
+    rarity: 'common',
+    baseHp: 32,
+    baseAtk: 14,
+    baseDef: 8,
+    baseSpeed: 12,
+    moveIds: ['brawl', 'bottle_bash'],
+    flavor: 'Starts a fight most nights and never remembers who won.',
   },
 };
 
@@ -183,14 +200,50 @@ export const SIDE_QUESTS: SideQuest[] = [
     waveLevels: [11, 14, 17, 20, 25],
     requiresAllLordsDefeated: true,
   },
+  {
+    id: 'patron_tortuga_drunk',
+    type: 'fetch',
+    islandId: 'tortuga_cove',
+    hostedByBuildingId: 'tortuga_tavern',
+    title: 'One More Round',
+    npcName: 'Wobbly Pete',
+    npcEmoji: '🥴',
+    introDialogue:
+      "Buy us a round, hair of the dog and all that. A Rum Ration would set me right as rain.",
+    acceptedDialogue: "Still parched over here, captain. One Rum Ration, that's all I ask.",
+    completeDialogue:
+      "Ahh, there we are. You're a saint, or the closest thing to one in this tavern.",
+    goldReward: 10,
+    fetchItemId: 'rum_ration',
+    fetchCount: 1,
+  },
+  {
+    id: 'patron_tortuga_local',
+    type: 'bounty',
+    islandId: 'tortuga_cove',
+    hostedByBuildingId: 'tortuga_tavern',
+    title: 'Settle the Tab',
+    npcName: 'Barmaid Ross',
+    npcEmoji: '🙍‍♀️',
+    introDialogue:
+      "See that lout in the corner? Picks a fight most nights and I'm sick of mopping up the mess. Rough him up proper and there's coin in it for you.",
+    acceptedDialogue: "He's still swaggering around out there causing bother. You know what to do.",
+    completeDialogue:
+      "Peace and quiet, finally. Drinks are on the house next time — well, one drink.",
+    goldReward: 20,
+    bountyTemplateId: 'tavern_troublemaker',
+    bountyLevel: 4,
+  },
 ];
 
 export function sideQuestsForIsland(islandId: string): SideQuest[] {
   return SIDE_QUESTS.filter((q) => q.islandId === islandId);
 }
 
+/** Only call this for quests that have a map marker of their own (i.e. `offset` is set) —
+ * a building-hosted patron quest has no offset and is reached via that building instead. */
 export function sideQuestWorldPosition(
-  quest: SideQuest,
+  quest: SideQuest & { offset: { x: number; y: number } },
   islandPosition: { x: number; y: number }
 ): { x: number; y: number } {
   return { x: islandPosition.x + quest.offset.x, y: islandPosition.y + quest.offset.y };

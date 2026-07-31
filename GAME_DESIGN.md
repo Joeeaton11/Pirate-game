@@ -334,10 +334,11 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ **Recurring board quest** — a repeatable, low-narrative bounty/gather quest that resets; this
   is the side-content-for-engagement gap already flagged under Scope & Pacing
 
-### Scaling to 150+ Mini Quests: the Patrons System (planned 2026-07-31)
-- ⬜ **Not yet built — this is a planning entry, content to be authored in future batches.**
-  Revises the side-quest target up from 15-20/25-30 to **150+**, via a mechanism that keeps the
-  per-quest cost low instead of scaling authoring effort linearly:
+### Scaling to 150+ Mini Quests: the Patrons System (planned 2026-07-31, foundation built 2026-07-31)
+- ✅ **Foundation built and proven with 2 example patrons — bulk content authoring is still the
+  remaining work, in future batches.** Revises the side-quest target up from 15-20/25-30 to
+  **150+**, via a mechanism that keeps the per-quest cost low instead of scaling authoring effort
+  linearly:
   - **The key unlock: quests don't need their own map marker.** Every side quest so far has been a
     standalone 📜 marker with its own island offset — that's what made "120 quests" look
     map-cluttered and expensive. Instead, **buildings can host multiple named "patrons"** — walk-in
@@ -361,13 +362,25 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     approach already used for every building/lord/resource) **and some generic/templated** (a
     reused fetch/gather skeleton with light variation, no less legitimate than Pokémon's own
     identical-mechanic-different-NPC gyms)
-  - **Engineering prerequisite before content authoring at this scale**: `Building` needs a
-    `patrons` list (or a new `src/data/patrons.ts` keyed by `buildingId`), and `BuildingScreen`
-    needs a new section rendering walk-up patron rows (same generic-section pattern already used
-    for Craft/Sell/Steal/Ship Upgrades) that open the existing `SideQuestScreen` flow per patron —
-    this is a foundational build task distinct from, and prior to, writing the 150 quests
-    themselves
-  - Explicitly **not** claiming 150 fully bespoke unique narratives — some will be short, familiar,
+  - ✅ **Engineering foundation, built**: `SideQuestBase` gained an optional `hostedByBuildingId`
+    field and made `offset` optional — a quest with `hostedByBuildingId` set has no map marker of
+    its own. `BuildingScreen` gained a **Patrons** section (same generic-section pattern already
+    used for Craft/Sell/Steal/Ship Upgrades) that lists every quest hosted by that building and
+    opens the existing, unmodified `SideQuestScreen` flow per patron on tap. `MapScreen`'s quest
+    marker rendering and walk-up proximity trigger both filter to `quest.offset` only, so
+    patron-hosted quests never appear on the map or at anywhere near it — reached purely by walking
+    into the building. No new quest mechanics were needed; `fetch` and `bounty` both work
+    unmodified through this new hosting path
+  - ✅ **Proven with 2 examples at Tortuga's tavern (The Salty Parrot)**: Wobbly Pete (a Drunk
+    patron, `fetch` type — wants a Rum Ration) and Barmaid Ross (a Local patron, `bounty` type —
+    wants a new common-rarity `tavern_troublemaker` bounty target dealt with). Both tested
+    end-to-end in-browser: walking into the tavern shows both patrons with no extra map markers
+    anywhere, talking to either opens the normal quest accept/confront/complete flow, and both
+    complete correctly and show up in the Quest Log
+  - ⬜ **Remaining work is content authoring, not engineering**: apply this same pattern to the
+    other ~11 existing buildings (and new buildings as islands grow more of them per the
+    already-flagged town-density gap), batching quests over future sessions toward the 150+ target.
+    Explicitly **not** claiming 150 fully bespoke unique narratives — some will be short, familiar,
     formulaic (that's fine, matches how mini-quests actually scale in bigger games); the goal is
     volume of *fun, flavorful, non-duplicate* content without 150x-ing the writing effort per quest
 
@@ -524,33 +537,38 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     mechanic) which unlocks Blackbeard as a 6th, quest-gated Pirate Lord. The game finally has a
     real ending state to point playtesters at, built almost entirely by reusing existing fort/quest/
     badge machinery rather than inventing new screens
+17. ✅ **Patrons system foundation** — `SideQuestBase` gained an optional `hostedByBuildingId`
+    (offset becomes optional alongside it) and `BuildingScreen` gained a Patrons section, so a
+    quest can be reached by walking into an existing building instead of needing its own map
+    marker. Proven with 2 example patrons at Tortuga's tavern (a fetch and a bounty, both tested
+    end-to-end). This is the engineering prerequisite for scaling to 150+ mini quests — content
+    authoring across the other buildings happens in future batches, not all at once
 
 ### Now (next up)
-17. **Build the Patrons system foundation** (`Building.patrons` / `src/data/patrons.ts` +
-    a BuildingScreen section rendering walk-in quest-givers) — the engineering prerequisite for
-    scaling to 150+ mini quests per the revised Scope & Pacing target; content authoring happens
-    in batches after this lands, not all at once
-18. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+18. **Author Patron quest batches building-by-building** — apply the proven pattern to the
+    remaining ~11 buildings (2-4 patrons each), drawing from the reusable archetype roster
+    (Barkeep, Local, Drunk, Rival Pirate, Smuggler, Fortune Teller, etc.) toward the 150+ target
+19. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
-    patterns. Feeds both standalone map-marker quests and, once built, Patron-hosted ones
+    patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-19. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+20. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-20. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+21. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-21. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+22. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-22. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+23. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-23. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+24. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-24. **GTA-style character switching** (biggest, most novel, probably last)
-25. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+25. **GTA-style character switching** (biggest, most novel, probably last)
+26. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-26. Full e2e test automation, IAP integration, real art asset pipeline —
+27. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

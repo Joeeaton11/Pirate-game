@@ -7,6 +7,7 @@ import { CREW_TEMPLATES } from '../data/crew';
 import { CRAFTING_RECIPES, ITEMS } from '../data/items';
 import { RESOURCE_LIST, RESOURCES } from '../data/resources';
 import { SHIP_UPGRADES } from '../data/shipUpgrades';
+import { SIDE_QUESTS } from '../data/sideQuests';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
@@ -38,6 +39,9 @@ export default function BuildingScreen({ navigation }: Props) {
   const buyShipUpgrade = useGameStore((s) => s.buyShipUpgrade);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const markSeen = useGameStore((s) => s.markSeen);
+  const acceptedQuestIds = useGameStore((s) => s.acceptedQuestIds);
+  const completedQuestIds = useGameStore((s) => s.completedQuestIds);
+  const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
   const [sentToQuarters, setSentToQuarters] = useState(false);
   const [theftResult, setTheftResult] = useState<{ caught: boolean; amount: number } | null>(null);
 
@@ -73,6 +77,12 @@ export default function BuildingScreen({ navigation }: Props) {
   const stealResource = building.stealResourceId ? RESOURCES[building.stealResourceId] : null;
   const stealReadyAt = theftCooldowns[buildingId] ?? 0;
   const stealReady = Date.now() >= stealReadyAt;
+  const patronQuests = SIDE_QUESTS.filter((q) => q.hostedByBuildingId === buildingId);
+
+  function handleTalkToPatron(questId: string) {
+    setCurrentSideQuest(questId);
+    navigation.navigate('SideQuest');
+  }
 
   function handleHire() {
     if (!recruit) return;
@@ -103,6 +113,32 @@ export default function BuildingScreen({ navigation }: Props) {
           <Text style={styles.npcName}>{building.npcName}</Text>
           <Text style={styles.dialogue}>"{building.dialogue}"</Text>
         </View>
+
+        {patronQuests.length > 0 && (
+          <View style={styles.shopSection}>
+            <Text style={styles.shopHeading}>Patrons</Text>
+            {patronQuests.map((quest) => {
+              const isCompleted = completedQuestIds.includes(quest.id);
+              const isAccepted = acceptedQuestIds.includes(quest.id);
+              const status = isCompleted ? 'Completed' : isAccepted ? 'In progress' : 'Talk';
+              const statusColor = isCompleted ? '#4caf50' : isAccepted ? '#ff8c42' : '#ffd166';
+              return (
+                <Pressable
+                  key={quest.id}
+                  style={styles.itemRow}
+                  onPress={() => handleTalkToPatron(quest.id)}
+                >
+                  <Text style={styles.itemEmoji}>{quest.npcEmoji}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.itemName}>{quest.npcName}</Text>
+                    <Text style={styles.itemDescription}>{quest.title}</Text>
+                  </View>
+                  <Text style={[styles.patronStatus, { color: statusColor }]}>{status}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
 
         {recruit && template && (
           <>
@@ -395,6 +431,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   buyButtonText: { color: '#f4e9cd', fontWeight: '700' },
+  patronStatus: { fontSize: 12, fontWeight: '800' },
   stealButton: {
     backgroundColor: '#7a1f1f',
     paddingHorizontal: 14,

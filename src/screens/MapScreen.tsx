@@ -27,7 +27,7 @@ import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } fro
 import { RESCUE_POINT, rescuePointWorldPosition } from '../data/rescue';
 import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
 import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
-import { SIDE_QUESTS, sideQuestWorldPosition } from '../data/sideQuests';
+import { SIDE_QUESTS, SideQuest, sideQuestWorldPosition } from '../data/sideQuests';
 import {
   THREAT_TEMPLATES,
   ThreatFaction,
@@ -214,11 +214,13 @@ export default function MapScreen({ navigation }: Props) {
 
   function nearbySideQuestPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
     const quest = SIDE_QUESTS.find((q) => {
-      if (q.islandId !== island.id) return false;
-      const qp = sideQuestWorldPosition(q, island.position);
+      if (q.islandId !== island.id || !q.offset) return false;
+      const qp = sideQuestWorldPosition(q as SideQuest & { offset: { x: number; y: number } }, island.position);
       return Math.hypot(pos.x - qp.x, pos.y - qp.y) <= ENTER_RADIUS;
     });
-    return quest ? sideQuestWorldPosition(quest, island.position) : null;
+    return quest && quest.offset
+      ? sideQuestWorldPosition(quest as SideQuest & { offset: { x: number; y: number } }, island.position)
+      : null;
   }
 
   function nearbyRescuePointPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
@@ -319,8 +321,8 @@ export default function MapScreen({ navigation }: Props) {
         }
 
         const nearbyQuest = SIDE_QUESTS.find((q) => {
-          if (q.islandId !== nextIsland.id) return false;
-          const qp = sideQuestWorldPosition(q, nextIsland.position);
+          if (q.islandId !== nextIsland.id || !q.offset) return false;
+          const qp = sideQuestWorldPosition(q as SideQuest & { offset: { x: number; y: number } }, nextIsland.position);
           return Math.hypot(nextPosition.x - qp.x, nextPosition.y - qp.y) <= ENTER_RADIUS;
         });
         if (nearbyQuest) {
@@ -503,9 +505,9 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {SIDE_QUESTS.map((quest) => {
+            {SIDE_QUESTS.filter((quest) => quest.offset).map((quest) => {
               const islandPos = ISLANDS[quest.islandId].position;
-              const pos = sideQuestWorldPosition(quest, islandPos);
+              const pos = sideQuestWorldPosition(quest as SideQuest & { offset: { x: number; y: number } }, islandPos);
               const isCompleted = completedQuestIds.includes(quest.id);
               const isAccepted = acceptedQuestIds.includes(quest.id);
               const questStyle = isCompleted
