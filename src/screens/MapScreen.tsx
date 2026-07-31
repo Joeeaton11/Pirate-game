@@ -50,7 +50,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 // Pokémon-style close camera: the world renders at ZOOM x its native scale (buildings, houses,
 // streets, everything inside the `world` container), while the player token — rendered as a
 // separate fixed element always centered on screen — is sized to match by hand below.
-const ZOOM = 2.5;
+const ZOOM = 3.6;
 const PLAYER_SIZE = 40 * ZOOM;
 const BUILDING_SIZE = 44;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];

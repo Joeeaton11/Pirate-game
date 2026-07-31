@@ -85,7 +85,8 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   Kingshot-style drag-to-move continuous movement instead of tile-by-tile. Keep this; it's core to
   the pitch.
 - ✅ Camera follows player; speed and sprite change between sea (ship) and land (on-foot)
-- ✅ **Pokémon-close camera zoom, built 2026-07-31**: the outdoor map now renders at 2.5x its
+- ✅ **Pokémon-close camera zoom, built 2026-07-31, tuned to 3.6x against reference screenshots**:
+  the outdoor map now renders at 3.6x its
   native scale (`ZOOM` in `MapScreen.tsx`) — buildings, houses, streets, everything inside the
   `world` container zooms uniformly via a single CSS-style transform (`translate` then `scale`,
   with the translate math canceling out the view's default center-origin so it zooms around the
