@@ -9,7 +9,7 @@ export interface StreetSegment {
 }
 
 export const STREETS: StreetSegment[] = [
-  // Basse-Terre Square as the town's central hub, radiating out to every building/landmark.
+  // Basse-Terre Square as the downtown hub, radiating out to the inner ring of buildings.
   { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: -90, y: -40 }, style: 'main' }, // -> The Salty Parrot
   { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: 90, y: -30 }, style: 'main' }, // -> Harbor Trading Post
   { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: -130, y: 120 }, style: 'main' }, // -> Fishmonger's Stall
@@ -20,6 +20,14 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 90, y: -30 }, to: { x: 0, y: -140 }, style: 'main' }, // -> Fishing Dock
   { islandId: 'tortuga_cove', from: { x: 0, y: -140 }, to: { x: 70, y: -145 }, style: 'main' }, // -> Harbor Pier
   { islandId: 'tortuga_cove', from: { x: 0, y: -140 }, to: { x: -60, y: -105 }, style: 'main' }, // -> Warehouse
+  // Outer ring: each inner building connects onward to one more, so the downtown reads as blocks
+  // radiating from the square rather than a single spoke pattern.
+  { islandId: 'tortuga_cove', from: { x: 90, y: -30 }, to: { x: 160, y: 10 }, style: 'main' }, // Trading Post -> Customs House
+  { islandId: 'tortuga_cove', from: { x: 100, y: 65 }, to: { x: 35, y: 70 }, style: 'main' }, // Chapel -> The Baker's Oven
+  { islandId: 'tortuga_cove', from: { x: 60, y: 130 }, to: { x: 35, y: 70 }, style: 'main' }, // Locked Ward -> The Baker's Oven
+  { islandId: 'tortuga_cove', from: { x: -130, y: 120 }, to: { x: -70, y: 160 }, style: 'main' }, // Fishmonger -> The Ropewalk
+  { islandId: 'tortuga_cove', from: { x: 0, y: 130 }, to: { x: -70, y: 160 }, style: 'main' }, // Bounty Board -> The Ropewalk
+  { islandId: 'tortuga_cove', from: { x: -90, y: -40 }, to: { x: -110, y: 40 }, style: 'main' }, // Salty Parrot -> The Anchor & Forge
   // Fort de Rocher's real access was a rock-cut staircase and a pull-up ladder — a treacherous
   // route rather than a proper street.
   { islandId: 'tortuga_cove', from: { x: 70, y: -145 }, to: { x: 100, y: -100 }, style: 'path' }, // -> Fort de Rocher

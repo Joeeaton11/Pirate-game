@@ -10,7 +10,9 @@ export type BuildingType =
   | 'market'
   | 'fort'
   | 'chapel'
-  | 'warehouse';
+  | 'warehouse'
+  | 'customs'
+  | 'smithy';
 
 export interface Building {
   id: string;
@@ -249,6 +251,29 @@ export const BUILDINGS: Building[] = [
     npcEmoji: '🧓',
     dialogue: "Retired from the account, as they say. Out here the wind's quieter and nobody remembers my face.",
     recruit: { templateId: 'duelist_first_mate', level: 4, cost: 45 },
+  },
+  {
+    id: 'tortuga_customs',
+    islandId: 'tortuga_cove',
+    name: 'The Customs House',
+    type: 'customs',
+    emoji: '🏛️',
+    offset: { x: 160, y: 10 },
+    npcName: 'Inspector Hale',
+    npcEmoji: '🎩',
+    dialogue:
+      "Every crate that crosses this harbor's meant to pay its due to the crown. Half of it does. I've learned not to ask about the other half.",
+  },
+  {
+    id: 'tortuga_smithy',
+    islandId: 'tortuga_cove',
+    name: 'The Anchor & Forge',
+    type: 'smithy',
+    emoji: '⚒️',
+    offset: { x: -110, y: 40 },
+    npcName: 'Forge-Master Kade',
+    npcEmoji: '🔨',
+    dialogue: "Cutlasses, grapeshot, ship fittings — if it's metal and it's broken, I can fix it or melt it down and start again.",
   },
 ];
 

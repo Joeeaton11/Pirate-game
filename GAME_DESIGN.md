@@ -158,8 +158,17 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     two waypoints (a deterministic function of time, no per-NPC state needed — `streetNpcPosition()`)
     instead of standing still, so the town feels lived-in from outside its buildings too. Same
     one-shot flavor-toast treatment as landmarks; never a quest
-  - 4 new Patron quests came free with the 3 new buildings (fort, chapel, warehouse), pushing
-    Tortuga Cove's own quest count higher toward the 150+ target without inventing new mechanics
+  - **Densified into a real downtown block, 2026-07-31**: streets got an actual sidewalk (a wider
+    light stroke under a narrower dark road stroke, `main`-style only — `path`-style stays a bare
+    dashed line, keeping that visual distinction meaningful), and the topology grew from pure
+    hub-and-spoke into a small block network — each inner building now also connects onward to one
+    more, so downtown reads as inter-connected blocks radiating from the square rather than a
+    starburst. Two more real enterable buildings filled the gaps: **The Customs House** (harbor
+    trade/bribery flavor) and **The Anchor & Forge** (blacksmith), plus two more non-interactive
+    landmarks, **The Baker's Oven** and **The Ropewalk**, for density without more authoring cost
+  - 6 new Patron quests came free with the 6 new buildings across both passes (fort, chapel,
+    warehouse, West Point Shack, Customs House, Anchor & Forge), pushing Tortuga Cove's own quest
+    count higher toward the 150+ target without inventing new mechanics
   - **Placeholder art note**: everything above renders with the same emoji + colored-shape
     primitives used everywhere else in the game (no real pixel art asset pipeline exists yet — see
     `TileLayer.tsx`, built but unused, waiting on a real licensed tileset). The specific places a

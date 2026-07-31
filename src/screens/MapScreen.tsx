@@ -541,16 +541,31 @@ export default function MapScreen({ navigation }: Props) {
 
               {STREETS.map((street, i) => {
                 const islandPos = ISLANDS[street.islandId].position;
+                const x1 = islandPos.x + street.from.x;
+                const y1 = islandPos.y + street.from.y;
+                const x2 = islandPos.x + street.to.x;
+                const y2 = islandPos.y + street.to.y;
+                // 'main' streets get a wider light sidewalk stroke under a narrower dark road
+                // stroke, so downtown reads as a real paved street instead of a bare dirt track.
+                // 'path' stays a single thin dashed line — a rough or treacherous route, no sidewalk.
+                if (street.style === 'main') {
+                  return (
+                    <React.Fragment key={i}>
+                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d9cdb0" strokeWidth={22} strokeLinecap="round" />
+                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#a9825a" strokeWidth={12} strokeLinecap="round" />
+                    </React.Fragment>
+                  );
+                }
                 return (
                   <Line
                     key={i}
-                    x1={islandPos.x + street.from.x}
-                    y1={islandPos.y + street.from.y}
-                    x2={islandPos.x + street.to.x}
-                    y2={islandPos.y + street.to.y}
-                    stroke={street.style === 'main' ? '#c9a876' : '#8a7452'}
-                    strokeWidth={street.style === 'main' ? 14 : 6}
-                    strokeDasharray={street.style === 'path' ? '10,8' : undefined}
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke="#8a7452"
+                    strokeWidth={6}
+                    strokeDasharray="10,8"
                     strokeLinecap="round"
                   />
                 );

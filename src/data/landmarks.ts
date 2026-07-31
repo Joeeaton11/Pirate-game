@@ -37,6 +37,22 @@ export const LANDMARKS: Landmark[] = [
     description:
       "Real tobacco fields once grew on Tortuga's south side, in a district the buccaneers called La Ringot. Whatever coin doesn't come from plunder comes from here.",
   },
+  {
+    id: 'tortuga_bakery',
+    islandId: 'tortuga_cove',
+    offset: { x: 35, y: 70 },
+    name: "The Baker's Oven",
+    emoji: '🍞',
+    description: "Bread at dawn, before the tavern crowd's even awake. Half the town lines up for it anyway.",
+  },
+  {
+    id: 'tortuga_ropewalk',
+    islandId: 'tortuga_cove',
+    offset: { x: -70, y: 160 },
+    name: 'The Ropewalk',
+    emoji: '🪢',
+    description: "A long, low shed where hemp gets twisted into rigging, coil by coil. No ship sails without what's made here.",
+  },
 ];
 
 export function landmarksForIsland(islandId: string): Landmark[] {

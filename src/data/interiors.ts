@@ -209,6 +209,44 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { id: 'patron_tortuga_west_point', x: 50, y: 120 },
     ],
   },
+  tortuga_customs: {
+    buildingId: 'tortuga_customs',
+    width: 240,
+    height: 200,
+    entryPosition: { x: 120, y: 178 },
+    furniture: [
+      { type: 'rug', x: 120, y: 110 },
+      { type: 'counter', x: 120, y: 40, width: 140, height: 24 },
+      { type: 'shelf', x: 220, y: 90 },
+      { type: 'shelf', x: 20, y: 90 },
+      { type: 'door', x: 120, y: 192, fontSize: 24 },
+      { type: 'prop', x: 120, y: 16, emoji: '📜', fontSize: 22 },
+      { type: 'prop', x: 30, y: 150, emoji: '🕯️', fontSize: 16 },
+    ],
+    npcSpots: [
+      { id: 'main', x: 120, y: 40 },
+      { id: 'patron_tortuga_customs', x: 60, y: 140 },
+    ],
+  },
+  tortuga_smithy: {
+    buildingId: 'tortuga_smithy',
+    width: 240,
+    height: 200,
+    entryPosition: { x: 120, y: 178 },
+    furniture: [
+      { type: 'rug', x: 120, y: 110 },
+      { type: 'barrel', x: 30, y: 50 },
+      { type: 'barrel', x: 30, y: 130 },
+      { type: 'shelf', x: 210, y: 140 },
+      { type: 'door', x: 120, y: 192, fontSize: 24 },
+      { type: 'prop', x: 120, y: 16, emoji: '🔥', fontSize: 24 },
+      { type: 'prop', x: 200, y: 40, emoji: '⚒️', fontSize: 22 },
+    ],
+    npcSpots: [
+      { id: 'main', x: 120, y: 40 },
+      { id: 'patron_tortuga_smithy', x: 180, y: 140 },
+    ],
+  },
 };
 
 export function interiorForBuilding(
