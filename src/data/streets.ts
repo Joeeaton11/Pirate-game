@@ -23,6 +23,9 @@ export const STREETS: StreetSegment[] = [
   // Fort de Rocher's real access was a rock-cut staircase and a pull-up ladder — a treacherous
   // route rather than a proper street.
   { islandId: 'tortuga_cove', from: { x: 70, y: -145 }, to: { x: 100, y: -100 }, style: 'path' }, // -> Fort de Rocher
+  // Rural outskirts, reached by coastal trail / farm track rather than a paved town street.
+  { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: -190, y: 10 }, style: 'path' }, // -> West Point Shack
+  { islandId: 'tortuga_cove', from: { x: 100, y: 65 }, to: { x: 140, y: 110 }, style: 'path' }, // -> La Ringot Fields
 ];
 
 export function streetsForIsland(islandId: string): StreetSegment[] {

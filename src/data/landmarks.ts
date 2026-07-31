@@ -12,15 +12,6 @@ export interface Landmark {
 
 export const LANDMARKS: Landmark[] = [
   {
-    id: 'tortuga_fort_de_rocher',
-    islandId: 'tortuga_cove',
-    offset: { x: 100, y: -100 },
-    name: 'Fort de Rocher',
-    emoji: '🏰',
-    description:
-      "The real Le Vasseur built his fortress-mansion atop a thirty-foot rock and called it the Colombier. Forty guns cover the harbor, and the only way up is a staircase and a ladder he can pull up behind him.",
-  },
-  {
     id: 'tortuga_town_square',
     islandId: 'tortuga_cove',
     offset: { x: -20, y: 40 },
@@ -30,28 +21,21 @@ export const LANDMARKS: Landmark[] = [
       "The heart of Basse-Terre — a well, a market stall or two, and enough loose talk to start three duels before noon.",
   },
   {
-    id: 'tortuga_chapel',
-    islandId: 'tortuga_cove',
-    offset: { x: 100, y: 65 },
-    name: 'Chapelle Notre-Dame',
-    emoji: '⛪',
-    description: "A small wooden chapel, more shrine than church. Even outlaws cross themselves before a voyage.",
-  },
-  {
-    id: 'tortuga_warehouse',
-    islandId: 'tortuga_cove',
-    offset: { x: -60, y: -105 },
-    name: "Smugglers' Warehouse",
-    emoji: '📦',
-    description: "Crates of plundered sugar, tobacco, and gunpowder, waiting on a buyer who won't ask where they came from.",
-  },
-  {
     id: 'tortuga_harbor_pier',
     islandId: 'tortuga_cove',
     offset: { x: 70, y: -145 },
     name: 'The Harbor Pier',
     emoji: '⚓',
     description: 'A weathered wooden pier where every manner of sloop, brigantine, and stolen merchantman ties up.',
+  },
+  {
+    id: 'tortuga_la_ringot_fields',
+    islandId: 'tortuga_cove',
+    offset: { x: 140, y: 110 },
+    name: 'La Ringot Fields',
+    emoji: '🌾',
+    description:
+      "Real tobacco fields once grew on Tortuga's south side, in a district the buccaneers called La Ringot. Whatever coin doesn't come from plunder comes from here.",
   },
 ];
 

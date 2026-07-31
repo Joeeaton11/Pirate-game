@@ -23,6 +23,9 @@ const INTERIOR_COLORS: Record<BuildingType, string> = {
   shrine: '#1a3a35',
   shop: '#2a3a4a',
   market: '#2a3a2a',
+  fort: '#3a3530',
+  chapel: '#2a2a3a',
+  warehouse: '#3a301f',
 };
 
 const FLOOR_COLORS: Record<BuildingType, string> = {
@@ -33,6 +36,9 @@ const FLOOR_COLORS: Record<BuildingType, string> = {
   shrine: '#234a44',
   shop: '#3a4a5c',
   market: '#3a4a3a',
+  fort: '#4a4438',
+  chapel: '#3a3a4a',
+  warehouse: '#4a3c28',
 };
 
 const PLAYER_SIZE = 28;

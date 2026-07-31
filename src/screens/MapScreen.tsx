@@ -28,6 +28,7 @@ import {
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { RESCUE_POINT, rescuePointWorldPosition } from '../data/rescue';
 import { STREETS } from '../data/streets';
+import { STREET_NPCS, streetNpcPosition } from '../data/streetNpcs';
 import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
 import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
 import { SIDE_QUESTS, SideQuest, sideQuestWorldPosition } from '../data/sideQuests';
@@ -90,6 +91,8 @@ export default function MapScreen({ navigation }: Props) {
   const [resourceToast, setResourceToast] = useState<string | null>(null);
   const resourceToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastLandmarkIdRef = useRef<string | null>(null);
+  const lastStreetNpcIdRef = useRef<string | null>(null);
+  const [, setWanderTick] = useState(0);
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const playerRef = useRef(player);
@@ -241,6 +244,16 @@ export default function MapScreen({ navigation }: Props) {
     });
   }
 
+  function nearbyStreetNpc(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
+    const now = Date.now();
+    return STREET_NPCS.find((npc) => {
+      if (npc.islandId !== island.id) return false;
+      const local = streetNpcPosition(npc, now);
+      const world = { x: island.position.x + local.x, y: island.position.y + local.y };
+      return Math.hypot(pos.x - world.x, pos.y - world.y) <= ENTER_RADIUS;
+    });
+  }
+
   function showResourceToast(message: string, durationMs = 2200) {
     setResourceToast(message);
     if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
@@ -252,6 +265,14 @@ export default function MapScreen({ navigation }: Props) {
       if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
     };
   }, []);
+
+  // Street NPCs patrol as a pure function of time (see streetNpcPosition) — this timer just
+  // forces a re-render often enough to animate that, independent of the movement tick loop.
+  useEffect(() => {
+    if (!isFocused) return;
+    const wanderInterval = setInterval(() => setWanderTick((t) => t + 1), 250);
+    return () => clearInterval(wanderInterval);
+  }, [isFocused]);
 
   useEffect(() => {
     if (!isFocused) return;
@@ -386,6 +407,17 @@ export default function MapScreen({ navigation }: Props) {
           }
         } else {
           lastLandmarkIdRef.current = null;
+        }
+
+        // Street NPCs are ambient too — same one-shot toast pattern, never a quest.
+        const streetNpc = nearbyStreetNpc(nextPosition, nextIsland);
+        if (streetNpc) {
+          if (lastStreetNpcIdRef.current !== streetNpc.id) {
+            lastStreetNpcIdRef.current = streetNpc.id;
+            showResourceToast(`${streetNpc.emoji} ${streetNpc.name}: ${streetNpc.flavor}`, 3500);
+          }
+        } else {
+          lastStreetNpcIdRef.current = null;
         }
       }
 
@@ -575,6 +607,21 @@ export default function MapScreen({ navigation }: Props) {
                 >
                   <Text style={styles.buildingEmoji}>{landmark.emoji}</Text>
                   <Text style={styles.landmarkName}>{landmark.name}</Text>
+                </View>
+              );
+            })}
+
+            {STREET_NPCS.map((npc) => {
+              const islandPos = ISLANDS[npc.islandId].position;
+              const local = streetNpcPosition(npc, Date.now());
+              const pos = { x: islandPos.x + local.x, y: islandPos.y + local.y };
+              return (
+                <View
+                  key={npc.id}
+                  style={[styles.streetNpc, { left: pos.x - 16, top: pos.y - 16 }]}
+                  pointerEvents="none"
+                >
+                  <Text style={styles.streetNpcEmoji}>{npc.emoji}</Text>
                 </View>
               );
             })}
@@ -871,6 +918,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#f4e9cd',
     textAlign: 'center',
+  },
+  streetNpc: {
+    position: 'absolute',
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  streetNpcEmoji: {
+    fontSize: 20,
   },
   buildingEmoji: {
     fontSize: 24,

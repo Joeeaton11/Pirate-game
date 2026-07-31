@@ -1,6 +1,16 @@
 import { ResourceId } from './resources';
 
-export type BuildingType = 'tavern' | 'beach' | 'manor' | 'college' | 'shrine' | 'shop' | 'market';
+export type BuildingType =
+  | 'tavern'
+  | 'beach'
+  | 'manor'
+  | 'college'
+  | 'shrine'
+  | 'shop'
+  | 'market'
+  | 'fort'
+  | 'chapel'
+  | 'warehouse';
 
 export interface Building {
   id: string;
@@ -190,6 +200,55 @@ export const BUILDINGS: Building[] = [
     stealYield: { min: 2, max: 4 },
     stealDetectionChance: 0.5,
     stealCooldownMinutes: 30,
+  },
+  {
+    id: 'tortuga_fort',
+    islandId: 'tortuga_cove',
+    name: 'Fort de Rocher',
+    type: 'fort',
+    emoji: '🏰',
+    offset: { x: 100, y: -100 },
+    npcName: 'Sergeant Duclos',
+    npcEmoji: '💂',
+    dialogue:
+      "Forty guns and one bad ladder between us and the Spanish. Mind where you step — Le Vasseur pulls it up at dusk, invited or not.",
+    recruit: { templateId: 'musketeer_marksman', level: 4, cost: 40 },
+  },
+  {
+    id: 'tortuga_chapel',
+    islandId: 'tortuga_cove',
+    name: 'Chapelle Notre-Dame',
+    type: 'chapel',
+    emoji: '⛪',
+    offset: { x: 100, y: 65 },
+    npcName: 'Brother Aldric',
+    npcEmoji: '🙏',
+    dialogue: "Even outlaws want forgiveness sometimes. I keep the door open and ask no questions about the cargo.",
+    recruit: { templateId: 'cursed_bosun', level: 3, cost: 35 },
+  },
+  {
+    id: 'tortuga_warehouse',
+    islandId: 'tortuga_cove',
+    name: "Smugglers' Warehouse",
+    type: 'warehouse',
+    emoji: '📦',
+    offset: { x: -60, y: -105 },
+    npcName: 'Big Pella',
+    npcEmoji: '🧔‍♂️',
+    dialogue: "Crates in, crates out, no manifest ever matches. You look like you can keep your mouth shut — that's worth good coin here.",
+    recruit: { templateId: 'deckhand_swordsman', level: 3, cost: 25 },
+  },
+  {
+    id: 'tortuga_west_point',
+    islandId: 'tortuga_cove',
+    name: 'West Point Shack',
+    type: 'beach',
+    emoji: '🛖',
+    offset: { x: -190, y: 10 },
+    npcName: 'Old Man Hollis',
+    npcEmoji: '🧓',
+    dialogue: "Retired from the account, as they say. Out here the wind's quieter and nobody remembers my face.",
+    recruit: { templateId: 'duelist_first_mate', level: 4, cost: 45 },
   },
 ];
 
