@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Polygon } from 'react-native-svg';
 import OnboardingOverlay from '../components/OnboardingOverlay';
 import { BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -466,20 +467,33 @@ export default function MapScreen({ navigation }: Props) {
               },
             ]}
           >
+            <Svg
+              width={WORLD_WIDTH}
+              height={WORLD_HEIGHT}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            >
+              {ISLAND_LIST.map((island) => (
+                <Polygon
+                  key={island.id}
+                  points={island.shape
+                    .map((p) => `${island.position.x + p.x},${island.position.y + p.y}`)
+                    .join(' ')}
+                  fill="#2c7a4b"
+                  stroke={island.isSafeZone ? '#ffd166' : '#1f5a37'}
+                  strokeWidth={3}
+                />
+              ))}
+            </Svg>
+
             {ISLAND_LIST.map((island) => (
               <View
                 key={island.id}
                 style={[
-                  styles.island,
-                  {
-                    left: island.position.x - island.radius,
-                    top: island.position.y - island.radius,
-                    width: island.radius * 2,
-                    height: island.radius * 2,
-                    borderRadius: island.radius,
-                  },
-                  island.isSafeZone && styles.islandSafe,
+                  styles.islandLabel,
+                  { left: island.position.x - 90, top: island.position.y - 32 },
                 ]}
+                pointerEvents="none"
               >
                 <Text style={styles.islandEmoji}>{island.emoji}</Text>
                 <Text style={styles.islandName}>{island.name}</Text>
@@ -758,16 +772,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: '#124d73',
   },
-  island: {
+  islandLabel: {
     position: 'absolute',
-    backgroundColor: '#2c7a4b',
+    width: 180,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#1f5a37',
-  },
-  islandSafe: {
-    borderColor: '#ffd166',
   },
   islandEmoji: {
     fontSize: 40,

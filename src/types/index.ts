@@ -47,7 +47,9 @@ export interface Island {
   emoji: string;
   description: string;
   position: { x: number; y: number }; // absolute world coordinates (center of landmass)
-  radius: number; // landmass radius in world units, for land/sea detection
+  // Organic coastline outline, as points relative to `position` (in world units), tracing an
+  // approximation of the real island's true shape/orientation for land/sea detection + rendering.
+  shape: { x: number; y: number }[];
   isSafeZone?: boolean; // no encounters, heals crew on arrival
   encounterChance: number; // 0-1 chance rolled per movement tick while on land here
   encounterTable: EncounterSlot[];

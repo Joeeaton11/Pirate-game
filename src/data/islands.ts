@@ -3,6 +3,71 @@ import { EncounterSlot, Island } from '../types';
 export const WORLD_WIDTH = 1800;
 export const WORLD_HEIGHT = 2600;
 
+/** Converts a compact [x,y][] literal into the {x,y}[] shape Island.shape expects. */
+function polygon(points: [number, number][]): { x: number; y: number }[] {
+  return points.map(([x, y]) => ({ x, y }));
+}
+
+// Each shape below is a hand-authored approximation of the real island's true coastline —
+// orientation, elongation, and major coves/headlands — traced relative to `position` (0,0).
+// Not survey-accurate, but a real irregular silhouette instead of a perfect circle.
+
+/** Île de la Tortue: ~37km x 7km, turtle-shaped, elongated east-west. */
+const TORTUGA_SHAPE = polygon([
+  [210, 0], [197, 42], [176, 79], [151, 110], [122, 135], [89, 153], [53, 164], [17, 166],
+  [-17, 166], [-53, 164], [-90, 156], [-130, 144], [-149, 109], [-145, 65], [-174, 37], [-220, 0],
+  [-171, -36], [-119, -53], [-113, -82], [-99, -110], [-78, -135], [-51, -156], [-18, -170],
+  [19, -177], [57, -175], [95, -165], [117, -130], [131, -95], [141, -63], [167, -36],
+]);
+
+/** Île-à-Vache: ~13km x 3.2km, tapers from wider hills in the west to a swampy east end. */
+const COW_ISLAND_SHAPE = polygon([
+  [150, 0], [147, 31], [137, 61], [121, 88], [100, 111], [75, 130], [46, 143], [16, 149],
+  [-16, 151], [-48, 148], [-80, 139], [-110, 122], [-141, 103], [-171, 76], [-197, 42], [-215, 0],
+  [-202, -43], [-182, -81], [-155, -113], [-123, -137], [-89, -154], [-53, -162], [-17, -163],
+  [17, -158], [49, -150], [78, -136], [104, -115], [125, -91], [139, -62], [148, -31],
+]);
+
+/** New Providence: ~34km x 11km, fairly regular oval, elongated east-west. */
+const NEW_PROVIDENCE_SHAPE = polygon([
+  [210, 0], [197, 42], [181, 80], [158, 115], [128, 142], [93, 161], [56, 173], [19, 176],
+  [-18, 172], [-52, 161], [-83, 144], [-109, 121], [-133, 96], [-159, 71], [-181, 38], [-195, 0],
+  [-194, -41], [-184, -82], [-166, -120], [-133, -147], [-96, -166], [-57, -176], [-19, -177],
+  [18, -171], [51, -158], [80, -139], [104, -115], [123, -90], [154, -68], [182, -39],
+]);
+
+/** Roatán: ~59km x 8km, the most elongated of the seven, with a pinched wasp-waist. */
+const ROATAN_SHAPE = polygon([
+  [235, 0], [220, 47], [196, 87], [165, 120], [126, 140], [85, 147], [46, 142], [14, 129],
+  [-14, 129], [-46, 141], [-83, 144], [-124, 138], [-165, 120], [-190, 85], [-207, 44], [-215, 0],
+  [-196, -42], [-170, -76], [-138, -101], [-105, -117], [-73, -127], [-42, -129], [-13, -125],
+  [14, -135], [52, -160], [100, -173], [155, -172], [177, -129], [175, -78], [207, -44],
+]);
+
+/** Port Royal: a rounded head at the tip of the real Palisadoes tombolo, with a spit tailing off. */
+const PORT_ROYAL_SHAPE = polygon([
+  [190, 0], [198, 42], [195, 87], [183, 133], [155, 172], [108, 188], [62, 192], [20, 186],
+  [-19, 183], [-59, 183], [-100, 174], [-140, 155], [-173, 126], [-189, 84], [-197, 42], [-195, 0],
+  [-199, -42], [-194, -87], [-179, -130], [-154, -170], [-111, -193], [-67, -205], [-22, -207],
+  [21, -202], [61, -189], [98, -169], [143, -158], [186, -135], [221, -98], [200, -42],
+]);
+
+/** Île Sainte-Marie: ~50km x 7km, narrow and elongated north-south along Madagascar's coast. */
+const ILE_SAINTE_MARIE_SHAPE = polygon([
+  [130, 0], [135, 29], [133, 59], [126, 92], [112, 125], [90, 156], [59, 183], [21, 203],
+  [-21, 203], [-59, 183], [-90, 156], [-110, 122], [-120, 87], [-122, 55], [-119, 25], [-110, 0],
+  [-115, -25], [-115, -51], [-110, -80], [-99, -110], [-80, -139], [-57, -175], [-22, -207],
+  [22, -209], [59, -181], [85, -147], [103, -114], [112, -81], [119, -53], [127, -27],
+]);
+
+/** Ocracoke: a thin, curved Outer Banks barrier island, elongated east-west. */
+const OCRACOKE_SHAPE = polygon([
+  [190, 0], [180, 38], [163, 72], [136, 99], [106, 118], [75, 130], [41, 127], [12, 117],
+  [-12, 115], [-40, 122], [-70, 121], [-102, 113], [-133, 96], [-160, 71], [-181, 38], [-195, 0],
+  [-183, -39], [-164, -73], [-136, -99], [-103, -114], [-70, -121], [-44, -137], [-15, -147],
+  [15, -147], [44, -137], [70, -121], [99, -110], [126, -92], [152, -68], [174, -37],
+]);
+
 export const ISLANDS: Record<string, Island> = {
   tortuga_cove: {
     id: 'tortuga_cove',
@@ -10,7 +75,7 @@ export const ISLANDS: Record<string, Island> = {
     emoji: '🏝️',
     description: 'Your home port. Calm waters, no trouble here.',
     position: { x: 900, y: 2280 },
-    radius: 190,
+    shape: TORTUGA_SHAPE,
     isSafeZone: true,
     encounterChance: 0,
     encounterTable: [],
@@ -21,7 +86,7 @@ export const ISLANDS: Record<string, Island> = {
     emoji: '🐄',
     description: "Low grazing flats where real fleets once mustered before a raid.",
     position: { x: 430, y: 1770 },
-    radius: 220,
+    shape: COW_ISLAND_SHAPE,
     encounterChance: 0.09,
     encounterTable: [
       { templateId: 'cabin_hand', weight: 4, minLevel: 2, maxLevel: 4 },
@@ -36,7 +101,7 @@ export const ISLANDS: Record<string, Island> = {
     emoji: '🌴',
     description: 'The real pirate republic — no crown, no law, just captains.',
     position: { x: 1370, y: 1770 },
-    radius: 220,
+    shape: NEW_PROVIDENCE_SHAPE,
     encounterChance: 0.09,
     encounterTable: [
       { templateId: 'cabin_hand', weight: 3, minLevel: 3, maxLevel: 5 },
@@ -51,7 +116,7 @@ export const ISLANDS: Record<string, Island> = {
     emoji: '⚓',
     description: 'A real careening cove where hulls get scraped, patched, and re-armed.',
     position: { x: 400, y: 1090 },
-    radius: 230,
+    shape: ROATAN_SHAPE,
     encounterChance: 0.1,
     encounterTable: [
       { templateId: 'tavern_brawler', weight: 3, minLevel: 6, maxLevel: 9 },
@@ -66,7 +131,7 @@ export const ISLANDS: Record<string, Island> = {
     emoji: '🌊',
     description: 'The sunken city — swallowed by an earthquake, still drawing the desperate and the cursed.',
     position: { x: 1400, y: 1090 },
-    radius: 230,
+    shape: PORT_ROYAL_SHAPE,
     encounterChance: 0.1,
     encounterTable: [
       { templateId: 'boarding_captain', weight: 3, minLevel: 7, maxLevel: 10 },
@@ -81,7 +146,7 @@ export const ISLANDS: Record<string, Island> = {
     emoji: '🌀',
     description: 'A remote haven at the edge of the map, tied to old legends of a pirate utopia.',
     position: { x: 900, y: 420 },
-    radius: 240,
+    shape: ILE_SAINTE_MARIE_SHAPE,
     encounterChance: 0.12,
     encounterTable: [
       { templateId: 'cursed_bosun', weight: 3, minLevel: 10, maxLevel: 14 },
@@ -97,7 +162,7 @@ export const ISLANDS: Record<string, Island> = {
     description:
       "Shallow, treacherous waters — the real site of Blackbeard's last stand. The endgame of these seas.",
     position: { x: 1500, y: 250 },
-    radius: 200,
+    shape: OCRACOKE_SHAPE,
     encounterChance: 0.14,
     encounterTable: [
       { templateId: 'cursed_bosun', weight: 2, minLevel: 15, maxLevel: 20 },
@@ -120,12 +185,28 @@ export const SEA_ENCOUNTER_TABLE: EncounterSlot[] = [
   { templateId: 'master_gunner', weight: 1, minLevel: 9, maxLevel: 13 },
 ];
 
+/** Ray-casting point-in-polygon test against a shape given in world coordinates. */
+function pointInPolygon(point: { x: number; y: number }, worldShape: { x: number; y: number }[]): boolean {
+  let inside = false;
+  for (let i = 0, j = worldShape.length - 1; i < worldShape.length; j = i++) {
+    const pi = worldShape[i];
+    const pj = worldShape[j];
+    const intersects =
+      pi.y > point.y !== pj.y > point.y &&
+      point.x < ((pj.x - pi.x) * (point.y - pi.y)) / (pj.y - pi.y) + pi.x;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
 /** Returns the island whose landmass contains the given world point, if any. */
 export function islandAtPoint(point: { x: number; y: number }): Island | null {
   for (const island of ISLAND_LIST) {
-    const dx = point.x - island.position.x;
-    const dy = point.y - island.position.y;
-    if (Math.sqrt(dx * dx + dy * dy) <= island.radius) {
+    const worldShape = island.shape.map((p) => ({
+      x: island.position.x + p.x,
+      y: island.position.y + p.y,
+    }));
+    if (pointInPolygon(point, worldShape)) {
       return island;
     }
   }

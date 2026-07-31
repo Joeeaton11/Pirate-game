@@ -61,6 +61,25 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   and death site, gated behind completing the Pirate Council rather than sequential order — a
   natural convergence point for the still-unbuilt recurring named rival captain arc
 
+### Real-world coastline shapes (built 2026-07-31)
+- ✅ Every island's landmass is now a hand-authored irregular polygon that echoes the real
+  island's true orientation and elongation, instead of a perfect circle — Tortuga's turtle-shaped
+  silhouette, Roatán's strongly elongated wasp-waisted form, Île Sainte-Marie's narrow north-south
+  sliver, Ocracoke's thin curved barrier-island crescent, Port Royal's rounded head trailing a
+  Palisadoes-style sand spit, Cow Island tapering from hillier west to swampy east, New
+  Providence's fairly regular oval
+- ✅ `Island.radius` replaced with `Island.shape: {x,y}[]` (points relative to `position`);
+  `islandAtPoint()` in `src/data/islands.ts` now does real point-in-polygon (ray casting) instead
+  of a circular distance check
+- ✅ Added `react-native-svg` and render each island as an `<Svg><Polygon>` in `MapScreen.tsx`
+  rather than a `View` with `borderRadius`
+- ✅ Every existing building/quest/resource-node/pirate-lord/rescue/salvage offset was checked
+  against its island's new polygon (all currently fall on land) before shipping
+- Not survey-accurate GIS data — approximated by hand from each island's real dimensions/shape
+  described on Wikipedia, sized to keep all existing map content on land. A true art-fidelity
+  pass (hand-painted coastlines/forests like a fantasy map) would need real art assets, which is
+  out of scope for now.
+
 ## Movement & Exploration
 - ✅ **Deliberately not grid-based** — this is our biggest intentional divergence from Pokémon.
   Kingshot-style drag-to-move continuous movement instead of tile-by-tile. Keep this; it's core to
@@ -584,33 +603,37 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     Reuses the outdoor drag-movement engine at room scale — no new movement tech, no new quest
     mechanics, just a new way of *arriving* at the same hire/shop/craft/patron content that already
     existed
+19. ✅ **Real-world coastline shapes** — all 7 islands replaced their perfect-circle landmass with
+    a hand-authored irregular polygon echoing the real island's true orientation/elongation
+    (`Island.shape`, point-in-polygon `islandAtPoint()`, `react-native-svg` rendering in
+    `MapScreen.tsx`) — see the "Real-world coastline shapes" note above
 
 ### Now (next up)
-19. **Author Patron quest batches + bespoke floor plans, building-by-building** — apply the proven
+20. **Author Patron quest batches + bespoke floor plans, building-by-building** — apply the proven
     patterns to the remaining ~11 buildings (2-4 patrons each, drawing from the reusable archetype
     roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler, Fortune Teller, etc.), giving each a real
     floor plan instead of the generic fallback room as content is authored, toward the 150+ target
-20. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+21. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-21. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+22. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-22. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+23. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-23. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+24. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-24. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+25. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-25. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+26. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-26. **GTA-style character switching** (biggest, most novel, probably last)
-27. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+27. **GTA-style character switching** (biggest, most novel, probably last)
+28. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-28. Full e2e test automation, IAP integration, real art asset pipeline —
+29. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
