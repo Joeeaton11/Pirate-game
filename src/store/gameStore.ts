@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { CREW_TEMPLATES } from '../data/crew';
+import { craftingRecipeFor } from '../data/items';
 import { promotionFor, resolvePromotion } from '../data/promotions';
 import { RESOURCE_NODES, RESOURCES, ResourceId } from '../data/resources';
 import { OwnedCrewMember } from '../types';
@@ -75,6 +76,9 @@ interface GameState {
   gatherResource: (nodeId: string) => { success: boolean; resourceId?: ResourceId; amount?: number };
   sellResource: (resourceId: string, amount: number) => boolean;
   addResource: (resourceId: string, amount: number) => void;
+  addItem: (itemId: string, amount: number) => void;
+  craftItem: (itemId: string) => boolean;
+  promoteCrewMember: (instanceId: string) => boolean;
   debugClearResourceCooldowns: () => void;
   debugSetCrewLevel: (instanceId: string, level: number) => void;
   debugResetSave: () => void;
@@ -421,6 +425,52 @@ export const useGameStore = create<GameState>()(
             [resourceId]: Math.max(0, (state.resources[resourceId] ?? 0) + amount),
           },
         })),
+
+      addItem: (itemId, amount) =>
+        set((state) => ({
+          inventory: {
+            ...state.inventory,
+            [itemId]: Math.max(0, (state.inventory[itemId] ?? 0) + amount),
+          },
+        })),
+
+      craftItem: (itemId) => {
+        const state = get();
+        const recipe = craftingRecipeFor(itemId);
+        if (!recipe) return false;
+        const have = state.resources[recipe.resourceId] ?? 0;
+        if (have < recipe.resourceCost) return false;
+        set({
+          resources: { ...state.resources, [recipe.resourceId]: have - recipe.resourceCost },
+          inventory: { ...state.inventory, [itemId]: (state.inventory[itemId] ?? 0) + 1 },
+        });
+        return true;
+      },
+
+      promoteCrewMember: (instanceId) => {
+        const state = get();
+        const member = state.crew.find((m) => m.instanceId === instanceId);
+        if (!member) return false;
+        const promo = promotionFor(member.templateId);
+        if (!promo) return false;
+        const prevMaxHp = maxHpFor(member);
+        const templateId = promo.nextTemplateId;
+        const newMaxHp = maxHpFor({ ...member, templateId });
+        const currentHp = Math.min(newMaxHp, member.currentHp + (newMaxHp - prevMaxHp));
+        const nickname = CREW_TEMPLATES[templateId].name;
+        set({
+          crew: state.crew.map((m) =>
+            m.instanceId === instanceId ? { ...m, templateId, nickname, currentHp } : m
+          ),
+          seenTemplateIds: state.seenTemplateIds.includes(templateId)
+            ? state.seenTemplateIds
+            : [...state.seenTemplateIds, templateId],
+          recruitedTemplateIds: state.recruitedTemplateIds.includes(templateId)
+            ? state.recruitedTemplateIds
+            : [...state.recruitedTemplateIds, templateId],
+        });
+        return true;
+      },
 
       debugClearResourceCooldowns: () => set({ resourceNodeCooldowns: {} }),
 

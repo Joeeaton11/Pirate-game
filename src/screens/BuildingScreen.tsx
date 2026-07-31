@@ -4,8 +4,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BUILDINGS, BuildingType } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
-import { ITEMS } from '../data/items';
-import { RESOURCE_LIST } from '../data/resources';
+import { CRAFTING_RECIPES, ITEMS } from '../data/items';
+import { RESOURCE_LIST, RESOURCES } from '../data/resources';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
@@ -29,6 +29,7 @@ export default function BuildingScreen({ navigation }: Props) {
   const buyItem = useGameStore((s) => s.buyItem);
   const resources = useGameStore((s) => s.resources);
   const sellResource = useGameStore((s) => s.sellResource);
+  const craftItem = useGameStore((s) => s.craftItem);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const markSeen = useGameStore((s) => s.markSeen);
   const [sentToQuarters, setSentToQuarters] = useState(false);
@@ -138,6 +139,36 @@ export default function BuildingScreen({ navigation }: Props) {
                     disabled={!canAfford}
                   >
                     <Text style={styles.buyButtonText}>{item.price}g</Text>
+                  </Pressable>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {building.buysResources && (
+          <View style={styles.shopSection}>
+            <Text style={styles.shopHeading}>Craft</Text>
+            {CRAFTING_RECIPES.map((recipe) => {
+              const item = ITEMS[recipe.itemId];
+              const resource = RESOURCES[recipe.resourceId];
+              const owned = resources[recipe.resourceId] ?? 0;
+              const canCraft = owned >= recipe.resourceCost;
+              return (
+                <View key={recipe.itemId} style={styles.itemRow}>
+                  <Text style={styles.itemEmoji}>{item.emoji}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    <Text style={styles.itemDescription}>
+                      Needs {recipe.resourceCost} {resource.emoji} {resource.name} (have {owned})
+                    </Text>
+                  </View>
+                  <Pressable
+                    style={[styles.buyButton, !canCraft && styles.disabledButton]}
+                    onPress={() => craftItem(recipe.itemId)}
+                    disabled={!canCraft}
+                  >
+                    <Text style={styles.buyButtonText}>Craft</Text>
                   </Pressable>
                 </View>
               );

@@ -30,6 +30,7 @@ export default function DebugScreen({ navigation }: Props) {
   const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
   const addResource = useGameStore((s) => s.addResource);
   const debugClearResourceCooldowns = useGameStore((s) => s.debugClearResourceCooldowns);
+  const addItem = useGameStore((s) => s.addItem);
 
   function forceEncounter(
     templateId: string,
@@ -161,6 +162,9 @@ export default function DebugScreen({ navigation }: Props) {
           ))}
           <Pressable style={styles.button} onPress={debugClearResourceCooldowns}>
             <Text style={styles.buttonText}>Clear Node Cooldowns</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => addItem('captains_draught', 1)}>
+            <Text style={styles.buttonText}>+1 🍾 Captain's Draught</Text>
           </Pressable>
         </View>
 

@@ -58,7 +58,7 @@ export interface BattleLogEntry {
   text: string;
 }
 
-export type ItemEffect = 'heal' | 'battle_boost' | 'guaranteed_recruit';
+export type ItemEffect = 'heal' | 'battle_boost' | 'guaranteed_recruit' | 'force_promote';
 
 export interface Item {
   id: string;

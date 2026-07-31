@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATE_LIST, CREW_TEMPLATES } from '../data/crew';
 import { ITEMS } from '../data/items';
+import { promotionFor } from '../data/promotions';
 import { RESOURCES } from '../data/resources';
 import { RootStackParamList } from '../navigation/types';
 import { SHIP_CREW_CAP, useGameStore } from '../store/gameStore';
@@ -27,9 +28,12 @@ export default function CrewScreen({ navigation }: Props) {
   const consumeItem = useGameStore((s) => s.consumeItem);
   const recruitedTemplateIds = useGameStore((s) => s.recruitedTemplateIds);
   const resources = useGameStore((s) => s.resources);
+  const promoteCrewMember = useGameStore((s) => s.promoteCrewMember);
 
   const healItem = ITEMS[HEAL_ITEM_ID];
   const healItemCount = inventory[HEAL_ITEM_ID] ?? 0;
+  const draughtItem = ITEMS.captains_draught;
+  const draughtCount = inventory.captains_draught ?? 0;
 
   const shipCrew = shipCrewIds
     .map((id) => crew.find((m) => m.instanceId === id))
@@ -43,12 +47,19 @@ export default function CrewScreen({ navigation }: Props) {
     setCrewHp(member.instanceId, Math.min(maxHp, member.currentHp + healAmount));
   }
 
+  function handleUseDraught(member: OwnedCrewMember) {
+    if (draughtCount <= 0 || !promotionFor(member.templateId)) return;
+    consumeItem('captains_draught');
+    promoteCrewMember(member.instanceId);
+  }
+
   function renderCard(item: OwnedCrewMember, onboard: boolean) {
     const template = CREW_TEMPLATES[item.templateId];
     const maxHp = maxHpFor(item);
     const isActive = item.instanceId === activeCrewId;
     const isFainted = item.currentHp <= 0;
     const canHeal = healItemCount > 0 && item.currentHp < maxHp;
+    const canPromote = draughtCount > 0 && !!promotionFor(item.templateId);
 
     return (
       <Pressable
@@ -85,6 +96,11 @@ export default function CrewScreen({ navigation }: Props) {
           {canHeal && (
             <Pressable style={styles.healButton} onPress={() => handleHeal(item, maxHp)}>
               <Text style={styles.healButtonText}>{healItem.emoji} Heal</Text>
+            </Pressable>
+          )}
+          {canPromote && (
+            <Pressable style={styles.healButton} onPress={() => handleUseDraught(item)}>
+              <Text style={styles.healButtonText}>{draughtItem.emoji} Promote</Text>
             </Pressable>
           )}
           {onboard ? (

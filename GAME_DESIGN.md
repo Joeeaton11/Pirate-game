@@ -179,8 +179,11 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ✅ Promoting into a new species marks it seen + recruited in the Crew Log, same as catching it
   directly
 - ✅ A Pokémon-style log line on the battle screen ("X is promoted to Y!") when it happens
-- ⬜ Stone equivalent: consumable items that force-promote a crew member outside the normal level
-  path — not built
+- ✅ **Stone equivalent**: Captain's Draught, a craft-only consumable (5 Rum, at either shop) that
+  force-promotes a crew member to their next stage regardless of level, from a new "Promote" button
+  on their Crew screen card. Level is left untouched — only templateId/nickname swap and HP scales
+  by the max-HP delta, same as the normal level-based path, matching how Pokémon's own stone
+  evolutions don't touch level either
 - ⬜ Trade-evolution equivalent (no multiplayer trading, so reskin it): certain elite crew only
   promote after you **duel and beat a specific named rival captain while that crew member is
   active** — mirrors the "prove it to someone else" flavor of trade evolution without needing a
@@ -209,15 +212,16 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   existing shop buildings (Harbor Trading Post, Smuggler's Den) via a new Sell Resources section;
   held resources shown in a new Cargo Hold section on the Crew screen. This also closes the
   previously-open "sell loot back to shops" gap
-- ⬜ **Resource sinks beyond selling** (planned, not yet built, in this order): (1) crafting items
-  from resources (e.g. Gunpowder → Grapeshot Charge) and promotion "stones" — a resource-gated
-  force-promotion outside the normal level path, filling the Evolution-equivalent gap noted below
-  — both cheap since they reuse the existing Item/Promotion systems; (2) the "crime layer" —
-  plundering merchant ships at sea for gold + cargo (a new encounter type, heavier heat cost than
-  fighting other criminals) and stealing from resource-themed shops (Timber Yard, Distillery,
-  Armoury, Fishmonger) for free but at heat/detection risk, reusing the gather-node cooldown
-  mechanism for steal cooldowns; (3) economy polish — per-island price variance for real trade
-  routes, resource-cost recruits, resource-based fetch quests
+- ✅ **Crafting**: a Craft section at the same two shops turns resources into items instead of
+  gold — 2 Rum → Rum Ration, 3 Gunpowder → Grapeshot Charge, and 5 Rum → Captain's Draught (see
+  Evolution equivalent above). A second resource sink alongside selling, using the existing Item
+  system rather than a new one
+- ⬜ **Resource sinks still to come**: (1) the "crime layer" — plundering merchant ships at sea for
+  gold + cargo (a new encounter type, heavier heat cost than fighting other criminals) and
+  stealing from resource-themed shops (Timber Yard, Distillery, Armoury, Fishmonger) for free but
+  at heat/detection risk, reusing the gather-node cooldown mechanism for steal cooldowns; (2)
+  economy polish — per-island price variance for real trade routes, resource-cost recruits,
+  resource-based fetch quests
 
 ## Quests & Main Story
 - ✅ Main questline spine: the 5 sequential Pirate Lord fights above now give the world a goal
@@ -389,14 +393,13 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
    never-terminally-completed quests, not just one-shot ones
 10. ✅ **Resource gathering v1** — Fish/Timber/Rum/Gunpowder gatherable from real-location map
     nodes (passive, cooldown-gated) and sellable at existing shop buildings; Cargo Hold on the
-    Crew screen. Core loop only — crafting, promotion stones, and the plunder/theft "crime layer"
-    are scoped next, not bundled into this pass
+    Crew screen
+11. ✅ **Resource sinks: crafting + promotion stones** — a Craft section at the same two shops
+    (2 Rum → Rum Ration, 3 Gunpowder → Grapeshot Charge, 5 Rum → Captain's Draught), plus the
+    Draught itself as the "stone equivalent" force-promotion from the Crew screen — both reused
+    the existing Item/Promotion systems rather than adding new ones
 
 ### Now (next up)
-11. **Resource sinks: crafting + promotion stones** — Gunpowder → Grapeshot Charge and similar
-    craftable items, plus a resource-gated force-promotion ("stone equivalent") outside the normal
-    level path; both cheap since they reuse the existing Item/Promotion systems rather than adding
-    new ones
 12. **The crime layer: ship plundering + shop theft** — a new sea encounter type for robbing
     merchant vessels (gold + cargo, heavier heat cost than fighting other criminals) and a
     steal option at resource-themed shops (free, but heat/detection risk), reusing the gather-node
