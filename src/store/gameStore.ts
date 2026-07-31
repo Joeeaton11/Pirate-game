@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { BUILDINGS } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import { craftingRecipeFor } from '../data/items';
 import { promotionFor, resolvePromotion } from '../data/promotions';
@@ -8,7 +9,7 @@ import { RESOURCE_NODES, RESOURCES, ResourceId } from '../data/resources';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
-export type EncounterFaction = 'wild' | 'rival' | 'navy' | 'lord' | 'bounty';
+export type EncounterFaction = 'wild' | 'rival' | 'navy' | 'lord' | 'bounty' | 'merchant';
 
 export interface WildEncounter {
   templateId: string;
@@ -42,6 +43,7 @@ interface GameState {
   questTurnInCounts: Record<string, number>;
   resources: Record<string, number>;
   resourceNodeCooldowns: Record<string, number>;
+  theftCooldowns: Record<string, number>;
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -79,7 +81,14 @@ interface GameState {
   addItem: (itemId: string, amount: number) => void;
   craftItem: (itemId: string) => boolean;
   promoteCrewMember: (instanceId: string) => boolean;
+  stealFromShop: (buildingId: string) => {
+    success: boolean;
+    caught: boolean;
+    resourceId?: ResourceId;
+    amount?: number;
+  };
   debugClearResourceCooldowns: () => void;
+  debugClearTheftCooldowns: () => void;
   debugSetCrewLevel: (instanceId: string, level: number) => void;
   debugResetSave: () => void;
   setHasHydrated: (value: boolean) => void;
@@ -109,6 +118,7 @@ type InitialState = Pick<
   | 'questTurnInCounts'
   | 'resources'
   | 'resourceNodeCooldowns'
+  | 'theftCooldowns'
 >;
 
 function createInitialState(): InitialState {
@@ -134,6 +144,7 @@ function createInitialState(): InitialState {
     questTurnInCounts: {},
     resources: {},
     resourceNodeCooldowns: {},
+    theftCooldowns: {},
   };
 }
 
@@ -472,7 +483,35 @@ export const useGameStore = create<GameState>()(
         return true;
       },
 
+      stealFromShop: (buildingId) => {
+        const state = get();
+        const building = BUILDINGS.find((b) => b.id === buildingId);
+        if (!building || !building.stealResourceId || !building.stealYield) {
+          return { success: false, caught: false };
+        }
+        const readyAt = state.theftCooldowns[buildingId] ?? 0;
+        if (Date.now() < readyAt) return { success: false, caught: false };
+        const { stealResourceId: resourceId, stealYield, stealDetectionChance, stealCooldownMinutes } = building;
+        const amount =
+          stealYield.min + Math.floor(Math.random() * (stealYield.max - stealYield.min + 1));
+        const caught = Math.random() < (stealDetectionChance ?? 0.4);
+        set({
+          resources: {
+            ...state.resources,
+            [resourceId]: (state.resources[resourceId] ?? 0) + amount,
+          },
+          heat: Math.min(100, Math.max(0, state.heat + (caught ? 15 : 5))),
+          theftCooldowns: {
+            ...state.theftCooldowns,
+            [buildingId]: Date.now() + (stealCooldownMinutes ?? 30) * 60_000,
+          },
+        });
+        return { success: true, caught, resourceId, amount };
+      },
+
       debugClearResourceCooldowns: () => set({ resourceNodeCooldowns: {} }),
+
+      debugClearTheftCooldowns: () => set({ theftCooldowns: {} }),
 
       debugSetCrewLevel: (instanceId, level) => {
         const state = get();
@@ -522,6 +561,7 @@ export const useGameStore = create<GameState>()(
         questTurnInCounts: state.questTurnInCounts,
         resources: state.resources,
         resourceNodeCooldowns: state.resourceNodeCooldowns,
+        theftCooldowns: state.theftCooldowns,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

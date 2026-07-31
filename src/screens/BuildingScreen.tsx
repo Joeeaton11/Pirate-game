@@ -18,6 +18,7 @@ const INTERIOR_COLORS: Record<BuildingType, string> = {
   college: '#1a3a4a',
   shrine: '#1a3a35',
   shop: '#2a3a4a',
+  market: '#2a3a2a',
 };
 
 export default function BuildingScreen({ navigation }: Props) {
@@ -30,14 +31,17 @@ export default function BuildingScreen({ navigation }: Props) {
   const resources = useGameStore((s) => s.resources);
   const sellResource = useGameStore((s) => s.sellResource);
   const craftItem = useGameStore((s) => s.craftItem);
+  const theftCooldowns = useGameStore((s) => s.theftCooldowns);
+  const stealFromShop = useGameStore((s) => s.stealFromShop);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const markSeen = useGameStore((s) => s.markSeen);
   const [sentToQuarters, setSentToQuarters] = useState(false);
+  const [theftResult, setTheftResult] = useState<{ caught: boolean; amount: number } | null>(null);
 
   const building = BUILDINGS.find((b) => b.id === currentBuildingId);
 
   useEffect(() => {
-    if (building) {
+    if (building?.recruit) {
       markSeen(building.recruit.templateId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,14 +62,26 @@ export default function BuildingScreen({ navigation }: Props) {
 
   const buildingId = building.id;
   const recruit = building.recruit;
-  const template = CREW_TEMPLATES[recruit.templateId];
+  const template = recruit ? CREW_TEMPLATES[recruit.templateId] : null;
   const alreadyHired = hiredBuildingIds.includes(buildingId);
-  const canAffordRecruit = gold >= recruit.cost;
+  const canAffordRecruit = !!recruit && gold >= recruit.cost;
   const shopItems = building.itemsForSale ?? [];
 
+  const stealResource = building.stealResourceId ? RESOURCES[building.stealResourceId] : null;
+  const stealReadyAt = theftCooldowns[buildingId] ?? 0;
+  const stealReady = Date.now() >= stealReadyAt;
+
   function handleHire() {
+    if (!recruit) return;
     const result = hireFromBuilding(buildingId, recruit.templateId, recruit.level, recruit.cost);
     if (result.success) setSentToQuarters(!result.boardedShip);
+  }
+
+  function handleSteal() {
+    const result = stealFromShop(buildingId);
+    if (result.success && result.amount !== undefined) {
+      setTheftResult({ caught: result.caught, amount: result.amount });
+    }
   }
 
   return (
@@ -85,36 +101,40 @@ export default function BuildingScreen({ navigation }: Props) {
           <Text style={styles.dialogue}>"{building.dialogue}"</Text>
         </View>
 
-        <View style={styles.recruitCard}>
-          <Text style={styles.recruitEmoji}>{template.emoji}</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.recruitName}>
-              {template.name} · Lv.{recruit.level}
-            </Text>
-            <Text style={styles.recruitSubtext}>
-              {template.specialty} · {template.rarity}
-            </Text>
-          </View>
-        </View>
+        {recruit && template && (
+          <>
+            <View style={styles.recruitCard}>
+              <Text style={styles.recruitEmoji}>{template.emoji}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.recruitName}>
+                  {template.name} · Lv.{recruit.level}
+                </Text>
+                <Text style={styles.recruitSubtext}>
+                  {template.specialty} · {template.rarity}
+                </Text>
+              </View>
+            </View>
 
-        {alreadyHired ? (
-          <View style={styles.hiredBanner}>
-            <Text style={styles.hiredBannerText}>
-              {sentToQuarters
-                ? 'Signed on, but your ship is full — waiting in the Crew Quarters.'
-                : 'Already signed on with your crew.'}
-            </Text>
-          </View>
-        ) : (
-          <Pressable
-            style={[styles.hireButton, !canAffordRecruit && styles.disabledButton]}
-            onPress={handleHire}
-            disabled={!canAffordRecruit}
-          >
-            <Text style={styles.hireButtonText}>
-              Hire for {recruit.cost} gold {!canAffordRecruit && '(not enough gold)'}
-            </Text>
-          </Pressable>
+            {alreadyHired ? (
+              <View style={styles.hiredBanner}>
+                <Text style={styles.hiredBannerText}>
+                  {sentToQuarters
+                    ? 'Signed on, but your ship is full — waiting in the Crew Quarters.'
+                    : 'Already signed on with your crew.'}
+                </Text>
+              </View>
+            ) : (
+              <Pressable
+                style={[styles.hireButton, !canAffordRecruit && styles.disabledButton]}
+                onPress={handleHire}
+                disabled={!canAffordRecruit}
+              >
+                <Text style={styles.hireButtonText}>
+                  Hire for {recruit.cost} gold {!canAffordRecruit && '(not enough gold)'}
+                </Text>
+              </Pressable>
+            )}
+          </>
         )}
 
         {shopItems.length > 0 && (
@@ -200,6 +220,37 @@ export default function BuildingScreen({ navigation }: Props) {
                 </View>
               );
             })}
+          </View>
+        )}
+
+        {stealResource && (
+          <View style={styles.shopSection}>
+            <Text style={styles.shopHeading}>Take Your Chances</Text>
+            {theftResult && (
+              <View style={theftResult.caught ? styles.caughtBanner : styles.cleanBanner}>
+                <Text style={styles.theftBannerText}>
+                  {theftResult.caught
+                    ? `Caught red-handed! Got away with ${theftResult.amount} ${stealResource.name}, but word's spreading.`
+                    : `Clean grab — ${theftResult.amount} ${stealResource.name}, no one the wiser. Probably.`}
+                </Text>
+              </View>
+            )}
+            <View style={styles.itemRow}>
+              <Text style={styles.itemEmoji}>{stealResource.emoji}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.itemName}>Steal {stealResource.name}</Text>
+                <Text style={styles.itemDescription}>
+                  Free, but raises heat — more if you're caught. {!stealReady && 'Watched too closely right now.'}
+                </Text>
+              </View>
+              <Pressable
+                style={[styles.stealButton, !stealReady && styles.disabledButton]}
+                onPress={handleSteal}
+                disabled={!stealReady}
+              >
+                <Text style={styles.buyButtonText}>Steal</Text>
+              </Pressable>
+            </View>
           </View>
         )}
       </ScrollView>
@@ -305,6 +356,29 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   buyButtonText: { color: '#f4e9cd', fontWeight: '700' },
+  stealButton: {
+    backgroundColor: '#7a1f1f',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  caughtBanner: {
+    backgroundColor: 'rgba(122, 31, 31, 0.35)',
+    borderWidth: 1,
+    borderColor: '#e53935',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+  },
+  cleanBanner: {
+    backgroundColor: 'rgba(76, 175, 80, 0.15)',
+    borderWidth: 1,
+    borderColor: '#4caf50',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+  },
+  theftBannerText: { color: '#f4e9cd', fontSize: 12, fontWeight: '600' },
   footer: { padding: 20, paddingTop: 8 },
   leaveButton: {
     backgroundColor: '#f4e9cd',

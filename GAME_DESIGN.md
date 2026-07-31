@@ -195,9 +195,9 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   rivals — Moderate/Teen framing, not explicit execution), with gold seizure + heat reset on
   capture
 - ✅ Roster-wipe rescue (free cabin hand) so players are never permanently soft-locked
-- ⬜ This is the system that should carry most of the "GTA" chaos-and-consequence feeling — worth
-  leaning into harder than Pokémon ever needed to, since Pokémon has zero permadeath or stakes-of-
-  loss
+- ✅ This is the system carrying the "GTA" chaos-and-consequence feeling — now backed by real
+  choices with stakes: ship plundering and shop theft (see Economy below) both spend heat
+  deliberately for gold/resources, rather than heat only ever being something to avoid
 
 ## Economy (Poké Mart equivalent)
 - ✅ Gold from battles and quests
@@ -216,12 +216,21 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   gold — 2 Rum → Rum Ration, 3 Gunpowder → Grapeshot Charge, and 5 Rum → Captain's Draught (see
   Evolution equivalent above). A second resource sink alongside selling, using the existing Item
   system rather than a new one
-- ⬜ **Resource sinks still to come**: (1) the "crime layer" — plundering merchant ships at sea for
-  gold + cargo (a new encounter type, heavier heat cost than fighting other criminals) and
-  stealing from resource-themed shops (Timber Yard, Distillery, Armoury, Fishmonger) for free but
-  at heat/detection risk, reusing the gather-node cooldown mechanism for steal cooldowns; (2)
-  economy polish — per-island price variance for real trade routes, resource-cost recruits,
-  resource-based fetch quests
+- ✅ **The crime layer**: two new ways to make gold "the hard way," both feeding heat directly —
+  - **Ship plundering**: a new `merchant` encounter faction, rolled only over open sea alongside
+    the existing wild/rival/navy checks. Four weak, non-combatant merchant templates (Fishing
+    Trawler, Timber Galleon, Rum Runner, Powder Hulk), each tied to one resource. Victory pays gold
+    **and** cargo, but adds +10 heat — visibly more than a normal wild fight, since robbing
+    civilian shipping is a step past fighting other criminals. No recruiting the crew, no
+    permadeath on a loss, flee always available
+  - **Shop theft**: four new resource-themed buildings (Fishmonger's Stall/Tortuga, Distillery/New
+    Providence, Timber Yard/Roatán, Armoury/Port Royal) where you can buy the resource honestly
+    (gold, safe) or steal it (free, cooldown-gated like a gather node). Stealing always succeeds at
+    getting the goods; a random "caught" check only decides whether the heat spike is small (clean
+    grab) or large (caught red-handed) — never an outright failure. `Building.recruit` became
+    optional to support shops with no NPC to hire
+- ⬜ **Economy polish (not yet built)**: per-island price variance for real trade routes,
+  resource-cost recruits, resource-based fetch quests
 
 ## Quests & Main Story
 - ✅ Main questline spine: the 5 sequential Pirate Lord fights above now give the world a goal
@@ -398,12 +407,12 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     (2 Rum → Rum Ration, 3 Gunpowder → Grapeshot Charge, 5 Rum → Captain's Draught), plus the
     Draught itself as the "stone equivalent" force-promotion from the Crew screen — both reused
     the existing Item/Promotion systems rather than adding new ones
+12. ✅ **The crime layer: ship plundering + shop theft** — a new `merchant` sea encounter (gold +
+    cargo, +10 heat, no recruit/permadeath) and a steal option at 4 new resource-themed shops
+    (free, cooldown-gated, heat spike bigger if caught) — the "GTA chaos" pillar's first real
+    teeth beyond the existing rival/navy ambush system
 
 ### Now (next up)
-12. **The crime layer: ship plundering + shop theft** — a new sea encounter type for robbing
-    merchant vessels (gold + cargo, heavier heat cost than fighting other criminals) and a
-    steal option at resource-themed shops (free, but heat/detection risk), reusing the gather-node
-    cooldown mechanism for steal cooldowns
 13. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns

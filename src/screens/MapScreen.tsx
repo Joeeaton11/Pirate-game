@@ -22,6 +22,7 @@ import {
   pirateLordForIsland,
   pirateLordWorldPosition,
 } from '../data/pirateLords';
+import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
 import { SIDE_QUESTS, sideQuestWorldPosition } from '../data/sideQuests';
 import {
@@ -177,6 +178,14 @@ export default function MapScreen({ navigation }: Props) {
 
     const { templateId, level } = pickWildEncounter(table);
     startEncounter(templateId, level, faction, THREAT_TEMPLATES[templateId]);
+  }
+
+  function triggerMerchant() {
+    const isAlive = crewRef.current.some((member) => member.currentHp > 0);
+    if (!isAlive) return;
+
+    const { templateId, level } = pickWildEncounter(MERCHANT_ENCOUNTER_TABLE);
+    startEncounter(templateId, level, 'merchant', MERCHANT_TEMPLATES[templateId]);
   }
 
   function nearbyBuildingPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
@@ -335,11 +344,14 @@ export default function MapScreen({ navigation }: Props) {
         if (!isSafe) {
           const navyRoll = Math.random();
           const rivalRoll = Math.random();
+          const merchantRoll = Math.random();
           const wildRoll = Math.random();
           if (navyRoll < ambushChance('navy', heatRef.current)) {
             triggerAmbush('navy');
           } else if (rivalRoll < ambushChance('rival', heatRef.current)) {
             triggerAmbush('rival');
+          } else if (!nextIsland && merchantRoll < MERCHANT_SEA_CHANCE) {
+            triggerMerchant();
           } else {
             const chance = nextIsland ? nextIsland.encounterChance : SEA_ENCOUNTER_CHANCE;
             if (wildRoll < chance) {

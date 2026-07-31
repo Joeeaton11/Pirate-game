@@ -1,4 +1,6 @@
-export type BuildingType = 'tavern' | 'beach' | 'manor' | 'college' | 'shrine' | 'shop';
+import { ResourceId } from './resources';
+
+export type BuildingType = 'tavern' | 'beach' | 'manor' | 'college' | 'shrine' | 'shop' | 'market';
 
 export interface Building {
   id: string;
@@ -10,13 +12,18 @@ export interface Building {
   npcName: string;
   npcEmoji: string;
   dialogue: string;
-  recruit: {
+  recruit?: {
     templateId: string;
     level: number;
     cost: number;
   };
   itemsForSale?: string[]; // item ids, priced from ITEMS
   buysResources?: boolean; // if true, shows a Sell Resources section priced from RESOURCES
+  // Theft: buy this resource honestly here too, or steal it for free at a heat cost.
+  stealResourceId?: ResourceId;
+  stealYield?: { min: number; max: number };
+  stealDetectionChance?: number; // 0-1, chance of a bigger heat spike; default 0.4
+  stealCooldownMinutes?: number; // default 30
 }
 
 export const ENTER_RADIUS = 45;
@@ -121,6 +128,66 @@ export const BUILDINGS: Building[] = [
     npcEmoji: '🧘',
     dialogue: 'The deep offers strength to those willing to pay its price.',
     recruit: { templateId: 'kraken_bound_captain', level: 15, cost: 400 },
+  },
+  {
+    id: 'tortuga_fishmonger',
+    islandId: 'tortuga_cove',
+    name: "The Fishmonger's Stall",
+    type: 'market',
+    emoji: '🐟',
+    offset: { x: -130, y: 120 },
+    npcName: 'Old Dinah',
+    npcEmoji: '🧓',
+    dialogue: "Freshest catch on the wharf. Buy it fair, or don't let me catch you taking it.",
+    stealResourceId: 'fish',
+    stealYield: { min: 3, max: 6 },
+    stealDetectionChance: 0.35,
+    stealCooldownMinutes: 20,
+  },
+  {
+    id: 'new_providence_distillery',
+    islandId: 'new_providence',
+    name: 'The Distillery',
+    type: 'market',
+    emoji: '🥃',
+    offset: { x: 170, y: 40 },
+    npcName: 'Brix',
+    npcEmoji: '🧑‍🌾',
+    dialogue: "Rum's the only honest currency left in this republic. Mind you pay for it.",
+    stealResourceId: 'rum',
+    stealYield: { min: 3, max: 5 },
+    stealDetectionChance: 0.4,
+    stealCooldownMinutes: 25,
+  },
+  {
+    id: 'roatan_timber_yard',
+    islandId: 'roatan',
+    name: 'The Timber Yard',
+    type: 'market',
+    emoji: '🪵',
+    offset: { x: 150, y: -150 },
+    npcName: 'Foreman Cutter',
+    npcEmoji: '🧑‍🔧',
+    dialogue: "Every plank here is spoken for. Buy it proper, or take it and answer to the yard dogs.",
+    stealResourceId: 'timber',
+    stealYield: { min: 3, max: 6 },
+    stealDetectionChance: 0.4,
+    stealCooldownMinutes: 25,
+  },
+  {
+    id: 'port_royal_armoury',
+    islandId: 'port_royal',
+    name: 'The Armoury',
+    type: 'market',
+    emoji: '💥',
+    offset: { x: 150, y: 150 },
+    npcName: 'Sergeant Vane',
+    npcEmoji: '💂',
+    dialogue: "Crown powder, under crown lock. I'd think twice before helping yourself.",
+    stealResourceId: 'gunpowder',
+    stealYield: { min: 2, max: 4 },
+    stealDetectionChance: 0.5,
+    stealCooldownMinutes: 30,
   },
 ];
 

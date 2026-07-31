@@ -2,7 +2,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BUILDINGS } from '../data/buildings';
 import { CREW_TEMPLATE_LIST } from '../data/crew';
+import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { PIRATE_LORDS } from '../data/pirateLords';
 import { RESOURCE_LIST } from '../data/resources';
 import { SIDE_QUESTS } from '../data/sideQuests';
@@ -31,6 +33,8 @@ export default function DebugScreen({ navigation }: Props) {
   const addResource = useGameStore((s) => s.addResource);
   const debugClearResourceCooldowns = useGameStore((s) => s.debugClearResourceCooldowns);
   const addItem = useGameStore((s) => s.addItem);
+  const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
+  const debugClearTheftCooldowns = useGameStore((s) => s.debugClearTheftCooldowns);
 
   function forceEncounter(
     templateId: string,
@@ -59,6 +63,35 @@ export default function DebugScreen({ navigation }: Props) {
   function handleForceNavy() {
     const template = THREAT_TEMPLATES.navy_marine;
     forceEncounter(template.id, activeCrew?.level ?? 5, 'navy', template);
+  }
+
+  function handleForceMerchant() {
+    const slot =
+      MERCHANT_ENCOUNTER_TABLE[Math.floor(Math.random() * MERCHANT_ENCOUNTER_TABLE.length)];
+    const template = MERCHANT_TEMPLATES[slot.templateId];
+    const maxHp = maxHpFor(
+      {
+        instanceId: 'wild',
+        templateId: slot.templateId,
+        nickname: template.name,
+        level: activeCrew?.level ?? 5,
+        xp: 0,
+        currentHp: 0,
+      },
+      template
+    );
+    setWildEncounter({
+      templateId: slot.templateId,
+      level: activeCrew?.level ?? 5,
+      currentHp: maxHp,
+      faction: 'merchant',
+    });
+    navigation.navigate('Encounter');
+  }
+
+  function handleJumpToShop(buildingId: string) {
+    setCurrentBuilding(buildingId);
+    navigation.navigate('Building');
   }
 
   function handleJumpToFort(lordId: string) {
@@ -134,6 +167,9 @@ export default function DebugScreen({ navigation }: Props) {
           <Pressable style={styles.button} onPress={handleForceNavy}>
             <Text style={styles.buttonText}>Navy Ambush</Text>
           </Pressable>
+          <Pressable style={styles.button} onPress={handleForceMerchant}>
+            <Text style={styles.buttonText}>Merchant Ship</Text>
+          </Pressable>
         </View>
 
         <Text style={styles.sectionHeading}>Jump to Pirate Lord Fort</Text>
@@ -165,6 +201,18 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => addItem('captains_draught', 1)}>
             <Text style={styles.buttonText}>+1 🍾 Captain's Draught</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.sectionHeading}>Jump to Themed Shop</Text>
+        <View style={styles.row}>
+          {BUILDINGS.filter((b) => b.stealResourceId).map((b) => (
+            <Pressable key={b.id} style={styles.button} onPress={() => handleJumpToShop(b.id)}>
+              <Text style={styles.buttonText}>{b.name}</Text>
+            </Pressable>
+          ))}
+          <Pressable style={styles.button} onPress={debugClearTheftCooldowns}>
+            <Text style={styles.buttonText}>Clear Theft Cooldowns</Text>
           </Pressable>
         </View>
 

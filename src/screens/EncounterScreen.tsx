@@ -5,7 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ITEM_LIST, ITEMS } from '../data/items';
 import { MOVES } from '../data/moves';
+import { MERCHANT_CARGO, MERCHANT_TEMPLATES, merchantGoldReward } from '../data/merchants';
 import { PIRATE_LORDS, PIRATE_LORD_TEMPLATES } from '../data/pirateLords';
+import { RESOURCES } from '../data/resources';
 import { BOUNTY_TEMPLATES, SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
@@ -28,6 +30,7 @@ const ALL_TEMPLATES = {
   ...THREAT_TEMPLATES,
   ...PIRATE_LORD_TEMPLATES,
   ...BOUNTY_TEMPLATES,
+  ...MERCHANT_TEMPLATES,
 };
 
 function openingLine(faction: EncounterFaction | undefined, questId: string | undefined): string {
@@ -39,6 +42,7 @@ function openingLine(faction: EncounterFaction | undefined, questId: string | un
     if (quest?.type === 'escort') return 'Raiders close in on the convoy!';
     return 'You track down your bounty target!';
   }
+  if (faction === 'merchant') return 'A merchant vessel comes into view — ripe for plunder!';
   return 'A wild pirate blocks your path!';
 }
 
@@ -60,6 +64,7 @@ export default function EncounterScreen({ navigation }: Props) {
   const setWildEncounter = useGameStore((s) => s.setWildEncounter);
   const healAllCrew = useGameStore((s) => s.healAllCrew);
   const addHeat = useGameStore((s) => s.addHeat);
+  const addResource = useGameStore((s) => s.addResource);
   const setHeat = useGameStore((s) => s.setHeat);
   const inventory = useGameStore((s) => s.inventory);
   const consumeItem = useGameStore((s) => s.consumeItem);
@@ -291,6 +296,22 @@ export default function EncounterScreen({ navigation }: Props) {
         appendLog(
           `${wildTemplate.name} is defeated! +${reward} XP, +${bountyQuest.goldReward} gold. Bounty claimed!`
         );
+      } else if (encounter.faction === 'merchant') {
+        const cargo = MERCHANT_CARGO[encounter.templateId];
+        const goldReward = merchantGoldReward(encounter.level);
+        addGold(goldReward);
+        if (cargo) {
+          const amount =
+            cargo.minYield + Math.floor(Math.random() * (cargo.maxYield - cargo.minYield + 1));
+          addResource(cargo.resourceId, amount);
+          const resourceInfo = RESOURCES[cargo.resourceId];
+          appendLog(
+            `${wildTemplate.name} is plundered! +${reward} XP, +${goldReward} gold, +${amount} ${resourceInfo.emoji} ${resourceInfo.name}.`
+          );
+        } else {
+          appendLog(`${wildTemplate.name} is plundered! +${reward} XP, +${goldReward} gold.`);
+        }
+        addHeat(10);
       } else {
         const goldReward = 5 + encounter.level * 2;
         addGold(goldReward);
@@ -401,6 +422,8 @@ export default function EncounterScreen({ navigation }: Props) {
               ? '⚜️ NAVY AMBUSH'
               : encounter.faction === 'lord'
               ? '🏆 LETTER OF MARQUE DUEL'
+              : encounter.faction === 'merchant'
+              ? '💰 PLUNDER OPPORTUNITY'
               : encounter.faction === 'bounty'
               ? activeSideQuest?.type === 'escort'
                 ? '⚔️ CONVOY UNDER ATTACK'
