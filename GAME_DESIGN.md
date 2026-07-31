@@ -100,6 +100,15 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   player's native footprint to 12 units — the same `ZOOM` factor now makes buildings and houses
   loom the way they do in the reference screenshots while the player stays correctly small next to
   them, with zero change to any world-unit gameplay math
+- ✅ **Map decluttered, 2026-07-31**: at 5x zoom, two always-on floating text labels — the island
+  name+emoji badge and each landmark's name — turned out to be sized for the old unzoomed 1:1 view
+  and never got revisited when `ZOOM` was introduced. The island label box alone rendered wider
+  than the phone screen. Removed both: the island name is redundant with the header bar (which
+  already shows the current zone persistently), and a landmark's name is already communicated by
+  its walk-up flavor toast, matching how buildings already worked (emoji only on the map, name
+  discovered by approaching). Also fixed street NPCs, which had the exact same bug as the player
+  token before that fix — a native size (32 units) big enough to render house-sized once zoomed;
+  shrunk to 10 units so ambient NPCs read as small figures near the player, not structures
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

@@ -611,20 +611,6 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {ISLAND_LIST.map((island) => (
-              <View
-                key={island.id}
-                style={[
-                  styles.islandLabel,
-                  { left: island.position.x - 90, top: island.position.y - 32 },
-                ]}
-                pointerEvents="none"
-              >
-                <Text style={styles.islandEmoji}>{island.emoji}</Text>
-                <Text style={styles.islandName}>{island.name}</Text>
-              </View>
-            ))}
-
             {BUILDINGS.map((building) => {
               const islandPos = ISLANDS[building.islandId].position;
               const pos = buildingWorldPosition(building, islandPos);
@@ -660,7 +646,6 @@ export default function MapScreen({ navigation }: Props) {
                   pointerEvents="none"
                 >
                   <Text style={styles.buildingEmoji}>{landmark.emoji}</Text>
-                  <Text style={styles.landmarkName}>{landmark.name}</Text>
                 </View>
               );
             })}
@@ -672,7 +657,7 @@ export default function MapScreen({ navigation }: Props) {
               return (
                 <View
                   key={npc.id}
-                  style={[styles.streetNpc, { left: pos.x - 16, top: pos.y - 16 }]}
+                  style={[styles.streetNpc, { left: pos.x - 5, top: pos.y - 5 }]}
                   pointerEvents="none"
                 >
                   <Text style={styles.streetNpcEmoji}>{npc.emoji}</Text>
@@ -933,22 +918,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: '#124d73',
   },
-  islandLabel: {
-    position: 'absolute',
-    width: 180,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  islandEmoji: {
-    fontSize: 40,
-  },
-  islandName: {
-    fontSize: 13,
-    color: '#f4e9cd',
-    fontWeight: '700',
-    marginTop: 4,
-    textAlign: 'center',
-  },
   building: {
     position: 'absolute',
     width: BUILDING_SIZE,
@@ -966,13 +935,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  landmarkName: {
-    marginTop: 2,
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#f4e9cd',
-    textAlign: 'center',
-  },
   house: {
     position: 'absolute',
     width: 26,
@@ -985,13 +947,13 @@ const styles = StyleSheet.create({
   },
   streetNpc: {
     position: 'absolute',
-    width: 32,
-    height: 32,
+    width: 10,
+    height: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   streetNpcEmoji: {
-    fontSize: 20,
+    fontSize: 7,
   },
   buildingEmoji: {
     fontSize: 24,
