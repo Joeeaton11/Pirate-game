@@ -100,6 +100,13 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   player's native footprint to 12 units — the same `ZOOM` factor now makes buildings and houses
   loom the way they do in the reference screenshots while the player stays correctly small next to
   them, with zero change to any world-unit gameplay math
+- ✅ **Street life roster more than doubled, 2026-07-31**: 8 more ambient NPCs (a town crier, a
+  farmer, a net-mender, a fort sentry, a beggar, a forge cat, a rope-maker, a lookout) patrol
+  areas of Tortuga Cove that previously had no wandering life — near the Customs House, La Ringot
+  Fields, the Fishmonger, Fort de Rocher's approach, the Warehouse, the Smithy, the Ropewalk, and
+  West Point — for 15 wandering NPCs total, spread across the whole town instead of clustered near
+  the square. Same mechanism throughout: deterministic waypoint patrol, one-shot flavor toast on
+  approach, every waypoint validated on-land before being added
 - ✅ **Map decluttered, 2026-07-31**: at 5x zoom, two always-on floating text labels — the island
   name+emoji badge and each landmark's name — turned out to be sized for the old unzoomed 1:1 view
   and never got revisited when `ZOOM` was introduced. The island label box alone rendered wider
