@@ -405,13 +405,32 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ Needs an IAP SDK integrated (Expo's in-app-purchases / RevenueCat or similar) before shipping
 
 ## Scope & Pacing
-- ✅ Target ~6-10 hours of main-quest content at launch (leaner than Pokémon's ~20-26 hour
-  campaign), designed around short 5-15 minute mobile sessions rather than long sit-downs
+- ✅ Target ~6-10 hours for the **mandatory** main-quest spine at launch (leaner than Pokémon's
+  ~20-26 hour campaign), designed around short 5-15 minute mobile sessions rather than long
+  sit-downs. This was a deliberate call, revisited 2026-07-31 (see below) and reaffirmed rather
+  than lengthened
 - ✅ Difficulty curve: easy/forgiving early (matches Pokémon's own approachability plus our rescue
   mechanic), real tension emerging mid-to-late game as heat rises — that's the differentiator,
   not overall length or raw combat difficulty
+- ✅ **Mandatory vs. optional content, decided 2026-07-31**: the mandatory path is exactly the
+  5 sequential Pirate Lords → the Pirate Council → Blackbeard, and nothing else. Every side quest,
+  resource system, crafting recipe, ship upgrade, and crime-layer mechanic is optional. This
+  mirrors classic Game Boy Pokémon's own split (gyms mandatory, nearly everything else optional —
+  Gen 1 itself only has ~5-8 loose side objectives in the whole game, so a short mandatory spine is
+  actually the *closer* match to the stated Pokémon benchmark, not a deviation from it)
+- ✅ **Total playtime lever, decided 2026-07-31**: considered lengthening the main quest itself
+  GTA5-style (its main story alone runs ~30 hours, ~69 missions, before counting ~15 Strangers-and-
+  Freaks side questlines and dozens of non-quest sandbox systems that pad the rest of its ~50-80
+  hour total). Decided against — GTA5 is a long-session console epic; this is F2P mobile with
+  session-frequency-over-months as the real retention lever, not one long linear campaign, and that
+  was already the stated design intent above. **The lever for more total playtime is optional
+  content, not a longer mandatory spine**: more side quests, and leaning harder into the
+  repeatable/systemic loops already built (resource gathering, the crime layer, the Bounty Board)
+  plus future live-ops/dailies. Revised target: **15-20 total side quests** (up from the earlier
+  10-15 estimate, reflecting this lean-into-optional-content direction) across the 7 islands, plus
+  the existing and future repeatable loops, rather than expanding the mandatory path
 - ⬜ Side content/live-ops (events, dailies) intended to extend engagement beyond the main quest
-  once there's a content cadence to support it
+  once there's a content cadence to support it — the primary vehicle for the playtime lever above
 
 ---
 
@@ -474,7 +493,9 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ### Now (next up)
 17. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
-    patterns
+    patterns. Target 15-20 total side quests per the revised Scope & Pacing direction (currently
+    at 6) — the playtime lever going forward is optional content breadth, not a longer mandatory
+    spine
 
 ### Next
 18. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
