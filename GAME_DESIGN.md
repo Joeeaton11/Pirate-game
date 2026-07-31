@@ -133,6 +133,35 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   uncompleted quest show a small ❗ above their token (drawn from `completedQuestIds`, same
   approach as the outdoor quest markers' status coloring); it disappears once that patron's quest
   is done. The tavern now seats 3 ambient locals alongside its 4 questing patrons
+- ✅ **Tortuga Cove town layout, built 2026-07-31** (GTA-style: a real laid-out settlement, not
+  buildings scattered on grass) — historically grounded in the real Tortuga:
+  - **Basse-Terre Square** is the town's hub (named for Tortuga's real farming/settlement
+    district), with dirt-road streets (`src/data/streets.ts`, rendered as SVG lines) radiating out
+    to every building and landmark, plus a separate harbor road linking the trading post to the
+    docks
+  - **Fort de Rocher** is a new landmark modeled on the real fortress: Jean Le Vasseur's actual
+    fortified home atop a 30-ft rock, ~40 cannons facing the harbor, reachable historically only by
+    a staircase and a pull-up ladder — reflected in-game as a `path`-style street (thin, dashed)
+    instead of a proper `main` road
+  - Four more new landmarks flesh out the town: **Chapelle Notre-Dame** (small chapel — even a
+    pirate haven kept a church), **Smugglers' Warehouse** and **The Harbor Pier** (both by the
+    docks), rounding out the harbor/market/residential/defense areas a real 17th-century Caribbean
+    port would have had
+  - Landmarks (`src/data/landmarks.ts`) are intentionally **non-interactive scenery** — no interior,
+    no quest — walking near one just surfaces a flavor-text toast (same toast used for resource
+    gathering), same "not every building needs to be a menu" idea as ambient NPCs applied at the
+    town level, GTA-style where most of a city is scenery and only some buildings are enterable
+  - **Placeholder art note**: everything above renders with the same emoji + colored-shape
+    primitives used everywhere else in the game (no real pixel art asset pipeline exists yet — see
+    `TileLayer.tsx`, built but unused, waiting on a real licensed tileset). The specific places a
+    real art pass would matter most, in rough priority order: the coastline/terrain texture itself
+    (currently a flat green polygon), Fort de Rocher (should read as a fortified cliff, not a 🏰
+    emoji), the harbor/pier (ship silhouettes, actual dock structure), and generic
+    building/street/foliage texture (palm trees, cobblestone, wood-and-thatch facades) to replace
+    the plain colored boxes
+  - Only Tortuga Cove has been fleshed out this way so far — the other 6 islands still have their
+    original 1-3 buildings with no street layout or landmarks; repeating this pass island-by-island
+    is the natural next step once this is validated
 - ✅ Each building = one named NPC, one line of dialogue, one one-time gold-priced hire
 - 🔄 Needs the Pokémon-Center equivalent: a **Shipwright/Surgeon building** on every island (or at
   least the safe ones) for full-crew healing without needing to sail back to Tortuga Cove
@@ -607,33 +636,39 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     a hand-authored irregular polygon echoing the real island's true orientation/elongation
     (`Island.shape`, point-in-polygon `islandAtPoint()`, `react-native-svg` rendering in
     `MapScreen.tsx`) — see the "Real-world coastline shapes" note above
+20. ✅ **Tortuga Cove town layout** — a real street plan (`src/data/streets.ts`) plus 5 new
+    historically-grounded landmarks (`src/data/landmarks.ts`: Fort de Rocher, Basse-Terre Square,
+    Chapelle Notre-Dame, Smugglers' Warehouse, The Harbor Pier), GTA-style non-interactive scenery
+    with flavor-text toasts — see the "Tortuga Cove town layout" note above
 
 ### Now (next up)
-20. **Author Patron quest batches + bespoke floor plans, building-by-building** — apply the proven
+21. **Repeat the town-layout treatment for the other 6 islands** — street plan + landmarks,
+    following the same historically-grounded approach proven on Tortuga Cove
+22. **Author Patron quest batches + bespoke floor plans, building-by-building** — apply the proven
     patterns to the remaining ~11 buildings (2-4 patrons each, drawing from the reusable archetype
     roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler, Fortune Teller, etc.), giving each a real
     floor plan instead of the generic fallback room as content is authored, toward the 150+ target
-21. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+23. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-22. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+24. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-23. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+25. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-24. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+26. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-25. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+27. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-26. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+28. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-27. **GTA-style character switching** (biggest, most novel, probably last)
-28. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+29. **GTA-style character switching** (biggest, most novel, probably last)
+30. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-29. Full e2e test automation, IAP integration, real art asset pipeline —
+31. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

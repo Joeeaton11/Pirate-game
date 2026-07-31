@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Polygon } from 'react-native-svg';
+import Svg, { Line, Polygon } from 'react-native-svg';
 import OnboardingOverlay from '../components/OnboardingOverlay';
 import { BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -18,6 +18,7 @@ import {
   WORLD_WIDTH,
   islandAtPoint,
 } from '../data/islands';
+import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
 import {
   PIRATE_LORDS,
   isLordUnlocked,
@@ -26,6 +27,7 @@ import {
 } from '../data/pirateLords';
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { RESCUE_POINT, rescuePointWorldPosition } from '../data/rescue';
+import { STREETS } from '../data/streets';
 import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
 import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
 import { SIDE_QUESTS, SideQuest, sideQuestWorldPosition } from '../data/sideQuests';
@@ -87,6 +89,7 @@ export default function MapScreen({ navigation }: Props) {
   const capturedCrew = useGameStore((s) => s.capturedCrew);
   const [resourceToast, setResourceToast] = useState<string | null>(null);
   const resourceToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastLandmarkIdRef = useRef<string | null>(null);
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const playerRef = useRef(player);
@@ -230,10 +233,18 @@ export default function MapScreen({ navigation }: Props) {
     return Math.hypot(pos.x - rp.x, pos.y - rp.y) <= ENTER_RADIUS ? rp : null;
   }
 
-  function showResourceToast(message: string) {
+  function nearbyLandmark(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
+    return LANDMARKS.find((landmark) => {
+      if (landmark.islandId !== island.id) return false;
+      const lp = landmarkWorldPosition(landmark, island.position);
+      return Math.hypot(pos.x - lp.x, pos.y - lp.y) <= ENTER_RADIUS;
+    });
+  }
+
+  function showResourceToast(message: string, durationMs = 2200) {
     setResourceToast(message);
     if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
-    resourceToastTimeoutRef.current = setTimeout(() => setResourceToast(null), 2200);
+    resourceToastTimeoutRef.current = setTimeout(() => setResourceToast(null), durationMs);
   }
 
   useEffect(() => {
@@ -365,6 +376,17 @@ export default function MapScreen({ navigation }: Props) {
             showResourceToast(`🤿 Salvaged ${result.amount} gold!`);
           }
         }
+
+        // Landmarks are scenery, not gameplay — a flavor toast once per approach, no navigation.
+        const landmark = nearbyLandmark(nextPosition, nextIsland);
+        if (landmark) {
+          if (lastLandmarkIdRef.current !== landmark.id) {
+            lastLandmarkIdRef.current = landmark.id;
+            showResourceToast(`${landmark.emoji} ${landmark.name}: ${landmark.description}`, 4500);
+          }
+        } else {
+          lastLandmarkIdRef.current = null;
+        }
       }
 
       const nextZoneId = nextIsland?.id ?? null;
@@ -484,6 +506,23 @@ export default function MapScreen({ navigation }: Props) {
                   strokeWidth={3}
                 />
               ))}
+
+              {STREETS.map((street, i) => {
+                const islandPos = ISLANDS[street.islandId].position;
+                return (
+                  <Line
+                    key={i}
+                    x1={islandPos.x + street.from.x}
+                    y1={islandPos.y + street.from.y}
+                    x2={islandPos.x + street.to.x}
+                    y2={islandPos.y + street.to.y}
+                    stroke={street.style === 'main' ? '#c9a876' : '#8a7452'}
+                    strokeWidth={street.style === 'main' ? 14 : 6}
+                    strokeDasharray={street.style === 'path' ? '10,8' : undefined}
+                    strokeLinecap="round"
+                  />
+                );
+              })}
             </Svg>
 
             {ISLAND_LIST.map((island) => (
@@ -515,6 +554,27 @@ export default function MapScreen({ navigation }: Props) {
                   ]}
                 >
                   <Text style={styles.buildingEmoji}>{building.emoji}</Text>
+                </View>
+              );
+            })}
+
+            {LANDMARKS.map((landmark) => {
+              const islandPos = ISLANDS[landmark.islandId].position;
+              const pos = landmarkWorldPosition(landmark, islandPos);
+              return (
+                <View
+                  key={landmark.id}
+                  style={[
+                    styles.landmark,
+                    {
+                      left: pos.x - BUILDING_SIZE / 2,
+                      top: pos.y - BUILDING_SIZE / 2,
+                    },
+                  ]}
+                  pointerEvents="none"
+                >
+                  <Text style={styles.buildingEmoji}>{landmark.emoji}</Text>
+                  <Text style={styles.landmarkName}>{landmark.name}</Text>
                 </View>
               );
             })}
@@ -799,6 +859,19 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#f4e9cd',
   },
+  landmark: {
+    position: 'absolute',
+    width: BUILDING_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  landmarkName: {
+    marginTop: 2,
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#f4e9cd',
+    textAlign: 'center',
+  },
   buildingEmoji: {
     fontSize: 24,
   },
@@ -840,7 +913,10 @@ const styles = StyleSheet.create({
   resourceToast: {
     position: 'absolute',
     top: 16,
+    left: 16,
+    right: 16,
     alignSelf: 'center',
+    maxWidth: 420,
     backgroundColor: 'rgba(6, 35, 49, 0.92)',
     borderWidth: 1,
     borderColor: '#ffd166',
