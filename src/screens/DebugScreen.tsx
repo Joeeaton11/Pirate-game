@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATE_LIST } from '../data/crew';
 import { PIRATE_LORDS } from '../data/pirateLords';
+import { RESOURCE_LIST } from '../data/resources';
 import { SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
@@ -27,6 +28,8 @@ export default function DebugScreen({ navigation }: Props) {
   const setWildEncounter = useGameStore((s) => s.setWildEncounter);
   const setCurrentPirateLord = useGameStore((s) => s.setCurrentPirateLord);
   const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
+  const addResource = useGameStore((s) => s.addResource);
+  const debugClearResourceCooldowns = useGameStore((s) => s.debugClearResourceCooldowns);
 
   function forceEncounter(
     templateId: string,
@@ -141,6 +144,24 @@ export default function DebugScreen({ navigation }: Props) {
               </Text>
             </Pressable>
           ))}
+        </View>
+
+        <Text style={styles.sectionHeading}>Resources</Text>
+        <View style={styles.row}>
+          {RESOURCE_LIST.map((resource) => (
+            <Pressable
+              key={resource.id}
+              style={styles.button}
+              onPress={() => addResource(resource.id, 5)}
+            >
+              <Text style={styles.buttonText}>
+                +5 {resource.emoji} {resource.name}
+              </Text>
+            </Pressable>
+          ))}
+          <Pressable style={styles.button} onPress={debugClearResourceCooldowns}>
+            <Text style={styles.buttonText}>Clear Node Cooldowns</Text>
+          </Pressable>
         </View>
 
         <Text style={styles.sectionHeading}>Jump to Side Quest</Text>

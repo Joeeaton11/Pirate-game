@@ -22,6 +22,7 @@ import {
   pirateLordForIsland,
   pirateLordWorldPosition,
 } from '../data/pirateLords';
+import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
 import { SIDE_QUESTS, sideQuestWorldPosition } from '../data/sideQuests';
 import {
   THREAT_TEMPLATES,
@@ -73,6 +74,10 @@ export default function MapScreen({ navigation }: Props) {
   const acceptedQuestIds = useGameStore((s) => s.acceptedQuestIds);
   const completedQuestIds = useGameStore((s) => s.completedQuestIds);
   const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
+  const gatherResource = useGameStore((s) => s.gatherResource);
+  const resourceNodeCooldowns = useGameStore((s) => s.resourceNodeCooldowns);
+  const [resourceToast, setResourceToast] = useState<string | null>(null);
+  const resourceToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const playerRef = useRef(player);
@@ -198,6 +203,18 @@ export default function MapScreen({ navigation }: Props) {
     return quest ? sideQuestWorldPosition(quest, island.position) : null;
   }
 
+  function showResourceToast(message: string) {
+    setResourceToast(message);
+    if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
+    resourceToastTimeoutRef.current = setTimeout(() => setResourceToast(null), 2200);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     if (!isFocused) return;
 
@@ -278,6 +295,20 @@ export default function MapScreen({ navigation }: Props) {
           setCurrentSideQuest(nearbyQuest.id);
           navigation.navigate('SideQuest');
           return;
+        }
+
+        // Resource nodes gather passively while walking through — no navigation, no interrupt.
+        const nearbyNode = RESOURCE_NODES.find((n) => {
+          if (n.islandId !== nextIsland.id) return false;
+          const np = resourceNodeWorldPosition(n, nextIsland.position);
+          return Math.hypot(nextPosition.x - np.x, nextPosition.y - np.y) <= ENTER_RADIUS;
+        });
+        if (nearbyNode) {
+          const result = gatherResource(nearbyNode.id);
+          if (result.success && result.resourceId && result.amount) {
+            const resource = RESOURCES[result.resourceId];
+            showResourceToast(`${resource.emoji} +${result.amount} ${resource.name}!`);
+          }
         }
       }
 
@@ -449,6 +480,27 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
+            {RESOURCE_NODES.map((node) => {
+              const islandPos = ISLANDS[node.islandId].position;
+              const pos = resourceNodeWorldPosition(node, islandPos);
+              const isReady = (resourceNodeCooldowns[node.id] ?? 0) <= Date.now();
+              return (
+                <View
+                  key={node.id}
+                  style={[
+                    styles.resourceNode,
+                    isReady ? styles.resourceNodeReady : styles.resourceNodeCooling,
+                    {
+                      left: pos.x - BUILDING_SIZE / 2,
+                      top: pos.y - BUILDING_SIZE / 2,
+                    },
+                  ]}
+                >
+                  <Text style={styles.buildingEmoji}>{RESOURCES[node.resourceId].emoji}</Text>
+                </View>
+              );
+            })}
+
             {PIRATE_LORDS.map((lord) => {
               const islandPos = ISLANDS[lord.islandId].position;
               const pos = pirateLordWorldPosition(lord, islandPos);
@@ -503,6 +555,12 @@ export default function MapScreen({ navigation }: Props) {
             pointerEvents="none"
             style={[styles.joystickKnob, { left: dragKnob.x - 20, top: dragKnob.y - 20 }]}
           />
+        )}
+
+        {resourceToast && (
+          <View pointerEvents="none" style={styles.resourceToast}>
+            <Text style={styles.resourceToastText}>{resourceToast}</Text>
+          </View>
         )}
       </View>
       </GestureDetector>
@@ -652,6 +710,39 @@ const styles = StyleSheet.create({
   questMarkerDone: {
     borderColor: '#4caf50',
     opacity: 0.6,
+  },
+  resourceNode: {
+    position: 'absolute',
+    width: BUILDING_SIZE - 8,
+    height: BUILDING_SIZE - 8,
+    borderRadius: (BUILDING_SIZE - 8) / 2,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+  },
+  resourceNodeReady: {
+    borderColor: '#4caf50',
+  },
+  resourceNodeCooling: {
+    borderColor: '#666',
+    opacity: 0.45,
+  },
+  resourceToast: {
+    position: 'absolute',
+    top: 16,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(6, 35, 49, 0.92)',
+    borderWidth: 1,
+    borderColor: '#ffd166',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  resourceToastText: {
+    color: '#f4e9cd',
+    fontWeight: '700',
+    fontSize: 14,
   },
   fort: {
     position: 'absolute',

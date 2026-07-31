@@ -199,9 +199,25 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ## Economy (Poké Mart equivalent)
 - ✅ Gold from battles and quests
 - ✅ Gold sinks: building hires and General Store items
-- ⬜ Selling looted goods/resources back to shops for gold (Pokémon's sell-half-price mechanic)
-- ⬜ Resource gathering (the vision item not yet built): fish/timber/rum/gunpowder as gatherable
-  materials feeding crafting or ship upgrades, distinct from gold
+- ✅ **Resource gathering v1 (core loop)**: Fish, Timber, Rum, and Gunpowder are gatherable
+  materials distinct from gold, each with a real-location home — Fish at Tortuga, Timber at
+  Roatán (real careening yard), Rum at New Providence (real rum-running history), Gunpowder at
+  Port Royal (real naval magazine). A resource node is a map marker like a building, but gathers
+  **passively while walking through** rather than stopping to open a screen — a small random
+  yield plus a real-time cooldown (first wall-clock-based mechanic in the game; ties naturally to
+  the existing time-saver IAP philosophy for a future "instant refresh" purchase). Sold at the two
+  existing shop buildings (Harbor Trading Post, Smuggler's Den) via a new Sell Resources section;
+  held resources shown in a new Cargo Hold section on the Crew screen. This also closes the
+  previously-open "sell loot back to shops" gap
+- ⬜ **Resource sinks beyond selling** (planned, not yet built, in this order): (1) crafting items
+  from resources (e.g. Gunpowder → Grapeshot Charge) and promotion "stones" — a resource-gated
+  force-promotion outside the normal level path, filling the Evolution-equivalent gap noted below
+  — both cheap since they reuse the existing Item/Promotion systems; (2) the "crime layer" —
+  plundering merchant ships at sea for gold + cargo (a new encounter type, heavier heat cost than
+  fighting other criminals) and stealing from resource-themed shops (Timber Yard, Distillery,
+  Armoury, Fishmonger) for free but at heat/detection risk, reusing the gather-node cooldown
+  mechanism for steal cooldowns; (3) economy polish — per-island price variance for real trade
+  routes, resource-cost recruits, resource-based fetch quests
 
 ## Quests & Main Story
 - ✅ Main questline spine: the 5 sequential Pirate Lord fights above now give the world a goal
@@ -371,28 +387,39 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 9. ✅ **Escort + repeatable heat-bounty quests** — a 2-wave escort gauntlet and a repeatable
    bounty-board quest with heat payoff, proving the pattern also handles multi-stage and
    never-terminally-completed quests, not just one-shot ones
+10. ✅ **Resource gathering v1** — Fish/Timber/Rum/Gunpowder gatherable from real-location map
+    nodes (passive, cooldown-gated) and sellable at existing shop buildings; Cargo Hold on the
+    Crew screen. Core loop only — crafting, promotion stones, and the plunder/theft "crime layer"
+    are scoped next, not bundled into this pass
 
 ### Now (next up)
-10. **Resource gathering** — gatherable materials (fish/timber/rum/gunpowder) distinct from gold,
-    feeding a crafting/ship-upgrade sink; the remaining half of the "side quests + resource
-    gathering" build-order item, and the biggest piece of the original vision still unbuilt
-11. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+11. **Resource sinks: crafting + promotion stones** — Gunpowder → Grapeshot Charge and similar
+    craftable items, plus a resource-gated force-promotion ("stone equivalent") outside the normal
+    level path; both cheap since they reuse the existing Item/Promotion systems rather than adding
+    new ones
+12. **The crime layer: ship plundering + shop theft** — a new sea encounter type for robbing
+    merchant vessels (gold + cargo, heavier heat cost than fighting other criminals) and a
+    steal option at resource-themed shops (free, but heat/detection risk), reusing the gather-node
+    cooldown mechanism for steal cooldowns
+13. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns
-12. **Prisoner rescue** — needs `removeCrewMember` to persist captured-crew identity first (it
+14. **Prisoner rescue** — needs `removeCrewMember` to persist captured-crew identity first (it
     currently just deletes it), so a rescue quest has something real to reference
 
 ### Next
-13. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+15. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+    recruits, resource-based fetch quests
+16. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-14. **Ship upgrades as soft gates + reputation-gated ports** — the traversal-gating system the
-    open world currently lacks entirely
-15. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
+17. **Ship upgrades as soft gates + reputation-gated ports** — the traversal-gating system the
+    open world currently lacks entirely — now has a real resource economy to draw from
+18. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
     the 5 Lords have side-quest content built around them
 
 ### Later
-16. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+19. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template)
-17. **GTA-style character switching** (biggest, most novel, probably last)
-14. Automated test suite, IAP integration, real art asset pipeline, onboarding tutorial —
+20. **GTA-style character switching** (biggest, most novel, probably last)
+21. Automated test suite, IAP integration, real art asset pipeline, onboarding tutorial —
     pre-launch/production concerns rather than gameplay-loop gaps

@@ -16,6 +16,7 @@ export interface Building {
     cost: number;
   };
   itemsForSale?: string[]; // item ids, priced from ITEMS
+  buysResources?: boolean; // if true, shows a Sell Resources section priced from RESOURCES
 }
 
 export const ENTER_RADIUS = 45;
@@ -45,6 +46,7 @@ export const BUILDINGS: Building[] = [
     dialogue: "I know a sharpshooter looking for steady work, if you've got the coin.",
     recruit: { templateId: 'dockside_sharpshooter', level: 3, cost: 30 },
     itemsForSale: ['rum_ration', 'grapeshot_charge'],
+    buysResources: true,
   },
   {
     id: 'cow_island_camp',
@@ -82,6 +84,7 @@ export const BUILDINGS: Building[] = [
     dialogue: "I don't ask where the gold's from. You shouldn't ask where I've been.",
     recruit: { templateId: 'gun_deck_veteran', level: 8, cost: 130 },
     itemsForSale: ['forged_papers', 'rum_ration'],
+    buysResources: true,
   },
   {
     id: 'port_royal_college',

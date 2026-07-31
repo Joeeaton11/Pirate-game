@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { CREW_TEMPLATES } from '../data/crew';
 import { promotionFor, resolvePromotion } from '../data/promotions';
+import { RESOURCE_NODES, RESOURCES, ResourceId } from '../data/resources';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
@@ -38,6 +39,8 @@ interface GameState {
   completedQuestIds: string[];
   questWaveProgress: Record<string, number>;
   questTurnInCounts: Record<string, number>;
+  resources: Record<string, number>;
+  resourceNodeCooldowns: Record<string, number>;
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -69,6 +72,10 @@ interface GameState {
   completeSideQuest: (questId: string, goldReward: number) => void;
   advanceQuestWave: (questId: string) => void;
   completeRepeatableQuest: (questId: string, goldReward: number, heatReduction: number) => void;
+  gatherResource: (nodeId: string) => { success: boolean; resourceId?: ResourceId; amount?: number };
+  sellResource: (resourceId: string, amount: number) => boolean;
+  addResource: (resourceId: string, amount: number) => void;
+  debugClearResourceCooldowns: () => void;
   debugSetCrewLevel: (instanceId: string, level: number) => void;
   debugResetSave: () => void;
   setHasHydrated: (value: boolean) => void;
@@ -96,6 +103,8 @@ type InitialState = Pick<
   | 'completedQuestIds'
   | 'questWaveProgress'
   | 'questTurnInCounts'
+  | 'resources'
+  | 'resourceNodeCooldowns'
 >;
 
 function createInitialState(): InitialState {
@@ -119,6 +128,8 @@ function createInitialState(): InitialState {
     completedQuestIds: [],
     questWaveProgress: {},
     questTurnInCounts: {},
+    resources: {},
+    resourceNodeCooldowns: {},
   };
 }
 
@@ -369,6 +380,50 @@ export const useGameStore = create<GameState>()(
           },
         })),
 
+      gatherResource: (nodeId) => {
+        const state = get();
+        const node = RESOURCE_NODES.find((n) => n.id === nodeId);
+        if (!node) return { success: false };
+        const readyAt = state.resourceNodeCooldowns[nodeId] ?? 0;
+        if (Date.now() < readyAt) return { success: false };
+        const amount =
+          node.minYield + Math.floor(Math.random() * (node.maxYield - node.minYield + 1));
+        set({
+          resources: {
+            ...state.resources,
+            [node.resourceId]: (state.resources[node.resourceId] ?? 0) + amount,
+          },
+          resourceNodeCooldowns: {
+            ...state.resourceNodeCooldowns,
+            [nodeId]: Date.now() + node.cooldownMinutes * 60_000,
+          },
+        });
+        return { success: true, resourceId: node.resourceId, amount };
+      },
+
+      sellResource: (resourceId, amount) => {
+        const state = get();
+        const have = state.resources[resourceId] ?? 0;
+        if (amount <= 0 || have < amount) return false;
+        const resource = RESOURCES[resourceId as ResourceId];
+        if (!resource) return false;
+        set({
+          resources: { ...state.resources, [resourceId]: have - amount },
+          gold: state.gold + resource.sellPrice * amount,
+        });
+        return true;
+      },
+
+      addResource: (resourceId, amount) =>
+        set((state) => ({
+          resources: {
+            ...state.resources,
+            [resourceId]: Math.max(0, (state.resources[resourceId] ?? 0) + amount),
+          },
+        })),
+
+      debugClearResourceCooldowns: () => set({ resourceNodeCooldowns: {} }),
+
       debugSetCrewLevel: (instanceId, level) => {
         const state = get();
         let promotedTo: string | null = null;
@@ -415,6 +470,8 @@ export const useGameStore = create<GameState>()(
         completedQuestIds: state.completedQuestIds,
         questWaveProgress: state.questWaveProgress,
         questTurnInCounts: state.questTurnInCounts,
+        resources: state.resources,
+        resourceNodeCooldowns: state.resourceNodeCooldowns,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

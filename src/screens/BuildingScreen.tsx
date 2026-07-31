@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BUILDINGS, BuildingType } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ITEMS } from '../data/items';
+import { RESOURCE_LIST } from '../data/resources';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
@@ -26,6 +27,8 @@ export default function BuildingScreen({ navigation }: Props) {
   const inventory = useGameStore((s) => s.inventory);
   const hireFromBuilding = useGameStore((s) => s.hireFromBuilding);
   const buyItem = useGameStore((s) => s.buyItem);
+  const resources = useGameStore((s) => s.resources);
+  const sellResource = useGameStore((s) => s.sellResource);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const markSeen = useGameStore((s) => s.markSeen);
   const [sentToQuarters, setSentToQuarters] = useState(false);
@@ -135,6 +138,33 @@ export default function BuildingScreen({ navigation }: Props) {
                     disabled={!canAfford}
                   >
                     <Text style={styles.buyButtonText}>{item.price}g</Text>
+                  </Pressable>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {building.buysResources && (
+          <View style={styles.shopSection}>
+            <Text style={styles.shopHeading}>Sell Resources</Text>
+            {RESOURCE_LIST.map((resource) => {
+              const owned = resources[resource.id] ?? 0;
+              return (
+                <View key={resource.id} style={styles.itemRow}>
+                  <Text style={styles.itemEmoji}>{resource.emoji}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.itemName}>{resource.name}</Text>
+                    <Text style={styles.itemDescription}>
+                      {owned} owned · {resource.sellPrice}g each
+                    </Text>
+                  </View>
+                  <Pressable
+                    style={[styles.buyButton, owned === 0 && styles.disabledButton]}
+                    onPress={() => sellResource(resource.id, owned)}
+                    disabled={owned === 0}
+                  >
+                    <Text style={styles.buyButtonText}>Sell All</Text>
                   </Pressable>
                 </View>
               );

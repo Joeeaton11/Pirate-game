@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATE_LIST, CREW_TEMPLATES } from '../data/crew';
 import { ITEMS } from '../data/items';
+import { RESOURCES } from '../data/resources';
 import { RootStackParamList } from '../navigation/types';
 import { SHIP_CREW_CAP, useGameStore } from '../store/gameStore';
 import { maxHpFor, xpToNextLevel } from '../utils/battle';
@@ -25,6 +26,7 @@ export default function CrewScreen({ navigation }: Props) {
   const inventory = useGameStore((s) => s.inventory);
   const consumeItem = useGameStore((s) => s.consumeItem);
   const recruitedTemplateIds = useGameStore((s) => s.recruitedTemplateIds);
+  const resources = useGameStore((s) => s.resources);
 
   const healItem = ITEMS[HEAL_ITEM_ID];
   const healItemCount = inventory[HEAL_ITEM_ID] ?? 0;
@@ -136,6 +138,23 @@ export default function CrewScreen({ navigation }: Props) {
           </>
         )}
       </ScrollView>
+      <View style={styles.bag}>
+        <Text style={styles.bagHeading}>Cargo Hold</Text>
+        {Object.entries(resources).filter(([, count]) => count > 0).length === 0 ? (
+          <Text style={styles.bagEmpty}>No resources gathered yet.</Text>
+        ) : (
+          <View style={styles.bagRow}>
+            {Object.entries(resources)
+              .filter(([, count]) => count > 0)
+              .map(([resourceId, count]) => (
+                <Text key={resourceId} style={styles.bagItem}>
+                  {RESOURCES[resourceId as keyof typeof RESOURCES].emoji}{' '}
+                  {RESOURCES[resourceId as keyof typeof RESOURCES].name} x{count}
+                </Text>
+              ))}
+          </View>
+        )}
+      </View>
       <View style={styles.bag}>
         <Text style={styles.bagHeading}>Bag</Text>
         {Object.entries(inventory).filter(([, count]) => count > 0).length === 0 ? (
