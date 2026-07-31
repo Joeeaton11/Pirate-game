@@ -106,6 +106,14 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   **Mother Yew** (Fortune Teller archetype, `specialty_gate` — needs a Curse-type crew member
   onboard to break a "ward," tucked by the hearth). The tavern now has 5 named characters total
   (Old Tom + 4 patrons) and its own quest count contributes 4 toward the 150+ target
+- ✅ **Ambient NPCs — not every face needs a quest**: a new `AMBIENT_NPCS` record
+  (`src/data/interiors.ts`) holds ordinary members of the public — a weathered sailor, the ship's
+  cook, a local lass — who populate a room without being quest-givers. Walking up to one shows a
+  one-off flavor line in a toast instead of navigating anywhere, keeping the "normal person, just
+  there" feel distinct from patrons. To tell them apart at a glance, quest-giving patrons with an
+  uncompleted quest show a small ❗ above their token (drawn from `completedQuestIds`, same
+  approach as the outdoor quest markers' status coloring); it disappears once that patron's quest
+  is done. The tavern now seats 3 ambient locals alongside its 4 questing patrons
 - ✅ Each building = one named NPC, one line of dialogue, one one-time gold-priced hire
 - 🔄 Needs the Pokémon-Center equivalent: a **Shipwright/Surgeon building** on every island (or at
   least the safe ones) for full-crew healing without needing to sail back to Tortuga Cove

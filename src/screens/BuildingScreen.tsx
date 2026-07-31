@@ -5,7 +5,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BUILDINGS, BuildingType } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
-import { BuildingInterior, InteriorFurniture, interiorForBuilding } from '../data/interiors';
+import { AMBIENT_NPCS, BuildingInterior, InteriorFurniture, interiorForBuilding } from '../data/interiors';
 import { CRAFTING_RECIPES, ITEMS } from '../data/items';
 import { RESOURCE_LIST, RESOURCES } from '../data/resources';
 import { SHIP_UPGRADES } from '../data/shipUpgrades';
@@ -132,10 +132,13 @@ export default function BuildingScreen({ navigation }: Props) {
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const markSeen = useGameStore((s) => s.markSeen);
   const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
+  const completedQuestIds = useGameStore((s) => s.completedQuestIds);
   const [sentToQuarters, setSentToQuarters] = useState(false);
   const [theftResult, setTheftResult] = useState<{ caught: boolean; amount: number } | null>(null);
   const [showCounter, setShowCounter] = useState(false);
   const [nearbyNpcId, setNearbyNpcId] = useState<string | null>(null);
+  const [ambientMessage, setAmbientMessage] = useState<string | null>(null);
+  const ambientMessageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const building = BUILDINGS.find((b) => b.id === currentBuildingId);
   const patronQuests = building
@@ -162,6 +165,12 @@ export default function BuildingScreen({ navigation }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [building?.id]);
+
+  useEffect(() => {
+    return () => {
+      if (ambientMessageTimeoutRef.current) clearTimeout(ambientMessageTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!interior || showCounter) return;
@@ -260,10 +269,21 @@ export default function BuildingScreen({ navigation }: Props) {
     }
   }
 
+  function showAmbientMessage(message: string) {
+    setAmbientMessage(message);
+    if (ambientMessageTimeoutRef.current) clearTimeout(ambientMessageTimeoutRef.current);
+    ambientMessageTimeoutRef.current = setTimeout(() => setAmbientMessage(null), 2500);
+  }
+
   function handleTalk() {
     if (!nearbyNpcId) return;
     if (nearbyNpcId === 'main') {
       setShowCounter(true);
+      return;
+    }
+    const ambient = AMBIENT_NPCS[nearbyNpcId];
+    if (ambient) {
+      showAmbientMessage(`${ambient.name}: "${ambient.flavor}"`);
       return;
     }
     setCurrentSideQuest(nearbyNpcId);
@@ -276,7 +296,9 @@ export default function BuildingScreen({ navigation }: Props) {
   }
 
   const nearbyPatronQuest = nearbyNpcId ? patronQuests.find((q) => q.id === nearbyNpcId) : undefined;
-  const nearbyLabel = nearbyNpcId === 'main' ? building.npcName : nearbyPatronQuest?.npcName ?? '';
+  const nearbyAmbient = nearbyNpcId ? AMBIENT_NPCS[nearbyNpcId] : undefined;
+  const nearbyLabel =
+    nearbyNpcId === 'main' ? building.npcName : nearbyPatronQuest?.npcName ?? nearbyAmbient?.name ?? '';
 
   if (showCounter) {
     return (
@@ -520,7 +542,9 @@ export default function BuildingScreen({ navigation }: Props) {
             {interior.npcSpots.map((spot) => {
               const isMain = spot.id === 'main';
               const patronQuest = !isMain ? patronQuests.find((q) => q.id === spot.id) : undefined;
-              const emoji = isMain ? building.npcEmoji : patronQuest?.npcEmoji ?? '👤';
+              const ambient = !isMain && !patronQuest ? AMBIENT_NPCS[spot.id] : undefined;
+              const emoji = isMain ? building.npcEmoji : patronQuest?.npcEmoji ?? ambient?.emoji ?? '👤';
+              const hasOpenQuest = !!patronQuest && !completedQuestIds.includes(patronQuest.id);
               return (
                 <View
                   key={spot.id}
@@ -529,6 +553,9 @@ export default function BuildingScreen({ navigation }: Props) {
                     { left: spot.x - NPC_SIZE / 2, top: spot.y - NPC_SIZE / 2 },
                   ]}
                 >
+                  {hasOpenQuest && (
+                    <Text style={styles.questIndicator}>❗</Text>
+                  )}
                   <Text style={styles.npcTokenEmoji}>{emoji}</Text>
                 </View>
               );
@@ -559,7 +586,13 @@ export default function BuildingScreen({ navigation }: Props) {
         </View>
       </GestureDetector>
 
-      {nearbyNpcId && (
+      {ambientMessage && (
+        <View style={styles.ambientToast}>
+          <Text style={styles.ambientToastText}>{ambientMessage}</Text>
+        </View>
+      )}
+
+      {nearbyNpcId && !ambientMessage && (
         <Pressable style={styles.talkButton} onPress={handleTalk}>
           <Text style={styles.talkButtonText}>Talk to {nearbyLabel}</Text>
         </Pressable>
@@ -662,6 +695,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   npcTokenEmoji: { fontSize: 28 },
+  questIndicator: {
+    position: 'absolute',
+    top: -14,
+    width: NPC_SIZE,
+    textAlign: 'center',
+    fontSize: 14,
+  },
   roomPlayer: {
     position: 'absolute',
     width: PLAYER_SIZE,
@@ -695,6 +735,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   talkButtonText: { color: '#0b3d5c', fontWeight: '800', fontSize: 14 },
+  ambientToast: {
+    alignSelf: 'center',
+    backgroundColor: 'rgba(6, 35, 49, 0.92)',
+    borderWidth: 1,
+    borderColor: '#ffd166',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginBottom: 8,
+    maxWidth: '85%',
+  },
+  ambientToastText: { color: '#f4e9cd', fontSize: 13, fontStyle: 'italic', textAlign: 'center' },
   npcCard: {
     backgroundColor: 'rgba(0,0,0,0.25)',
     marginHorizontal: 20,

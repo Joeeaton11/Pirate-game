@@ -19,13 +19,44 @@ export interface InteriorFurniture {
   fontSize?: number; // optional size override for 'prop'/'door' emoji
 }
 
-/** One walk-up-to character in the room: 'main' is the building's own NPC, anything else is a
- * hosted patron side-quest id (looked up from SIDE_QUESTS by id at render time). */
+/** One walk-up-to character in the room: 'main' is the building's own NPC, an id found in
+ * AMBIENT_NPCS is a quest-less local, and anything else is a hosted patron side-quest id
+ * (looked up from SIDE_QUESTS by id at render time). */
 export interface InteriorNpcSpot {
   id: string;
   x: number;
   y: number;
 }
+
+/** Ordinary members of the public — just flavor, no quest attached. Talking to one shows a
+ * one-off line and nothing else, so not every face in a room needs to be a quest-giver. */
+export interface AmbientNpc {
+  id: string;
+  name: string;
+  emoji: string;
+  flavor: string;
+}
+
+export const AMBIENT_NPCS: Record<string, AmbientNpc> = {
+  tortuga_amb_sailor: {
+    id: 'tortuga_amb_sailor',
+    name: 'A Weathered Sailor',
+    emoji: '🧔',
+    flavor: "Fair winds don't last. Neither does the rum, unfortunately.",
+  },
+  tortuga_amb_cook: {
+    id: 'tortuga_amb_cook',
+    name: "The Ship's Cook",
+    emoji: '👨‍🍳',
+    flavor: "Best stew this side of the Caribbean. Don't ask what's in it.",
+  },
+  tortuga_amb_lass: {
+    id: 'tortuga_amb_lass',
+    name: 'A Local Lass',
+    emoji: '👩',
+    flavor: "You look like you've got stories. Buy me a drink and let's hear one.",
+  },
+};
 
 export interface BuildingInterior {
   buildingId: string;
@@ -91,6 +122,9 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { id: 'patron_tortuga_local', x: 230, y: 95 },
       { id: 'patron_tortuga_rival', x: 320, y: 100 },
       { id: 'patron_tortuga_mystic', x: 40, y: 230 },
+      { id: 'tortuga_amb_sailor', x: 55, y: 110 },
+      { id: 'tortuga_amb_cook', x: 330, y: 190 },
+      { id: 'tortuga_amb_lass', x: 250, y: 280 },
     ],
   },
 };
