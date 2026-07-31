@@ -1,4 +1,4 @@
-export type FurnitureType = 'counter' | 'table' | 'stool' | 'barrel' | 'rug' | 'shelf';
+export type FurnitureType = 'counter' | 'table' | 'chair' | 'stool' | 'barrel' | 'rug' | 'shelf';
 
 export interface InteriorFurniture {
   type: FurnitureType;
@@ -30,23 +30,37 @@ export interface BuildingInterior {
 export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
   tortuga_tavern: {
     buildingId: 'tortuga_tavern',
-    width: 300,
-    height: 220,
-    entryPosition: { x: 150, y: 200 },
+    width: 340,
+    height: 300,
+    entryPosition: { x: 170, y: 280 },
     furniture: [
-      { type: 'rug', x: 150, y: 150 },
-      { type: 'counter', x: 150, y: 36, width: 220, height: 26 },
-      { type: 'stool', x: 90, y: 74 },
-      { type: 'stool', x: 150, y: 74 },
-      { type: 'stool', x: 210, y: 74 },
-      { type: 'table', x: 85, y: 145 },
-      { type: 'table', x: 215, y: 145 },
-      { type: 'barrel', x: 270, y: 190 },
+      { type: 'rug', x: 170, y: 180 },
+      { type: 'counter', x: 170, y: 36, width: 260, height: 26 },
+      { type: 'stool', x: 75, y: 74 },
+      { type: 'stool', x: 140, y: 74 },
+      { type: 'stool', x: 200, y: 74 },
+      { type: 'stool', x: 265, y: 74 },
+      { type: 'table', x: 80, y: 150 },
+      { type: 'chair', x: 80, y: 112 },
+      { type: 'chair', x: 80, y: 188 },
+      { type: 'chair', x: 42, y: 150 },
+      { type: 'chair', x: 118, y: 150 },
+      { type: 'table', x: 170, y: 215 },
+      { type: 'chair', x: 170, y: 177 },
+      { type: 'chair', x: 170, y: 253 },
+      { type: 'chair', x: 132, y: 215 },
+      { type: 'chair', x: 208, y: 215 },
+      { type: 'table', x: 260, y: 150 },
+      { type: 'chair', x: 260, y: 112 },
+      { type: 'chair', x: 260, y: 188 },
+      { type: 'chair', x: 222, y: 150 },
+      { type: 'chair', x: 298, y: 150 },
+      { type: 'barrel', x: 300, y: 255 },
     ],
     npcSpots: [
-      { id: 'main', x: 150, y: 36 },
-      { id: 'patron_tortuga_drunk', x: 85, y: 145 },
-      { id: 'patron_tortuga_local', x: 215, y: 100 },
+      { id: 'main', x: 170, y: 36 },
+      { id: 'patron_tortuga_drunk', x: 80, y: 150 },
+      { id: 'patron_tortuga_local', x: 230, y: 95 },
     ],
   },
 };

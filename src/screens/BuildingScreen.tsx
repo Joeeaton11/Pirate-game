@@ -66,6 +66,12 @@ function renderFurniture(item: InteriorFurniture, key: number) {
       return (
         <View key={key} style={[styles.table, { left: item.x - 26, top: item.y - 26 }]} />
       );
+    case 'chair':
+      return (
+        <Text key={key} style={[styles.chairEmoji, { left: item.x - 11, top: item.y - 11 }]}>
+          🪑
+        </Text>
+      );
     case 'stool':
       return (
         <View key={key} style={[styles.stool, { left: item.x - 10, top: item.y - 10 }]} />
@@ -610,10 +616,14 @@ const styles = StyleSheet.create({
   },
   rug: {
     position: 'absolute',
-    width: 120,
-    height: 80,
+    width: 150,
+    height: 100,
     borderRadius: 16,
     backgroundColor: 'rgba(122, 31, 31, 0.35)',
+  },
+  chairEmoji: {
+    position: 'absolute',
+    fontSize: 20,
   },
   npcToken: {
     position: 'absolute',
