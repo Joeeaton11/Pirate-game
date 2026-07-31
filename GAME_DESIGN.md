@@ -13,7 +13,7 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   just a random hostile template, not a persistent character
 
 ## World & Map Structure
-- ✅ One continuous world (not Pokémon's screen-by-screen grid) — 6 islands + open sea, free-roam,
+- ✅ One continuous world (not Pokémon's screen-by-screen grid) — 7 islands + open sea, free-roam,
   camera-follow
 - 🔄 Currently fully open with no gating at all — Pokémon's world *feels* open but is actually
   gated hard by HMs/Badges. We have zero equivalent gating yet, which makes "danger scales with
@@ -38,7 +38,7 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ A "Safari Zone" equivalent: a paid-entry, limited-turns treasure island with exclusive rare
   crew/resources and its own catch-without-battle mechanic (e.g., pay coin to attempt recruitment
   via a persuasion mini-game instead of combat)
-- ✅ A post-game superboss zone (Cerulean Cave equivalent) is now planned at **Ocracoke Inlet**
+- ✅ A post-game superboss zone (Cerulean Cave equivalent) is built at **Ocracoke Inlet**
   (Blackbeard's real base and death site) — see Island Layout below
 
 ### Island Layout (real locations, chosen 2026-07-30)
@@ -57,9 +57,9 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   rewriting, since the real history already matched the invented fiction
 - ✅ **Île Sainte-Marie** — Order 5 Pirate Lord (final), Curse, Lv.20. The real remote pirate haven
   tied to the Libertalia legend — the hardest, most exotic challenge before the endgame
-- ✅ **Ocracoke Inlet** *(endgame, not yet built)* — Blackbeard's actual base and death site.
-  Planned home for the Pirate Council/final-superboss content and a natural convergence point for
-  the still-unbuilt recurring named rival captain arc
+- ✅ **Ocracoke Inlet** — Order 6 Pirate Lord (true finale), Blade, Lv.25. Blackbeard's actual base
+  and death site, gated behind completing the Pirate Council rather than sequential order — a
+  natural convergence point for the still-unbuilt recurring named rival captain arc
 
 ## Movement & Exploration
 - ✅ **Deliberately not grid-based** — this is our biggest intentional divergence from Pokémon.
@@ -139,16 +139,18 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ Per-crew-member move/skill loadout management screen (currently moves are fixed per template)
 
 ## Progression & Story Structure (Gyms/Badges + Elite Four equivalent)
-- ✅ **5 named Pirate Lords** as Gym Leader equivalents, one per non-home island (Redbeard Sully →
-  Iron Jenny → Captain Bellows → Marietta Graves → Ezra Vane), each a unique boss fort you walk
-  into on the map, gated **sequentially** — you can't challenge Lord N until Lord N-1 is defeated
+- ✅ **6 named Pirate Lords** as Gym Leader equivalents — 5 sequential ones, one per non-home
+  island (Redbeard Sully → Iron Jenny → Captain Bellows → Marietta Graves → Ezra Vane), each a
+  unique boss fort you walk into on the map, gated **sequentially** — you can't challenge Lord N
+  until Lord N-1 is defeated — plus a 6th, true-finale Lord (Blackbeard, see the Pirate Council
+  bullet below) gated on quest completion instead of sequence
 - ⬜ Themed island "puzzle" before each boss fight (reef maze, smuggler's lock, bar brawl gauntlet)
   not built — forts are currently a direct walk-in-and-fight, no puzzle layer yet
 - ✅ Defeating a Lord grants a **Letter of Marque** (Badge equivalent): a permanent +3%/badge
   Atk/Def boost applied to your active crew member in every battle, big XP/gold rewards (badge
   fights use the same 'legendary' rarity multiplier as top-tier wild encounters), and unlocks the
-  next Lord. Tracked in a **Quest Log** screen (accessible from a new header button on the map)
-  showing all 5 with Locked/Available/Defeated status
+  next Lord. Tracked in a **Quest Log** screen (accessible from the Menu hub) showing all 6 with
+  Locked/Available/Defeated status
 - ✅ Lord fights disable Flee (you commit to the duel, matching Pokémon's own no-running-from-
   trainer-battles rule) and Recruit (Lords aren't recruitable); losing gives the normal
   faint-and-heal-at-Tortuga outcome, **not** permadeath — that stays reserved for rival/navy
@@ -158,9 +160,16 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ✅ Traversal gate: **Reinforced Hull** (see Economy below) hard-gates Île Sainte-Marie until
   bought at Roatán — the ship-upgrade traversal gate this bullet was waiting on
 - ⬜ Reputation-gated port (beyond the one hull-gated island) — not built
-- ⬜ Endgame: a **Pirate Council** (Elite Four equivalent) — back-to-back fights, no free healing
-  between them — followed by a final Pirate King/Queen or Kraken-type superboss (Champion
-  equivalent), credits, then post-game content unlocks. Natural next step after these 5 Lords
+- ✅ **Endgame: the Pirate Council (Elite Four equivalent) + Blackbeard (Champion equivalent)**.
+  A new side quest, **The Pirate Council** at Ocracoke Inlet, reuses the existing escort/wave-quest
+  mechanic (already proven for multi-stage, no-heal-between-waves content) to rematch all 5
+  previously-defeated Lords back-to-back at boosted levels — gated behind having beaten all 5, via
+  a new optional `requiresAllLordsDefeated` field on the escort quest type. Completing it unlocks
+  **Blackbeard** himself, a new 6th `PirateLord` entry (order 6, Lv.25, the highest stats in the
+  game) gated by a new optional `requiresQuestId` field on `PirateLord` (checked in `isLordUnlocked`
+  instead of the sequential order chain) rather than a new gating system. Defeating him is the true
+  ending: the Quest Log's "all defeated" banner updates for the real finale once `defeatedLordIds`
+  covers all 6. No credits screen or post-game unlocks yet — out of scope for this pass
 - ⬜ Antagonist faction with escalating set-piece confrontations across the story (Team Rocket
   equivalent) — **the Navy is already built for this mechanically** (ambushes scale with heat) and
   just needs scripted story beats layered on top instead of only random encounters
@@ -456,11 +465,13 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     (`capturedCrew`), and a new Locked Ward marker at Tortuga + `rescue` encounter faction lets you
     fight a jailer to win them back at reduced HP. Gives permadeath the narrative payoff this list
     called for, reusing existing threat templates rather than adding new opponent data
+16. ✅ **Pirate Council + final superboss (Elite Four/Champion equivalent)** — a new Ocracoke Inlet
+    island hosts a back-to-back rematch gauntlet against all 5 Lords (reusing the escort wave-quest
+    mechanic) which unlocks Blackbeard as a 6th, quest-gated Pirate Lord. The game finally has a
+    real ending state to point playtesters at, built almost entirely by reusing existing fort/quest/
+    badge machinery rather than inventing new screens
 
 ### Now (next up)
-16. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — gives the 5-Lord spine
-    an actual ending state; prioritized ahead of more side content so there's a completable game to
-    point playtesters at
 17. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns
@@ -473,12 +484,15 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 20. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
 21. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
-    systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, and
-    rescue all touch shared state (heat/gold/resources/crew) simultaneously
+    systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
+    and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
+    simultaneously
 
 ### Later
 22. **Recurring named rival captain** with scripted story-beat battles (currently just a random
-    hostile template)
+    hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
 23. **GTA-style character switching** (biggest, most novel, probably last)
-24. Full e2e test automation, IAP integration, real art asset pipeline —
+24. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+    unlock
+25. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

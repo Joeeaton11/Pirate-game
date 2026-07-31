@@ -90,6 +90,22 @@ export const ISLANDS: Record<string, Island> = {
       { templateId: 'kraken_bound_captain', weight: 1, minLevel: 14, maxLevel: 18 },
     ],
   },
+  ocracoke_inlet: {
+    id: 'ocracoke_inlet',
+    name: 'Ocracoke Inlet',
+    emoji: '💀',
+    description:
+      "Shallow, treacherous waters — the real site of Blackbeard's last stand. The endgame of these seas.",
+    position: { x: 1500, y: 250 },
+    radius: 200,
+    encounterChance: 0.14,
+    encounterTable: [
+      { templateId: 'cursed_bosun', weight: 2, minLevel: 15, maxLevel: 20 },
+      { templateId: 'master_gunner', weight: 2, minLevel: 15, maxLevel: 20 },
+      { templateId: 'duelist_first_mate', weight: 3, minLevel: 16, maxLevel: 21 },
+      { templateId: 'kraken_bound_captain', weight: 2, minLevel: 18, maxLevel: 24 },
+    ],
+  },
 };
 
 export const ISLAND_LIST = Object.values(ISLANDS);

@@ -22,7 +22,7 @@ export default function QuestScreen({ navigation }: Props) {
 
   function renderLordCard(lord: PirateLord) {
     const isDefeated = defeatedLordIds.includes(lord.id);
-    const isUnlocked = isLordUnlocked(lord, defeatedLordIds);
+    const isUnlocked = isLordUnlocked(lord, defeatedLordIds, completedQuestIds);
     const island = ISLANDS[lord.islandId];
     const status = isDefeated ? 'Defeated' : isUnlocked ? 'Available' : 'Locked';
     const statusColor = isDefeated ? '#4caf50' : isUnlocked ? '#ffd166' : '#777';
@@ -95,7 +95,8 @@ export default function QuestScreen({ navigation }: Props) {
       {allDefeated && (
         <View style={styles.completeBanner}>
           <Text style={styles.completeBannerText}>
-            All five marques claimed — you're the terror of these waters.
+            Blackbeard himself has fallen. Every marque is yours — you are the terror of these
+            waters now.
           </Text>
         </View>
       )}

@@ -37,6 +37,7 @@ export interface EscortSideQuest extends SideQuestBase {
   type: 'escort';
   waveTemplateIds: string[];
   waveLevels: number[];
+  requiresAllLordsDefeated?: boolean;
 }
 
 /** Repeatable: never enters completedQuestIds, tracked instead via questTurnInCounts. */
@@ -156,6 +157,31 @@ export const SIDE_QUESTS: SideQuest[] = [
       "The board's always open, captain. Bring me a fight won and I'll pay out and cool your name with the crown.",
     goldReward: 20,
     heatReduction: 15,
+  },
+  {
+    id: 'quest_pirate_council',
+    type: 'escort',
+    islandId: 'ocracoke_inlet',
+    offset: { x: 100, y: 80 },
+    title: 'The Pirate Council',
+    npcName: 'The Council Herald',
+    npcEmoji: '📯',
+    introDialogue:
+      "Every captain you've bested wants a rematch, all at once, right here — that's the Council's way. Beat all five, back-to-back, no quarter given between bouts, and you'll have earned the right to face what waits beyond them.",
+    acceptedDialogue:
+      "Five captains, one after another, no rest between. The Council doesn't care that you've already beaten them once.",
+    completeDialogue:
+      "Five for five. There's nothing left the Council can teach you, captain. What's beyond is yours to face now.",
+    goldReward: 500,
+    waveTemplateIds: [
+      'lord_cow_island',
+      'lord_new_providence',
+      'lord_roatan',
+      'lord_port_royal',
+      'lord_ile_sainte_marie',
+    ],
+    waveLevels: [11, 14, 17, 20, 25],
+    requiresAllLordsDefeated: true,
   },
 ];
 

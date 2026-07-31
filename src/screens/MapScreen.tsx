@@ -603,7 +603,7 @@ export default function MapScreen({ navigation }: Props) {
               const islandPos = ISLANDS[lord.islandId].position;
               const pos = pirateLordWorldPosition(lord, islandPos);
               const isDefeated = defeatedLordIds.includes(lord.id);
-              const isUnlocked = isLordUnlocked(lord, defeatedLordIds);
+              const isUnlocked = isLordUnlocked(lord, defeatedLordIds, completedQuestIds);
               const fortStyle = isDefeated
                 ? styles.fortDefeated
                 : isUnlocked

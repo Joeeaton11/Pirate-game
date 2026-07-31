@@ -14,6 +14,8 @@ export interface PirateLord {
   defeatDialogue: string;
   lockedDialogue: string;
   template: CrewTemplate;
+  /** If set, gates this lord on a completed side quest instead of the sequential order chain. */
+  requiresQuestId?: string;
 }
 
 export const PIRATE_LORDS: PirateLord[] = [
@@ -162,6 +164,36 @@ export const PIRATE_LORDS: PirateLord[] = [
       flavor: 'The last free captain of Île Sainte-Marie, bound to it as much as it is to him.',
     },
   },
+  {
+    id: 'lord_ocracoke_inlet',
+    islandId: 'ocracoke_inlet',
+    order: 6,
+    name: 'Blackbeard',
+    title: 'Terror of the Atlantic',
+    emoji: '💀',
+    buildingOffset: { x: 0, y: -100 },
+    level: 25,
+    badgeName: "Terror's Marque",
+    introDialogue:
+      "The Council sent you? Then you're the real thing after all. Funny — this inlet's where I'm meant to die. Let's see whose legend that really is.",
+    defeatDialogue:
+      "Ha! So it is. Take the marque, captain — and the waters. They were only ever mine to borrow.",
+    lockedDialogue: "The Council decides who's worth my time. Go convince them first.",
+    requiresQuestId: 'quest_pirate_council',
+    template: {
+      id: 'lord_ocracoke_inlet',
+      name: 'Blackbeard',
+      specialty: 'blade',
+      emoji: '💀',
+      rarity: 'legendary',
+      baseHp: 120,
+      baseAtk: 44,
+      baseDef: 32,
+      baseSpeed: 22,
+      moveIds: ['cutlass_slash', 'krakens_grip'],
+      flavor: 'The real Edward Teach, still holding the inlet where history says he fell.',
+    },
+  },
 ];
 
 export const PIRATE_LORD_TEMPLATES: Record<string, CrewTemplate> = Object.fromEntries(
@@ -182,7 +214,12 @@ export function pirateLordWorldPosition(
   };
 }
 
-export function isLordUnlocked(lord: PirateLord, defeatedLordIds: string[]): boolean {
+export function isLordUnlocked(
+  lord: PirateLord,
+  defeatedLordIds: string[],
+  completedQuestIds: string[] = []
+): boolean {
+  if (lord.requiresQuestId) return completedQuestIds.includes(lord.requiresQuestId);
   if (lord.order <= 1) return true;
   const previous = PIRATE_LORDS.find((l) => l.order === lord.order - 1);
   return previous ? defeatedLordIds.includes(previous.id) : true;

@@ -12,6 +12,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'PirateLord'>;
 export default function PirateLordScreen({ navigation }: Props) {
   const currentPirateLordId = useGameStore((s) => s.currentPirateLordId);
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
+  const completedQuestIds = useGameStore((s) => s.completedQuestIds);
   const setCurrentPirateLord = useGameStore((s) => s.setCurrentPirateLord);
   const setWildEncounter = useGameStore((s) => s.setWildEncounter);
 
@@ -31,7 +32,7 @@ export default function PirateLordScreen({ navigation }: Props) {
   }
 
   const isDefeated = defeatedLordIds.includes(lord.id);
-  const isUnlocked = isLordUnlocked(lord, defeatedLordIds);
+  const isUnlocked = isLordUnlocked(lord, defeatedLordIds, completedQuestIds);
 
   function handleChallenge() {
     if (!lord) return;

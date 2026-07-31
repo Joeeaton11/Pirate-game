@@ -39,6 +39,7 @@ function openingLine(faction: EncounterFaction | undefined, questId: string | un
   if (faction === 'lord') return 'The duel for a Letter of Marque begins!';
   if (faction === 'bounty') {
     const quest = questId ? SIDE_QUESTS.find((q) => q.id === questId) : undefined;
+    if (quest?.id === 'quest_pirate_council') return 'The next captain of the Council steps up for their rematch!';
     if (quest?.type === 'escort') return 'Raiders close in on the convoy!';
     return 'You track down your bounty target!';
   }
@@ -440,7 +441,9 @@ export default function EncounterScreen({ navigation }: Props) {
               : encounter.faction === 'merchant'
               ? '💰 PLUNDER OPPORTUNITY'
               : encounter.faction === 'bounty'
-              ? activeSideQuest?.type === 'escort'
+              ? activeSideQuest?.id === 'quest_pirate_council'
+                ? '👑 PIRATE COUNCIL REMATCH'
+                : activeSideQuest?.type === 'escort'
                 ? '⚔️ CONVOY UNDER ATTACK'
                 : '📜 BOUNTY HUNT'
               : encounter.faction === 'rescue'

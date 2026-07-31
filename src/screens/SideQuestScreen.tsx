@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ITEMS } from '../data/items';
+import { PIRATE_LORDS, PIRATE_LORD_TEMPLATES } from '../data/pirateLords';
 import { BOUNTY_TEMPLATES, SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
@@ -26,6 +27,9 @@ export default function SideQuestScreen({ navigation }: Props) {
   const shipCrewIds = useGameStore((s) => s.shipCrewIds);
   const questWaveProgress = useGameStore((s) => s.questWaveProgress);
   const questTurnInCounts = useGameStore((s) => s.questTurnInCounts);
+  const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
+
+  const ALL_ENCOUNTER_TEMPLATES = { ...THREAT_TEMPLATES, ...PIRATE_LORD_TEMPLATES };
 
   const quest = SIDE_QUESTS.find((q) => q.id === currentSideQuestId);
 
@@ -95,7 +99,7 @@ export default function SideQuestScreen({ navigation }: Props) {
     const waveIndex = questWaveProgress[quest.id] ?? 0;
     const templateId = quest.waveTemplateIds[waveIndex];
     const level = quest.waveLevels[waveIndex];
-    const template = THREAT_TEMPLATES[templateId];
+    const template = ALL_ENCOUNTER_TEMPLATES[templateId];
     const maxHp = maxHpFor(
       { instanceId: 'escort', templateId, nickname: template.name, level, xp: 0, currentHp: 0 },
       template
@@ -129,6 +133,11 @@ export default function SideQuestScreen({ navigation }: Props) {
         shipCrewIds.includes(m.instanceId) &&
         CREW_TEMPLATES[m.templateId]?.specialty === quest.requiredSpecialty
     );
+
+  const councilLocked =
+    quest.type === 'escort' &&
+    !!quest.requiresAllLordsDefeated &&
+    !PIRATE_LORDS.filter((l) => l.order <= 5).every((l) => defeatedLordIds.includes(l.id));
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -170,11 +179,17 @@ export default function SideQuestScreen({ navigation }: Props) {
         </View>
       )}
 
-      {isAccepted && !isCompleted && quest.type === 'escort' && (
+      {isAccepted && !isCompleted && quest.type === 'escort' && !councilLocked && (
         <View style={styles.progressCard}>
           <Text style={styles.progressText}>
             Wave {(questWaveProgress[quest.id] ?? 0) + 1}/{quest.waveTemplateIds.length}
           </Text>
+        </View>
+      )}
+
+      {isAccepted && !isCompleted && quest.type === 'escort' && councilLocked && (
+        <View style={styles.progressCard}>
+          <Text style={styles.progressText}>Beat all 5 Pirate Lords first</Text>
         </View>
       )}
 
@@ -216,7 +231,11 @@ export default function SideQuestScreen({ navigation }: Props) {
           </Pressable>
         )}
         {isAccepted && !isCompleted && quest.type === 'escort' && (
-          <Pressable style={styles.actionButton} onPress={handleConfrontEscortWave}>
+          <Pressable
+            style={[styles.actionButton, councilLocked && styles.disabledButton]}
+            onPress={handleConfrontEscortWave}
+            disabled={councilLocked}
+          >
             <Text style={styles.actionButtonText}>
               Confront Wave {(questWaveProgress[quest.id] ?? 0) + 1}
             </Text>
