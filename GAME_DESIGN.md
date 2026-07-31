@@ -85,6 +85,17 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   Kingshot-style drag-to-move continuous movement instead of tile-by-tile. Keep this; it's core to
   the pitch.
 - ✅ Camera follows player; speed and sprite change between sea (ship) and land (on-foot)
+- ✅ **Pokémon-close camera zoom, built 2026-07-31**: the outdoor map now renders at 2.5x its
+  native scale (`ZOOM` in `MapScreen.tsx`) — buildings, houses, streets, everything inside the
+  `world` container zooms uniformly via a single CSS-style transform (`translate` then `scale`,
+  with the translate math canceling out the view's default center-origin so it zooms around the
+  player rather than the world's geometric center), while the player token itself (rendered
+  separately, always fixed at the viewport's center) was scaled up to match by hand. No gameplay
+  math changed — movement speed, encounter radii, building triggers, coastline collision all still
+  operate in true world units; only the world-to-screen rendering scale changed. This is purely a
+  framing change, not a re-litigation of "continuous movement, not grid-based" above — still the
+  same drag-to-move engine, just viewed closer, matching the tight per-screen framing of the
+  Pokémon reference instead of showing the whole island (or whole world) at once
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

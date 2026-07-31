@@ -47,7 +47,11 @@ import { maxHpFor, pickWildEncounter } from '../utils/battle';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 
-const PLAYER_SIZE = 40;
+// Pokémon-style close camera: the world renders at ZOOM x its native scale (buildings, houses,
+// streets, everything inside the `world` container), while the player token — rendered as a
+// separate fixed element always centered on screen — is sized to match by hand below.
+const ZOOM = 2.5;
+const PLAYER_SIZE = 40 * ZOOM;
 const BUILDING_SIZE = 44;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 const SEA_SPEED = 260; // world units per second
@@ -516,9 +520,22 @@ export default function MapScreen({ navigation }: Props) {
               {
                 width: WORLD_WIDTH,
                 height: WORLD_HEIGHT,
+                // The `world` view's own default transform-origin is its center, so a plain
+                // { scale: ZOOM } would zoom around (WORLD_WIDTH/2, WORLD_HEIGHT/2) — nowhere
+                // near the player on a large multi-island map. This translate cancels that
+                // center-origin offset out algebraically so the net effect is exactly "zoom in
+                // around the player, then re-center them on screen":
+                //   finalTranslate = viewportCenter - worldCenter + ZOOM * (worldCenter - player)
                 transform: [
-                  { translateX: viewport.width / 2 - player.x },
-                  { translateY: viewport.height / 2 - player.y },
+                  {
+                    translateX:
+                      viewport.width / 2 - WORLD_WIDTH / 2 + ZOOM * (WORLD_WIDTH / 2 - player.x),
+                  },
+                  {
+                    translateY:
+                      viewport.height / 2 - WORLD_HEIGHT / 2 + ZOOM * (WORLD_HEIGHT / 2 - player.y),
+                  },
+                  { scale: ZOOM },
                 ],
               },
             ]}
@@ -1058,7 +1075,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   playerEmoji: {
-    fontSize: 30,
+    fontSize: 30 * ZOOM,
   },
   joystickBase: {
     position: 'absolute',
