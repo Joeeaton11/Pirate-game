@@ -234,6 +234,39 @@ export const SIDE_QUESTS: SideQuest[] = [
     bountyTemplateId: 'tavern_troublemaker',
     bountyLevel: 4,
   },
+  {
+    id: 'patron_tortuga_rival',
+    type: 'fetch',
+    islandId: 'tortuga_cove',
+    hostedByBuildingId: 'tortuga_tavern',
+    title: 'No Questions Asked',
+    npcName: 'Scar-Faced Odom',
+    npcEmoji: '🦹‍♂️',
+    introDialogue:
+      "Don't ask where it's headed, don't ask who it's for. Just get me a Grapeshot Charge, quiet-like, and there's coin in it — more than it's worth, honestly.",
+    acceptedDialogue: "Still waiting on that charge. Quietly, mind.",
+    completeDialogue: "Didn't see a thing, didn't hear a thing. Pleasure doing business.",
+    goldReward: 15,
+    fetchItemId: 'grapeshot_charge',
+    fetchCount: 1,
+  },
+  {
+    id: 'patron_tortuga_mystic',
+    type: 'specialty_gate',
+    islandId: 'tortuga_cove',
+    hostedByBuildingId: 'tortuga_tavern',
+    title: 'A Ward Needs Breaking',
+    npcName: 'Mother Yew',
+    npcEmoji: '🔮',
+    introDialogue:
+      "Something's curdled the luck in this tavern — I can feel it in my bones. Bring me one touched by the curse itself, and we'll set it right.",
+    acceptedDialogue:
+      "Still no cursed soul at your side, captain. The ward holds until one stands with you.",
+    completeDialogue:
+      "There — the air's lighter already. You've done this tavern a kindness money can't buy.",
+    goldReward: 35,
+    requiredSpecialty: 'curse',
+  },
 ];
 
 export function sideQuestsForIsland(islandId: string): SideQuest[] {

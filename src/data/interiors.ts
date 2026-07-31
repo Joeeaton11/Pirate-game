@@ -1,4 +1,13 @@
-export type FurnitureType = 'counter' | 'table' | 'chair' | 'stool' | 'barrel' | 'rug' | 'shelf';
+export type FurnitureType =
+  | 'counter'
+  | 'table'
+  | 'chair'
+  | 'stool'
+  | 'barrel'
+  | 'rug'
+  | 'shelf'
+  | 'door'
+  | 'prop'; // generic decorative emoji — dartboard, fireplace, window, plant, etc.
 
 export interface InteriorFurniture {
   type: FurnitureType;
@@ -6,6 +15,8 @@ export interface InteriorFurniture {
   y: number;
   width?: number; // only meaningful for 'counter'
   height?: number;
+  emoji?: string; // required for 'prop', ignored otherwise
+  fontSize?: number; // optional size override for 'prop'/'door' emoji
 }
 
 /** One walk-up-to character in the room: 'main' is the building's own NPC, anything else is a
@@ -30,10 +41,11 @@ export interface BuildingInterior {
 export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
   tortuga_tavern: {
     buildingId: 'tortuga_tavern',
-    width: 340,
-    height: 300,
-    entryPosition: { x: 170, y: 280 },
+    width: 360,
+    height: 340,
+    entryPosition: { x: 180, y: 310 },
     furniture: [
+      // Floor + fixed furniture
       { type: 'rug', x: 170, y: 180 },
       { type: 'counter', x: 170, y: 36, width: 260, height: 26 },
       { type: 'stool', x: 75, y: 74 },
@@ -56,11 +68,29 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { type: 'chair', x: 222, y: 150 },
       { type: 'chair', x: 298, y: 150 },
       { type: 'barrel', x: 300, y: 255 },
+      { type: 'barrel', x: 18, y: 150 },
+      { type: 'barrel', x: 342, y: 150 },
+      { type: 'stool', x: 320, y: 100 },
+      // Walls & atmosphere
+      { type: 'door', x: 180, y: 328, fontSize: 26 },
+      { type: 'prop', x: 170, y: 12, emoji: '🦜', fontSize: 24 },
+      { type: 'prop', x: 55, y: 12, emoji: '🏴‍☠️', fontSize: 22 },
+      { type: 'prop', x: 285, y: 12, emoji: '🗺️', fontSize: 22 },
+      { type: 'prop', x: 16, y: 95, emoji: '🪟', fontSize: 22 },
+      { type: 'prop', x: 344, y: 235, emoji: '🪟', fontSize: 22 },
+      { type: 'prop', x: 22, y: 272, emoji: '🔥', fontSize: 24 },
+      { type: 'prop', x: 342, y: 300, emoji: '🪴', fontSize: 22 },
+      { type: 'prop', x: 300, y: 280, emoji: '🐈', fontSize: 20 },
+      { type: 'prop', x: 335, y: 88, emoji: '🎯', fontSize: 26 },
+      { type: 'prop', x: 110, y: 34, emoji: '🕯️', fontSize: 16 },
+      { type: 'prop', x: 230, y: 34, emoji: '🕯️', fontSize: 16 },
     ],
     npcSpots: [
       { id: 'main', x: 170, y: 36 },
       { id: 'patron_tortuga_drunk', x: 80, y: 150 },
       { id: 'patron_tortuga_local', x: 230, y: 95 },
+      { id: 'patron_tortuga_rival', x: 320, y: 100 },
+      { id: 'patron_tortuga_mystic', x: 40, y: 230 },
     ],
   },
 };

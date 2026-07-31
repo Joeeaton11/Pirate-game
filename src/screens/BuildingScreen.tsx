@@ -88,6 +88,28 @@ function renderFurniture(item: InteriorFurniture, key: number) {
       return (
         <View key={key} style={[styles.rug, { left: item.x - 60, top: item.y - 40 }]} />
       );
+    case 'door': {
+      const size = item.fontSize ?? 26;
+      return (
+        <Text
+          key={key}
+          style={[styles.doorEmoji, { fontSize: size, left: item.x - size / 2, top: item.y - size / 2 }]}
+        >
+          🚪
+        </Text>
+      );
+    }
+    case 'prop': {
+      const size = item.fontSize ?? 22;
+      return (
+        <Text
+          key={key}
+          style={[styles.propEmoji, { fontSize: size, left: item.x - size / 2, top: item.y - size / 2 }]}
+        >
+          {item.emoji}
+        </Text>
+      );
+    }
     default:
       return null;
   }
@@ -624,6 +646,13 @@ const styles = StyleSheet.create({
   chairEmoji: {
     position: 'absolute',
     fontSize: 20,
+  },
+  doorEmoji: {
+    position: 'absolute',
+    opacity: 0.9,
+  },
+  propEmoji: {
+    position: 'absolute',
   },
   npcToken: {
     position: 'absolute',

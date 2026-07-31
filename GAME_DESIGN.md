@@ -95,6 +95,17 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   pattern of walking into a real tile room rather than a menu. Room player position is local to
   each visit (resets to the door on re-entry), and this is exactly the interior variant of the
   overworld's drag-to-sail movement, not a new engine built from scratch
+- ✅ **The Salty Parrot, fleshed out**: a visible 🚪 door marks the entrance/exit, and two new
+  generic furniture pieces support it — `chair` (🪑, ringing each of the tavern's 3 tables, 4
+  apiece) and `prop` (a generic decorative-emoji type covering everything else: a parrot 🦜 perched
+  over the bar — a nod to the tavern's name — a pirate flag and a map on the walls, two windows, a
+  hearth, a potted plant, a cat, candles flanking the barkeep, and a dartboard with someone actually
+  standing at it). Room grew to 360×340 (from 300×220 originally) with a third table added to fill
+  the space. Two more named patrons round out the cast: **Scar-Faced Odom** (Rival Pirate archetype,
+  `fetch` — wants a Grapeshot Charge "no questions asked," standing by the dartboard) and
+  **Mother Yew** (Fortune Teller archetype, `specialty_gate` — needs a Curse-type crew member
+  onboard to break a "ward," tucked by the hearth). The tavern now has 5 named characters total
+  (Old Tom + 4 patrons) and its own quest count contributes 4 toward the 150+ target
 - ✅ Each building = one named NPC, one line of dialogue, one one-time gold-priced hire
 - 🔄 Needs the Pokémon-Center equivalent: a **Shipwright/Surgeon building** on every island (or at
   least the safe ones) for full-crew healing without needing to sail back to Tortuga Cove
