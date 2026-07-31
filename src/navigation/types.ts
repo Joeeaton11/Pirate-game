@@ -9,4 +9,5 @@ export type RootStackParamList = {
   CrewLog: undefined;
   Debug: undefined;
   SideQuest: undefined;
+  Rescue: undefined;
 };

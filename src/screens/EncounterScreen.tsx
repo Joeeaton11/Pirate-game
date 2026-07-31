@@ -43,6 +43,7 @@ function openingLine(faction: EncounterFaction | undefined, questId: string | un
     return 'You track down your bounty target!';
   }
   if (faction === 'merchant') return 'A merchant vessel comes into view — ripe for plunder!';
+  if (faction === 'rescue') return 'You storm the holding cell to break your crewmate loose!';
   return 'A wild pirate blocks your path!';
 }
 
@@ -61,6 +62,8 @@ export default function EncounterScreen({ navigation }: Props) {
   const setCrewHp = useGameStore((s) => s.setCrewHp);
   const addCrewMember = useGameStore((s) => s.addCrewMember);
   const removeCrewMember = useGameStore((s) => s.removeCrewMember);
+  const rescueCrewMember = useGameStore((s) => s.rescueCrewMember);
+  const capturedCrew = useGameStore((s) => s.capturedCrew);
   const setWildEncounter = useGameStore((s) => s.setWildEncounter);
   const healAllCrew = useGameStore((s) => s.healAllCrew);
   const addHeat = useGameStore((s) => s.addHeat);
@@ -192,7 +195,10 @@ export default function EncounterScreen({ navigation }: Props) {
             `${crewMember.nickname} is overwhelmed and taken prisoner by the rival crew — gone for good.`
           );
         }
-        const rescued = removeCrewMember(crewMember.instanceId);
+        const rescued = removeCrewMember(
+          crewMember.instanceId,
+          encounter.faction === 'navy' ? 'navy' : 'rival'
+        );
         if (rescued) {
           setRescueMessage(
             'Your crew is gone. A tavern drunk owes you a favor and signs on as your new cabin hand.'
@@ -312,6 +318,15 @@ export default function EncounterScreen({ navigation }: Props) {
           appendLog(`${wildTemplate.name} is plundered! +${reward} XP, +${goldReward} gold.`);
         }
         addHeat(10);
+      } else if (encounter.faction === 'rescue' && encounter.rescueId) {
+        const rescuedRecord = capturedCrew.find((c) => c.id === encounter.rescueId);
+        rescueCrewMember(encounter.rescueId);
+        addHeat(8);
+        appendLog(
+          `The guard is beaten back! ${
+            rescuedRecord?.nickname ?? 'Your crewmate'
+          } is free and rejoins the crew, worse for wear. +${reward} XP.`
+        );
       } else {
         const goldReward = 5 + encounter.level * 2;
         addGold(goldReward);
@@ -428,6 +443,8 @@ export default function EncounterScreen({ navigation }: Props) {
               ? activeSideQuest?.type === 'escort'
                 ? '⚔️ CONVOY UNDER ATTACK'
                 : '📜 BOUNTY HUNT'
+              : encounter.faction === 'rescue'
+              ? '🔓 PRISON BREAK'
               : '☠️ RIVAL AMBUSH'}
           </Text>
         </View>

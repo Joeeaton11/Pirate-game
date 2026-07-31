@@ -24,6 +24,7 @@ import {
   pirateLordWorldPosition,
 } from '../data/pirateLords';
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } from '../data/merchants';
+import { RESCUE_POINT, rescuePointWorldPosition } from '../data/rescue';
 import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
 import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
 import { SIDE_QUESTS, sideQuestWorldPosition } from '../data/sideQuests';
@@ -82,6 +83,7 @@ export default function MapScreen({ navigation }: Props) {
   const shipUpgrades = useGameStore((s) => s.shipUpgrades);
   const salvageCooldowns = useGameStore((s) => s.salvageCooldowns);
   const salvageSite = useGameStore((s) => s.salvageSite);
+  const capturedCrew = useGameStore((s) => s.capturedCrew);
   const [resourceToast, setResourceToast] = useState<string | null>(null);
   const resourceToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -219,6 +221,12 @@ export default function MapScreen({ navigation }: Props) {
     return quest ? sideQuestWorldPosition(quest, island.position) : null;
   }
 
+  function nearbyRescuePointPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
+    if (RESCUE_POINT.islandId !== island.id) return null;
+    const rp = rescuePointWorldPosition(island.position);
+    return Math.hypot(pos.x - rp.x, pos.y - rp.y) <= ENTER_RADIUS ? rp : null;
+  }
+
   function showResourceToast(message: string) {
     setResourceToast(message);
     if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
@@ -241,7 +249,10 @@ export default function MapScreen({ navigation }: Props) {
     const island = islandAtPoint(pos);
     if (island) {
       const nearbyPos =
-        nearbyBuildingPos(pos, island) ?? nearbyLordPos(pos, island) ?? nearbySideQuestPos(pos, island);
+        nearbyBuildingPos(pos, island) ??
+        nearbyLordPos(pos, island) ??
+        nearbySideQuestPos(pos, island) ??
+        nearbyRescuePointPos(pos, island);
       if (nearbyPos) {
         const bp = nearbyPos;
         let dx = pos.x - bp.x;
@@ -316,6 +327,12 @@ export default function MapScreen({ navigation }: Props) {
           directionRef.current = null;
           setCurrentSideQuest(nearbyQuest.id);
           navigation.navigate('SideQuest');
+          return;
+        }
+
+        if (nearbyRescuePointPos(nextPosition, nextIsland)) {
+          directionRef.current = null;
+          navigation.navigate('Rescue');
           return;
         }
 
@@ -562,6 +579,26 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
+            {(() => {
+              const islandPos = ISLANDS[RESCUE_POINT.islandId].position;
+              const pos = rescuePointWorldPosition(islandPos);
+              const hasPrisoners = capturedCrew.length > 0;
+              return (
+                <View
+                  style={[
+                    styles.building,
+                    hasPrisoners ? styles.questMarkerAvailable : styles.rescueMarkerEmpty,
+                    {
+                      left: pos.x - BUILDING_SIZE / 2,
+                      top: pos.y - BUILDING_SIZE / 2,
+                    },
+                  ]}
+                >
+                  <Text style={styles.buildingEmoji}>🔓</Text>
+                </View>
+              );
+            })()}
+
             {PIRATE_LORDS.map((lord) => {
               const islandPos = ISLANDS[lord.islandId].position;
               const pos = pirateLordWorldPosition(lord, islandPos);
@@ -784,6 +821,10 @@ const styles = StyleSheet.create({
   salvageLocked: {
     borderColor: '#444',
     opacity: 0.3,
+  },
+  rescueMarkerEmpty: {
+    borderColor: '#777',
+    opacity: 0.55,
   },
   resourceToast: {
     position: 'absolute',

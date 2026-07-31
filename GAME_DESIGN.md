@@ -278,13 +278,24 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ✅ Quest log / journal UI (the new Quests screen) now lists both Pirate Lord progress and side
   quests with Available/Accepted/Completed status (heat-bounty shows "Open · N turned in" instead,
   since it never reaches a terminal Completed state)
+- ✅ **Prisoner rescue**: permadeath finally has a narrative payoff instead of just a stat loss.
+  `removeCrewMember` now takes an optional `capturedBy: 'navy' | 'rival'` — when a navy/rival
+  ambush claims a crew member, their identity (template, nickname, level) is persisted to a new
+  `capturedCrew` list rather than just being deleted. **The Locked Ward**, a new fixed map marker
+  at Tortuga (dims when no one's held, lights up like an available quest marker when someone is),
+  opens a dynamic screen listing everyone currently captured with an "Attempt Rescue" button per
+  person — no per-incident map markers needed since the list is data-driven. Rescuing fights a
+  jailer (reuses `navy_marine`/`rival_deckhand` from the existing threat templates, scaled to at
+  least the captured member's own level) via a new `rescue` encounter faction: victory calls
+  `rescueCrewMember`, which restores them at 50% HP (boarding the ship if there's room, otherwise
+  Crew Quarters) and adds a small heat bump (+8, on par with other provocative crime-layer
+  actions); losing costs nothing further — no recruit option (matches every non-`wild` faction),
+  flee always available. The Quest Log also surfaces a read-only Captured Crew section pointing
+  players toward Tortuga, so the mechanic doesn't rely on stumbling onto the map marker
 
 ### Side Quest Concepts (brainstormed)
 - ⬜ **Smuggling runs** — timed delivery of contraband cargo; a navy patrol encounter en route adds
   heat on top of losing the goods, turning the heat system into an active quest risk
-- ⬜ **Prisoner rescue** — since permadeath already frames losses as "captured"/"imprisoned" rather
-  than killed, a later quest could let you break a *specific* named crew member back out of a navy
-  fort or rival camp — gives permadeath a narrative payoff, not just a stat loss
 - ⬜ **Bounty board with heat payoff** — turn in defeated rival/navy targets for gold *and* a heat
   reduction, making bounty hunting a deliberate way to cool off instead of only fleeing and waiting
 - ⬜ **Buried treasure maps** — already stubbed as a General Store item; sell as a map-marker + dig
@@ -441,10 +452,12 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     walking into buildings, and the heat meter. Both were UX-debt items flagged in a design review
     rather than gameplay-loop gaps, tackled now while the mechanic surface area is still small
     enough to retrofit cheaply
+15. ✅ **Prisoner rescue** — `removeCrewMember` now persists captured-crew identity
+    (`capturedCrew`), and a new Locked Ward marker at Tortuga + `rescue` encounter faction lets you
+    fight a jailer to win them back at reduced HP. Gives permadeath the narrative payoff this list
+    called for, reusing existing threat templates rather than adding new opponent data
 
 ### Now (next up)
-15. **Prisoner rescue** — needs `removeCrewMember` to persist captured-crew identity first (it
-    currently just deletes it), so a rescue quest has something real to reference
 16. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — gives the 5-Lord spine
     an actual ending state; prioritized ahead of more side content so there's a completable game to
     point playtesters at
@@ -460,8 +473,8 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 20. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
 21. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
-    systems, and increasingly worth it now that permadeath, crime, quests, and ship upgrades all
-    touch shared state (heat/gold/resources) simultaneously
+    systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, and
+    rescue all touch shared state (heat/gold/resources/crew) simultaneously
 
 ### Later
 22. **Recurring named rival captain** with scripted story-beat battles (currently just a random

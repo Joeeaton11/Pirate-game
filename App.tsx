@@ -16,6 +16,7 @@ import QuestScreen from './src/screens/QuestScreen';
 import CrewLogScreen from './src/screens/CrewLogScreen';
 import DebugScreen from './src/screens/DebugScreen';
 import SideQuestScreen from './src/screens/SideQuestScreen';
+import RescueScreen from './src/screens/RescueScreen';
 import { useGameStore } from './src/store/gameStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -50,6 +51,7 @@ export default function App() {
             <Stack.Screen name="Quests" component={QuestScreen} />
             <Stack.Screen name="CrewLog" component={CrewLogScreen} />
             <Stack.Screen name="SideQuest" component={SideQuestScreen} />
+            <Stack.Screen name="Rescue" component={RescueScreen} />
             {__DEV__ && <Stack.Screen name="Debug" component={DebugScreen} />}
           </Stack.Navigator>
         </NavigationContainer>

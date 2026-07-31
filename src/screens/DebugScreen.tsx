@@ -39,12 +39,20 @@ export default function DebugScreen({ navigation }: Props) {
   const shipUpgrades = useGameStore((s) => s.shipUpgrades);
   const buyShipUpgrade = useGameStore((s) => s.buyShipUpgrade);
   const debugClearSalvageCooldowns = useGameStore((s) => s.debugClearSalvageCooldowns);
+  const crew = useGameStore((s) => s.crew);
+  const removeCrewMember = useGameStore((s) => s.removeCrewMember);
+  const capturedCrew = useGameStore((s) => s.capturedCrew);
 
   function handleGrantUpgrade(upgradeId: string) {
     addGold(9999);
     const upgrade = SHIP_UPGRADES.find((u) => u.id === upgradeId);
     if (upgrade) addResource(upgrade.resourceId, upgrade.resourceCost);
     buyShipUpgrade(upgradeId);
+  }
+
+  function handleForceCapture(capturedBy: 'navy' | 'rival') {
+    if (crew.length === 0) return;
+    removeCrewMember(crew[0].instanceId, capturedBy);
   }
 
   function forceEncounter(
@@ -249,6 +257,19 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => handleJumpToShop('roatan_den')}>
             <Text style={styles.buttonText}>Jump to Smuggler's Den</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.sectionHeading}>Prisoner Rescue ({capturedCrew.length} captured)</Text>
+        <View style={styles.row}>
+          <Pressable style={styles.button} onPress={() => handleForceCapture('navy')}>
+            <Text style={styles.buttonText}>Force-Capture (Navy)</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => handleForceCapture('rival')}>
+            <Text style={styles.buttonText}>Force-Capture (Rival)</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => navigation.navigate('Rescue')}>
+            <Text style={styles.buttonText}>Jump to Locked Ward</Text>
           </Pressable>
         </View>
 

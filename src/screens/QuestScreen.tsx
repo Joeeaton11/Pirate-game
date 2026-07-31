@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CREW_TEMPLATES } from '../data/crew';
 import { ISLANDS } from '../data/islands';
 import { isLordUnlocked, PIRATE_LORDS, PirateLord } from '../data/pirateLords';
 import { SIDE_QUESTS, SideQuest } from '../data/sideQuests';
@@ -15,6 +16,7 @@ export default function QuestScreen({ navigation }: Props) {
   const acceptedQuestIds = useGameStore((s) => s.acceptedQuestIds);
   const completedQuestIds = useGameStore((s) => s.completedQuestIds);
   const questTurnInCounts = useGameStore((s) => s.questTurnInCounts);
+  const capturedCrew = useGameStore((s) => s.capturedCrew);
   const sortedLords = [...PIRATE_LORDS].sort((a, b) => a.order - b.order);
   const allDefeated = defeatedLordIds.length === PIRATE_LORDS.length;
 
@@ -104,6 +106,28 @@ export default function QuestScreen({ navigation }: Props) {
           Side Quests ({completedQuestIds.length}/{SIDE_QUESTS.length})
         </Text>
         {SIDE_QUESTS.map(renderQuestCard)}
+
+        {capturedCrew.length > 0 && (
+          <>
+            <Text style={styles.sectionHeading}>Captured Crew ({capturedCrew.length})</Text>
+            {capturedCrew.map((record) => (
+              <View key={record.id} style={styles.card}>
+                <Text style={styles.emoji}>{CREW_TEMPLATES[record.templateId].emoji}</Text>
+                <View style={styles.info}>
+                  <Text style={styles.name}>
+                    {record.nickname} · Lv.{record.level}
+                  </Text>
+                  <Text style={styles.subtext}>
+                    {record.capturedBy === 'navy' ? 'Pressed into naval service' : 'Held by a rival crew'}
+                  </Text>
+                  <Text style={[styles.status, { color: '#ffd166' }]}>
+                    Seek out the Locked Ward at Tortuga to attempt a rescue
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </>
+        )}
       </ScrollView>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>Back</Text>
