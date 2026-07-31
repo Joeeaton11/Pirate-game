@@ -188,7 +188,7 @@ export default function CrewScreen({ navigation }: Props) {
         )}
       </View>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Back to Map</Text>
+        <Text style={styles.backButtonText}>Back</Text>
       </Pressable>
     </SafeAreaView>
   );

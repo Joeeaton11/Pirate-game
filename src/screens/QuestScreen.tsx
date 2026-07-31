@@ -106,7 +106,7 @@ export default function QuestScreen({ navigation }: Props) {
         {SIDE_QUESTS.map(renderQuestCard)}
       </ScrollView>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Back to Map</Text>
+        <Text style={styles.backButtonText}>Back</Text>
       </Pressable>
     </SafeAreaView>
   );

@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import OnboardingOverlay from '../components/OnboardingOverlay';
 import { BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import {
@@ -409,16 +410,9 @@ export default function MapScreen({ navigation }: Props) {
         </View>
         <View style={styles.headerRow}>
           <Text style={styles.headerText}>💰 {gold} gold</Text>
-          <View style={styles.headerButtons}>
-            <Pressable onPress={() => navigation.navigate('Quests')} style={styles.questButton}>
-              <Text style={styles.crewButtonText}>
-                🎖️ {defeatedLordIds.length}/{PIRATE_LORDS.length}
-              </Text>
-            </Pressable>
-            <Pressable onPress={() => navigation.navigate('Crew')} style={styles.crewButton}>
-              <Text style={styles.crewButtonText}>Crew ({crew.length}) ▸</Text>
-            </Pressable>
-          </View>
+          <Pressable onPress={() => navigation.navigate('Menu')} style={styles.crewButton}>
+            <Text style={styles.crewButtonText}>☰ Menu</Text>
+          </Pressable>
         </View>
         <View style={styles.heatTrack}>
           <View
@@ -638,6 +632,8 @@ export default function MapScreen({ navigation }: Props) {
           Touch and drag anywhere to sail. Let go to stop.
         </Text>
       </View>
+
+      <OnboardingOverlay />
     </SafeAreaView>
   );
 }
@@ -681,18 +677,8 @@ const styles = StyleSheet.create({
     color: '#f4e9cd',
     fontSize: 15,
   },
-  headerButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
   crewButton: {
     backgroundColor: '#f4e9cd',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  questButton: {
-    backgroundColor: '#ffd166',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,

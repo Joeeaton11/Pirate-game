@@ -47,6 +47,7 @@ interface GameState {
   theftCooldowns: Record<string, number>;
   shipUpgrades: string[];
   salvageCooldowns: Record<string, number>;
+  hasSeenOnboarding: boolean;
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -98,6 +99,7 @@ interface GameState {
   debugSetCrewLevel: (instanceId: string, level: number) => void;
   debugResetSave: () => void;
   setHasHydrated: (value: boolean) => void;
+  completeOnboarding: () => void;
 }
 
 const STARTER_TEMPLATE_ID = 'deckhand_swordsman';
@@ -127,6 +129,7 @@ type InitialState = Pick<
   | 'theftCooldowns'
   | 'shipUpgrades'
   | 'salvageCooldowns'
+  | 'hasSeenOnboarding'
 >;
 
 function createInitialState(): InitialState {
@@ -155,6 +158,7 @@ function createInitialState(): InitialState {
     theftCooldowns: {},
     shipUpgrades: [],
     salvageCooldowns: {},
+    hasSeenOnboarding: false,
   };
 }
 
@@ -585,6 +589,8 @@ export const useGameStore = create<GameState>()(
       debugResetSave: () => set({ ...createInitialState(), hasHydrated: true }),
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
+
+      completeOnboarding: () => set({ hasSeenOnboarding: true }),
     }),
     {
       name: 'pirate-game-storage',
@@ -609,6 +615,7 @@ export const useGameStore = create<GameState>()(
         theftCooldowns: state.theftCooldowns,
         shipUpgrades: state.shipUpgrades,
         salvageCooldowns: state.salvageCooldowns,
+        hasSeenOnboarding: state.hasSeenOnboarding,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

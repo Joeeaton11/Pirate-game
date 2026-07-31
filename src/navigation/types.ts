@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   Map: undefined;
   Encounter: undefined;
+  Menu: undefined;
   Crew: undefined;
   Building: undefined;
   PirateLord: undefined;

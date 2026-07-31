@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './src/navigation/types';
 import MapScreen from './src/screens/MapScreen';
 import EncounterScreen from './src/screens/EncounterScreen';
+import MenuScreen from './src/screens/MenuScreen';
 import CrewScreen from './src/screens/CrewScreen';
 import BuildingScreen from './src/screens/BuildingScreen';
 import PirateLordScreen from './src/screens/PirateLordScreen';
@@ -42,6 +43,7 @@ export default function App() {
               component={EncounterScreen}
               options={{ gestureEnabled: false }}
             />
+            <Stack.Screen name="Menu" component={MenuScreen} />
             <Stack.Screen name="Crew" component={CrewScreen} />
             <Stack.Screen name="Building" component={BuildingScreen} />
             <Stack.Screen name="PirateLord" component={PirateLordScreen} />

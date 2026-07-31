@@ -329,16 +329,21 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 ## Menus & UI
 - ✅ Map HUD (gold, crew count, heat meter), Crew roster screen, Battle screen, Building interior
   screen
-- ⬜ Start-menu equivalent consolidating: Crew Log (Pokédex), Quest Journal, Inventory/Bag, Save,
-  Options — right now these are separate screens with no single hub
+- ✅ **Start-menu equivalent**: a new Menu screen (☰ Menu button on the Map header, replacing the
+  separate Quests/Crew buttons that were starting to crowd the header) consolidating Crew Roster,
+  Crew Log (Pokédex), and Quest Log into one hub with live counters (crew count, recruited X/Y,
+  Pirate Lords defeated X/Y). Inventory/Bag, Save, and Options aren't separate screens yet — Bag
+  is folded into the Crew screen (Cargo Hold) and Item usage; Save/Options don't exist as concepts
+  yet
 - ⬜ Party/move-management screen (nicknames, move loadouts)
 
 ## Onboarding & Tutorial
-- ⬜ Not a current priority, but noted here so it doesn't get lost: a short first-time-only overlay
-  sequence teaching drag-to-sail, the heat meter, and that walking into a building enters it —
-  a brand-new player has no in-game explanation of any of this right now
-- ⬜ Likely a lightweight, skippable, one-time flow rather than a forced walled tutorial, given the
-  mobile audience
+- ✅ **First-launch overlay**: a lightweight, skippable, 3-step overlay (Drag to Sail / Walk Right
+  In / Mind Your Heat) shown once on a fresh save, gated by a persisted `hasSeenOnboarding` flag.
+  Skippable at any step via a Skip button, or steps through to a "Got it, let's sail!" CTA on the
+  last step — either path marks it seen permanently. Resetting the save (Debug screen) also resets
+  this flag, so it can be re-tested without a fresh install
+- ⬜ No day/night or weather-specific onboarding beats yet (not needed until those systems exist)
 
 ## Testing & QA
 - ✅ **Dev debug panel**: a `__DEV__`-gated Debug screen (🛠 button on the Map, stripped from
@@ -430,27 +435,37 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     Sainte-Marie), Swift Rigging (halves Navy ambush chance), and Diving Bell (unlocks a passive
     gold-salvage site at Port Royal), all bought at Roatán's Smuggler's Den; plus Ship's Biscuit
     finally gives Fish a craft use beyond selling
+14. ✅ **Menu hub + first-launch onboarding** — a new Menu screen consolidating Crew/Crew
+    Log/Quest Log behind a single ☰ Menu button (replacing two separate header buttons that were
+    starting to crowd the Map), plus a skippable 3-step first-launch overlay covering drag-to-sail,
+    walking into buildings, and the heat meter. Both were UX-debt items flagged in a design review
+    rather than gameplay-loop gaps, tackled now while the mechanic surface area is still small
+    enough to retrofit cheaply
 
 ### Now (next up)
-14. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
-    investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
-    patterns
 15. **Prisoner rescue** — needs `removeCrewMember` to persist captured-crew identity first (it
     currently just deletes it), so a rescue quest has something real to reference
+16. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — gives the 5-Lord spine
+    an actual ending state; prioritized ahead of more side content so there's a completable game to
+    point playtesters at
+17. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+    investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
+    patterns
 
 ### Next
-16. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+18. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-17. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+19. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-18. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+20. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-19. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
-    the 5 Lords have side-quest content built around them
+21. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+    systems, and increasingly worth it now that permadeath, crime, quests, and ship upgrades all
+    touch shared state (heat/gold/resources) simultaneously
 
 ### Later
-20. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+22. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template)
-21. **GTA-style character switching** (biggest, most novel, probably last)
-22. Automated test suite, IAP integration, real art asset pipeline, onboarding tutorial —
+23. **GTA-style character switching** (biggest, most novel, probably last)
+24. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
