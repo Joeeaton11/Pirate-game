@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { CAPTAIN_NAME, COMPANION_NAME } from '../data/protagonist';
 import { useGameStore } from '../store/gameStore';
 
 interface Step {
@@ -12,7 +13,7 @@ const STEPS: Step[] = [
   {
     emoji: '⛵',
     title: 'Drag to Sail',
-    body: 'Touch and drag anywhere on the map to sail. Let go to stop. Your ship moves faster at sea than on land.',
+    body: `Ahoy — ${CAPTAIN_NAME} here, and this is ${COMPANION_NAME}. Touch and drag anywhere on the map to sail. Let go to stop. Our ship moves faster at sea than on land.`,
   },
   {
     emoji: '🚪',

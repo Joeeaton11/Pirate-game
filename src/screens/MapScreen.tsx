@@ -20,6 +20,7 @@ import {
 } from '../data/islands';
 import { HOUSES, houseWorldPosition } from '../data/houses';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
+import { PLAYER_EMOJI_LAND, PLAYER_EMOJI_SEA } from '../data/protagonist';
 import {
   PIRATE_LORDS,
   isLordUnlocked,
@@ -480,7 +481,7 @@ export default function MapScreen({ navigation }: Props) {
   }, [isFocused]);
 
   const currentIsland = islandAtPoint(player);
-  const playerEmoji = currentIsland ? '🧍' : '⛵';
+  const playerEmoji = currentIsland ? PLAYER_EMOJI_LAND : PLAYER_EMOJI_SEA;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>

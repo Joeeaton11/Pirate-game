@@ -6,6 +6,19 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 
 ## Premise & Goal
 - ✅ Player becomes a pirate captain, sailing an open world, recruiting a crew
+- ✅ **Player character has a fixed identity — Captain Scally, with sidekick Cheeky the monkey**
+  (built 2026-07-31, from the "Scallywags" brand style guide). `src/data/protagonist.ts` holds
+  the shared name/emoji constants. Named on the onboarding overlay (narrated in Scally's voice)
+  and the Menu screen header ("Captain Scally's Log" / "Cheeky is minding the ship"); the on-land
+  player token swapped from a generic `🧍` to `👦` so it visually reads as Scally rather than an
+  anonymous figure. Cheeky is flavor-only — deliberately **not** a mechanical crew member, so the
+  permadeath/heat system (navy press-gangs, rival capture) applies uniformly with no named-character
+  exemption to design around. Per the branding decision below, this is packaging on top of the
+  existing systems, not a rewrite of them — no mechanics changed
+- ⬜ The other 5 named crew from the brand sheet (Polly, Big Beard Bill, Tiny Tim, Captain Blackfin,
+  Admiral Octavia) are intentionally **not** mapped to specific in-game NPCs/recruit templates yet —
+  left as external brand assets until there's a concrete reason to wire one in (e.g. a specific
+  recruit template reskin, a rival, a Pirate Lord)
 - ⬜ Two parallel goals mirroring Pokédex + League: (1) a **Crew Log** (like a Pokédex — every
   recruitable NPC/species you've met vs. actually recruited, with a completion %), (2) a **main
   questline** ending in becoming a named Pirate Lord/King — the "beat the League" analog
@@ -582,6 +595,10 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ✅ Target Teen/PEGI 12. Permadeath framing is now: navy captures **press crew into naval
   service**, rivals **take crew prisoner** — permanent and stakes-carrying, but no execution
   imagery or gore
+- ✅ **Brand decision (2026-07-31)**: the cheerful, all-ages "Scallywags" brand/mascot style guide
+  is packaging, not a tone change. Captain Scally became the named protagonist (see Premise &
+  Goal), but permadeath, heat/crime, and bounty violence stay exactly as designed — the brand
+  sits on top of the existing Moderate/Teen mechanics, it doesn't soften them
 
 ## Art Direction — DECIDED: Pixel art (16/32-bit RPG style)
 - ✅ Target look: SNES-era JRPG pixel art, not strict 2-bit Game Boy — richer color, still readable

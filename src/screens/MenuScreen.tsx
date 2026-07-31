@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATE_LIST } from '../data/crew';
 import { PIRATE_LORDS } from '../data/pirateLords';
+import { CAPTAIN_NAME, COMPANION_EMOJI, COMPANION_NAME } from '../data/protagonist';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
@@ -17,7 +18,10 @@ export default function MenuScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Menu</Text>
+        <Text style={styles.title}>{CAPTAIN_NAME}'s Log</Text>
+        <Text style={styles.subtitle}>
+          {COMPANION_EMOJI} {COMPANION_NAME} is minding the ship
+        </Text>
       </View>
       <View style={styles.list}>
         <Pressable style={styles.row} onPress={() => navigation.navigate('Crew')}>
@@ -62,6 +66,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#0b3d5c' },
   header: { padding: 16 },
   title: { fontSize: 22, fontWeight: '700', color: '#f4e9cd' },
+  subtitle: { fontSize: 13, color: '#cfe3ee', marginTop: 4 },
   list: { paddingHorizontal: 16, gap: 10 },
   row: {
     flexDirection: 'row',
