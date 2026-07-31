@@ -86,17 +86,20 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   the pitch.
 - ✅ Camera follows player; speed and sprite change between sea (ship) and land (on-foot)
 - ✅ **Pokémon-close camera zoom, built 2026-07-31, tuned to 5x against reference screenshots**:
-  the outdoor map now renders at 5x its
-  native scale (`ZOOM` in `MapScreen.tsx`) — buildings, houses, streets, everything inside the
-  `world` container zooms uniformly via a single CSS-style transform (`translate` then `scale`,
-  with the translate math canceling out the view's default center-origin so it zooms around the
-  player rather than the world's geometric center), while the player token itself (rendered
-  separately, always fixed at the viewport's center) was scaled up to match by hand. No gameplay
-  math changed — movement speed, encounter radii, building triggers, coastline collision all still
-  operate in true world units; only the world-to-screen rendering scale changed. This is purely a
-  framing change, not a re-litigation of "continuous movement, not grid-based" above — still the
-  same drag-to-move engine, just viewed closer, matching the tight per-screen framing of the
-  Pokémon reference instead of showing the whole island (or whole world) at once
+  the outdoor map now renders at 5x its native scale (`ZOOM` in `MapScreen.tsx`) — buildings,
+  houses, streets, everything inside the `world` container zooms uniformly via a single CSS-style
+  transform (`translate` then `scale`, with the translate math canceling out the view's default
+  center-origin so it zooms around the player rather than the world's geometric center). No
+  gameplay math changed — movement speed, encounter radii, building triggers, coastline collision
+  all still operate in true world units; only the world-to-screen rendering scale changed
+- ✅ **Player-to-building size ratio fixed, 2026-07-31**: raising `ZOOM` alone never got the view
+  close to Pokémon's, because the player token's on-screen size scaled in lockstep with everything
+  else — and it started from a native size (40 units) already close to a building's (44 units). In
+  real Pokémon a character is roughly 1 tile and a building is 5-7 tiles, i.e. the character reads
+  as small next to structures; ours read as roughly building-sized. Fixed by shrinking the
+  player's native footprint to 12 units — the same `ZOOM` factor now makes buildings and houses
+  loom the way they do in the reference screenshots while the player stays correctly small next to
+  them, with zero change to any world-unit gameplay math
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

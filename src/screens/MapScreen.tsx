@@ -51,7 +51,12 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 // streets, everything inside the `world` container), while the player token — rendered as a
 // separate fixed element always centered on screen — is sized to match by hand below.
 const ZOOM = 5;
-const PLAYER_SIZE = 40 * ZOOM;
+// In real Pokémon a character is ~1 tile and a building is ~5-7 tiles — the character is small
+// next to structures. PLAYER_SIZE previously scaled at the same native size as a building (40 vs
+// 44), which is why zooming alone never got there: zoom scales everything in lockstep, so a
+// player already sized like a building stayed sized like a building at any zoom level. Fixed by
+// giving the player a genuinely small native footprint before the same ZOOM is applied to it.
+const PLAYER_SIZE = 12 * ZOOM;
 const BUILDING_SIZE = 44;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 const SEA_SPEED = 260; // world units per second
@@ -1075,7 +1080,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   playerEmoji: {
-    fontSize: 30 * ZOOM,
+    fontSize: 9 * ZOOM,
   },
   joystickBase: {
     position: 'absolute',
