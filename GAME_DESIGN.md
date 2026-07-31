@@ -280,10 +280,6 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ More side quests per island (resource-gathering, and the rest of the brainstormed
   concepts/styles above) — the pattern (data file + store accept/complete tracking + map
   marker + SideQuest screen) is now proven across one-shot, multi-stage, and repeatable quests
-- ⬜ **Prisoner rescue** (deferred, needs its own build): the store currently deletes a permadeath
-  victim's data entirely, so there's nothing to reference for a "rescue this specific crew member"
-  quest yet — building this for real means persisting captured-crew identity in `removeCrewMember`
-  first, which is a bigger, separate feature from the rest of this list
 - ✅ Quest log / journal UI (the new Quests screen) now lists both Pirate Lord progress and side
   quests with Available/Accepted/Completed status (heat-bounty shows "Open · N turned in" instead,
   since it never reaches a terminal Completed state)
@@ -337,6 +333,43 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   than fighting or gathering; dialogue-only, detective-lite
 - ⬜ **Recurring board quest** — a repeatable, low-narrative bounty/gather quest that resets; this
   is the side-content-for-engagement gap already flagged under Scope & Pacing
+
+### Scaling to 150+ Mini Quests: the Patrons System (planned 2026-07-31)
+- ⬜ **Not yet built — this is a planning entry, content to be authored in future batches.**
+  Revises the side-quest target up from 15-20/25-30 to **150+**, via a mechanism that keeps the
+  per-quest cost low instead of scaling authoring effort linearly:
+  - **The key unlock: quests don't need their own map marker.** Every side quest so far has been a
+    standalone 📜 marker with its own island offset — that's what made "120 quests" look
+    map-cluttered and expensive. Instead, **buildings can host multiple named "patrons"** — walk-in
+    NPCs you talk to once inside, each offering their own self-contained one-off quest, all sharing
+    the single map marker/interior the building already has. A tavern doesn't need 5 quest markers
+    on the map for 5 quests — it needs 5 patrons sitting inside it
+  - **A reusable patron archetype roster** to draw from per building (mix and match, not
+    one-per-building): the Barkeep, a Local, a Drunk (comic/unreliable framing), a Rival Pirate
+    (morally-grey exchange), a Wandering Sea Dog, a Constable/Lawman (bounty-flavored — already
+    used for Cull the Cattle Rustler and The Bounty Board), a Smuggler (crime-flavored), a Grieving
+    Widow/Local (already used for A Toast for the Fallen), a Fortune Teller/Mystic (curse-flavored,
+    matches the folklore layer), an Old Captain (lore/specialty-gated), a Ship's Cook
+    (resource-flavored), a Navy Deserter (heat-flavored, risky), a Cabin Boy (low-stakes comic). All
+    reuse the existing quest types (`bounty`/`fetch`/`specialty_gate`/`escort`/`heat_bounty`) — no
+    new mechanics required to hit volume
+  - **Rough math for why 150+ is realistic, not aspirational**: ~12 existing buildings × 3-5
+    patrons each ≈ 40-60, plus the already-flagged gap of adding more buildings per island (Pokémon
+    towns run 3-5 per town; most islands here only have 1-3 today) — 2-3 more buildings per island
+    × their own patrons adds another 60-100+ over time. Split **some island-specific** (a tavern
+    needing rum at New Providence, matching its real rum-running history — same flavor-matching
+    approach already used for every building/lord/resource) **and some generic/templated** (a
+    reused fetch/gather skeleton with light variation, no less legitimate than Pokémon's own
+    identical-mechanic-different-NPC gyms)
+  - **Engineering prerequisite before content authoring at this scale**: `Building` needs a
+    `patrons` list (or a new `src/data/patrons.ts` keyed by `buildingId`), and `BuildingScreen`
+    needs a new section rendering walk-up patron rows (same generic-section pattern already used
+    for Craft/Sell/Steal/Ship Upgrades) that open the existing `SideQuestScreen` flow per patron —
+    this is a foundational build task distinct from, and prior to, writing the 150 quests
+    themselves
+  - Explicitly **not** claiming 150 fully bespoke unique narratives — some will be short, familiar,
+    formulaic (that's fine, matches how mini-quests actually scale in bigger games); the goal is
+    volume of *fun, flavorful, non-duplicate* content without 150x-ing the writing effort per quest
 
 ## GTA-style Character Switching (open gap)
 - ⬜ Distinct from crew battle-switching (which already exists) — this means directly controlling
@@ -426,9 +459,11 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   was already the stated design intent above. **The lever for more total playtime is optional
   content, not a longer mandatory spine**: more side quests, and leaning harder into the
   repeatable/systemic loops already built (resource gathering, the crime layer, the Bounty Board)
-  plus future live-ops/dailies. Revised target: **15-20 total side quests** (up from the earlier
-  10-15 estimate, reflecting this lean-into-optional-content direction) across the 7 islands, plus
-  the existing and future repeatable loops, rather than expanding the mandatory path
+  plus future live-ops/dailies. **Target revised again same day to 150+ total mini quests** via the
+  Patrons system (see Quests & Main Story below) — buildings hosting multiple walk-in quest-givers
+  sharing one map marker, rather than one quest per marker. This keeps per-quest authoring cost low
+  enough that 150+ is a realistic batch-built backlog, not a scope blowout, while the mandatory
+  path stays untouched
 - ⬜ Side content/live-ops (events, dailies) intended to extend engagement beyond the main quest
   once there's a content cadence to support it — the primary vehicle for the playtime lever above
 
@@ -491,29 +526,31 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     badge machinery rather than inventing new screens
 
 ### Now (next up)
-17. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+17. **Build the Patrons system foundation** (`Building.patrons` / `src/data/patrons.ts` +
+    a BuildingScreen section rendering walk-in quest-givers) — the engineering prerequisite for
+    scaling to 150+ mini quests per the revised Scope & Pacing target; content authoring happens
+    in batches after this lands, not all at once
+18. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
-    patterns. Target 15-20 total side quests per the revised Scope & Pacing direction (currently
-    at 6) — the playtime lever going forward is optional content breadth, not a longer mandatory
-    spine
+    patterns. Feeds both standalone map-marker quests and, once built, Patron-hosted ones
 
 ### Next
-18. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+19. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-19. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+20. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-20. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+21. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-21. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+22. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-22. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+23. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-23. **GTA-style character switching** (biggest, most novel, probably last)
-24. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+24. **GTA-style character switching** (biggest, most novel, probably last)
+25. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-25. Full e2e test automation, IAP integration, real art asset pipeline —
+26. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
