@@ -6,6 +6,7 @@ import { BUILDINGS, BuildingType } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import { CRAFTING_RECIPES, ITEMS } from '../data/items';
 import { RESOURCE_LIST, RESOURCES } from '../data/resources';
+import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
@@ -33,6 +34,8 @@ export default function BuildingScreen({ navigation }: Props) {
   const craftItem = useGameStore((s) => s.craftItem);
   const theftCooldowns = useGameStore((s) => s.theftCooldowns);
   const stealFromShop = useGameStore((s) => s.stealFromShop);
+  const shipUpgrades = useGameStore((s) => s.shipUpgrades);
+  const buyShipUpgrade = useGameStore((s) => s.buyShipUpgrade);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const markSeen = useGameStore((s) => s.markSeen);
   const [sentToQuarters, setSentToQuarters] = useState(false);
@@ -217,6 +220,42 @@ export default function BuildingScreen({ navigation }: Props) {
                   >
                     <Text style={styles.buyButtonText}>Sell All</Text>
                   </Pressable>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {building.sellsUpgrades && (
+          <View style={styles.shopSection}>
+            <Text style={styles.shopHeading}>Ship Upgrades</Text>
+            {SHIP_UPGRADES.map((upgrade) => {
+              const owned = shipUpgrades.includes(upgrade.id);
+              const resource = RESOURCES[upgrade.resourceId];
+              const resourceOwned = resources[upgrade.resourceId] ?? 0;
+              const canAfford = gold >= upgrade.goldCost && resourceOwned >= upgrade.resourceCost;
+              return (
+                <View key={upgrade.id} style={styles.itemRow}>
+                  <Text style={styles.itemEmoji}>{upgrade.emoji}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.itemName}>{upgrade.name} {owned && '(owned)'}</Text>
+                    <Text style={styles.itemDescription}>{upgrade.description}</Text>
+                    {!owned && (
+                      <Text style={styles.itemDescription}>
+                        {upgrade.goldCost}g + {upgrade.resourceCost} {resource.emoji} {resource.name} (have{' '}
+                        {resourceOwned})
+                      </Text>
+                    )}
+                  </View>
+                  {!owned && (
+                    <Pressable
+                      style={[styles.buyButton, !canAfford && styles.disabledButton]}
+                      onPress={() => buyShipUpgrade(upgrade.id)}
+                      disabled={!canAfford}
+                    >
+                      <Text style={styles.buyButtonText}>Buy</Text>
+                    </Pressable>
+                  )}
                 </View>
               );
             })}

@@ -6,6 +6,7 @@ import { CREW_TEMPLATES } from '../data/crew';
 import { craftingRecipeFor } from '../data/items';
 import { promotionFor, resolvePromotion } from '../data/promotions';
 import { RESOURCE_NODES, RESOURCES, ResourceId } from '../data/resources';
+import { SALVAGE_SITES, shipUpgradeFor } from '../data/shipUpgrades';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
@@ -44,6 +45,8 @@ interface GameState {
   resources: Record<string, number>;
   resourceNodeCooldowns: Record<string, number>;
   theftCooldowns: Record<string, number>;
+  shipUpgrades: string[];
+  salvageCooldowns: Record<string, number>;
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -87,8 +90,11 @@ interface GameState {
     resourceId?: ResourceId;
     amount?: number;
   };
+  buyShipUpgrade: (upgradeId: string) => boolean;
+  salvageSite: (siteId: string) => { success: boolean; amount?: number };
   debugClearResourceCooldowns: () => void;
   debugClearTheftCooldowns: () => void;
+  debugClearSalvageCooldowns: () => void;
   debugSetCrewLevel: (instanceId: string, level: number) => void;
   debugResetSave: () => void;
   setHasHydrated: (value: boolean) => void;
@@ -119,6 +125,8 @@ type InitialState = Pick<
   | 'resources'
   | 'resourceNodeCooldowns'
   | 'theftCooldowns'
+  | 'shipUpgrades'
+  | 'salvageCooldowns'
 >;
 
 function createInitialState(): InitialState {
@@ -145,6 +153,8 @@ function createInitialState(): InitialState {
     resources: {},
     resourceNodeCooldowns: {},
     theftCooldowns: {},
+    shipUpgrades: [],
+    salvageCooldowns: {},
   };
 }
 
@@ -509,9 +519,44 @@ export const useGameStore = create<GameState>()(
         return { success: true, caught, resourceId, amount };
       },
 
+      buyShipUpgrade: (upgradeId) => {
+        const state = get();
+        const upgrade = shipUpgradeFor(upgradeId);
+        if (!upgrade || state.shipUpgrades.includes(upgradeId)) return false;
+        if (state.gold < upgrade.goldCost) return false;
+        if ((state.resources[upgrade.resourceId] ?? 0) < upgrade.resourceCost) return false;
+        set({
+          gold: state.gold - upgrade.goldCost,
+          resources: {
+            ...state.resources,
+            [upgrade.resourceId]: (state.resources[upgrade.resourceId] ?? 0) - upgrade.resourceCost,
+          },
+          shipUpgrades: [...state.shipUpgrades, upgradeId],
+        });
+        return true;
+      },
+
+      salvageSite: (siteId) => {
+        const state = get();
+        const site = SALVAGE_SITES.find((s) => s.id === siteId);
+        if (!site || !state.shipUpgrades.includes(site.requiresUpgradeId)) {
+          return { success: false };
+        }
+        const readyAt = state.salvageCooldowns[siteId] ?? 0;
+        if (Date.now() < readyAt) return { success: false };
+        const amount = site.minGold + Math.floor(Math.random() * (site.maxGold - site.minGold + 1));
+        set({
+          gold: state.gold + amount,
+          salvageCooldowns: { ...state.salvageCooldowns, [siteId]: Date.now() + site.cooldownMinutes * 60_000 },
+        });
+        return { success: true, amount };
+      },
+
       debugClearResourceCooldowns: () => set({ resourceNodeCooldowns: {} }),
 
       debugClearTheftCooldowns: () => set({ theftCooldowns: {} }),
+
+      debugClearSalvageCooldowns: () => set({ salvageCooldowns: {} }),
 
       debugSetCrewLevel: (instanceId, level) => {
         const state = get();
@@ -562,6 +607,8 @@ export const useGameStore = create<GameState>()(
         resources: state.resources,
         resourceNodeCooldowns: state.resourceNodeCooldowns,
         theftCooldowns: state.theftCooldowns,
+        shipUpgrades: state.shipUpgrades,
+        salvageCooldowns: state.salvageCooldowns,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

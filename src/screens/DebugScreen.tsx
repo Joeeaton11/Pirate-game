@@ -7,6 +7,7 @@ import { CREW_TEMPLATE_LIST } from '../data/crew';
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { PIRATE_LORDS } from '../data/pirateLords';
 import { RESOURCE_LIST } from '../data/resources';
+import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
@@ -35,6 +36,16 @@ export default function DebugScreen({ navigation }: Props) {
   const addItem = useGameStore((s) => s.addItem);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const debugClearTheftCooldowns = useGameStore((s) => s.debugClearTheftCooldowns);
+  const shipUpgrades = useGameStore((s) => s.shipUpgrades);
+  const buyShipUpgrade = useGameStore((s) => s.buyShipUpgrade);
+  const debugClearSalvageCooldowns = useGameStore((s) => s.debugClearSalvageCooldowns);
+
+  function handleGrantUpgrade(upgradeId: string) {
+    addGold(9999);
+    const upgrade = SHIP_UPGRADES.find((u) => u.id === upgradeId);
+    if (upgrade) addResource(upgrade.resourceId, upgrade.resourceCost);
+    buyShipUpgrade(upgradeId);
+  }
 
   function forceEncounter(
     templateId: string,
@@ -213,6 +224,31 @@ export default function DebugScreen({ navigation }: Props) {
           ))}
           <Pressable style={styles.button} onPress={debugClearTheftCooldowns}>
             <Text style={styles.buttonText}>Clear Theft Cooldowns</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.sectionHeading}>Ship Upgrades</Text>
+        <View style={styles.row}>
+          {SHIP_UPGRADES.map((upgrade) => {
+            const owned = shipUpgrades.includes(upgrade.id);
+            return (
+              <Pressable
+                key={upgrade.id}
+                style={[styles.button, owned && styles.dangerButton]}
+                onPress={() => handleGrantUpgrade(upgrade.id)}
+                disabled={owned}
+              >
+                <Text style={styles.buttonText}>
+                  {upgrade.emoji} {upgrade.name} {owned && '(owned)'}
+                </Text>
+              </Pressable>
+            );
+          })}
+          <Pressable style={styles.button} onPress={debugClearSalvageCooldowns}>
+            <Text style={styles.buttonText}>Clear Salvage Cooldowns</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => handleJumpToShop('roatan_den')}>
+            <Text style={styles.buttonText}>Jump to Smuggler's Den</Text>
           </Pressable>
         </View>
 

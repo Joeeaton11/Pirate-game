@@ -155,8 +155,9 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   ambushes since a sanctioned duel isn't the same as being caught unawares
 - ⬜ Raising the level at which recruited crew "obey" you (direct obey-mechanic reskin) — not
   built, and not very meaningful yet without a level-cap concept tied to badge count
-- ⬜ Traversal gate unlocked per badge (ship upgrade, reputation-gated port) — not built, waiting
-  on the ship-upgrade system
+- ✅ Traversal gate: **Reinforced Hull** (see Economy below) hard-gates Île Sainte-Marie until
+  bought at Roatán — the ship-upgrade traversal gate this bullet was waiting on
+- ⬜ Reputation-gated port (beyond the one hull-gated island) — not built
 - ⬜ Endgame: a **Pirate Council** (Elite Four equivalent) — back-to-back fights, no free healing
   between them — followed by a final Pirate King/Queen or Kraken-type superboss (Champion
   equivalent), credits, then post-game content unlocks. Natural next step after these 5 Lords
@@ -229,6 +230,20 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     getting the goods; a random "caught" check only decides whether the heat spike is small (clean
     grab) or large (caught red-handed) — never an outright failure. `Building.recruit` became
     optional to support shops with no NPC to hire
+- ✅ **Ship Upgrades**: a gold-and-resource sink at Roatán's Smuggler's Den (already the real
+  careening/shipyard island) that finally gives Timber, Rum, and Gunpowder the "feeds crafting or
+  ship upgrades" purpose promised early on, and gives Fish something beyond selling (Ship's
+  Biscuit, a cheap weaker heal craftable from 3 Fish). Three one-time purchases, each permanent
+  once bought:
+  - **Reinforced Hull** (150g + 15 Timber) — a **hard gate**: Île Sainte-Marie's waters are
+    impassable without it, matching the design doc's own "ship upgrades as soft gates (Sea
+    equivalent of HMs)" framing — Pokémon HMs are genuine hard blocks, so this is the literal
+    version rather than a discount on an encounter roll
+  - **Swift Rigging** (120g + 12 Rum) — halves the Navy ambush chance everywhere, permanently
+  - **Diving Bell** (100g + 10 Gunpowder) — unlocks a salvage site among Port Royal's sunken
+    ruins: a one-off passive gold windfall (25-50g) on a cooldown, gathered the same
+    walk-through-it way as a resource node, but paying out gold instead of a resource since it's a
+    treasure dive, not a materials gather
 - ⬜ **Economy polish (not yet built)**: per-island price variance for real trade routes,
   resource-cost recruits, resource-based fetch quests
 
@@ -411,27 +426,31 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     cargo, +10 heat, no recruit/permadeath) and a steal option at 4 new resource-themed shops
     (free, cooldown-gated, heat spike bigger if caught) — the "GTA chaos" pillar's first real
     teeth beyond the existing rival/navy ambush system
+13. ✅ **Ship Upgrades (traversal gate + more resource sinks)** — Reinforced Hull (hard-gates Île
+    Sainte-Marie), Swift Rigging (halves Navy ambush chance), and Diving Bell (unlocks a passive
+    gold-salvage site at Port Royal), all bought at Roatán's Smuggler's Den; plus Ship's Biscuit
+    finally gives Fish a craft use beyond selling
 
 ### Now (next up)
-13. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+14. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns
-14. **Prisoner rescue** — needs `removeCrewMember` to persist captured-crew identity first (it
+15. **Prisoner rescue** — needs `removeCrewMember` to persist captured-crew identity first (it
     currently just deletes it), so a rescue quest has something real to reference
 
 ### Next
-15. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+16. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-16. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+17. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-17. **Ship upgrades as soft gates + reputation-gated ports** — the traversal-gating system the
-    open world currently lacks entirely — now has a real resource economy to draw from
-18. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
+18. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+    heat/reputation rather than a one-time purchase
+19. **Pirate Council + final superboss** (Elite Four/Champion equivalent) — natural finale once
     the 5 Lords have side-quest content built around them
 
 ### Later
-19. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+20. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template)
-20. **GTA-style character switching** (biggest, most novel, probably last)
-21. Automated test suite, IAP integration, real art asset pipeline, onboarding tutorial —
+21. **GTA-style character switching** (biggest, most novel, probably last)
+22. Automated test suite, IAP integration, real art asset pipeline, onboarding tutorial —
     pre-launch/production concerns rather than gameplay-loop gaps

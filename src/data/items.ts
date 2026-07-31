@@ -34,6 +34,17 @@ export const ITEMS: Record<string, Item> = {
     usableOutsideBattle: false,
     usableInBattle: true,
   },
+  ships_biscuit: {
+    id: 'ships_biscuit',
+    name: "Ship's Biscuit",
+    emoji: '🍪',
+    description: 'A hard, plain biscuit. Not much, but it holds a crew over. Heals 25% of max HP.',
+    price: 8,
+    effect: 'heal',
+    healPercent: 0.25,
+    usableOutsideBattle: true,
+    usableInBattle: true,
+  },
   captains_draught: {
     id: 'captains_draught',
     name: "Captain's Draught",
@@ -59,6 +70,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   { itemId: 'rum_ration', resourceId: 'rum', resourceCost: 2 },
   { itemId: 'grapeshot_charge', resourceId: 'gunpowder', resourceCost: 3 },
   { itemId: 'captains_draught', resourceId: 'rum', resourceCost: 5 },
+  { itemId: 'ships_biscuit', resourceId: 'fish', resourceCost: 3 },
 ];
 
 export function craftingRecipeFor(itemId: string): CraftingRecipe | undefined {

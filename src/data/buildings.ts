@@ -19,6 +19,7 @@ export interface Building {
   };
   itemsForSale?: string[]; // item ids, priced from ITEMS
   buysResources?: boolean; // if true, shows a Sell Resources section priced from RESOURCES
+  sellsUpgrades?: boolean; // if true, shows a Ship Upgrades section priced from SHIP_UPGRADES
   // Theft: buy this resource honestly here too, or steal it for free at a heat cost.
   stealResourceId?: ResourceId;
   stealYield?: { min: number; max: number };
@@ -52,7 +53,7 @@ export const BUILDINGS: Building[] = [
     npcEmoji: '🧑‍💼',
     dialogue: "I know a sharpshooter looking for steady work, if you've got the coin.",
     recruit: { templateId: 'dockside_sharpshooter', level: 3, cost: 30 },
-    itemsForSale: ['rum_ration', 'grapeshot_charge'],
+    itemsForSale: ['rum_ration', 'grapeshot_charge', 'ships_biscuit'],
     buysResources: true,
   },
   {
@@ -92,6 +93,7 @@ export const BUILDINGS: Building[] = [
     recruit: { templateId: 'gun_deck_veteran', level: 8, cost: 130 },
     itemsForSale: ['forged_papers', 'rum_ration'],
     buysResources: true,
+    sellsUpgrades: true,
   },
   {
     id: 'port_royal_college',

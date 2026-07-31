@@ -24,6 +24,7 @@ import {
 } from '../data/pirateLords';
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
+import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
 import { SIDE_QUESTS, sideQuestWorldPosition } from '../data/sideQuests';
 import {
   THREAT_TEMPLATES,
@@ -77,6 +78,9 @@ export default function MapScreen({ navigation }: Props) {
   const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
   const gatherResource = useGameStore((s) => s.gatherResource);
   const resourceNodeCooldowns = useGameStore((s) => s.resourceNodeCooldowns);
+  const shipUpgrades = useGameStore((s) => s.shipUpgrades);
+  const salvageCooldowns = useGameStore((s) => s.salvageCooldowns);
+  const salvageSite = useGameStore((s) => s.salvageSite);
   const [resourceToast, setResourceToast] = useState<string | null>(null);
   const resourceToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -88,6 +92,8 @@ export default function MapScreen({ navigation }: Props) {
   crewRef.current = crew;
   const heatRef = useRef(heat);
   heatRef.current = heat;
+  const shipUpgradesRef = useRef(shipUpgrades);
+  shipUpgradesRef.current = shipUpgrades;
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
 
   function clearDrag() {
@@ -266,10 +272,16 @@ export default function MapScreen({ navigation }: Props) {
       const nextX = clamp(playerRef.current.x + direction.x * speed * dt, 0, WORLD_WIDTH);
       const nextY = clamp(playerRef.current.y + direction.y * speed * dt, 0, WORLD_HEIGHT);
       const nextPosition = { x: nextX, y: nextY };
-      playerRef.current = nextPosition;
-      setPlayer(nextPosition);
 
       const nextIsland = islandAtPoint(nextPosition);
+
+      if (nextIsland?.id === 'ile_sainte_marie' && !shipUpgradesRef.current.includes('reinforced_hull')) {
+        showResourceToast('⛔ Too rough without a Reinforced Hull!');
+        return;
+      }
+
+      playerRef.current = nextPosition;
+      setPlayer(nextPosition);
 
       if (nextIsland) {
         const nearbyBuilding = buildingsForIsland(nextIsland.id).find((building) => {
@@ -319,6 +331,19 @@ export default function MapScreen({ navigation }: Props) {
             showResourceToast(`${resource.emoji} +${result.amount} ${resource.name}!`);
           }
         }
+
+        // Salvage sites gather passively too, once the Diving Bell is owned.
+        const nearbySite = SALVAGE_SITES.find((site) => {
+          if (site.islandId !== nextIsland.id) return false;
+          const sp = salvageSiteWorldPosition(site, nextIsland.position);
+          return Math.hypot(nextPosition.x - sp.x, nextPosition.y - sp.y) <= ENTER_RADIUS;
+        });
+        if (nearbySite && shipUpgradesRef.current.includes(nearbySite.requiresUpgradeId)) {
+          const result = salvageSite(nearbySite.id);
+          if (result.success && result.amount) {
+            showResourceToast(`🤿 Salvaged ${result.amount} gold!`);
+          }
+        }
       }
 
       const nextZoneId = nextIsland?.id ?? null;
@@ -346,7 +371,9 @@ export default function MapScreen({ navigation }: Props) {
           const rivalRoll = Math.random();
           const merchantRoll = Math.random();
           const wildRoll = Math.random();
-          if (navyRoll < ambushChance('navy', heatRef.current)) {
+          const navyAmbushChance =
+            ambushChance('navy', heatRef.current) * (shipUpgradesRef.current.includes('swift_rigging') ? 0.5 : 1);
+          if (navyRoll < navyAmbushChance) {
             triggerAmbush('navy');
           } else if (rivalRoll < ambushChance('rival', heatRef.current)) {
             triggerAmbush('rival');
@@ -509,6 +536,34 @@ export default function MapScreen({ navigation }: Props) {
                   ]}
                 >
                   <Text style={styles.buildingEmoji}>{RESOURCES[node.resourceId].emoji}</Text>
+                </View>
+              );
+            })}
+
+            {SALVAGE_SITES.map((site) => {
+              const islandPos = ISLANDS[site.islandId].position;
+              const pos = salvageSiteWorldPosition(site, islandPos);
+              const isReady =
+                shipUpgrades.includes(site.requiresUpgradeId) &&
+                (salvageCooldowns[site.id] ?? 0) <= Date.now();
+              const isUnlocked = shipUpgrades.includes(site.requiresUpgradeId);
+              return (
+                <View
+                  key={site.id}
+                  style={[
+                    styles.resourceNode,
+                    isReady
+                      ? styles.resourceNodeReady
+                      : isUnlocked
+                      ? styles.resourceNodeCooling
+                      : styles.salvageLocked,
+                    {
+                      left: pos.x - BUILDING_SIZE / 2,
+                      top: pos.y - BUILDING_SIZE / 2,
+                    },
+                  ]}
+                >
+                  <Text style={styles.buildingEmoji}>🤿</Text>
                 </View>
               );
             })}
@@ -739,6 +794,10 @@ const styles = StyleSheet.create({
   resourceNodeCooling: {
     borderColor: '#666',
     opacity: 0.45,
+  },
+  salvageLocked: {
+    borderColor: '#444',
+    opacity: 0.3,
   },
   resourceToast: {
     position: 'absolute',
