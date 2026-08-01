@@ -211,6 +211,31 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   motion doesn't need that resolution), storing state in a `Map` ref to avoid extra re-renders.
   Verified in-browser: NPCs visibly relocated to different points along the street over a 10-second
   window, and no console errors from the rewrite
+- ✅ **Joystick reliably resets on release, 2026-08-01**: fourth playtest round, on a real
+  touchscreen — "controls are stuck," movement not stopping when the finger lifts. Direction was
+  already a ref cleared synchronously in `clearDrag()`, so the likely cause is
+  react-native-gesture-handler's web implementation occasionally missing `onFinalize` on a real
+  touch (a swallowed touchend/touchcancel) — not reproducible via mouse/Playwright, which is
+  presumably why it wasn't caught earlier. Added a window-level `pointerup`/`pointercancel`/
+  `touchend`/`touchcancel` listener as a safety net that also calls `clearDrag()`, so release is
+  never missed regardless of what the gesture handler itself does. Also made the visual reset match
+  a real joystick: the knob now snaps to dead-center of the base immediately on release (previously
+  it just vanished mid-position), then the whole control fades out ~150ms later instead of cutting
+  off abruptly. Caught and fixed a self-inflicted bug in the same change: the native `onFinalize`
+  and the new window-level listener both fire for every release by design (redundant, not just a
+  fallback), and the second call was immediately hiding the knob before the snap-back was visible —
+  fixed by making `clearDrag()` a no-op on the visual reset (not the movement stop, which stays
+  unconditional) whenever a snap-back is already in progress. Verified in-browser: knob visibly
+  centered at 30ms post-release, fully faded by ~330ms, and the world stayed motionless across a
+  1-second window after release (only independently-timed ambient NPCs moved)
+- ✅ **Streets widened, 2026-08-01**: same playtest round, "too congested." Bumped the 'main' street
+  sidewalk/road stroke widths (28/16, was 22/12) and the 'path' dashed stroke (8, was 6). Checked
+  first whether a bigger jump was safe: houses hug streets tightly by design (median house-to-street
+  distance is only 10 units against a house's own 13-unit visual radius, i.e. most houses already
+  graze the current sidewalk edge on purpose, like real streetside frontage) — a large width
+  increase would start visibly cutting into houses on the tightest blocks, so this was a deliberate
+  moderate bump rather than a bigger one. Purely a rendering change; the walkable width (house
+  collision positions) is unchanged
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

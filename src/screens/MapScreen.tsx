@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, LayoutChangeEvent, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Line, Polygon } from 'react-native-svg';
@@ -195,19 +195,71 @@ export default function MapScreen({ navigation }: Props) {
   const shipUpgradesRef = useRef(shipUpgrades);
   shipUpgradesRef.current = shipUpgrades;
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const dragResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function clearDrag() {
+    // Movement stops the instant this runs, regardless of the visual cleanup below — direction
+    // is a ref, not state, so there's no render delay between "released" and "actually stopped."
     directionRef.current = null;
-    dragOriginRef.current = null;
-    setDragOrigin(null);
-    setDragKnob(null);
     setIsMoving(false);
+
+    // The native gesture's onFinalize and the window-level safety-net listener below both fire
+    // for the same physical release, so this runs twice per release by design. If a snap-back is
+    // already scheduled, let it finish rather than letting the second call cut it short.
+    if (dragResetTimeoutRef.current) return;
+
+    // Snap the knob back to dead-center of the base immediately (matches a real joystick),
+    // then let the whole control fade out a moment later instead of vanishing mid-snap.
+    const origin = dragOriginRef.current;
+    dragOriginRef.current = null;
+    if (origin) {
+      setDragKnob({ ...origin });
+      dragResetTimeoutRef.current = setTimeout(() => {
+        setDragOrigin(null);
+        setDragKnob(null);
+        dragResetTimeoutRef.current = null;
+      }, 150);
+    } else {
+      setDragOrigin(null);
+      setDragKnob(null);
+    }
   }
+
+  // Safety net: react-native-gesture-handler's web implementation can occasionally miss firing
+  // onFinalize on a real touchscreen (a swallowed touchend/touchcancel), which would otherwise
+  // leave the joystick and movement direction stuck. A window-level listener guarantees release
+  // is never missed — clearDrag() is a no-op when nothing is being dragged, so this is always safe.
+  const clearDragRef = useRef(clearDrag);
+  clearDragRef.current = clearDrag;
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const handleRelease = () => clearDragRef.current();
+    window.addEventListener('pointerup', handleRelease);
+    window.addEventListener('pointercancel', handleRelease);
+    window.addEventListener('touchend', handleRelease);
+    window.addEventListener('touchcancel', handleRelease);
+    return () => {
+      window.removeEventListener('pointerup', handleRelease);
+      window.removeEventListener('pointercancel', handleRelease);
+      window.removeEventListener('touchend', handleRelease);
+      window.removeEventListener('touchcancel', handleRelease);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (dragResetTimeoutRef.current) clearTimeout(dragResetTimeoutRef.current);
+    };
+  }, []);
 
   const panGesture = Gesture.Pan()
     .minDistance(0)
     .shouldCancelWhenOutside(false)
     .onBegin((e) => {
+      if (dragResetTimeoutRef.current) {
+        clearTimeout(dragResetTimeoutRef.current);
+        dragResetTimeoutRef.current = null;
+      }
       dragOriginRef.current = { x: e.x, y: e.y };
       setDragOrigin({ x: e.x, y: e.y });
       setDragKnob({ x: e.x, y: e.y });
@@ -770,8 +822,8 @@ export default function MapScreen({ navigation }: Props) {
                 if (street.style === 'main') {
                   return (
                     <React.Fragment key={i}>
-                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d9cdb0" strokeWidth={22} strokeLinecap="round" />
-                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#a9825a" strokeWidth={12} strokeLinecap="round" />
+                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d9cdb0" strokeWidth={28} strokeLinecap="round" />
+                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#a9825a" strokeWidth={16} strokeLinecap="round" />
                     </React.Fragment>
                   );
                 }
@@ -783,7 +835,7 @@ export default function MapScreen({ navigation }: Props) {
                     x2={x2}
                     y2={y2}
                     stroke="#8a7452"
-                    strokeWidth={6}
+                    strokeWidth={8}
                     strokeDasharray="10,8"
                     strokeLinecap="round"
                   />
