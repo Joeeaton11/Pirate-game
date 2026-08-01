@@ -565,6 +565,32 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   Pirate Lords defeated X/Y). Inventory/Bag, Save, and Options aren't separate screens yet — Bag
   is folded into the Crew screen (Cargo Hold) and Item usage; Save/Options don't exist as concepts
   yet
+- ✅ **HUD audit against a ChatGPT-mocked art-style reference (2026-08-01)**: the reference nailed
+  the pixel-art chrome aesthetic but its actual HUD content (player/companion HP bars, Achievements,
+  a "Pirate Pass" button, global always-on Shop/Craft buttons, a minimap) was a generic RPG template,
+  not derived from our systems — several pieces directly conflict with decided mechanics (no player
+  HP system exists; Cheeky is deliberately non-mechanical; "Pirate Pass" implies a season-pass
+  monetization scheme never decided; global Shop/Craft buttons undermine the walk-up-only
+  interaction model that's a core design pillar and an onboarding tip). Adopted only what's real:
+  a wood/brass pixel-frame reskin of the existing Map header (`#2b1c12` wood + `#c9a227` brass
+  border, cosmetic only, zero mechanic changes) and one genuine functional gap it surfaced — no
+  on-map indicator of the current objective, the main quest was buried in Menu → Quest Log
+- ✅ **Persistent on-map quest tracker**: a tappable strip under the heat bar showing the live main
+  quest objective, derived from real store state (`defeatedLordIds`, `completedQuestIds`) via the
+  same `isLordUnlocked` helper the Quest Log itself uses — not a separate/hardcoded copy. Handles
+  all state transitions correctly: next unlocked lord ("Defeat Iron Jenny at New Providence"), the
+  Council gate before Blackbeard is challengeable ("Complete 'The Pirate Council' at Ocracoke
+  Inlet"), and the true endgame banner once all six are defeated. Verified via an isolated `tsx`
+  script exercising the real exported functions across all six progression states (fresh save →
+  each sequential lord → Council-gated → post-Council → all defeated), plus in-browser for the
+  fresh-save case. Tapping it navigates straight to the Quest Log
+- ✅ **Player identity on the Map HUD itself**: a small captain tag (👦 Captain Scally) above the
+  zone name in the header — previously "Captain Scally" only appeared on the Menu screen, not on
+  the screen the player actually spends most of their time on
+- ⬜ Separate Bag/inventory screen — still folded into the Crew screen (Cargo Hold), a real but
+  lower-priority gap from the same audit
+- ⬜ Save/Options screen — autosave via the persisted store exists, but no manual save indicator or
+  settings screen (volume, reset save is dev-only)
 - ⬜ Party/move-management screen (nicknames, move loadouts)
 
 ## Onboarding & Tutorial

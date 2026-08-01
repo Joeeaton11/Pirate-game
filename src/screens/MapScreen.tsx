@@ -20,7 +20,7 @@ import {
 } from '../data/islands';
 import { HOUSES, houseWorldPosition } from '../data/houses';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
-import { PLAYER_EMOJI_LAND, PLAYER_EMOJI_SEA } from '../data/protagonist';
+import { CAPTAIN_NAME, PLAYER_EMOJI_LAND, PLAYER_EMOJI_SEA } from '../data/protagonist';
 import {
   PIRATE_LORDS,
   isLordUnlocked,
@@ -483,11 +483,35 @@ export default function MapScreen({ navigation }: Props) {
   const currentIsland = islandAtPoint(player);
   const playerEmoji = currentIsland ? PLAYER_EMOJI_LAND : PLAYER_EMOJI_SEA;
 
+  const sortedLords = [...PIRATE_LORDS].sort((a, b) => a.order - b.order);
+  const nextLord = sortedLords.find(
+    (lord) => !defeatedLordIds.includes(lord.id) && isLordUnlocked(lord, defeatedLordIds, completedQuestIds)
+  );
+  let mainQuestText: string;
+  if (defeatedLordIds.length === PIRATE_LORDS.length) {
+    mainQuestText = 'Every marque is yours — terror of these waters';
+  } else if (nextLord) {
+    mainQuestText = `Defeat ${nextLord.name} at ${ISLANDS[nextLord.islandId].name}`;
+  } else {
+    const gatedLord = sortedLords.find((lord) => !defeatedLordIds.includes(lord.id));
+    const gateQuest = gatedLord?.requiresQuestId
+      ? SIDE_QUESTS.find((q) => q.id === gatedLord.requiresQuestId)
+      : undefined;
+    mainQuestText = gateQuest
+      ? `Complete "${gateQuest.title}" at ${ISLANDS[gateQuest.islandId].name}`
+      : 'Seek your next target';
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <Text style={styles.title}>🏴‍☠️ {zoneLabel}</Text>
+          <View>
+            <Text style={styles.captainTag}>
+              {playerEmoji} {CAPTAIN_NAME}
+            </Text>
+            <Text style={styles.title}>🏴‍☠️ {zoneLabel}</Text>
+          </View>
           {__DEV__ && (
             <Pressable onPress={() => navigation.navigate('Debug')} style={styles.debugButton}>
               <Text style={styles.debugButtonText}>🛠</Text>
@@ -512,6 +536,12 @@ export default function MapScreen({ navigation }: Props) {
           />
           <Text style={styles.heatLabel}>⚠️ Heat {Math.round(heat)}%</Text>
         </View>
+        <Pressable style={styles.questTracker} onPress={() => navigation.navigate('Quests')}>
+          <Text style={styles.questTrackerLabel}>🧭 Main Quest</Text>
+          <Text style={styles.questTrackerText} numberOfLines={1}>
+            {mainQuestText}
+          </Text>
+        </Pressable>
       </View>
 
       <GestureDetector gesture={panGesture}>
@@ -845,8 +875,18 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 10,
     paddingBottom: 12,
+    backgroundColor: '#2b1c12',
+    borderBottomWidth: 3,
+    borderBottomColor: '#c9a227',
+  },
+  captainTag: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#ffd166',
+    letterSpacing: 0.4,
+    marginBottom: 2,
   },
   title: {
     fontSize: 20,
@@ -878,14 +918,18 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   crewButton: {
-    backgroundColor: '#f4e9cd',
+    backgroundColor: '#c9a227',
+    borderWidth: 1,
+    borderColor: '#7a5a1e',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
   },
   heatTrack: {
     height: 18,
-    backgroundColor: '#062331',
+    backgroundColor: '#1a1008',
+    borderWidth: 1,
+    borderColor: '#7a5a1e',
     borderRadius: 9,
     marginTop: 8,
     overflow: 'hidden',
@@ -905,8 +949,32 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   crewButtonText: {
-    color: '#0b3d5c',
-    fontWeight: '600',
+    color: '#2b1c12',
+    fontWeight: '700',
+  },
+  questTracker: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 209, 102, 0.12)',
+    borderWidth: 1,
+    borderColor: '#c9a227',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 8,
+  },
+  questTrackerLabel: {
+    color: '#ffd166',
+    fontWeight: '800',
+    fontSize: 11,
+  },
+  questTrackerText: {
+    color: '#f4e9cd',
+    fontSize: 12,
+    marginLeft: 8,
+    flexShrink: 1,
+    textAlign: 'right',
   },
   mapContainer: {
     flex: 1,
