@@ -154,6 +154,17 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   discovered by approaching). Also fixed street NPCs, which had the exact same bug as the player
   token before that fix — a native size (32 units) big enough to render house-sized once zoomed;
   shrunk to 10 units so ambient NPCs read as small figures near the player, not structures
+- ✅ **Houses are solid, and walking speed halved, 2026-08-01**: first real playtest feedback — the
+  player could run straight through the 79 decorative houses (they'd never had any collision, only
+  buildings/landmarks did via their proximity triggers), and `LAND_SPEED` at 140 units/s felt far
+  too fast once the camera was zoomed in tight. Added axis-separated circle collision against every
+  house on the player's current island (`HOUSE_COLLISION_RADIUS` 14 + `PLAYER_COLLISION_RADIUS` 6):
+  a blocked diagonal move retries X-only then Y-only before giving up, so the player slides along a
+  house's edge instead of hard-stopping the instant they touch it. `LAND_SPEED` dropped 140 → 70.
+  Buildings/landmarks/quest markers deliberately excluded — their `ENTER_RADIUS` (45) is already
+  bigger than their visual footprint (22), so you're navigated into them well before you'd visually
+  clash; adding collision there would be redundant. Verified by holding a drag into a house for 2+
+  seconds and confirming the camera stopped scrolling rather than sliding the player through it
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

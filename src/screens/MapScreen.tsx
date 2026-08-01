@@ -18,7 +18,7 @@ import {
   WORLD_WIDTH,
   islandAtPoint,
 } from '../data/islands';
-import { HOUSES, houseWorldPosition } from '../data/houses';
+import { HOUSES, houseWorldPosition, housesForIsland } from '../data/houses';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
 import {
   CAPTAIN_NAME,
@@ -66,7 +66,9 @@ const PLAYER_SIZE = 12 * ZOOM;
 const BUILDING_SIZE = 44;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 const SEA_SPEED = 260; // world units per second
-const LAND_SPEED = 140;
+const LAND_SPEED = 70;
+const PLAYER_COLLISION_RADIUS = 6;
+const HOUSE_COLLISION_RADIUS = 14;
 const DEADZONE = 12; // px of drag before movement starts
 const MAX_DRAG = 70; // px of drag for full speed
 const ENCOUNTER_TICK_MS = 1400;
@@ -374,9 +376,31 @@ export default function MapScreen({ navigation }: Props) {
       const speed = currentIsland ? LAND_SPEED : SEA_SPEED;
       const dt = TICK_MS / 1000;
 
-      const nextX = clamp(playerRef.current.x + direction.x * speed * dt, 0, WORLD_WIDTH);
-      const nextY = clamp(playerRef.current.y + direction.y * speed * dt, 0, WORLD_HEIGHT);
-      const nextPosition = { x: nextX, y: nextY };
+      const rawX = clamp(playerRef.current.x + direction.x * speed * dt, 0, WORLD_WIDTH);
+      const rawY = clamp(playerRef.current.y + direction.y * speed * dt, 0, WORLD_HEIGHT);
+
+      // Houses are solid — walking into one blocks that axis but still lets the player slide
+      // along it on the other axis, rather than hard-stopping dead at the first touch.
+      const houseObstacles = currentIsland
+        ? housesForIsland(currentIsland.id).map((house) => houseWorldPosition(house, currentIsland.position))
+        : [];
+      const blockedByHouse = (pos: { x: number; y: number }) =>
+        houseObstacles.some(
+          (h) => Math.hypot(pos.x - h.x, pos.y - h.y) < HOUSE_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
+        );
+
+      let nextPosition = { x: rawX, y: rawY };
+      if (blockedByHouse(nextPosition)) {
+        const slideX = { x: rawX, y: playerRef.current.y };
+        const slideY = { x: playerRef.current.x, y: rawY };
+        if (!blockedByHouse(slideX)) {
+          nextPosition = slideX;
+        } else if (!blockedByHouse(slideY)) {
+          nextPosition = slideY;
+        } else {
+          nextPosition = playerRef.current;
+        }
+      }
 
       const nextIsland = islandAtPoint(nextPosition);
 
