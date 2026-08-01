@@ -138,6 +138,14 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   the base glyph's art faces left, confirmed empirically via cropped high-DPI screenshots (the
   first attempt had the mapping backwards — moving right showed him facing left — caught by
   actually comparing rendered frames rather than assuming a direction)
+- ✅ **Front-facing glyph for vertical movement, 2026-08-01**: the side-profile emoji only reads
+  left/right, so walking up or down looked identical to standing still sideways. Added a second
+  glyph (`🧍‍♂️`, front-facing) and pick between it and the side-profile one based on which axis of
+  the drag gesture dominates (`|dy| > |dx|` → front-facing) — same gesture-derived state as the
+  left/right flip, no separate tracking. Up and down still look identical to each other (there's no
+  Unicode "back view" walking person to distinguish them), but toward/away now visibly differs from
+  sideways movement, which was the actual ask
+- ✅ **Map decluttered, 2026-07-31**: at 5x zoom, two always-on floating text labels — the island
   name+emoji badge and each landmark's name — turned out to be sized for the old unzoomed 1:1 view
   and never got revisited when `ZOOM` was introduced. The island label box alone rendered wider
   than the phone screen. Removed both: the island name is redundant with the header bar (which

@@ -20,7 +20,12 @@ import {
 } from '../data/islands';
 import { HOUSES, houseWorldPosition } from '../data/houses';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
-import { CAPTAIN_NAME, PLAYER_EMOJI_LAND, PLAYER_EMOJI_SEA } from '../data/protagonist';
+import {
+  CAPTAIN_NAME,
+  PLAYER_EMOJI_LAND_FRONT,
+  PLAYER_EMOJI_LAND_SIDE,
+  PLAYER_EMOJI_SEA,
+} from '../data/protagonist';
 import {
   PIRATE_LORDS,
   isLordUnlocked,
@@ -110,6 +115,9 @@ export default function MapScreen({ navigation }: Props) {
   const [isMoving, setIsMoving] = useState(false);
   // The walking-man glyph's native art faces left, so "facing right" is the one that needs a flip.
   const [facingRight, setFacingRight] = useState(false);
+  // Side-profile emoji only reads left/right; swap to a front-facing glyph when the drag is mostly
+  // vertical so walking toward/away from the camera actually looks different from walking sideways.
+  const [facingMode, setFacingMode] = useState<'side' | 'front'>('side');
   const walkBounce = useRef(new Animated.Value(0)).current;
   const walkLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const playerRef = useRef(player);
@@ -149,6 +157,7 @@ export default function MapScreen({ navigation }: Props) {
         };
         setIsMoving(true);
         if (e.translationX !== 0) setFacingRight(e.translationX > 0);
+        setFacingMode(Math.abs(e.translationY) > Math.abs(e.translationX) ? 'front' : 'side');
       } else {
         directionRef.current = null;
         setIsMoving(false);
@@ -518,7 +527,11 @@ export default function MapScreen({ navigation }: Props) {
   }, [isFocused]);
 
   const currentIsland = islandAtPoint(player);
-  const playerEmoji = currentIsland ? PLAYER_EMOJI_LAND : PLAYER_EMOJI_SEA;
+  const playerEmoji = currentIsland
+    ? facingMode === 'front'
+      ? PLAYER_EMOJI_LAND_FRONT
+      : PLAYER_EMOJI_LAND_SIDE
+    : PLAYER_EMOJI_SEA;
 
   const sortedLords = [...PIRATE_LORDS].sort((a, b) => a.order - b.order);
   const nextLord = sortedLords.find(

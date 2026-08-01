@@ -3,5 +3,6 @@
 export const CAPTAIN_NAME = 'Captain Scally';
 export const COMPANION_NAME = 'Cheeky';
 export const COMPANION_EMOJI = '🐒';
-export const PLAYER_EMOJI_LAND = '🚶‍♂️';
+export const PLAYER_EMOJI_LAND_SIDE = '🚶‍♂️';
+export const PLAYER_EMOJI_LAND_FRONT = '🧍‍♂️';
 export const PLAYER_EMOJI_SEA = '⛵';
