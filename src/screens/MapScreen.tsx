@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
-import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Line, Polygon } from 'react-native-svg';
@@ -107,6 +107,11 @@ export default function MapScreen({ navigation }: Props) {
   const [, setWanderTick] = useState(0);
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
+  const [isMoving, setIsMoving] = useState(false);
+  // The walking-man glyph's native art faces left, so "facing right" is the one that needs a flip.
+  const [facingRight, setFacingRight] = useState(false);
+  const walkBounce = useRef(new Animated.Value(0)).current;
+  const walkLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const playerRef = useRef(player);
   const lastZoneIdRef = useRef<string | null>('tortuga_cove');
   const lastEncounterCheckRef = useRef(0);
@@ -123,6 +128,7 @@ export default function MapScreen({ navigation }: Props) {
     dragOriginRef.current = null;
     setDragOrigin(null);
     setDragKnob(null);
+    setIsMoving(false);
   }
 
   const panGesture = Gesture.Pan()
@@ -141,8 +147,11 @@ export default function MapScreen({ navigation }: Props) {
           x: (e.translationX / dist) * (clampedDist / MAX_DRAG),
           y: (e.translationY / dist) * (clampedDist / MAX_DRAG),
         };
+        setIsMoving(true);
+        if (e.translationX !== 0) setFacingRight(e.translationX > 0);
       } else {
         directionRef.current = null;
+        setIsMoving(false);
       }
       const origin = dragOriginRef.current;
       if (origin) {
@@ -277,6 +286,34 @@ export default function MapScreen({ navigation }: Props) {
       if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
     };
   }, []);
+
+  // Single-glyph "walk cycle": bob the player emoji up and down in a loop while actively moving,
+  // settle back to rest the moment movement stops. No spritesheet, so this is the whole animation.
+  useEffect(() => {
+    if (isMoving) {
+      walkLoopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(walkBounce, {
+            toValue: -6,
+            duration: 160,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(walkBounce, {
+            toValue: 0,
+            duration: 160,
+            easing: Easing.in(Easing.quad),
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      walkLoopRef.current.start();
+    } else {
+      walkLoopRef.current?.stop();
+      Animated.timing(walkBounce, { toValue: 0, duration: 120, useNativeDriver: true }).start();
+    }
+    return () => walkLoopRef.current?.stop();
+  }, [isMoving, walkBounce]);
 
   // Street NPCs patrol as a pure function of time (see streetNpcPosition) — this timer just
   // forces a re-render often enough to animate that, independent of the movement tick loop.
@@ -831,7 +868,19 @@ export default function MapScreen({ navigation }: Props) {
               },
             ]}
           >
-            <Text style={styles.playerEmoji}>{playerEmoji}</Text>
+            <Animated.Text
+              style={[
+                styles.playerEmoji,
+                {
+                  transform: [
+                    { translateY: walkBounce },
+                    { scaleX: facingRight ? -1 : 1 },
+                  ],
+                },
+              ]}
+            >
+              {playerEmoji}
+            </Animated.Text>
           </View>
         )}
 

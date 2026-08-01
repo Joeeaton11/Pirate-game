@@ -10,8 +10,9 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   (built 2026-07-31, from the "Scallywags" brand style guide). `src/data/protagonist.ts` holds
   the shared name/emoji constants. Named on the onboarding overlay (narrated in Scally's voice)
   and the Menu screen header ("Captain Scally's Log" / "Cheeky is minding the ship"); the on-land
-  player token swapped from a generic `🧍` to `👦` so it visually reads as Scally rather than an
-  anonymous figure. Cheeky is flavor-only — deliberately **not** a mechanical crew member, so the
+  player token swapped from a generic `🧍` to a walking-man glyph (see Movement & Exploration for
+  the 2026-08-01 animation pass) so it visually reads as Scally rather than an anonymous figure.
+  Cheeky is flavor-only — deliberately **not** a mechanical crew member, so the
   permadeath/heat system (navy press-gangs, rival capture) applies uniformly with no named-character
   exemption to design around. Per the branding decision below, this is packaging on top of the
   existing systems, not a rewrite of them — no mechanics changed
@@ -127,6 +128,16 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   flavor line shared across variants of the same "type" (e.g. all 3 "Passerby" NPCs say the same
   thing) rather than bespoke lore per NPC — 30 wandering NPCs total now, just more bodies making
   the town feel busy, not more content to author or maintain
+- ✅ **Player token: walking-man glyph + animated walk cycle, 2026-08-01**: swapped
+  `PLAYER_EMOJI_LAND` from the boy-face `👦` to `🚶‍♂️` per direct feedback. Since there's no real
+  spritesheet, "animation" is a single-glyph bob: an `Animated.Value` drives `translateY` in a
+  160ms-up/160ms-down loop (`Animated.loop`) while the drag gesture is actively past the deadzone,
+  settling back to rest the instant it stops — driven by the same `directionRef`/gesture state the
+  movement tick loop already uses, no new source of truth. Also flips the glyph horizontally
+  (`scaleX: -1`) based on drag direction so the character visibly faces the way they're walking;
+  the base glyph's art faces left, confirmed empirically via cropped high-DPI screenshots (the
+  first attempt had the mapping backwards — moving right showed him facing left — caught by
+  actually comparing rendered frames rather than assuming a direction)
   name+emoji badge and each landmark's name — turned out to be sized for the old unzoomed 1:1 view
   and never got revisited when `ZOOM` was introduced. The island label box alone rendered wider
   than the phone screen. Removed both: the island name is redundant with the header bar (which
