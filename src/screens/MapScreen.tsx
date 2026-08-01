@@ -67,8 +67,12 @@ const BUILDING_SIZE = 44;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 const SEA_SPEED = 260; // world units per second
 const LAND_SPEED = 70;
-const PLAYER_COLLISION_RADIUS = 6;
-const HOUSE_COLLISION_RADIUS = 14;
+// The procedurally-generated house grid packs some houses as little as 20 units apart
+// (verified against src/data/houses.ts) — a combined radius of 20+ leaves zero or negative
+// gap between them, which is how the player got permanently wedged between two houses.
+// 6+3=9 keeps every real gap in the data positive (checked programmatically).
+const PLAYER_COLLISION_RADIUS = 3;
+const HOUSE_COLLISION_RADIUS = 6;
 const DEADZONE = 12; // px of drag before movement starts
 const MAX_DRAG = 70; // px of drag for full speed
 const ENCOUNTER_TICK_MS = 1400;

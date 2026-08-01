@@ -165,6 +165,21 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   bigger than their visual footprint (22), so you're navigated into them well before you'd visually
   clash; adding collision there would be redundant. Verified by holding a drag into a house for 2+
   seconds and confirming the camera stopped scrolling rather than sliding the player through it
+- ✅ **Fixed a real soft-lock in that house collision, 2026-08-01**: second playtest session, the
+  player got permanently wedged between two houses. Root cause, checked against the actual
+  procedurally-generated layout in `src/data/houses.ts`: the combined keep-out radius (14+6=20)
+  exactly matched the tightest recurring house-to-house spacing in the grid (many pairs are exactly
+  20 units apart), leaving zero or negative real-world gap between dozens of neighboring pairs —
+  and since the slide fallback only retries the *current* drag's exact X and Y axes (not other
+  directions), landing in one of those corners meant both axes were blocked simultaneously for
+  whichever direction the player was holding. Fixed by shrinking to `HOUSE_COLLISION_RADIUS` 6 +
+  `PLAYER_COLLISION_RADIUS` 3 (9 combined) — verified programmatically against every pair in the
+  real dataset (zero pairs left with a negative gap, smallest real gap now 2 units) and against a
+  synthetic 8-directional escape check across the whole town grid (zero fully-enclosed points at
+  any radius tested, including the original — confirming this was a corner/direction-limitation
+  issue, not a literal maze dead-end). Re-verified in-browser with a multi-direction wander through
+  the densest house cluster; the player kept moving throughout and even walked into a building
+  naturally, rather than freezing
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete
