@@ -51,3 +51,64 @@ export const STREETS: StreetSegment[] = [
 export function streetsForIsland(islandId: string): StreetSegment[] {
   return STREETS.filter((s) => s.islandId === islandId);
 }
+
+function closestPointOnSegment(
+  p: { x: number; y: number },
+  a: { x: number; y: number },
+  b: { x: number; y: number }
+): { x: number; y: number } {
+  const abx = b.x - a.x;
+  const aby = b.y - a.y;
+  const lenSq = abx * abx + aby * aby;
+  if (lenSq === 0) return { ...a };
+  const t = Math.max(0, Math.min(1, ((p.x - a.x) * abx + (p.y - a.y) * aby) / lenSq));
+  return { x: a.x + abx * t, y: a.y + aby * t };
+}
+
+/** Finds the street segment nearest a point (e.g. a street NPC's rough flavor location), and the
+ * closest point on it — used so ambient NPCs live on the actual street network instead of wherever
+ * their original hand-picked coordinate happened to land. */
+export function nearestStreetSegment(
+  point: { x: number; y: number },
+  islandId: string
+): { segment: StreetSegment; point: { x: number; y: number } } | null {
+  const segments = streetsForIsland(islandId);
+  let best: { segment: StreetSegment; point: { x: number; y: number } } | null = null;
+  let bestDist = Infinity;
+  for (const segment of segments) {
+    const closest = closestPointOnSegment(point, segment.from, segment.to);
+    const dist = Math.hypot(point.x - closest.x, point.y - closest.y);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = { segment, point: closest };
+    }
+  }
+  return best;
+}
+
+/** Every segment on the island that shares an endpoint with `segment` (including itself) — an
+ * NPC's local walkable neighborhood, so they wander around their home block/corner instead of
+ * teleporting across town or being confined to one single line. */
+export function connectedSegments(
+  segment: StreetSegment,
+  islandId: string,
+  epsilon = 6
+): StreetSegment[] {
+  const segments = streetsForIsland(islandId);
+  const endpoints = [segment.from, segment.to];
+  return segments.filter(
+    (other) =>
+      other === segment ||
+      [other.from, other.to].some((otherPoint) =>
+        endpoints.some((ep) => Math.hypot(ep.x - otherPoint.x, ep.y - otherPoint.y) < epsilon)
+      )
+  );
+}
+
+export function randomPointOnSegment(segment: StreetSegment): { x: number; y: number } {
+  const t = Math.random();
+  return {
+    x: segment.from.x + (segment.to.x - segment.from.x) * t,
+    y: segment.from.y + (segment.to.y - segment.from.y) * t,
+  };
+}

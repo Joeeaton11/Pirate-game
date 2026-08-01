@@ -180,6 +180,37 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   issue, not a literal maze dead-end). Re-verified in-browser with a multi-direction wander through
   the densest house cluster; the player kept moving throughout and even walked into a building
   naturally, rather than freezing
+- ✅ **`ENTER_RADIUS` shrunk 45 → 26, 2026-08-01**: third playtest round — walking anywhere near a
+  building on the way to somewhere else would yank you inside it, since 45 was more than double a
+  building's own visual half-width (22). 26 keeps entry to "you're basically at the door" while
+  still safely bigger than the sprite. Applies to every walk-up trigger (buildings, landmarks, side
+  quest markers, pirate lord forts, rescue point) since they all share the one constant. Verified
+  every Tortuga building stays reachable from spawn within the new radius via a flood-fill
+  simulation using the exact same house-collision logic as the live game (BFS over a stepped grid
+  from spawn, checking whether any reachable point lands within `ENTER_RADIUS` of each building) —
+  a much more reliable check than blind simulated drags, which kept getting rerouted by the
+  residential grid the same way a real player would need to actually follow the streets
+- ✅ **Visual indicator for buildings hosting an open Patron quest, 2026-08-01**: same feedback —
+  "not obvious which building has a challenge." A small ❗ badge (reusing the same one already used
+  inside a building on an individual patron NPC) now renders on a building's map icon whenever any
+  of its `hostedByBuildingId` quests isn't in `completedQuestIds` yet. Pure derived UI, no new store
+  state — same "has an open quest" definition `BuildingScreen` already uses per-patron
+- ✅ **Street NPCs rewritten from ping-pong to street-network wandering, 2026-08-01**: same feedback
+  — NPCs "just going back and forth" and wandering off streets into yards. Reworked from a
+  stateless pure-function-of-time ping-pong between two fixed points to a real per-tick simulation:
+  each NPC's `anchor` (its original rough flavor location) is projected onto the *nearest actual
+  street segment* (`nearestStreetSegment` in `src/data/streets.ts`) at first use, and it wanders by
+  walking to a random point on that segment or any segment connected to it (`connectedSegments`,
+  sharing an endpoint), picking a new random target on arrival — a small local random walk along
+  the real street graph instead of a fixed back-and-forth line. Nine NPCs' original anchors were
+  18-30 units off the nearest street (checked programmatically); they now visibly live on the
+  street instead of in a yard, which is the intended behavior. Also collides with houses using the
+  same `slideAroundObstacles` helper the player uses (extracted as a shared pure function so both
+  share one implementation), with a smaller collision radius (2, vs. the player's 3) matching their
+  smaller on-screen size. Simulated once per 250ms wander tick (not the 33ms movement tick — ambient
+  motion doesn't need that resolution), storing state in a `Map` ref to avoid extra re-renders.
+  Verified in-browser: NPCs visibly relocated to different points along the street over a 10-second
+  window, and no console errors from the rewrite
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

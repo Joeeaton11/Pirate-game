@@ -39,7 +39,10 @@ export interface Building {
   stealCooldownMinutes?: number; // default 30
 }
 
-export const ENTER_RADIUS = 45;
+// Was 45 — more than double a building's own visual radius (22), so walking anywhere near a
+// building on the way to somewhere else would yank you inside it. 26 keeps entry to "you're
+// basically at the door" while still comfortably bigger than the 44-native sprite's half-width.
+export const ENTER_RADIUS = 26;
 
 export const BUILDINGS: Building[] = [
   {

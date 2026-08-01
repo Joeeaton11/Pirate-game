@@ -1,14 +1,18 @@
-/** Ambient street life: NPCs that patrol back and forth between two points instead of standing
- * still, so a town feels lived-in from the outside too, not just inside its buildings. Purely
- * flavor — walking near one shows a toast, same as landmarks — never a quest. */
+/** Ambient street life: NPCs that wander the street network near their home spot instead of
+ * standing still, so a town feels lived-in from the outside too, not just inside its buildings.
+ * Purely flavor — walking near one shows a toast, same as landmarks — never a quest.
+ *
+ * `anchor` is just the rough flavor location each NPC was authored near (e.g. "by the fort").
+ * The actual walkable position is resolved at runtime in MapScreen: projected onto the nearest
+ * real street segment, then wandered randomly along that segment and its connected neighbors, so
+ * every NPC actually lives on the street network regardless of how far off `anchor` originally was. */
 export interface StreetNpc {
   id: string;
   islandId: string;
   name: string;
   emoji: string;
   flavor: string;
-  waypointA: { x: number; y: number }; // relative to island center, in world units
-  waypointB: { x: number; y: number };
+  anchor: { x: number; y: number }; // relative to island center, in world units
   speed: number; // world units per second
 }
 
@@ -19,8 +23,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Patrolling Guard',
     emoji: '🥾',
     flavor: "Evening, captain. Keep your blade sheathed in the square and we'll get along fine.",
-    waypointA: { x: 10, y: 30 },
-    waypointB: { x: -40, y: 50 },
+    anchor: { x: 10, y: 30 },
     speed: 18,
   },
   {
@@ -29,8 +32,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Scruffy Dog',
     emoji: '🐕',
     flavor: "Belongs to nobody and everybody. Half the tavern's regulars swear it's good luck.",
-    waypointA: { x: -70, y: -60 },
-    waypointB: { x: -100, y: -20 },
+    anchor: { x: -70, y: -60 },
     speed: 22,
   },
   {
@@ -39,8 +41,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Dockhand',
     emoji: '🧑‍🌾',
     flavor: "Crates don't carry themselves, more's the pity. Mind the rope.",
-    waypointA: { x: 20, y: -130 },
-    waypointB: { x: -10, y: -155 },
+    anchor: { x: 20, y: -130 },
     speed: 16,
   },
   {
@@ -49,8 +50,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Local Resident',
     emoji: '🧑',
     flavor: "Mornin'. Or evenin'. Hard to keep track out here — one day's much like the last.",
-    waypointA: { x: -90, y: -10 },
-    waypointB: { x: -40, y: 20 },
+    anchor: { x: -90, y: -10 },
     speed: 15,
   },
   {
@@ -59,8 +59,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Fishwife',
     emoji: '👩‍🦱',
     flavor: "Nets are mended, wash is out. Nothing left to do but gossip until supper.",
-    waypointA: { x: 20, y: 50 },
-    waypointB: { x: 70, y: 80 },
+    anchor: { x: 20, y: 50 },
     speed: 15,
   },
   {
@@ -69,8 +68,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Child at Play',
     emoji: '🧒',
     flavor: "Wanna see my cutlass? It's just a stick, but don't tell the other captains that.",
-    waypointA: { x: -60, y: 100 },
-    waypointB: { x: -10, y: 130 },
+    anchor: { x: -60, y: 100 },
     speed: 25,
   },
   {
@@ -79,8 +77,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'An Old Fisherman',
     emoji: '🎣',
     flavor: "Caught a marlin bigger than my rowboat once. Nobody believes me anymore, and that's fine.",
-    waypointA: { x: 40, y: 130 },
-    waypointB: { x: 90, y: 150 },
+    anchor: { x: 40, y: 130 },
     speed: 14,
   },
   {
@@ -89,8 +86,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Town Crier',
     emoji: '📯',
     flavor: "Hear ye! Prices are up at the customs house, tempers are up at the tavern, and the fort's out of rum. Same as every week.",
-    waypointA: { x: 130, y: -10 },
-    waypointB: { x: 150, y: 20 },
+    anchor: { x: 130, y: -10 },
     speed: 16,
   },
   {
@@ -99,8 +95,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Farmer',
     emoji: '🧑‍🌾',
     flavor: "Tobacco's coming in thin this season. Blame the soil, blame the rain, blame the pirates trampling the rows — everybody does.",
-    waypointA: { x: 110, y: 90 },
-    waypointB: { x: 125, y: 105 },
+    anchor: { x: 110, y: 90 },
     speed: 12,
   },
   {
@@ -109,8 +104,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Net-Mender',
     emoji: '🧵',
     flavor: "Torn again. Always torn. I swear the fish do it on purpose out of spite.",
-    waypointA: { x: -135, y: 95 },
-    waypointB: { x: -115, y: 110 },
+    anchor: { x: -135, y: 95 },
     speed: 13,
   },
   {
@@ -119,8 +113,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Fort Sentry',
     emoji: '🔭',
     flavor: "Watching the harbor mouth. Nothing gets past this rock without Le Vasseur hearing about it first.",
-    waypointA: { x: 80, y: -110 },
-    waypointB: { x: 105, y: -90 },
+    anchor: { x: 80, y: -110 },
     speed: 14,
   },
   {
@@ -129,8 +122,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Beggar',
     emoji: '🧎',
     flavor: "Spare a coin, captain? I sailed with better men than you and worse men too. Ended up here regardless.",
-    waypointA: { x: -50, y: -90 },
-    waypointB: { x: -20, y: -70 },
+    anchor: { x: -50, y: -90 },
     speed: 12,
   },
   {
@@ -139,8 +131,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: "A Forge Cat",
     emoji: '🐈‍⬛',
     flavor: "Answers to nobody, sleeps wherever it pleases. Currently claims the warmest spot by the forge as its own.",
-    waypointA: { x: -130, y: 60 },
-    waypointB: { x: -100, y: 80 },
+    anchor: { x: -130, y: 60 },
     speed: 20,
   },
   {
@@ -149,8 +140,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Rope-Maker',
     emoji: '🪢',
     flavor: "Hemp in one end, rigging out the other. Every ship in this harbor owes its sails to this walk, back and forth, all day.",
-    waypointA: { x: -90, y: 150 },
-    waypointB: { x: -60, y: 152 },
+    anchor: { x: -90, y: 150 },
     speed: 12,
   },
   {
@@ -159,8 +149,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Lookout',
     emoji: '🏴',
     flavor: "Quiet out here on the point. Suits me. First one to spot a sail gets first pick of the salvage.",
-    waypointA: { x: -170, y: 0 },
-    waypointB: { x: -150, y: 25 },
+    anchor: { x: -170, y: 0 },
     speed: 15,
   },
   // Simple, unnamed-trade filler townspeople — just more bodies on the street, no lore required.
@@ -170,8 +159,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Dancer',
     emoji: '🕺',
     flavor: "Someone's got a fiddle out somewhere. Can't help but move to it.",
-    waypointA: { x: 0, y: -20 },
-    waypointB: { x: 20, y: -40 },
+    anchor: { x: 0, y: -20 },
     speed: 18,
   },
   {
@@ -180,8 +168,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Dancer',
     emoji: '💃',
     flavor: "Someone's got a fiddle out somewhere. Can't help but move to it.",
-    waypointA: { x: -30, y: 90 },
-    waypointB: { x: -10, y: 105 },
+    anchor: { x: -30, y: 90 },
     speed: 18,
   },
   {
@@ -190,8 +177,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Passerby',
     emoji: '🚶‍♀️‍➡️',
     flavor: "Places to be, captain. Same as you.",
-    waypointA: { x: 60, y: 20 },
-    waypointB: { x: 90, y: 10 },
+    anchor: { x: 60, y: 20 },
     speed: 16,
   },
   {
@@ -200,8 +186,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Passerby',
     emoji: '🚶‍➡️',
     flavor: "Places to be, captain. Same as you.",
-    waypointA: { x: -160, y: -5 },
-    waypointB: { x: -140, y: 10 },
+    anchor: { x: -160, y: -5 },
     speed: 16,
   },
   {
@@ -210,8 +195,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Passerby',
     emoji: '🚶‍♂️‍➡️',
     flavor: "Places to be, captain. Same as you.",
-    waypointA: { x: 100, y: 40 },
-    waypointB: { x: 120, y: 55 },
+    anchor: { x: 100, y: 40 },
     speed: 16,
   },
   {
@@ -220,8 +204,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Merchant',
     emoji: '🕴️',
     flavor: "Always doing business, never doing favors. That's how you stay rich in this town.",
-    waypointA: { x: 140, y: -30 },
-    waypointB: { x: 160, y: -15 },
+    anchor: { x: 140, y: -30 },
     speed: 14,
   },
   {
@@ -230,8 +213,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Runner',
     emoji: '🏃‍➡️',
     flavor: "Running from something, or to something. Didn't stop long enough to ask.",
-    waypointA: { x: -20, y: -40 },
-    waypointB: { x: 10, y: -55 },
+    anchor: { x: -20, y: -40 },
     speed: 32,
   },
   {
@@ -240,8 +222,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Runner',
     emoji: '🏃‍♂️‍➡️',
     flavor: "Running from something, or to something. Didn't stop long enough to ask.",
-    waypointA: { x: 30, y: 140 },
-    waypointB: { x: 55, y: 150 },
+    anchor: { x: 30, y: 140 },
     speed: 32,
   },
   {
@@ -250,8 +231,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Local',
     emoji: '🧍‍♂️',
     flavor: "Just watching the world go by, captain.",
-    waypointA: { x: -110, y: -40 },
-    waypointB: { x: -95, y: -25 },
+    anchor: { x: -110, y: -40 },
     speed: 12,
   },
   {
@@ -260,8 +240,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Local',
     emoji: '🧍',
     flavor: "Just watching the world go by, captain.",
-    waypointA: { x: 75, y: 100 },
-    waypointB: { x: 95, y: 115 },
+    anchor: { x: 75, y: 100 },
     speed: 12,
   },
   {
@@ -270,8 +249,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Couple',
     emoji: '👫',
     flavor: "Young love, or old love — hard to tell from here. Either way, none of our business.",
-    waypointA: { x: -40, y: -25 },
-    waypointB: { x: -20, y: -10 },
+    anchor: { x: -40, y: -25 },
     speed: 13,
   },
   {
@@ -280,8 +258,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Troll',
     emoji: '🧌',
     flavor: "Nobody quite remembers when it wandered into town, or why nobody's asked it to leave.",
-    waypointA: { x: 150, y: 60 },
-    waypointB: { x: 165, y: 75 },
+    anchor: { x: 150, y: 60 },
     speed: 10,
   },
   {
@@ -290,8 +267,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Genie',
     emoji: '🧞‍♂️',
     flavor: "Bound to this town, not a lamp. Longer story than you've got time for, captain.",
-    waypointA: { x: -150, y: 55 },
-    waypointB: { x: -135, y: 70 },
+    anchor: { x: -150, y: 55 },
     speed: 15,
   },
   {
@@ -300,8 +276,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Genie',
     emoji: '🧞',
     flavor: "Bound to this town, not a lamp. Longer story than you've got time for, captain.",
-    waypointA: { x: 10, y: 110 },
-    waypointB: { x: 30, y: 120 },
+    anchor: { x: 10, y: 110 },
     speed: 15,
   },
   {
@@ -310,27 +285,11 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Genie',
     emoji: '🧞‍♀️',
     flavor: "Bound to this town, not a lamp. Longer story than you've got time for, captain.",
-    waypointA: { x: -100, y: 130 },
-    waypointB: { x: -80, y: 140 },
+    anchor: { x: -100, y: 130 },
     speed: 15,
   },
 ];
 
 export function streetNpcsForIsland(islandId: string): StreetNpc[] {
   return STREET_NPCS.filter((n) => n.islandId === islandId);
-}
-
-/** Deterministic ping-pong position along the NPC's patrol line, purely a function of time —
- * no per-NPC state needed, just re-render on a timer to animate it. */
-export function streetNpcPosition(npc: StreetNpc, nowMs: number): { x: number; y: number } {
-  const dist = Math.hypot(npc.waypointB.x - npc.waypointA.x, npc.waypointB.y - npc.waypointA.y);
-  if (dist === 0) return npc.waypointA;
-  const legDurationMs = (dist / npc.speed) * 1000;
-  const cycleMs = legDurationMs * 2;
-  const t = nowMs % cycleMs;
-  const progress = t < legDurationMs ? t / legDurationMs : (cycleMs - t) / legDurationMs;
-  return {
-    x: npc.waypointA.x + (npc.waypointB.x - npc.waypointA.x) * progress,
-    y: npc.waypointA.y + (npc.waypointB.y - npc.waypointA.y) * progress,
-  };
 }

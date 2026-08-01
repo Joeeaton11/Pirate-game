@@ -34,8 +34,14 @@ import {
 } from '../data/pirateLords';
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { RESCUE_POINT, rescuePointWorldPosition } from '../data/rescue';
-import { STREETS } from '../data/streets';
-import { STREET_NPCS, streetNpcPosition } from '../data/streetNpcs';
+import {
+  STREETS,
+  connectedSegments,
+  nearestStreetSegment,
+  randomPointOnSegment,
+  StreetSegment,
+} from '../data/streets';
+import { STREET_NPCS, StreetNpc } from '../data/streetNpcs';
 import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
 import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
 import { SIDE_QUESTS, SideQuest, sideQuestWorldPosition } from '../data/sideQuests';
@@ -73,9 +79,61 @@ const LAND_SPEED = 70;
 // 6+3=9 keeps every real gap in the data positive (checked programmatically).
 const PLAYER_COLLISION_RADIUS = 3;
 const HOUSE_COLLISION_RADIUS = 6;
+// Street NPCs are much smaller than the player on screen, so they get a tighter collision
+// footprint — otherwise they'd feel like they're bumping into houses far from their own sprite.
+const NPC_COLLISION_RADIUS = 2;
+const NPC_WANDER_SPEED_SCALE = 0.6; // wandering reads better slower than a purposeful walk
+const NPC_ARRIVE_RADIUS = 4; // world units — close enough to a target to pick a new one
 const DEADZONE = 12; // px of drag before movement starts
 const MAX_DRAG = 70; // px of drag for full speed
 const ENCOUNTER_TICK_MS = 1400;
+
+/** Shared circle-vs-circle obstacle collision with axis-separated sliding: if the full move is
+ * blocked, retry the X-only and Y-only projections before giving up, so both the player and
+ * street NPCs can slide along an obstacle's edge instead of hard-stopping or clipping through. */
+function slideAroundObstacles(
+  current: { x: number; y: number },
+  raw: { x: number; y: number },
+  obstacles: { x: number; y: number }[],
+  keepOutRadius: number
+): { x: number; y: number } {
+  const blocked = (pos: { x: number; y: number }) =>
+    obstacles.some((o) => Math.hypot(pos.x - o.x, pos.y - o.y) < keepOutRadius);
+  if (!blocked(raw)) return raw;
+  const slideX = { x: raw.x, y: current.y };
+  if (!blocked(slideX)) return slideX;
+  const slideY = { x: current.x, y: raw.y };
+  if (!blocked(slideY)) return slideY;
+  return current;
+}
+
+interface NpcSimState {
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  candidateSegments: StreetSegment[];
+}
+
+function initNpcSim(npc: StreetNpc): NpcSimState {
+  const nearest = nearestStreetSegment(npc.anchor, npc.islandId);
+  if (!nearest) {
+    // No streets registered for this island — stay put rather than crash; shouldn't happen for
+    // any island that actually has street NPCs.
+    return { x: npc.anchor.x, y: npc.anchor.y, targetX: npc.anchor.x, targetY: npc.anchor.y, candidateSegments: [] };
+  }
+  const candidateSegments = connectedSegments(nearest.segment, npc.islandId);
+  const target = randomPointOnSegment(
+    candidateSegments[Math.floor(Math.random() * candidateSegments.length)]
+  );
+  return {
+    x: nearest.point.x,
+    y: nearest.point.y,
+    targetX: target.x,
+    targetY: target.y,
+    candidateSegments,
+  };
+}
 const TICK_MS = 33;
 
 function clamp(value: number, min: number, max: number) {
@@ -116,6 +174,7 @@ export default function MapScreen({ navigation }: Props) {
   const lastLandmarkIdRef = useRef<string | null>(null);
   const lastStreetNpcIdRef = useRef<string | null>(null);
   const [, setWanderTick] = useState(0);
+  const npcSimRef = useRef<Map<string, NpcSimState>>(new Map());
 
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const [isMoving, setIsMoving] = useState(false);
@@ -281,11 +340,11 @@ export default function MapScreen({ navigation }: Props) {
   }
 
   function nearbyStreetNpc(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
-    const now = Date.now();
     return STREET_NPCS.find((npc) => {
       if (npc.islandId !== island.id) return false;
-      const local = streetNpcPosition(npc, now);
-      const world = { x: island.position.x + local.x, y: island.position.y + local.y };
+      const sim = npcSimRef.current.get(npc.id);
+      if (!sim) return false;
+      const world = { x: island.position.x + sim.x, y: island.position.y + sim.y };
       return Math.hypot(pos.x - world.x, pos.y - world.y) <= ENTER_RADIUS;
     });
   }
@@ -330,11 +389,49 @@ export default function MapScreen({ navigation }: Props) {
     return () => walkLoopRef.current?.stop();
   }, [isMoving, walkBounce]);
 
-  // Street NPCs patrol as a pure function of time (see streetNpcPosition) — this timer just
-  // forces a re-render often enough to animate that, independent of the movement tick loop.
+  // Street NPCs wander the real street network near their home spot: walk toward a random point
+  // on their current/connected street segments, collide with houses same as the player, and pick
+  // a new random target on arrival — independent of the main movement tick loop.
   useEffect(() => {
     if (!isFocused) return;
-    const wanderInterval = setInterval(() => setWanderTick((t) => t + 1), 250);
+    const wanderInterval = setInterval(() => {
+      const dt = 0.25;
+      for (const npc of STREET_NPCS) {
+        let sim = npcSimRef.current.get(npc.id);
+        if (!sim) {
+          sim = initNpcSim(npc);
+          npcSimRef.current.set(npc.id, sim);
+        }
+        if (sim.candidateSegments.length === 0) continue; // no streets on this island — stays put
+
+        const dx = sim.targetX - sim.x;
+        const dy = sim.targetY - sim.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < NPC_ARRIVE_RADIUS) {
+          const next = randomPointOnSegment(
+            sim.candidateSegments[Math.floor(Math.random() * sim.candidateSegments.length)]
+          );
+          sim.targetX = next.x;
+          sim.targetY = next.y;
+          continue;
+        }
+
+        const step = npc.speed * NPC_WANDER_SPEED_SCALE * dt;
+        const raw = { x: sim.x + (dx / dist) * step, y: sim.y + (dy / dist) * step };
+        const houseObstacles = housesForIsland(npc.islandId).map((house) =>
+          houseWorldPosition(house, ISLANDS[npc.islandId].position)
+        );
+        const resolved = slideAroundObstacles(
+          { x: sim.x, y: sim.y },
+          raw,
+          houseObstacles,
+          HOUSE_COLLISION_RADIUS + NPC_COLLISION_RADIUS
+        );
+        sim.x = resolved.x;
+        sim.y = resolved.y;
+      }
+      setWanderTick((t) => t + 1);
+    }, 250);
     return () => clearInterval(wanderInterval);
   }, [isFocused]);
 
@@ -388,23 +485,12 @@ export default function MapScreen({ navigation }: Props) {
       const houseObstacles = currentIsland
         ? housesForIsland(currentIsland.id).map((house) => houseWorldPosition(house, currentIsland.position))
         : [];
-      const blockedByHouse = (pos: { x: number; y: number }) =>
-        houseObstacles.some(
-          (h) => Math.hypot(pos.x - h.x, pos.y - h.y) < HOUSE_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
-        );
-
-      let nextPosition = { x: rawX, y: rawY };
-      if (blockedByHouse(nextPosition)) {
-        const slideX = { x: rawX, y: playerRef.current.y };
-        const slideY = { x: playerRef.current.x, y: rawY };
-        if (!blockedByHouse(slideX)) {
-          nextPosition = slideX;
-        } else if (!blockedByHouse(slideY)) {
-          nextPosition = slideY;
-        } else {
-          nextPosition = playerRef.current;
-        }
-      }
+      const nextPosition = slideAroundObstacles(
+        playerRef.current,
+        { x: rawX, y: rawY },
+        houseObstacles,
+        HOUSE_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
+      );
 
       const nextIsland = islandAtPoint(nextPosition);
 
@@ -723,6 +809,9 @@ export default function MapScreen({ navigation }: Props) {
             {BUILDINGS.map((building) => {
               const islandPos = ISLANDS[building.islandId].position;
               const pos = buildingWorldPosition(building, islandPos);
+              const hasOpenChallenge = SIDE_QUESTS.some(
+                (q) => q.hostedByBuildingId === building.id && !completedQuestIds.includes(q.id)
+              );
               return (
                 <View
                   key={building.id}
@@ -734,6 +823,7 @@ export default function MapScreen({ navigation }: Props) {
                     },
                   ]}
                 >
+                  {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
                   <Text style={styles.buildingEmoji}>{building.emoji}</Text>
                 </View>
               );
@@ -761,8 +851,8 @@ export default function MapScreen({ navigation }: Props) {
 
             {STREET_NPCS.map((npc) => {
               const islandPos = ISLANDS[npc.islandId].position;
-              const local = streetNpcPosition(npc, Date.now());
-              const pos = { x: islandPos.x + local.x, y: islandPos.y + local.y };
+              const sim = npcSimRef.current.get(npc.id) ?? initNpcSim(npc);
+              const pos = { x: islandPos.x + sim.x, y: islandPos.y + sim.y };
               return (
                 <View
                   key={npc.id}
@@ -1116,6 +1206,13 @@ const styles = StyleSheet.create({
   },
   buildingEmoji: {
     fontSize: 24,
+  },
+  buildingQuestIndicator: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    fontSize: 16,
+    zIndex: 1,
   },
   questMarkerAvailable: {
     borderColor: '#ffd166',
