@@ -47,6 +47,22 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 60, y: -10 }, to: { x: 60, y: 150 }, style: 'main' },
   { islandId: 'tortuga_cove', from: { x: 110, y: -10 }, to: { x: 110, y: 140 }, style: 'main' },
 
+  // The 1.35x island enlargement (2026-08-02) opened new land beyond the original coastline for
+  // three outlying zones, each reached by a rough, winding trail rather than a paved street —
+  // wilderness and ruins, not town blocks.
+  // West cape: a goat-track out to El Fuerte Viejo, the ruined Spanish redoubt.
+  { islandId: 'tortuga_cove', from: { x: -190, y: 10 }, to: { x: -222, y: -18 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -222, y: -18 }, to: { x: -255, y: -5 }, style: 'path' },
+  // East cape: a forest trail forking to the High Woods and its two timber stands.
+  { islandId: 'tortuga_cove', from: { x: 160, y: 10 }, to: { x: 193, y: -10 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 193, y: -10 }, to: { x: 218, y: -20 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 218, y: -20 }, to: { x: 260, y: 10 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 193, y: -10 }, to: { x: 205, y: 50 }, style: 'path' },
+  // South coast: a track past the Ropewalk to the abandoned quarter and its burying ground.
+  { islandId: 'tortuga_cove', from: { x: -70, y: 160 }, to: { x: -46, y: 179 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -46, y: 179 }, to: { x: -35, y: 208 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -35, y: 208 }, to: { x: 60, y: 205 }, style: 'path' },
+
   // New Providence (Nassau) — Republic Square as the hub, same pattern as Basse-Terre Square.
   { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: -70, y: 60 }, style: 'main' }, // -> The Cracked Hull
   { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: 170, y: 40 }, style: 'main' }, // -> The Distillery

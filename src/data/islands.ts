@@ -12,12 +12,15 @@ function polygon(points: [number, number][]): { x: number; y: number }[] {
 // orientation, elongation, and major coves/headlands — traced relative to `position` (0,0).
 // Not survey-accurate, but a real irregular silhouette instead of a perfect circle.
 
-/** Île de la Tortue: ~37km x 7km, turtle-shaped, elongated east-west. */
+/** Île de la Tortue: ~37km x 7km, turtle-shaped, elongated east-west. Scaled 1.35x over the
+ * original coastline trace (2026-08-02) to open room for a woodland belt, a ruined redoubt, and
+ * an abandoned quarter beyond the original town's footprint — every existing marker keeps its
+ * old coordinate, which now simply sits further inland from the new coastline. */
 const TORTUGA_SHAPE = polygon([
-  [210, 0], [197, 42], [176, 79], [151, 110], [122, 135], [89, 153], [53, 164], [17, 166],
-  [-17, 166], [-53, 164], [-90, 156], [-130, 144], [-149, 109], [-145, 65], [-174, 37], [-220, 0],
-  [-171, -36], [-119, -53], [-113, -82], [-99, -110], [-78, -135], [-51, -156], [-18, -170],
-  [19, -177], [57, -175], [95, -165], [117, -130], [131, -95], [141, -63], [167, -36],
+  [284, 0], [266, 57], [238, 107], [204, 149], [165, 182], [120, 207], [72, 221], [23, 224],
+  [-23, 224], [-72, 221], [-122, 211], [-175, 194], [-201, 147], [-196, 88], [-235, 50], [-297, 0],
+  [-231, -49], [-161, -72], [-153, -111], [-134, -148], [-105, -182], [-69, -211], [-24, -230],
+  [26, -239], [77, -236], [128, -223], [158, -175], [177, -128], [190, -85], [225, -49],
 ]);
 
 /** Île-à-Vache: ~13km x 3.2km, tapers from wider hills in the west to a swampy east end. */

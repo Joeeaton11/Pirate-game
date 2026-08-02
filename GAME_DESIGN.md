@@ -1113,32 +1113,59 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     counter+shelves (shop), tables+chairs (tavern), altar (shrine), no-counter outdoor (camp), and
     4-shelf bookcase wall (college) — confirming no overlapping furniture and every NPC spot clear
     under the `INTERIOR_ZOOM=2` camera. Patron quests for these buildings are still future content.
-23. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+23. ✅ **Tortuga Cove enlarged 1.35x: woodland, a ruined redoubt, and an abandoned quarter**
+    (2026-08-02) — the first island to get more physical room rather than more content packed
+    into the same footprint. `TORTUGA_SHAPE` scaled 1.35x from island center in `islands.ts`;
+    every existing marker (buildings, houses, landmarks, resource nodes) keeps its old coordinate
+    unchanged and now simply sits further inland from the new coastline — verified with a script
+    that reruns the real `islandAtPoint()` against every Tortuga marker and every street endpoint,
+    confirming all still resolve to land, plus a neighbor-clearance check against Cow Island and
+    New Providence (nearest at 283 world units, comfortably clear). Three new zones fill the freed
+    ring of land, each tied to real Tortuga history rather than invented lore: (1) **El Fuerte
+    Viejo**, a new enterable building (`ruins`, a new `BuildingType`) on the west cape — a Spanish
+    redoubt predating Fort de Rocher, since Tortuga was Spanish before French buccaneers seized it
+    in 1629; its bespoke interior skips the rug/counter every other building gets, using rubble,
+    moss, and cobweb props instead to read as abandoned; (2) **The High Woods**, a forested
+    landmark plus two new timber resource nodes on the east cape, its flavor text tying to the
+    real etymology of "buccaneer" (from *boucan*, the smoking-frame buccaneers used before they
+    turned to piracy); (3) **Ruins of the Old Landing** and **The Forgotten Graves**, two
+    non-interactive landmarks on the newly-opened south coast referencing the Spanish razings of
+    the original Tortuga settlement in 1635 and 1638. All three zones are reached by winding,
+    multi-bend `path`-style trails (not paved `main` streets) branching off the existing town —
+    the East trail forks to both timber nodes, reading as an actual forest path rather than a
+    straight line. Verified in-browser: screenshots of all three zones from the map (coastline,
+    forking trails, landmark/resource rendering) plus the new building's interior, using the
+    established TEMP-TEST-SPAWN/TEMP-TEST-ENTER techniques, fully reverted after (confirmed via
+    `git diff` showing zero net change to `MapScreen.tsx`).
+24. **Repeat the enlargement + wilderness-zone treatment for the other 6 islands** — Tortuga was
+    the prototype; New Providence, Roatán, Port Royal, Île Sainte-Marie, Cow Island, and Ocracoke
+    Inlet are all still at their original, more cramped scale
+25. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-24. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+26. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-25. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+27. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-26. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+28. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-27. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+29. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-28. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+30. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-29. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+31. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-30. **GTA-style character switching** (biggest, most novel, probably last)
-30. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+32. **GTA-style character switching** (biggest, most novel, probably last)
+33. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-31. Full e2e test automation, IAP integration, real art asset pipeline —
+34. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

@@ -54,6 +54,33 @@ export const LANDMARKS: Landmark[] = [
     description: "A long, low shed where hemp gets twisted into rigging, coil by coil. No ship sails without what's made here.",
   },
   {
+    id: 'tortuga_high_woods',
+    islandId: 'tortuga_cove',
+    offset: { x: 218, y: -20 },
+    name: 'The High Woods',
+    emoji: '🌲',
+    description:
+      "The real buccaneers took their name from the boucan — a wooden frame for smoking wild boar and cattle over a slow fire — and this ridge is where the smoke still used to rise, before the harbor town grew big enough to feed itself another way.",
+  },
+  {
+    id: 'tortuga_old_landing',
+    islandId: 'tortuga_cove',
+    offset: { x: -35, y: 208 },
+    name: 'Ruins of the Old Landing',
+    emoji: '🔥',
+    description:
+      "The first French settlement here wasn't at the harbor — it was here, until the Spanish burned it out in 1635, and again in 1638. What's left is scorched foundations and a lesson nobody who stayed ever forgot.",
+  },
+  {
+    id: 'tortuga_forgotten_graves',
+    islandId: 'tortuga_cove',
+    offset: { x: 60, y: 205 },
+    name: 'The Forgotten Graves',
+    emoji: '⚰️',
+    description:
+      "No names, no dates — just a few dozen mounds gone soft with moss, from whichever raid or fever thinned the settlement that year. Someone still leaves rum bottles here. Nobody's ever seen who.",
+  },
+  {
     id: 'new_providence_republic_square',
     islandId: 'new_providence',
     offset: { x: 0, y: -10 },

@@ -12,7 +12,8 @@ export type BuildingType =
   | 'chapel'
   | 'warehouse'
   | 'customs'
-  | 'smithy';
+  | 'smithy'
+  | 'ruins';
 
 export interface Building {
   id: string;
@@ -292,6 +293,22 @@ export const BUILDINGS: Building[] = [
     npcName: 'Forge-Master Kade',
     npcEmoji: '🔨',
     dialogue: "Cutlasses, grapeshot, ship fittings — if it's metal and it's broken, I can fix it or melt it down and start again.",
+  },
+  {
+    // Tortuga was a Spanish possession before French buccaneers seized it in 1629 (and the
+    // Spanish razed the pirate settlement more than once afterward, in 1635 and 1638) — this
+    // redoubt predates Fort de Rocher, which Le Vasseur only built once the French had the
+    // island for good. Sits on the newly-opened west cape beyond West Point Shack.
+    id: 'tortuga_ruins',
+    islandId: 'tortuga_cove',
+    name: 'El Fuerte Viejo',
+    type: 'ruins',
+    emoji: '🏚️',
+    offset: { x: -255, y: -5 },
+    npcName: 'The Ruin-Keeper',
+    npcEmoji: '🧙',
+    dialogue: "Spanish stone, French blood, and nobody left who remembers which came first. I just remember it's quiet out here.",
+    recruit: { templateId: 'musketeer_marksman', level: 4, cost: 50 },
   },
 ];
 

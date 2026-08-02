@@ -464,6 +464,24 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
     ],
     npcSpots: [{ id: 'main', x: 120, y: 40 }],
   },
+  tortuga_ruins: {
+    buildingId: 'tortuga_ruins',
+    width: 240,
+    height: 200,
+    entryPosition: { x: 120, y: 178 },
+    furniture: [
+      // No rug, no counter — this is a collapsed Spanish redoubt with one squatter, not a shop.
+      { type: 'stool', x: 120, y: 100 },
+      { type: 'barrel', x: 190, y: 90 },
+      { type: 'door', x: 120, y: 192, fontSize: 24 },
+      { type: 'prop', x: 60, y: 60, emoji: '🪨', fontSize: 26 },
+      { type: 'prop', x: 180, y: 140, emoji: '🪨', fontSize: 24 },
+      { type: 'prop', x: 40, y: 140, emoji: '🌿', fontSize: 22 },
+      { type: 'prop', x: 200, y: 50, emoji: '🕸️', fontSize: 20 },
+      { type: 'prop', x: 120, y: 60, emoji: '🕯️', fontSize: 18 },
+    ],
+    npcSpots: [{ id: 'main', x: 120, y: 100 }],
+  },
 };
 
 export function interiorForBuilding(
