@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, LayoutChangeEvent, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Line, Polygon } from 'react-native-svg';
+import Svg, { Circle, Line, Polygon, Rect } from 'react-native-svg';
 import OnboardingOverlay from '../components/OnboardingOverlay';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -80,6 +80,12 @@ const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 const BUILDING_SHAPED_EMOJI = new Set(['🏪', '🏚️', '⛩️', '🏰', '⛪', '🛖', '🏛️', '🏕️']);
 const EDGE_ICON_SIZE = 34;
 const EDGE_ICON_MARGIN = EDGE_ICON_SIZE / 2 + 8;
+// The minimap renders the whole world in one Svg with viewBox="0 0 WORLD_WIDTH WORLD_HEIGHT", so
+// every coordinate drawn into it is a raw world-unit value — no separate scale math needed, the
+// viewBox does the scaling. Only the on-screen pixel *size* (this constant) and stroke/circle radii
+// (picked directly in world units below) need tuning by eye.
+const MINIMAP_WIDTH = 100;
+const MINIMAP_HEIGHT = MINIMAP_WIDTH * (WORLD_HEIGHT / WORLD_WIDTH);
 const SEA_SPEED = 260; // world units per second
 const LAND_SPEED = 45;
 // The procedurally-generated house grid packs some houses as little as 20 units apart
@@ -1359,6 +1365,45 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
+        {viewport.width > 0 && (
+          <View pointerEvents="none" style={styles.miniMap}>
+            <Svg width={MINIMAP_WIDTH} height={MINIMAP_HEIGHT} viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`}>
+              <Rect x={0} y={0} width={WORLD_WIDTH} height={WORLD_HEIGHT} fill="#124d73" />
+              {ISLAND_LIST.map((island) => (
+                <Polygon
+                  key={island.id}
+                  points={island.shape
+                    .map((p) => `${island.position.x + p.x},${island.position.y + p.y}`)
+                    .join(' ')}
+                  fill={island.isSafeZone ? '#3d9963' : '#2c7a4b'}
+                  stroke="#f4e9cd"
+                  strokeWidth={24}
+                />
+              ))}
+              {PIRATE_LORDS.map((lord) => {
+                const pos = pirateLordWorldPosition(lord, ISLANDS[lord.islandId].position);
+                const isDefeated = defeatedLordIds.includes(lord.id);
+                const isUnlocked = isLordUnlocked(lord, defeatedLordIds, completedQuestIds);
+                const color = isDefeated ? '#4caf50' : isUnlocked ? '#ffd166' : '#8a7a6a';
+                return (
+                  <Circle key={lord.id} cx={pos.x} cy={pos.y} r={60} fill={color} stroke="#2b1c12" strokeWidth={10} />
+                );
+              })}
+              {mainQuestTarget && (
+                <Circle
+                  cx={mainQuestTarget.x}
+                  cy={mainQuestTarget.y}
+                  r={90}
+                  fill="none"
+                  stroke="#ffd166"
+                  strokeWidth={16}
+                />
+              )}
+              <Circle cx={player.x} cy={player.y} r={70} fill="#ff5252" stroke="#fff" strokeWidth={16} />
+            </Svg>
+          </View>
+        )}
+
         {dragOrigin && (
           <View
             pointerEvents="none"
@@ -1759,6 +1804,16 @@ const styles = StyleSheet.create({
   },
   playerEmoji: {
     fontSize: 9 * ZOOM,
+  },
+  miniMap: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#c9a227',
+    overflow: 'hidden',
+    backgroundColor: '#124d73',
   },
   joystickBase: {
     position: 'absolute',

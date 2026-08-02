@@ -1277,32 +1277,46 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     offshore ship. Turning this into a full port *district* (new streets, more waterfront houses)
     remains open if wanted — this delivers the specific ask (boardwalks into the sea, boats docked
     up, bustling docks), not a full neighborhood rebuild
-32. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+32. ✅ **A persistent minimap overlay** (2026-08-02) — a small always-on `<Svg>` panel pinned to the
+    top-left of the map screen (`MapScreen.tsx`), rendering all 7 islands, every Pirate Lord fort
+    (colored by locked/available/defeated state, matching the main map's own fort colors), the
+    current main-quest target as a gold ring, and the player as a red dot — all drawn straight from
+    real `ISLANDS`/`PIRATE_LORDS`/`player` state, not a separate hand-placed image. Uses a single
+    `<Svg viewBox="0 0 WORLD_WIDTH WORLD_HEIGHT">` so every marker is plotted in raw world-unit
+    coordinates and the SVG itself does all the scaling — no separate minimap projection math to
+    keep in sync with the real map. A first pass also drew a viewport rectangle showing how much of
+    the world the zoomed-in camera currently covers; dropped after screenshotting it, since at
+    `ZOOM=5` the visible world slice works out to only ~2px on a 100px-wide minimap —
+    indistinguishable from the player dot itself, so it was dead weight rather than a real feature.
+    Verified with `npx tsc --noEmit`, and in-browser screenshots confirming the islands, forts,
+    quest target, and player all render at readable positions, plus a drag-gesture test confirming
+    the minimap's `pointerEvents="none"` doesn't block sailing underneath it
+33. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-33. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+34. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-34. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+35. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-35. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+36. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-36. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+37. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-37. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+38. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-38. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+39. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-39. **GTA-style character switching** (biggest, most novel, probably last)
-40. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+40. **GTA-style character switching** (biggest, most novel, probably last)
+41. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-41. Full e2e test automation, IAP integration, real art asset pipeline —
+42. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
