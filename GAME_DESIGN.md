@@ -233,6 +233,21 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   the moving map sprite changed. Verified in-browser: every visible street NPC now renders as the
   walking-person figure, confirmed against a screenshot showing several at once with no leftover
   object/animal icons
+- ✅ **Street NPCs get varied clothing colors, 2026-08-02**: immediate follow-up — now that every
+  NPC shares one walking-person glyph, they all looked like the same identical person. Emoji glyphs
+  are colored images, not vector art with a separately recolorable clothing layer, so there's no
+  direct way to "just change the shirt color." Landed on a per-NPC CSS `hue-rotate` filter
+  (`npcClothingHueDeg()`, hashed from the NPC's id so a given NPC always gets the same color, not a
+  new random one every render) plus a `saturate(2.5)` boost so the shifted hues stay clearly visible
+  instead of washing out — shifts every colored pixel (clothes, skin, hair) around the color wheel
+  together while leaving true black/white pixels (outlines, shading) alone, which reads as "a person
+  in different-colored clothes" well enough for emoji-placeholder art. Feasibility was checked
+  in-browser before writing the real implementation (a throwaway inline version screenshotted first)
+  since `filter` isn't part of React Native's own style types — it's a react-native-web-only pass-
+  through, confirmed working on this project's `react-native-web` version, but a reminder for later:
+  **this has no effect on a native iOS/Android build**, only the web export this project currently
+  ships. A real cross-platform fix would need actual per-NPC sprite art or an SVG-based character
+  instead of a plain emoji glyph
 - ✅ **Joystick reliably resets on release, 2026-08-01**: fourth playtest round, on a real
   touchscreen — "controls are stuck," movement not stopping when the finger lifts. Direction was
   already a ref cleared synchronously in `clearDrag()`, so the likely cause is

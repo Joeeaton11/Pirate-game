@@ -204,6 +204,20 @@ function pickPatrolTarget(
   return anchorPoint;
 }
 
+/** Every street NPC now shares the exact same walking-person glyph as the player, so without some
+ * per-NPC variation the whole street would be identical green-shirted figures. Emoji glyphs are
+ * colored images, not vector shapes with a separately recolorable "clothing" layer, so there's no
+ * way to reach in and repaint just the shirt — a CSS `hue-rotate` filter on the whole glyph is the
+ * practical substitute: it shifts every colored pixel (clothes, skin, hair) around the color wheel
+ * together while leaving true black/white pixels (outlines, shading) alone, which in practice reads
+ * as "a person in different-colored clothes" without needing any real per-NPC sprite art. Hash of
+ * the id keeps each NPC's color fixed across renders instead of flickering randomly every frame. */
+function npcClothingHueDeg(npcId: string): number {
+  let hash = 0;
+  for (let i = 0; i < npcId.length; i++) hash += npcId.charCodeAt(i);
+  return hash % 360;
+}
+
 function initNpcSim(npc: StreetNpc): NpcSimState {
   const nearest = nearestStreetSegment(npc.anchor, npc.islandId);
   if (!nearest) {
@@ -1121,10 +1135,15 @@ export default function MapScreen({ navigation }: Props) {
                   pointerEvents="none"
                 >
                   <Text
-                    style={[
-                      styles.streetNpcEmoji,
-                      { transform: [{ scaleX: npcFacingRight ? -1 : 1 }] },
-                    ]}
+                    style={
+                      [
+                        styles.streetNpcEmoji,
+                        { transform: [{ scaleX: npcFacingRight ? -1 : 1 }] },
+                        // Web-only CSS filter — see npcClothingHueDeg() for why this is the
+                        // practical way to vary an emoji glyph's "clothing" color.
+                        { filter: `hue-rotate(${npcClothingHueDeg(npc.id)}deg) saturate(2.5)` },
+                      ] as any
+                    }
                   >
                     {npcEmoji}
                   </Text>
