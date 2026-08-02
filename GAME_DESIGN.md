@@ -1198,38 +1198,52 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     confirmed by re-running the same check against the pre-doubling code — and left alone, since
     `streets.ts`'s own comment already documents this as an accepted quirk of the residential grid
     not perfectly following New Providence's rounder coastline, and streets are decorative only.
-26. **Fill the other 6 islands' new space with content** — the world-doubling pass above gave every
+26. ✅ **Restored Tortuga's scenery density after doubling** (2026-08-02) — the world-doubling pass
+    doubled the *spacing* between every scenery prop while deliberately leaving each prop's visual
+    size (`fontSize`) untouched, which meant the High Woods, El Fuerte Viejo, and the abandoned
+    quarter all read visibly sparser than before, not the same — since doubling both x and y
+    spacing means each prop now covers roughly 4x the ground it used to. Fixed by thickening all
+    three zones with the same generator-script approach already proven twice: the High Woods went
+    from 18 trees to 72 (added 54, packed at 26-unit self-clearance instead of the original 20, and
+    checked against every existing tree too so new growth never lands on old), El Fuerte Viejo's
+    rubble from 4 to 14, and the abandoned quarter's debris from 7 to 23 — 109 scenery props on
+    Tortuga total, up from 29. Verified with `npx tsc --noEmit`, the scenery-specific land/overlap
+    script (all 109 pass), the whole-world `islandAtPoint()` sweep (no new failures beyond the
+    pre-existing New Providence street quirk noted above), and in-browser screenshots from three
+    different points inside the High Woods confirming a genuinely dense, consistent canopy rather
+    than scattered individual trees.
+27. **Fill the other 6 islands' new space with content** — the world-doubling pass above gave every
     island more room, the same way Tortuga's enlargement did on its own; what Tortuga got next
     (a real forest, ruin rubble, grave markers, a new woodland recruit — all script-placed and
     clearance-verified) hasn't been repeated anywhere else yet. New Providence, Roatán, Port Royal,
     Île Sainte-Marie, Cow Island, and Ocracoke Inlet are all still exactly as sparse as before,
     just with more empty water and grass around them
-27. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+28. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-28. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+29. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-29. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+30. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-30. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+31. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-31. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+32. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-32. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+33. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-33. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+34. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-34. **GTA-style character switching** (biggest, most novel, probably last)
-35. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+35. **GTA-style character switching** (biggest, most novel, probably last)
+36. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-36. Full e2e test automation, IAP integration, real art asset pipeline —
+37. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
