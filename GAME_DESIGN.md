@@ -228,6 +228,14 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   unconditional) whenever a snap-back is already in progress. Verified in-browser: knob visibly
   centered at 30ms post-release, fully faded by ~330ms, and the world stayed motionless across a
   1-second window after release (only independently-timed ambient NPCs moved)
+- ✅ **Joystick anchored on the character, not the touch point, 2026-08-01**: fifth playtest round —
+  the control ring appeared wherever the finger first touched down, which could be nowhere near the
+  player token. Since the player is always fixed at the exact center of the screen, `onBegin` now
+  anchors the joystick there (`viewport.width/2, viewport.height/2`) instead of the touch
+  coordinates — the ring visibly surrounds the character regardless of where the drag starts.
+  Direction/speed math is untouched (it was always based on drag *delta*, not absolute position),
+  so this was a pure display-anchor fix. Verified in-browser: touched down in the opposite corner
+  of the screen from the player and the ring still appeared centered on the character
 - ✅ **Streets widened, 2026-08-01**: same playtest round, "too congested." Bumped the 'main' street
   sidewalk/road stroke widths (28/16, was 22/12) and the 'path' dashed stroke (8, was 6). Checked
   first whether a bigger jump was safe: houses hug streets tightly by design (median house-to-street

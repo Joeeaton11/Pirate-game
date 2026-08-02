@@ -260,9 +260,13 @@ export default function MapScreen({ navigation }: Props) {
         clearTimeout(dragResetTimeoutRef.current);
         dragResetTimeoutRef.current = null;
       }
-      dragOriginRef.current = { x: e.x, y: e.y };
-      setDragOrigin({ x: e.x, y: e.y });
-      setDragKnob({ x: e.x, y: e.y });
+      // The player token is always fixed at the exact center of the screen, so anchor the
+      // joystick there too — not at the touch point — so it visibly surrounds the character
+      // regardless of where on screen the drag starts.
+      const center = { x: viewport.width / 2, y: viewport.height / 2 };
+      dragOriginRef.current = center;
+      setDragOrigin(center);
+      setDragKnob(center);
     })
     .onUpdate((e) => {
       const dist = Math.hypot(e.translationX, e.translationY);
