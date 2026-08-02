@@ -341,6 +341,20 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   placed right next to the node, reverted after — disappears entirely once the node's own on-map
   marker is visible, confirming the "already visible" skip actually fires and doesn't just leave a
   redundant second icon next to the real one.
+- ✅ **Extended edge icons to standalone side quests, 2026-08-02**: asked for right after the above.
+  `resourceEdgeIndicators` and a new `sideQuestEdgeIndicators` now merge into one combined
+  `edgeIndicators` list rendered by a single loop, instead of duplicating the render block. Limited
+  to side quests with their own `.offset` (the ones that already get a 📜 map marker today) — quests
+  with `hostedByBuildingId` are deliberately left out, since those are meant to be found by talking to
+  patrons inside a building, not marked on the map at all, and adding an edge icon for them would
+  undercut that. Also excludes whichever quest is the current main-quest `gateQuest`, since that one
+  is already pointed at by the compass — showing both would just be two markers for the same target.
+  Uses 📜 for every side-quest icon (matching the existing on-map marker) rather than each quest's
+  `npcEmoji`, since the data model doesn't have a separate "what you'll get" emoji the way resources
+  do, and 📜 is what the player will actually recognize once they arrive. Verified in-browser on
+  Tortuga's bounty board quest (`offset: {x:0, y:130}`, due south of spawn): its 📜 icon appeared
+  pinned to the bottom edge, roughly centered, at the same time as the fish node's 🐟 icon at the top
+  — confirming multiple simultaneous indicators render independently without fighting each other.
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

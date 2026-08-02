@@ -832,12 +832,15 @@ export default function MapScreen({ navigation }: Props) {
     ? (Math.atan2(mainQuestTarget.x - player.x, -(mainQuestTarget.y - player.y)) * 180) / Math.PI
     : null;
 
-  // Off-screen resource nodes on the current island get a small edge-of-screen icon (its resource
-  // emoji) so a player who hasn't explored the island yet can still see roughly where to go —
-  // scoped to the current island only (a marker pointing at, say, timber on a different island
-  // wouldn't be actionable) and skipped while the node is on cooldown, since there's nothing there
-  // to gather right now.
-  const resourceEdgeIndicators = currentIsland
+  // Off-screen resource nodes and side quests on the current island get a small edge-of-screen icon
+  // so a player who hasn't explored the island yet can still see roughly where to go — scoped to the
+  // current island only (a marker pointing at something on a different island wouldn't be
+  // actionable). Resource nodes are skipped while on cooldown (nothing to gather right now); side
+  // quests are limited to the standalone ones with their own `.offset` map marker (quests hosted by
+  // a building are meant to be found by talking to patrons, not marked), skip completed ones, and
+  // skip the current gate quest since that one's already covered by the compass above.
+  type EdgeIndicator = { id: string; emoji: string; pos: { x: number; y: number } };
+  const resourceEdgeIndicators: EdgeIndicator[] = currentIsland
     ? RESOURCE_NODES.filter(
         (n) => n.islandId === currentIsland.id && (resourceNodeCooldowns[n.id] ?? 0) <= Date.now()
       )
@@ -846,8 +849,27 @@ export default function MapScreen({ navigation }: Props) {
           const edgePos = edgeIndicatorPosition(player, targetPos, viewport, EDGE_ICON_MARGIN);
           return edgePos ? { id: n.id, emoji: RESOURCES[n.resourceId].emoji, pos: edgePos } : null;
         })
-        .filter((x): x is { id: string; emoji: string; pos: { x: number; y: number } } => x !== null)
+        .filter((x): x is EdgeIndicator => x !== null)
     : [];
+  const sideQuestEdgeIndicators: EdgeIndicator[] = currentIsland
+    ? SIDE_QUESTS.filter(
+        (q) =>
+          q.offset &&
+          q.islandId === currentIsland.id &&
+          !completedQuestIds.includes(q.id) &&
+          q.id !== gateQuest?.id
+      )
+        .map((q) => {
+          const targetPos = sideQuestWorldPosition(
+            q as SideQuest & { offset: { x: number; y: number } },
+            ISLANDS[q.islandId].position
+          );
+          const edgePos = edgeIndicatorPosition(player, targetPos, viewport, EDGE_ICON_MARGIN);
+          return edgePos ? { id: q.id, emoji: '📜', pos: edgePos } : null;
+        })
+        .filter((x): x is EdgeIndicator => x !== null)
+    : [];
+  const edgeIndicators = [...resourceEdgeIndicators, ...sideQuestEdgeIndicators];
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -1240,7 +1262,7 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
-        {resourceEdgeIndicators.map((indicator) => (
+        {edgeIndicators.map((indicator) => (
           <View
             key={indicator.id}
             pointerEvents="none"
