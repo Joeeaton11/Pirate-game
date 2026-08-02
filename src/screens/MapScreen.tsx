@@ -932,6 +932,7 @@ export default function MapScreen({ navigation }: Props) {
                     },
                   ]}
                 >
+                  <View style={styles.buildingRoofCap} pointerEvents="none" />
                   {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
                   <Text style={styles.buildingEmoji}>{building.emoji}</Text>
                 </View>
@@ -1293,6 +1294,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#f4e9cd',
+    overflow: 'hidden',
+  },
+  // A roof-colored cap clipped to the top of the building box (some type emoji, like the fort's
+  // castle or the shop's storefront, already render as detailed mini-buildings with their own
+  // roof/awning baked in — an exterior roof shape floating above them doubled up and looked wrong,
+  // so this stays inside the existing box instead of adding a second shape on top of the glyph).
+  buildingRoofCap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 10,
+    backgroundColor: '#8b3a2a',
   },
   landmark: {
     position: 'absolute',

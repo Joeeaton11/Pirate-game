@@ -272,6 +272,21 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   test-spawn (`TEMP-TEST-SPAWN`, confirmed removed via `grep -rn TEMP src` before commit) placing the
   player in range of a real building: the prompt appeared while approaching, disappeared when walked
   past without tapping, and tapping it correctly opened the building screen.
+- ✅ **Buildings get a roof-colored cap so they read as small buildings, not flat squares,
+  2026-08-02**: same round — "add a small emoji symbolising what type of building it is on the roof
+  of the building." Turned out the type emoji already existed and was already shown (tavern = 🍻,
+  fishmonger = 🐟, exactly the user's own examples) — the real problem was the plain flat dark square
+  it sat in, which didn't read as "a building" next to the nicer-looking decorative house sprites and
+  didn't stand out enough to tell buildings apart at a glance. First attempt was a separate peaked
+  roof shape floating above the box with the emoji shrunk onto it as a badge — screenshotted and
+  rejected before shipping: several type emoji (the fort's 🏰, the shop's 🏪) already render as
+  detailed mini-buildings with their own roof/awning baked into the glyph, so the extra shape floating
+  above them just doubled up and looked wrong. Landed on a roof-colored band (`buildingRoofCap`)
+  clipped inside the existing box's rounded corners instead, with the type emoji kept at its original
+  large centered size — gives every building a consistent two-tone "roofed box" look without fighting
+  any individual glyph's own artwork. Verified via screenshots (using the same temporary, fully-
+  reverted `TEMP-TEST-SPAWN` technique) across four different building types (tavern, fort, shop,
+  warehouse) to confirm the cap clips cleanly and the icon stays legible in every case.
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete
