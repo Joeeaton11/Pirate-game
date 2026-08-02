@@ -259,6 +259,19 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   produces a clear exit spot across a full sweep of approach angles (0-350° in 10° steps) — the
   same rigor as the earlier house-collision fixes, since blind manual test-walks to a specific
   building kept being an unreliable way to verify this class of bug
+- ✅ **Building entry is now a dismissible bottom prompt instead of auto-navigating, 2026-08-02**:
+  eighth playtest round — walking near a building instantly opened its full-page screen, but "you
+  don't always want to go inside the building you walk past." Walking into `ENTER_RADIUS` now shows
+  a small card pinned to the bottom of the screen ("Enter The Salty Parrot?" + its emoji) instead of
+  navigating immediately; tapping it enters the building, walking away from it without tapping makes
+  it disappear, and movement is no longer frozen just for being near a door. Follow-on fix: the
+  "nudge the player just outside the trigger radius on return to the map" effect used to include
+  buildings (needed when proximity meant instant re-entry) — with buildings no longer auto-entering,
+  that nudge was pure unwanted bounce, so buildings were dropped from that check and the now-dead
+  `nearbyBuildingPos()` helper was deleted. Verified with a marked, fully-reverted temporary
+  test-spawn (`TEMP-TEST-SPAWN`, confirmed removed via `grep -rn TEMP src` before commit) placing the
+  player in range of a real building: the prompt appeared while approaching, disappeared when walked
+  past without tapping, and tapping it correctly opened the building screen.
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

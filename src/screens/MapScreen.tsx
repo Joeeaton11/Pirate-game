@@ -6,7 +6,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Line, Polygon } from 'react-native-svg';
 import OnboardingOverlay from '../components/OnboardingOverlay';
-import { BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
+import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import {
   ISLAND_LIST,
@@ -204,6 +204,10 @@ export default function MapScreen({ navigation }: Props) {
   const capturedCrew = useGameStore((s) => s.capturedCrew);
   const [resourceToast, setResourceToast] = useState<string | null>(null);
   const resourceToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Walking near a building now just offers to let you in — it doesn't yank you inside — so you
+  // can pass right by without stopping if you didn't actually want to go in.
+  const [nearbyBuildingPrompt, setNearbyBuildingPrompt] = useState<Building | null>(null);
+  const nearbyBuildingPromptIdRef = useRef<string | null>(null);
   const lastLandmarkIdRef = useRef<string | null>(null);
   const lastStreetNpcIdRef = useRef<string | null>(null);
   const [, setWanderTick] = useState(0);
@@ -388,14 +392,6 @@ export default function MapScreen({ navigation }: Props) {
     startEncounter(templateId, level, 'merchant', MERCHANT_TEMPLATES[templateId]);
   }
 
-  function nearbyBuildingPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
-    const b = buildingsForIsland(island.id).find((b) => {
-      const bp = buildingWorldPosition(b, island.position);
-      return Math.hypot(pos.x - bp.x, pos.y - bp.y) <= ENTER_RADIUS;
-    });
-    return b ? buildingWorldPosition(b, island.position) : null;
-  }
-
   function nearbyLordPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
     const lord = pirateLordForIsland(island.id);
     if (!lord) return null;
@@ -442,6 +438,15 @@ export default function MapScreen({ navigation }: Props) {
     setResourceToast(message);
     if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
     resourceToastTimeoutRef.current = setTimeout(() => setResourceToast(null), durationMs);
+  }
+
+  function confirmEnterBuilding() {
+    if (!nearbyBuildingPrompt) return;
+    directionRef.current = null;
+    nearbyBuildingPromptIdRef.current = null;
+    setNearbyBuildingPrompt(null);
+    setCurrentBuilding(nearbyBuildingPrompt.id);
+    navigation.navigate('Building');
   }
 
   useEffect(() => {
@@ -527,14 +532,14 @@ export default function MapScreen({ navigation }: Props) {
   useEffect(() => {
     if (!isFocused) return;
 
-    // Returning from the Building/PirateLord screen can leave the player still standing inside
-    // that structure's trigger radius, which would instantly re-enter it on the next tick. Nudge
-    // them just outside it first.
+    // Returning from the PirateLord/SideQuest/Rescue screen can leave the player still standing
+    // inside that trigger's radius, which would instantly re-enter it on the next tick. Nudge them
+    // just outside it first. Buildings are excluded here — they no longer auto-enter on proximity
+    // (a dismissible prompt now, see nearbyBuildingPrompt), so there's nothing to instantly re-enter.
     const pos = playerRef.current;
     const island = islandAtPoint(pos);
     if (island) {
       const nearbyPos =
-        nearbyBuildingPos(pos, island) ??
         nearbyLordPos(pos, island) ??
         nearbySideQuestPos(pos, island) ??
         nearbyRescuePointPos(pos, island);
@@ -609,10 +614,13 @@ export default function MapScreen({ navigation }: Props) {
           return Math.hypot(nextPosition.x - pos.x, nextPosition.y - pos.y) <= ENTER_RADIUS;
         });
         if (nearbyBuilding) {
-          directionRef.current = null;
-          setCurrentBuilding(nearbyBuilding.id);
-          navigation.navigate('Building');
-          return;
+          if (nearbyBuildingPromptIdRef.current !== nearbyBuilding.id) {
+            nearbyBuildingPromptIdRef.current = nearbyBuilding.id;
+            setNearbyBuildingPrompt(nearbyBuilding);
+          }
+        } else if (nearbyBuildingPromptIdRef.current) {
+          nearbyBuildingPromptIdRef.current = null;
+          setNearbyBuildingPrompt(null);
         }
 
         const lord = pirateLordForIsland(nextIsland.id);
@@ -1134,6 +1142,13 @@ export default function MapScreen({ navigation }: Props) {
             <Text style={styles.resourceToastText}>{resourceToast}</Text>
           </View>
         )}
+
+        {nearbyBuildingPrompt && (
+          <Pressable style={styles.buildingPrompt} onPress={confirmEnterBuilding}>
+            <Text style={styles.buildingPromptEmoji}>{nearbyBuildingPrompt.emoji}</Text>
+            <Text style={styles.buildingPromptText}>Enter {nearbyBuildingPrompt.name}?</Text>
+          </Pressable>
+        )}
       </View>
       </GestureDetector>
 
@@ -1368,6 +1383,32 @@ const styles = StyleSheet.create({
     color: '#f4e9cd',
     fontWeight: '700',
     fontSize: 14,
+  },
+  buildingPrompt: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+    alignSelf: 'center',
+    maxWidth: 420,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    backgroundColor: 'rgba(43, 28, 18, 0.95)',
+    borderWidth: 2,
+    borderColor: '#ffd166',
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+  },
+  buildingPromptEmoji: {
+    fontSize: 22,
+  },
+  buildingPromptText: {
+    color: '#f4e9cd',
+    fontWeight: '800',
+    fontSize: 15,
   },
   fort: {
     position: 'absolute',
