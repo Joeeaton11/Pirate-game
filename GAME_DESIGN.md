@@ -479,6 +479,40 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   - Only Tortuga Cove has been fleshed out this way so far — the other 6 islands still have their
     original 1-3 buildings with no street layout, landmarks, or street life; repeating this whole
     pass island-by-island is the natural next step now that the blueprint is proven
+- ✅ **New Providence: the blueprint repeated for the first time, 2026-08-02**. Before this it had 2
+  buildings (The Cracked Hull, The Distillery), Iron Jenny's fort, and one standalone side quest —
+  zero houses, zero streets, zero street life. Verification-first, same as every geometry change this
+  project has made: wrote a throwaway script that copied the island's real polygon and generated
+  candidate house positions along a residential grid, filtering to *inside the actual coastline* and
+  clear of every existing marker, before writing a single line into `houses.ts` — 61 houses landed
+  clean this way (one candidate, dropped for being 20 units from the rum resource node, is the only
+  one the script's marker list initially missed — see the bug note below).
+  - **Republic Square** (new landmark, hub) reflects Nassau's real character as a run-by-consensus
+    "pirate republic" rather than a governed town — captains voting on plunder shares instead of a
+    town hall — radiating streets to every building, same hub-and-spoke pattern as Basse-Terre Square
+  - **The Careening Yard** (new enterable building, `smithy` type) is grounded in the real reason
+    Nassau mattered to pirates at all: its harbor was too shallow for Royal Navy warships but ideal
+    for beaching and careening (tipping a ship on its side to scrape the hull) — the pirate
+    republic's only real shipyard. Comes with a recruit (Shipwright Odalys) and, once patron content
+    is authored for it, a Patron quest slot
+  - **8 new street NPCs** (`src/data/streetNpcs.ts`) written distinct from Tortuga's archetypes on
+    purpose — no patrolling guard, because Nassau explicitly has "no crown, no law": a dice gambler,
+    a lookout watching for Navy sails, a furtive smuggler, a one-legged fiddler, and others leaning
+    into the lawless-republic tone rather than reusing Tortuga's cast with new names
+  - **Bug caught during in-browser verification, not left for the user to find**: the Careening
+    Yard's first placement (`{x:-150,y:-100}`) landed 10 units from the pre-existing rum resource
+    node at `{x:-140,y:-100}` — missed during design because the generation script's marker list
+    only included buildings/fort/quests, not resource nodes. A screenshot showed the resource node's
+    marker and the new building's marker rendering on top of each other before this ever reached the
+    user. Fixed by relocating the building to `{x:-190,y:-30}` (a real clear coastal spot, verified
+    against the polygon and every other marker) and dropping the one house that had been placed too
+    close to the resource node as a result. A final comprehensive script re-checked all 61 houses
+    against all 7 non-house markers (buildings, fort, landmark, quest, resource node) pairwise, and
+    all markers against each other, before shipping: zero remaining violations
+  - **Deliberately not done in this pass**: Patron quests and a bespoke floor plan for the two new
+    buildings (Careening Yard, and updating The Cracked Hull's tavern) — both buildings still use the
+    generic fallback interior. That's real content-authoring work (2-4 patrons each, per the roadmap)
+    better done as its own dedicated pass rather than rushed alongside a world-geometry change
 - ✅ Each building = one named NPC, one line of dialogue, one one-time gold-priced hire
 - 🔄 Needs the Pokémon-Center equivalent: a **Shipwright/Surgeon building** on every island (or at
   least the safe ones) for full-crew healing without needing to sail back to Tortuga Cove
@@ -991,13 +1025,15 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     (`src/data/streetNpcs.ts`) — see the "Tortuga Cove: the whole-island blueprint" note above
 
 ### Now (next up)
-21. **Repeat the whole-island blueprint for the other 6 islands** — street plan + landmarks +
-    enterable buildings + street life, following the same historically-grounded approach proven on
-    Tortuga Cove
+21. ✅ **New Providence** done (see the "New Providence: the blueprint repeated" note above) —
+    **repeat the whole-island blueprint for the remaining 5 islands** (Port Royal, Roatán,
+    Ocracoke Inlet, Île Sainte-Marie, Cow Island) — street plan + landmarks + enterable buildings +
+    street life, same historically-grounded approach proven on Tortuga Cove and now New Providence
 22. **Author Patron quest batches + bespoke floor plans, building-by-building** — apply the proven
-    patterns to the remaining ~11 buildings (2-4 patrons each, drawing from the reusable archetype
+    patterns to the remaining ~13 buildings (2-4 patrons each, drawing from the reusable archetype
     roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler, Fortune Teller, etc.), giving each a real
-    floor plan instead of the generic fallback room as content is authored, toward the 150+ target
+    floor plan instead of the generic fallback room as content is authored, toward the 150+ target.
+    New Providence's Careening Yard (and updating The Cracked Hull) are the most immediate targets
 23. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones

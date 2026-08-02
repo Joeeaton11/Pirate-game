@@ -53,6 +53,15 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🪢',
     description: "A long, low shed where hemp gets twisted into rigging, coil by coil. No ship sails without what's made here.",
   },
+  {
+    id: 'new_providence_republic_square',
+    islandId: 'new_providence',
+    offset: { x: 0, y: -10 },
+    name: 'Republic Square',
+    emoji: '🏴‍☠️',
+    description:
+      "No governor, no crown, no court — just captains hashing out plunder shares by shouted vote. The closest thing this town has to a town hall.",
+  },
 ];
 
 export function landmarksForIsland(islandId: string): Landmark[] {

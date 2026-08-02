@@ -96,6 +96,21 @@ export const BUILDINGS: Building[] = [
     recruit: { templateId: 'tavern_brawler', level: 5, cost: 60 },
   },
   {
+    // Nassau's harbor was too shallow for Royal Navy warships but perfect for careening — beaching
+    // a sloop and tipping it on its side to scrape the hull — which is exactly what kept the
+    // pirate republic's fleet seaworthy with no formal shipyard.
+    id: 'new_providence_careening_yard',
+    islandId: 'new_providence',
+    name: 'The Careening Yard',
+    type: 'smithy',
+    emoji: '🛠️',
+    offset: { x: -190, y: -30 },
+    npcName: 'Shipwright Odalys',
+    npcEmoji: '👷',
+    dialogue: "Tip her on her side, scrape the barnacles, patch the planks. No fleet without it.",
+    recruit: { templateId: 'gun_deck_veteran', level: 6, cost: 75 },
+  },
+  {
     id: 'roatan_den',
     islandId: 'roatan',
     name: "Smuggler's Den",

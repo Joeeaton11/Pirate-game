@@ -46,6 +46,34 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 0, y: -10 }, to: { x: 0, y: 150 }, style: 'main' },
   { islandId: 'tortuga_cove', from: { x: 60, y: -10 }, to: { x: 60, y: 150 }, style: 'main' },
   { islandId: 'tortuga_cove', from: { x: 110, y: -10 }, to: { x: 110, y: 140 }, style: 'main' },
+
+  // New Providence (Nassau) — Republic Square as the hub, same pattern as Basse-Terre Square.
+  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: -70, y: 60 }, style: 'main' }, // -> The Cracked Hull
+  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: 170, y: 40 }, style: 'main' }, // -> The Distillery
+  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: 90, y: -70 }, style: 'main' }, // -> Fort Nassau
+  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: 130, y: 100 }, style: 'main' }, // -> Widow Hallis's house
+  // The careening yard sits right on the beach — reached by a rough sand track, not a paved street.
+  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: -190, y: -30 }, style: 'path' }, // -> The Careening Yard
+  // Residential grid: 8 horizontal avenues x 9 vertical cross streets, lined with row houses
+  // (src/data/houses.ts) — extents follow the actual house placements rather than a uniform span,
+  // since New Providence's rounder coastline clips the grid unevenly at the edges.
+  { islandId: 'new_providence', from: { x: -140, y: -120 }, to: { x: 100, y: -120 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -180, y: -85 }, to: { x: 140, y: -85 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -180, y: -50 }, to: { x: 180, y: -50 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -180, y: -15 }, to: { x: 180, y: -15 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -180, y: 20 }, to: { x: 140, y: 20 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -140, y: 55 }, to: { x: 180, y: 55 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -140, y: 90 }, to: { x: 180, y: 90 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -100, y: 125 }, to: { x: 140, y: 125 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -160, y: -85 }, to: { x: -160, y: 52 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -120, y: -152 }, to: { x: -120, y: 122 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -80, y: -152 }, to: { x: -80, y: 157 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -40, y: -152 }, to: { x: -40, y: 157 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 0, y: -152 }, to: { x: 0, y: 157 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 40, y: -152 }, to: { x: 40, y: 157 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 80, y: -152 }, to: { x: 80, y: 157 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 120, y: -85 }, to: { x: 120, y: 157 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 160, y: -50 }, to: { x: 160, y: 122 }, style: 'main' },
 ];
 
 export function streetsForIsland(islandId: string): StreetSegment[] {
