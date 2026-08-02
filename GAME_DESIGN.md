@@ -248,6 +248,19 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   **this has no effect on a native iOS/Android build**, only the web export this project currently
   ships. A real cross-platform fix would need actual per-NPC sprite art or an SVG-based character
   instead of a plain emoji glyph
+- ✅ **Fixed: clothing-color hue-rotate was recoloring skin too, 2026-08-02**: immediate, entirely
+  fair correction — "didn't think I'd have to tell you not to make the skin not human coloured."
+  The bug was inherent to the approach above, not a tuning mistake: `hue-rotate` shifts every
+  colored pixel in the glyph together, so it rotated skin tone right along with the shirt — on an
+  unlucky hash, straight to pink. There's no rotation amount that fixes this in general, since emoji
+  glyphs have no separate "clothing" pixels to target in isolation. Replaced entirely: removed the
+  filter from the glyph (skin now renders 100% untouched, always natural), and instead draw a small
+  solid-color `View` patch (`npcClothingColor()`, same id-hash approach for a stable per-NPC color)
+  positioned over just the torso region of the 7pt glyph centered in its 10x10 box — tuned by eye
+  against real screenshots rather than exact font metrics, since emoji glyph internals aren't
+  something code can introspect. Verified at 4x device-scale zoom on both the side-walking and
+  front-standing poses: natural yellow/tan skin visible above and below the patch in both cases, and
+  the patch itself lines up convincingly with the shirt/chest area, not overlapping the face
 - ✅ **Joystick reliably resets on release, 2026-08-01**: fourth playtest round, on a real
   touchscreen — "controls are stuck," movement not stopping when the finger lifts. Direction was
   already a ref cleared synchronously in `clearDrag()`, so the likely cause is

@@ -205,17 +205,17 @@ function pickPatrolTarget(
 }
 
 /** Every street NPC now shares the exact same walking-person glyph as the player, so without some
- * per-NPC variation the whole street would be identical green-shirted figures. Emoji glyphs are
- * colored images, not vector shapes with a separately recolorable "clothing" layer, so there's no
- * way to reach in and repaint just the shirt — a CSS `hue-rotate` filter on the whole glyph is the
- * practical substitute: it shifts every colored pixel (clothes, skin, hair) around the color wheel
- * together while leaving true black/white pixels (outlines, shading) alone, which in practice reads
- * as "a person in different-colored clothes" without needing any real per-NPC sprite art. Hash of
- * the id keeps each NPC's color fixed across renders instead of flickering randomly every frame. */
-function npcClothingHueDeg(npcId: string): number {
+ * per-NPC variation the whole street would be identical figures. A `hue-rotate` filter on the whole
+ * glyph was tried first and rejected: it shifts every colored pixel together, which recolors the
+ * skin tone right along with the clothes (reported as "skin isn't human-coloured any more" — a real
+ * bug, not a style nitpick). Emoji glyphs have no separate, addressable "clothing" layer to filter
+ * in isolation, so instead of touching the glyph at all, a small solid-color patch is drawn over
+ * just the torso — the glyph itself (skin included) renders completely untouched underneath/around
+ * it. Hash of the id keeps each NPC's color fixed across renders instead of flickering randomly. */
+function npcClothingColor(npcId: string): string {
   let hash = 0;
   for (let i = 0; i < npcId.length; i++) hash += npcId.charCodeAt(i);
-  return hash % 360;
+  return `hsl(${hash % 360}, 65%, 42%)`;
 }
 
 function initNpcSim(npc: StreetNpc): NpcSimState {
@@ -1135,18 +1135,22 @@ export default function MapScreen({ navigation }: Props) {
                   pointerEvents="none"
                 >
                   <Text
-                    style={
-                      [
-                        styles.streetNpcEmoji,
-                        { transform: [{ scaleX: npcFacingRight ? -1 : 1 }] },
-                        // Web-only CSS filter — see npcClothingHueDeg() for why this is the
-                        // practical way to vary an emoji glyph's "clothing" color.
-                        { filter: `hue-rotate(${npcClothingHueDeg(npc.id)}deg) saturate(2.5)` },
-                      ] as any
-                    }
+                    style={[
+                      styles.streetNpcEmoji,
+                      { transform: [{ scaleX: npcFacingRight ? -1 : 1 }] },
+                    ]}
                   >
                     {npcEmoji}
                   </Text>
+                  {/* Small solid patch over the torso only — the glyph itself (skin included)
+                      renders fully untouched above and below it. */}
+                  <View
+                    style={[
+                      styles.streetNpcClothingPatch,
+                      { backgroundColor: npcClothingColor(npc.id) },
+                    ]}
+                    pointerEvents="none"
+                  />
                 </View>
               );
             })}
@@ -1533,6 +1537,16 @@ const styles = StyleSheet.create({
   },
   streetNpcEmoji: {
     fontSize: 7,
+  },
+  // Positioned over the walking figure's torso only (roughly where a shirt sits on a 7pt-tall
+  // glyph centered in a 10x10 box) — tuned against real screenshots, not exact font metrics.
+  streetNpcClothingPatch: {
+    position: 'absolute',
+    left: 3.2,
+    top: 3.6,
+    width: 3.6,
+    height: 2,
+    borderRadius: 1,
   },
   buildingEmoji: {
     fontSize: 24,
