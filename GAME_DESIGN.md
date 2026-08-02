@@ -323,6 +323,24 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   (read back via the element's computed CSS transform, not just eyeballed). Emoji is a placeholder
   per the request ("use a compass emoji for now") — a proper needle asset can swap in later without
   touching the angle math.
+- ✅ **Off-screen edge icons for resource nodes, 2026-08-02**: follow-up ask — "add an emoji that
+  moves around the extremes of the screen for the mini quests... 🪵 moves in real life to show me
+  where to get wood from." Added `edgeIndicatorPosition()`: clamps a world-space target to the edge
+  of the visible viewport along the ray from the player (screen center) to the target, same idea as
+  an off-screen objective marker in most open-world games — the icon "orbits" whichever edge the
+  target is behind as the player moves, and returns `null` (hide it) once the target is already
+  inside the visible area, since its own on-map marker is enough at that point. Scoped to resource
+  nodes on the player's *current* island only, skipped while a node is on cooldown (nothing to gather
+  right then) — deliberately narrower than "all mini quests": side quests already have the Quest
+  Log's island name plus their own ❗ badge once you're there, and a marker pointing at a resource
+  node on a different island wouldn't be actionable, so didn't add those to avoid stacking multiple
+  edge icons and cluttering the screen. Can extend to side quests too if that turns out to be wanted.
+  Verified in-browser: confirmed the fish node's edge icon appears pinned to the top edge dead-center
+  when directly north and off-screen (matches its true offset, `{x:0, y:-140}`), slides sideways
+  along the edge as the player moves off that exact bearing, and — via a temporary `TEMP-TEST-SPAWN`
+  placed right next to the node, reverted after — disappears entirely once the node's own on-map
+  marker is visible, confirming the "already visible" skip actually fires and doesn't just leave a
+  redundant second icon next to the real one.
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

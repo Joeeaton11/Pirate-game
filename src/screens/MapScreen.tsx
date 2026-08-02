@@ -76,6 +76,8 @@ const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 // (tavern's mugs, fishmonger's fish, smithy's hammer, ...) aren't shaped like a building at all, so
 // those get a house emoji as a base with the type emoji sitting on top of it as a small roof badge.
 const BUILDING_SHAPED_EMOJI = new Set(['🏪', '🏚️', '⛩️', '🏰', '⛪', '🛖', '🏛️']);
+const EDGE_ICON_SIZE = 34;
+const EDGE_ICON_MARGIN = EDGE_ICON_SIZE / 2 + 8;
 const SEA_SPEED = 260; // world units per second
 const LAND_SPEED = 45;
 // The procedurally-generated house grid packs some houses as little as 20 units apart
@@ -110,6 +112,29 @@ function slideAroundObstacles(
   const slideY = { x: current.x, y: raw.y };
   if (!blocked(slideY)) return slideY;
   return current;
+}
+
+/** Clamps a world-space target to the edge of the visible viewport along the ray from the player
+ * (screen center) to the target, so an off-screen point of interest gets a small icon pinned to
+ * whichever edge it lies behind — the icon "orbits" the screen border as the player moves, same
+ * idea as an off-screen objective marker in most open-world games. Returns null if the target is
+ * already inside the visible area (its own on-map marker is enough, no edge icon needed).
+ */
+function edgeIndicatorPosition(
+  player: { x: number; y: number },
+  target: { x: number; y: number },
+  viewport: { width: number; height: number },
+  margin: number
+): { x: number; y: number } | null {
+  const dx = (target.x - player.x) * ZOOM;
+  const dy = (target.y - player.y) * ZOOM;
+  const halfW = viewport.width / 2 - margin;
+  const halfH = viewport.height / 2 - margin;
+  if (Math.abs(dx) <= halfW && Math.abs(dy) <= halfH) return null;
+  const tX = dx !== 0 ? halfW / Math.abs(dx) : Infinity;
+  const tY = dy !== 0 ? halfH / Math.abs(dy) : Infinity;
+  const t = Math.min(tX, tY);
+  return { x: viewport.width / 2 + dx * t, y: viewport.height / 2 + dy * t };
 }
 
 /** Finds a house-free spot near a building's door to place the player when they exit, radiating
@@ -807,6 +832,23 @@ export default function MapScreen({ navigation }: Props) {
     ? (Math.atan2(mainQuestTarget.x - player.x, -(mainQuestTarget.y - player.y)) * 180) / Math.PI
     : null;
 
+  // Off-screen resource nodes on the current island get a small edge-of-screen icon (its resource
+  // emoji) so a player who hasn't explored the island yet can still see roughly where to go —
+  // scoped to the current island only (a marker pointing at, say, timber on a different island
+  // wouldn't be actionable) and skipped while the node is on cooldown, since there's nothing there
+  // to gather right now.
+  const resourceEdgeIndicators = currentIsland
+    ? RESOURCE_NODES.filter(
+        (n) => n.islandId === currentIsland.id && (resourceNodeCooldowns[n.id] ?? 0) <= Date.now()
+      )
+        .map((n) => {
+          const targetPos = resourceNodeWorldPosition(n, ISLANDS[n.islandId].position);
+          const edgePos = edgeIndicatorPosition(player, targetPos, viewport, EDGE_ICON_MARGIN);
+          return edgePos ? { id: n.id, emoji: RESOURCES[n.resourceId].emoji, pos: edgePos } : null;
+        })
+        .filter((x): x is { id: string; emoji: string; pos: { x: number; y: number } } => x !== null)
+    : [];
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
@@ -1197,6 +1239,19 @@ export default function MapScreen({ navigation }: Props) {
             </Text>
           </View>
         )}
+
+        {resourceEdgeIndicators.map((indicator) => (
+          <View
+            key={indicator.id}
+            pointerEvents="none"
+            style={[
+              styles.edgeIndicator,
+              { left: indicator.pos.x - EDGE_ICON_SIZE / 2, top: indicator.pos.y - EDGE_ICON_SIZE / 2 },
+            ]}
+          >
+            <Text style={styles.edgeIndicatorEmoji}>{indicator.emoji}</Text>
+          </View>
+        ))}
       </View>
       </GestureDetector>
 
@@ -1488,6 +1543,20 @@ const styles = StyleSheet.create({
   },
   compassEmoji: {
     fontSize: 26,
+  },
+  edgeIndicator: {
+    position: 'absolute',
+    width: EDGE_ICON_SIZE,
+    height: EDGE_ICON_SIZE,
+    borderRadius: EDGE_ICON_SIZE / 2,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderWidth: 2,
+    borderColor: '#f4e9cd',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  edgeIndicatorEmoji: {
+    fontSize: 17,
   },
   fort: {
     position: 'absolute',
