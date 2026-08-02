@@ -303,6 +303,26 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   commit) on the tavern and warehouse (house base + badge) and the fort and shop (unchanged, still
   large and alone) — a tight crop on the tavern confirmed the house's door/windows and the beer mugs
   badge sitting on its roof are both clearly visible together, not just one covering the other.
+- ✅ **Added a rotating compass pointing at the main quest, 2026-08-02**: raised as "I don't know
+  where to find things for a quest" — discussed how Pokémon solves this (hard-gated routes + NPC
+  dialogue, not markers) and agreed that doesn't transfer here since Scallywags is free-roam across
+  six islands with nothing physically blocking a wrong turn. Landed on a 🧭 badge, top-right of the
+  map viewport, that rotates to always point at the current main-quest target — reuses the exact
+  target the header's "Main Quest" banner already names (next undefeated Pirate Lord's fort, or the
+  gating side quest's location if the next lord isn't unlocked yet), resolved to a world position via
+  the existing `pirateLordWorldPosition` / `sideQuestWorldPosition` / `buildingWorldPosition` helpers.
+  Scoped to the main quest only, not every open side quest — side quests keep the Quest Log's island
+  name plus the ❗ badge on their building, which is closer to "find it yourself" and was a deliberate
+  choice, not an oversight. The rotation math (`atan2(dx, -dy)`, screen y grows downward so north
+  needs the sign flip) works because the whole world already lives in one shared coordinate space —
+  island `position` + building/lord `offset` are just numbers in the same units as the player's own
+  position, so "as the crow flies" pointing works identically whether the target is on the same
+  island, a different island, or the player's out at open sea. Verified two ways: hand-computed the
+  expected bearing from spawn to Cow Island's fort and confirmed the rendered rotation matched, then
+  dragged the player out to open sea and confirmed the needle visibly swung as the bearing changed
+  (read back via the element's computed CSS transform, not just eyeballed). Emoji is a placeholder
+  per the request ("use a compass emoji for now") — a proper needle asset can swap in later without
+  touching the angle math.
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

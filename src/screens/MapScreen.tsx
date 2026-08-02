@@ -765,20 +765,47 @@ export default function MapScreen({ navigation }: Props) {
   const nextLord = sortedLords.find(
     (lord) => !defeatedLordIds.includes(lord.id) && isLordUnlocked(lord, defeatedLordIds, completedQuestIds)
   );
+  const allLordsDefeated = defeatedLordIds.length === PIRATE_LORDS.length;
+  const gatedLord =
+    !allLordsDefeated && !nextLord ? sortedLords.find((lord) => !defeatedLordIds.includes(lord.id)) : undefined;
+  const gateQuest = gatedLord?.requiresQuestId
+    ? SIDE_QUESTS.find((q) => q.id === gatedLord.requiresQuestId)
+    : undefined;
+
   let mainQuestText: string;
-  if (defeatedLordIds.length === PIRATE_LORDS.length) {
+  if (allLordsDefeated) {
     mainQuestText = 'Every marque is yours — terror of these waters';
   } else if (nextLord) {
     mainQuestText = `Defeat ${nextLord.name} at ${ISLANDS[nextLord.islandId].name}`;
   } else {
-    const gatedLord = sortedLords.find((lord) => !defeatedLordIds.includes(lord.id));
-    const gateQuest = gatedLord?.requiresQuestId
-      ? SIDE_QUESTS.find((q) => q.id === gatedLord.requiresQuestId)
-      : undefined;
     mainQuestText = gateQuest
       ? `Complete "${gateQuest.title}" at ${ISLANDS[gateQuest.islandId].name}`
       : 'Seek your next target';
   }
+
+  // The compass points at whatever `mainQuestText` is currently naming — same underlying target,
+  // just resolved to a world position instead of a sentence. Null means "nothing to point at"
+  // (every lord defeated), which hides the compass entirely rather than showing a dead needle.
+  let mainQuestTarget: { x: number; y: number } | null = null;
+  if (nextLord) {
+    mainQuestTarget = pirateLordWorldPosition(nextLord, ISLANDS[nextLord.islandId].position);
+  } else if (gateQuest) {
+    const gateIslandPos = ISLANDS[gateQuest.islandId].position;
+    if (gateQuest.offset) {
+      mainQuestTarget = sideQuestWorldPosition(
+        gateQuest as SideQuest & { offset: { x: number; y: number } },
+        gateIslandPos
+      );
+    } else if (gateQuest.hostedByBuildingId) {
+      const hostBuilding = BUILDINGS.find((b) => b.id === gateQuest.hostedByBuildingId);
+      mainQuestTarget = hostBuilding ? buildingWorldPosition(hostBuilding, gateIslandPos) : null;
+    }
+  }
+  // Screen/world y increases downward, so "north" (no rotation) needs -dy; atan2(dx, -dy) then
+  // gives 0deg when the target is directly above and increases clockwise, matching CSS rotate.
+  const compassAngleDeg = mainQuestTarget
+    ? (Math.atan2(mainQuestTarget.x - player.x, -(mainQuestTarget.y - player.y)) * 180) / Math.PI
+    : null;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -1162,6 +1189,14 @@ export default function MapScreen({ navigation }: Props) {
             <Text style={styles.buildingPromptText}>Enter {nearbyBuildingPrompt.name}?</Text>
           </Pressable>
         )}
+
+        {compassAngleDeg !== null && (
+          <View pointerEvents="none" style={styles.compassBadge}>
+            <Text style={[styles.compassEmoji, { transform: [{ rotate: `${compassAngleDeg}deg` }] }]}>
+              🧭
+            </Text>
+          </View>
+        )}
       </View>
       </GestureDetector>
 
@@ -1437,6 +1472,22 @@ const styles = StyleSheet.create({
     color: '#f4e9cd',
     fontWeight: '800',
     fontSize: 15,
+  },
+  compassBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderWidth: 2,
+    borderColor: '#f4e9cd',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  compassEmoji: {
+    fontSize: 26,
   },
   fort: {
     position: 'absolute',
