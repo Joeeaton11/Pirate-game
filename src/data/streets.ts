@@ -10,87 +10,87 @@ export interface StreetSegment {
 
 export const STREETS: StreetSegment[] = [
   // Basse-Terre Square as the downtown hub, radiating out to the inner ring of buildings.
-  { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: -90, y: -40 }, style: 'main' }, // -> The Salty Parrot
-  { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: 90, y: -30 }, style: 'main' }, // -> Harbor Trading Post
-  { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: -130, y: 120 }, style: 'main' }, // -> Fishmonger's Stall
-  { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: 100, y: 65 }, style: 'main' }, // -> Chapelle Notre-Dame
-  { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: 60, y: 130 }, style: 'main' }, // -> The Locked Ward
-  { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: 0, y: 130 }, style: 'main' }, // -> The Bounty Board
+  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: -180, y: -80 }, style: 'main' }, // -> The Salty Parrot
+  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: 180, y: -60 }, style: 'main' }, // -> Harbor Trading Post
+  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: -260, y: 240 }, style: 'main' }, // -> Fishmonger's Stall
+  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: 200, y: 130 }, style: 'main' }, // -> Chapelle Notre-Dame
+  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: 120, y: 260 }, style: 'main' }, // -> The Locked Ward
+  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: 0, y: 260 }, style: 'main' }, // -> The Bounty Board
   // Harbor road, linking the trading post down to the docks.
-  { islandId: 'tortuga_cove', from: { x: 90, y: -30 }, to: { x: 0, y: -140 }, style: 'main' }, // -> Fishing Dock
-  { islandId: 'tortuga_cove', from: { x: 0, y: -140 }, to: { x: 70, y: -145 }, style: 'main' }, // -> Harbor Pier
-  { islandId: 'tortuga_cove', from: { x: 0, y: -140 }, to: { x: -60, y: -105 }, style: 'main' }, // -> Warehouse
+  { islandId: 'tortuga_cove', from: { x: 180, y: -60 }, to: { x: 0, y: -280 }, style: 'main' }, // -> Fishing Dock
+  { islandId: 'tortuga_cove', from: { x: 0, y: -280 }, to: { x: 140, y: -290 }, style: 'main' }, // -> Harbor Pier
+  { islandId: 'tortuga_cove', from: { x: 0, y: -280 }, to: { x: -120, y: -210 }, style: 'main' }, // -> Warehouse
   // Outer ring: each inner building connects onward to one more, so the downtown reads as blocks
   // radiating from the square rather than a single spoke pattern.
-  { islandId: 'tortuga_cove', from: { x: 90, y: -30 }, to: { x: 160, y: 10 }, style: 'main' }, // Trading Post -> Customs House
-  { islandId: 'tortuga_cove', from: { x: 100, y: 65 }, to: { x: 35, y: 70 }, style: 'main' }, // Chapel -> The Baker's Oven
-  { islandId: 'tortuga_cove', from: { x: 60, y: 130 }, to: { x: 35, y: 70 }, style: 'main' }, // Locked Ward -> The Baker's Oven
-  { islandId: 'tortuga_cove', from: { x: -130, y: 120 }, to: { x: -70, y: 160 }, style: 'main' }, // Fishmonger -> The Ropewalk
-  { islandId: 'tortuga_cove', from: { x: 0, y: 130 }, to: { x: -70, y: 160 }, style: 'main' }, // Bounty Board -> The Ropewalk
-  { islandId: 'tortuga_cove', from: { x: -90, y: -40 }, to: { x: -110, y: 40 }, style: 'main' }, // Salty Parrot -> The Anchor & Forge
+  { islandId: 'tortuga_cove', from: { x: 180, y: -60 }, to: { x: 320, y: 20 }, style: 'main' }, // Trading Post -> Customs House
+  { islandId: 'tortuga_cove', from: { x: 200, y: 130 }, to: { x: 70, y: 140 }, style: 'main' }, // Chapel -> The Baker's Oven
+  { islandId: 'tortuga_cove', from: { x: 120, y: 260 }, to: { x: 70, y: 140 }, style: 'main' }, // Locked Ward -> The Baker's Oven
+  { islandId: 'tortuga_cove', from: { x: -260, y: 240 }, to: { x: -140, y: 320 }, style: 'main' }, // Fishmonger -> The Ropewalk
+  { islandId: 'tortuga_cove', from: { x: 0, y: 260 }, to: { x: -140, y: 320 }, style: 'main' }, // Bounty Board -> The Ropewalk
+  { islandId: 'tortuga_cove', from: { x: -180, y: -80 }, to: { x: -220, y: 80 }, style: 'main' }, // Salty Parrot -> The Anchor & Forge
   // Fort de Rocher's real access was a rock-cut staircase and a pull-up ladder — a treacherous
   // route rather than a proper street.
-  { islandId: 'tortuga_cove', from: { x: 70, y: -145 }, to: { x: 100, y: -100 }, style: 'path' }, // -> Fort de Rocher
+  { islandId: 'tortuga_cove', from: { x: 140, y: -290 }, to: { x: 200, y: -200 }, style: 'path' }, // -> Fort de Rocher
   // Rural outskirts, reached by coastal trail / farm track rather than a paved town street.
-  { islandId: 'tortuga_cove', from: { x: -20, y: 40 }, to: { x: -190, y: 10 }, style: 'path' }, // -> West Point Shack
-  { islandId: 'tortuga_cove', from: { x: 100, y: 65 }, to: { x: 140, y: 110 }, style: 'path' }, // -> La Ringot Fields
+  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: -380, y: 20 }, style: 'path' }, // -> West Point Shack
+  { islandId: 'tortuga_cove', from: { x: 200, y: 130 }, to: { x: 280, y: 220 }, style: 'path' }, // -> La Ringot Fields
   // Residential grid: 5 horizontal avenues x 5 vertical cross streets, lined with row houses
   // (src/data/houses.ts) on both sides — the dense town blocks proper, south of the harbor road.
-  { islandId: 'tortuga_cove', from: { x: -130, y: -10 }, to: { x: 150, y: -10 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -140, y: 30 }, to: { x: 155, y: 30 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -130, y: 70 }, to: { x: 150, y: 70 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -120, y: 110 }, to: { x: 130, y: 110 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -95, y: 145 }, to: { x: 85, y: 145 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -110, y: -10 }, to: { x: -110, y: 145 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -60, y: -10 }, to: { x: -60, y: 150 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 0, y: -10 }, to: { x: 0, y: 150 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 60, y: -10 }, to: { x: 60, y: 150 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 110, y: -10 }, to: { x: 110, y: 140 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -260, y: -20 }, to: { x: 300, y: -20 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -280, y: 60 }, to: { x: 310, y: 60 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -260, y: 140 }, to: { x: 300, y: 140 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -240, y: 220 }, to: { x: 260, y: 220 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -190, y: 290 }, to: { x: 170, y: 290 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -220, y: -20 }, to: { x: -220, y: 290 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -120, y: -20 }, to: { x: -120, y: 300 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 0, y: -20 }, to: { x: 0, y: 300 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 120, y: -20 }, to: { x: 120, y: 300 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 220, y: -20 }, to: { x: 220, y: 280 }, style: 'main' },
 
   // The 1.35x island enlargement (2026-08-02) opened new land beyond the original coastline for
   // three outlying zones, each reached by a rough, winding trail rather than a paved street —
   // wilderness and ruins, not town blocks.
   // West cape: a goat-track out to El Fuerte Viejo, the ruined Spanish redoubt.
-  { islandId: 'tortuga_cove', from: { x: -190, y: 10 }, to: { x: -222, y: -18 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: -222, y: -18 }, to: { x: -255, y: -5 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -380, y: 20 }, to: { x: -444, y: -36 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -444, y: -36 }, to: { x: -510, y: -10 }, style: 'path' },
   // East cape: a forest trail forking to the High Woods and its two timber stands.
-  { islandId: 'tortuga_cove', from: { x: 160, y: 10 }, to: { x: 193, y: -10 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: 193, y: -10 }, to: { x: 218, y: -20 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: 218, y: -20 }, to: { x: 260, y: 10 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: 193, y: -10 }, to: { x: 205, y: 50 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: 205, y: 50 }, to: { x: 166, y: 84 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 320, y: 20 }, to: { x: 386, y: -20 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 386, y: -20 }, to: { x: 436, y: -40 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 436, y: -40 }, to: { x: 520, y: 20 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 386, y: -20 }, to: { x: 410, y: 100 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 410, y: 100 }, to: { x: 332, y: 168 }, style: 'path' },
   // South coast: a track past the Ropewalk to the abandoned quarter and its burying ground.
-  { islandId: 'tortuga_cove', from: { x: -70, y: 160 }, to: { x: -46, y: 179 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: -46, y: 179 }, to: { x: -35, y: 208 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: -35, y: 208 }, to: { x: 60, y: 205 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -140, y: 320 }, to: { x: -92, y: 358 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -92, y: 358 }, to: { x: -70, y: 416 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -70, y: 416 }, to: { x: 120, y: 410 }, style: 'path' },
 
   // New Providence (Nassau) — Republic Square as the hub, same pattern as Basse-Terre Square.
-  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: -70, y: 60 }, style: 'main' }, // -> The Cracked Hull
-  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: 170, y: 40 }, style: 'main' }, // -> The Distillery
-  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: 90, y: -70 }, style: 'main' }, // -> Fort Nassau
-  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: 130, y: 100 }, style: 'main' }, // -> Widow Hallis's house
+  { islandId: 'new_providence', from: { x: 0, y: -20 }, to: { x: -140, y: 120 }, style: 'main' }, // -> The Cracked Hull
+  { islandId: 'new_providence', from: { x: 0, y: -20 }, to: { x: 340, y: 80 }, style: 'main' }, // -> The Distillery
+  { islandId: 'new_providence', from: { x: 0, y: -20 }, to: { x: 180, y: -140 }, style: 'main' }, // -> Fort Nassau
+  { islandId: 'new_providence', from: { x: 0, y: -20 }, to: { x: 260, y: 200 }, style: 'main' }, // -> Widow Hallis's house
   // The careening yard sits right on the beach — reached by a rough sand track, not a paved street.
-  { islandId: 'new_providence', from: { x: 0, y: -10 }, to: { x: -190, y: -30 }, style: 'path' }, // -> The Careening Yard
+  { islandId: 'new_providence', from: { x: 0, y: -20 }, to: { x: -380, y: -60 }, style: 'path' }, // -> The Careening Yard
   // Residential grid: 8 horizontal avenues x 9 vertical cross streets, lined with row houses
   // (src/data/houses.ts) — extents follow the actual house placements rather than a uniform span,
   // since New Providence's rounder coastline clips the grid unevenly at the edges.
-  { islandId: 'new_providence', from: { x: -140, y: -120 }, to: { x: 100, y: -120 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -180, y: -85 }, to: { x: 140, y: -85 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -180, y: -50 }, to: { x: 180, y: -50 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -180, y: -15 }, to: { x: 180, y: -15 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -180, y: 20 }, to: { x: 140, y: 20 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -140, y: 55 }, to: { x: 180, y: 55 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -140, y: 90 }, to: { x: 180, y: 90 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -100, y: 125 }, to: { x: 140, y: 125 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -160, y: -85 }, to: { x: -160, y: 52 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -120, y: -152 }, to: { x: -120, y: 122 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -80, y: -152 }, to: { x: -80, y: 157 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: -40, y: -152 }, to: { x: -40, y: 157 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: 0, y: -152 }, to: { x: 0, y: 157 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: 40, y: -152 }, to: { x: 40, y: 157 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: 80, y: -152 }, to: { x: 80, y: 157 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: 120, y: -85 }, to: { x: 120, y: 157 }, style: 'main' },
-  { islandId: 'new_providence', from: { x: 160, y: -50 }, to: { x: 160, y: 122 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -280, y: -240 }, to: { x: 200, y: -240 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -360, y: -170 }, to: { x: 280, y: -170 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -360, y: -100 }, to: { x: 360, y: -100 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -360, y: -30 }, to: { x: 360, y: -30 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -360, y: 40 }, to: { x: 280, y: 40 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -280, y: 110 }, to: { x: 360, y: 110 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -280, y: 180 }, to: { x: 360, y: 180 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -200, y: 250 }, to: { x: 280, y: 250 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -320, y: -170 }, to: { x: -320, y: 104 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -240, y: -304 }, to: { x: -240, y: 244 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -160, y: -304 }, to: { x: -160, y: 314 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: -80, y: -304 }, to: { x: -80, y: 314 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 0, y: -304 }, to: { x: 0, y: 314 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 80, y: -304 }, to: { x: 80, y: 314 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 160, y: -304 }, to: { x: 160, y: 314 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 240, y: -170 }, to: { x: 240, y: 314 }, style: 'main' },
+  { islandId: 'new_providence', from: { x: 320, y: -100 }, to: { x: 320, y: 244 }, style: 'main' },
 ];
 
 export function streetsForIsland(islandId: string): StreetSegment[] {

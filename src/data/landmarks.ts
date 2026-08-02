@@ -14,7 +14,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_town_square',
     islandId: 'tortuga_cove',
-    offset: { x: -20, y: 40 },
+    offset: { x: -40, y: 80 },
     name: 'Basse-Terre Square',
     emoji: '⛲',
     description:
@@ -23,7 +23,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_harbor_pier',
     islandId: 'tortuga_cove',
-    offset: { x: 70, y: -145 },
+    offset: { x: 140, y: -290 },
     name: 'The Harbor Pier',
     emoji: '⚓',
     description: 'A weathered wooden pier where every manner of sloop, brigantine, and stolen merchantman ties up.',
@@ -31,7 +31,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_la_ringot_fields',
     islandId: 'tortuga_cove',
-    offset: { x: 140, y: 110 },
+    offset: { x: 280, y: 220 },
     name: 'La Ringot Fields',
     emoji: '🌾',
     description:
@@ -40,7 +40,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_bakery',
     islandId: 'tortuga_cove',
-    offset: { x: 35, y: 70 },
+    offset: { x: 70, y: 140 },
     name: "The Baker's Oven",
     emoji: '🍞',
     description: "Bread at dawn, before the tavern crowd's even awake. Half the town lines up for it anyway.",
@@ -48,7 +48,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_ropewalk',
     islandId: 'tortuga_cove',
-    offset: { x: -70, y: 160 },
+    offset: { x: -140, y: 320 },
     name: 'The Ropewalk',
     emoji: '🪢',
     description: "A long, low shed where hemp gets twisted into rigging, coil by coil. No ship sails without what's made here.",
@@ -56,7 +56,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_high_woods',
     islandId: 'tortuga_cove',
-    offset: { x: 218, y: -20 },
+    offset: { x: 436, y: -40 },
     name: 'The High Woods',
     emoji: '🌲',
     description:
@@ -65,7 +65,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_old_landing',
     islandId: 'tortuga_cove',
-    offset: { x: -35, y: 208 },
+    offset: { x: -70, y: 416 },
     name: 'Ruins of the Old Landing',
     emoji: '🔥',
     description:
@@ -74,7 +74,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_forgotten_graves',
     islandId: 'tortuga_cove',
-    offset: { x: 60, y: 205 },
+    offset: { x: 120, y: 410 },
     name: 'The Forgotten Graves',
     emoji: '⚰️',
     description:
@@ -83,7 +83,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'new_providence_republic_square',
     islandId: 'new_providence',
-    offset: { x: 0, y: -10 },
+    offset: { x: 0, y: -20 },
     name: 'Republic Square',
     emoji: '🏴‍☠️',
     description:

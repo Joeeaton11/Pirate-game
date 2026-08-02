@@ -26,7 +26,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     name: 'Redbeard Sully',
     title: 'the Reaver of Cow Island',
     emoji: '🏴‍☠️',
-    buildingOffset: { x: 0, y: -120 },
+    buildingOffset: { x: 0, y: -240 },
     level: 6,
     badgeName: 'Muster Marque',
     introDialogue:
@@ -55,7 +55,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     name: 'Iron Jenny',
     title: 'Queen of the Republic',
     emoji: '🦅',
-    buildingOffset: { x: 90, y: -70 },
+    buildingOffset: { x: 180, y: -140 },
     level: 9,
     badgeName: "Queen's Marque",
     introDialogue:
@@ -84,7 +84,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     name: 'Captain Bellows',
     title: 'Lord of Roatán',
     emoji: '💣',
-    buildingOffset: { x: -90, y: -90 },
+    buildingOffset: { x: -180, y: -180 },
     level: 12,
     badgeName: 'Roatán Marque',
     introDialogue:
@@ -113,7 +113,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     name: 'Marietta Graves',
     title: 'the Drowned Widow',
     emoji: '👻',
-    buildingOffset: { x: 160, y: -30 },
+    buildingOffset: { x: 320, y: -60 },
     level: 15,
     badgeName: "Widow's Marque",
     introDialogue:
@@ -142,7 +142,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     name: 'Ezra Vane',
     title: 'the Last Free Captain',
     emoji: '🌀',
-    buildingOffset: { x: 0, y: 130 },
+    buildingOffset: { x: 0, y: 260 },
     level: 20,
     badgeName: "Libertalia's Marque",
     introDialogue:
@@ -171,7 +171,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     name: 'Blackbeard',
     title: 'Terror of the Atlantic',
     emoji: '💀',
-    buildingOffset: { x: 0, y: -100 },
+    buildingOffset: { x: 0, y: -200 },
     level: 25,
     badgeName: "Terror's Marque",
     introDialogue:

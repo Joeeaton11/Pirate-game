@@ -8,7 +8,7 @@ export interface RescuePoint {
 export const RESCUE_POINT: RescuePoint = {
   id: 'tortuga_locked_ward',
   islandId: 'tortuga_cove',
-  offset: { x: 60, y: 130 },
+  offset: { x: 120, y: 260 },
 };
 
 export function rescuePointWorldPosition(islandPosition: { x: number; y: number }): {

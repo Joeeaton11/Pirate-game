@@ -31,7 +31,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_tortuga_fish',
     islandId: 'tortuga_cove',
-    offset: { x: 0, y: -140 },
+    offset: { x: 0, y: -280 },
     resourceId: 'fish',
     name: 'Fishing Dock',
     minYield: 2,
@@ -41,7 +41,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_tortuga_timber_1',
     islandId: 'tortuga_cove',
-    offset: { x: 260, y: 10 },
+    offset: { x: 520, y: 20 },
     resourceId: 'timber',
     name: 'High Woods Stand',
     minYield: 2,
@@ -51,7 +51,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_tortuga_timber_2',
     islandId: 'tortuga_cove',
-    offset: { x: 205, y: 50 },
+    offset: { x: 410, y: 100 },
     resourceId: 'timber',
     name: 'Boucan Ridge Stand',
     minYield: 2,
@@ -61,7 +61,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_roatan_timber',
     islandId: 'roatan',
-    offset: { x: -140, y: 100 },
+    offset: { x: -280, y: 200 },
     resourceId: 'timber',
     name: 'Timber Stand',
     minYield: 2,
@@ -71,7 +71,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_new_providence_rum',
     islandId: 'new_providence',
-    offset: { x: -140, y: -100 },
+    offset: { x: -280, y: -200 },
     resourceId: 'rum',
     name: 'Distillery Yard',
     minYield: 2,
@@ -81,7 +81,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_port_royal_gunpowder',
     islandId: 'port_royal',
-    offset: { x: 0, y: -180 },
+    offset: { x: 0, y: -360 },
     resourceId: 'gunpowder',
     name: 'Powder Stores',
     minYield: 1,

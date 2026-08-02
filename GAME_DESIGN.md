@@ -1166,35 +1166,70 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     script, and in-browser screenshots of the forest, the camp (map + interior), the ruin rubble,
     and the grave markers — all via the established TEMP-TEST-SPAWN/TEMP-TEST-ENTER techniques,
     fully reverted after (confirmed via `git diff` showing only the intended net change).
-25. **Repeat the enlargement + wilderness-zone treatment for the other 6 islands** — Tortuga was
-    the prototype; New Providence, Roatán, Port Royal, Île Sainte-Marie, Cow Island, and Ocracoke
-    Inlet are all still at their original, more cramped scale
-26. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+25. ✅ **The whole world doubled in size** (2026-08-02) — rather than repeat the Tortuga-style
+    enlargement island-by-island, every island and every sea gap between them doubled at once, in
+    a single pass: `WORLD_WIDTH`/`WORLD_HEIGHT` (1800×2600 → 3600×5200), every island's absolute
+    `position` (doubling the distance between every pair of islands, since scaling positions by 2
+    from a shared origin scales every pairwise distance by 2 too), every island's coastline `shape`
+    polygon, and every single island-relative coordinate in the game — building/house/landmark/
+    resource-node/scenery/salvage-site `offset`, Pirate Lord `buildingOffset`, street NPC `anchor`,
+    street segment `from`/`to`. Building icon size, `ENTER_RADIUS`, collision radii, `ZOOM`, and
+    every movement speed were deliberately left untouched — the request was a bigger world to
+    explore, not bigger buildings or faster travel, so those pixel/interaction constants and
+    world-unit-per-second speeds stay exactly as they were (a real, intentional side effect:
+    crossing the map now takes twice as long in real seconds, flagged here as worth revisiting if
+    playtesting finds it sluggish rather than "more to explore").
+    Implementation was a scripted text-level transform (not a hand-edit pass and not an AST
+    regeneration, which would have silently deleted the codebase's many prose comments) —
+    a Python script matched the exact field-name patterns (`offset:`, `buildingOffset:`, `anchor:`,
+    `position:`, `from:`, `to:`, each as `{ x: N, y: N }`) plus the bracket-tuple coastline points
+    in `islands.ts`, and doubled only the numbers inside those specific patterns, leaving every
+    other numeric literal (cost, level, weight, fontSize, room width/height, cooldowns, speeds)
+    untouched since a blind find-and-replace on numbers would have corrupted unrelated data.
+    Verified with `npx tsc --noEmit`; a whole-world script re-running the real `islandAtPoint()`
+    against every marker and every street endpoint on all 7 islands (not just Tortuga this time);
+    an all-pairs neighbor-clearance check (closest pair post-doubling: New Providence/Port Royal at
+    566 world units, still far clear); and in-browser screenshots confirming the Tortuga home port,
+    forest, and ruins zones render pixel-identical in composition to pre-doubling screenshots
+    (proving the uniform scale preserved every relationship exactly), via the established
+    TEMP-TEST-SPAWN technique with doubled spawn coordinates, fully reverted after. One pre-existing
+    issue surfaced (not introduced) by the whole-world street check: 10 New Providence street
+    endpoints already sat fractionally outside that island's coastline before this change too —
+    confirmed by re-running the same check against the pre-doubling code — and left alone, since
+    `streets.ts`'s own comment already documents this as an accepted quirk of the residential grid
+    not perfectly following New Providence's rounder coastline, and streets are decorative only.
+26. **Fill the other 6 islands' new space with content** — the world-doubling pass above gave every
+    island more room, the same way Tortuga's enlargement did on its own; what Tortuga got next
+    (a real forest, ruin rubble, grave markers, a new woodland recruit — all script-placed and
+    clearance-verified) hasn't been repeated anywhere else yet. New Providence, Roatán, Port Royal,
+    Île Sainte-Marie, Cow Island, and Ocracoke Inlet are all still exactly as sparse as before,
+    just with more empty water and grass around them
+27. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-27. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+28. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-28. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+29. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-29. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+30. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-30. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+31. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-31. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+32. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-32. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+33. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-33. **GTA-style character switching** (biggest, most novel, probably last)
-34. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+34. **GTA-style character switching** (biggest, most novel, probably last)
+35. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-35. Full e2e test automation, IAP integration, real art asset pipeline —
+36. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

@@ -23,7 +23,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Patrolling Guard',
     emoji: '🥾',
     flavor: "Evening, captain. Keep your blade sheathed in the square and we'll get along fine.",
-    anchor: { x: 10, y: 30 },
+    anchor: { x: 20, y: 60 },
     speed: 18,
   },
   {
@@ -32,7 +32,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Scruffy Dog',
     emoji: '🐕',
     flavor: "Belongs to nobody and everybody. Half the tavern's regulars swear it's good luck.",
-    anchor: { x: -70, y: -60 },
+    anchor: { x: -140, y: -120 },
     speed: 22,
   },
   {
@@ -41,7 +41,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Dockhand',
     emoji: '🧑‍🌾',
     flavor: "Crates don't carry themselves, more's the pity. Mind the rope.",
-    anchor: { x: 20, y: -130 },
+    anchor: { x: 40, y: -260 },
     speed: 16,
   },
   {
@@ -50,7 +50,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Local Resident',
     emoji: '🧑',
     flavor: "Mornin'. Or evenin'. Hard to keep track out here — one day's much like the last.",
-    anchor: { x: -90, y: -10 },
+    anchor: { x: -180, y: -20 },
     speed: 15,
   },
   {
@@ -59,7 +59,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Fishwife',
     emoji: '👩‍🦱',
     flavor: "Nets are mended, wash is out. Nothing left to do but gossip until supper.",
-    anchor: { x: 20, y: 50 },
+    anchor: { x: 40, y: 100 },
     speed: 15,
   },
   {
@@ -68,7 +68,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Child at Play',
     emoji: '🧒',
     flavor: "Wanna see my cutlass? It's just a stick, but don't tell the other captains that.",
-    anchor: { x: -60, y: 100 },
+    anchor: { x: -120, y: 200 },
     speed: 25,
   },
   {
@@ -77,7 +77,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'An Old Fisherman',
     emoji: '🎣',
     flavor: "Caught a marlin bigger than my rowboat once. Nobody believes me anymore, and that's fine.",
-    anchor: { x: 40, y: 130 },
+    anchor: { x: 80, y: 260 },
     speed: 14,
   },
   {
@@ -86,7 +86,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Town Crier',
     emoji: '📯',
     flavor: "Hear ye! Prices are up at the customs house, tempers are up at the tavern, and the fort's out of rum. Same as every week.",
-    anchor: { x: 130, y: -10 },
+    anchor: { x: 260, y: -20 },
     speed: 16,
   },
   {
@@ -95,7 +95,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Farmer',
     emoji: '🧑‍🌾',
     flavor: "Tobacco's coming in thin this season. Blame the soil, blame the rain, blame the pirates trampling the rows — everybody does.",
-    anchor: { x: 110, y: 90 },
+    anchor: { x: 220, y: 180 },
     speed: 12,
   },
   {
@@ -104,7 +104,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Net-Mender',
     emoji: '🧵',
     flavor: "Torn again. Always torn. I swear the fish do it on purpose out of spite.",
-    anchor: { x: -135, y: 95 },
+    anchor: { x: -270, y: 190 },
     speed: 13,
   },
   {
@@ -113,7 +113,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Fort Sentry',
     emoji: '🔭',
     flavor: "Watching the harbor mouth. Nothing gets past this rock without Le Vasseur hearing about it first.",
-    anchor: { x: 80, y: -110 },
+    anchor: { x: 160, y: -220 },
     speed: 14,
   },
   {
@@ -122,7 +122,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Beggar',
     emoji: '🧎',
     flavor: "Spare a coin, captain? I sailed with better men than you and worse men too. Ended up here regardless.",
-    anchor: { x: -50, y: -90 },
+    anchor: { x: -100, y: -180 },
     speed: 12,
   },
   {
@@ -131,7 +131,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: "A Forge Cat",
     emoji: '🐈‍⬛',
     flavor: "Answers to nobody, sleeps wherever it pleases. Currently claims the warmest spot by the forge as its own.",
-    anchor: { x: -130, y: 60 },
+    anchor: { x: -260, y: 120 },
     speed: 20,
   },
   {
@@ -140,7 +140,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Rope-Maker',
     emoji: '🪢',
     flavor: "Hemp in one end, rigging out the other. Every ship in this harbor owes its sails to this walk, back and forth, all day.",
-    anchor: { x: -90, y: 150 },
+    anchor: { x: -180, y: 300 },
     speed: 12,
   },
   {
@@ -149,7 +149,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Lookout',
     emoji: '🏴',
     flavor: "Quiet out here on the point. Suits me. First one to spot a sail gets first pick of the salvage.",
-    anchor: { x: -170, y: 0 },
+    anchor: { x: -340, y: 0 },
     speed: 15,
   },
   // Simple, unnamed-trade filler townspeople — just more bodies on the street, no lore required.
@@ -159,7 +159,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Dancer',
     emoji: '🕺',
     flavor: "Someone's got a fiddle out somewhere. Can't help but move to it.",
-    anchor: { x: 0, y: -20 },
+    anchor: { x: 0, y: -40 },
     speed: 18,
   },
   {
@@ -168,7 +168,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Dancer',
     emoji: '💃',
     flavor: "Someone's got a fiddle out somewhere. Can't help but move to it.",
-    anchor: { x: -30, y: 90 },
+    anchor: { x: -60, y: 180 },
     speed: 18,
   },
   {
@@ -177,7 +177,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Passerby',
     emoji: '🚶‍♀️‍➡️',
     flavor: "Places to be, captain. Same as you.",
-    anchor: { x: 60, y: 20 },
+    anchor: { x: 120, y: 40 },
     speed: 16,
   },
   {
@@ -186,7 +186,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Passerby',
     emoji: '🚶‍➡️',
     flavor: "Places to be, captain. Same as you.",
-    anchor: { x: -160, y: -5 },
+    anchor: { x: -320, y: -10 },
     speed: 16,
   },
   {
@@ -195,7 +195,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Passerby',
     emoji: '🚶‍♂️‍➡️',
     flavor: "Places to be, captain. Same as you.",
-    anchor: { x: 100, y: 40 },
+    anchor: { x: 200, y: 80 },
     speed: 16,
   },
   {
@@ -204,7 +204,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Merchant',
     emoji: '🕴️',
     flavor: "Always doing business, never doing favors. That's how you stay rich in this town.",
-    anchor: { x: 140, y: -30 },
+    anchor: { x: 280, y: -60 },
     speed: 14,
   },
   {
@@ -213,7 +213,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Runner',
     emoji: '🏃‍➡️',
     flavor: "Running from something, or to something. Didn't stop long enough to ask.",
-    anchor: { x: -20, y: -40 },
+    anchor: { x: -40, y: -80 },
     speed: 32,
   },
   {
@@ -222,7 +222,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Runner',
     emoji: '🏃‍♂️‍➡️',
     flavor: "Running from something, or to something. Didn't stop long enough to ask.",
-    anchor: { x: 30, y: 140 },
+    anchor: { x: 60, y: 280 },
     speed: 32,
   },
   {
@@ -231,7 +231,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Local',
     emoji: '🧍‍♂️',
     flavor: "Just watching the world go by, captain.",
-    anchor: { x: -110, y: -40 },
+    anchor: { x: -220, y: -80 },
     speed: 12,
   },
   {
@@ -240,7 +240,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Local',
     emoji: '🧍',
     flavor: "Just watching the world go by, captain.",
-    anchor: { x: 75, y: 100 },
+    anchor: { x: 150, y: 200 },
     speed: 12,
   },
   {
@@ -249,7 +249,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Couple',
     emoji: '👫',
     flavor: "Young love, or old love — hard to tell from here. Either way, none of our business.",
-    anchor: { x: -40, y: -25 },
+    anchor: { x: -80, y: -50 },
     speed: 13,
   },
   {
@@ -258,7 +258,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Troll',
     emoji: '🧌',
     flavor: "Nobody quite remembers when it wandered into town, or why nobody's asked it to leave.",
-    anchor: { x: 150, y: 60 },
+    anchor: { x: 300, y: 120 },
     speed: 10,
   },
   {
@@ -267,7 +267,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Genie',
     emoji: '🧞‍♂️',
     flavor: "Bound to this town, not a lamp. Longer story than you've got time for, captain.",
-    anchor: { x: -150, y: 55 },
+    anchor: { x: -300, y: 110 },
     speed: 15,
   },
   {
@@ -276,7 +276,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Genie',
     emoji: '🧞',
     flavor: "Bound to this town, not a lamp. Longer story than you've got time for, captain.",
-    anchor: { x: 10, y: 110 },
+    anchor: { x: 20, y: 220 },
     speed: 15,
   },
   {
@@ -285,7 +285,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Genie',
     emoji: '🧞‍♀️',
     flavor: "Bound to this town, not a lamp. Longer story than you've got time for, captain.",
-    anchor: { x: -100, y: 130 },
+    anchor: { x: -200, y: 260 },
     speed: 15,
   },
   // New Providence: no guards, no patrol — "no crown, no law" means the street life here reads
@@ -296,7 +296,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Dice Gambler',
     emoji: '🎲',
     flavor: "Double or nothing, captain? No? Suit yourself — house always wins eventually anyway.",
-    anchor: { x: -40, y: -34 },
+    anchor: { x: -80, y: -68 },
     speed: 16,
   },
   {
@@ -305,7 +305,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Swaying Sailor',
     emoji: '🥴',
     flavor: "Republic's got no jail, no judge, no nothin'. Best place on Earth, if you ask me.",
-    anchor: { x: 40, y: 1 },
+    anchor: { x: 80, y: 2 },
     speed: 12,
   },
   {
@@ -314,7 +314,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Furtive Smuggler',
     emoji: '🎭',
     flavor: "Didn't see me. Never saw me. We never had this conversation, captain.",
-    anchor: { x: -120, y: -69 },
+    anchor: { x: -240, y: -138 },
     speed: 20,
   },
   {
@@ -323,7 +323,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Parrot Vendor',
     emoji: '🦜',
     flavor: "Talks, curses, bites — same as most men in this town, only cheaper to feed.",
-    anchor: { x: 80, y: 36 },
+    anchor: { x: 160, y: 72 },
     speed: 14,
   },
   {
@@ -332,7 +332,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Rooftop Lookout',
     emoji: '🔭',
     flavor: "Watching for Navy sails. Reef keeps the big ones out, but Rogers'll try eventually.",
-    anchor: { x: 120, y: 71 },
+    anchor: { x: 240, y: 142 },
     speed: 10,
   },
   {
@@ -341,7 +341,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A One-Legged Fiddler',
     emoji: '🎻',
     flavor: "Lost the leg to a cannon, kept the fiddle. Fair trade, most nights.",
-    anchor: { x: -80, y: 106 },
+    anchor: { x: -160, y: 212 },
     speed: 13,
   },
   {
@@ -350,7 +350,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: "A Ship's Cat",
     emoji: '🐈‍⬛',
     flavor: "Jumped ship weeks ago and never looked back. Can't say it made the wrong call.",
-    anchor: { x: 0, y: 141 },
+    anchor: { x: 0, y: 282 },
     speed: 20,
   },
   {
@@ -359,7 +359,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Bruised Brawler',
     emoji: '🤕',
     flavor: "Lost the fight, kept the flask. Wasn't much of a fight to begin with, honestly.",
-    anchor: { x: -160, y: 1 },
+    anchor: { x: -320, y: 2 },
     speed: 15,
   },
   {
@@ -368,7 +368,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Boucan Hunter',
     emoji: '🏹',
     flavor: "Boar's thinner out here than it used to be. Still enough for those of us patient enough to wait for it.",
-    anchor: { x: 218, y: -20 },
+    anchor: { x: 436, y: -40 },
     speed: 12,
   },
   {
@@ -377,7 +377,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Ruin Scavenger',
     emoji: '⛏️',
     flavor: "Spanish silver doesn't rot. Neither does Spanish stone, apparently — still digging through both.",
-    anchor: { x: -222, y: -18 },
+    anchor: { x: -444, y: -36 },
     speed: 12,
   },
   {
@@ -386,7 +386,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Quiet Mourner',
     emoji: '🕊️',
     flavor: "Nobody left alive remembers their names. Someone should still remember they were here.",
-    anchor: { x: -46, y: 179 },
+    anchor: { x: -92, y: 358 },
     speed: 10,
   },
 ];

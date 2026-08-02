@@ -60,7 +60,7 @@ export const SALVAGE_SITES: SalvageSite[] = [
   {
     id: 'port_royal_ruins',
     islandId: 'port_royal',
-    offset: { x: -140, y: -150 },
+    offset: { x: -280, y: -300 },
     requiresUpgradeId: 'diving_bell',
     minGold: 25,
     maxGold: 50,
