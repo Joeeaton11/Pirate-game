@@ -1100,31 +1100,44 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     **repeat the whole-island blueprint for the remaining 5 islands** (Port Royal, Roatán,
     Ocracoke Inlet, Île Sainte-Marie, Cow Island) — street plan + landmarks + enterable buildings +
     street life, same historically-grounded approach proven on Tortuga Cove and now New Providence
-22. **Author Patron quest batches + bespoke floor plans, building-by-building** — apply the proven
-    patterns to the remaining ~13 buildings (2-4 patrons each, drawing from the reusable archetype
-    roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler, Fortune Teller, etc.), giving each a real
-    floor plan instead of the generic fallback room as content is authored, toward the 150+ target.
-    New Providence's Careening Yard (and updating The Cracked Hull) are the most immediate targets
-23. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+22. ✅ **Bespoke floor plans for every remaining building** (2026-08-02) — the 12 buildings still
+    falling back to the generic room (`tortuga_shop`, `cow_island_camp`, `new_providence_tavern`,
+    `new_providence_careening_yard`, `roatan_den`, `port_royal_college`, `port_royal_manor`,
+    `ile_sainte_marie_shrine`, `tortuga_fishmonger`, `new_providence_distillery`,
+    `roatan_timber_yard`, `port_royal_armoury`) each got a hand-authored `BUILDING_INTERIORS`
+    entry themed to their name/dialogue instead of `fallbackInterior()` — e.g. the manor's ⚔️ prop
+    nods to Lady Ashworth's "his cutlass is still quite sharp" line, and the beach camp skips a
+    `counter` entirely and centers a ⛺ tent for its outdoor feel. Every building in the game now
+    has a real room. Verified with `npx tsc --noEmit` plus in-browser screenshots (via a temporary
+    auto-navigate-on-mount test effect, fully reverted after) across 5 representative layouts —
+    counter+shelves (shop), tables+chairs (tavern), altar (shrine), no-counter outdoor (camp), and
+    4-shelf bookcase wall (college) — confirming no overlapping furniture and every NPC spot clear
+    under the `INTERIOR_ZOOM=2` camera. Patron quests for these buildings are still future content.
+23. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+    (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
+    yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
+    Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
+    floor plan now, so this is purely content authoring — no more engineering prerequisite
+24. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-24. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+25. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-25. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+26. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-26. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+27. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-27. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+28. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-28. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+29. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-29. **GTA-style character switching** (biggest, most novel, probably last)
+30. **GTA-style character switching** (biggest, most novel, probably last)
 30. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
 31. Full e2e test automation, IAP integration, real art asset pipeline —
