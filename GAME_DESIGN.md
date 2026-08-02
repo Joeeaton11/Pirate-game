@@ -1253,12 +1253,30 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     clearance-verified) hasn't been repeated anywhere else yet. New Providence, Roatán, Port Royal,
     Île Sainte-Marie, Cow Island, and Ocracoke Inlet are all still exactly as sparse as before,
     just with more empty water and grass around them
-31. **Expand Tortuga's harbor into a proper large port district** — raised alongside the two
-    smaller buildings above (2026-08-02) but deliberately scoped out as its own future pass: the
-    existing harbor (Fishing Dock, Harbor Pier, Customs House, Smugglers' Warehouse) is a working
-    port but not a large *district* — growing it into one means new streets, more houses, and
-    dock/ship visuals, not just another building or two, so it deserves the same dedicated design
-    attention the High Woods got rather than being folded into a quick addition
+31. ✅ **The port: piers, boardwalks, moored boats, ships offshore** (2026-08-02) — new
+    `src/data/harbor.ts` adds three pieces of pure decoration, same zero-gameplay-hook discipline
+    as Scenery but deliberately placed *outside* the island's land polygon instead of inside it,
+    since that's the whole point: `PierSegment` (boardwalk lines, rendered in the same `<Svg>` as
+    streets/coastline with a weathered-plank double stroke distinct from both paved `main` streets
+    and dirt `path` tracks — free to run straight over open water since it's SVG geometry, not a
+    walkable network), `DOCKED_BOATS` (small moored boats right at the pier), and `OFFSHORE_SHIPS`
+    (larger ships anchored further out, rotated for natural variety). The main pier starts at the
+    existing Harbor Pier landmark and forks partway to a second, shorter dock; a separate pier
+    reaches out from the Fishing Dock — two working docks instead of one for a busier harbor feel.
+    Critical constraint, confirmed rather than assumed: the player can never actually walk out onto
+    a pier, because sailing-vs-walking state is purely a function of the real island polygon
+    (`islandAtPoint`) and piers are deliberately never added to it — verified in-browser by
+    spawning directly on a pier coordinate and confirming the game correctly rendered the player's
+    boat sprite (open sea), not a walking figure on solid ground. Coordinates were found the same
+    way as the Trapper's Camp: a ray-cast search from the Harbor Pier landmark found the nearest
+    real coastline in every direction, so the pier's land-to-sea transition sits at an actual
+    shoreline crossing rather than a guessed distance. Verified with `npx tsc --noEmit`, a
+    dedicated sea-placement script confirming every boat/ship/pier-tip resolves to open water (not
+    accidentally on Tortuga or any other island), the whole-world sweep, and three in-browser
+    screenshots: the forked pier boardwalk from land, small boats moored at the tips, and a large
+    offshore ship. Turning this into a full port *district* (new streets, more waterfront houses)
+    remains open if wanted — this delivers the specific ask (boardwalks into the sea, boats docked
+    up, bustling docks), not a full neighborhood rebuild
 32. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,

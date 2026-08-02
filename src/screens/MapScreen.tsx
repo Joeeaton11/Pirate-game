@@ -35,6 +35,7 @@ import {
 } from '../data/pirateLords';
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { RESCUE_POINT, rescuePointWorldPosition } from '../data/rescue';
+import { PIERS, DOCKED_BOATS, OFFSHORE_SHIPS, harborBoatWorldPosition } from '../data/harbor';
 import {
   STREETS,
   connectedSegments,
@@ -1048,6 +1049,22 @@ export default function MapScreen({ navigation }: Props) {
                   />
                 );
               })}
+
+              {PIERS.map((pier, i) => {
+                const islandPos = ISLANDS[pier.islandId].position;
+                const x1 = islandPos.x + pier.from.x;
+                const y1 = islandPos.y + pier.from.y;
+                const x2 = islandPos.x + pier.to.x;
+                const y2 = islandPos.y + pier.to.y;
+                // Weathered-plank double stroke — visually distinct from both paved 'main'
+                // streets and dirt 'path' tracks, and free to run straight out over open water.
+                return (
+                  <React.Fragment key={`pier-${i}`}>
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8a7a6a" strokeWidth={20} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#5c4632" strokeWidth={10} strokeLinecap="round" />
+                  </React.Fragment>
+                );
+              })}
             </Svg>
 
             {HOUSES.map((house, i) => {
@@ -1075,6 +1092,27 @@ export default function MapScreen({ navigation }: Props) {
                   pointerEvents="none"
                 >
                   <Text style={{ fontSize: prop.fontSize ?? 22 }}>{prop.emoji}</Text>
+                </View>
+              );
+            })}
+
+            {[...DOCKED_BOATS, ...OFFSHORE_SHIPS].map((boat, i) => {
+              const islandPos = ISLANDS[boat.islandId].position;
+              const pos = harborBoatWorldPosition(boat, islandPos);
+              return (
+                <View
+                  key={`boat-${i}`}
+                  style={[styles.scenery, { left: pos.x - 15, top: pos.y - 15 }]}
+                  pointerEvents="none"
+                >
+                  <Text
+                    style={{
+                      fontSize: boat.fontSize ?? 24,
+                      transform: [{ rotate: `${boat.rotationDeg ?? 0}deg` }],
+                    }}
+                  >
+                    {boat.emoji}
+                  </Text>
                 </View>
               );
             })}
