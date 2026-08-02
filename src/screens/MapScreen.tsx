@@ -20,6 +20,7 @@ import {
 } from '../data/islands';
 import { HOUSES, houseWorldPosition, housesForIsland } from '../data/houses';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
+import { SCENERY, sceneryWorldPosition } from '../data/scenery';
 import {
   CAPTAIN_NAME,
   PLAYER_EMOJI_LAND_FRONT,
@@ -75,7 +76,7 @@ const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 // storefront, chapel's church, etc.) — those render large and alone, same as before. The rest
 // (tavern's mugs, fishmonger's fish, smithy's hammer, ...) aren't shaped like a building at all, so
 // those get a house emoji as a base with the type emoji sitting on top of it as a small roof badge.
-const BUILDING_SHAPED_EMOJI = new Set(['🏪', '🏚️', '⛩️', '🏰', '⛪', '🛖', '🏛️']);
+const BUILDING_SHAPED_EMOJI = new Set(['🏪', '🏚️', '⛩️', '🏰', '⛪', '🛖', '🏛️', '🏕️']);
 const EDGE_ICON_SIZE = 34;
 const EDGE_ICON_MARGIN = EDGE_ICON_SIZE / 2 + 8;
 const SEA_SPEED = 260; // world units per second
@@ -1064,6 +1065,20 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
+            {SCENERY.map((prop, i) => {
+              const islandPos = ISLANDS[prop.islandId].position;
+              const pos = sceneryWorldPosition(prop, islandPos);
+              return (
+                <View
+                  key={i}
+                  style={[styles.scenery, { left: pos.x - 13, top: pos.y - 13 }]}
+                  pointerEvents="none"
+                >
+                  <Text style={{ fontSize: prop.fontSize ?? 22 }}>{prop.emoji}</Text>
+                </View>
+              );
+            })}
+
             {BUILDINGS.map((building) => {
               const islandPos = ISLANDS[building.islandId].position;
               const pos = buildingWorldPosition(building, islandPos);
@@ -1527,6 +1542,13 @@ const styles = StyleSheet.create({
   },
   houseEmoji: {
     fontSize: 18,
+  },
+  scenery: {
+    position: 'absolute',
+    width: 26,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   streetNpc: {
     position: 'absolute',

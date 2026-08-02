@@ -362,6 +362,33 @@ export const STREET_NPCS: StreetNpc[] = [
     anchor: { x: -160, y: 1 },
     speed: 15,
   },
+  {
+    id: 'tortuga_street_boucan_hunter',
+    islandId: 'tortuga_cove',
+    name: 'A Boucan Hunter',
+    emoji: '🏹',
+    flavor: "Boar's thinner out here than it used to be. Still enough for those of us patient enough to wait for it.",
+    anchor: { x: 218, y: -20 },
+    speed: 12,
+  },
+  {
+    id: 'tortuga_street_scavenger',
+    islandId: 'tortuga_cove',
+    name: 'A Ruin Scavenger',
+    emoji: '⛏️',
+    flavor: "Spanish silver doesn't rot. Neither does Spanish stone, apparently — still digging through both.",
+    anchor: { x: -222, y: -18 },
+    speed: 12,
+  },
+  {
+    id: 'tortuga_street_mourner',
+    islandId: 'tortuga_cove',
+    name: 'A Quiet Mourner',
+    emoji: '🕊️',
+    flavor: "Nobody left alive remembers their names. Someone should still remember they were here.",
+    anchor: { x: -46, y: 179 },
+    speed: 10,
+  },
 ];
 
 export function streetNpcsForIsland(islandId: string): StreetNpc[] {

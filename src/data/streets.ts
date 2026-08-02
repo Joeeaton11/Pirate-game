@@ -58,6 +58,7 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 193, y: -10 }, to: { x: 218, y: -20 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 218, y: -20 }, to: { x: 260, y: 10 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 193, y: -10 }, to: { x: 205, y: 50 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 205, y: 50 }, to: { x: 166, y: 84 }, style: 'path' },
   // South coast: a track past the Ropewalk to the abandoned quarter and its burying ground.
   { islandId: 'tortuga_cove', from: { x: -70, y: 160 }, to: { x: -46, y: 179 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -46, y: 179 }, to: { x: -35, y: 208 }, style: 'path' },

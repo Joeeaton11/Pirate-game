@@ -482,6 +482,23 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
     ],
     npcSpots: [{ id: 'main', x: 120, y: 100 }],
   },
+  tortuga_trapper_camp: {
+    buildingId: 'tortuga_trapper_camp',
+    width: 220,
+    height: 190,
+    entryPosition: { x: 110, y: 168 },
+    furniture: [
+      // No counter, no rug — an open-air boucan camp, not a shop.
+      { type: 'stool', x: 110, y: 110 },
+      { type: 'barrel', x: 165, y: 90 },
+      { type: 'door', x: 110, y: 182, fontSize: 24 },
+      { type: 'prop', x: 110, y: 50, emoji: '🏕️', fontSize: 30 },
+      { type: 'prop', x: 150, y: 50, emoji: '🥩', fontSize: 20 },
+      { type: 'prop', x: 70, y: 100, emoji: '🔥', fontSize: 20 },
+      { type: 'prop', x: 60, y: 50, emoji: '🌲', fontSize: 22 },
+    ],
+    npcSpots: [{ id: 'main', x: 110, y: 80 }],
+  },
 };
 
 export function interiorForBuilding(

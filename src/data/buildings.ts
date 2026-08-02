@@ -310,6 +310,21 @@ export const BUILDINGS: Building[] = [
     dialogue: "Spanish stone, French blood, and nobody left who remembers which came first. I just remember it's quiet out here.",
     recruit: { templateId: 'musketeer_marksman', level: 4, cost: 50 },
   },
+  {
+    // The word "buccaneer" comes from boucan, the wooden smoking-frame hunters used to cure wild
+    // boar and cattle meat on Hispaniola and Tortuga before the trade turned to piracy — this camp
+    // is where that older, quieter trade still happens, deep in the High Woods.
+    id: 'tortuga_trapper_camp',
+    islandId: 'tortuga_cove',
+    name: "The Trapper's Camp",
+    type: 'beach',
+    emoji: '🏕️',
+    offset: { x: 166, y: 84 },
+    npcName: 'Boucanier Yves',
+    npcEmoji: '🏹',
+    dialogue: "Wild boar, cut thin and smoked slow over green wood — that's how we did it before anyone called us pirates. Still works.",
+    recruit: { templateId: 'gun_deck_veteran', level: 5, cost: 55 },
+  },
 ];
 
 export function buildingsForIsland(islandId: string): Building[] {
