@@ -107,6 +107,39 @@ function slideAroundObstacles(
   return current;
 }
 
+/** Finds a house-free spot near a building's door to place the player when they exit, radiating
+ * outward from the entry point's own direction/distance first before fanning out to other angles.
+ * The naive fixed-distance push used before this existed could land the player inside a nearby
+ * house's collision zone (several Tortuga buildings have a house closer than the push distance),
+ * leaving them wedged in the doorway with no clear direction to move. */
+function findClearExitSpot(
+  buildingPos: { x: number; y: number },
+  awayDx: number,
+  awayDy: number,
+  awayDist: number,
+  baseDist: number,
+  houseObstacles: { x: number; y: number }[],
+  keepOutRadius: number
+): { x: number; y: number } {
+  const blocked = (pos: { x: number; y: number }) =>
+    houseObstacles.some((h) => Math.hypot(pos.x - h.x, pos.y - h.y) < keepOutRadius);
+
+  const baseAngle = Math.atan2(awayDy, awayDx);
+  const extraDistances = [0, 10, 20, 30, 40, 60, 80, 100];
+  const angleOffsetsDeg = [0, 30, -30, 60, -60, 90, -90, 135, -135, 180];
+
+  for (const offsetDeg of angleOffsetsDeg) {
+    const angle = baseAngle + (offsetDeg * Math.PI) / 180;
+    for (const extra of extraDistances) {
+      const d = baseDist + extra;
+      const candidate = { x: buildingPos.x + Math.cos(angle) * d, y: buildingPos.y + Math.sin(angle) * d };
+      if (!blocked(candidate)) return candidate;
+    }
+  }
+  // Should be unreachable given the search above, but never leave the player with no fallback.
+  return { x: buildingPos.x + (awayDx / awayDist) * baseDist, y: buildingPos.y + (awayDy / awayDist) * baseDist };
+}
+
 interface NpcSimState {
   x: number;
   y: number;
@@ -516,9 +549,21 @@ export default function MapScreen({ navigation }: Props) {
           dist = 1;
         }
         const pushDist = ENTER_RADIUS + 15;
+        const houseObstacles = housesForIsland(island.id).map((house) =>
+          houseWorldPosition(house, island.position)
+        );
+        const clearSpot = findClearExitSpot(
+          bp,
+          dx,
+          dy,
+          dist,
+          pushDist,
+          houseObstacles,
+          HOUSE_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
+        );
         const pushed = {
-          x: clamp(bp.x + (dx / dist) * pushDist, 0, WORLD_WIDTH),
-          y: clamp(bp.y + (dy / dist) * pushDist, 0, WORLD_HEIGHT),
+          x: clamp(clearSpot.x, 0, WORLD_WIDTH),
+          y: clamp(clearSpot.y, 0, WORLD_HEIGHT),
         };
         playerRef.current = pushed;
         setPlayer(pushed);

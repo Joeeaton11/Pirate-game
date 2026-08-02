@@ -246,6 +246,19 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   collision positions) is unchanged
 - ✅ **`LAND_SPEED` dropped 70 → 45, 2026-08-01**: sixth playtest round, walking still felt too
   fast. Sea speed (260) untouched — only asked about walking pace
+- ✅ **Fixed the exit-doorway soft-lock, 2026-08-01**: seventh playtest round — "can't move, stuck
+  in the doorway" after leaving a building. Root cause, checked against the real data: the
+  "push the player just outside the building's trigger radius" logic (added long before house
+  collision existed) uses a fixed distance (`ENTER_RADIUS + 15` = 41 units) straight out from the
+  door in whatever direction the player approached from — but several Tortuga buildings have a
+  house closer than 41 units (as close as 30), so that fixed push could land the player directly
+  inside a house's collision zone, wedging them in immediately on exit. Added `findClearExitSpot()`
+  — radiates outward from the door, trying the original approach direction at increasing distances
+  first, then fanning out to other angles, until it finds a spot clear of every house on that
+  island. Verified programmatically against the real building/house data: every Tortuga building
+  produces a clear exit spot across a full sweep of approach angles (0-350° in 10° steps) — the
+  same rigor as the earlier house-collision fixes, since blind manual test-walks to a specific
+  building kept being an unreliable way to verify this class of bug
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete
