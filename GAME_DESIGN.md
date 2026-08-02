@@ -211,6 +211,28 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   motion doesn't need that resolution), storing state in a `Map` ref to avoid extra re-renders.
   Verified in-browser: NPCs visibly relocated to different points along the street over a 10-second
   window, and no console errors from the rewrite
+- ✅ **Street NPCs: generic walking-person sprite + bounded patrol radius, 2026-08-02**: two
+  complaints at once — "confusing when random emojis walk around," and "I want them to stick to the
+  paths and routes rather than just running around all over." Root cause of the second one: the
+  residential grid's own streets can be very long (a full avenue can span the whole town), so once
+  an NPC's nearest street *was* one of those, "any random point on a connected segment" let it wander
+  the length of that whole avenue — confirmed programmatically against the real street data before
+  touching any code: the worst case (the New Providence ship's cat) could reach 293 units from its
+  own anchor under the old logic, nearly the width of the island. Fixed with `NPC_PATROL_RADIUS`
+  (45) and a new `pickPatrolTarget()`: every retarget still has to land on a real street point, but
+  now retries (falling back to the anchor itself) until it finds one within 45 units of the NPC's
+  original anchor, so they stay a tight local loop near their authored flavor spot instead of
+  crossing the map. Re-ran the same simulation post-fix — all 38 street NPCs across every island
+  stayed within the 45-unit cap over 500 simulated retargets each. For the emoji complaint: replaced
+  each NPC's individual flavor emoji (a dice, a fiddle, a parrot, a cat) with the exact same
+  `PLAYER_EMOJI_LAND_FRONT`/`PLAYER_EMOJI_LAND_SIDE` sprite pair the player itself uses, in the same
+  front/side pose based on which axis they're currently moving along, plus a left/right flip matching
+  the player's own convention — so every wanderer on screen now unambiguously reads as "a person
+  walking" rather than a menagerie of moving objects. The per-NPC flavor emoji is untouched in the
+  data model and still shown in the approach flavor-toast text (`🎻 A One-Legged Fiddler: ...`) — only
+  the moving map sprite changed. Verified in-browser: every visible street NPC now renders as the
+  walking-person figure, confirmed against a screenshot showing several at once with no leftover
+  object/animal icons
 - ✅ **Joystick reliably resets on release, 2026-08-01**: fourth playtest round, on a real
   touchscreen — "controls are stuck," movement not stopping when the finger lifts. Direction was
   already a ref cleared synchronously in `clearDrag()`, so the likely cause is

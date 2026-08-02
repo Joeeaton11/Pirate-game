@@ -91,6 +91,12 @@ const HOUSE_COLLISION_RADIUS = 6;
 const NPC_COLLISION_RADIUS = 2;
 const NPC_WANDER_SPEED_SCALE = 0.6; // wandering reads better slower than a purposeful walk
 const NPC_ARRIVE_RADIUS = 4; // world units — close enough to a target to pick a new one
+// The residential grid's own streets can be very long (a single avenue can span the whole town),
+// so picking a random point anywhere on a "connected" segment let NPCs wander much further from
+// their authored flavor spot than intended — reads as running around the whole map instead of
+// keeping to a local patrol route. Bounding every retarget to within this distance of the NPC's
+// original anchor keeps them exactly on real street points while staying local.
+const NPC_PATROL_RADIUS = 45;
 const DEADZONE = 12; // px of drag before movement starts
 const MAX_DRAG = 70; // px of drag for full speed
 const ENCOUNTER_TICK_MS = 1400;
@@ -176,6 +182,26 @@ interface NpcSimState {
   targetX: number;
   targetY: number;
   candidateSegments: StreetSegment[];
+  anchorPoint: { x: number; y: number };
+}
+
+/** Picks a random point from the candidate segments, retrying until it lands within
+ * `NPC_PATROL_RADIUS` of the NPC's home anchor — falls back to the anchor itself if nothing
+ * turns up nearby (e.g. every connected segment happens to be a long one), so an NPC always has
+ * a valid, on-street target without ever needing to roam far to find one. */
+function pickPatrolTarget(
+  anchorPoint: { x: number; y: number },
+  candidateSegments: StreetSegment[]
+): { x: number; y: number } {
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const point = randomPointOnSegment(
+      candidateSegments[Math.floor(Math.random() * candidateSegments.length)]
+    );
+    if (Math.hypot(point.x - anchorPoint.x, point.y - anchorPoint.y) <= NPC_PATROL_RADIUS) {
+      return point;
+    }
+  }
+  return anchorPoint;
 }
 
 function initNpcSim(npc: StreetNpc): NpcSimState {
@@ -183,18 +209,25 @@ function initNpcSim(npc: StreetNpc): NpcSimState {
   if (!nearest) {
     // No streets registered for this island — stay put rather than crash; shouldn't happen for
     // any island that actually has street NPCs.
-    return { x: npc.anchor.x, y: npc.anchor.y, targetX: npc.anchor.x, targetY: npc.anchor.y, candidateSegments: [] };
+    return {
+      x: npc.anchor.x,
+      y: npc.anchor.y,
+      targetX: npc.anchor.x,
+      targetY: npc.anchor.y,
+      candidateSegments: [],
+      anchorPoint: npc.anchor,
+    };
   }
   const candidateSegments = connectedSegments(nearest.segment, npc.islandId);
-  const target = randomPointOnSegment(
-    candidateSegments[Math.floor(Math.random() * candidateSegments.length)]
-  );
+  const anchorPoint = nearest.point;
+  const target = pickPatrolTarget(anchorPoint, candidateSegments);
   return {
-    x: nearest.point.x,
-    y: nearest.point.y,
+    x: anchorPoint.x,
+    y: anchorPoint.y,
     targetX: target.x,
     targetY: target.y,
     candidateSegments,
+    anchorPoint,
   };
 }
 const TICK_MS = 33;
@@ -532,9 +565,7 @@ export default function MapScreen({ navigation }: Props) {
         const dy = sim.targetY - sim.y;
         const dist = Math.hypot(dx, dy);
         if (dist < NPC_ARRIVE_RADIUS) {
-          const next = randomPointOnSegment(
-            sim.candidateSegments[Math.floor(Math.random() * sim.candidateSegments.length)]
-          );
+          const next = pickPatrolTarget(sim.anchorPoint, sim.candidateSegments);
           sim.targetX = next.x;
           sim.targetY = next.y;
           continue;
@@ -1074,13 +1105,29 @@ export default function MapScreen({ navigation }: Props) {
               const islandPos = ISLANDS[npc.islandId].position;
               const sim = npcSimRef.current.get(npc.id) ?? initNpcSim(npc);
               const pos = { x: islandPos.x + sim.x, y: islandPos.y + sim.y };
+              // Individual flavor emoji (a dice, a fiddle, a cat) read as confusing clutter once
+              // they're moving around the street — swapped for the same walking-person sprite the
+              // player uses, in the same front/side pose based on which axis they're moving along,
+              // so every wanderer on screen unambiguously reads as "a person walking."
+              const dx = sim.targetX - sim.x;
+              const dy = sim.targetY - sim.y;
+              const npcEmoji =
+                Math.abs(dy) > Math.abs(dx) ? PLAYER_EMOJI_LAND_FRONT : PLAYER_EMOJI_LAND_SIDE;
+              const npcFacingRight = dx > 0;
               return (
                 <View
                   key={npc.id}
                   style={[styles.streetNpc, { left: pos.x - 5, top: pos.y - 5 }]}
                   pointerEvents="none"
                 >
-                  <Text style={styles.streetNpcEmoji}>{npc.emoji}</Text>
+                  <Text
+                    style={[
+                      styles.streetNpcEmoji,
+                      { transform: [{ scaleX: npcFacingRight ? -1 : 1 }] },
+                    ]}
+                  >
+                    {npcEmoji}
+                  </Text>
                 </View>
               );
             })}
