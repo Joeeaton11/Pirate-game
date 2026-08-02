@@ -287,6 +287,22 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   any individual glyph's own artwork. Verified via screenshots (using the same temporary, fully-
   reverted `TEMP-TEST-SPAWN` technique) across four different building types (tavern, fort, shop,
   warehouse) to confirm the cap clips cleanly and the icon stays legible in every case.
+- ✅ **Roof-cap swapped for an actual house base under the type badge, 2026-08-02**: immediate
+  follow-up feedback on the above — "if there is a ready made emoji for the building use them, but
+  for the others that don't have a specific emoji use the house building with the emoji on top,
+  rather than just a triangle." Split buildings into two groups by their emoji: ones that already
+  depict an actual structure (`BUILDING_SHAPED_EMOJI` — fort's 🏰, shop's 🏪, chapel's ⛪, customs'
+  🏛️, manor's 🏚️, the two hut-type beach buildings' 🛖, the shrine's ⛩️) keep rendering large and
+  alone, unchanged. Everything else (tavern's 🍻/🍺, fishmonger's 🐟, smithy's ⚒️, warehouse's 📦,
+  distillery's 🥃, timber yard's 🪵, armoury's 💥, smuggler's den's 🕳️, college's 🎓, beach camp's
+  🏖️) now renders a plain house emoji as the base with the real type emoji layered on top of it as a
+  small badge. Note for anyone touching this next: the map view applies a `ZOOM = 5` scale transform
+  to everything inside it, so a `fontSize: 14` badge still renders as a ~70px glyph on screen — don't
+  mistake that for a bug, it's the same scale factor every other marker on the map already gets.
+  Verified via screenshots (temporary `TEMP-TEST-SPAWN`, reverted and grep-confirmed clean before
+  commit) on the tavern and warehouse (house base + badge) and the fort and shop (unchanged, still
+  large and alone) — a tight crop on the tavern confirmed the house's door/windows and the beer mugs
+  badge sitting on its roof are both clearly visible together, not just one covering the other.
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

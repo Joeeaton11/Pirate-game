@@ -71,6 +71,11 @@ const ZOOM = 5;
 const PLAYER_SIZE = 12 * ZOOM;
 const BUILDING_SIZE = 44;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
+// Some building types already have a ready-made emoji that IS a structure (fort's castle, shop's
+// storefront, chapel's church, etc.) — those render large and alone, same as before. The rest
+// (tavern's mugs, fishmonger's fish, smithy's hammer, ...) aren't shaped like a building at all, so
+// those get a house emoji as a base with the type emoji sitting on top of it as a small roof badge.
+const BUILDING_SHAPED_EMOJI = new Set(['🏪', '🏚️', '⛩️', '🏰', '⛪', '🛖', '🏛️']);
 const SEA_SPEED = 260; // world units per second
 const LAND_SPEED = 45;
 // The procedurally-generated house grid packs some houses as little as 20 units apart
@@ -921,6 +926,7 @@ export default function MapScreen({ navigation }: Props) {
               const hasOpenChallenge = SIDE_QUESTS.some(
                 (q) => q.hostedByBuildingId === building.id && !completedQuestIds.includes(q.id)
               );
+              const isBuildingShaped = BUILDING_SHAPED_EMOJI.has(building.emoji);
               return (
                 <View
                   key={building.id}
@@ -932,9 +938,15 @@ export default function MapScreen({ navigation }: Props) {
                     },
                   ]}
                 >
-                  <View style={styles.buildingRoofCap} pointerEvents="none" />
                   {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
-                  <Text style={styles.buildingEmoji}>{building.emoji}</Text>
+                  {isBuildingShaped ? (
+                    <Text style={styles.buildingEmoji}>{building.emoji}</Text>
+                  ) : (
+                    <>
+                      <Text style={styles.buildingHouseBase}>🏠</Text>
+                      <Text style={styles.buildingTypeBadge}>{building.emoji}</Text>
+                    </>
+                  )}
                 </View>
               );
             })}
@@ -1294,19 +1306,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#f4e9cd',
-    overflow: 'hidden',
   },
-  // A roof-colored cap clipped to the top of the building box (some type emoji, like the fort's
-  // castle or the shop's storefront, already render as detailed mini-buildings with their own
-  // roof/awning baked in — an exterior roof shape floating above them doubled up and looked wrong,
-  // so this stays inside the existing box instead of adding a second shape on top of the glyph).
-  buildingRoofCap: {
+  // Buildings whose type emoji isn't already shaped like a structure (tavern's mugs, fishmonger's
+  // fish, smithy's hammer, ...) get a plain house as a base instead, with the real type emoji
+  // sitting on top of it like a small badge on the roof.
+  buildingHouseBase: {
+    fontSize: 30,
+  },
+  buildingTypeBadge: {
     position: 'absolute',
-    top: 0,
+    top: 3,
     left: 0,
     right: 0,
-    height: 10,
-    backgroundColor: '#8b3a2a',
+    textAlign: 'center',
+    fontSize: 14,
+    zIndex: 2,
   },
   landmark: {
     position: 'absolute',
