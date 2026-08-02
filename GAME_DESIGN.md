@@ -563,6 +563,27 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     buildings (Careening Yard, and updating The Cracked Hull's tavern) — both buildings still use the
     generic fallback interior. That's real content-authoring work (2-4 patrons each, per the roadmap)
     better done as its own dedicated pass rather than rushed alongside a world-geometry change
+- ✅ **Building interiors get a camera and a real zoom, 2026-08-02**: raised after playtesting the
+  interiors — "the whole building... likely won't just fill the screen. We will have to explore the
+  building and move around to see it all," plus "the movement for the internal building is wrong,
+  it's slow." Both turned out to be the same root cause: rooms rendered at native pixel size with no
+  camera at all, so a 360×340 room just fit entirely on screen at a glance — nothing to explore —
+  and `ROOM_SPEED` (90) was tuned as a raw pixel-per-second value with no zoom multiplier, while the
+  outdoor map moves at `LAND_SPEED`(45) × its own `ZOOM`(5) = 225px/s on screen. Same numbers, very
+  different effective speeds — indoors was really running at well under half the outdoor pace.
+  Fixed by giving rooms the exact same camera architecture the outdoor map already has: a new
+  `INTERIOR_ZOOM` (2) scale-and-translate transform on the room `View`, centered on the player and
+  measured against the room container's real layout size (`onLayout`, same pattern as the map's own
+  `viewport` state) — furniture, NPCs, and the player all render at their existing native-unit
+  positions and come out bigger and clearer for free, no floor plan had to be re-authored. Rooms
+  bigger than the viewport (which is now every room, since zoom effectively doubles their on-screen
+  footprint) are only ever partially visible at once, so walking to the door, the counter, or a
+  patron in the corner actually means walking there. `ROOM_SPEED` recalculated as `225 /
+  INTERIOR_ZOOM` (112.5) to land on the same effective on-screen pace as outdoors, the same tuning
+  target used throughout the outdoor speed passes. Verified in-browser on both a bespoke room (the
+  tavern — confirmed the camera panned from the door up to the counter as the player walked, and the
+  tables/patrons/barkeep only became visible once actually walked toward) and a generic fallback
+  room (the fishmonger's stall), so the fix isn't specific to hand-authored floor plans
 - ✅ Each building = one named NPC, one line of dialogue, one one-time gold-priced hire
 - 🔄 Needs the Pokémon-Center equivalent: a **Shipwright/Surgeon building** on every island (or at
   least the safe ones) for full-crew healing without needing to sail back to Tortuga Cove

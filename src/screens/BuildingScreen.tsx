@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BUILDINGS, BuildingType } from '../data/buildings';
@@ -47,7 +47,16 @@ const FLOOR_COLORS: Record<BuildingType, string> = {
 
 const PLAYER_SIZE = 28;
 const NPC_SIZE = 34;
-const ROOM_SPEED = 90; // units per second
+// Rooms used to render at native size with no camera — the whole floor plan fit on screen at a
+// glance, nothing to explore. Zooming in (like the outdoor map's own ZOOM) and following the player
+// with a camera instead makes the same room data feel like a real space you walk around in, and
+// makes furniture/NPCs read bigger and clearer for free, without re-authoring every floor plan.
+const INTERIOR_ZOOM = 2;
+// The outdoor map moves at LAND_SPEED(45) * its own ZOOM(5) = 225px/s on screen. Rooms only just
+// got their own zoom, so ROOM_SPEED needs dividing by INTERIOR_ZOOM to land on that same effective
+// screen speed — the old value (90, applied with no zoom at all) was really only 90px/s, well under
+// half the outdoor pace, which is the "movement feels slow" bug.
+const ROOM_SPEED = 225 / INTERIOR_ZOOM; // world units per second
 const DEADZONE = 10;
 const MAX_DRAG = 55;
 const TICK_MS = 33;
@@ -167,6 +176,12 @@ export default function BuildingScreen({ navigation }: Props) {
   const directionRef = useRef<{ x: number; y: number } | null>(null);
   const [dragKnob, setDragKnob] = useState<{ x: number; y: number } | null>(null);
   const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number } | null>(null);
+  const [roomViewport, setRoomViewport] = useState({ width: 0, height: 0 });
+
+  function onLayoutRoomOuter(event: LayoutChangeEvent) {
+    const { width, height } = event.nativeEvent.layout;
+    setRoomViewport({ width, height });
+  }
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -536,7 +551,8 @@ export default function BuildingScreen({ navigation }: Props) {
       </View>
 
       <GestureDetector gesture={panGesture}>
-        <View style={styles.roomOuter}>
+        <View style={styles.roomOuter} onLayout={onLayoutRoomOuter}>
+          {roomViewport.width > 0 && (
           <View
             style={[
               styles.room,
@@ -544,6 +560,26 @@ export default function BuildingScreen({ navigation }: Props) {
                 width: interior.width,
                 height: interior.height,
                 backgroundColor: FLOOR_COLORS[building.type],
+                // Same camera math as the outdoor map's own world transform: center the player on
+                // screen, then zoom in around them — the room is bigger on screen than the viewport
+                // once INTERIOR_ZOOM > 1, so only part of it is visible at once and you have to
+                // actually walk around to see the rest, instead of the whole floor plan fitting on
+                // screen at a glance.
+                transform: [
+                  {
+                    translateX:
+                      roomViewport.width / 2 -
+                      interior.width / 2 +
+                      INTERIOR_ZOOM * (interior.width / 2 - roomPlayer.x),
+                  },
+                  {
+                    translateY:
+                      roomViewport.height / 2 -
+                      interior.height / 2 +
+                      INTERIOR_ZOOM * (interior.height / 2 - roomPlayer.y),
+                  },
+                  { scale: INTERIOR_ZOOM },
+                ],
               },
             ]}
           >
@@ -580,6 +616,7 @@ export default function BuildingScreen({ navigation }: Props) {
               <Text style={styles.roomPlayerEmoji}>🧍</Text>
             </View>
           </View>
+          )}
 
           {dragOrigin && (
             <View
@@ -627,10 +664,10 @@ const styles = StyleSheet.create({
   buildingName: { color: '#f4e9cd', fontSize: 18, fontWeight: '700', marginTop: 4 },
   roomOuter: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    overflow: 'hidden',
   },
   room: {
+    position: 'absolute',
     borderRadius: 12,
     borderWidth: 3,
     borderColor: 'rgba(0,0,0,0.35)',
