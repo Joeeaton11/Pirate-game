@@ -499,6 +499,39 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
     ],
     npcSpots: [{ id: 'main', x: 110, y: 80 }],
   },
+  tortuga_smuggler_cache: {
+    buildingId: 'tortuga_smuggler_cache',
+    width: 220,
+    height: 190,
+    entryPosition: { x: 110, y: 168 },
+    furniture: [
+      // No counter, no rug — a hidden stash, not a shop with a front door.
+      { type: 'barrel', x: 60, y: 60 },
+      { type: 'barrel', x: 160, y: 60 },
+      { type: 'shelf', x: 60, y: 120 },
+      { type: 'door', x: 110, y: 182, fontSize: 24 },
+      { type: 'prop', x: 160, y: 110, emoji: '📦', fontSize: 24 },
+      { type: 'prop', x: 110, y: 50, emoji: '🕯️', fontSize: 18 },
+      { type: 'prop', x: 140, y: 140, emoji: '🗺️', fontSize: 18 },
+    ],
+    npcSpots: [{ id: 'main', x: 110, y: 90 }],
+  },
+  tortuga_old_landing_dock: {
+    buildingId: 'tortuga_old_landing_dock',
+    width: 220,
+    height: 190,
+    entryPosition: { x: 110, y: 168 },
+    furniture: [
+      // No counter, no rug — a working dock shack, not a shop.
+      { type: 'barrel', x: 60, y: 90 },
+      { type: 'door', x: 110, y: 182, fontSize: 24 },
+      { type: 'prop', x: 110, y: 50, emoji: '🛶', fontSize: 28 },
+      { type: 'prop', x: 150, y: 60, emoji: '🎣', fontSize: 20 },
+      { type: 'prop', x: 160, y: 130, emoji: '🪨', fontSize: 22 },
+      { type: 'prop', x: 60, y: 140, emoji: '🐚', fontSize: 18 },
+    ],
+    npcSpots: [{ id: 'main', x: 110, y: 90 }],
+  },
 };
 
 export function interiorForBuilding(

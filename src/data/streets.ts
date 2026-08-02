@@ -59,10 +59,14 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 436, y: -40 }, to: { x: 520, y: 20 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 386, y: -20 }, to: { x: 410, y: 100 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 410, y: 100 }, to: { x: 332, y: 168 }, style: 'path' },
+  // A smuggler doesn't camp on the main trail — a fainter side-track breaks off from the
+  // Trapper's Camp toward the cache, deeper into the woods still.
+  { islandId: 'tortuga_cove', from: { x: 332, y: 168 }, to: { x: 240, y: 266 }, style: 'path' },
   // South coast: a track past the Ropewalk to the abandoned quarter and its burying ground.
   { islandId: 'tortuga_cove', from: { x: -140, y: 320 }, to: { x: -92, y: 358 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -92, y: 358 }, to: { x: -70, y: 416 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -70, y: 416 }, to: { x: 120, y: 410 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 120, y: 410 }, to: { x: 184, y: 350 }, style: 'path' },
 
   // New Providence (Nassau) — Republic Square as the hub, same pattern as Basse-Terre Square.
   { islandId: 'new_providence', from: { x: 0, y: -20 }, to: { x: -140, y: 120 }, style: 'main' }, // -> The Cracked Hull

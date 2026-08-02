@@ -1231,38 +1231,60 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     382 scenery props on Tortuga total. Verified with `npx tsc --noEmit`, the scenery script (all
     382 pass, zero stacking), the whole-world sweep, and an in-browser screenshot confirming a
     genuinely edge-to-edge canopy with no visual overlap between trees.
-29. **Fill the other 6 islands' new space with content** — the world-doubling pass above gave every
+29. ✅ **Two more Tortuga buildings: a hidden cache in the woods, a dock in the ruins** (2026-08-02)
+    — the High Woods had only one building (the Trapper's Camp) despite now being a 345-tree
+    forest, and the abandoned quarter had none. Added **The Smuggler's Cache** (reuses the
+    `warehouse` type; Silent Mara, a `boarding_captain` recruit) tucked well off the main forest
+    trail — its own dialogue and placement directly pay off Inspector Hale's Customs House line
+    about "half of it" never reaching the crown, since this is where that half goes. Placement
+    needed a dedicated clearance search (`find_new_buildings_2.ts`) since the now-345-tree forest
+    had filled most of the cape too tightly for a naive guess; the script scored candidates against
+    every building/landmark/resource/house/scenery prop and found the one genuine opening. Also
+    added **The Old Landing Dock** (reuses `beach`; Old Ilsabet, a `tavern_brawler` recruit) at the
+    literal site referenced by the "Ruins of the Old Landing" landmark — a family that never left
+    after the 1635/1638 Spanish raids, giving that landmark's flavor text a face. Both connect via
+    new winding `path` spurs off the existing trails (the cache via a deliberately fainter
+    side-track off the Trapper's Camp, since a smuggler doesn't camp on the main road). Verified
+    with `npx tsc --noEmit`, the whole-world `islandAtPoint()` sweep (no new failures), the scenery
+    overlap script, and in-browser screenshots of both buildings on the map and both interiors.
+30. **Fill the other 6 islands' new space with content** — the world-doubling pass above gave every
     island more room, the same way Tortuga's enlargement did on its own; what Tortuga got next
     (a real forest, ruin rubble, grave markers, a new woodland recruit — all script-placed and
     clearance-verified) hasn't been repeated anywhere else yet. New Providence, Roatán, Port Royal,
     Île Sainte-Marie, Cow Island, and Ocracoke Inlet are all still exactly as sparse as before,
     just with more empty water and grass around them
-30. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+31. **Expand Tortuga's harbor into a proper large port district** — raised alongside the two
+    smaller buildings above (2026-08-02) but deliberately scoped out as its own future pass: the
+    existing harbor (Fishing Dock, Harbor Pier, Customs House, Smugglers' Warehouse) is a working
+    port but not a large *district* — growing it into one means new streets, more houses, and
+    dock/ship visuals, not just another building or two, so it deserves the same dedicated design
+    attention the High Woods got rather than being folded into a quick addition
+32. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-31. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+33. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-32. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+34. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-33. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+35. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-34. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+36. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-35. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+37. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-36. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+38. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-37. **GTA-style character switching** (biggest, most novel, probably last)
-38. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+39. **GTA-style character switching** (biggest, most novel, probably last)
+40. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-39. Full e2e test automation, IAP integration, real art asset pipeline —
+41. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

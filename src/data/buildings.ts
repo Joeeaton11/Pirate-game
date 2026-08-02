@@ -325,6 +325,36 @@ export const BUILDINGS: Building[] = [
     dialogue: "Wild boar, cut thin and smoked slow over green wood — that's how we did it before anyone called us pirates. Still works.",
     recruit: { templateId: 'gun_deck_veteran', level: 5, cost: 55 },
   },
+  {
+    // Every crate that crosses the harbor is meant to pay its due to the Customs House — Inspector
+    // Hale himself admits half of it does. This is where the other half goes: deep enough in the
+    // High Woods that no tax collector has ever bothered to look.
+    id: 'tortuga_smuggler_cache',
+    islandId: 'tortuga_cove',
+    name: "The Smuggler's Cache",
+    type: 'warehouse',
+    emoji: '🕳️',
+    offset: { x: 240, y: 266 },
+    npcName: 'Silent Mara',
+    npcEmoji: '🥷',
+    dialogue: "You didn't see this place. In exchange, I didn't see you. That's the whole arrangement.",
+    recruit: { templateId: 'boarding_captain', level: 6, cost: 70 },
+  },
+  {
+    // The original French landing on Tortuga wasn't at today's harbor — it was here, until the
+    // Spanish burned it out in 1635 and 1638 (see "Ruins of the Old Landing"). A dock still clings
+    // to the shore below the ruin, and someone still lives by it.
+    id: 'tortuga_old_landing_dock',
+    islandId: 'tortuga_cove',
+    name: 'The Old Landing Dock',
+    type: 'beach',
+    emoji: '⚓',
+    offset: { x: 184, y: 350 },
+    npcName: 'Old Ilsabet',
+    npcEmoji: '🧓',
+    dialogue: "My grandmother's grandmother fished this water before the harbor town existed. Some of us never left, raid or no raid.",
+    recruit: { templateId: 'tavern_brawler', level: 5, cost: 55 },
+  },
 ];
 
 export function buildingsForIsland(islandId: string): Building[] {
