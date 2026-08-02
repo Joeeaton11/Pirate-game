@@ -72,7 +72,7 @@ const PLAYER_SIZE = 12 * ZOOM;
 const BUILDING_SIZE = 44;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 const SEA_SPEED = 260; // world units per second
-const LAND_SPEED = 70;
+const LAND_SPEED = 45;
 // The procedurally-generated house grid packs some houses as little as 20 units apart
 // (verified against src/data/houses.ts) — a combined radius of 20+ leaves zero or negative
 // gap between them, which is how the player got permanently wedged between two houses.

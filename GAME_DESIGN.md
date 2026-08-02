@@ -244,6 +244,8 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   increase would start visibly cutting into houses on the tightest blocks, so this was a deliberate
   moderate bump rather than a bigger one. Purely a rendering change; the walkable width (house
   collision positions) is unchanged
+- ✅ **`LAND_SPEED` dropped 70 → 45, 2026-08-01**: sixth playtest round, walking still felt too
+  fast. Sea speed (260) untouched — only asked about walking pace
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete
