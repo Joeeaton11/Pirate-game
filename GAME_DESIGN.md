@@ -355,6 +355,21 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   Tortuga's bounty board quest (`offset: {x:0, y:130}`, due south of spawn): its 📜 icon appeared
   pinned to the bottom edge, roughly centered, at the same time as the fish node's 🐟 icon at the top
   — confirming multiple simultaneous indicators render independently without fighting each other.
+- ✅ **Accepted patron quests also get an edge icon, pointing at their building, 2026-08-02**: asked
+  "once I've got the side quest item, should where to deliver it pop up the same as the resources?"
+  Turned out fetch quests always deliver back to the exact same NPC/building the quest came from —
+  no separate drop-off point — so standalone quests already had this covered for free (their edge
+  icon persists the whole time a quest is accepted, right up to turn-in). The real gap was
+  building-hosted patron quests: deliberately unmarked before acceptance so they're found by
+  exploring, but once accepted that reasoning no longer holds — you've already found it, you just
+  need to get back. `sideQuestEdgeIndicators` now also includes `hostedByBuildingId` quests once
+  `acceptedQuestIds` contains them, targeting the host building's position instead of a quest offset;
+  still hidden pre-acceptance so undiscovered patrons stay a real discovery. Verified against the real
+  quest data first (`patron_tortuga_drunk`: not eligible before accepting, eligible once accepted, not
+  eligible once completed — the three states that matter), then confirmed visually by seeding
+  `acceptedQuestIds` into `localStorage` before boot (faster and more reliable than navigating the
+  dense house grid to actually click through the accept dialogue) and screenshotting a second 📜 icon
+  appearing on the correct edge, pointing toward the tavern.
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete

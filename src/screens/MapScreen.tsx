@@ -854,16 +854,24 @@ export default function MapScreen({ navigation }: Props) {
   const sideQuestEdgeIndicators: EdgeIndicator[] = currentIsland
     ? SIDE_QUESTS.filter(
         (q) =>
-          q.offset &&
           q.islandId === currentIsland.id &&
           !completedQuestIds.includes(q.id) &&
-          q.id !== gateQuest?.id
+          q.id !== gateQuest?.id &&
+          // Standalone quests already have their own map marker, so they're always eligible.
+          // Building-hosted quests (patrons) are meant to be found by exploring, not signposted —
+          // but once accepted, there's an item to deliver back to a specific building, and "explore
+          // to find it" no longer applies. Show those only after acceptance.
+          (q.offset || (q.hostedByBuildingId && acceptedQuestIds.includes(q.id)))
       )
         .map((q) => {
-          const targetPos = sideQuestWorldPosition(
-            q as SideQuest & { offset: { x: number; y: number } },
-            ISLANDS[q.islandId].position
-          );
+          const islandPos = ISLANDS[q.islandId].position;
+          const targetPos = q.offset
+            ? sideQuestWorldPosition(q as SideQuest & { offset: { x: number; y: number } }, islandPos)
+            : (() => {
+                const hostBuilding = BUILDINGS.find((b) => b.id === q.hostedByBuildingId);
+                return hostBuilding ? buildingWorldPosition(hostBuilding, islandPos) : null;
+              })();
+          if (!targetPos) return null;
           const edgePos = edgeIndicatorPosition(player, targetPos, viewport, EDGE_ICON_MARGIN);
           return edgePos ? { id: q.id, emoji: '📜', pos: edgePos } : null;
         })
