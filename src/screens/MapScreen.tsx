@@ -382,7 +382,33 @@ export default function MapScreen({ navigation }: Props) {
     };
   }, []);
 
+  // Losing focus can happen mid-drag (an ambush/wild encounter fires and navigates away while a
+  // finger is still down), which the gesture's own onFinalize never sees since it's the screen
+  // being hidden, not the touch being released, that ends the interaction. Force a full reset the
+  // instant focus is lost so nothing — direction, joystick position, the pending snap-back timer —
+  // survives to be read stale when the player comes back.
+  useEffect(() => {
+    if (isFocused) return;
+    directionRef.current = null;
+    setIsMoving(false);
+    dragOriginRef.current = null;
+    setDragOrigin(null);
+    setDragKnob(null);
+    if (dragResetTimeoutRef.current) {
+      clearTimeout(dragResetTimeoutRef.current);
+      dragResetTimeoutRef.current = null;
+    }
+  }, [isFocused]);
+
+  // React Navigation keeps MapScreen mounted (just hidden) underneath Encounter/Building/PirateLord/
+  // SideQuest/Rescue while they're on top, so without `.enabled(isFocused)` this gesture keeps
+  // listening the whole time you're on one of those screens. A stray touch reaching it there would
+  // leave `directionRef` holding a leftover direction that the movement loop — gated on focus, but
+  // never itself reset by a focus change — would immediately act on the moment you came back,
+  // reading as the character moving on its own or the joystick responding wrong right after leaving
+  // a building/fight/menu.
   const panGesture = Gesture.Pan()
+    .enabled(isFocused)
     .minDistance(0)
     .shouldCancelWhenOutside(false)
     .onBegin((e) => {

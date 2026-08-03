@@ -420,6 +420,24 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   `acceptedQuestIds` into `localStorage` before boot (faster and more reliable than navigating the
   dense house grid to actually click through the accept dialogue) and screenshotting a second 📜 icon
   appearing on the correct edge, pointing toward the tavern.
+- ✅ **Fixed drag-to-sail breaking after visiting a building, fight, or pirate lord fort,
+  2026-08-03**: reported as "control of movement goes wrong" after those specific flows. Root
+  cause: React Navigation keeps `MapScreen` mounted (just hidden) underneath
+  Encounter/Building/PirateLord/SideQuest/Rescue while any of them is on top, and the drag
+  gesture's `GestureDetector` was never disabled while unfocused — so it kept listening the whole
+  time you were on one of those screens. A stray touch reaching it there would leave `directionRef`
+  holding a leftover direction that the movement loop (gated on focus, but never itself reset by a
+  focus change) would immediately act on the moment you came back — reading as the character moving
+  on its own, or the joystick responding wrong, right after leaving. Fixed two ways: the gesture
+  itself now carries `.enabled(isFocused)` so it can't register anything at all while another
+  screen is on top, and a dedicated effect force-resets every piece of drag state (`directionRef`,
+  `isMoving`, the joystick's origin/knob, any pending snap-back timer) the instant focus is lost —
+  covering the case where a wild/ambush encounter fires and navigates away mid-drag, before the
+  gesture's own `onFinalize` would ever see the release. Verified `npx tsc --noEmit`, and two full
+  in-browser round trips (Map → Debug → forced wild encounter → flee → Debug → Map, and
+  Map → Debug → themed shop building → leave → Debug → Map): idling with zero input after each
+  return showed no phantom movement or stuck joystick, and a fresh drag immediately afterward moved
+  normally in the dragged direction both times
 - ✅ Random encounters roll periodically while moving through a zone (land table per island, shared
   high-seas table at sea) — functionally equivalent to Pokémon's per-step tall-grass roll, just
   continuous instead of discrete
