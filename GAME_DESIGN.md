@@ -1352,32 +1352,54 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     before shipping. Verified `npx tsc --noEmit`, then in-browser: each of the 3 new interiors
     (candle/rope/scales/bunks all rendering as designed), each building's entry prompt, the Fishwife's
     walk-up flavor toast firing correctly, and the minimap radar picking up the new cluster
-35. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+35. ✅ **A proper harbour: quay, extra jetties, breakwater, lighthouse** (2026-08-03) — direct
+    follow-up after seeing the district: "you know the docks are in the water right" — the two
+    original piers reached out from a road-facing base, but there was no actual built shoreline
+    behind them, just the natural coastline. Found the real coastline the same way as every pier
+    tip so far — ray-cast sweeps due north from points along the harbor front until `islandAtPoint`
+    flips from land to sea — which revealed the harbor front is a shallow natural headland (the
+    coast peaks around x=50–70, curving back on both sides). Added `QUAYS` (a 6-segment stone
+    embankment hugging that exact curve, rendered in grey masonry — solid double-stroke, distinct
+    from both the wood-plank piers and the paved town streets — sitting a few units inland of the
+    true coastline so it always draws on solid ground, never floats over water), 2 more jetties
+    branching off the quay itself into open water, 4 more docked boats (2 at the new jetty tips, 2
+    rowboats tied directly against the quay wall), a `BREAKWATER` arm further out enclosing a
+    sheltered basin with 2 more ships riding at anchor inside it, and **The Lighthouse** — a new
+    landmark placed right on the headland the coastline forms, the one point along the whole
+    harbor front where the ray-cast crossing sits furthest out to sea, exactly where a real
+    lighthouse would stand. Every new coordinate was verified programmatically before being
+    written in: all 6 quay points and the lighthouse confirmed on real land, both new jetty tips
+    and all 4 new boats confirmed in open sea, the breakwater confirmed fully offshore, and the
+    lighthouse checked clear of every other marker (186 units to the nearest). Verified
+    `npx tsc --noEmit`, then in-browser: the Lighthouse and curved quay rendering together on the
+    headland, the player's sprite correctly switching to a boat the instant they cross the new
+    quay's coastline (not before, not after), and the breakwater/extra boats visible further out
+36. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-36. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+37. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-37. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+38. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-38. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+39. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-39. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+40. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-40. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+41. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-41. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+42. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-42. **GTA-style character switching** (biggest, most novel, probably last)
-43. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+43. **GTA-style character switching** (biggest, most novel, probably last)
+44. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-44. Full e2e test automation, IAP integration, real art asset pipeline —
+45. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

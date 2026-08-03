@@ -29,6 +29,18 @@ export const LANDMARKS: Landmark[] = [
     description: 'A weathered wooden pier where every manner of sloop, brigantine, and stolen merchantman ties up.',
   },
   {
+    // Sits on the small headland the coastline itself forms right here — found the same way as
+    // the quay and every pier tip, by sweeping rays out from land until they cross into open
+    // water; this is the one point along the whole harbor front where that crossing happens
+    // furthest out; a real lighthouse would stand exactly there.
+    id: 'tortuga_lighthouse',
+    islandId: 'tortuga_cove',
+    offset: { x: 60, y: -458 },
+    name: 'The Lighthouse',
+    emoji: '🗼',
+    description: "Lit every night without fail — the one soul in Tortuga everyone agrees is worth paying, raid or no raid.",
+  },
+  {
     id: 'tortuga_la_ringot_fields',
     islandId: 'tortuga_cove',
     offset: { x: 280, y: 220 },

@@ -35,7 +35,7 @@ import {
 } from '../data/pirateLords';
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_SEA_CHANCE, MERCHANT_TEMPLATES } from '../data/merchants';
 import { RESCUE_POINT, rescuePointWorldPosition } from '../data/rescue';
-import { PIERS, DOCKED_BOATS, OFFSHORE_SHIPS, harborBoatWorldPosition } from '../data/harbor';
+import { PIERS, QUAYS, BREAKWATER, DOCKED_BOATS, OFFSHORE_SHIPS, harborBoatWorldPosition } from '../data/harbor';
 import {
   STREETS,
   connectedSegments,
@@ -1110,6 +1110,44 @@ export default function MapScreen({ navigation }: Props) {
                     <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8a7a6a" strokeWidth={20} strokeLinecap="round" />
                     <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#5c4632" strokeWidth={10} strokeLinecap="round" />
                   </React.Fragment>
+                );
+              })}
+
+              {QUAYS.map((quay, i) => {
+                const islandPos = ISLANDS[quay.islandId].position;
+                const x1 = islandPos.x + quay.from.x;
+                const y1 = islandPos.y + quay.from.y;
+                const x2 = islandPos.x + quay.to.x;
+                const y2 = islandPos.y + quay.to.y;
+                // Solid stone-grey double stroke — a built embankment, not a wooden walkway, so
+                // it reads distinctly from both the piers above and the paved town streets.
+                return (
+                  <React.Fragment key={`quay-${i}`}>
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#6b6b66" strokeWidth={24} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8f8f88" strokeWidth={14} strokeLinecap="round" />
+                  </React.Fragment>
+                );
+              })}
+
+              {BREAKWATER.map((arm, i) => {
+                const islandPos = ISLANDS[arm.islandId].position;
+                const x1 = islandPos.x + arm.from.x;
+                const y1 = islandPos.y + arm.from.y;
+                const x2 = islandPos.x + arm.to.x;
+                const y2 = islandPos.y + arm.to.y;
+                // Rougher, darker stone than the quay — a rubble arm sheltering the harbor basin,
+                // not somewhere a ship ties up.
+                return (
+                  <Line
+                    key={`breakwater-${i}`}
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke="#565650"
+                    strokeWidth={18}
+                    strokeLinecap="round"
+                  />
                 );
               })}
             </Svg>
