@@ -358,13 +358,15 @@ export const BUILDINGS: Building[] = [
   {
     // The big-dock district: the Harbor Pier's decorative boardwalks and moored boats got a real
     // neighborhood around them — a proper street front, working buildings, and waterfront housing
-    // instead of just Fishing Dock + Warehouse standing alone on open grass.
+    // instead of just Fishing Dock + Warehouse standing alone on open grass. Relocated 2026-08-03
+    // to sit right against the real quay (found by ray-cast, see harbor.ts) after the first pass
+    // placed the whole district ~250 units inland of the actual coastline — nowhere near the dock.
     id: 'tortuga_harbourmaster',
     islandId: 'tortuga_cove',
     name: "Harbourmaster's Office",
     type: 'customs',
     emoji: '🗼',
-    offset: { x: 80, y: -230 },
+    offset: { x: 100, y: -380 },
     npcName: 'Harbourmaster Voss',
     npcEmoji: '🎖️',
     dialogue: "Every hull that ties up on this dock answers to me first — the Customs House gets its cut after. Been running this waterfront since before some of you had teeth.",
@@ -376,7 +378,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Chandlery',
     type: 'shop',
     emoji: '🕯️',
-    offset: { x: -30, y: -190 },
+    offset: { x: -60, y: -370 },
     npcName: 'Fenwick',
     npcEmoji: '🪢',
     dialogue: "Rope, tar, sailcloth, spare rigging — if it keeps a ship's canvas from tearing loose in a storm, I stock it. My apprentice here's quick with a splice, if you're hiring.",
@@ -388,7 +390,7 @@ export const BUILDINGS: Building[] = [
     name: "Dockworkers' Bunkhouse",
     type: 'warehouse',
     emoji: '🛏️',
-    offset: { x: 130, y: -155 },
+    offset: { x: 180, y: -360 },
     npcName: 'Cutter Doyle',
     npcEmoji: '🧢',
     dialogue: "Six of us to a room and the walls still leak, but the pay's honest and the rum's cheap. Card games run past midnight if you fancy losing your coin the easy way.",

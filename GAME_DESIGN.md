@@ -1374,32 +1374,58 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     `npx tsc --noEmit`, then in-browser: the Lighthouse and curved quay rendering together on the
     headland, the player's sprite correctly switching to a boat the instant they cross the new
     quay's coastline (not before, not after), and the breakwater/extra boats visible further out
-36. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+36. ✅ **Piers/quay reclassified as walkable land + the whole dock district relocated onto the real
+    coastline** (2026-08-03) — two corrections from direct feedback in one pass: "I want the dock
+    boardwalk to be classed as land, so you can walk on and not become the boat," and "the quay and
+    dock town is nowhere near the actual dock!" First: `islandAtPoint()` (`islands.ts`) now also
+    checks distance to every `PIERS`/`QUAYS` segment (not just the real island polygon) — standing
+    within `PIER_WALK_RADIUS` (16 units, matching half the drawn stroke width plus a little slack)
+    of a boardwalk counts as land, same as standing on the island itself, reversing the earlier
+    "piers must never be walkable" rule from item 31 on direct instruction. `BREAKWATER` was
+    deliberately left out of this — it's a rubble arm, not a boardwalk, so it stays sea-only.
+    Second, and the bigger fix: items 34/35 built the buildings, houses, and quay/lighthouse in the
+    same session but never actually checked distance *between* them — the grid-search scripts each
+    verified their own placements against existing markers, but nobody compared the two districts
+    to each other, and the 3 buildings + 9 houses from item 34 ended up ~250–300 units south of the
+    real coastline the quay was built along in item 35, on the wrong side of the Harbor Pier
+    landmark entirely. Re-ran the same grid-search approach targeting a band hugging the quay
+    instead (y −300 to −420), relocated all 3 buildings, all 9 houses, the connecting streets (plus
+    one new segment running straight onto the quay itself), and both street NPCs' anchors: every
+    new position checked on real land, clear of every other marker *and* the quay/pier/breakwater
+    segments, with 4 houses that came back too close to the new streets (10–15 units, under the
+    ~24-unit ideal for a `main` street) nudged clear before shipping. The 3 buildings now sit 29–53
+    units from the actual dock structure, down from 250+. Verified `npx tsc --noEmit`, then
+    in-browser: the player's sprite staying a walking figure at a pier-tip coordinate that used to
+    be open sea (with the zone label correctly still reading "Tortuga Cove," not "The Open Sea"),
+    the same holding true standing directly on the quay's curve, and a screenshot confirming the
+    relocated houses/buildings now visibly flank the quay and sit near the Lighthouse instead of
+    being a walk across an empty field away from it
+37. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-37. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+38. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-38. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+39. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-39. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+40. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-40. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+41. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-41. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+42. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-42. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+43. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-43. **GTA-style character switching** (biggest, most novel, probably last)
-44. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+44. **GTA-style character switching** (biggest, most novel, probably last)
+45. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-45. Full e2e test automation, IAP integration, real art asset pipeline —
+46. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

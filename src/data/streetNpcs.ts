@@ -395,7 +395,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Rigger',
     emoji: '🪢',
     flavor: "Rope stretches, rope frays, rope snaps at the worst possible moment. Check it twice.",
-    anchor: { x: 25, y: -210 },
+    anchor: { x: 20, y: -375 },
     speed: 14,
   },
   {
@@ -404,7 +404,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Fishwife',
     emoji: '🧺',
     flavor: "Fresh off the boat this morning. Won't stay fresh past noon, so mind you buy it quick.",
-    anchor: { x: 105, y: -193 },
+    anchor: { x: 140, y: -370 },
     speed: 12,
   },
 ];

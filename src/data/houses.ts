@@ -90,15 +90,16 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: -296, y: -20 } },
   // Waterfront row houses for the big-dock district — script-placed and clearance-verified
   // against every building, street, and scenery marker the same way as the rest of the grid.
-  { islandId: 'tortuga_cove', offset: { x: -70, y: -170 } },
-  { islandId: 'tortuga_cove', offset: { x: -30, y: -160 } },
-  { islandId: 'tortuga_cove', offset: { x: 10, y: -155 } },
-  { islandId: 'tortuga_cove', offset: { x: 50, y: -155 } },
-  { islandId: 'tortuga_cove', offset: { x: 95, y: -160 } },
-  { islandId: 'tortuga_cove', offset: { x: 153, y: -122 } },
-  { islandId: 'tortuga_cove', offset: { x: -50, y: -130 } },
-  { islandId: 'tortuga_cove', offset: { x: 20, y: -125 } },
-  { islandId: 'tortuga_cove', offset: { x: 125, y: -110 } },
+  // Relocated 2026-08-03 to sit right against the real quay, alongside the district's buildings.
+  { islandId: 'tortuga_cove', offset: { x: -100, y: -360 } },
+  { islandId: 'tortuga_cove', offset: { x: -31, y: -402 } },
+  { islandId: 'tortuga_cove', offset: { x: 12, y: -403 } },
+  { islandId: 'tortuga_cove', offset: { x: 60, y: -400 } },
+  { islandId: 'tortuga_cove', offset: { x: 135, y: -398 } },
+  { islandId: 'tortuga_cove', offset: { x: 210, y: -390 } },
+  { islandId: 'tortuga_cove', offset: { x: -105, y: -320 } },
+  { islandId: 'tortuga_cove', offset: { x: 30, y: -340 } },
+  { islandId: 'tortuga_cove', offset: { x: 159, y: -331 } },
   // New Providence residential grid: generated the same way as Tortuga's — candidate positions
   // along a residential avenue grid, filtered to inside the real island polygon and clear of
   // every building/fort/quest marker and every other house (see GAME_DESIGN.md for the script).

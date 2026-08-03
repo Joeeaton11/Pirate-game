@@ -1,4 +1,5 @@
 import { EncounterSlot, Island } from '../types';
+import { PIERS, QUAYS } from './harbor';
 
 export const WORLD_WIDTH = 3600;
 export const WORLD_HEIGHT = 5200;
@@ -202,7 +203,29 @@ function pointInPolygon(point: { x: number; y: number }, worldShape: { x: number
   return inside;
 }
 
-/** Returns the island whose landmass contains the given world point, if any. */
+/** Shortest distance from a point to a line segment — used below to test whether a point is
+ * standing on a pier/quay boardwalk rather than the natural coastline. */
+function distToSegment(
+  point: { x: number; y: number },
+  a: { x: number; y: number },
+  b: { x: number; y: number }
+): number {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  if (dx === 0 && dy === 0) return Math.hypot(point.x - a.x, point.y - a.y);
+  const t = Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / (dx * dx + dy * dy)));
+  return Math.hypot(point.x - (a.x + t * dx), point.y - (a.y + t * dy));
+}
+
+// Half the drawn width of a pier/quay stroke, plus a little slack — a boardwalk is a built,
+// walkable structure, so standing on one counts as land even out over open water, per direct
+// player feedback ("I want the dock boardwalk to be classed as land, so you can walk on and not
+// become the boat"). The offshore BREAKWATER is deliberately excluded: it's a rubble arm, not a
+// boardwalk, so it stays sea-only backdrop.
+const PIER_WALK_RADIUS = 16;
+
+/** Returns the island whose landmass — or whose pier/quay boardwalk — contains the given world
+ * point, if any. */
 export function islandAtPoint(point: { x: number; y: number }): Island | null {
   for (const island of ISLAND_LIST) {
     const worldShape = island.shape.map((p) => ({
@@ -210,6 +233,14 @@ export function islandAtPoint(point: { x: number; y: number }): Island | null {
       y: island.position.y + p.y,
     }));
     if (pointInPolygon(point, worldShape)) {
+      return island;
+    }
+  }
+  for (const segment of [...PIERS, ...QUAYS]) {
+    const island = ISLANDS[segment.islandId];
+    const from = { x: island.position.x + segment.from.x, y: island.position.y + segment.from.y };
+    const to = { x: island.position.x + segment.to.x, y: island.position.y + segment.to.y };
+    if (distToSegment(point, from, to) <= PIER_WALK_RADIUS) {
       return island;
     }
   }
