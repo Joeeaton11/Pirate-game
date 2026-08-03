@@ -20,6 +20,13 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 180, y: -60 }, to: { x: 0, y: -280 }, style: 'main' }, // -> Fishing Dock
   { islandId: 'tortuga_cove', from: { x: 0, y: -280 }, to: { x: 140, y: -290 }, style: 'main' }, // -> Harbor Pier
   { islandId: 'tortuga_cove', from: { x: 0, y: -280 }, to: { x: -120, y: -210 }, style: 'main' }, // -> Warehouse
+  // The big-dock district: a real waterfront street front behind the piers, instead of the
+  // Warehouse and Harbor Pier standing alone on open grass.
+  { islandId: 'tortuga_cove', from: { x: -120, y: -210 }, to: { x: -30, y: -190 }, style: 'main' }, // Warehouse -> The Chandlery
+  { islandId: 'tortuga_cove', from: { x: -30, y: -190 }, to: { x: 80, y: -230 }, style: 'main' }, // Chandlery -> Harbourmaster's Office
+  { islandId: 'tortuga_cove', from: { x: 80, y: -230 }, to: { x: 140, y: -290 }, style: 'main' }, // Harbourmaster's Office -> Harbor Pier
+  { islandId: 'tortuga_cove', from: { x: 80, y: -230 }, to: { x: 130, y: -155 }, style: 'main' }, // Harbourmaster's Office -> Dockworkers' Bunkhouse
+  { islandId: 'tortuga_cove', from: { x: 130, y: -155 }, to: { x: 200, y: -200 }, style: 'path' }, // Bunkhouse -> Fort de Rocher (second, rougher approach)
   // Outer ring: each inner building connects onward to one more, so the downtown reads as blocks
   // radiating from the square rather than a single spoke pattern.
   { islandId: 'tortuga_cove', from: { x: 180, y: -60 }, to: { x: 320, y: 20 }, style: 'main' }, // Trading Post -> Customs House

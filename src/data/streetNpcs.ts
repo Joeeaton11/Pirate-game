@@ -389,6 +389,24 @@ export const STREET_NPCS: StreetNpc[] = [
     anchor: { x: -92, y: 358 },
     speed: 10,
   },
+  {
+    id: 'tortuga_street_rigger',
+    islandId: 'tortuga_cove',
+    name: 'A Rigger',
+    emoji: '🪢',
+    flavor: "Rope stretches, rope frays, rope snaps at the worst possible moment. Check it twice.",
+    anchor: { x: 25, y: -210 },
+    speed: 14,
+  },
+  {
+    id: 'tortuga_street_fishwife',
+    islandId: 'tortuga_cove',
+    name: 'A Fishwife',
+    emoji: '🧺',
+    flavor: "Fresh off the boat this morning. Won't stay fresh past noon, so mind you buy it quick.",
+    anchor: { x: 105, y: -193 },
+    speed: 12,
+  },
 ];
 
 export function streetNpcsForIsland(islandId: string): StreetNpc[] {

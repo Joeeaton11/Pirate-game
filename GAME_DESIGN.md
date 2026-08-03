@@ -1330,32 +1330,54 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     radius, so a resource node farther out (real on Tortuga's enlarged layout) still needs the edge
     icon once it's outside the radar's reach. Verified `npx tsc --noEmit` and an in-browser screenshot
     of the Fishing Dock's 🐟 and a nearby quest's 📜 both rendering clearly at readable size on the radar
-34. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+34. ✅ **The big dock: a real port district** (2026-08-03) — delivers the "full port district (new
+    streets, more waterfront houses)" follow-up that item 31's piers/boats pass deliberately left
+    open. The whole area between the Warehouse and Harbor Pier was still empty grass — no houses,
+    only a 3-segment street stub — despite the piers/boats sitting right offshore of it. A grid-search
+    script (same approach as the Trapper's Camp/Smuggler's Cache placements: score candidate points
+    by violation count against every existing marker, land-check, and a coastline buffer so nothing
+    sits right at the water's edge) found room for 3 new buildings — **Harbourmaster's Office**
+    (customs-type, `master_gunner` recruit — Voss runs the waterfront and its paperwork), **The
+    Chandlery** (shop-type, `powder_monkey` recruit — Fenwick sells rope/tar/sailcloth), **Dockworkers'
+    Bunkhouse** (warehouse-type, `tavern_brawler` recruit — Cutter Doyle and five others share a leaky
+    room) — plus 9 waterfront row houses and a proper street front (`main` pavement) connecting
+    Warehouse → Chandlery → Harbourmaster's Office → Harbor Pier and → Dockworkers' Bunkhouse, with a
+    second, rougher `path` from the Bunkhouse up to Fort de Rocher. Two new street NPCs (A Rigger, A
+    Fishwife) patrol the new pavement using the same street-network wander system as the rest of town.
+    Every one of the 3 buildings + 9 houses was verified individually: on real land (point-in-polygon
+    against the true `TORTUGA_SHAPE`), clear of all 535 existing markers *and* the newly-added streets
+    (a coastline buffer and a street-line buffer, not just point clearance, so nothing ends up
+    standing in the water or straddling the new road), with the one pairing that came back tight
+    (a house 28 units from the Bunkhouse, under the ~35-unit combined visual radius) nudged out to 40
+    before shipping. Verified `npx tsc --noEmit`, then in-browser: each of the 3 new interiors
+    (candle/rope/scales/bunks all rendering as designed), each building's entry prompt, the Fishwife's
+    walk-up flavor toast firing correctly, and the minimap radar picking up the new cluster
+35. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-35. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+36. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-36. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+37. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-37. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+38. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-38. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+39. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-39. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+40. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-40. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+41. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-41. **GTA-style character switching** (biggest, most novel, probably last)
-42. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+42. **GTA-style character switching** (biggest, most novel, probably last)
+43. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-43. Full e2e test automation, IAP integration, real art asset pipeline —
+44. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

@@ -355,6 +355,45 @@ export const BUILDINGS: Building[] = [
     dialogue: "My grandmother's grandmother fished this water before the harbor town existed. Some of us never left, raid or no raid.",
     recruit: { templateId: 'tavern_brawler', level: 5, cost: 55 },
   },
+  {
+    // The big-dock district: the Harbor Pier's decorative boardwalks and moored boats got a real
+    // neighborhood around them — a proper street front, working buildings, and waterfront housing
+    // instead of just Fishing Dock + Warehouse standing alone on open grass.
+    id: 'tortuga_harbourmaster',
+    islandId: 'tortuga_cove',
+    name: "Harbourmaster's Office",
+    type: 'customs',
+    emoji: '🗼',
+    offset: { x: 80, y: -230 },
+    npcName: 'Harbourmaster Voss',
+    npcEmoji: '🎖️',
+    dialogue: "Every hull that ties up on this dock answers to me first — the Customs House gets its cut after. Been running this waterfront since before some of you had teeth.",
+    recruit: { templateId: 'master_gunner', level: 8, cost: 150 },
+  },
+  {
+    id: 'tortuga_chandlery',
+    islandId: 'tortuga_cove',
+    name: 'The Chandlery',
+    type: 'shop',
+    emoji: '🕯️',
+    offset: { x: -30, y: -190 },
+    npcName: 'Fenwick',
+    npcEmoji: '🪢',
+    dialogue: "Rope, tar, sailcloth, spare rigging — if it keeps a ship's canvas from tearing loose in a storm, I stock it. My apprentice here's quick with a splice, if you're hiring.",
+    recruit: { templateId: 'powder_monkey', level: 4, cost: 35 },
+  },
+  {
+    id: 'tortuga_dockworkers_bunkhouse',
+    islandId: 'tortuga_cove',
+    name: "Dockworkers' Bunkhouse",
+    type: 'warehouse',
+    emoji: '🛏️',
+    offset: { x: 130, y: -155 },
+    npcName: 'Cutter Doyle',
+    npcEmoji: '🧢',
+    dialogue: "Six of us to a room and the walls still leak, but the pay's honest and the rum's cheap. Card games run past midnight if you fancy losing your coin the easy way.",
+    recruit: { templateId: 'tavern_brawler', level: 6, cost: 65 },
+  },
 ];
 
 export function buildingsForIsland(islandId: string): Building[] {

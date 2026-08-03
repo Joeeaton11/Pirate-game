@@ -532,6 +532,58 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
     ],
     npcSpots: [{ id: 'main', x: 110, y: 90 }],
   },
+  tortuga_harbourmaster: {
+    buildingId: 'tortuga_harbourmaster',
+    width: 230,
+    height: 195,
+    entryPosition: { x: 115, y: 183 },
+    furniture: [
+      { type: 'rug', x: 115, y: 110 },
+      { type: 'counter', x: 115, y: 40, width: 130, height: 24 },
+      { type: 'shelf', x: 210, y: 90 },
+      { type: 'shelf', x: 20, y: 90 },
+      { type: 'door', x: 115, y: 187, fontSize: 24 },
+      { type: 'prop', x: 115, y: 16, emoji: '📜', fontSize: 22 },
+      { type: 'prop', x: 190, y: 150, emoji: '⚖️', fontSize: 18 },
+    ],
+    npcSpots: [{ id: 'main', x: 115, y: 40 }],
+  },
+  tortuga_chandlery: {
+    buildingId: 'tortuga_chandlery',
+    width: 230,
+    height: 195,
+    entryPosition: { x: 115, y: 183 },
+    furniture: [
+      { type: 'counter', x: 115, y: 40, width: 140, height: 24 },
+      { type: 'barrel', x: 30, y: 100 },
+      { type: 'barrel', x: 30, y: 150 },
+      { type: 'shelf', x: 200, y: 90 },
+      { type: 'shelf', x: 200, y: 150 },
+      { type: 'door', x: 115, y: 187, fontSize: 24 },
+      { type: 'prop', x: 115, y: 16, emoji: '🪢', fontSize: 22 },
+      { type: 'prop', x: 60, y: 40, emoji: '🕯️', fontSize: 16 },
+    ],
+    npcSpots: [{ id: 'main', x: 115, y: 40 }],
+  },
+  tortuga_dockworkers_bunkhouse: {
+    buildingId: 'tortuga_dockworkers_bunkhouse',
+    width: 220,
+    height: 190,
+    entryPosition: { x: 110, y: 178 },
+    furniture: [
+      // No counter, no rug — a working bunkhouse, not a shop. Three bunks along the back wall,
+      // a card table up front where "the rum's cheap" line plays out.
+      { type: 'prop', x: 40, y: 40, emoji: '🛏️', fontSize: 24 },
+      { type: 'prop', x: 110, y: 40, emoji: '🛏️', fontSize: 24 },
+      { type: 'prop', x: 180, y: 40, emoji: '🛏️', fontSize: 24 },
+      { type: 'table', x: 110, y: 120 },
+      { type: 'stool', x: 90, y: 140 },
+      { type: 'stool', x: 130, y: 140 },
+      { type: 'barrel', x: 30, y: 150 },
+      { type: 'door', x: 110, y: 182, fontSize: 24 },
+    ],
+    npcSpots: [{ id: 'main', x: 110, y: 90 }],
+  },
 };
 
 export function interiorForBuilding(
