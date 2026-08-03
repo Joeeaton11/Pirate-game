@@ -1299,32 +1299,45 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     coastline, and out into open water (correctly showing solid blue with just the heading arrow
     once nothing else is nearby), plus a drag-gesture test confirming the circular overlay's
     `pointerEvents="none"` still lets sailing work underneath it
-33. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+33. ✅ **Resource/quest blips on the minimap radar** (2026-08-03) — the radar already plotted
+    buildings and forts precisely, but resource nodes and side quests were conspicuously missing;
+    added both as `react-native-svg`'s `<Text>` (imported as `SvgText` to avoid colliding with RN's
+    own `Text`) rendered right inside the same world-unit-coordinate `<Svg>`, so no separate
+    projection math was needed — a resource's real emoji (fish, timber, etc.) and a quest's 📜 now
+    sit at their exact position on the radar, the same two categories the pre-existing edge-of-screen
+    icons already track (ready resource nodes only, standalone quests only, filtered to the visible
+    radius). Deliberately left the edge-of-screen icons in place rather than replacing them per the
+    player's ask — they still cover a different range: they clamp to the screen edge and stay visible
+    at *any* distance on the current island, while the radar blips only exist within its fixed local
+    radius, so a resource node farther out (real on Tortuga's enlarged layout) still needs the edge
+    icon once it's outside the radar's reach. Verified `npx tsc --noEmit` and an in-browser screenshot
+    of the Fishing Dock's 🐟 and a nearby quest's 📜 both rendering clearly at readable size on the radar
+34. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-34. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+35. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-35. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+36. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-36. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+37. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-37. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+38. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-38. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+39. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-39. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+40. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-40. **GTA-style character switching** (biggest, most novel, probably last)
-41. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+41. **GTA-style character switching** (biggest, most novel, probably last)
+42. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-42. Full e2e test automation, IAP integration, real art asset pipeline —
+43. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

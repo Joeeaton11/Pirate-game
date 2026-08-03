@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, LayoutChangeEvent, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle, Line, Polygon, Rect } from 'react-native-svg';
+import Svg, { Circle, Line, Polygon, Rect, Text as SvgText } from 'react-native-svg';
 import OnboardingOverlay from '../components/OnboardingOverlay';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -1413,6 +1413,18 @@ export default function MapScreen({ navigation }: Props) {
             const pos = pirateLordWorldPosition(l, ISLANDS[l.islandId].position);
             return inView(pos.x, pos.y);
           });
+          // Same two categories the edge-of-screen icons already track (see edgeIndicators below) —
+          // ready resource nodes, and standalone side quests with their own map marker — but plotted
+          // at their exact position instead of clamped to a screen edge, like a GTA blip.
+          const nearResourceNodes = RESOURCE_NODES.filter((n) => {
+            const pos = resourceNodeWorldPosition(n, ISLANDS[n.islandId].position);
+            return (resourceNodeCooldowns[n.id] ?? 0) <= Date.now() && inView(pos.x, pos.y);
+          });
+          const nearQuestMarkers = SIDE_QUESTS.filter((q) => {
+            if (!q.offset || completedQuestIds.includes(q.id)) return false;
+            const pos = sideQuestWorldPosition(q as SideQuest & { offset: { x: number; y: number } }, ISLANDS[q.islandId].position);
+            return inView(pos.x, pos.y);
+          });
 
           const arrowLen = 12 * MINIMAP_WORLD_PER_PX;
           const arrowWidth = 8 * MINIMAP_WORLD_PER_PX;
@@ -1491,6 +1503,39 @@ export default function MapScreen({ navigation }: Props) {
                     : '#8a7a6a';
                   return (
                     <Circle key={lord.id} cx={pos.x} cy={pos.y} r={26} fill={color} stroke="#2b1c12" strokeWidth={8} />
+                  );
+                })}
+                {nearResourceNodes.map((node) => {
+                  const pos = resourceNodeWorldPosition(node, ISLANDS[node.islandId].position);
+                  return (
+                    <SvgText
+                      key={`res-${node.id}`}
+                      x={pos.x}
+                      y={pos.y}
+                      fontSize={18 * MINIMAP_WORLD_PER_PX}
+                      textAnchor="middle"
+                      alignmentBaseline="central"
+                    >
+                      {RESOURCES[node.resourceId].emoji}
+                    </SvgText>
+                  );
+                })}
+                {nearQuestMarkers.map((quest) => {
+                  const pos = sideQuestWorldPosition(
+                    quest as SideQuest & { offset: { x: number; y: number } },
+                    ISLANDS[quest.islandId].position
+                  );
+                  return (
+                    <SvgText
+                      key={`quest-${quest.id}`}
+                      x={pos.x}
+                      y={pos.y}
+                      fontSize={20 * MINIMAP_WORLD_PER_PX}
+                      textAnchor="middle"
+                      alignmentBaseline="central"
+                    >
+                      📜
+                    </SvgText>
                   );
                 })}
                 {mainQuestTarget && inView(mainQuestTarget.x, mainQuestTarget.y) && (
