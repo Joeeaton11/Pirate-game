@@ -80,12 +80,17 @@ const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 const BUILDING_SHAPED_EMOJI = new Set(['🏪', '🏚️', '⛩️', '🏰', '⛪', '🛖', '🏛️', '🏕️']);
 const EDGE_ICON_SIZE = 34;
 const EDGE_ICON_MARGIN = EDGE_ICON_SIZE / 2 + 8;
-// The minimap renders the whole world in one Svg with viewBox="0 0 WORLD_WIDTH WORLD_HEIGHT", so
-// every coordinate drawn into it is a raw world-unit value — no separate scale math needed, the
-// viewBox does the scaling. Only the on-screen pixel *size* (this constant) and stroke/circle radii
-// (picked directly in world units below) need tuning by eye.
-const MINIMAP_WIDTH = 100;
-const MINIMAP_HEIGHT = MINIMAP_WIDTH * (WORLD_HEIGHT / WORLD_WIDTH);
+// GTA-style radar: a circular minimap fixed in the corner, always centered on the player (the
+// world scrolls under a marker that never moves), zoomed to a local radius rather than the whole
+// island or world. Solves both the "which of 7 islands is this" problem and the "I can't see
+// anything while sailing between islands" gap the previous island-bounding-box version had — the
+// radar just keeps following the player regardless of what's underneath them.
+const MINIMAP_SIZE = 130; // on-screen diameter, px
+const MINIMAP_RADIUS = 450; // world units shown in every direction from the player
+const MINIMAP_WORLD_PER_PX = (MINIMAP_RADIUS * 2) / MINIMAP_SIZE;
+// Scenery emoji that read as "forest" for the minimap's dark-green tree-mass fill — 🌿 (scrub) and
+// 🪨/🪦 (rocks/graves) are dressing for the ruins/abandoned zones, not woodland.
+const FOREST_EMOJI = new Set(['🌴', '🌲', '🌳']);
 const SEA_SPEED = 260; // world units per second
 const LAND_SPEED = 45;
 // The procedurally-generated house grid packs some houses as little as 20 units apart
@@ -309,6 +314,9 @@ export default function MapScreen({ navigation }: Props) {
   const walkLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const playerRef = useRef(player);
   const lastZoneIdRef = useRef<string | null>('tortuga_cove');
+  // GTA-style minimap heading arrow: remembers the last real movement direction so the arrow
+  // doesn't snap back to "north" the instant the player lets go of the drag.
+  const lastFacingAngleRef = useRef(0);
   const lastEncounterCheckRef = useRef(0);
   const crewRef = useRef(crew);
   crewRef.current = crew;
@@ -885,6 +893,13 @@ export default function MapScreen({ navigation }: Props) {
     ? (Math.atan2(mainQuestTarget.x - player.x, -(mainQuestTarget.y - player.y)) * 180) / Math.PI
     : null;
 
+  // Same convention as the compass above (0deg = up, clockwise) — the minimap heading arrow uses
+  // the live drag direction while moving, and holds its last value once the player lets go.
+  if (directionRef.current && (directionRef.current.x !== 0 || directionRef.current.y !== 0)) {
+    lastFacingAngleRef.current =
+      (Math.atan2(directionRef.current.x, -directionRef.current.y) * 180) / Math.PI;
+  }
+
   // Off-screen resource nodes and side quests on the current island get a small edge-of-screen icon
   // so a player who hasn't explored the island yet can still see roughly where to go — scoped to the
   // current island only (a marker pointing at something on a different island wouldn't be
@@ -1365,44 +1380,142 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
-        {viewport.width > 0 && (
-          <View pointerEvents="none" style={styles.miniMap}>
-            <Svg width={MINIMAP_WIDTH} height={MINIMAP_HEIGHT} viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`}>
-              <Rect x={0} y={0} width={WORLD_WIDTH} height={WORLD_HEIGHT} fill="#124d73" />
-              {ISLAND_LIST.map((island) => (
+        {viewport.width > 0 && (() => {
+          const minX = player.x - MINIMAP_RADIUS;
+          const minY = player.y - MINIMAP_RADIUS;
+          const span = MINIMAP_RADIUS * 2;
+          // Generous slack beyond the visible circle so items just outside it don't pop in/out
+          // right at the edge as the player moves.
+          const inView = (x: number, y: number) =>
+            x >= minX - 100 && x <= minX + span + 100 && y >= minY - 100 && y <= minY + span + 100;
+
+          const forestProps = SCENERY.filter((p) => {
+            if (!FOREST_EMOJI.has(p.emoji)) return false;
+            const pos = sceneryWorldPosition(p, ISLANDS[p.islandId].position);
+            return inView(pos.x, pos.y);
+          });
+          const nearHouses = HOUSES.filter((h) => {
+            const pos = houseWorldPosition(h, ISLANDS[h.islandId].position);
+            return inView(pos.x, pos.y);
+          });
+          const nearBuildings = BUILDINGS.filter((b) => {
+            const pos = buildingWorldPosition(b, ISLANDS[b.islandId].position);
+            return inView(pos.x, pos.y);
+          });
+          const nearStreets = STREETS.filter((s) => {
+            const islandPos = ISLANDS[s.islandId].position;
+            return (
+              inView(islandPos.x + s.from.x, islandPos.y + s.from.y) ||
+              inView(islandPos.x + s.to.x, islandPos.y + s.to.y)
+            );
+          });
+          const nearLords = PIRATE_LORDS.filter((l) => {
+            const pos = pirateLordWorldPosition(l, ISLANDS[l.islandId].position);
+            return inView(pos.x, pos.y);
+          });
+
+          const arrowLen = 12 * MINIMAP_WORLD_PER_PX;
+          const arrowWidth = 8 * MINIMAP_WORLD_PER_PX;
+          const arrowPoints = [
+            `${player.x},${player.y - arrowLen}`,
+            `${player.x + arrowWidth},${player.y + arrowLen * 0.6}`,
+            `${player.x - arrowWidth},${player.y + arrowLen * 0.6}`,
+          ].join(' ');
+
+          return (
+            <View pointerEvents="none" style={styles.miniMap}>
+              <Svg width={MINIMAP_SIZE} height={MINIMAP_SIZE} viewBox={`${minX} ${minY} ${span} ${span}`}>
+                <Rect x={minX} y={minY} width={span} height={span} fill="#124d73" />
+                {ISLAND_LIST.map((island) => (
+                  <Polygon
+                    key={island.id}
+                    points={island.shape
+                      .map((p) => `${island.position.x + p.x},${island.position.y + p.y}`)
+                      .join(' ')}
+                    fill={island.isSafeZone ? '#4fae70' : '#3d9963'}
+                    stroke={island.isSafeZone ? '#ffd166' : '#1f5a37'}
+                    strokeWidth={20}
+                  />
+                ))}
+                {/* Overlapping same-color circles with no stroke read as one solid tree mass at
+                    this scale, echoing a hand-drawn map's clustered-canopy forest texture. */}
+                {forestProps.map((prop, i) => {
+                  const pos = sceneryWorldPosition(prop, ISLANDS[prop.islandId].position);
+                  return <Circle key={`forest-${i}`} cx={pos.x} cy={pos.y} r={50} fill="#1b4d32" />;
+                })}
+                {nearStreets.map((street, i) => {
+                  const islandPos = ISLANDS[street.islandId].position;
+                  const x1 = islandPos.x + street.from.x;
+                  const y1 = islandPos.y + street.from.y;
+                  const x2 = islandPos.x + street.to.x;
+                  const y2 = islandPos.y + street.to.y;
+                  return street.style === 'main' ? (
+                    <Line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d9cdb0" strokeWidth={16} strokeLinecap="round" />
+                  ) : (
+                    <Line
+                      key={i}
+                      x1={x1}
+                      y1={y1}
+                      x2={x2}
+                      y2={y2}
+                      stroke="#a9825a"
+                      strokeWidth={10}
+                      strokeLinecap="round"
+                    />
+                  );
+                })}
+                {nearHouses.map((house, i) => {
+                  const pos = houseWorldPosition(house, ISLANDS[house.islandId].position);
+                  return <Circle key={`house-${i}`} cx={pos.x} cy={pos.y} r={14} fill="#caa06a" />;
+                })}
+                {nearBuildings.map((building) => {
+                  const pos = buildingWorldPosition(building, ISLANDS[building.islandId].position);
+                  return (
+                    <Circle
+                      key={building.id}
+                      cx={pos.x}
+                      cy={pos.y}
+                      r={20}
+                      fill="#f4e9cd"
+                      stroke="#2b1c12"
+                      strokeWidth={6}
+                    />
+                  );
+                })}
+                {nearLords.map((lord) => {
+                  const pos = pirateLordWorldPosition(lord, ISLANDS[lord.islandId].position);
+                  const color = defeatedLordIds.includes(lord.id)
+                    ? '#4caf50'
+                    : isLordUnlocked(lord, defeatedLordIds, completedQuestIds)
+                    ? '#ffd166'
+                    : '#8a7a6a';
+                  return (
+                    <Circle key={lord.id} cx={pos.x} cy={pos.y} r={26} fill={color} stroke="#2b1c12" strokeWidth={8} />
+                  );
+                })}
+                {mainQuestTarget && inView(mainQuestTarget.x, mainQuestTarget.y) && (
+                  <Circle
+                    cx={mainQuestTarget.x}
+                    cy={mainQuestTarget.y}
+                    r={34}
+                    fill="none"
+                    stroke="#ffd166"
+                    strokeWidth={10}
+                  />
+                )}
+                {/* The player marker is always plotted at the exact viewBox center — the world
+                    scrolls under it as `player` changes, it never itself moves on screen. */}
                 <Polygon
-                  key={island.id}
-                  points={island.shape
-                    .map((p) => `${island.position.x + p.x},${island.position.y + p.y}`)
-                    .join(' ')}
-                  fill={island.isSafeZone ? '#3d9963' : '#2c7a4b'}
-                  stroke="#f4e9cd"
-                  strokeWidth={24}
+                  points={arrowPoints}
+                  fill="#ff5252"
+                  stroke="#fff"
+                  strokeWidth={4}
+                  transform={`rotate(${lastFacingAngleRef.current} ${player.x} ${player.y})`}
                 />
-              ))}
-              {PIRATE_LORDS.map((lord) => {
-                const pos = pirateLordWorldPosition(lord, ISLANDS[lord.islandId].position);
-                const isDefeated = defeatedLordIds.includes(lord.id);
-                const isUnlocked = isLordUnlocked(lord, defeatedLordIds, completedQuestIds);
-                const color = isDefeated ? '#4caf50' : isUnlocked ? '#ffd166' : '#8a7a6a';
-                return (
-                  <Circle key={lord.id} cx={pos.x} cy={pos.y} r={60} fill={color} stroke="#2b1c12" strokeWidth={10} />
-                );
-              })}
-              {mainQuestTarget && (
-                <Circle
-                  cx={mainQuestTarget.x}
-                  cy={mainQuestTarget.y}
-                  r={90}
-                  fill="none"
-                  stroke="#ffd166"
-                  strokeWidth={16}
-                />
-              )}
-              <Circle cx={player.x} cy={player.y} r={70} fill="#ff5252" stroke="#fff" strokeWidth={16} />
-            </Svg>
-          </View>
-        )}
+              </Svg>
+            </View>
+          );
+        })()}
 
         {dragOrigin && (
           <View
@@ -1809,8 +1922,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     left: 12,
-    borderRadius: 8,
-    borderWidth: 2,
+    width: MINIMAP_SIZE,
+    height: MINIMAP_SIZE,
+    borderRadius: MINIMAP_SIZE / 2,
+    borderWidth: 3,
     borderColor: '#c9a227',
     overflow: 'hidden',
     backgroundColor: '#124d73',

@@ -1277,20 +1277,28 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     offshore ship. Turning this into a full port *district* (new streets, more waterfront houses)
     remains open if wanted — this delivers the specific ask (boardwalks into the sea, boats docked
     up, bustling docks), not a full neighborhood rebuild
-32. ✅ **A persistent minimap overlay** (2026-08-02) — a small always-on `<Svg>` panel pinned to the
-    top-left of the map screen (`MapScreen.tsx`), rendering all 7 islands, every Pirate Lord fort
-    (colored by locked/available/defeated state, matching the main map's own fort colors), the
-    current main-quest target as a gold ring, and the player as a red dot — all drawn straight from
-    real `ISLANDS`/`PIRATE_LORDS`/`player` state, not a separate hand-placed image. Uses a single
-    `<Svg viewBox="0 0 WORLD_WIDTH WORLD_HEIGHT">` so every marker is plotted in raw world-unit
-    coordinates and the SVG itself does all the scaling — no separate minimap projection math to
-    keep in sync with the real map. A first pass also drew a viewport rectangle showing how much of
-    the world the zoomed-in camera currently covers; dropped after screenshotting it, since at
-    `ZOOM=5` the visible world slice works out to only ~2px on a 100px-wide minimap —
-    indistinguishable from the player dot itself, so it was dead weight rather than a real feature.
-    Verified with `npx tsc --noEmit`, and in-browser screenshots confirming the islands, forts,
-    quest target, and player all render at readable positions, plus a drag-gesture test confirming
-    the minimap's `pointerEvents="none"` doesn't block sailing underneath it
+32. ✅ **A GTA-style minimap radar** (2026-08-03, reworked twice from the first pass on 2026-08-02) —
+    a small circular `<Svg>` panel fixed in the map screen's top-left corner (`MapScreen.tsx`),
+    always centered on the player: the world scrolls underneath a marker that never itself moves,
+    at a fixed local radius (`MINIMAP_RADIUS` world units in every direction) rather than showing a
+    whole island or the whole world. Went through two earlier designs first, each replaced after
+    seeing it actually run: v1 plotted all 7 islands on one whole-world-viewBox `<Svg>`, which read
+    as tiny disconnected dots and didn't answer "where am I"; v2 scoped to just the current island's
+    own bounding box (forest drawn as a dark-green tree mass, town as a building/house cluster,
+    echoing a hand-drawn fantasy map reference the player shared) — better, but still went blank
+    while sailing between islands since it had no island to show. The fixed-radius follow-cam radar
+    (matching GTA's minimap) solves both at once: there's always *something* local to show
+    regardless of what's underneath the player, on land or at open sea. Renders nearby streets,
+    houses, buildings, forest (`SCENERY` entries with tree emoji, drawn as overlapping same-color
+    circles that read as one solid canopy at this scale), Pirate Lord forts (colored by
+    locked/available/defeated state), the current main-quest target as a gold ring, and the player
+    as a red heading arrow that rotates to match the live drag direction and holds its last heading
+    once released — everything filtered to a generous margin around the visible radius so nothing
+    pops in/out right at the circle's edge. Verified with `npx tsc --noEmit`, and in-browser
+    screenshots confirming the radar follows the player through the town center, along the
+    coastline, and out into open water (correctly showing solid blue with just the heading arrow
+    once nothing else is nearby), plus a drag-gesture test confirming the circular overlay's
+    `pointerEvents="none"` still lets sailing work underneath it
 33. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
