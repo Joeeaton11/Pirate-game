@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BLACK_PEARL_CAPTAIN_TEMPLATE, BLACK_PEARL_CAPTURED_LOG, BLACK_PEARL_INTRO_DIALOGUE } from '../data/blackPearl';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ITEM_LIST, ITEMS } from '../data/items';
 import { MOVES } from '../data/moves';
@@ -31,6 +32,7 @@ const ALL_TEMPLATES = {
   ...PIRATE_LORD_TEMPLATES,
   ...BOUNTY_TEMPLATES,
   ...MERCHANT_TEMPLATES,
+  [BLACK_PEARL_CAPTAIN_TEMPLATE.id]: BLACK_PEARL_CAPTAIN_TEMPLATE,
 };
 
 function openingLine(faction: EncounterFaction | undefined, questId: string | undefined): string {
@@ -45,6 +47,7 @@ function openingLine(faction: EncounterFaction | undefined, questId: string | un
   }
   if (faction === 'merchant') return 'A merchant vessel comes into view — ripe for plunder!';
   if (faction === 'rescue') return 'You storm the holding cell to break your crewmate loose!';
+  if (faction === 'blackpearl') return BLACK_PEARL_INTRO_DIALOGUE;
   return 'A wild pirate blocks your path!';
 }
 
@@ -74,6 +77,7 @@ export default function EncounterScreen({ navigation }: Props) {
   const consumeItem = useGameStore((s) => s.consumeItem);
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const defeatPirateLord = useGameStore((s) => s.defeatPirateLord);
+  const captureBlackPearl = useGameStore((s) => s.captureBlackPearl);
   const completeSideQuest = useGameStore((s) => s.completeSideQuest);
   const advanceQuestWave = useGameStore((s) => s.advanceQuestWave);
   const completeRepeatableQuest = useGameStore((s) => s.completeRepeatableQuest);
@@ -277,6 +281,11 @@ export default function EncounterScreen({ navigation }: Props) {
             lord?.badgeName ?? 'marque'
           } is yours!`
         );
+      } else if (encounter.faction === 'blackpearl') {
+        const goldReward = 30;
+        addGold(goldReward);
+        captureBlackPearl();
+        appendLog(`${BLACK_PEARL_CAPTURED_LOG} +${reward} XP, +${goldReward} gold.`);
       } else if (bountyQuest?.type === 'escort') {
         const waveIndex = questWaveProgress[bountyQuest.id] ?? 0;
         const isFinalWave = waveIndex + 1 >= bountyQuest.waveTemplateIds.length;
@@ -438,6 +447,8 @@ export default function EncounterScreen({ navigation }: Props) {
               ? '⚜️ NAVY AMBUSH'
               : encounter.faction === 'lord'
               ? '🏆 LETTER OF MARQUE DUEL'
+              : encounter.faction === 'blackpearl'
+              ? '🚢 DUEL FOR THE BLACK PEARL'
               : encounter.faction === 'merchant'
               ? '💰 PLUNDER OPPORTUNITY'
               : encounter.faction === 'bounty'

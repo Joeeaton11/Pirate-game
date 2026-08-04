@@ -6,6 +6,12 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Line, Polygon, Rect, Text as SvgText } from 'react-native-svg';
 import OnboardingOverlay from '../components/OnboardingOverlay';
+import {
+  BLACK_PEARL_CAPTAIN_LEVEL,
+  BLACK_PEARL_CAPTAIN_TEMPLATE,
+  BLACK_PEARL_EMOJI,
+  BLACK_PEARL_FLAG_EMOJI,
+} from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import {
@@ -292,12 +298,22 @@ export default function MapScreen({ navigation }: Props) {
   const salvageCooldowns = useGameStore((s) => s.salvageCooldowns);
   const salvageSite = useGameStore((s) => s.salvageSite);
   const capturedCrew = useGameStore((s) => s.capturedCrew);
+  const blackPearlCaptured = useGameStore((s) => s.blackPearlCaptured);
+  const blackPearlBoarded = useGameStore((s) => s.blackPearlBoarded);
+  const blackPearlPosition = useGameStore((s) => s.blackPearlPosition);
+  const boardBlackPearl = useGameStore((s) => s.boardBlackPearl);
+  const disembarkBlackPearl = useGameStore((s) => s.disembarkBlackPearl);
   const [resourceToast, setResourceToast] = useState<string | null>(null);
   const resourceToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Walking near a building now just offers to let you in — it doesn't yank you inside — so you
   // can pass right by without stopping if you didn't actually want to go in.
   const [nearbyBuildingPrompt, setNearbyBuildingPrompt] = useState<Building | null>(null);
   const nearbyBuildingPromptIdRef = useRef<string | null>(null);
+  // The Black Pearl is a single fixed entity (not a list of ids), so a plain boolean pair does
+  // the same "don't re-set state every tick while still standing next to it" job the building
+  // prompt's id-ref does.
+  const [showBoardPrompt, setShowBoardPrompt] = useState(false);
+  const boardPromptShownRef = useRef(false);
   const lastLandmarkIdRef = useRef<string | null>(null);
   const lastStreetNpcIdRef = useRef<string | null>(null);
   const [, setWanderTick] = useState(0);
@@ -324,6 +340,12 @@ export default function MapScreen({ navigation }: Props) {
   heatRef.current = heat;
   const shipUpgradesRef = useRef(shipUpgrades);
   shipUpgradesRef.current = shipUpgrades;
+  const blackPearlCapturedRef = useRef(blackPearlCaptured);
+  blackPearlCapturedRef.current = blackPearlCaptured;
+  const blackPearlBoardedRef = useRef(blackPearlBoarded);
+  blackPearlBoardedRef.current = blackPearlBoarded;
+  const blackPearlPositionRef = useRef(blackPearlPosition);
+  blackPearlPositionRef.current = blackPearlPosition;
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
   const dragResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -535,6 +557,14 @@ export default function MapScreen({ navigation }: Props) {
     return Math.hypot(pos.x - rp.x, pos.y - rp.y) <= ENTER_RADIUS ? rp : null;
   }
 
+  // Unlike every other "nearby" helper, the Black Pearl isn't tied to a specific island — she
+  // parks wherever the player last made landfall, so this checks the player's position against
+  // her live, mutable world position directly instead of resolving an island-relative offset.
+  function nearbyBlackPearlPos(pos: { x: number; y: number }) {
+    const bp = blackPearlPositionRef.current;
+    return Math.hypot(pos.x - bp.x, pos.y - bp.y) <= ENTER_RADIUS ? bp : null;
+  }
+
   function nearbyLandmark(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
     return LANDMARKS.find((landmark) => {
       if (landmark.islandId !== island.id) return false;
@@ -566,6 +596,14 @@ export default function MapScreen({ navigation }: Props) {
     setNearbyBuildingPrompt(null);
     setCurrentBuilding(nearbyBuildingPrompt.id);
     navigation.navigate('Building');
+  }
+
+  function confirmBoardBlackPearl() {
+    boardPromptShownRef.current = false;
+    setShowBoardPrompt(false);
+    directionRef.current = null;
+    blackPearlBoardedRef.current = true;
+    boardBlackPearl();
   }
 
   useEffect(() => {
@@ -659,7 +697,11 @@ export default function MapScreen({ navigation }: Props) {
       const nearbyPos =
         nearbyLordPos(pos, island) ??
         nearbySideQuestPos(pos, island) ??
-        nearbyRescuePointPos(pos, island);
+        nearbyRescuePointPos(pos, island) ??
+        // Only pre-capture: the guarding captain's forced duel would otherwise instantly re-fire
+        // the moment the player returns from losing it. The post-capture board prompt is a
+        // dismissible UI card, not a forced navigation, so it's harmless to leave un-nudged.
+        (!blackPearlCapturedRef.current ? nearbyBlackPearlPos(pos) : null);
       if (nearbyPos) {
         const bp = nearbyPos;
         let dx = pos.x - bp.x;
@@ -703,6 +745,21 @@ export default function MapScreen({ navigation }: Props) {
       const rawX = clamp(playerRef.current.x + direction.x * speed * dt, 0, WORLD_WIDTH);
       const rawY = clamp(playerRef.current.y + direction.y * speed * dt, 0, WORLD_HEIGHT);
 
+      // The open sea is impassable on foot — the Black Pearl is the only way off land. Same
+      // three-stage retry as the house collision below (full move, then each axis alone, then
+      // stay put), just checked against "is this point open water" instead of a list of obstacle
+      // circles, so the player slides along the coastline instead of hard-stopping at the shore.
+      const seaBlocked = (pos: { x: number; y: number }) =>
+        !blackPearlBoardedRef.current && !islandAtPoint(pos);
+      let seaSafePosition = { x: rawX, y: rawY };
+      if (seaBlocked(seaSafePosition)) {
+        const xOnly = { x: rawX, y: playerRef.current.y };
+        const yOnly = { x: playerRef.current.x, y: rawY };
+        if (!seaBlocked(xOnly)) seaSafePosition = xOnly;
+        else if (!seaBlocked(yOnly)) seaSafePosition = yOnly;
+        else seaSafePosition = playerRef.current;
+      }
+
       // Houses are solid — walking into one blocks that axis but still lets the player slide
       // along it on the other axis, rather than hard-stopping dead at the first touch.
       const houseObstacles = currentIsland
@@ -710,7 +767,7 @@ export default function MapScreen({ navigation }: Props) {
         : [];
       const nextPosition = slideAroundObstacles(
         playerRef.current,
-        { x: rawX, y: rawY },
+        seaSafePosition,
         houseObstacles,
         HOUSE_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
       );
@@ -725,7 +782,47 @@ export default function MapScreen({ navigation }: Props) {
       playerRef.current = nextPosition;
       setPlayer(nextPosition);
 
+      // Making landfall while under sail auto-disembarks: the Black Pearl parks herself right
+      // here, waiting to be boarded again, rather than the player staying "boarded" while walking
+      // around on land. Gated on `!currentIsland` (the position *before* this tick's move) so this
+      // only fires on a genuine sea-to-land transition — boarding happens while already standing
+      // on land/a pier, and without this guard the very next tick (still on that same land) would
+      // read as "landfall" and instantly un-board the player before they ever left the dock.
+      if (nextIsland && !currentIsland && blackPearlBoardedRef.current) {
+        blackPearlBoardedRef.current = false;
+        blackPearlPositionRef.current = nextPosition;
+        disembarkBlackPearl(nextPosition);
+      }
+
       if (nextIsland) {
+        if (!blackPearlCapturedRef.current) {
+          const bpDist = Math.hypot(
+            nextPosition.x - blackPearlPositionRef.current.x,
+            nextPosition.y - blackPearlPositionRef.current.y
+          );
+          if (bpDist <= ENTER_RADIUS) {
+            directionRef.current = null;
+            startEncounter(
+              BLACK_PEARL_CAPTAIN_TEMPLATE.id,
+              BLACK_PEARL_CAPTAIN_LEVEL,
+              'blackpearl',
+              BLACK_PEARL_CAPTAIN_TEMPLATE
+            );
+            return;
+          }
+        } else if (!blackPearlBoardedRef.current) {
+          const bp = nearbyBlackPearlPos(nextPosition);
+          if (bp) {
+            if (!boardPromptShownRef.current) {
+              boardPromptShownRef.current = true;
+              setShowBoardPrompt(true);
+            }
+          } else if (boardPromptShownRef.current) {
+            boardPromptShownRef.current = false;
+            setShowBoardPrompt(false);
+          }
+        }
+
         const nearbyBuilding = buildingsForIsland(nextIsland.id).find((building) => {
           const pos = buildingWorldPosition(building, nextIsland.position);
           return Math.hypot(nextPosition.x - pos.x, nextPosition.y - pos.y) <= ENTER_RADIUS;
@@ -884,8 +981,12 @@ export default function MapScreen({ navigation }: Props) {
     ? SIDE_QUESTS.find((q) => q.id === gatedLord.requiresQuestId)
     : undefined;
 
+  // Capturing the Black Pearl always leads — there's no sailing anywhere, so there's nothing
+  // else to point at, until she's yours.
   let mainQuestText: string;
-  if (allLordsDefeated) {
+  if (!blackPearlCaptured) {
+    mainQuestText = 'Capture the Black Pearl from Captain Odessa Kane at Tortuga Cove';
+  } else if (allLordsDefeated) {
     mainQuestText = 'Every marque is yours — terror of these waters';
   } else if (nextLord) {
     mainQuestText = `Defeat ${nextLord.name} at ${ISLANDS[nextLord.islandId].name}`;
@@ -899,7 +1000,9 @@ export default function MapScreen({ navigation }: Props) {
   // just resolved to a world position instead of a sentence. Null means "nothing to point at"
   // (every lord defeated), which hides the compass entirely rather than showing a dead needle.
   let mainQuestTarget: { x: number; y: number } | null = null;
-  if (nextLord) {
+  if (!blackPearlCaptured) {
+    mainQuestTarget = blackPearlPosition;
+  } else if (nextLord) {
     mainQuestTarget = pirateLordWorldPosition(nextLord, ISLANDS[nextLord.islandId].position);
   } else if (gateQuest) {
     const gateIslandPos = ISLANDS[gateQuest.islandId].position;
@@ -971,7 +1074,21 @@ export default function MapScreen({ navigation }: Props) {
         })
         .filter((x): x is EdgeIndicator => x !== null)
     : [];
-  const edgeIndicators = [...resourceEdgeIndicators, ...sideQuestEdgeIndicators];
+  // The Black Pearl isn't scoped to the current island (she can be anywhere she was last left),
+  // and isn't hidden until she's boarded — she's the whole point of the "add an external screen
+  // emoji so it can be found" ask, so unlike the resource/quest icons above she always gets a
+  // shot at an edge indicator regardless of which island the player is standing on.
+  const blackPearlEdgeIndicator: EdgeIndicator | null = blackPearlBoarded
+    ? null
+    : (() => {
+        const edgePos = edgeIndicatorPosition(player, blackPearlPosition, viewport, EDGE_ICON_MARGIN);
+        return edgePos ? { id: 'black_pearl', emoji: BLACK_PEARL_EMOJI, pos: edgePos } : null;
+      })();
+  const edgeIndicators = [
+    ...resourceEdgeIndicators,
+    ...sideQuestEdgeIndicators,
+    ...(blackPearlEdgeIndicator ? [blackPearlEdgeIndicator] : []),
+  ];
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -1415,6 +1532,28 @@ export default function MapScreen({ navigation }: Props) {
                 </View>
               );
             })}
+
+            {/* Hidden while boarded — she's under the player's feet at that point, represented by
+                the sea player-emoji instead of a separate marker. Otherwise always visible,
+                wherever she was last left, guarded or not. */}
+            {!blackPearlBoarded && (
+              <View
+                style={[
+                  styles.building,
+                  blackPearlCaptured ? styles.blackPearlMarkerCaptured : styles.blackPearlMarkerGuarded,
+                  {
+                    left: blackPearlPosition.x - BUILDING_SIZE / 2,
+                    top: blackPearlPosition.y - BUILDING_SIZE / 2,
+                  },
+                ]}
+                pointerEvents="none"
+              >
+                {!blackPearlCaptured && (
+                  <Text style={styles.buildingQuestIndicator}>{BLACK_PEARL_FLAG_EMOJI}</Text>
+                )}
+                <Text style={styles.buildingEmoji}>{BLACK_PEARL_EMOJI}</Text>
+              </View>
+            )}
           </View>
         )}
 
@@ -1602,6 +1741,19 @@ export default function MapScreen({ navigation }: Props) {
                     </SvgText>
                   );
                 })}
+                {/* Parked and findable on the radar same as any other blip — hidden while
+                    boarded, since at that point the player's own arrow marker is the ship. */}
+                {!blackPearlBoarded && inView(blackPearlPosition.x, blackPearlPosition.y) && (
+                  <SvgText
+                    x={blackPearlPosition.x}
+                    y={blackPearlPosition.y}
+                    fontSize={20 * MINIMAP_WORLD_PER_PX}
+                    textAnchor="middle"
+                    alignmentBaseline="central"
+                  >
+                    {BLACK_PEARL_EMOJI}
+                  </SvgText>
+                )}
                 {mainQuestTarget && inView(mainQuestTarget.x, mainQuestTarget.y) && (
                   <Circle
                     cx={mainQuestTarget.x}
@@ -1649,6 +1801,13 @@ export default function MapScreen({ navigation }: Props) {
           <Pressable style={styles.buildingPrompt} onPress={confirmEnterBuilding}>
             <Text style={styles.buildingPromptEmoji}>{nearbyBuildingPrompt.emoji}</Text>
             <Text style={styles.buildingPromptText}>Enter {nearbyBuildingPrompt.name}?</Text>
+          </Pressable>
+        )}
+
+        {showBoardPrompt && (
+          <Pressable style={styles.buildingPrompt} onPress={confirmBoardBlackPearl}>
+            <Text style={styles.buildingPromptEmoji}>{BLACK_PEARL_EMOJI}</Text>
+            <Text style={styles.buildingPromptText}>Board the Black Pearl?</Text>
           </Pressable>
         )}
 
@@ -2014,6 +2173,14 @@ const styles = StyleSheet.create({
     borderColor: '#ffd166',
   },
   fortDefeated: {
+    backgroundColor: 'rgba(44, 122, 75, 0.5)',
+    borderColor: '#4caf50',
+  },
+  blackPearlMarkerGuarded: {
+    backgroundColor: 'rgba(122, 31, 31, 0.5)',
+    borderColor: '#ffd166',
+  },
+  blackPearlMarkerCaptured: {
     backgroundColor: 'rgba(44, 122, 75, 0.5)',
     borderColor: '#4caf50',
   },

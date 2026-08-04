@@ -1,8 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { BLACK_PEARL_ISLAND_ID, BLACK_PEARL_START_OFFSET } from '../data/blackPearl';
 import { BUILDINGS } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
+import { ISLANDS } from '../data/islands';
 import { craftingRecipeFor } from '../data/items';
 import { promotionFor, resolvePromotion } from '../data/promotions';
 import { RESOURCE_NODES, RESOURCES, ResourceId } from '../data/resources';
@@ -10,7 +12,15 @@ import { SALVAGE_SITES, shipUpgradeFor } from '../data/shipUpgrades';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 
-export type EncounterFaction = 'wild' | 'rival' | 'navy' | 'lord' | 'bounty' | 'merchant' | 'rescue';
+export type EncounterFaction =
+  | 'wild'
+  | 'rival'
+  | 'navy'
+  | 'lord'
+  | 'bounty'
+  | 'merchant'
+  | 'rescue'
+  | 'blackpearl';
 
 export interface WildEncounter {
   templateId: string;
@@ -59,6 +69,9 @@ interface GameState {
   salvageCooldowns: Record<string, number>;
   hasSeenOnboarding: boolean;
   capturedCrew: CapturedCrewMember[];
+  blackPearlCaptured: boolean;
+  blackPearlBoarded: boolean;
+  blackPearlPosition: { x: number; y: number };
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -112,6 +125,9 @@ interface GameState {
   debugResetSave: () => void;
   setHasHydrated: (value: boolean) => void;
   completeOnboarding: () => void;
+  captureBlackPearl: () => void;
+  boardBlackPearl: () => void;
+  disembarkBlackPearl: (position: { x: number; y: number }) => void;
 }
 
 const STARTER_TEMPLATE_ID = 'deckhand_swordsman';
@@ -143,6 +159,9 @@ type InitialState = Pick<
   | 'salvageCooldowns'
   | 'hasSeenOnboarding'
   | 'capturedCrew'
+  | 'blackPearlCaptured'
+  | 'blackPearlBoarded'
+  | 'blackPearlPosition'
 >;
 
 function createInitialState(): InitialState {
@@ -173,6 +192,12 @@ function createInitialState(): InitialState {
     salvageCooldowns: {},
     hasSeenOnboarding: false,
     capturedCrew: [],
+    blackPearlCaptured: false,
+    blackPearlBoarded: false,
+    blackPearlPosition: {
+      x: ISLANDS[BLACK_PEARL_ISLAND_ID].position.x + BLACK_PEARL_START_OFFSET.x,
+      y: ISLANDS[BLACK_PEARL_ISLAND_ID].position.y + BLACK_PEARL_START_OFFSET.y,
+    },
   };
 }
 
@@ -409,6 +434,12 @@ export const useGameStore = create<GameState>()(
             ? state
             : { defeatedLordIds: [...state.defeatedLordIds, lordId] }
         ),
+
+      captureBlackPearl: () => set({ blackPearlCaptured: true }),
+
+      boardBlackPearl: () => set({ blackPearlBoarded: true }),
+
+      disembarkBlackPearl: (position) => set({ blackPearlBoarded: false, blackPearlPosition: position }),
 
       markSeen: (templateId) =>
         set((state) =>
@@ -662,6 +693,9 @@ export const useGameStore = create<GameState>()(
         salvageCooldowns: state.salvageCooldowns,
         hasSeenOnboarding: state.hasSeenOnboarding,
         capturedCrew: state.capturedCrew,
+        blackPearlCaptured: state.blackPearlCaptured,
+        blackPearlBoarded: state.blackPearlBoarded,
+        blackPearlPosition: state.blackPearlPosition,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

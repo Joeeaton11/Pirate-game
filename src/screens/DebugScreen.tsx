@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BLACK_PEARL_CAPTAIN_LEVEL, BLACK_PEARL_CAPTAIN_TEMPLATE } from '../data/blackPearl';
 import { BUILDINGS } from '../data/buildings';
 import { CREW_TEMPLATE_LIST } from '../data/crew';
 import { MERCHANT_ENCOUNTER_TABLE, MERCHANT_TEMPLATES } from '../data/merchants';
@@ -11,7 +12,7 @@ import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
-import { useActiveCrewMember, useGameStore } from '../store/gameStore';
+import { EncounterFaction, useActiveCrewMember, useGameStore } from '../store/gameStore';
 import { CrewTemplate } from '../types';
 import { maxHpFor } from '../utils/battle';
 
@@ -42,6 +43,12 @@ export default function DebugScreen({ navigation }: Props) {
   const crew = useGameStore((s) => s.crew);
   const removeCrewMember = useGameStore((s) => s.removeCrewMember);
   const capturedCrew = useGameStore((s) => s.capturedCrew);
+  const blackPearlCaptured = useGameStore((s) => s.blackPearlCaptured);
+  const blackPearlBoarded = useGameStore((s) => s.blackPearlBoarded);
+  const captureBlackPearl = useGameStore((s) => s.captureBlackPearl);
+  const boardBlackPearl = useGameStore((s) => s.boardBlackPearl);
+  const disembarkBlackPearl = useGameStore((s) => s.disembarkBlackPearl);
+  const blackPearlPosition = useGameStore((s) => s.blackPearlPosition);
 
   function handleGrantUpgrade(upgradeId: string) {
     addGold(9999);
@@ -58,7 +65,7 @@ export default function DebugScreen({ navigation }: Props) {
   function forceEncounter(
     templateId: string,
     level: number,
-    faction: 'wild' | 'rival' | 'navy',
+    faction: EncounterFaction,
     template: CrewTemplate
   ) {
     const maxHp = maxHpFor(
@@ -121,6 +128,15 @@ export default function DebugScreen({ navigation }: Props) {
   function handleJumpToQuest(questId: string) {
     setCurrentSideQuest(questId);
     navigation.navigate('SideQuest');
+  }
+
+  function handleForceBlackPearlFight() {
+    forceEncounter(
+      BLACK_PEARL_CAPTAIN_TEMPLATE.id,
+      BLACK_PEARL_CAPTAIN_LEVEL,
+      'blackpearl',
+      BLACK_PEARL_CAPTAIN_TEMPLATE
+    );
   }
 
   function handleReset() {
@@ -188,6 +204,37 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={handleForceMerchant}>
             <Text style={styles.buttonText}>Merchant Ship</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.sectionHeading}>
+          Black Pearl (captured: {blackPearlCaptured ? 'yes' : 'no'}, boarded:{' '}
+          {blackPearlBoarded ? 'yes' : 'no'})
+        </Text>
+        <View style={styles.row}>
+          <Pressable style={styles.button} onPress={handleForceBlackPearlFight}>
+            <Text style={styles.buttonText}>Force Captain Duel</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.button, blackPearlCaptured && styles.dangerButton]}
+            onPress={captureBlackPearl}
+            disabled={blackPearlCaptured}
+          >
+            <Text style={styles.buttonText}>Instant Capture</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={boardBlackPearl}
+            disabled={!blackPearlCaptured || blackPearlBoarded}
+          >
+            <Text style={styles.buttonText}>Board</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={() => disembarkBlackPearl(blackPearlPosition)}
+            disabled={!blackPearlBoarded}
+          >
+            <Text style={styles.buttonText}>Force Disembark</Text>
           </Pressable>
         </View>
 

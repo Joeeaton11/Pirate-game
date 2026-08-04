@@ -1400,32 +1400,80 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     the same holding true standing directly on the quay's curve, and a screenshot confirming the
     relocated houses/buildings now visibly flank the quay and sit near the Lighthouse instead of
     being a walk across an empty field away from it
-37. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+37. ✅ **The Black Pearl: capture, board, disembark, and sea blocked-by-default** (2026-08-04) —
+    "Should we make it so you can't go into the water unless you go to the Black Pearl, the
+    captain's boat?" plus a direct correction mid-discussion ("why would only sailing his ship
+    undo things?" — the sea/encounter/sprite systems are all untouched; the actual change is that
+    open water flips from always-enterable to blocked-by-default) and a clarified scope ("Fuller
+    for sure" — a real docked/re-boardable ship, not a one-time unlock). New `src/data/blackPearl.ts`
+    defines a persistent, mutable ship position (unlike every other marker in the game, which is a
+    fixed data-file offset, `blackPearlPosition` lives in the Zustand store because the player
+    relocates it every time they make landfall) plus the guarding `Captain Odessa Kane`
+    (`black_pearl_captain`) and her forced-duel dialogue. `gameStore.ts` gained
+    `blackPearlCaptured`/`blackPearlBoarded`/`blackPearlPosition` state, a new `'blackpearl'`
+    `EncounterFaction`, and `captureBlackPearl`/`boardBlackPearl`/`disembarkBlackPearl` actions
+    (all persisted). `EncounterScreen.tsx` gained the captain's opening line, banner label, and
+    victory branch. `MapScreen.tsx` is the bulk of the feature: `islandAtPoint()` already treats
+    piers/quays as land (item 36), so the sea-blocking collision is a bespoke inline three-stage
+    retry (full move, then each axis alone, then stay put — same shape as the house-collision
+    slide, just checked against "is this point open water" instead of a list of obstacle circles),
+    gated on `!blackPearlBoardedRef.current`; a proximity check pre-capture starts the forced duel
+    (`startEncounter` with the `'blackpearl'` faction) the same way a Pirate Lord's fort does, and
+    post-capture instead shows a dismissible "Board the Black Pearl?" prompt; making landfall while
+    boarded auto-disembarks (gated on `!currentIsland` — the pre-move state — so the check fires
+    only on a genuine sea→land transition, not on the very first tick after boarding, since boarding
+    happens while already standing on the land/pier the ship is docked at); the ship gets a
+    findable map marker (🚢, with a 🏴‍☠️ flag badge while still guarded) plus an edge-of-screen
+    indicator and minimap blip whenever she isn't currently being sailed; and `mainQuestText`/
+    `mainQuestTarget` lead with "Capture the Black Pearl" until she's taken, then fall through to
+    the existing Pirate Lord chain. Debug screen gained a Black Pearl section (force the duel,
+    instant-capture, board, force-disembark) for testability. The captain's original stats
+    (a plain "rare"-tier template, baseHp 42/atk 17/def 11 at level 4) were caught by in-browser
+    testing losing to the starting Deckhand Swordsman (level 3: 46hp/17atk/11def) — she
+    out-damaged him roughly 2:1 and outlasted his hits 5-to-2 — which directly contradicted the
+    intended "no way to grind first, so the boss must be reliably winnable" design (Tortuga is a
+    safe zone with zero wild encounters); cut down to baseHp 20/atk 7/def 8, verified both by a
+    20,000-run Monte Carlo simulation of the exact damage formula (~99.98% player win rate) and by
+    repeated clean in-browser wins. A second real bug surfaced the same way: the auto-disembark
+    check originally fired on any tick where `nextIsland` was truthy while boarded, which is always
+    true on the very first movement tick after boarding (since you board while standing on land) —
+    instantly un-boarding the player before they ever left the dock; fixed by requiring the
+    pre-move position to have been sea (`!currentIsland`). Verified `npx tsc --noEmit` throughout,
+    then in-browser via a temporary, fully-reverted `TEMP-TEST-SPAWN` spawn near the ship (confirmed
+    removed via `grep -rn TEMP src` before commit): the guarded ship's marker and flag badge
+    visible and findable, the forced duel triggering on approach and won cleanly across multiple
+    attempts, capture correctly updating gold/quest-text/marker color, the board prompt appearing
+    and boarding hiding the marker, sea movement genuinely blocked while not boarded (confirmed via
+    a temporary on-screen coordinate/state readout, also reverted), successful sailing to open
+    water once boarded (zone label flips to "The Open Sea," player sprite becomes the sea emoji,
+    a random sea encounter still fires normally mid-sail), and the compass/quest-tracker correctly
+    pointing at the ship pre-capture
+38. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-38. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+39. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-39. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+40. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-40. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+41. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-41. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+42. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-42. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+43. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-43. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+44. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-44. **GTA-style character switching** (biggest, most novel, probably last)
-45. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+45. **GTA-style character switching** (biggest, most novel, probably last)
+46. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-46. Full e2e test automation, IAP integration, real art asset pipeline —
+47. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
