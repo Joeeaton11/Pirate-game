@@ -1250,6 +1250,42 @@ export default function MapScreen({ navigation }: Props) {
                 />
               ))}
 
+              {/* Garden/yard patches drawn here, before streets/piers/quays in the same SVG, so
+                  the road paint always wins where the two overlap — a garden circle that happens
+                  to reach a street reads as "the road cuts across the edge of the yard" instead of
+                  the yard washing out over the road. The house/building icons themselves render in
+                  a separate View layer on top of this whole Svg, so they're unaffected either way. */}
+              {HOUSES.map((house, i) => {
+                const islandPos = ISLANDS[house.islandId].position;
+                const pos = houseWorldPosition(house, islandPos);
+                return (
+                  <Circle
+                    key={`house-garden-${i}`}
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={HOUSE_GARDEN_RADIUS}
+                    fill="rgba(139, 195, 74, 0.22)"
+                    stroke="rgba(85, 139, 47, 0.45)"
+                    strokeWidth={1}
+                  />
+                );
+              })}
+              {BUILDINGS.map((building) => {
+                const islandPos = ISLANDS[building.islandId].position;
+                const pos = buildingWorldPosition(building, islandPos);
+                return (
+                  <Circle
+                    key={`building-garden-${building.id}`}
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={BUILDING_GARDEN_RADIUS}
+                    fill="rgba(139, 195, 74, 0.16)"
+                    stroke="rgba(85, 139, 47, 0.35)"
+                    strokeWidth={1}
+                  />
+                );
+              })}
+
               {STREETS.map((street, i) => {
                 const islandPos = ISLANDS[street.islandId].position;
                 const x1 = islandPos.x + street.from.x;
@@ -1344,10 +1380,7 @@ export default function MapScreen({ navigation }: Props) {
               return (
                 <View
                   key={i}
-                  style={[
-                    styles.houseGarden,
-                    { left: pos.x - HOUSE_GARDEN_RADIUS, top: pos.y - HOUSE_GARDEN_RADIUS },
-                  ]}
+                  style={[styles.house, { left: pos.x - 13, top: pos.y - 13 }]}
                   pointerEvents="none"
                 >
                   <Text style={styles.houseEmoji}>{emoji}</Text>
@@ -1398,37 +1431,26 @@ export default function MapScreen({ navigation }: Props) {
               );
               const isBuildingShaped = BUILDING_SHAPED_EMOJI.has(building.emoji);
               return (
-                <React.Fragment key={building.id}>
-                  <View
-                    style={[
-                      styles.buildingGarden,
-                      {
-                        left: pos.x - BUILDING_GARDEN_RADIUS,
-                        top: pos.y - BUILDING_GARDEN_RADIUS,
-                      },
-                    ]}
-                    pointerEvents="none"
-                  />
-                  <View
-                    style={[
-                      styles.building,
-                      {
-                        left: pos.x - BUILDING_SIZE / 2,
-                        top: pos.y - BUILDING_SIZE / 2,
-                      },
-                    ]}
-                  >
-                    {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
-                    {isBuildingShaped ? (
-                      <Text style={styles.buildingEmoji}>{building.emoji}</Text>
-                    ) : (
-                      <>
-                        <Text style={styles.buildingHouseBase}>🏠</Text>
-                        <Text style={styles.buildingTypeBadge}>{building.emoji}</Text>
-                      </>
-                    )}
-                  </View>
-                </React.Fragment>
+                <View
+                  key={building.id}
+                  style={[
+                    styles.building,
+                    {
+                      left: pos.x - BUILDING_SIZE / 2,
+                      top: pos.y - BUILDING_SIZE / 2,
+                    },
+                  ]}
+                >
+                  {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
+                  {isBuildingShaped ? (
+                    <Text style={styles.buildingEmoji}>{building.emoji}</Text>
+                  ) : (
+                    <>
+                      <Text style={styles.buildingHouseBase}>🏠</Text>
+                      <Text style={styles.buildingTypeBadge}>{building.emoji}</Text>
+                    </>
+                  )}
+                </View>
               );
             })}
 
@@ -2079,30 +2101,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // A tinted, softly-bordered patch behind each house's sprite — reads as a fenced yard, giving
-  // the (now larger) collision radius a visible reason rather than an invisible wall.
-  houseGarden: {
+  // The garden/yard tint itself now renders as an SVG circle in the streets layer (so roads
+  // paint over it), not here — this is just the plain icon container.
+  house: {
     position: 'absolute',
-    width: HOUSE_GARDEN_RADIUS * 2,
-    height: HOUSE_GARDEN_RADIUS * 2,
-    borderRadius: HOUSE_GARDEN_RADIUS,
-    backgroundColor: 'rgba(139, 195, 74, 0.22)',
-    borderWidth: 1,
-    borderColor: 'rgba(85, 139, 47, 0.45)',
+    width: 26,
+    height: 26,
     alignItems: 'center',
     justifyContent: 'center',
   },
   houseEmoji: {
     fontSize: 18,
-  },
-  buildingGarden: {
-    position: 'absolute',
-    width: BUILDING_GARDEN_RADIUS * 2,
-    height: BUILDING_GARDEN_RADIUS * 2,
-    borderRadius: BUILDING_GARDEN_RADIUS,
-    backgroundColor: 'rgba(139, 195, 74, 0.16)',
-    borderWidth: 1,
-    borderColor: 'rgba(85, 139, 47, 0.35)',
   },
   scenery: {
     position: 'absolute',

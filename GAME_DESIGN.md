@@ -1530,32 +1530,52 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     temporary, fully-reverted `TEMP-TEST-SPAWN` (confirmed removed via `grep -rn TEMP src` before
     commit) at both The Salty Parrot and The Anchor & Forge showing a real grass gap between the
     road and each building's garden edge where before the road ran straight into the plot
-41. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+41. ✅ **Garden patches actually never overlap a street now — moved to a z-order fix, not more
+    repositioning** (2026-08-04) — user sent a real device screenshot straight after the previous
+    item shipped: "I don't think that worked. Also don't let the gardens overlap the paths." They
+    were right again — that screenshot showed four ordinary row *houses* (not the specially-handled
+    shop/tavern `BUILDINGS`) whose garden circles were visibly washing green across a residential
+    street, since houses were always placed with only a few units of clearance from their fronting
+    street's centerline (intentional — that's how a row-house street front works) while the new
+    `HOUSE_GARDEN_RADIUS` (18) is bigger than that clearance. Repositioning ~90 hand-placed houses
+    the same way the 5 buildings were nudged in the previous item was the wrong tool here — it
+    would fight the deliberate "houses line the street" layout instead of respecting it. Switched
+    approach entirely: garden tints for both houses and buildings now render as `<Circle>` elements
+    inside the same `<Svg>` block, positioned *before* `STREETS`/`PIERS`/`QUAYS`/`BREAKWATER`, so
+    the road's own paint always wins wherever the two shapes overlap — a garden that reaches a
+    street now reads as "the road cuts across the yard's edge" instead of "the yard washes out over
+    the road," with zero coordinate changes and no risk of relitigating individual placements one
+    green blob at a time. The house/building icons themselves stayed in their own `View` layer on
+    top of the `Svg`, untouched. Verified `npx tsc --noEmit` and in-browser via a temporary, fully-
+    reverted `TEMP-TEST-SPAWN` (confirmed removed via `grep -rn TEMP src` before commit) at two busy
+    residential intersections — every street segment, including ones passing directly beside a
+    house's garden circle, renders with clean, uninterrupted road color, no green bleed anywhere
+42. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-42. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+43. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-43. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+44. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-44. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+45. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-45. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+46. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-46. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+47. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-47. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+48. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-48. **GTA-style character switching** (biggest, most novel, probably last)
-49. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+49. **GTA-style character switching** (biggest, most novel, probably last)
+50. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-50. Full e2e test automation, IAP integration, real art asset pipeline —
+51. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
