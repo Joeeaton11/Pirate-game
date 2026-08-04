@@ -1607,32 +1607,52 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     both this and item 43's infill. Verified the same way as item 43, plus an in-browser
     `TEMP-TEST-SPAWN` walkthrough of the new block confirming it reads as a packed quarter and that
     both new buildings' "Enter?" prompts fire correctly
-45. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+45. ✅ **Old Town re-laid as one adjacent row, not a 3-deep block; house gardens switched off**
+    (2026-08-04) — direct follow-up: "Rather than houses three rows deep. I'd rather them be next
+    to each other. Ignore gardens. In fact we could disable them for now. And maybe switch them
+    back later." Item 44's 25 houses had been scattered to fill the available gap, which read as a
+    dense block several houses deep from the street rather than a real row-house terrace. Replaced
+    with a single continuous chain: a snake-placement script walks house-to-house from the dock at
+    fixed ~29-unit (touching-neighbor) spacing, at each step searching a widening cone of
+    angles/step-lengths for the nearest legal spot and bending around obstacles (dock buildings,
+    the existing waterfront houses) instead of ever placing a second parallel row. The result winds
+    from the dock down toward the residential grid as one unbroken adjacent terrace. Gardens
+    (`SHOW_GARDENS` in MapScreen.tsx, added as a single render-time toggle) are switched off
+    entirely for now, per the explicit "switch them back later" ask — the offset math and
+    precomputed `HOUSE_GARDEN_OFFSETS`/`BUILDING_GARDEN_OFFSETS` are untouched and cost nothing
+    while off, so re-enabling is a one-line flip back to `true` with no data changes needed.
+    (Collision itself was never tied to the garden radius — `HOUSE_COLLISION_RADIUS`/
+    `BUILDING_COLLISION_RADIUS` are separate and unaffected.) Verified via the same comprehensive
+    Node script as items 43-44 (0 bad path clearances, 0 bad gaps, 0 outside-polygon) plus
+    `npx tsc --noEmit` and an in-browser `TEMP-TEST-SPAWN` walkthrough of three points along the new
+    row (dock end, the bend, and the east end) confirming a clean unbroken terrace with no garden
+    rings and no stacked houses
+46. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-46. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+47. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-47. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+48. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-48. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+49. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-49. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+50. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-50. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+51. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-51. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+52. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-52. **GTA-style character switching** (biggest, most novel, probably last)
-53. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+53. **GTA-style character switching** (biggest, most novel, probably last)
+54. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-54. Full e2e test automation, IAP integration, real art asset pipeline —
+55. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

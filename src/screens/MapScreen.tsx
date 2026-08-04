@@ -123,6 +123,11 @@ const BUILDING_COLLISION_RADIUS = 15;
 // Visual "fenced yard" patches, drawn behind the house/building sprite — sized a little past
 // their respective collision radii so the tinted grass reads as the reason you can't cut through,
 // not just an invisible wall.
+// Disabled 2026-08-04 per direct feedback: with the Old Town packed into tight, adjacent row
+// houses, the garden rings just made everything look crowded/messy again. Purely a render-time
+// toggle — the offset math, collision radii, and precomputed *_GARDEN_OFFSETS below are all still
+// intact and cost nothing when off, so flipping this back to `true` is the entire un-revert.
+const SHOW_GARDENS = false;
 const HOUSE_GARDEN_RADIUS = 18;
 const BUILDING_GARDEN_RADIUS = 30;
 // Street NPCs are much smaller than the player on screen, so they get a tighter collision
@@ -1349,36 +1354,38 @@ export default function MapScreen({ navigation }: Props) {
                   defense: belt-and-suspenders in case a garden ever still grazes a path edge, the
                   road paint wins. The house/building icons themselves render in a separate View
                   layer on top of this whole Svg, at their real, unmoved position. */}
-              {HOUSES.map((house, i) => {
-                const islandPos = ISLANDS[house.islandId].position;
-                const offset = HOUSE_GARDEN_OFFSETS[i];
-                return (
-                  <Circle
-                    key={`house-garden-${i}`}
-                    cx={islandPos.x + offset.x}
-                    cy={islandPos.y + offset.y}
-                    r={HOUSE_GARDEN_RADIUS}
-                    fill="rgba(139, 195, 74, 0.22)"
-                    stroke="rgba(85, 139, 47, 0.45)"
-                    strokeWidth={1}
-                  />
-                );
-              })}
-              {BUILDINGS.map((building) => {
-                const islandPos = ISLANDS[building.islandId].position;
-                const offset = BUILDING_GARDEN_OFFSETS[building.id];
-                return (
-                  <Circle
-                    key={`building-garden-${building.id}`}
-                    cx={islandPos.x + offset.x}
-                    cy={islandPos.y + offset.y}
-                    r={BUILDING_GARDEN_RADIUS}
-                    fill="rgba(139, 195, 74, 0.16)"
-                    stroke="rgba(85, 139, 47, 0.35)"
-                    strokeWidth={1}
-                  />
-                );
-              })}
+              {SHOW_GARDENS &&
+                HOUSES.map((house, i) => {
+                  const islandPos = ISLANDS[house.islandId].position;
+                  const offset = HOUSE_GARDEN_OFFSETS[i];
+                  return (
+                    <Circle
+                      key={`house-garden-${i}`}
+                      cx={islandPos.x + offset.x}
+                      cy={islandPos.y + offset.y}
+                      r={HOUSE_GARDEN_RADIUS}
+                      fill="rgba(139, 195, 74, 0.22)"
+                      stroke="rgba(85, 139, 47, 0.45)"
+                      strokeWidth={1}
+                    />
+                  );
+                })}
+              {SHOW_GARDENS &&
+                BUILDINGS.map((building) => {
+                  const islandPos = ISLANDS[building.islandId].position;
+                  const offset = BUILDING_GARDEN_OFFSETS[building.id];
+                  return (
+                    <Circle
+                      key={`building-garden-${building.id}`}
+                      cx={islandPos.x + offset.x}
+                      cy={islandPos.y + offset.y}
+                      r={BUILDING_GARDEN_RADIUS}
+                      fill="rgba(139, 195, 74, 0.16)"
+                      stroke="rgba(85, 139, 47, 0.35)"
+                      strokeWidth={1}
+                    />
+                  );
+                })}
 
               {STREETS.map((street, i) => {
                 const islandPos = ISLANDS[street.islandId].position;

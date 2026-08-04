@@ -163,34 +163,37 @@ export const HOUSES: House[] = [
   { islandId: 'new_providence', offset: { x: 108, y: 305 } },
   { islandId: 'new_providence', offset: { x: 190, y: 282 } },
   { islandId: 'new_providence', offset: { x: 214, y: 84 } }, // was outside the island polygon; refixed 2026-08-04
-  // Old Town infill near the dock — tightly packed row houses, positioned programmatically
-  // at the safe legal minimum clearance from every path/building/house instead of the usual
-  // suburb spacing (see buildings.ts's Cooper's Yard / Sailmaker's Loft comment).
-  { islandId: 'tortuga_cove', offset: { x: 30, y: -440 } },
-  { islandId: 'tortuga_cove', offset: { x: 90, y: -440 } },
-  { islandId: 'tortuga_cove', offset: { x: 120, y: -440 } },
-  { islandId: 'tortuga_cove', offset: { x: 190, y: -430 } },
-  { islandId: 'tortuga_cove', offset: { x: -140, y: -420 } },
-  { islandId: 'tortuga_cove', offset: { x: 220, y: -420 } },
-  { islandId: 'tortuga_cove', offset: { x: 90, y: -410 } },
-  { islandId: 'tortuga_cove', offset: { x: -120, y: -400 } },
-  { islandId: 'tortuga_cove', offset: { x: -90, y: -400 } },
-  { islandId: 'tortuga_cove', offset: { x: -150, y: -390 } },
-  { islandId: 'tortuga_cove', offset: { x: 180, y: -390 } },
-  { islandId: 'tortuga_cove', offset: { x: -130, y: -370 } },
-  { islandId: 'tortuga_cove', offset: { x: 230, y: -370 } },
-  { islandId: 'tortuga_cove', offset: { x: -150, y: -350 } },
-  { islandId: 'tortuga_cove', offset: { x: 210, y: -350 } },
-  { islandId: 'tortuga_cove', offset: { x: 90, y: -330 } },
-  { islandId: 'tortuga_cove', offset: { x: 230, y: -330 } },
-  { islandId: 'tortuga_cove', offset: { x: -150, y: -320 } },
-  { islandId: 'tortuga_cove', offset: { x: 20, y: -310 } },
-  { islandId: 'tortuga_cove', offset: { x: 210, y: -310 } },
-  { islandId: 'tortuga_cove', offset: { x: -130, y: -300 } },
-  { islandId: 'tortuga_cove', offset: { x: -60, y: -290 } },
-  { islandId: 'tortuga_cove', offset: { x: 230, y: -290 } },
-  { islandId: 'tortuga_cove', offset: { x: -150, y: -280 } },
-  { islandId: 'tortuga_cove', offset: { x: 210, y: -270 } },
+  // Old Town infill near the dock — a single continuous row of adjacent houses (~29 units apart,
+  // touching-neighbor spacing), not a block of parallel rows. Walked programmatically house by
+  // house from the dock south toward the residential grid, bending around whatever it ran into
+  // (dock buildings, the existing waterfront houses) instead of doubling back into a second row.
+  // Gardens are off for this district (see MapScreen.tsx's SHOW_GARDENS) so there's no yard buffer
+  // padding the gaps — houses sit shoulder to shoulder like a real terrace.
+  { islandId: 'tortuga_cove', offset: { x: -127, y: -302 } },
+  { islandId: 'tortuga_cove', offset: { x: -126, y: -273 } },
+  { islandId: 'tortuga_cove', offset: { x: -137, y: -246 } },
+  { islandId: 'tortuga_cove', offset: { x: -154, y: -222 } },
+  { islandId: 'tortuga_cove', offset: { x: -171, y: -198 } },
+  { islandId: 'tortuga_cove', offset: { x: -188, y: -174 } },
+  { islandId: 'tortuga_cove', offset: { x: -205, y: -150 } },
+  { islandId: 'tortuga_cove', offset: { x: -222, y: -126 } },
+  { islandId: 'tortuga_cove', offset: { x: -233, y: -99 } },
+  { islandId: 'tortuga_cove', offset: { x: -239, y: -71 } },
+  { islandId: 'tortuga_cove', offset: { x: -210, y: -84 } },
+  { islandId: 'tortuga_cove', offset: { x: -195, y: -109 } },
+  { islandId: 'tortuga_cove', offset: { x: -180, y: -134 } },
+  { islandId: 'tortuga_cove', offset: { x: -165, y: -159 } },
+  { islandId: 'tortuga_cove', offset: { x: -146, y: -181 } },
+  { islandId: 'tortuga_cove', offset: { x: -117, y: -180 } },
+  { islandId: 'tortuga_cove', offset: { x: -88, y: -179 } },
+  { islandId: 'tortuga_cove', offset: { x: -59, y: -178 } },
+  { islandId: 'tortuga_cove', offset: { x: -30, y: -177 } },
+  { islandId: 'tortuga_cove', offset: { x: -1, y: -176 } },
+  { islandId: 'tortuga_cove', offset: { x: 28, y: -175 } },
+  { islandId: 'tortuga_cove', offset: { x: 56, y: -168 } },
+  { islandId: 'tortuga_cove', offset: { x: 75, y: -146 } },
+  { islandId: 'tortuga_cove', offset: { x: 83, y: -118 } },
+  { islandId: 'tortuga_cove', offset: { x: 53, y: -128 } },
 ];
 
 export function housesForIsland(islandId: string): House[] {
