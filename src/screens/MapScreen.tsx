@@ -109,12 +109,22 @@ const OFF_PATH_SPEED = 26; // world units per second
 // world units on the minimap) plus a little slack, so walking isn't punished for being a few
 // pixels off dead-center of the line.
 const PATH_WALK_RADIUS = 20;
-// The procedurally-generated house grid packs some houses as little as 20 units apart
-// (verified against src/data/houses.ts) — a combined radius of 20+ leaves zero or negative
-// gap between them, which is how the player got permanently wedged between two houses.
-// 6+3=9 keeps every real gap in the data positive (checked programmatically).
 const PLAYER_COLLISION_RADIUS = 3;
-const HOUSE_COLLISION_RADIUS = 6;
+// A "garden" buffer beyond the house's own 13-unit visual footprint, so players can't cut
+// straight through what reads as someone's yard — tightest real house-house gap is 40 units,
+// house-building is 35.8 (checked programmatically), both comfortably clear of 12+12 or 12+24.
+const HOUSE_COLLISION_RADIUS = 12;
+// Buildings previously had no collision at all — the player could walk straight through a
+// tavern or fort's sprite without ever entering it. Kept below `ENTER_RADIUS` (26) minus
+// `PLAYER_COLLISION_RADIUS` — a radius as large as the visual footprint (BUILDING_SIZE/2 = 22)
+// would physically block the player before they ever got close enough to trigger the "Enter?"
+// prompt at all, since that prompt only fires within ENTER_RADIUS of the building's center.
+const BUILDING_COLLISION_RADIUS = 15;
+// Visual "fenced yard" patches, drawn behind the house/building sprite — sized a little past
+// their respective collision radii so the tinted grass reads as the reason you can't cut through,
+// not just an invisible wall.
+const HOUSE_GARDEN_RADIUS = 18;
+const BUILDING_GARDEN_RADIUS = 30;
 // Street NPCs are much smaller than the player on screen, so they get a tighter collision
 // footprint — otherwise they'd feel like they're bumping into houses far from their own sprite.
 const NPC_COLLISION_RADIUS = 2;
@@ -699,14 +709,23 @@ export default function MapScreen({ navigation }: Props) {
 
         const step = npc.speed * NPC_WANDER_SPEED_SCALE * dt;
         const raw = { x: sim.x + (dx / dist) * step, y: sim.y + (dy / dist) * step };
-        const houseObstacles = housesForIsland(npc.islandId).map((house) =>
-          houseWorldPosition(house, ISLANDS[npc.islandId].position)
-        );
-        const resolved = slideAroundObstacles(
+        // sim.x/y are island-relative (same space as street segments), so the obstacles compared
+        // against them need to be too — using world positions here compared distances on the
+        // order of the island's own world coordinates (thousands of units), silently defeating
+        // the "blocked" check every time (never true), so NPCs never actually avoided anything.
+        const houseObstacles = housesForIsland(npc.islandId).map((house) => house.offset);
+        const buildingObstacles = buildingsForIsland(npc.islandId).map((building) => building.offset);
+        let resolved = slideAroundObstacles(
           { x: sim.x, y: sim.y },
           raw,
           houseObstacles,
           HOUSE_COLLISION_RADIUS + NPC_COLLISION_RADIUS
+        );
+        resolved = slideAroundObstacles(
+          { x: sim.x, y: sim.y },
+          resolved,
+          buildingObstacles,
+          BUILDING_COLLISION_RADIUS + NPC_COLLISION_RADIUS
         );
         sim.x = resolved.x;
         sim.y = resolved.y;
@@ -796,16 +815,29 @@ export default function MapScreen({ navigation }: Props) {
         else seaSafePosition = playerRef.current;
       }
 
-      // Houses are solid — walking into one blocks that axis but still lets the player slide
-      // along it on the other axis, rather than hard-stopping dead at the first touch.
+      // Houses and buildings are solid — walking into one blocks that axis but still lets the
+      // player slide along it on the other axis, rather than hard-stopping dead at the first
+      // touch. Two sequential passes (each with its own radius) since slideAroundObstacles takes
+      // one uniform keep-out radius per call and houses/buildings need different ones.
       const houseObstacles = currentIsland
         ? housesForIsland(currentIsland.id).map((house) => houseWorldPosition(house, currentIsland.position))
         : [];
-      const nextPosition = slideAroundObstacles(
+      const buildingObstacles = currentIsland
+        ? buildingsForIsland(currentIsland.id).map((building) =>
+            buildingWorldPosition(building, currentIsland.position)
+          )
+        : [];
+      let nextPosition = slideAroundObstacles(
         playerRef.current,
         seaSafePosition,
         houseObstacles,
         HOUSE_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
+      );
+      nextPosition = slideAroundObstacles(
+        playerRef.current,
+        nextPosition,
+        buildingObstacles,
+        BUILDING_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
       );
 
       const nextIsland = islandAtPoint(nextPosition);
@@ -1312,7 +1344,10 @@ export default function MapScreen({ navigation }: Props) {
               return (
                 <View
                   key={i}
-                  style={[styles.house, { left: pos.x - 13, top: pos.y - 13 }]}
+                  style={[
+                    styles.houseGarden,
+                    { left: pos.x - HOUSE_GARDEN_RADIUS, top: pos.y - HOUSE_GARDEN_RADIUS },
+                  ]}
                   pointerEvents="none"
                 >
                   <Text style={styles.houseEmoji}>{emoji}</Text>
@@ -1363,26 +1398,37 @@ export default function MapScreen({ navigation }: Props) {
               );
               const isBuildingShaped = BUILDING_SHAPED_EMOJI.has(building.emoji);
               return (
-                <View
-                  key={building.id}
-                  style={[
-                    styles.building,
-                    {
-                      left: pos.x - BUILDING_SIZE / 2,
-                      top: pos.y - BUILDING_SIZE / 2,
-                    },
-                  ]}
-                >
-                  {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
-                  {isBuildingShaped ? (
-                    <Text style={styles.buildingEmoji}>{building.emoji}</Text>
-                  ) : (
-                    <>
-                      <Text style={styles.buildingHouseBase}>🏠</Text>
-                      <Text style={styles.buildingTypeBadge}>{building.emoji}</Text>
-                    </>
-                  )}
-                </View>
+                <React.Fragment key={building.id}>
+                  <View
+                    style={[
+                      styles.buildingGarden,
+                      {
+                        left: pos.x - BUILDING_GARDEN_RADIUS,
+                        top: pos.y - BUILDING_GARDEN_RADIUS,
+                      },
+                    ]}
+                    pointerEvents="none"
+                  />
+                  <View
+                    style={[
+                      styles.building,
+                      {
+                        left: pos.x - BUILDING_SIZE / 2,
+                        top: pos.y - BUILDING_SIZE / 2,
+                      },
+                    ]}
+                  >
+                    {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
+                    {isBuildingShaped ? (
+                      <Text style={styles.buildingEmoji}>{building.emoji}</Text>
+                    ) : (
+                      <>
+                        <Text style={styles.buildingHouseBase}>🏠</Text>
+                        <Text style={styles.buildingTypeBadge}>{building.emoji}</Text>
+                      </>
+                    )}
+                  </View>
+                </React.Fragment>
               );
             })}
 
@@ -2033,15 +2079,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  house: {
+  // A tinted, softly-bordered patch behind each house's sprite — reads as a fenced yard, giving
+  // the (now larger) collision radius a visible reason rather than an invisible wall.
+  houseGarden: {
     position: 'absolute',
-    width: 26,
-    height: 26,
+    width: HOUSE_GARDEN_RADIUS * 2,
+    height: HOUSE_GARDEN_RADIUS * 2,
+    borderRadius: HOUSE_GARDEN_RADIUS,
+    backgroundColor: 'rgba(139, 195, 74, 0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(85, 139, 47, 0.45)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   houseEmoji: {
     fontSize: 18,
+  },
+  buildingGarden: {
+    position: 'absolute',
+    width: BUILDING_GARDEN_RADIUS * 2,
+    height: BUILDING_GARDEN_RADIUS * 2,
+    borderRadius: BUILDING_GARDEN_RADIUS,
+    backgroundColor: 'rgba(139, 195, 74, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(85, 139, 47, 0.35)',
   },
   scenery: {
     position: 'absolute',

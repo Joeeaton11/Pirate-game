@@ -1473,32 +1473,65 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     fully-reverted `TEMP-TEST-SPAWN` spawn at Tortuga's town-square hub (confirmed removed via
     `grep -rn TEMP src` before commit) with a temporary on-screen `onPath` readout (also reverted)
     showing `1` standing on the street and `0` at a verified mid-block point away from any segment
-39. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+39. ✅ **Houses and buildings became solid, with a garden buffer, to cut down on free-roam
+    shortcuts** (2026-08-04) — "make sure buildings aren't on the paths... give houses gardens...
+    stopping players from wandering off too much and finding shortcuts." First checked whether
+    buildings/houses actually sit ON street lines (a programmatic distance check against every
+    street segment on Tortuga and New Providence): they do, at distance ~0 — but that's the
+    existing "buildings front directly onto the street, row-houses line both sides" layout working
+    as designed, not a bug, so nothing needed fixing there. The real gap surfaced while looking:
+    `BUILDINGS` (taverns, forts, shops, ...) had **no collision at all** — only `HOUSES` were ever
+    passed into the movement tick's `slideAroundObstacles` call, so the player could walk straight
+    through a building's sprite without ever triggering its "Enter?" prompt. Fixed by adding a
+    second `slideAroundObstacles` pass for buildings (`BUILDING_COLLISION_RADIUS`, new), and by
+    raising `HOUSE_COLLISION_RADIUS` (6 → 12) for a real "can't cut through the yard" buffer —
+    both checked against the actual minimum gaps in the placement data first (40 house-house, 35.8
+    house-building, 82.5 building-building; the old "20 units apart" comment was stale), so neither
+    change reproduces the old permanently-wedged-between-houses bug. Each house/building sprite
+    also gained a tinted, bordered "garden" patch drawn behind it (`houseGarden`/`buildingGarden`
+    styles, sized a little past the actual collision radius) so the new invisible wall reads as a
+    fenced yard rather than an arbitrary block. Caught two more real bugs during this pass: (1) the
+    first `BUILDING_COLLISION_RADIUS` (24) plus `PLAYER_COLLISION_RADIUS` (3) exceeded
+    `ENTER_RADIUS` (26) — the player could never get close enough to a building to trigger its
+    "Enter?" prompt at all, since collision now stopped them further out than the prompt's own
+    trigger distance; fixed by dropping the radius to 15, comfortably under that ceiling. (2) Street
+    NPCs' existing house-avoidance code compared their island-relative wander position against
+    `houseWorldPosition()`'s absolute world coordinates — a preexisting, unrelated bug (not
+    introduced by this change, just noticed while touching the same lines) that silently made every
+    "blocked" check false, so NPCs never actually avoided houses; fixed the same way as `isOnPath`
+    earlier — convert to the same coordinate space — and extended it to buildings too. Verified
+    `npx tsc --noEmit`, a programmatic minimum-gap sweep across every island before picking radii,
+    and in-browser via a temporary, fully-reverted `TEMP-TEST-SPAWN` (confirmed removed via
+    `grep -rn TEMP src` before commit): walking straight at The Salty Parrot now stops at its garden
+    edge and correctly still surfaces the "Enter The Salty Parrot?" prompt, and a walk through the
+    dense residential grid showed visible garden patches on every house with movement still flowing
+    through the gaps between them, no wedging
+40. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-40. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+41. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-41. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+42. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-42. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+43. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-43. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+44. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-44. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+45. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-45. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+46. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-46. **GTA-style character switching** (biggest, most novel, probably last)
-47. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+47. **GTA-style character switching** (biggest, most novel, probably last)
+48. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-48. Full e2e test automation, IAP integration, real art asset pipeline —
+49. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
