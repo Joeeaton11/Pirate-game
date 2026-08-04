@@ -90,7 +90,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Cracked Hull',
     type: 'tavern',
     emoji: '🍺',
-    offset: { x: -140, y: 120 },
+    // Nudged off the residential avenue it used to sit dead-center on (checked programmatically
+    // against every street segment, not just its own connecting spoke — see GAME_DESIGN.md).
+    offset: { x: -136, y: 134 },
     npcName: 'Bruiser Mags',
     npcEmoji: '🥊',
     dialogue: "Bought me one drink too many and now I owe you a favor, apparently.",
@@ -183,7 +185,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Distillery',
     type: 'market',
     emoji: '🥃',
-    offset: { x: 340, y: 80 },
+    // Nudged off the residential avenue it used to sit dead-center on (checked programmatically
+    // against every street segment, not just its own connecting spoke — see GAME_DESIGN.md).
+    offset: { x: 344, y: 84 },
     npcName: 'Brix',
     npcEmoji: '🧑‍🌾',
     dialogue: "Rum's the only honest currency left in this republic. Mind you pay for it.",
@@ -241,7 +245,9 @@ export const BUILDINGS: Building[] = [
     name: 'Chapelle Notre-Dame',
     type: 'chapel',
     emoji: '⛪',
-    offset: { x: 200, y: 130 },
+    // Nudged off the residential avenue it used to sit dead-center on (checked programmatically
+    // against every street segment, not just its own connecting spoke — see GAME_DESIGN.md).
+    offset: { x: 196, y: 116 },
     npcName: 'Brother Aldric',
     npcEmoji: '🙏',
     dialogue: "Even outlaws want forgiveness sometimes. I keep the door open and ask no questions about the cargo.",
@@ -289,7 +295,10 @@ export const BUILDINGS: Building[] = [
     name: 'The Anchor & Forge',
     type: 'smithy',
     emoji: '⚒️',
-    offset: { x: -220, y: 80 },
+    // Was sitting dead-center on the residential grid's x=-220 avenue (distance 0, found via a
+    // programmatic building-to-street-line sweep across every segment, not just its own connecting
+    // spoke) — nudged clear. See GAME_DESIGN.md.
+    offset: { x: -196, y: 84 },
     npcName: 'Forge-Master Kade',
     npcEmoji: '🔨',
     dialogue: "Cutlasses, grapeshot, ship fittings — if it's metal and it's broken, I can fix it or melt it down and start again.",
@@ -334,7 +343,9 @@ export const BUILDINGS: Building[] = [
     name: "The Smuggler's Cache",
     type: 'warehouse',
     emoji: '🕳️',
-    offset: { x: 240, y: 266 },
+    // Nudged off the residential avenue it was sitting too close to (checked programmatically
+    // against every street segment, not just its own connecting spoke — see GAME_DESIGN.md).
+    offset: { x: 246, y: 266 },
     npcName: 'Silent Mara',
     npcEmoji: '🥷',
     dialogue: "You didn't see this place. In exchange, I didn't see you. That's the whole arrangement.",

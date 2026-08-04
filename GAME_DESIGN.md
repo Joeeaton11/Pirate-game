@@ -1506,32 +1506,56 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     edge and correctly still surfaces the "Enter The Salty Parrot?" prompt, and a walk through the
     dense residential grid showed visible garden patches on every house with movement still flowing
     through the gaps between them, no wedging
-40. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+40. ✅ **Buildings pulled off street centerlines — they really were sitting on the road**
+    (2026-08-04) — direct user pushback on the previous item's "buildings don't overlap streets,
+    that's just intentional street-fronting" conclusion: "There are clearly buildings on the road/
+    path." Re-checked properly this time and the user was right — the earlier check only measured
+    building-center to street-*endpoint* distance and found ~0, which was waved off as "the street
+    terminates at the building's door," but that's centering the building ON the road's endpoint,
+    not beside it; the item 39 garden patches (radius 30) just made the always-present overlap
+    hard to miss. Root-caused two distinct patterns: (1) most buildings sit exactly at the far
+    endpoint of their one connecting "spoke" street (35 endpoint matches across 28 segments,
+    programmatically found), so those 28 segments got their building-side endpoint pulled back
+    30 units along the segment's own direction — cheap and safe since streets are pure flavor data
+    with no other system depending on their exact endpoint coordinates. (2) A handful of buildings
+    (`tortuga_smithy` worst — sitting at distance *0* on the residential grid's x=-220 avenue,
+    dead-center on the road; plus `new_providence_tavern`, `new_providence_distillery`,
+    `tortuga_chapel`, `tortuga_smuggler_cache`) sit near the *middle* of an unrelated long grid
+    avenue, which endpoint-pulling can't fix — those 5 buildings got nudged 6-24 units off the
+    line instead, via the same grid-search-against-real-placement-data technique used for house
+    placement earlier in the project, re-verified against every other building/house/street
+    afterward so the fix didn't introduce new overlaps elsewhere. Verified `npx tsc --noEmit`, a
+    programmatic building-to-every-street-*segment* sweep (not just endpoints — the mistake last
+    time) confirming zero buildings closer than 24 units to any street line, and in-browser via a
+    temporary, fully-reverted `TEMP-TEST-SPAWN` (confirmed removed via `grep -rn TEMP src` before
+    commit) at both The Salty Parrot and The Anchor & Forge showing a real grass gap between the
+    road and each building's garden edge where before the road ran straight into the plot
+41. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-41. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+42. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-42. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+43. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-43. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+44. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-44. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+45. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-45. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+46. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-46. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+47. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-47. **GTA-style character switching** (biggest, most novel, probably last)
-48. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+48. **GTA-style character switching** (biggest, most novel, probably last)
+49. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-49. Full e2e test automation, IAP integration, real art asset pipeline —
+50. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
