@@ -1570,32 +1570,69 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     intersections from the previous item: garden circles now visibly sit off to one side of each
     house, never touching a road's paint, while the houses themselves stayed exactly where they
     were, still fronting the street
-43. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+43. ✅ **Houses genuinely pulled off path bodies, and 6 buildings finally cleared for real**
+    (2026-08-04) — direct correction: "There is still loads of houses in the middle of the path."
+    Root cause: items 39-42 only ever checked *buildings* against paths, using each building's
+    *own connecting spoke* as the reference distance — never a systematic sweep of every house
+    against every street/pier/quay *line* (not just its nearest endpoint). A fresh diagnostic
+    script doing that full sweep found 95 of the 149 houses (64%) sitting on a path body, plus 6
+    buildings that had passed their item-40 endpoint check but were still only 10-14 units clear
+    of a *different*, non-connecting street running past them (short of the required
+    `BUILDING_COLLISION_RADIUS`, 15). Fixed with the same grid-search/spiral-search relocation
+    already used for individual buildings, generalized to run over every house and building
+    against every street/pier/quay simultaneously: 110 houses moved to the nearest clear spot, 3
+    unfixable pocket houses dropped outright, and the 6 buildings moved clear (most by single-digit
+    units; two — the Chapel and the Smithy — sat in genuinely boxed-in grid corners with no clear
+    ground nearby and moved further, to the edge of their block/into the High Woods edge). A
+    second, unrelated pre-existing bug surfaced by the same sweep — 3 New Providence houses placed
+    outside the island's actual coastline polygon, floating over open sea — got the identical
+    grid-search fix while in there. Verified via a comprehensive Node script (not the game code
+    itself, a faithful reimplementation of its collision math) checking, after every fix: houses on
+    paths (0/171 bad), buildings on paths (0/28 bad), house-house/house-building/building-building
+    minimum gaps (all ≥ their collision-radius sums), and every house/building inside its island's
+    real polygon (0 outside) — plus `npx tsc --noEmit` and in-browser confirmation via
+    `TEMP-TEST-SPAWN` (reverted, confirmed via `grep -rn TEMP-TEST src`) that the relocated Chapel,
+    Smithy, and a relocated New Providence house all render on solid clear ground with working
+    "Enter?" prompts
+44. ✅ **Old Town: a cramped 17th-century harbor quarter by the Tortuga dock** (2026-08-04) — direct
+    request: "I want you to create a proper old 17c town centre probably near the dock. Houses and
+    business cramped in next to each other." Added 25 new row houses and 2 new buildings (The
+    Cooper's Yard, a barrel-cooper market run by Old Merriweather; The Sailmaker's Loft, a canvas
+    and rigging shop run by Needle Annie) wedged into the gap between the existing big-dock
+    district (Chandlery, Harbourmaster's Office, Bunkhouse) and the residential grid. Positions were
+    generated programmatically at the *tight-but-legal minimum* clearance from every real
+    path/building/house/resource-node (same grid-search tool as item 43, just run at minimum
+    instead of comfortable spacing) rather than the suburb's usual gaps, so the block genuinely
+    reads as cramped instead of merely dense. Tortuga's house count goes from 149 to 171 across
+    both this and item 43's infill. Verified the same way as item 43, plus an in-browser
+    `TEMP-TEST-SPAWN` walkthrough of the new block confirming it reads as a packed quarter and that
+    both new buildings' "Enter?" prompts fire correctly
+45. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-44. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+46. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-45. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+47. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-46. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+48. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-47. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+49. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-48. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+50. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-49. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+51. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-50. **GTA-style character switching** (biggest, most novel, probably last)
-51. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+52. **GTA-style character switching** (biggest, most novel, probably last)
+53. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-52. Full e2e test automation, IAP integration, real art asset pipeline —
+54. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

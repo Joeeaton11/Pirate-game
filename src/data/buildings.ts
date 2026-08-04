@@ -90,9 +90,11 @@ export const BUILDINGS: Building[] = [
     name: 'The Cracked Hull',
     type: 'tavern',
     emoji: '🍺',
-    // Nudged off the residential avenue it used to sit dead-center on (checked programmatically
-    // against every street segment, not just its own connecting spoke — see GAME_DESIGN.md).
-    offset: { x: -136, y: 134 },
+    // Nudged clear of the residential avenue a second time (2026-08-04) — the first item-40 pass
+    // only checked distance-to-endpoint against its own connecting street, not perpendicular
+    // distance to every street LINE, so it was still only 10 units clear of the x=-280..360
+    // avenue it runs alongside. Re-checked programmatically against every segment. See GAME_DESIGN.md.
+    offset: { x: -193, y: 144 },
     npcName: 'Bruiser Mags',
     npcEmoji: '🥊',
     dialogue: "Bought me one drink too many and now I owe you a favor, apparently.",
@@ -170,7 +172,8 @@ export const BUILDINGS: Building[] = [
     name: "The Fishmonger's Stall",
     type: 'market',
     emoji: '🐟',
-    offset: { x: -260, y: 240 },
+    // Nudged 2 units clear of the avenue it runs alongside (2026-08-04 sweep). See GAME_DESIGN.md.
+    offset: { x: -260, y: 242 },
     npcName: 'Old Dinah',
     npcEmoji: '🧓',
     dialogue: "Freshest catch on the wharf. Buy it fair, or don't let me catch you taking it.",
@@ -185,9 +188,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Distillery',
     type: 'market',
     emoji: '🥃',
-    // Nudged off the residential avenue it used to sit dead-center on (checked programmatically
-    // against every street segment, not just its own connecting spoke — see GAME_DESIGN.md).
-    offset: { x: 344, y: 84 },
+    // Nudged clear a second time (2026-08-04) — see The Cracked Hull's comment above for why
+    // the item-40 pass under-corrected this one too. See GAME_DESIGN.md.
+    offset: { x: 350, y: 78 },
     npcName: 'Brix',
     npcEmoji: '🧑‍🌾',
     dialogue: "Rum's the only honest currency left in this republic. Mind you pay for it.",
@@ -245,9 +248,12 @@ export const BUILDINGS: Building[] = [
     name: 'Chapelle Notre-Dame',
     type: 'chapel',
     emoji: '⛪',
-    // Nudged off the residential avenue it used to sit dead-center on (checked programmatically
-    // against every street segment, not just its own connecting spoke — see GAME_DESIGN.md).
-    offset: { x: 196, y: 116 },
+    // Relocated a second time (2026-08-04) — its item-40 nudge cleared its own connecting spoke
+    // but was still only 10 units off the east-west residential avenue it ran alongside. That
+    // whole grid corner (avenue + cross-street + several row houses) left no legal gap nearby,
+    // so this one moved further east to the edge of the block instead of a few units. See
+    // GAME_DESIGN.md.
+    offset: { x: 330, y: 116 },
     npcName: 'Brother Aldric',
     npcEmoji: '🙏',
     dialogue: "Even outlaws want forgiveness sometimes. I keep the door open and ask no questions about the cargo.",
@@ -295,10 +301,12 @@ export const BUILDINGS: Building[] = [
     name: 'The Anchor & Forge',
     type: 'smithy',
     emoji: '⚒️',
-    // Was sitting dead-center on the residential grid's x=-220 avenue (distance 0, found via a
-    // programmatic building-to-street-line sweep across every segment, not just its own connecting
-    // spoke) — nudged clear. See GAME_DESIGN.md.
-    offset: { x: -196, y: 84 },
+    // Relocated a second time (2026-08-04) — the item-40 nudge cleared the x=-220 avenue it used
+    // to sit dead-center on, but landed only 10 units off the parallel x=-213/-187 side street
+    // running past the Salty Parrot. That block was fully boxed in (avenue, side street, several
+    // row houses), so this one moved further west to clear ground instead of a few units. See
+    // GAME_DESIGN.md.
+    offset: { x: -308, y: 75 },
     npcName: 'Forge-Master Kade',
     npcEmoji: '🔨',
     dialogue: "Cutlasses, grapeshot, ship fittings — if it's metal and it's broken, I can fix it or melt it down and start again.",
@@ -343,9 +351,8 @@ export const BUILDINGS: Building[] = [
     name: "The Smuggler's Cache",
     type: 'warehouse',
     emoji: '🕳️',
-    // Nudged off the residential avenue it was sitting too close to (checked programmatically
-    // against every street segment, not just its own connecting spoke — see GAME_DESIGN.md).
-    offset: { x: 246, y: 266 },
+    // Nudged 4 units clear of the avenue it runs alongside (2026-08-04 sweep). See GAME_DESIGN.md.
+    offset: { x: 250, y: 266 },
     npcName: 'Silent Mara',
     npcEmoji: '🥷',
     dialogue: "You didn't see this place. In exchange, I didn't see you. That's the whole arrangement.",
@@ -406,6 +413,34 @@ export const BUILDINGS: Building[] = [
     npcEmoji: '🧢',
     dialogue: "Six of us to a room and the walls still leak, but the pay's honest and the rum's cheap. Card games run past midnight if you fancy losing your coin the easy way.",
     recruit: { templateId: 'tavern_brawler', level: 6, cost: 65 },
+  },
+  // Old Town infill, wedged between the existing dock buildings and packed row houses (see
+  // HOUSES) — positions found the same way as everything else in this district: programmatically
+  // cleared against every real path/building/house first, at the tight-but-legal minimum instead
+  // of the suburb's usual spacing, so it actually reads as a cramped 17th-century harbor quarter.
+  {
+    id: 'tortuga_coopers_yard',
+    islandId: 'tortuga_cove',
+    name: "The Cooper's Yard",
+    type: 'market',
+    emoji: '🛢️',
+    offset: { x: -35, y: -317 },
+    npcName: 'Old Merriweather',
+    npcEmoji: '🔨',
+    dialogue: "Every cask of salt pork, rum, and fresh water on this waterfront passed through my hands first. Been hooping barrels since before the Chandlery had a roof.",
+    recruit: { templateId: 'cabin_hand', level: 3, cost: 25 },
+  },
+  {
+    id: 'tortuga_sailmakers_loft',
+    islandId: 'tortuga_cove',
+    name: "The Sailmaker's Loft",
+    type: 'shop',
+    emoji: '🧵',
+    offset: { x: 60, y: -330 },
+    npcName: 'Needle Annie',
+    npcEmoji: '🪡',
+    dialogue: "Torn canvas, a busted seam mid-squall, a flag shot clean off its halyard — bring it here before you bring it to the bottom of the sea.",
+    recruit: { templateId: 'dockside_sharpshooter', level: 5, cost: 45 },
   },
 ];
 
