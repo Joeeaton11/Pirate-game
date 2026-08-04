@@ -1448,32 +1448,57 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     water once boarded (zone label flips to "The Open Sea," player sprite becomes the sea emoji,
     a random sea encounter still fires normally mid-sail), and the compass/quest-tracker correctly
     pointing at the ship pre-capture
-38. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+38. ✅ **Off-path and sea speed penalties, for better movement control** (2026-08-04) — a design
+    question ("should we lock players to paths so we can control them better?") where full
+    path-locking was rejected as too invasive (it would strand every resource node, scenery spot,
+    and building not sitting exactly on a street, and reverses the shipped free-roam design), in
+    favor of a lighter speed-based nudge: `MapScreen.tsx` gained an `isOnPath()` check (new
+    `PATH_WALK_RADIUS = 20`, reusing `streets.ts`'s existing `nearestStreetSegment` — the same
+    lookup street NPCs already use to stay on the road network) that picks `ON_PATH_SPEED` (45,
+    unchanged from the old flat `LAND_SPEED`) vs a new, slower `OFF_PATH_SPEED` (26) for land
+    movement each tick, and a separately reduced `SEA_SPEED` (260 → 150, sailing felt
+    uncontrollable at full speed, especially threading the harbor mouth right after boarding the
+    Black Pearl). Only Tortuga Cove and New Providence have any authored street data — `isOnPath()`
+    always returns true (no penalty) on the other five islands, so the slowdown only ever applies
+    somewhere a path actually exists to find and follow, rather than uniformly nerfing every other
+    island's open ground. A real bug surfaced during verification: the first implementation passed
+    the player's absolute world position straight into `nearestStreetSegment()`, but `STREETS`
+    segments are stored relative to each island's center (the same convention `streetsForIsland`/
+    street-NPC code already uses) — so every on-path check was silently comparing world coordinates
+    against relative ones and never matched, even standing dead-center on a street. Fixed by
+    converting to island-relative coordinates before the lookup, same as the NPC wander code
+    already does. Verified `npx tsc --noEmit`, a standalone Node script exercising the exact
+    `isOnPath` logic against known points (street hub, mid-block gap, no-street island) to confirm
+    correct classification independent of browser frame-rate noise, and in-browser via a temporary,
+    fully-reverted `TEMP-TEST-SPAWN` spawn at Tortuga's town-square hub (confirmed removed via
+    `grep -rn TEMP src` before commit) with a temporary on-screen `onPath` readout (also reverted)
+    showing `1` standing on the street and `0` at a verified mid-block point away from any segment
+39. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-39. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+40. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-40. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+41. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-41. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+42. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-42. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+43. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-43. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+44. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-44. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+45. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-45. **GTA-style character switching** (biggest, most novel, probably last)
-46. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+46. **GTA-style character switching** (biggest, most novel, probably last)
+47. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-47. Full e2e test automation, IAP integration, real art asset pipeline —
+48. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

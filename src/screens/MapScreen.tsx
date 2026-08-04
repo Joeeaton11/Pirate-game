@@ -47,6 +47,7 @@ import {
   connectedSegments,
   nearestStreetSegment,
   randomPointOnSegment,
+  streetsForIsland,
   StreetSegment,
 } from '../data/streets';
 import { STREET_NPCS, StreetNpc } from '../data/streetNpcs';
@@ -97,8 +98,17 @@ const MINIMAP_WORLD_PER_PX = (MINIMAP_RADIUS * 2) / MINIMAP_SIZE;
 // Scenery emoji that read as "forest" for the minimap's dark-green tree-mass fill — 🌿 (scrub) and
 // 🪨/🪦 (rocks/graves) are dressing for the ruins/abandoned zones, not woodland.
 const FOREST_EMOJI = new Set(['🌴', '🌲', '🌳']);
-const SEA_SPEED = 260; // world units per second
-const LAND_SPEED = 45;
+// Slowed from 260 — full sea speed made sailing feel uncontrollable, especially threading the
+// harbor mouth/piers right after boarding the Black Pearl.
+const SEA_SPEED = 150; // world units per second
+const ON_PATH_SPEED = 45; // world units per second — walking an actual street/path
+// Cutting across open grass/scenery instead of following a street reads as harder going, and
+// nudges players toward the authored street network instead of beelining through decor.
+const OFF_PATH_SPEED = 26; // world units per second
+// How close to a street segment counts as "on it" — half the widest street's drawn stroke (16
+// world units on the minimap) plus a little slack, so walking isn't punished for being a few
+// pixels off dead-center of the line.
+const PATH_WALK_RADIUS = 20;
 // The procedurally-generated house grid packs some houses as little as 20 units apart
 // (verified against src/data/houses.ts) — a combined radius of 20+ leaves zero or negative
 // gap between them, which is how the player got permanently wedged between two houses.
@@ -137,6 +147,28 @@ function slideAroundObstacles(
   const slideY = { x: current.x, y: raw.y };
   if (!blocked(slideY)) return slideY;
   return current;
+}
+
+/** Whether a world point is close enough to a real street/path segment to count as "on it" for
+ * movement-speed purposes. Islands with no authored street data (most of them — only Tortuga and
+ * New Providence have a street network so far) always read as on-path here, so the off-path speed
+ * penalty only ever applies somewhere it's actually possible to find and follow a path; it would
+ * otherwise nerf every step taken on every other island. */
+function isOnPath(
+  worldPoint: { x: number; y: number },
+  island: { id: string; position: { x: number; y: number } }
+): boolean {
+  const segments = streetsForIsland(island.id);
+  if (segments.length === 0) return true;
+  // STREETS stores each segment relative to its island's center, so the world point has to be
+  // converted the same way before comparing against it (nearestStreetSegment/closestPointOnSegment
+  // both operate in that same island-relative space, same convention street NPCs already use).
+  const relativePoint = { x: worldPoint.x - island.position.x, y: worldPoint.y - island.position.y };
+  const nearest = nearestStreetSegment(relativePoint, island.id);
+  return (
+    !!nearest &&
+    Math.hypot(relativePoint.x - nearest.point.x, relativePoint.y - nearest.point.y) <= PATH_WALK_RADIUS
+  );
 }
 
 /** Clamps a world-space target to the edge of the visible viewport along the ray from the player
@@ -739,7 +771,11 @@ export default function MapScreen({ navigation }: Props) {
       if (!direction) return;
 
       const currentIsland = islandAtPoint(playerRef.current);
-      const speed = currentIsland ? LAND_SPEED : SEA_SPEED;
+      const speed = currentIsland
+        ? isOnPath(playerRef.current, currentIsland)
+          ? ON_PATH_SPEED
+          : OFF_PATH_SPEED
+        : SEA_SPEED;
       const dt = TICK_MS / 1000;
 
       const rawX = clamp(playerRef.current.x + direction.x * speed * dt, 0, WORLD_WIDTH);
