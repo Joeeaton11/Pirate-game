@@ -181,6 +181,97 @@ function isOnPath(
   );
 }
 
+function closestPointOnSegment(
+  p: { x: number; y: number },
+  a: { x: number; y: number },
+  b: { x: number; y: number }
+): { x: number; y: number } {
+  const abx = b.x - a.x;
+  const aby = b.y - a.y;
+  const lenSq = abx * abx + aby * aby;
+  if (lenSq === 0) return { ...a };
+  const t = Math.max(0, Math.min(1, ((p.x - a.x) * abx + (p.y - a.y) * aby) / lenSq));
+  return { x: a.x + abx * t, y: a.y + aby * t };
+}
+
+interface PathObstacle {
+  from: { x: number; y: number };
+  to: { x: number; y: number };
+  halfWidth: number; // half the drawn stroke width, i.e. how far the paint reaches off the centerline
+}
+
+/** Every real, drawn path on an island — streets (width depends on 'main'/'path' style), piers,
+ * and quays — as a flat list of segments a garden needs to stay clear of. Not BREAKWATER: that's
+ * a rubble arm out at sea, never near a house/building garden. */
+function pathObstaclesForIsland(islandId: string): PathObstacle[] {
+  return [
+    ...streetsForIsland(islandId).map((s) => ({
+      from: s.from,
+      to: s.to,
+      halfWidth: s.style === 'main' ? 14 : 4,
+    })),
+    ...PIERS.filter((p) => p.islandId === islandId).map((p) => ({ from: p.from, to: p.to, halfWidth: 10 })),
+    ...QUAYS.filter((q) => q.islandId === islandId).map((q) => ({ from: q.from, to: q.to, halfWidth: 8 })),
+  ];
+}
+
+/** Nudges a garden circle's center away from whichever real path it would otherwise overlap, so
+ * the tinted yard never geometrically overlaps a path — the house/building icon itself stays
+ * exactly where it always was (fronting the street is fine and expected; it's the yard that
+ * shouldn't spill onto the road). A few relaxation passes: each nudge can occasionally bring the
+ * center nearer to a *different* nearby path than the one just cleared, so repeating a handful of
+ * times converges on a spot clear of everything nearby without an expensive full solve. Computed
+ * once at module load — house/building/street positions are static data, not per-render state —
+ * so this never runs on the movement tick. */
+function computeGardenOffset(
+  entityOffset: { x: number; y: number },
+  islandId: string,
+  gardenRadius: number
+): { x: number; y: number } {
+  const obstacles = pathObstaclesForIsland(islandId);
+  if (obstacles.length === 0) return entityOffset;
+  let center = { ...entityOffset };
+  for (let pass = 0; pass < 4; pass++) {
+    let nearestPoint: { x: number; y: number } | null = null;
+    let nearestHalfWidth = 0;
+    let nearestDist = Infinity;
+    for (const o of obstacles) {
+      const point = closestPointOnSegment(center, o.from, o.to);
+      const dist = Math.hypot(center.x - point.x, center.y - point.y);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearestPoint = point;
+        nearestHalfWidth = o.halfWidth;
+      }
+    }
+    if (!nearestPoint) break;
+    const needed = gardenRadius + nearestHalfWidth;
+    if (nearestDist >= needed) break;
+    let dx = center.x - nearestPoint.x;
+    let dy = center.y - nearestPoint.y;
+    let d = Math.hypot(dx, dy);
+    if (d < 0.01) {
+      dx = 0;
+      dy = 1;
+      d = 1;
+    }
+    center = { x: nearestPoint.x + (dx / d) * needed, y: nearestPoint.y + (dy / d) * needed };
+  }
+  return center;
+}
+
+// Precomputed once at module load, in the same island-relative units as `house.offset`/
+// `building.offset` — parallel to HOUSES/BUILDINGS by index/id respectively.
+const HOUSE_GARDEN_OFFSETS: { x: number; y: number }[] = HOUSES.map((house) =>
+  computeGardenOffset(house.offset, house.islandId, HOUSE_GARDEN_RADIUS)
+);
+const BUILDING_GARDEN_OFFSETS: Record<string, { x: number; y: number }> = Object.fromEntries(
+  BUILDINGS.map((building) => [
+    building.id,
+    computeGardenOffset(building.offset, building.islandId, BUILDING_GARDEN_RADIUS),
+  ])
+);
+
 /** Clamps a world-space target to the edge of the visible viewport along the ray from the player
  * (screen center) to the target, so an off-screen point of interest gets a small icon pinned to
  * whichever edge it lies behind — the icon "orbits" the screen border as the player moves, same
@@ -1250,19 +1341,22 @@ export default function MapScreen({ navigation }: Props) {
                 />
               ))}
 
-              {/* Garden/yard patches drawn here, before streets/piers/quays in the same SVG, so
-                  the road paint always wins where the two overlap — a garden circle that happens
-                  to reach a street reads as "the road cuts across the edge of the yard" instead of
-                  the yard washing out over the road. The house/building icons themselves render in
-                  a separate View layer on top of this whole Svg, so they're unaffected either way. */}
+              {/* Garden/yard patches, centered on each entity's precomputed HOUSE/BUILDING_GARDEN_
+                  OFFSETS rather than its actual position — nudged away from any real path so the
+                  yard never geometrically overlaps a street/pier/quay (the house's own icon can
+                  still front the path just fine; only the tinted yard shape is repositioned).
+                  Drawn here, before streets/piers/quays in the same SVG, as a second line of
+                  defense: belt-and-suspenders in case a garden ever still grazes a path edge, the
+                  road paint wins. The house/building icons themselves render in a separate View
+                  layer on top of this whole Svg, at their real, unmoved position. */}
               {HOUSES.map((house, i) => {
                 const islandPos = ISLANDS[house.islandId].position;
-                const pos = houseWorldPosition(house, islandPos);
+                const offset = HOUSE_GARDEN_OFFSETS[i];
                 return (
                   <Circle
                     key={`house-garden-${i}`}
-                    cx={pos.x}
-                    cy={pos.y}
+                    cx={islandPos.x + offset.x}
+                    cy={islandPos.y + offset.y}
                     r={HOUSE_GARDEN_RADIUS}
                     fill="rgba(139, 195, 74, 0.22)"
                     stroke="rgba(85, 139, 47, 0.45)"
@@ -1272,12 +1366,12 @@ export default function MapScreen({ navigation }: Props) {
               })}
               {BUILDINGS.map((building) => {
                 const islandPos = ISLANDS[building.islandId].position;
-                const pos = buildingWorldPosition(building, islandPos);
+                const offset = BUILDING_GARDEN_OFFSETS[building.id];
                 return (
                   <Circle
                     key={`building-garden-${building.id}`}
-                    cx={pos.x}
-                    cy={pos.y}
+                    cx={islandPos.x + offset.x}
+                    cy={islandPos.y + offset.y}
                     r={BUILDING_GARDEN_RADIUS}
                     fill="rgba(139, 195, 74, 0.16)"
                     stroke="rgba(85, 139, 47, 0.35)"
