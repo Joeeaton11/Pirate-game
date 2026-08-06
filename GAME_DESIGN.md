@@ -1711,32 +1711,60 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     Fishmonger spoke (visibly touching/overlapping houses on both sides), and the minimap overview
     (dots now radiating along every spoke from the square, not clustered in one corner), plus
     confirming the Customs House's "Enter?" prompt still fires from inside its new roadside row
-49. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+49. ✅ **Housing pulled back off the far spokes and packed tighter; new Quay Row street right at the
+    wharf** (2026-08-06) — direct follow-up, with a second reference image (two dense horizontal
+    rows of touching/overlapping houses): "Place the houses closer together. Like the image. Try
+    and keep the street running horizontally so looks like this. And concentrate the houses even
+    closer to the port." Three changes: (1) dropped housing entirely from the 9 far-spoke groups
+    added in item 48 (Fishmonger, Chapel, Locked Ward, Bounty Board, Customs House, Baker's Oven x2,
+    Ropewalk x2 — 44 houses) to pull density back toward the harbor, per "concentrate...closer to
+    the port"; (2) tightened spacing again, 22 → 20 units (a real, deliberate overlap against the
+    26-unit house sprite, not just edge-touching) on every kept street; (3) added a new street, the
+    Quay Row, running horizontally along the one open stretch of ground directly behind the wharf
+    buildings (the actual dockfront itself is already built up with the Chandlery, Harbourmaster's
+    Office, and the Bunkhouse, so there was no room for housing right on the water) — searched
+    several candidate horizontal lines near the port programmatically before picking this one, since
+    most others intersected existing buildings or ran over open water past the coastline. A true
+    mirrored two-row street (houses on both sides, matching the reference image exactly) wasn't
+    geometrically available anywhere this close to the already-built-up dock without relocating
+    real buildings, which was out of scope — the Quay Row is a single dense horizontal row instead,
+    with the existing dock buildings/houses effectively forming the other side of the corridor.
+    Net: Tortuga housing 103 → 68 (61 across 8 near-port street segments + a new 7-house Quay Row +
+    7 sporadic homesteads unchanged) — smaller again, deliberately, since "concentrate near the
+    port" means less housing spread thin and more packed into a smaller area, not a higher count.
+    Verified via the same comprehensive Node script (0 bad path clearances, 0 outside-polygon,
+    minimum house-house spacing exactly at the new 20-unit floor, 0 broken building clearances from
+    the new street), `npx tsc --noEmit`, a street-NPC anchor re-check (all 30 still snap within a
+    reasonable distance of the new street layout), and in-browser `TEMP-TEST-SPAWN` checks of the
+    Quay Row (visibly overlapping houses), the harbor road, and the minimap overview (the house-dot
+    cluster now sits tightly against the port with the far spokes empty), plus confirming the
+    Chandlery's "Enter?" prompt still fires from inside the retightened dock cluster
+50. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-50. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+51. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-51. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+52. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-52. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+53. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-53. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+54. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-54. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+55. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-55. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+56. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-56. **GTA-style character switching** (biggest, most novel, probably last)
-57. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+57. **GTA-style character switching** (biggest, most novel, probably last)
+58. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-58. Full e2e test automation, IAP integration, real art asset pipeline —
+59. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

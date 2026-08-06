@@ -38,6 +38,10 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: -235, y: 257 }, to: { x: -140, y: 320 }, style: 'main' }, // Fishmonger -> The Ropewalk
   { islandId: 'tortuga_cove', from: { x: 0, y: 260 }, to: { x: -140, y: 320 }, style: 'main' }, // Bounty Board -> The Ropewalk
   { islandId: 'tortuga_cove', from: { x: -187, y: -51 }, to: { x: -213, y: 51 }, style: 'main' }, // Salty Parrot -> The Anchor & Forge
+  // The Quay Row (2026-08-06): a real street immediately behind the wharf buildings — the closest
+  // open horizontal stretch to the water, since the actual dockfront is already lined with working
+  // buildings (Chandlery, Harbourmaster's Office, the Bunkhouse) rather than housing.
+  { islandId: 'tortuga_cove', from: { x: -230, y: -445 }, to: { x: 270, y: -445 }, style: 'main' }, // the Quay Row
   // Fort de Rocher's real access was a rock-cut staircase and a pull-up ladder — a treacherous
   // route rather than a proper street.
   { islandId: 'tortuga_cove', from: { x: 140, y: -290 }, to: { x: 183, y: -225 }, style: 'path' }, // -> Fort de Rocher

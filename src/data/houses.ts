@@ -4,21 +4,23 @@
  * like background buildings in GTA. Positions were procedurally generated and filtered to land
  * + clearance from every other marker before being pasted in here.
  *
- * Tortuga's residential layout was rebuilt 2026-08-05, replacing a 5x5 avenue grid that spread
+ * Tortuga's residential layout was rebuilt 2026-08-05/06, replacing a 5x5 avenue grid that spread
  * housing across most of the island's southern half — realistic for a 20th-century suburb, not a
  * 17th-century harbor town, and it was also the reason houses kept turning up sitting on top of
- * paths (see GAME_DESIGN.md items 39-45). Two same-day corrections followed direct feedback:
+ * paths (see GAME_DESIGN.md items 39-45). Three same-day corrections followed direct feedback:
  * (1) a spiral-packed "halo" per building was still rings-deep and still spread across the whole
- * town, so it was replaced with literal road-lining — a single file of houses on both sides of a
- * real street, offset just past the road edge; (2) that first road-lining pass only covered the
- * harbor-to-Basse-Terre-Square corridor and left too much daylight between houses, per a reference
- * sketch showing houses touching/overlapping shoulder to shoulder — extended to every real 'main'
- * street on the island (not just the dock corridor) at tight ~22-unit spacing, close enough that
- * the 26-unit-wide house sprites visually touch/interlock, matching the sketch. The rural 'path'
- * trails (West Point Shack, the Ruins, La Ringot Fields, etc.) stay deliberately house-free — a
- * handful of standalone homesteads near those cover the "sporadic elsewhere" half of the original
- * ask instead. Spacing is tight enough (house collision radius 12 x2 vs 22-unit spacing) that a
- * player can't squeeze between two neighboring row houses — the row itself is what channels foot
+ * town, replaced with literal road-lining; (2) the first road-lining pass only covered the
+ * harbor-to-Square corridor and left daylight between houses, extended to every real street at
+ * tighter spacing; (3) still "massively spread out" and not tight enough per a reference sketch of
+ * two dense horizontal rows — dropped housing from the far spokes entirely (Fishmonger, Chapel,
+ * Locked Ward, Bounty Board, Customs House, Baker's Oven, Ropewalk) to concentrate density back at
+ * the port, tightened spacing again (20 units, under the 26-unit sprite width — houses now visibly
+ * overlap/interlock), and added a new dedicated street right behind the wharf buildings (the
+ * closest open stretch to the water, since the actual dockfront is already lined with working
+ * buildings) for a proper dense horizontal row. The rural 'path' trails (West Point Shack, the
+ * Ruins, La Ringot Fields, etc.) stay deliberately house-free — a handful of standalone homesteads
+ * near those cover the "sporadic elsewhere" half of the original ask. Spacing is tight enough that
+ * a player can't squeeze between two neighboring row houses — the row itself is what channels foot
  * traffic onto the road. */
 export interface House {
   islandId: string;
@@ -26,119 +28,77 @@ export interface House {
 }
 
 export const HOUSES: House[] = [
-  // Basse-Terre Square -> the Salty Parrot (7 houses)
-  { islandId: 'tortuga_cove', offset: { x: -41, y: 34 } },
-  { islandId: 'tortuga_cove', offset: { x: -70, y: 1 } },
-  { islandId: 'tortuga_cove', offset: { x: -99, y: -32 } },
-  { islandId: 'tortuga_cove', offset: { x: -128, y: -65 } },
-  { islandId: 'tortuga_cove', offset: { x: -114, y: 40 } },
-  { islandId: 'tortuga_cove', offset: { x: -128, y: 23 } },
-  { islandId: 'tortuga_cove', offset: { x: -143, y: 6 } },
-  // Basse-Terre Square -> Harbor Trading Post (10 houses)
-  { islandId: 'tortuga_cove', offset: { x: 42, y: 62 } },
-  { islandId: 'tortuga_cove', offset: { x: 61, y: 50 } },
-  { islandId: 'tortuga_cove', offset: { x: 80, y: 38 } },
-  { islandId: 'tortuga_cove', offset: { x: 117, y: 15 } },
-  { islandId: 'tortuga_cove', offset: { x: 154, y: -9 } },
-  { islandId: 'tortuga_cove', offset: { x: -7, y: 25 } },
-  { islandId: 'tortuga_cove', offset: { x: 30, y: 1 } },
-  { islandId: 'tortuga_cove', offset: { x: 67, y: -22 } },
-  { islandId: 'tortuga_cove', offset: { x: 86, y: -34 } },
-  { islandId: 'tortuga_cove', offset: { x: 123, y: -58 } },
-  // Basse-Terre Square -> the Fishmonger's Stall (13 houses)
-  { islandId: 'tortuga_cove', offset: { x: -103, y: 90 } },
-  { islandId: 'tortuga_cove', offset: { x: -121, y: 103 } },
-  { islandId: 'tortuga_cove', offset: { x: -139, y: 116 } },
-  { islandId: 'tortuga_cove', offset: { x: -157, y: 129 } },
-  { islandId: 'tortuga_cove', offset: { x: -175, y: 142 } },
-  { islandId: 'tortuga_cove', offset: { x: -210, y: 168 } },
-  { islandId: 'tortuga_cove', offset: { x: -69, y: 137 } },
-  { islandId: 'tortuga_cove', offset: { x: -87, y: 150 } },
-  { islandId: 'tortuga_cove', offset: { x: -105, y: 163 } },
-  { islandId: 'tortuga_cove', offset: { x: -123, y: 176 } },
-  { islandId: 'tortuga_cove', offset: { x: -141, y: 189 } },
-  { islandId: 'tortuga_cove', offset: { x: -176, y: 214 } },
-  { islandId: 'tortuga_cove', offset: { x: -194, y: 227 } },
-  // Basse-Terre Square -> Chapelle Notre-Dame (3 houses)
-  { islandId: 'tortuga_cove', offset: { x: 65, y: 72 } },
-  { islandId: 'tortuga_cove', offset: { x: 87, y: 77 } },
-  { islandId: 'tortuga_cove', offset: { x: 130, y: 86 } },
-  // Basse-Terre Square -> the Locked Ward (3 houses)
-  { islandId: 'tortuga_cove', offset: { x: 20, y: 191 } },
-  { islandId: 'tortuga_cove', offset: { x: 35, y: 208 } },
-  { islandId: 'tortuga_cove', offset: { x: 64, y: 241 } },
-  // Basse-Terre Square -> the Bounty Board (3 houses)
-  { islandId: 'tortuga_cove', offset: { x: -51, y: 164 } },
-  { islandId: 'tortuga_cove', offset: { x: -42, y: 207 } },
-  { islandId: 'tortuga_cove', offset: { x: 25, y: 237 } },
-  // The harbor road, Trading Post -> Fishing Dock (16 houses)
-  { islandId: 'tortuga_cove', offset: { x: 175, y: -112 } },
-  { islandId: 'tortuga_cove', offset: { x: 161, y: -129 } },
-  { islandId: 'tortuga_cove', offset: { x: 147, y: -146 } },
-  { islandId: 'tortuga_cove', offset: { x: 133, y: -163 } },
-  { islandId: 'tortuga_cove', offset: { x: 119, y: -180 } },
-  { islandId: 'tortuga_cove', offset: { x: 105, y: -197 } },
-  { islandId: 'tortuga_cove', offset: { x: 78, y: -231 } },
-  { islandId: 'tortuga_cove', offset: { x: 64, y: -248 } },
-  { islandId: 'tortuga_cove', offset: { x: 116, y: -92 } },
-  { islandId: 'tortuga_cove', offset: { x: 102, y: -109 } },
-  { islandId: 'tortuga_cove', offset: { x: 88, y: -126 } },
-  { islandId: 'tortuga_cove', offset: { x: 61, y: -160 } },
-  { islandId: 'tortuga_cove', offset: { x: 47, y: -177 } },
-  { islandId: 'tortuga_cove', offset: { x: 33, y: -194 } },
-  { islandId: 'tortuga_cove', offset: { x: 19, y: -211 } },
-  { islandId: 'tortuga_cove', offset: { x: 5, y: -228 } },
-  // -> Harbor Pier (4 houses)
-  { islandId: 'tortuga_cove', offset: { x: 103, y: -258 } },
-  { islandId: 'tortuga_cove', offset: { x: 125, y: -260 } },
-  { islandId: 'tortuga_cove', offset: { x: 33, y: -311 } },
-  { islandId: 'tortuga_cove', offset: { x: 99, y: -316 } },
-  // -> the Warehouse (3 houses)
-  { islandId: 'tortuga_cove', offset: { x: -45, y: -287 } },
-  { islandId: 'tortuga_cove', offset: { x: -16, y: -237 } },
-  { islandId: 'tortuga_cove', offset: { x: -54, y: -215 } },
-  // Warehouse -> the Chandlery (3 houses)
-  { islandId: 'tortuga_cove', offset: { x: -132, y: -260 } },
-  { islandId: 'tortuga_cove', offset: { x: -124, y: -281 } },
-  { islandId: 'tortuga_cove', offset: { x: -117, y: -302 } },
+  // Basse-Terre Square -> the Salty Parrot (8 houses)
+  { islandId: 'tortuga_cove', offset: { x: -39, y: 39 } },
+  { islandId: 'tortuga_cove', offset: { x: -65, y: 9 } },
+  { islandId: 'tortuga_cove', offset: { x: -91, y: -21 } },
+  { islandId: 'tortuga_cove', offset: { x: -105, y: -36 } },
+  { islandId: 'tortuga_cove', offset: { x: -131, y: -66 } },
+  { islandId: 'tortuga_cove', offset: { x: -107, y: 46 } },
+  { islandId: 'tortuga_cove', offset: { x: -134, y: 16 } },
+  { islandId: 'tortuga_cove', offset: { x: -160, y: -14 } },
+  // Basse-Terre Square -> Harbor Trading Post (12 houses)
+  { islandId: 'tortuga_cove', offset: { x: 34, y: 66 } },
+  { islandId: 'tortuga_cove', offset: { x: 51, y: 55 } },
+  { islandId: 'tortuga_cove', offset: { x: 85, y: 34 } },
+  { islandId: 'tortuga_cove', offset: { x: 102, y: 23 } },
+  { islandId: 'tortuga_cove', offset: { x: 135, y: 2 } },
+  { islandId: 'tortuga_cove', offset: { x: 152, y: -9 } },
+  { islandId: 'tortuga_cove', offset: { x: -13, y: 30 } },
+  { islandId: 'tortuga_cove', offset: { x: 4, y: 19 } },
+  { islandId: 'tortuga_cove', offset: { x: 21, y: 8 } },
+  { islandId: 'tortuga_cove', offset: { x: 38, y: -3 } },
+  { islandId: 'tortuga_cove', offset: { x: 72, y: -24 } },
+  { islandId: 'tortuga_cove', offset: { x: 105, y: -46 } },
+  // The harbor road, Trading Post -> Fishing Dock (13 houses)
+  { islandId: 'tortuga_cove', offset: { x: 176, y: -108 } },
+  { islandId: 'tortuga_cove', offset: { x: 164, y: -124 } },
+  { islandId: 'tortuga_cove', offset: { x: 138, y: -155 } },
+  { islandId: 'tortuga_cove', offset: { x: 113, y: -186 } },
+  { islandId: 'tortuga_cove', offset: { x: 88, y: -217 } },
+  { islandId: 'tortuga_cove', offset: { x: 62, y: -248 } },
+  { islandId: 'tortuga_cove', offset: { x: 133, y: -73 } },
+  { islandId: 'tortuga_cove', offset: { x: 120, y: -89 } },
+  { islandId: 'tortuga_cove', offset: { x: 95, y: -119 } },
+  { islandId: 'tortuga_cove', offset: { x: 82, y: -135 } },
+  { islandId: 'tortuga_cove', offset: { x: 57, y: -166 } },
+  { islandId: 'tortuga_cove', offset: { x: 32, y: -197 } },
+  { islandId: 'tortuga_cove', offset: { x: 6, y: -228 } },
+  // -> Harbor Pier (5 houses)
+  { islandId: 'tortuga_cove', offset: { x: 92, y: -258 } },
+  { islandId: 'tortuga_cove', offset: { x: 112, y: -260 } },
+  { islandId: 'tortuga_cove', offset: { x: 132, y: -261 } },
+  { islandId: 'tortuga_cove', offset: { x: 28, y: -310 } },
+  { islandId: 'tortuga_cove', offset: { x: 88, y: -314 } },
+  // -> the Warehouse (4 houses)
+  { islandId: 'tortuga_cove', offset: { x: -57, y: -279 } },
+  { islandId: 'tortuga_cove', offset: { x: -12, y: -241 } },
+  { islandId: 'tortuga_cove', offset: { x: -46, y: -220 } },
+  { islandId: 'tortuga_cove', offset: { x: -64, y: -210 } },
+  // Warehouse -> the Chandlery (4 houses)
+  { islandId: 'tortuga_cove', offset: { x: -132, y: -257 } },
+  { islandId: 'tortuga_cove', offset: { x: -125, y: -276 } },
+  { islandId: 'tortuga_cove', offset: { x: -118, y: -295 } },
+  { islandId: 'tortuga_cove', offset: { x: -104, y: -332 } },
   // Chandlery -> Harbourmaster's Office (4 houses)
-  { islandId: 'tortuga_cove', offset: { x: 29, y: -346 } },
-  { islandId: 'tortuga_cove', offset: { x: 3, y: -403 } },
-  { islandId: 'tortuga_cove', offset: { x: 25, y: -404 } },
-  { islandId: 'tortuga_cove', offset: { x: 47, y: -406 } },
-  // Trading Post -> the Customs House (5 houses)
-  { islandId: 'tortuga_cove', offset: { x: 203, y: -13 } },
-  { islandId: 'tortuga_cove', offset: { x: 241, y: 8 } },
-  { islandId: 'tortuga_cove', offset: { x: 261, y: 19 } },
-  { islandId: 'tortuga_cove', offset: { x: 232, y: -64 } },
-  { islandId: 'tortuga_cove', offset: { x: 270, y: -42 } },
-  // Chapel -> the Baker's Oven (3 houses)
-  { islandId: 'tortuga_cove', offset: { x: 159, y: 162 } },
-  { islandId: 'tortuga_cove', offset: { x: 137, y: 164 } },
-  { islandId: 'tortuga_cove', offset: { x: 115, y: 165 } },
-  // Locked Ward -> the Baker's Oven (2 houses)
-  { islandId: 'tortuga_cove', offset: { x: 142, y: 237 } },
-  { islandId: 'tortuga_cove', offset: { x: 133, y: 216 } },
-  // Fishmonger -> the Ropewalk (6 houses)
-  { islandId: 'tortuga_cove', offset: { x: -240, y: 288 } },
-  { islandId: 'tortuga_cove', offset: { x: -222, y: 301 } },
-  { islandId: 'tortuga_cove', offset: { x: -203, y: 313 } },
-  { islandId: 'tortuga_cove', offset: { x: -190, y: 252 } },
-  { islandId: 'tortuga_cove', offset: { x: -171, y: 264 } },
-  { islandId: 'tortuga_cove', offset: { x: -153, y: 277 } },
-  // Bounty Board -> the Ropewalk (6 houses)
-  { islandId: 'tortuga_cove', offset: { x: -44, y: 247 } },
-  { islandId: 'tortuga_cove', offset: { x: -84, y: 265 } },
-  { islandId: 'tortuga_cove', offset: { x: -125, y: 282 } },
-  { islandId: 'tortuga_cove', offset: { x: -1, y: 292 } },
-  { islandId: 'tortuga_cove', offset: { x: -41, y: 309 } },
-  { islandId: 'tortuga_cove', offset: { x: -82, y: 327 } },
-  // Salty Parrot -> the Anchor & Forge (5 houses)
-  { islandId: 'tortuga_cove', offset: { x: -218, y: -45 } },
-  { islandId: 'tortuga_cove', offset: { x: -229, y: -3 } },
-  { islandId: 'tortuga_cove', offset: { x: -235, y: 19 } },
-  { islandId: 'tortuga_cove', offset: { x: -168, y: -10 } },
-  { islandId: 'tortuga_cove', offset: { x: -173, y: 12 } },
+  { islandId: 'tortuga_cove', offset: { x: 22, y: -347 } },
+  { islandId: 'tortuga_cove', offset: { x: 18, y: -403 } },
+  { islandId: 'tortuga_cove', offset: { x: 38, y: -404 } },
+  { islandId: 'tortuga_cove', offset: { x: 58, y: -405 } },
+  // Salty Parrot -> the Anchor & Forge (4 houses)
+  { islandId: 'tortuga_cove', offset: { x: -217, y: -48 } },
+  { islandId: 'tortuga_cove', offset: { x: -226, y: -9 } },
+  { islandId: 'tortuga_cove', offset: { x: -172, y: 4 } },
+  { islandId: 'tortuga_cove', offset: { x: -177, y: 24 } },
+  // The Quay Row — a new dedicated street right behind the wharf buildings, the closest open
+  // horizontal stretch to the water since the actual dockfront is already built up (7 houses).
+  { islandId: 'tortuga_cove', offset: { x: 0, y: -417 } },
+  { islandId: 'tortuga_cove', offset: { x: 80, y: -417 } },
+  { islandId: 'tortuga_cove', offset: { x: 100, y: -417 } },
+  { islandId: 'tortuga_cove', offset: { x: 120, y: -417 } },
+  { islandId: 'tortuga_cove', offset: { x: 200, y: -417 } },
+  { islandId: 'tortuga_cove', offset: { x: 220, y: -417 } },
+  { islandId: 'tortuga_cove', offset: { x: 240, y: -417 } },
   // Sporadic houses: a single standalone homestead near each outlying location that's still on a
   // rural trail rather than a real street, instead of a second neighborhood — matches the existing
   // outpost pattern (West Point Shack, the Ruins, etc).
