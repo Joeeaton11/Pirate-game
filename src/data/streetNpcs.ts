@@ -32,7 +32,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Scruffy Dog',
     emoji: '🐕',
     flavor: "Belongs to nobody and everybody. Half the tavern's regulars swear it's good luck.",
-    anchor: { x: -140, y: -120 },
+    anchor: { x: -195, y: -30 },
     speed: 22,
   },
   {
@@ -131,7 +131,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: "A Forge Cat",
     emoji: '🐈‍⬛',
     flavor: "Answers to nobody, sleeps wherever it pleases. Currently claims the warmest spot by the forge as its own.",
-    anchor: { x: -260, y: 120 },
+    anchor: { x: -270, y: 90 },
     speed: 20,
   },
   {
@@ -159,7 +159,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Dancer',
     emoji: '🕺',
     flavor: "Someone's got a fiddle out somewhere. Can't help but move to it.",
-    anchor: { x: 0, y: -40 },
+    anchor: { x: -30, y: 30 },
     speed: 18,
   },
   {
@@ -213,7 +213,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Runner',
     emoji: '🏃‍➡️',
     flavor: "Running from something, or to something. Didn't stop long enough to ask.",
-    anchor: { x: -40, y: -80 },
+    anchor: { x: -110, y: -35 },
     speed: 32,
   },
   {
@@ -258,7 +258,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Troll',
     emoji: '🧌',
     flavor: "Nobody quite remembers when it wandered into town, or why nobody's asked it to leave.",
-    anchor: { x: 300, y: 120 },
+    anchor: { x: 250, y: -20 },
     speed: 10,
   },
   {
@@ -267,7 +267,7 @@ export const STREET_NPCS: StreetNpc[] = [
     name: 'A Genie',
     emoji: '🧞‍♂️',
     flavor: "Bound to this town, not a lamp. Longer story than you've got time for, captain.",
-    anchor: { x: -300, y: 110 },
+    anchor: { x: -220, y: 20 },
     speed: 15,
   },
   {

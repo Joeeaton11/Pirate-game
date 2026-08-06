@@ -1627,32 +1627,63 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     `npx tsc --noEmit` and an in-browser `TEMP-TEST-SPAWN` walkthrough of three points along the new
     row (dock end, the bend, and the east end) confirming a clean unbroken terrace with no garden
     rings and no stacked houses
-46. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+46. ✅ **Tortuga's housing rebuilt as a real 17th-century port town: clustered around the harbor,
+    sporadic elsewhere, ~10 fewer streets** (2026-08-05) — direct design feedback: "All the houses
+    seem scattered over a large portion of the island. I don't think this is how the island make up
+    would be in the 17th century. They would be clustered together around the port all jammed in
+    next to each other and then a few sporadic houses scattered around. There're possibly too many
+    roads as well." Root cause: Tortuga's houses had always lived on a 5-avenue x 5-cross-street
+    residential grid spanning most of the island's southern half (`x: -280..310, y: -20..300`) —
+    a real settlement pattern, just the wrong one (20th-century suburb, not a cramped period harbor
+    town), and the same grid that kept causing the house/building-on-path bugs fixed in items 39-45.
+    Deleted the grid outright (10 street segments, 46 → 36 on Tortuga) along with the 85 houses that
+    lined it, keeping item 45's 25-house Old Town row as-is since it already read as the right
+    pattern. Replaced with two placement modes: a **nucleated cluster** — a tight halo of 3-6 houses
+    spiral-packed directly around each of 15 real dock/downtown buildings and landmarks (the
+    Chandlery, Harbourmaster's Office, Basse-Terre Square, the Salty Parrot, Fort de Rocher, etc.,
+    all via the project's established spiral-search pattern, same one behind Old Town and the
+    garden-offset fix) — for the port core (66 new houses), and a single **standalone homestead**
+    near each of 10 outlying named locations (the Fishmonger, the Ropewalk, West Point Shack, the
+    Ruins, the Trapper's Camp, La Ringot Fields, etc.) for the "sporadic" ask, instead of a second
+    neighborhood. Net Tortuga housing: 149 → 101 (down, not up — deliberately: a real cramped
+    port town is a few tight blocks, not a bigger sprawl), all still comfortably inside the
+    "keep close to current count" range agreed with the player. Street NPCs anchored inside the
+    deleted grid re-snap onto whatever real street is nearest at runtime (`nearestStreetSegment`)
+    — checked all 30 Tortuga street NPCs' new snap distance individually; 7 had drifted more than
+    60 units from their authored flavor spot (e.g. the Forge Cat's anchor no longer landed anywhere
+    near the Anchor & Forge), so those 7 got a new hand-picked anchor near a real surviving street
+    close to their original spot; the other 23 were left as-is. Verified via a comprehensive Node
+    script (0 houses/buildings on paths, 0 outside the island polygon, 0 too close to any
+    landmark/resource node, healthy house-house/house-building gaps), `npx tsc --noEmit`, and an
+    in-browser `TEMP-TEST-SPAWN` walkthrough of Basse-Terre Square, the dock cluster, and a sporadic
+    outskirts house (reverted, confirmed via `grep -rn TEMP-TEST src`), plus confirming the
+    Chandlery's "Enter?" prompt still fires correctly from inside its new house cluster
+47. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-47. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+48. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-48. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+49. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-49. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+50. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-50. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+51. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-51. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+52. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-52. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+53. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-53. **GTA-style character switching** (biggest, most novel, probably last)
-54. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+54. **GTA-style character switching** (biggest, most novel, probably last)
+55. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-55. Full e2e test automation, IAP integration, real art asset pipeline —
+56. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

@@ -44,18 +44,12 @@ export const STREETS: StreetSegment[] = [
   // Rural outskirts, reached by coastal trail / farm track rather than a paved town street.
   { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: -350, y: 25 }, style: 'path' }, // -> West Point Shack
   { islandId: 'tortuga_cove', from: { x: 220, y: 152 }, to: { x: 280, y: 220 }, style: 'path' }, // -> La Ringot Fields
-  // Residential grid: 5 horizontal avenues x 5 vertical cross streets, lined with row houses
-  // (src/data/houses.ts) on both sides — the dense town blocks proper, south of the harbor road.
-  { islandId: 'tortuga_cove', from: { x: -260, y: -20 }, to: { x: 300, y: -20 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -280, y: 60 }, to: { x: 310, y: 60 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -260, y: 140 }, to: { x: 300, y: 140 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -240, y: 220 }, to: { x: 260, y: 220 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -190, y: 290 }, to: { x: 170, y: 290 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -220, y: -20 }, to: { x: -220, y: 290 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: -120, y: -20 }, to: { x: -120, y: 300 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 0, y: -20 }, to: { x: 0, y: 300 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 120, y: -20 }, to: { x: 120, y: 300 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 220, y: -20 }, to: { x: 220, y: 280 }, style: 'main' },
+
+  // The 5-avenue x 5-cross-street residential grid that used to live here (spanning most of the
+  // island's southern half) was removed 2026-08-05 along with the sprawling suburb of houses it
+  // served — a real 17th-century harbor town didn't have paved streets running two-thirds the
+  // length of the island. Houses now cluster directly around real buildings/landmarks instead
+  // (see houses.ts); the streets above already connect every one of them to Basse-Terre Square.
 
   // The 1.35x island enlargement (2026-08-02) opened new land beyond the original coastline for
   // three outlying zones, each reached by a rough, winding trail rather than a paved street —
