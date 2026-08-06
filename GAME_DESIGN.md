@@ -1688,32 +1688,55 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     the harbor road, and the minimap overview (now showing a tight dot cluster near the port
     against mostly-open green, instead of dots scattered across the whole southern half), plus
     confirming the Salty Parrot's "Enter?" prompt still fires from inside its new roadside row
-48. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+48. ✅ **Row houses extended to every real street, packed close enough to touch/interlock** (2026-08-06)
+    — direct follow-up, with a reference sketch showing houses shoulder-to-shoulder along both
+    sides of a road: "Better. Not just concentrate the houses and streets next to the dock. And
+    line the road with houses close to and next to each other." Two changes: (1) item 47's
+    road-lining only covered an 11-segment harbor-to-Basse-Terre-Square corridor, leaving the rest
+    of the town's real streets (the spokes to the Fishmonger, the Chapel, the Locked Ward, the
+    Bounty Board, the Ropewalk, the Customs House, the Baker's Oven) completely without housing —
+    extended the same technique to every one of Tortuga's 20 `'main'`-style streets (the rural
+    `'path'` trails stay deliberately house-free), so row houses now radiate out from the square
+    along the whole street network instead of pooling in one corner; (2) tightened spacing from 27
+    to 22 units — under the 26-unit house sprite's own width, so consecutive houses now visually
+    touch or slightly overlap/interlock rather than showing daylight between them, matching the
+    sketch. Also dropped 3 of item 46's "sporadic" homesteads (near the Fishmonger, the Ropewalk,
+    the Locked Ward/Bounty Board) since those locations are now themselves on a lined street and no
+    longer qualify as "sporadic elsewhere" — kept the 7 that are still genuinely off any real
+    street, on a rural trail. Net: Tortuga housing 51 → 103 (96 lining 17 different street
+    segments + 7 sporadic), spread across the whole town's actual road network instead of one
+    pocket by the harbor. Verified via the same comprehensive Node script (0 bad path clearances,
+    0 outside-polygon, healthy gaps, minimum house-house spacing exactly at the new 22-unit floor),
+    `npx tsc --noEmit`, and in-browser `TEMP-TEST-SPAWN` checks of Basse-Terre Square, the
+    Fishmonger spoke (visibly touching/overlapping houses on both sides), and the minimap overview
+    (dots now radiating along every spoke from the square, not clustered in one corner), plus
+    confirming the Customs House's "Enter?" prompt still fires from inside its new roadside row
+49. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-49. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+50. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-50. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+51. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-51. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+52. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-52. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+53. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-53. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+54. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-54. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+55. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-55. **GTA-style character switching** (biggest, most novel, probably last)
-56. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+56. **GTA-style character switching** (biggest, most novel, probably last)
+57. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-57. Full e2e test automation, IAP integration, real art asset pipeline —
+58. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
