@@ -1840,32 +1840,46 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     endpoint; every new footpath's bend point falls inside `TORTUGA_SHAPE`; `npx tsc --noEmit`
     passes; confirmed in-browser that the thin footpaths render distinctly from the wide two-tone
     high street and curve cleanly around every building
-54. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+54. ✅ **The 66 individual house footpaths consolidated into 5 shared back lanes** (2026-08-07) —
+    "Not every house needs its own path. One path next to the houses interconnecting them. Make
+    sure the paths and roads clean," direct feedback that item 53's one-spur-per-house layout
+    (each of 66 houses routed independently to the coastal backbone) looked cluttered — many spurs
+    converging on a handful of shared bend points created a spider-web/spaghetti look. Replaced it
+    with 5 shared lanes, one per house cluster: k-means-clustered the same 66 houses (k=5), ordered
+    each cluster into a single walking route with a nearest-neighbor chain refined by 2-opt (removes
+    self-crossings and long backtracks), then attached each lane to the coastal backbone at one
+    point. Net effect: 68 path segments instead of ~100, and every lane reads as one continuous
+    route threading past a row of houses rather than many separate lines converging on a point.
+    Verified with a from-scratch TypeScript script (`npx tsx`) against the live data: 0 street
+    segments obscured by an unrelated building (same 24-unit-clearance check as item 53); `npx tsc
+    --noEmit` passes; confirmed in-browser that each lane renders as a single clean winding path
+    past its row of houses, not a web of crossing spurs
+55. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-55. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+56. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-56. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+57. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-57. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+58. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-58. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+59. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-59. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+60. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-60. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+61. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-61. **GTA-style character switching** (biggest, most novel, probably last)
-62. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+62. **GTA-style character switching** (biggest, most novel, probably last)
+63. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-63. Full e2e test automation, IAP integration, real art asset pipeline —
+64. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
