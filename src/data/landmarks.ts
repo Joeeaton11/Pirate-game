@@ -12,9 +12,12 @@ export interface Landmark {
 
 export const LANDMARKS: Landmark[] = [
   {
+    // Moved 2026-08-07 from (-40, 80), near the island's vertical center, to (-40, -160), just
+    // south of the harbor buildings — see streets.ts and houses.ts for the matching street/house
+    // moves (item 50 in GAME_DESIGN.md).
     id: 'tortuga_town_square',
     islandId: 'tortuga_cove',
-    offset: { x: -40, y: 80 },
+    offset: { x: -40, y: -160 },
     name: 'Basse-Terre Square',
     emoji: '⛲',
     description:

@@ -21,35 +21,48 @@
  * Ruins, La Ringot Fields, etc.) stay deliberately house-free — a handful of standalone homesteads
  * near those cover the "sporadic elsewhere" half of the original ask. Spacing is tight enough that
  * a player can't squeeze between two neighboring row houses — the row itself is what channels foot
- * traffic onto the road. */
+ * traffic onto the road.
+ *
+ * 2026-08-07 correction: even after the port cleanup above, the two spokes anchored on Basse-Terre
+ * Square (-> Salty Parrot, -> Harbor Trading Post) still put a player walking that road visibly in
+ * the middle of the island — because the square itself sat at y=+80, close to Tortuga's vertical
+ * center (the island spans y -478 to +448), not anywhere near the coast. Rather than moving
+ * housing off its street (rejected — the road-lining look is the point), the square was moved to
+ * (-40, -160), just south of the harbor buildings (see streets.ts and landmarks.ts), and these two
+ * spokes' 20 houses were regenerated along the new, shorter lines with the same two-row/~20-unit-
+ * spacing pattern as before. Every other street/house on Tortuga is unchanged. Verified: all 20 new
+ * points fall inside TORTUGA_SHAPE, clear of every building (closest 48 units, in line with the
+ * closest pre-existing clearance), clear of every other house on the island (closest 20 units,
+ * matching the established spacing floor), and clear of each other across the two spokes. */
 export interface House {
   islandId: string;
   offset: { x: number; y: number }; // relative to island center, in world units
 }
 
 export const HOUSES: House[] = [
-  // Basse-Terre Square -> the Salty Parrot (8 houses)
-  { islandId: 'tortuga_cove', offset: { x: -39, y: 39 } },
-  { islandId: 'tortuga_cove', offset: { x: -65, y: 9 } },
-  { islandId: 'tortuga_cove', offset: { x: -91, y: -21 } },
-  { islandId: 'tortuga_cove', offset: { x: -105, y: -36 } },
-  { islandId: 'tortuga_cove', offset: { x: -131, y: -66 } },
-  { islandId: 'tortuga_cove', offset: { x: -107, y: 46 } },
-  { islandId: 'tortuga_cove', offset: { x: -134, y: 16 } },
-  { islandId: 'tortuga_cove', offset: { x: -160, y: -14 } },
-  // Basse-Terre Square -> Harbor Trading Post (12 houses)
-  { islandId: 'tortuga_cove', offset: { x: 34, y: 66 } },
-  { islandId: 'tortuga_cove', offset: { x: 51, y: 55 } },
-  { islandId: 'tortuga_cove', offset: { x: 85, y: 34 } },
-  { islandId: 'tortuga_cove', offset: { x: 102, y: 23 } },
-  { islandId: 'tortuga_cove', offset: { x: 135, y: 2 } },
-  { islandId: 'tortuga_cove', offset: { x: 152, y: -9 } },
-  { islandId: 'tortuga_cove', offset: { x: -13, y: 30 } },
-  { islandId: 'tortuga_cove', offset: { x: 4, y: 19 } },
-  { islandId: 'tortuga_cove', offset: { x: 21, y: 8 } },
-  { islandId: 'tortuga_cove', offset: { x: 38, y: -3 } },
-  { islandId: 'tortuga_cove', offset: { x: 72, y: -24 } },
-  { islandId: 'tortuga_cove', offset: { x: 105, y: -46 } },
+  // Basse-Terre Square -> the Salty Parrot (8 houses) — regenerated 2026-08-07 along the square's
+  // new, more-northern position
+  { islandId: 'tortuga_cove', offset: { x: -80, y: -161 } },
+  { islandId: 'tortuga_cove', offset: { x: -99, y: -145 } },
+  { islandId: 'tortuga_cove', offset: { x: -118, y: -128 } },
+  { islandId: 'tortuga_cove', offset: { x: -137, y: -112 } },
+  { islandId: 'tortuga_cove', offset: { x: -57, y: -110 } },
+  { islandId: 'tortuga_cove', offset: { x: -76, y: -94 } },
+  { islandId: 'tortuga_cove', offset: { x: -95, y: -78 } },
+  { islandId: 'tortuga_cove', offset: { x: -113, y: -61 } },
+  // Basse-Terre Square -> Harbor Trading Post (12 houses) — regenerated 2026-08-07, same reason
+  { islandId: 'tortuga_cove', offset: { x: -35, y: -126 } },
+  { islandId: 'tortuga_cove', offset: { x: -18, y: -115 } },
+  { islandId: 'tortuga_cove', offset: { x: -1, y: -105 } },
+  { islandId: 'tortuga_cove', offset: { x: 17, y: -95 } },
+  { islandId: 'tortuga_cove', offset: { x: 34, y: -85 } },
+  { islandId: 'tortuga_cove', offset: { x: 51, y: -74 } },
+  { islandId: 'tortuga_cove', offset: { x: 68, y: -64 } },
+  { islandId: 'tortuga_cove', offset: { x: 85, y: -54 } },
+  { islandId: 'tortuga_cove', offset: { x: 4, y: -165 } },
+  { islandId: 'tortuga_cove', offset: { x: 21, y: -155 } },
+  { islandId: 'tortuga_cove', offset: { x: 38, y: -145 } },
+  { islandId: 'tortuga_cove', offset: { x: 55, y: -135 } },
   // The harbor road, Trading Post -> Fishing Dock (13 houses)
   { islandId: 'tortuga_cove', offset: { x: 176, y: -108 } },
   { islandId: 'tortuga_cove', offset: { x: 164, y: -124 } },

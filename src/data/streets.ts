@@ -10,12 +10,17 @@ export interface StreetSegment {
 
 export const STREETS: StreetSegment[] = [
   // Basse-Terre Square as the downtown hub, radiating out to the inner ring of buildings.
-  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: -160, y: -57 }, style: 'main' }, // -> The Salty Parrot
-  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: 155, y: -44 }, style: 'main' }, // -> Harbor Trading Post
-  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: -236, y: 222 }, style: 'main' }, // -> Fishmonger's Stall
-  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: 171, y: 124 }, style: 'main' }, // -> Chapelle Notre-Dame
-  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: 120, y: 260 }, style: 'main' }, // -> The Locked Ward
-  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: 0, y: 260 }, style: 'main' }, // -> The Bounty Board
+  // Moved 2026-08-07 from (-40, 80) to (-40, -160) — direct feedback that the square (and every
+  // house lining its two housing spokes) still read as sitting in the middle of the island even
+  // after item 49's port cleanup; the square itself was the thing anchoring them there. Now it
+  // sits just south of the harbor buildings instead of near the island's vertical center. See
+  // item 50.
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -160, y: -57 }, style: 'main' }, // -> The Salty Parrot
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 155, y: -44 }, style: 'main' }, // -> Harbor Trading Post
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -236, y: 222 }, style: 'main' }, // -> Fishmonger's Stall
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 171, y: 124 }, style: 'main' }, // -> Chapelle Notre-Dame
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 120, y: 260 }, style: 'main' }, // -> The Locked Ward
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 0, y: 260 }, style: 'main' }, // -> The Bounty Board
   // Harbor road, linking the trading post down to the docks.
   { islandId: 'tortuga_cove', from: { x: 161, y: -83 }, to: { x: 0, y: -280 }, style: 'main' }, // -> Fishing Dock
   { islandId: 'tortuga_cove', from: { x: 0, y: -280 }, to: { x: 140, y: -290 }, style: 'main' }, // -> Harbor Pier
@@ -46,7 +51,7 @@ export const STREETS: StreetSegment[] = [
   // route rather than a proper street.
   { islandId: 'tortuga_cove', from: { x: 140, y: -290 }, to: { x: 183, y: -225 }, style: 'path' }, // -> Fort de Rocher
   // Rural outskirts, reached by coastal trail / farm track rather than a paved town street.
-  { islandId: 'tortuga_cove', from: { x: -40, y: 80 }, to: { x: -350, y: 25 }, style: 'path' }, // -> West Point Shack
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -350, y: 25 }, style: 'path' }, // -> West Point Shack
   { islandId: 'tortuga_cove', from: { x: 220, y: 152 }, to: { x: 280, y: 220 }, style: 'path' }, // -> La Ringot Fields
 
   // The 5-avenue x 5-cross-street residential grid that used to live here (spanning most of the

@@ -1739,32 +1739,52 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     Quay Row (visibly overlapping houses), the harbor road, and the minimap overview (the house-dot
     cluster now sits tightly against the port with the far spokes empty), plus confirming the
     Chandlery's "Enter?" prompt still fires from inside the retightened dock cluster
-50. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+50. ✅ **Basse-Terre Square itself moved off the island's vertical center, toward the harbor**
+    (2026-08-07) — direct correction of item 49: "The layout is still in the middle of the island
+    and not what I said for you to build," confirmed by screenshot of a player walking a housing
+    row with no coast in sight. Root cause: items 46-49 all repositioned *housing*, but never the
+    square the two busiest housing spokes (-> Salty Parrot, -> Harbor Trading Post) actually radiate
+    from — Basse-Terre Square sat at y=+80, close to Tortuga's true vertical center (the island
+    spans y -478 to +448), so those two spokes' 20 houses always read as mid-island no matter how
+    tightly packed. Given a choice between cutting that housing entirely (port-only) or keeping it
+    on its street but pulling the whole corridor north, picked the latter. Moved the square from
+    (-40, 80) to (-40, -160) — just south of the harbor buildings — in `streets.ts` (6 spoke "from"
+    points) and `landmarks.ts` (the square's own marker); the 20 houses on the two affected spokes
+    were then regenerated from scratch along the new, shorter lines with the same two-row/~20-unit
+    pattern as item 49. Every other street, house, and building on Tortuga (the harbor road, Quay
+    Row, the 4 southern spokes to Fishmonger/Chapel/Locked Ward/Bounty Board, all sporadic
+    homesteads) is untouched — only the square's position and its two housing spokes moved.
+    Verified with a Python point-in-polygon/clearance script mirroring the game's own
+    `pointInPolygon`: all 20 regenerated houses fall inside `TORTUGA_SHAPE`, clear of every building
+    (closest 48 units, consistent with the closest pre-existing clearance elsewhere on the island),
+    clear of every other house (closest 20 units, the established spacing floor), and clear of each
+    other across the two spokes (closest 27 units) — plus `npx tsc --noEmit`
+51. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-51. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+52. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-52. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+53. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-53. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+54. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-54. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+55. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-55. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+56. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-56. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+57. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-57. **GTA-style character switching** (biggest, most novel, probably last)
-58. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+58. **GTA-style character switching** (biggest, most novel, probably last)
+59. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-59. Full e2e test automation, IAP integration, real art asset pipeline —
+60. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
