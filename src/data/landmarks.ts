@@ -12,33 +12,32 @@ export interface Landmark {
 
 export const LANDMARKS: Landmark[] = [
   {
-    // Moved 2026-08-07 from (-40, 80), near the island's vertical center, to (-40, -160), just
-    // south of the harbor buildings — see streets.ts and houses.ts for the matching street/house
-    // moves (item 50 in GAME_DESIGN.md).
+    // Full-town rebuild 2026-08-07 (item 52): a small plaza set back from the busiest stretch of
+    // quay, near the harbor's administrative core (Harbourmaster's Office, Customs House).
     id: 'tortuga_town_square',
     islandId: 'tortuga_cove',
-    offset: { x: -40, y: -160 },
+    offset: { x: 16, y: -118 },
     name: 'Basse-Terre Square',
     emoji: '⛲',
     description:
       "The heart of Basse-Terre — a well, a market stall or two, and enough loose talk to start three duels before noon.",
   },
   {
+    // Full-town rebuild 2026-08-07 (item 52): the main pier off the busiest stretch of quay,
+    // between the tavern district and the harbor's administrative core.
     id: 'tortuga_harbor_pier',
     islandId: 'tortuga_cove',
-    offset: { x: 140, y: -290 },
+    offset: { x: 68, y: -205 },
     name: 'The Harbor Pier',
     emoji: '⚓',
     description: 'A weathered wooden pier where every manner of sloop, brigantine, and stolen merchantman ties up.',
   },
   {
-    // Sits on the small headland the coastline itself forms right here — found the same way as
-    // the quay and every pier tip, by sweeping rays out from land until they cross into open
-    // water; this is the one point along the whole harbor front where that crossing happens
-    // furthest out; a real lighthouse would stand exactly there.
+    // Full-town rebuild 2026-08-07 (item 52): the west headland guarding the new horseshoe
+    // harbor's mouth, opposite Fort de Rocher on the east headland.
     id: 'tortuga_lighthouse',
     islandId: 'tortuga_cove',
-    offset: { x: 60, y: -458 },
+    offset: { x: -195, y: -330 },
     name: 'The Lighthouse',
     emoji: '🗼',
     description: "Lit every night without fail — the one soul in Tortuga everyone agrees is worth paying, raid or no raid.",
@@ -53,21 +52,22 @@ export const LANDMARKS: Landmark[] = [
       "Real tobacco fields once grew on Tortuga's south side, in a district the buccaneers called La Ringot. Whatever coin doesn't come from plunder comes from here.",
   },
   {
-    // Pulled into the harbor town 2026-08-07 from (70, 140) to (250, -190) — item 51's full-town
-    // remap. See GAME_DESIGN.md.
+    // Full-town rebuild 2026-08-07 (item 52): east side of the bay, near the Fishmonger's Stall
+    // and Chapelle Notre-Dame.
     id: 'tortuga_bakery',
     islandId: 'tortuga_cove',
-    offset: { x: 250, y: -190 },
+    offset: { x: 319, y: -241 },
     name: "The Baker's Oven",
     emoji: '🍞',
     description: "Bread at dawn, before the tavern crowd's even awake. Half the town lines up for it anyway.",
   },
   {
-    // Pulled into the harbor town 2026-08-07 from (-140, 320) to (-185, -133) — item 51's
-    // full-town remap. See GAME_DESIGN.md.
+    // Full-town rebuild 2026-08-07 (item 52): the docks-and-careening quarter on the west side of
+    // the bay, near the Cooper's Yard — rope-makers alongside the barrel-makers, matching a real
+    // outlaw port's waterfront trades.
     id: 'tortuga_ropewalk',
     islandId: 'tortuga_cove',
-    offset: { x: -185, y: -133 },
+    offset: { x: -280, y: -175 },
     name: 'The Ropewalk',
     emoji: '🪢',
     description: "A long, low shed where hemp gets twisted into rigging, coil by coil. No ship sails without what's made here.",

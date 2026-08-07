@@ -9,61 +9,51 @@ export interface StreetSegment {
 }
 
 export const STREETS: StreetSegment[] = [
-  // Basse-Terre Square as the downtown hub, radiating out to the inner ring of buildings.
-  // Moved 2026-08-07 from (-40, 80) to (-40, -160) — direct feedback that the square (and every
-  // house lining its two housing spokes) still read as sitting in the middle of the island even
-  // after item 49's port cleanup; the square itself was the thing anchoring them there. Now it
-  // sits just south of the harbor buildings instead of near the island's vertical center. See
-  // item 50.
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -160, y: -57 }, style: 'main' }, // -> The Salty Parrot
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 155, y: -44 }, style: 'main' }, // -> Harbor Trading Post
-  // These 4 spokes were re-aimed 2026-08-07 along with the buildings/markers at their far ends —
-  // item 51's full-town remap pulled Fishmonger/Chapel/Locked Ward/Bounty Board off the island's
-  // south side and into the harbor town, so the spokes reaching them are now short again instead
-  // of running most of the length of the island. See GAME_DESIGN.md.
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -270, y: -150 }, style: 'main' }, // -> Fishmonger's Stall
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 280, y: -150 }, style: 'main' }, // -> Chapelle Notre-Dame
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 260, y: -90 }, style: 'main' }, // -> The Locked Ward
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -44, y: -59 }, style: 'main' }, // -> The Bounty Board
-  // Harbor road, linking the trading post down to the docks.
-  { islandId: 'tortuga_cove', from: { x: 161, y: -83 }, to: { x: 0, y: -280 }, style: 'main' }, // -> Fishing Dock
-  { islandId: 'tortuga_cove', from: { x: 0, y: -280 }, to: { x: 140, y: -290 }, style: 'main' }, // -> Harbor Pier
-  { islandId: 'tortuga_cove', from: { x: 0, y: -280 }, to: { x: -94, y: -225 }, style: 'main' }, // -> Warehouse
-  // The big-dock district: a real waterfront street front right against the quay, instead of the
-  // Warehouse and Harbor Pier standing alone on open grass. Relocated 2026-08-03 — the first pass
-  // put the whole district ~250 units south of the actual coastline, nowhere near the real dock.
-  { islandId: 'tortuga_cove', from: { x: -109, y: -238 }, to: { x: -71, y: -342 }, style: 'main' }, // Warehouse -> The Chandlery
-  { islandId: 'tortuga_cove', from: { x: -30, y: -372 }, to: { x: 70, y: -378 }, style: 'main' }, // Chandlery -> Harbourmaster's Office
-  { islandId: 'tortuga_cove', from: { x: 112, y: -353 }, to: { x: 140, y: -290 }, style: 'main' }, // Harbourmaster's Office -> Harbor Pier
-  { islandId: 'tortuga_cove', from: { x: 129, y: -373 }, to: { x: 151, y: -367 }, style: 'main' }, // Harbourmaster's Office -> Dockworkers' Bunkhouse
-  { islandId: 'tortuga_cove', from: { x: 184, y: -330 }, to: { x: 196, y: -230 }, style: 'path' }, // Bunkhouse -> Fort de Rocher (second, rougher approach)
-  // Straight onto the quay itself, so the street visibly leads right to the water's edge.
-  { islandId: 'tortuga_cove', from: { x: -56, y: -400 }, to: { x: -50, y: -451 }, style: 'main' }, // Chandlery -> the quay
-  // Outer ring: each inner building connects onward to one more, so the downtown reads as blocks
-  // radiating from the square rather than a single spoke pattern. Re-aimed 2026-08-07 to match the
-  // full-town remap — see the note above the 4 square spokes.
-  { islandId: 'tortuga_cove', from: { x: 206, y: -45 }, to: { x: 300, y: -60 }, style: 'main' }, // Trading Post -> Customs House
-  { islandId: 'tortuga_cove', from: { x: 280, y: -150 }, to: { x: 250, y: -190 }, style: 'main' }, // Chapel -> The Baker's Oven
-  { islandId: 'tortuga_cove', from: { x: 260, y: -90 }, to: { x: 250, y: -190 }, style: 'main' }, // Locked Ward -> The Baker's Oven
-  { islandId: 'tortuga_cove', from: { x: -270, y: -150 }, to: { x: -185, y: -133 }, style: 'main' }, // Fishmonger -> The Ropewalk
-  { islandId: 'tortuga_cove', from: { x: -44, y: -59 }, to: { x: -185, y: -133 }, style: 'main' }, // Bounty Board -> The Ropewalk
-  { islandId: 'tortuga_cove', from: { x: -195, y: -85 }, to: { x: -256, y: -35 }, style: 'main' }, // Salty Parrot -> The Anchor & Forge
-  // The Quay Row (2026-08-06): a real street immediately behind the wharf buildings — the closest
-  // open horizontal stretch to the water, since the actual dockfront is already lined with working
-  // buildings (Chandlery, Harbourmaster's Office, the Bunkhouse) rather than housing.
-  { islandId: 'tortuga_cove', from: { x: -230, y: -445 }, to: { x: 270, y: -445 }, style: 'main' }, // the Quay Row
-  // Fort de Rocher's real access was a rock-cut staircase and a pull-up ladder — a treacherous
+  // Full-town rebuild 2026-08-07 (item 52): "start again" — Tortuga's north coast was reshaped
+  // into a real horseshoe harbor (see islands.ts) and the whole town rebuilt around it as an
+  // organic, waterfront-centric street plan instead of a hub-and-spoke square, per real
+  // 17th-century outlaw ports (Port Royal, Tortuga) and hand-drawn fantasy harbor-town references
+  // supplied directly. The backbone is a single curving coastal high street hugging the inner
+  // shore of the bay, headland to headland, with a short "alley" off it to every building/
+  // landmark/quest-marker — narrow, organic, non-grid, matching "narrow thoroughfares...
+  // tightly packed buildings" rather than formal planning. See buildings.ts, houses.ts,
+  // landmarks.ts, harbor.ts for the matching moves.
+  // The coastal high street itself, west headland to east headland.
+  { islandId: 'tortuga_cove', from: { x: -259, y: -363 }, to: { x: -205, y: -276 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -205, y: -276 }, to: { x: -131, y: -202 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -131, y: -202 }, to: { x: -29, y: -151 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -29, y: -151 }, to: { x: 79, y: -144 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 79, y: -144 }, to: { x: 184, y: -177 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 184, y: -177 }, to: { x: 262, y: -242 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 262, y: -242 }, to: { x: 317, y: -319 }, style: 'main' },
+  // Alleys off the high street — docks-and-careening quarter, west side.
+  { islandId: 'tortuga_cove', from: { x: -209, y: -282 }, to: { x: -246, y: -259 }, style: 'main' }, // -> Sailmaker's Loft
+  { islandId: 'tortuga_cove', from: { x: -184, y: -255 }, to: { x: -228, y: -211 }, style: 'main' }, // -> The Cooper's Yard
+  { islandId: 'tortuga_cove', from: { x: -192, y: -263 }, to: { x: -280, y: -175 }, style: 'main' }, // -> The Ropewalk
+  { islandId: 'tortuga_cove', from: { x: -147, y: -218 }, to: { x: -193, y: -172 }, style: 'main' }, // -> Smugglers' Warehouse
+  { islandId: 'tortuga_cove', from: { x: -105, y: -189 }, to: { x: -130, y: -140 }, style: 'main' }, // -> The Chandlery
+  { islandId: 'tortuga_cove', from: { x: -66, y: -169 }, to: { x: -98, y: -105 }, style: 'main' }, // -> The Anchor & Forge
+  // Alleys off the high street — the sheltered bottom of the bay, the harbor's administrative core.
+  { islandId: 'tortuga_cove', from: { x: -19, y: -150 }, to: { x: -22, y: -100 }, style: 'main' }, // -> Harbourmaster's Office
+  { islandId: 'tortuga_cove', from: { x: 32, y: -147 }, to: { x: 28, y: -79 }, style: 'main' }, // -> The Customs House
+  { islandId: 'tortuga_cove', from: { x: 18, y: -148 }, to: { x: 16, y: -118 }, style: 'main' }, // -> Basse-Terre Square
+  { islandId: 'tortuga_cove', from: { x: 2, y: -149 }, to: { x: -4, y: -49 }, style: 'main' }, // -> Bounty Board
+  { islandId: 'tortuga_cove', from: { x: 54, y: -146 }, to: { x: 47, y: -38 }, style: 'main' }, // -> Locked Ward
+  // Alleys off the high street — the tavern district, the busiest stretch of quay.
+  { islandId: 'tortuga_cove', from: { x: 77, y: -144 }, to: { x: 73, y: -89 }, style: 'main' }, // -> The Salty Parrot
+  { islandId: 'tortuga_cove', from: { x: 125, y: -159 }, to: { x: 144, y: -99 }, style: 'main' }, // -> Harbor Trading Post
+  { islandId: 'tortuga_cove', from: { x: 175, y: -174 }, to: { x: 190, y: -126 }, style: 'main' }, // -> Dockworkers' Bunkhouse
+  // Alleys off the high street — the east side, chapel and working-class quarter.
+  { islandId: 'tortuga_cove', from: { x: 216, y: -204 }, to: { x: 260, y: -151 }, style: 'main' }, // -> Chapelle Notre-Dame
+  { islandId: 'tortuga_cove', from: { x: 262, y: -242 }, to: { x: 297, y: -199 }, style: 'main' }, // -> The Fishmonger's Stall
+  { islandId: 'tortuga_cove', from: { x: 281, y: -268 }, to: { x: 319, y: -241 }, style: 'main' }, // -> The Baker's Oven
+  // Both headlands' real access was a rock-cut staircase and a pull-up ladder — a treacherous
   // route rather than a proper street.
-  { islandId: 'tortuga_cove', from: { x: 140, y: -290 }, to: { x: 183, y: -225 }, style: 'path' }, // -> Fort de Rocher
+  { islandId: 'tortuga_cove', from: { x: 286, y: -275 }, to: { x: 265, y: -290 }, style: 'path' }, // -> Fort de Rocher
+  { islandId: 'tortuga_cove', from: { x: -226, y: -311 }, to: { x: -195, y: -330 }, style: 'path' }, // -> the Lighthouse
   // Rural outskirts, reached by coastal trail / farm track rather than a paved town street.
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -350, y: 25 }, style: 'path' }, // -> West Point Shack
+  { islandId: 'tortuga_cove', from: { x: -205, y: -276 }, to: { x: -350, y: 25 }, style: 'path' }, // -> West Point Shack
   { islandId: 'tortuga_cove', from: { x: 220, y: 152 }, to: { x: 280, y: 220 }, style: 'path' }, // -> La Ringot Fields
-
-  // The 5-avenue x 5-cross-street residential grid that used to live here (spanning most of the
-  // island's southern half) was removed 2026-08-05 along with the sprawling suburb of houses it
-  // served — a real 17th-century harbor town didn't have paved streets running two-thirds the
-  // length of the island. Houses now cluster directly around real buildings/landmarks instead
-  // (see houses.ts); the streets above already connect every one of them to Basse-Terre Square.
 
   // The 1.35x island enlargement (2026-08-02) opened new land beyond the original coastline for
   // three outlying zones, each reached by a rough, winding trail rather than a paved street —

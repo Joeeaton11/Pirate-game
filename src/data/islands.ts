@@ -16,12 +16,26 @@ function polygon(points: [number, number][]): { x: number; y: number }[] {
 /** Île de la Tortue: ~37km x 7km, turtle-shaped, elongated east-west. Scaled 1.35x over the
  * original coastline trace (2026-08-02) to open room for a woodland belt, a ruined redoubt, and
  * an abandoned quarter beyond the original town's footprint — every existing marker keeps its
- * old coordinate, which now simply sits further inland from the new coastline. */
+ * old coordinate, which now simply sits further inland from the new coastline.
+ *
+ * The north coast was reshaped 2026-08-07 (item 52) into a real horseshoe harbor — a proper
+ * crescent bay wrapping between two headlands — replacing what used to be a convex peninsula tip.
+ * Reference: real 17th-century outlaw ports (Port Royal, Tortuga) and several hand-drawn fantasy
+ * harbor maps supplied directly: organic, non-grid streets; a dense waterfront-centric town
+ * wrapping the bay; an elevated fort guarding the harbor mouth. Only the west/south/east coastline
+ * (indices 0-20 and 27-29 below) is unchanged from the original trace — every rural/outlying
+ * marker on that stretch (West Point Shack, El Fuerte Viejo, the Trapper's Camp, the Smuggler's
+ * Cache, the Old Landing Dock, La Ringot Fields, the High Woods, the Forgotten Graves) is still
+ * safely on land, re-verified against this shape. Everything on the old north coast (every
+ * building, house, street, and harbor fixture) was rebuilt from scratch around the new bay — see
+ * buildings.ts, houses.ts, streets.ts, landmarks.ts, harbor.ts. */
 const TORTUGA_SHAPE = polygon([
   [568, 0], [532, 114], [476, 214], [408, 298], [330, 364], [240, 414], [144, 442], [46, 448],
   [-46, 448], [-144, 442], [-244, 422], [-350, 388], [-402, 294], [-392, 176], [-470, 100], [-594, 0],
-  [-462, -98], [-322, -144], [-306, -222], [-268, -296], [-210, -364], [-138, -422], [-48, -460],
-  [52, -478], [154, -472], [256, -446], [316, -350], [354, -256], [380, -170], [450, -98],
+  [-462, -98], [-322, -144], [-306, -222], [-268, -296], [-210, -364],
+  // The horseshoe bay (west headland -> east headland), replacing the old peninsula tip.
+  [-200, -400], [-150, -320], [-90, -260], [-10, -220], [70, -215], [150, -240], [210, -290], [260, -360],
+  [354, -256], [380, -170], [450, -98],
 ]);
 
 /** Île-à-Vache: ~13km x 3.2km, tapers from wider hills in the west to a swampy east end. */

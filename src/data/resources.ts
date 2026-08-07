@@ -31,7 +31,9 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_tortuga_fish',
     islandId: 'tortuga_cove',
-    offset: { x: 0, y: -280 },
+    // Full-town rebuild 2026-08-07 (item 52): the old spot is now open water inside the new
+    // horseshoe bay — moved to the docks-and-careening quarter on the west shore.
+    offset: { x: -87, y: -250 },
     resourceId: 'fish',
     name: 'Fishing Dock',
     minYield: 2,

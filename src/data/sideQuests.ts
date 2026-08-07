@@ -175,9 +175,9 @@ export const SIDE_QUESTS: SideQuest[] = [
     id: 'quest_bounty_board',
     type: 'heat_bounty',
     islandId: 'tortuga_cove',
-    // Pulled into the harbor town 2026-08-07 from (0, 260) to (-44, -59) — item 51's full-town
-    // remap. See GAME_DESIGN.md.
-    offset: { x: -44, y: -59 },
+    // Full-town rebuild 2026-08-07 (item 52): near Basse-Terre Square, the harbor town's
+    // administrative core.
+    offset: { x: -4, y: -49 },
     title: 'The Bounty Board',
     npcName: 'Constable Duval',
     npcEmoji: '📋',

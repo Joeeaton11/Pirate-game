@@ -52,7 +52,10 @@ export const BUILDINGS: Building[] = [
     name: 'The Salty Parrot',
     type: 'tavern',
     emoji: '🍻',
-    offset: { x: -180, y: -80 },
+    // Full-town rebuild 2026-08-07 (item 52): every Tortuga building repositioned around the new
+    // horseshoe bay (see islands.ts). This one sits in the tavern district, right by the busiest
+    // stretch of the quay.
+    offset: { x: 73, y: -89 },
     npcName: 'Old Tom',
     npcEmoji: '🧔',
     dialogue: "Buy a round and I'll sign on, no questions asked.",
@@ -64,7 +67,8 @@ export const BUILDINGS: Building[] = [
     name: 'Harbor Trading Post',
     type: 'shop',
     emoji: '🏪',
-    offset: { x: 180, y: -60 },
+    // Full-town rebuild 2026-08-07 (item 52): tavern-district neighbor to the Salty Parrot.
+    offset: { x: 144, y: -99 },
     npcName: 'Merchant Wren',
     npcEmoji: '🧑‍💼',
     dialogue: "I know a sharpshooter looking for steady work, if you've got the coin.",
@@ -172,9 +176,9 @@ export const BUILDINGS: Building[] = [
     name: "The Fishmonger's Stall",
     type: 'market',
     emoji: '🐟',
-    // Pulled into the harbor town 2026-08-07 from (-260, 242), on the far south side of the
-    // island, to (-270, -150) — item 51's full-town remap. See GAME_DESIGN.md.
-    offset: { x: -270, y: -150 },
+    // Full-town rebuild 2026-08-07 (item 52): the east side of the bay, past the chapel, near
+    // the working docks.
+    offset: { x: 297, y: -199 },
     npcName: 'Old Dinah',
     npcEmoji: '🧓',
     dialogue: "Freshest catch on the wharf. Buy it fair, or don't let me catch you taking it.",
@@ -236,7 +240,9 @@ export const BUILDINGS: Building[] = [
     name: 'Fort de Rocher',
     type: 'fort',
     emoji: '🏰',
-    offset: { x: 200, y: -200 },
+    // Full-town rebuild 2026-08-07 (item 52): moved onto the east headland guarding the harbor
+    // mouth — "sat on high ground overlooking both the town and the sea approach," per the brief.
+    offset: { x: 265, y: -290 },
     npcName: 'Sergeant Duclos',
     npcEmoji: '💂',
     dialogue:
@@ -249,9 +255,9 @@ export const BUILDINGS: Building[] = [
     name: 'Chapelle Notre-Dame',
     type: 'chapel',
     emoji: '⛪',
-    // Pulled into the harbor town 2026-08-07 from (330, 116), on the far south-east side of the
-    // island, to (280, -150) — item 51's full-town remap. See GAME_DESIGN.md.
-    offset: { x: 280, y: -150 },
+    // Full-town rebuild 2026-08-07 (item 52): east side of the bay, between the tavern district
+    // and Fort de Rocher's headland.
+    offset: { x: 260, y: -151 },
     npcName: 'Brother Aldric',
     npcEmoji: '🙏',
     dialogue: "Even outlaws want forgiveness sometimes. I keep the door open and ask no questions about the cargo.",
@@ -263,7 +269,10 @@ export const BUILDINGS: Building[] = [
     name: "Smugglers' Warehouse",
     type: 'warehouse',
     emoji: '📦',
-    offset: { x: -120, y: -210 },
+    // Full-town rebuild 2026-08-07 (item 52): tucked in a nook on the west side of the bay,
+    // behind the Cooper's Yard and Sailmaker's Loft — contraband storage, out of sight of the
+    // main quay.
+    offset: { x: -193, y: -172 },
     npcName: 'Big Pella',
     npcEmoji: '🧔‍♂️',
     dialogue: "Crates in, crates out, no manifest ever matches. You look like you can keep your mouth shut — that's worth good coin here.",
@@ -287,9 +296,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Customs House',
     type: 'customs',
     emoji: '🏛️',
-    // Pulled into the harbor town 2026-08-07 from (320, 20) to (300, -60) — item 51's full-town
-    // remap. See GAME_DESIGN.md.
-    offset: { x: 300, y: -60 },
+    // Full-town rebuild 2026-08-07 (item 52): right by the Harbourmaster's Office at the
+    // sheltered bottom of the bay, the harbor's administrative core.
+    offset: { x: 28, y: -79 },
     npcName: 'Inspector Hale',
     npcEmoji: '🎩',
     dialogue:
@@ -301,10 +310,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Anchor & Forge',
     type: 'smithy',
     emoji: '⚒️',
-    // Pulled into the harbor town 2026-08-07 from (-308, 75) to (-269, -27), staying on its own
-    // spoke off the Salty Parrot but now close to the harbor cluster instead of the island's
-    // south side — item 51's full-town remap. See GAME_DESIGN.md.
-    offset: { x: -269, y: -27 },
+    // Full-town rebuild 2026-08-07 (item 52): west side of the bay, between the Chandlery and
+    // the Harbourmaster's Office — metalwork close to the working docks.
+    offset: { x: -98, y: -105 },
     npcName: 'Forge-Master Kade',
     npcEmoji: '🔨',
     dialogue: "Cutlasses, grapeshot, ship fittings — if it's metal and it's broken, I can fix it or melt it down and start again.",
@@ -382,7 +390,9 @@ export const BUILDINGS: Building[] = [
     name: "Harbourmaster's Office",
     type: 'customs',
     emoji: '🗼',
-    offset: { x: 100, y: -380 },
+    // Full-town rebuild 2026-08-07 (item 52): the sheltered bottom of the bay, right on the
+    // quay — the harbor's administrative heart.
+    offset: { x: -22, y: -100 },
     npcName: 'Harbourmaster Voss',
     npcEmoji: '🎖️',
     dialogue: "Every hull that ties up on this dock answers to me first — the Customs House gets its cut after. Been running this waterfront since before some of you had teeth.",
@@ -394,7 +404,8 @@ export const BUILDINGS: Building[] = [
     name: 'The Chandlery',
     type: 'shop',
     emoji: '🕯️',
-    offset: { x: -60, y: -370 },
+    // Full-town rebuild 2026-08-07 (item 52): west side of the bay, past the Warehouse.
+    offset: { x: -130, y: -140 },
     npcName: 'Fenwick',
     npcEmoji: '🪢',
     dialogue: "Rope, tar, sailcloth, spare rigging — if it keeps a ship's canvas from tearing loose in a storm, I stock it. My apprentice here's quick with a splice, if you're hiring.",
@@ -406,7 +417,8 @@ export const BUILDINGS: Building[] = [
     name: "Dockworkers' Bunkhouse",
     type: 'warehouse',
     emoji: '🛏️',
-    offset: { x: 180, y: -360 },
+    // Full-town rebuild 2026-08-07 (item 52): tavern-district side, east of Harbor Trading Post.
+    offset: { x: 190, y: -126 },
     npcName: 'Cutter Doyle',
     npcEmoji: '🧢',
     dialogue: "Six of us to a room and the walls still leak, but the pay's honest and the rum's cheap. Card games run past midnight if you fancy losing your coin the easy way.",
@@ -422,7 +434,9 @@ export const BUILDINGS: Building[] = [
     name: "The Cooper's Yard",
     type: 'market',
     emoji: '🛢️',
-    offset: { x: -35, y: -317 },
+    // Full-town rebuild 2026-08-07 (item 52): west side of the bay, the docks-and-careening
+    // quarter, next to the Sailmaker's Loft.
+    offset: { x: -228, y: -211 },
     npcName: 'Old Merriweather',
     npcEmoji: '🔨',
     dialogue: "Every cask of salt pork, rum, and fresh water on this waterfront passed through my hands first. Been hooping barrels since before the Chandlery had a roof.",
@@ -434,7 +448,9 @@ export const BUILDINGS: Building[] = [
     name: "The Sailmaker's Loft",
     type: 'shop',
     emoji: '🧵',
-    offset: { x: 60, y: -330 },
+    // Full-town rebuild 2026-08-07 (item 52): the west headland side of the bay, closest to the
+    // careening beach.
+    offset: { x: -246, y: -259 },
     npcName: 'Needle Annie',
     npcEmoji: '🪡',
     dialogue: "Torn canvas, a busted seam mid-squall, a flag shot clean off its halyard — bring it here before you bring it to the bottom of the sea.",
