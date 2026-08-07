@@ -8,7 +8,9 @@ export interface RescuePoint {
 export const RESCUE_POINT: RescuePoint = {
   id: 'tortuga_locked_ward',
   islandId: 'tortuga_cove',
-  offset: { x: 120, y: 260 },
+  // Pulled into the harbor town 2026-08-07 from (120, 260) to (260, -90) — item 51's full-town
+  // remap. See GAME_DESIGN.md.
+  offset: { x: 260, y: -90 },
 };
 
 export function rescuePointWorldPosition(islandPosition: { x: number; y: number }): {

@@ -1759,32 +1759,56 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     (closest 48 units, consistent with the closest pre-existing clearance elsewhere on the island),
     clear of every other house (closest 20 units, the established spacing floor), and clear of each
     other across the two spokes (closest 27 units) — plus `npx tsc --noEmit`
-51. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+51. ✅ **Full-town remap: every remaining Tortuga building/marker pulled into the harbor town**
+    (2026-08-07) — direct correction of item 50: "That hasn't worked at all. Start a fresh and
+    remap all of the buildings on the island." Root cause: item 50 only moved Basse-Terre Square
+    and its two housing spokes — 7 other buildings/markers (Fishmonger's Stall, Chapelle
+    Notre-Dame, The Customs House, The Anchor & Forge, the Bounty Board, the Locked Ward, plus the
+    Baker's Oven and Ropewalk landmarks) were still on their original south/east/west positions,
+    up to 460 units from the coast, so the square's spokes reaching them still ran most of the
+    length of the island. Relocated all 8 into a compact band hugging the harbor (roughly
+    y = -190 to -27, vs. the coast at y = -478 and the harbor buildings already at y = -210 to
+    -380), leaving only the explicitly rural/outlying locations untouched: West Point Shack, El
+    Fuerte Viejo (the Ruins), the Trapper's Camp, the Smuggler's Cache, and the Old Landing Dock —
+    all already established as deliberately-outlying content (item 46) reached by rough trails, not
+    town streets. Re-aimed every spoke/connector street to the new positions (the 4 remaining
+    Square spokes, Trading Post -> Customs House, Chapel <-> Baker's Oven, Locked Ward <-> Baker's
+    Oven, Fishmonger <-> Ropewalk, Bounty Board <-> Ropewalk, Salty Parrot -> Anchor & Forge) and
+    regenerated the 4 houses on the Salty Parrot -> Anchor & Forge street, which shortened
+    substantially. Verified with a TypeScript validation script run via `npx tsx` directly against
+    the live data modules (not a hand-copied approximation): every building, house, and landmark
+    still falls inside `TORTUGA_SHAPE`; every relocated building/marker clears every other building
+    by 43-138 units and every house by 43-133 units (in line with the ~48-unit floor already
+    established elsewhere on the island); the 4 regenerated Anchor & Forge houses clear everything
+    by 43+ units; and `npx tsc --noEmit` passes. Patron quests (`hostedByBuildingId`) and interior
+    floor plans (keyed by building ID with room-local coordinates) needed no changes — both follow
+    their building automatically
+52. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-52. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+53. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-53. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+54. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-54. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+55. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-55. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+56. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-56. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+57. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-57. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+58. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-58. **GTA-style character switching** (biggest, most novel, probably last)
-59. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+59. **GTA-style character switching** (biggest, most novel, probably last)
+60. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-60. Full e2e test automation, IAP integration, real art asset pipeline —
+61. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

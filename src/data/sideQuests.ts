@@ -175,7 +175,9 @@ export const SIDE_QUESTS: SideQuest[] = [
     id: 'quest_bounty_board',
     type: 'heat_bounty',
     islandId: 'tortuga_cove',
-    offset: { x: 0, y: 260 },
+    // Pulled into the harbor town 2026-08-07 from (0, 260) to (-44, -59) — item 51's full-town
+    // remap. See GAME_DESIGN.md.
+    offset: { x: -44, y: -59 },
     title: 'The Bounty Board',
     npcName: 'Constable Duval',
     npcEmoji: '📋',

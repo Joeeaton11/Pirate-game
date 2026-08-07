@@ -172,8 +172,9 @@ export const BUILDINGS: Building[] = [
     name: "The Fishmonger's Stall",
     type: 'market',
     emoji: '🐟',
-    // Nudged 2 units clear of the avenue it runs alongside (2026-08-04 sweep). See GAME_DESIGN.md.
-    offset: { x: -260, y: 242 },
+    // Pulled into the harbor town 2026-08-07 from (-260, 242), on the far south side of the
+    // island, to (-270, -150) — item 51's full-town remap. See GAME_DESIGN.md.
+    offset: { x: -270, y: -150 },
     npcName: 'Old Dinah',
     npcEmoji: '🧓',
     dialogue: "Freshest catch on the wharf. Buy it fair, or don't let me catch you taking it.",
@@ -248,12 +249,9 @@ export const BUILDINGS: Building[] = [
     name: 'Chapelle Notre-Dame',
     type: 'chapel',
     emoji: '⛪',
-    // Relocated a second time (2026-08-04) — its item-40 nudge cleared its own connecting spoke
-    // but was still only 10 units off the east-west residential avenue it ran alongside. That
-    // whole grid corner (avenue + cross-street + several row houses) left no legal gap nearby,
-    // so this one moved further east to the edge of the block instead of a few units. See
-    // GAME_DESIGN.md.
-    offset: { x: 330, y: 116 },
+    // Pulled into the harbor town 2026-08-07 from (330, 116), on the far south-east side of the
+    // island, to (280, -150) — item 51's full-town remap. See GAME_DESIGN.md.
+    offset: { x: 280, y: -150 },
     npcName: 'Brother Aldric',
     npcEmoji: '🙏',
     dialogue: "Even outlaws want forgiveness sometimes. I keep the door open and ask no questions about the cargo.",
@@ -289,7 +287,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Customs House',
     type: 'customs',
     emoji: '🏛️',
-    offset: { x: 320, y: 20 },
+    // Pulled into the harbor town 2026-08-07 from (320, 20) to (300, -60) — item 51's full-town
+    // remap. See GAME_DESIGN.md.
+    offset: { x: 300, y: -60 },
     npcName: 'Inspector Hale',
     npcEmoji: '🎩',
     dialogue:
@@ -301,12 +301,10 @@ export const BUILDINGS: Building[] = [
     name: 'The Anchor & Forge',
     type: 'smithy',
     emoji: '⚒️',
-    // Relocated a second time (2026-08-04) — the item-40 nudge cleared the x=-220 avenue it used
-    // to sit dead-center on, but landed only 10 units off the parallel x=-213/-187 side street
-    // running past the Salty Parrot. That block was fully boxed in (avenue, side street, several
-    // row houses), so this one moved further west to clear ground instead of a few units. See
-    // GAME_DESIGN.md.
-    offset: { x: -308, y: 75 },
+    // Pulled into the harbor town 2026-08-07 from (-308, 75) to (-269, -27), staying on its own
+    // spoke off the Salty Parrot but now close to the harbor cluster instead of the island's
+    // south side — item 51's full-town remap. See GAME_DESIGN.md.
+    offset: { x: -269, y: -27 },
     npcName: 'Forge-Master Kade',
     npcEmoji: '🔨',
     dialogue: "Cutlasses, grapeshot, ship fittings — if it's metal and it's broken, I can fix it or melt it down and start again.",

@@ -17,10 +17,14 @@ export const STREETS: StreetSegment[] = [
   // item 50.
   { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -160, y: -57 }, style: 'main' }, // -> The Salty Parrot
   { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 155, y: -44 }, style: 'main' }, // -> Harbor Trading Post
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -236, y: 222 }, style: 'main' }, // -> Fishmonger's Stall
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 171, y: 124 }, style: 'main' }, // -> Chapelle Notre-Dame
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 120, y: 260 }, style: 'main' }, // -> The Locked Ward
-  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 0, y: 260 }, style: 'main' }, // -> The Bounty Board
+  // These 4 spokes were re-aimed 2026-08-07 along with the buildings/markers at their far ends —
+  // item 51's full-town remap pulled Fishmonger/Chapel/Locked Ward/Bounty Board off the island's
+  // south side and into the harbor town, so the spokes reaching them are now short again instead
+  // of running most of the length of the island. See GAME_DESIGN.md.
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -270, y: -150 }, style: 'main' }, // -> Fishmonger's Stall
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 280, y: -150 }, style: 'main' }, // -> Chapelle Notre-Dame
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: 260, y: -90 }, style: 'main' }, // -> The Locked Ward
+  { islandId: 'tortuga_cove', from: { x: -40, y: -160 }, to: { x: -44, y: -59 }, style: 'main' }, // -> The Bounty Board
   // Harbor road, linking the trading post down to the docks.
   { islandId: 'tortuga_cove', from: { x: 161, y: -83 }, to: { x: 0, y: -280 }, style: 'main' }, // -> Fishing Dock
   { islandId: 'tortuga_cove', from: { x: 0, y: -280 }, to: { x: 140, y: -290 }, style: 'main' }, // -> Harbor Pier
@@ -36,13 +40,14 @@ export const STREETS: StreetSegment[] = [
   // Straight onto the quay itself, so the street visibly leads right to the water's edge.
   { islandId: 'tortuga_cove', from: { x: -56, y: -400 }, to: { x: -50, y: -451 }, style: 'main' }, // Chandlery -> the quay
   // Outer ring: each inner building connects onward to one more, so the downtown reads as blocks
-  // radiating from the square rather than a single spoke pattern.
-  { islandId: 'tortuga_cove', from: { x: 206, y: -45 }, to: { x: 294, y: 5 }, style: 'main' }, // Trading Post -> Customs House
-  { islandId: 'tortuga_cove', from: { x: 170, y: 132 }, to: { x: 70, y: 140 }, style: 'main' }, // Chapel -> The Baker's Oven
-  { islandId: 'tortuga_cove', from: { x: 120, y: 260 }, to: { x: 70, y: 140 }, style: 'main' }, // Locked Ward -> The Baker's Oven
-  { islandId: 'tortuga_cove', from: { x: -235, y: 257 }, to: { x: -140, y: 320 }, style: 'main' }, // Fishmonger -> The Ropewalk
-  { islandId: 'tortuga_cove', from: { x: 0, y: 260 }, to: { x: -140, y: 320 }, style: 'main' }, // Bounty Board -> The Ropewalk
-  { islandId: 'tortuga_cove', from: { x: -187, y: -51 }, to: { x: -213, y: 51 }, style: 'main' }, // Salty Parrot -> The Anchor & Forge
+  // radiating from the square rather than a single spoke pattern. Re-aimed 2026-08-07 to match the
+  // full-town remap — see the note above the 4 square spokes.
+  { islandId: 'tortuga_cove', from: { x: 206, y: -45 }, to: { x: 300, y: -60 }, style: 'main' }, // Trading Post -> Customs House
+  { islandId: 'tortuga_cove', from: { x: 280, y: -150 }, to: { x: 250, y: -190 }, style: 'main' }, // Chapel -> The Baker's Oven
+  { islandId: 'tortuga_cove', from: { x: 260, y: -90 }, to: { x: 250, y: -190 }, style: 'main' }, // Locked Ward -> The Baker's Oven
+  { islandId: 'tortuga_cove', from: { x: -270, y: -150 }, to: { x: -185, y: -133 }, style: 'main' }, // Fishmonger -> The Ropewalk
+  { islandId: 'tortuga_cove', from: { x: -44, y: -59 }, to: { x: -185, y: -133 }, style: 'main' }, // Bounty Board -> The Ropewalk
+  { islandId: 'tortuga_cove', from: { x: -195, y: -85 }, to: { x: -256, y: -35 }, style: 'main' }, // Salty Parrot -> The Anchor & Forge
   // The Quay Row (2026-08-06): a real street immediately behind the wharf buildings — the closest
   // open horizontal stretch to the water, since the actual dockfront is already lined with working
   // buildings (Chandlery, Harbourmaster's Office, the Bunkhouse) rather than housing.
@@ -75,7 +80,9 @@ export const STREETS: StreetSegment[] = [
   // A smuggler doesn't camp on the main trail — a fainter side-track breaks off from the
   // Trapper's Camp toward the cache, deeper into the woods still.
   { islandId: 'tortuga_cove', from: { x: 311, y: 190 }, to: { x: 261, y: 244 }, style: 'path' },
-  // South coast: a track past the Ropewalk to the abandoned quarter and its burying ground.
+  // South coast: a rough trail down to the abandoned quarter and its burying ground. (Used to
+  // start right at the Ropewalk before item 51 pulled it into the harbor town — this trailhead
+  // coordinate is unchanged, just no longer named after a building that isn't there anymore.)
   { islandId: 'tortuga_cove', from: { x: -140, y: 320 }, to: { x: -92, y: 358 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -92, y: 358 }, to: { x: -70, y: 416 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -70, y: 416 }, to: { x: 120, y: 410 }, style: 'path' },

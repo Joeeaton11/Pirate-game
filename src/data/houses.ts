@@ -98,11 +98,13 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: 18, y: -403 } },
   { islandId: 'tortuga_cove', offset: { x: 38, y: -404 } },
   { islandId: 'tortuga_cove', offset: { x: 58, y: -405 } },
-  // Salty Parrot -> the Anchor & Forge (4 houses)
-  { islandId: 'tortuga_cove', offset: { x: -217, y: -48 } },
-  { islandId: 'tortuga_cove', offset: { x: -226, y: -9 } },
-  { islandId: 'tortuga_cove', offset: { x: -172, y: 4 } },
-  { islandId: 'tortuga_cove', offset: { x: -177, y: 24 } },
+  // Salty Parrot -> the Anchor & Forge (4 houses) — regenerated 2026-08-07, the Anchor & Forge
+  // moved from the island's south side into the harbor town (see buildings.ts), shortening this
+  // street; the houses were rebuilt along its new line with the same two-row pattern.
+  { islandId: 'tortuga_cove', offset: { x: -230, y: -88 } },
+  { islandId: 'tortuga_cove', offset: { x: -250, y: -73 } },
+  { islandId: 'tortuga_cove', offset: { x: -209, y: -42 } },
+  { islandId: 'tortuga_cove', offset: { x: -226, y: -28 } },
   // The Quay Row — a new dedicated street right behind the wharf buildings, the closest open
   // horizontal stretch to the water since the actual dockfront is already built up (7 houses).
   { islandId: 'tortuga_cove', offset: { x: 0, y: -417 } },
