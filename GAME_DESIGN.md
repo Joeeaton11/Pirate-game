@@ -1823,32 +1823,49 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     marker re-confirmed on land — plus `npx tsc --noEmit` and an in-browser check (the minimap now
     shows a dense building cluster wrapping a real bay, and a short walk from spawn reaches the
     Bounty Board almost immediately)
-53. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+53. ✅ **Thin footpaths to the houses off the coastal high street; 5 alley/trail segments that had
+    started clipping a building fixed** (2026-08-07) — "Getting there. We could have some smaller
+    thinner tracks for the houses not on the main road. Make sure all roads and tracks are not
+    obscured by buildings," direct feedback on item 52's horseshoe-bay rebuild. Added ~100 new
+    thin `'path'`-style footpath segments (single-bend-around-buildings, routed programmatically)
+    connecting 66 houses that sit back from the 7-segment coastal backbone; 7 sporadic rural
+    homesteads (already served by their own rural trail) and 4 houses wedged too tightly into the
+    Chandlery/Anchor & Forge cluster to route cleanly were left without one rather than force a
+    path through a building. Also fixed 5 existing `'main'`/`'path'` alley segments (the routes to
+    the Ropewalk, the Bounty Board, the Locked Ward, and West Point Shack) that were clipping a
+    building they didn't belong to, by moving/re-solving their bend points with a grid search for
+    the shortest detour clearing every building by 24+ units. Verified with a from-scratch
+    TypeScript script (`npx tsx`) run directly against the live `streets.ts`/`buildings.ts` data:
+    0 street segments (of either style) pass within 24 units of a building that isn't their own
+    endpoint; every new footpath's bend point falls inside `TORTUGA_SHAPE`; `npx tsc --noEmit`
+    passes; confirmed in-browser that the thin footpaths render distinctly from the wide two-tone
+    high street and curve cleanly around every building
+54. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-54. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+55. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-55. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+56. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-56. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+57. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-57. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+58. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-58. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+59. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-59. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+60. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-60. **GTA-style character switching** (biggest, most novel, probably last)
-61. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+61. **GTA-style character switching** (biggest, most novel, probably last)
+62. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-62. Full e2e test automation, IAP integration, real art asset pipeline —
+63. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

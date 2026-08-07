@@ -29,7 +29,9 @@ export const STREETS: StreetSegment[] = [
   // Alleys off the high street — docks-and-careening quarter, west side.
   { islandId: 'tortuga_cove', from: { x: -209, y: -282 }, to: { x: -246, y: -259 }, style: 'main' }, // -> Sailmaker's Loft
   { islandId: 'tortuga_cove', from: { x: -184, y: -255 }, to: { x: -228, y: -211 }, style: 'main' }, // -> The Cooper's Yard
-  { islandId: 'tortuga_cove', from: { x: -192, y: -263 }, to: { x: -280, y: -175 }, style: 'main' }, // -> The Ropewalk
+  // -> The Ropewalk, bent around the Cooper's Yard instead of cutting behind it
+  { islandId: 'tortuga_cove', from: { x: -192, y: -263 }, to: { x: -246, y: -229 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -246, y: -229 }, to: { x: -280, y: -175 }, style: 'main' },
   { islandId: 'tortuga_cove', from: { x: -147, y: -218 }, to: { x: -193, y: -172 }, style: 'main' }, // -> Smugglers' Warehouse
   { islandId: 'tortuga_cove', from: { x: -105, y: -189 }, to: { x: -130, y: -140 }, style: 'main' }, // -> The Chandlery
   { islandId: 'tortuga_cove', from: { x: -66, y: -169 }, to: { x: -98, y: -105 }, style: 'main' }, // -> The Anchor & Forge
@@ -37,8 +39,12 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: -19, y: -150 }, to: { x: -22, y: -100 }, style: 'main' }, // -> Harbourmaster's Office
   { islandId: 'tortuga_cove', from: { x: 32, y: -147 }, to: { x: 28, y: -79 }, style: 'main' }, // -> The Customs House
   { islandId: 'tortuga_cove', from: { x: 18, y: -148 }, to: { x: 16, y: -118 }, style: 'main' }, // -> Basse-Terre Square
-  { islandId: 'tortuga_cove', from: { x: 2, y: -149 }, to: { x: -4, y: -49 }, style: 'main' }, // -> Bounty Board
-  { islandId: 'tortuga_cove', from: { x: 54, y: -146 }, to: { x: 47, y: -38 }, style: 'main' }, // -> Locked Ward
+  // -> Bounty Board, bent around the Harbourmaster's Office instead of cutting behind it
+  { islandId: 'tortuga_cove', from: { x: 2, y: -149 }, to: { x: 10, y: -108 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 10, y: -108 }, to: { x: -4, y: -49 }, style: 'main' },
+  // -> Locked Ward, bent around the Customs House instead of cutting behind it
+  { islandId: 'tortuga_cove', from: { x: 54, y: -146 }, to: { x: 112, y: -88 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: 112, y: -88 }, to: { x: 47, y: -38 }, style: 'main' },
   // Alleys off the high street — the tavern district, the busiest stretch of quay.
   { islandId: 'tortuga_cove', from: { x: 77, y: -144 }, to: { x: 73, y: -89 }, style: 'main' }, // -> The Salty Parrot
   { islandId: 'tortuga_cove', from: { x: 125, y: -159 }, to: { x: 144, y: -99 }, style: 'main' }, // -> Harbor Trading Post
@@ -52,8 +58,116 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 286, y: -275 }, to: { x: 265, y: -290 }, style: 'path' }, // -> Fort de Rocher
   { islandId: 'tortuga_cove', from: { x: -226, y: -311 }, to: { x: -195, y: -330 }, style: 'path' }, // -> the Lighthouse
   // Rural outskirts, reached by coastal trail / farm track rather than a paved town street.
-  { islandId: 'tortuga_cove', from: { x: -205, y: -276 }, to: { x: -350, y: 25 }, style: 'path' }, // -> West Point Shack
+  // -> West Point Shack, bent around the Cooper's Yard/Sailmaker's Loft cluster instead of
+  // cutting behind it
+  { islandId: 'tortuga_cove', from: { x: -205, y: -276 }, to: { x: -202, y: -206 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -202, y: -206 }, to: { x: -350, y: 25 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 220, y: 152 }, to: { x: 280, y: 220 }, style: 'path' }, // -> La Ringot Fields
+  // Thin footpaths off the coastal high street, reaching the houses that sit further back
+  // from it — direct feedback: "smaller thinner tracks for the houses not on the main road."
+  // Routed programmatically (single-bend-around-buildings) so none of them cut behind a
+  // building; a handful of houses very close to a dense building cluster were left without
+  // their own footpath rather than force one through — see GAME_DESIGN.md item 53.
+  { islandId: 'tortuga_cove', from: { x: 144, y: -202 }, to: { x: 155, y: -168 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -205, y: -128 }, to: { x: -173, y: -152 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -173, y: -152 }, to: { x: -131, y: -202 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 285, y: -110 }, to: { x: 238, y: -133 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 238, y: -133 }, to: { x: 211, y: -199 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 311, y: -87 }, to: { x: 238, y: -133 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 238, y: -133 }, to: { x: 215, y: -203 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 17, y: -200 }, to: { x: 14, y: -148 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 353, y: -192 }, to: { x: 269, y: -252 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -53, y: -26 }, to: { x: -49, y: -105 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -49, y: -105 }, to: { x: -29, y: -151 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -24, y: -187 }, to: { x: -39, y: -156 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 117, y: -25 }, to: { x: 100, y: -97 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 100, y: -97 }, to: { x: 80, y: -144 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 154, y: -44 }, to: { x: 117, y: -91 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 117, y: -91 }, to: { x: 119, y: -156 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -105, y: -60 }, to: { x: -73, y: -92 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -73, y: -92 }, to: { x: -53, y: -163 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 251, y: -76 }, to: { x: 213, y: -141 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 213, y: -141 }, to: { x: 184, y: -177 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -88, y: -48 }, to: { x: -35, y: -154 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -168, y: -93 }, to: { x: -155, y: -153 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -155, y: -153 }, to: { x: -117, y: -195 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 356, y: -149 }, to: { x: 317, y: -219 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 317, y: -219 }, to: { x: 262, y: -242 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 325, y: -123 }, to: { x: 241, y: -224 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 69, y: -179 }, to: { x: 67, y: -145 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 226, y: -268 }, to: { x: 254, y: -235 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 219, y: -87 }, to: { x: 216, y: -136 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 216, y: -136 }, to: { x: 184, y: -177 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -238, y: -152 }, to: { x: -213, y: -192 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -213, y: -192 }, to: { x: -160, y: -230 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -256, y: -111 }, to: { x: -213, y: -192 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -213, y: -192 }, to: { x: -148, y: -219 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 186, y: -246 }, to: { x: 219, y: -206 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 206, y: -34 }, to: { x: 163, y: -118 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 163, y: -118 }, to: { x: 163, y: -170 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -268, y: -132 }, to: { x: -164, y: -236 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -35, y: -214 }, to: { x: -59, y: -166 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 292, y: -76 }, to: { x: 238, y: -133 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 238, y: -133 }, to: { x: 198, y: -189 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 215, y: -246 }, to: { x: 236, y: -221 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 177, y: -59 }, to: { x: 171, y: -107 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 171, y: -107 }, to: { x: 144, y: -164 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 328, y: -149 }, to: { x: 275, y: -181 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 275, y: -181 }, to: { x: 255, y: -236 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 88, y: -190 }, to: { x: 100, y: -151 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 129, y: -59 }, to: { x: 100, y: -151 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 271, y: -56 }, to: { x: 184, y: -177 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -109, y: -257 }, to: { x: -148, y: -218 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -93, y: -22 }, to: { x: -29, y: -151 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -83, y: -239 }, to: { x: -107, y: -190 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 153, y: -226 }, to: { x: 170, y: -173 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -143, y: -289 }, to: { x: -180, y: -252 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -289, y: -217 }, to: { x: -230, y: -236 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -230, y: -236 }, to: { x: -205, y: -276 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 376, y: -141 }, to: { x: 316, y: -220 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 316, y: -220 }, to: { x: 262, y: -242 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -229, y: -104 }, to: { x: -173, y: -152 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -173, y: -152 }, to: { x: -131, y: -202 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 242, y: -110 }, to: { x: 185, y: -178 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -122, y: -24 }, to: { x: -73, y: -92 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -73, y: -92 }, to: { x: -53, y: -163 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 39, y: -191 }, to: { x: 36, y: -147 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 229, y: -66 }, to: { x: 216, y: -137 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 216, y: -137 }, to: { x: 184, y: -177 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -207, y: -102 }, to: { x: -131, y: -202 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -46, y: -61 }, to: { x: -50, y: -105 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -50, y: -105 }, to: { x: -29, y: -151 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -68, y: -62 }, to: { x: -29, y: -151 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -134, y: -254 }, to: { x: -158, y: -230 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 104, y: -209 }, to: { x: 120, y: -157 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 227, y: -38 }, to: { x: 217, y: -134 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 217, y: -134 }, to: { x: 183, y: -177 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -187, y: -60 }, to: { x: -155, y: -153 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -155, y: -153 }, to: { x: -119, y: -196 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -70, y: -215 }, to: { x: -87, y: -180 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -237, y: -128 }, to: { x: -173, y: -152 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -173, y: -152 }, to: { x: -147, y: -218 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 96, y: -42 }, to: { x: 101, y: -94 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 101, y: -94 }, to: { x: 79, y: -144 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -171, y: -119 }, to: { x: -130, y: -201 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 208, y: -64 }, to: { x: 163, y: -118 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 163, y: -118 }, to: { x: 174, y: -174 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 332, y: -101 }, to: { x: 282, y: -169 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 282, y: -169 }, to: { x: 234, y: -219 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 125, y: -214 }, to: { x: 141, y: -163 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 364, y: -169 }, to: { x: 313, y: -222 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 313, y: -222 }, to: { x: 262, y: -242 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 254, y: -42 }, to: { x: 215, y: -139 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 215, y: -139 }, to: { x: 184, y: -177 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -202, y: -79 }, to: { x: -131, y: -202 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 339, y: -167 }, to: { x: 317, y: -219 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 317, y: -219 }, to: { x: 262, y: -242 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 269, y: -90 }, to: { x: 191, y: -183 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 183, y: -34 }, to: { x: 171, y: -107 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 171, y: -107 }, to: { x: 142, y: -164 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 165, y: -23 }, to: { x: 117, y: -91 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: 117, y: -91 }, to: { x: 123, y: -158 }, style: 'path' },
+  { islandId: 'tortuga_cove', from: { x: -126, y: -275 }, to: { x: -165, y: -236 }, style: 'path' },
 
   // The 1.35x island enlargement (2026-08-02) opened new land beyond the original coastline for
   // three outlying zones, each reached by a rough, winding trail rather than a paved street —
