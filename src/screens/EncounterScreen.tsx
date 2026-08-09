@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BLACK_PEARL_CAPTAIN_TEMPLATE, BLACK_PEARL_CAPTURED_LOG, BLACK_PEARL_INTRO_DIALOGUE } from '../data/blackPearl';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -117,25 +117,48 @@ const BACKDROP_THEME: Record<BattleBackdrop, BackdropTheme> = {
   },
 };
 
+/** A single backdrop decoration, gently swaying in place so the scene never looks frozen even
+ * between turns. Self-contained: owns and loops its own Animated.Value. */
+function SwayingEmoji({ d, index }: { d: Decoration; index: number }) {
+  const sway = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const duration = 1600 + (index % 3) * 300;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(sway, { toValue: 1, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(sway, { toValue: 0, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const rotate = sway.interpolate({ inputRange: [0, 1], outputRange: ['-3deg', '3deg'] });
+  const translateY = sway.interpolate({ inputRange: [0, 1], outputRange: [0, -2] });
+  return (
+    <Animated.Text
+      style={{
+        position: 'absolute',
+        fontSize: d.size,
+        opacity: d.opacity,
+        top: d.top,
+        bottom: d.bottom,
+        left: d.left,
+        right: d.right,
+        transform: [{ rotate }, { translateY }],
+      }}
+    >
+      {d.emoji}
+    </Animated.Text>
+  );
+}
+
 function BackdropDecorations({ backdrop }: { backdrop: BattleBackdrop }) {
   const theme = BACKDROP_THEME[backdrop];
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       {theme.decorations.map((d, i) => (
-        <Text
-          key={i}
-          style={{
-            position: 'absolute',
-            fontSize: d.size,
-            opacity: d.opacity,
-            top: d.top,
-            bottom: d.bottom,
-            left: d.left,
-            right: d.right,
-          }}
-        >
-          {d.emoji}
-        </Text>
+        <SwayingEmoji key={i} d={d} index={i} />
       ))}
       {theme.bars && (
         <View style={styles.jailBarsRow}>
@@ -146,6 +169,48 @@ function BackdropDecorations({ backdrop }: { backdrop: BattleBackdrop }) {
       )}
     </View>
   );
+}
+
+type PopupKind = 'damage' | 'heal' | 'miss';
+interface Popup {
+  id: number;
+  text: string;
+  kind: PopupKind;
+}
+
+/** A "-12"/"MISS"/"+8" that pops up over a combatant and fades away — self-contained, plays once
+ * on mount and calls back to remove itself from its owner's popup list when done. */
+function DamagePopup({ text, kind, onDone }: { text: string; kind: PopupKind; onDone: () => void }) {
+  const anim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(anim, { toValue: 1, duration: 850, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(
+      onDone
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -38] });
+  const opacity = anim.interpolate({ inputRange: [0, 0.7, 1], outputRange: [1, 1, 0] });
+  const color = kind === 'heal' ? '#7ee08a' : kind === 'miss' ? '#d8cbb0' : '#ff5c4d';
+  return (
+    <Animated.Text
+      pointerEvents="none"
+      style={[styles.popupText, { color, transform: [{ translateY }], opacity }]}
+    >
+      {text}
+    </Animated.Text>
+  );
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function animateTiming(value: Animated.Value, toValue: number, duration: number): Promise<void> {
+  return new Promise((resolve) => {
+    Animated.timing(value, { toValue, duration, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(() =>
+      resolve()
+    );
+  });
 }
 
 const ALL_TEMPLATES = {
@@ -228,6 +293,29 @@ export default function EncounterScreen({ navigation }: Props) {
   const [nextAttackBoost, setNextAttackBoost] = useState(1);
   const [guaranteedRecruit, setGuaranteedRecruit] = useState(false);
   const [awaitingSwitch, setAwaitingSwitch] = useState(false);
+  const [youPopups, setYouPopups] = useState<Popup[]>([]);
+  const [foePopups, setFoePopups] = useState<Popup[]>([]);
+  const [banner, setBannerText] = useState<string | null>(null);
+
+  // Battle motion (2026-08-09, item 57): "Build all of these they sound cool" — lunge, hit
+  // flash, screen shake, HP tween, floating damage numbers, idle bob, an effectiveness banner,
+  // and distinct victory/defeat poses, on top of the layout/backdrop work from items 55-56.
+  const youOffsetX = useRef(new Animated.Value(0)).current;
+  const foeOffsetX = useRef(new Animated.Value(0)).current;
+  const youFlash = useRef(new Animated.Value(0)).current;
+  const foeFlash = useRef(new Animated.Value(0)).current;
+  const sceneShake = useRef(new Animated.Value(0)).current;
+  const youBounce = useRef(new Animated.Value(1)).current;
+  const youSlump = useRef(new Animated.Value(0)).current;
+  const foeDefeatFade = useRef(new Animated.Value(1)).current;
+  const youIdleRaw = useRef(new Animated.Value(0)).current;
+  const foeIdleRaw = useRef(new Animated.Value(0)).current;
+  const bannerOpacity = useRef(new Animated.Value(0)).current;
+
+  const youIdleY = youIdleRaw.interpolate({ inputRange: [0, 1], outputRange: [0, -5] });
+  const foeIdleY = foeIdleRaw.interpolate({ inputRange: [0, 1], outputRange: [0, -4] });
+  const youSlumpRotate = youSlump.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '12deg'] });
+  const youSlumpOpacity = youSlump.interpolate({ inputRange: [0, 1], outputRange: [1, 0.45] });
 
   useEffect(() => {
     if (wildEncounter?.faction === 'wild') {
@@ -235,6 +323,48 @@ export default function EncounterScreen({ navigation }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wildEncounter?.templateId, wildEncounter?.faction]);
+
+  // Idle bob, always running so the scene has life even between turns.
+  useEffect(() => {
+    const makeLoop = (value: Animated.Value, duration: number) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(value, { toValue: 1, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(value, { toValue: 0, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        ])
+      );
+    const youLoop = makeLoop(youIdleRaw, 1400);
+    const foeLoop = makeLoop(foeIdleRaw, 1650);
+    youLoop.start();
+    foeLoop.start();
+    return () => {
+      youLoop.stop();
+      foeLoop.stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Victory flourish for the player, defeat fade for the foe.
+  useEffect(() => {
+    if (phase === 'victory') {
+      Animated.sequence([
+        Animated.timing(youBounce, { toValue: 1.25, duration: 180, useNativeDriver: true }),
+        Animated.spring(youBounce, { toValue: 1, useNativeDriver: true }),
+      ]).start();
+      Animated.timing(foeDefeatFade, { toValue: 0.25, duration: 500, useNativeDriver: true }).start();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
+  // Defeat slump for the player when they faint (and reset if they're switched back in).
+  useEffect(() => {
+    if (fallenSnapshot) {
+      Animated.timing(youSlump, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    } else {
+      youSlump.setValue(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fallenSnapshot]);
 
   if (!wildEncounter || !activeCrew || !liveCrewMember) {
     return (
@@ -282,20 +412,71 @@ export default function EncounterScreen({ navigation }: Props) {
     setPhase(nextPhase);
   }
 
-  function enemyTurn() {
-    const moveId =
-      wildTemplate.moveIds[Math.floor(Math.random() * wildTemplate.moveIds.length)];
+  function triggerFlash(value: Animated.Value) {
+    value.setValue(0);
+    Animated.sequence([
+      Animated.timing(value, { toValue: 1, duration: 70, useNativeDriver: true }),
+      Animated.timing(value, { toValue: 0, duration: 260, useNativeDriver: true }),
+    ]).start();
+  }
+
+  function triggerShake() {
+    sceneShake.setValue(0);
+    Animated.sequence([
+      Animated.timing(sceneShake, { toValue: 6, duration: 40, useNativeDriver: true }),
+      Animated.timing(sceneShake, { toValue: -6, duration: 40, useNativeDriver: true }),
+      Animated.timing(sceneShake, { toValue: 4, duration: 40, useNativeDriver: true }),
+      Animated.timing(sceneShake, { toValue: 0, duration: 40, useNativeDriver: true }),
+    ]).start();
+  }
+
+  function spawnYouPopup(text: string, kind: PopupKind) {
+    const id = Date.now() + Math.random();
+    setYouPopups((prev) => [...prev, { id, text, kind }]);
+  }
+  function spawnFoePopup(text: string, kind: PopupKind) {
+    const id = Date.now() + Math.random();
+    setFoePopups((prev) => [...prev, { id, text, kind }]);
+  }
+
+  function showBanner(text: string) {
+    setBannerText(text);
+    bannerOpacity.setValue(0);
+    Animated.sequence([
+      Animated.timing(bannerOpacity, { toValue: 1, duration: 150, useNativeDriver: true }),
+      Animated.delay(650),
+      Animated.timing(bannerOpacity, { toValue: 0, duration: 250, useNativeDriver: true }),
+    ]).start(() => setBannerText(null));
+  }
+
+  /** The wild side's turn: lunges, resolves the hit, and (on a lethal blow to the player) runs
+   * the same faint/capture handling the game always has. Awaited by every player action that
+   * doesn't end the battle outright. */
+  async function playEnemyTurn() {
+    const moveId = wildTemplate.moveIds[Math.floor(Math.random() * wildTemplate.moveIds.length)];
     const result = calcDamage(moveId, wildStats, playerStats, playerTemplate.specialty);
+
+    await animateTiming(foeOffsetX, -16, 150);
     if (!result.hit) {
       appendLog(`${wildTemplate.name}'s ${MOVES[moveId].name} missed!`);
+      spawnYouPopup('MISS', 'miss');
+      await animateTiming(foeOffsetX, 0, 150);
       return;
     }
+
     const newHp = Math.max(0, crewMember.currentHp - result.damage);
     setCrewHp(crewMember.instanceId, newHp);
+    triggerFlash(youFlash);
+    triggerShake();
+    spawnYouPopup(`-${result.damage}`, 'damage');
+    if (result.effectivenessLabel) showBanner(result.effectivenessLabel);
     appendLog(
       `${wildTemplate.name} uses ${MOVES[moveId].name} for ${result.damage} damage.` +
         (result.effectivenessLabel ? ` ${result.effectivenessLabel}` : '')
     );
+    await animateTiming(foeOffsetX, 0, 150);
+    await sleep(150);
+
     if (newHp <= 0) {
       setFallenSnapshot({
         emoji: playerTemplate.emoji,
@@ -364,16 +545,20 @@ export default function EncounterScreen({ navigation }: Props) {
     if (next) appendLog(`Go, ${next.nickname}!`);
   }
 
-  function handleAttack(moveId: string) {
+  async function handleAttack(moveId: string) {
     if (busy || phase !== 'battling') return;
     setBusy(true);
     setShowItemMenu(false);
     const boost = nextAttackBoost;
     if (boost !== 1) setNextAttackBoost(1);
     const result = calcDamage(moveId, playerStats, wildStats, wildTemplate.specialty);
+
+    await animateTiming(youOffsetX, 16, 150);
     if (!result.hit) {
       appendLog(`${crewMember.nickname}'s ${MOVES[moveId].name} missed!`);
-      enemyTurn();
+      spawnFoePopup('MISS', 'miss');
+      await animateTiming(youOffsetX, 0, 150);
+      await playEnemyTurn();
       setBusy(false);
       return;
     }
@@ -381,11 +566,17 @@ export default function EncounterScreen({ navigation }: Props) {
     const damage = Math.round(result.damage * boost);
     const newWildHp = Math.max(0, encounter.currentHp - damage);
     setWildEncounter({ ...encounter, currentHp: newWildHp });
+    triggerFlash(foeFlash);
+    triggerShake();
+    spawnFoePopup(`-${damage}`, 'damage');
+    if (result.effectivenessLabel) showBanner(result.effectivenessLabel);
     appendLog(
       `${crewMember.nickname} uses ${MOVES[moveId].name} for ${damage} damage.` +
         (result.effectivenessLabel ? ` ${result.effectivenessLabel}` : '') +
         (boost > 1 ? ' Empowered by grapeshot!' : '')
     );
+    await animateTiming(youOffsetX, 0, 150);
+    await sleep(150);
 
     if (newWildHp <= 0) {
       const reward = xpRewardFor(encounter.templateId, encounter.level, wildTemplate);
@@ -475,11 +666,11 @@ export default function EncounterScreen({ navigation }: Props) {
       return;
     }
 
-    enemyTurn();
+    await playEnemyTurn();
     setBusy(false);
   }
 
-  function handleRecruit() {
+  async function handleRecruit() {
     if (busy || phase !== 'battling' || isAmbush) return;
     setBusy(true);
     setShowItemMenu(false);
@@ -500,11 +691,11 @@ export default function EncounterScreen({ navigation }: Props) {
       return;
     }
     appendLog(`${wildTemplate.name} resists joining your crew.`);
-    enemyTurn();
+    await playEnemyTurn();
     setBusy(false);
   }
 
-  function handleUseItem(itemId: string) {
+  async function handleUseItem(itemId: string) {
     if (busy || phase !== 'battling') return;
     const item = ITEMS[itemId];
     if ((inventory[itemId] ?? 0) <= 0) return;
@@ -516,6 +707,7 @@ export default function EncounterScreen({ navigation }: Props) {
       const newHp = Math.min(playerMaxHp, crewMember.currentHp + healAmount);
       const actualHealed = newHp - crewMember.currentHp;
       setCrewHp(crewMember.instanceId, newHp);
+      spawnYouPopup(`+${actualHealed}`, 'heal');
       appendLog(`${crewMember.nickname} uses ${item.name} and recovers ${actualHealed} HP.`);
     } else if (item.effect === 'battle_boost') {
       setNextAttackBoost(item.boostMultiplier ?? 1);
@@ -524,11 +716,11 @@ export default function EncounterScreen({ navigation }: Props) {
       setGuaranteedRecruit(true);
       appendLog(`You ready the ${item.name}, certain it'll seal the deal.`);
     }
-    enemyTurn();
+    await playEnemyTurn();
     setBusy(false);
   }
 
-  function handleFlee() {
+  async function handleFlee() {
     if (busy || phase !== 'battling') return;
     setBusy(true);
     setShowItemMenu(false);
@@ -540,7 +732,7 @@ export default function EncounterScreen({ navigation }: Props) {
       return;
     }
     appendLog('Could not escape!');
-    enemyTurn();
+    await playEnemyTurn();
     setBusy(false);
   }
 
@@ -561,6 +753,9 @@ export default function EncounterScreen({ navigation }: Props) {
   const displayLevel = fallenSnapshot ? fallenSnapshot.level : crewMember.level;
   const displayHp = fallenSnapshot ? 0 : crewMember.currentHp;
   const displayMaxHp = fallenSnapshot ? fallenSnapshot.maxHp : playerMaxHp;
+  const recruitPct = isAmbush
+    ? 0
+    : Math.round(recruitChance(encounter.templateId, encounter.currentHp, wildMaxHp) * 100);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
@@ -587,13 +782,44 @@ export default function EncounterScreen({ navigation }: Props) {
           </Text>
         </View>
       )}
-      <LinearGradient colors={backdropTheme.gradient} style={styles.scene}>
+      <Animated.View style={[styles.scene, { transform: [{ translateX: sceneShake }] }]}>
+        <LinearGradient colors={backdropTheme.gradient} style={StyleSheet.absoluteFill} />
         <BackdropDecorations backdrop={backdrop} />
+        {banner && (
+          <Animated.Text
+            pointerEvents="none"
+            style={[
+              styles.effectivenessBanner,
+              {
+                opacity: bannerOpacity,
+                transform: [{ scale: bannerOpacity.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }],
+              },
+            ]}
+          >
+            {banner}
+          </Animated.Text>
+        )}
         <View style={[styles.combatant, styles.combatantFoe]}>
           <View style={[styles.tag, styles.tagFoe]}>
             <Text style={styles.tagText}>🏴‍☠️ Foe</Text>
           </View>
-          <Text style={styles.emojiFoe}>{wildTemplate.emoji}</Text>
+          <Animated.View
+            style={{
+              transform: [{ translateX: foeOffsetX }, { translateY: foeIdleY }],
+              opacity: foeDefeatFade,
+            }}
+          >
+            <Text style={styles.emojiFoe}>{wildTemplate.emoji}</Text>
+            <Animated.View pointerEvents="none" style={[styles.flashOverlay, { opacity: foeFlash }]} />
+            {foePopups.map((p) => (
+              <DamagePopup
+                key={p.id}
+                text={p.text}
+                kind={p.kind}
+                onDone={() => setFoePopups((prev) => prev.filter((x) => x.id !== p.id))}
+              />
+            ))}
+          </Animated.View>
           <View style={[styles.nameRow, styles.nameRowFoe]}>
             <Text style={styles.specBadge}>{SPECIALTY_ICON[wildTemplate.specialty]}</Text>
             <Text style={[styles.name, styles.nameFoe]}>
@@ -608,7 +834,28 @@ export default function EncounterScreen({ navigation }: Props) {
           <View style={[styles.tag, styles.tagYou]}>
             <Text style={styles.tagText}>🏴 You</Text>
           </View>
-          <Text style={styles.emojiYou}>{displayEmoji}</Text>
+          <Animated.View
+            style={{
+              transform: [
+                { translateX: youOffsetX },
+                { translateY: youIdleY },
+                { scale: youBounce },
+                { rotate: youSlumpRotate },
+              ],
+              opacity: youSlumpOpacity,
+            }}
+          >
+            <Text style={styles.emojiYou}>{displayEmoji}</Text>
+            <Animated.View pointerEvents="none" style={[styles.flashOverlay, { opacity: youFlash }]} />
+            {youPopups.map((p) => (
+              <DamagePopup
+                key={p.id}
+                text={p.text}
+                kind={p.kind}
+                onDone={() => setYouPopups((prev) => prev.filter((x) => x.id !== p.id))}
+              />
+            ))}
+          </Animated.View>
           <View style={styles.nameRow}>
             <Text style={styles.specBadge}>{SPECIALTY_ICON[playerTemplate.specialty]}</Text>
             <Text style={[styles.name, styles.nameYou]}>
@@ -618,7 +865,7 @@ export default function EncounterScreen({ navigation }: Props) {
           <HpBar current={displayHp} max={displayMaxHp} align="flex-start" />
           <View style={[styles.plank, styles.plankYou, { backgroundColor: backdropTheme.groundTint }]} />
         </View>
-      </LinearGradient>
+      </Animated.View>
 
       <ScrollView style={styles.log} contentContainerStyle={{ padding: 12 }}>
         {log.map((line, i) => (
@@ -702,7 +949,9 @@ export default function EncounterScreen({ navigation }: Props) {
             </Pressable>
             {!isAmbush && (
               <Pressable style={styles.secondaryButton} onPress={handleRecruit} disabled={busy}>
-                <Text style={styles.secondaryButtonText}>Recruit</Text>
+                <Text style={styles.secondaryButtonText}>
+                  Recruit {guaranteedRecruit ? '(Guaranteed!)' : `(${recruitPct}%)`}
+                </Text>
               </Pressable>
             )}
             {canFlee && (
@@ -743,10 +992,16 @@ function HpBar({
   align?: 'flex-start' | 'flex-end';
 }) {
   const pct = Math.max(0, Math.min(1, current / max));
+  const animatedPct = useRef(new Animated.Value(pct)).current;
+  useEffect(() => {
+    Animated.timing(animatedPct, { toValue: pct, duration: 450, easing: Easing.out(Easing.quad), useNativeDriver: false }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pct]);
+  const width = animatedPct.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
   const fillColor = color ?? (pct > 0.5 ? '#4caf50' : pct > 0.2 ? '#ffb300' : '#e53935');
   return (
     <View style={[styles.hpBarTrack, { alignSelf: align }]}>
-      <View style={[styles.hpBarFill, { width: `${pct * 100}%`, backgroundColor: fillColor }]} />
+      <Animated.View style={[styles.hpBarFill, { width, backgroundColor: fillColor }]} />
       <Text style={styles.hpText}>
         {Math.max(0, current)}/{max}
       </Text>
@@ -774,6 +1029,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 18,
   },
+  effectivenessBanner: {
+    position: 'absolute',
+    top: '42%',
+    alignSelf: 'center',
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#ffe08a',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    textAlign: 'center',
+    zIndex: 5,
+  },
   combatant: { gap: 5 },
   combatantFoe: { alignSelf: 'flex-end', alignItems: 'flex-end', width: '68%', marginBottom: 36 },
   combatantYou: { alignSelf: 'flex-start', alignItems: 'flex-start', width: '74%' },
@@ -787,6 +1056,25 @@ const styles = StyleSheet.create({
   tagText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5, color: '#f4e9cd' },
   emojiFoe: { fontSize: 40, textShadowColor: 'rgba(0,0,0,0.35)', textShadowRadius: 6, textShadowOffset: { width: 0, height: 4 } },
   emojiYou: { fontSize: 48, textShadowColor: 'rgba(0,0,0,0.35)', textShadowRadius: 6, textShadowOffset: { width: 0, height: 4 } },
+  flashOverlay: {
+    position: 'absolute',
+    top: -4,
+    left: -4,
+    right: -4,
+    bottom: -4,
+    backgroundColor: '#ff3b30',
+    borderRadius: 999,
+  },
+  popupText: {
+    position: 'absolute',
+    top: -12,
+    alignSelf: 'center',
+    fontWeight: '800',
+    fontSize: 16,
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowRadius: 3,
+    textShadowOffset: { width: 0, height: 1 },
+  },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',

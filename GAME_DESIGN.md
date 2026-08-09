@@ -1896,32 +1896,58 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     guards every future backdrop from the same issue); the Jail bars were originally a dark tint on
     a near-black background and effectively invisible (recolored to a visible steel tone). Verified
     `npx tsc --noEmit` passes and confirmed all 6 scenes in-browser via the new debug preview row
-57. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+57. ✅ **Battle motion pass: lunge, hit flash, screen shake, HP tween, floating damage numbers,
+    idle bob, an effectiveness banner, and distinct victory/defeat poses** (2026-08-09) — "Build
+    all of these they sound cool," direct follow-up to the design-lead suggestion list after items
+    55-56 landed with zero animation anywhere (HP bars snapped, nothing moved between turns). All
+    built on React Native's built-in `Animated` API, no new dependency:
+    - Every exchange is now a short async sequence (`animateTiming`/`sleep` helpers) instead of an
+      instant state flip: the attacker lunges toward the target and back, impact triggers a red
+      hit-flash pulse on the defender, a small screen shake, and a floating `-12`/`+8`/`MISS`
+      number that pops and fades over the combatant that was hit
+    - `HpBar` now tweens its width toward the new value over ~450ms instead of snapping; the
+      current/max text and low-HP color threshold still update instantly, only the fill animates
+    - A floating effectiveness banner ("It worked wonders!"/"It barely helped.") fades in over the
+      scene instead of being buried in the log
+    - Victory gives the player a bounce-scale flourish and fades the defeated foe; a faint gives
+      the player a subtle slump (rotate + dim), reset automatically on crew switch
+    - Idle bob (both fighters) and a gentle sway on every backdrop decoration keep the scene alive
+      between turns instead of looking frozen
+    - Recruit button now shows the live recruit chance, e.g. "Recruit (34%)", instead of hiding
+      that math
+    - Caught and fixed a real crash: recruiting isn't possible against non-`wild` factions (their
+      templates aren't in `CREW_TEMPLATES`), and the new recruit-% display was computing that
+      unconditionally on every render — guarded it behind the same `isAmbush` check the Recruit
+      button itself already used
+    - Verified `npx tsc --noEmit` passes and, in-browser, ran full multi-turn battles to victory,
+      to defeat, and against an ambush faction (no Recruit button/crash) — confirmed the lunge,
+      flash, shake, popups, HP tween, banner, and recruit-% all fire correctly turn after turn
+58. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-58. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+59. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-59. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+60. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-60. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+61. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-61. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+62. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-62. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+63. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-63. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+64. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-64. **GTA-style character switching** (biggest, most novel, probably last)
-65. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+65. **GTA-style character switching** (biggest, most novel, probably last)
+66. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-66. Full e2e test automation, IAP integration, real art asset pipeline —
+67. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
