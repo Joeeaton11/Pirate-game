@@ -768,7 +768,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   scene: {
-    flex: 1.2,
+    flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     paddingHorizontal: 18,
@@ -837,7 +837,9 @@ const styles = StyleSheet.create({
   hpBarFill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 8 },
   hpText: { fontSize: 10, color: '#fff', textAlign: 'center', fontWeight: '700' },
   log: {
-    flex: 0.8,
+    height: 130,
+    flexGrow: 0,
+    flexShrink: 0,
     backgroundColor: '#062331',
     marginHorizontal: 12,
     borderRadius: 12,
