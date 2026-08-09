@@ -11,6 +11,7 @@ import { RESOURCE_NODES, RESOURCES, ResourceId } from '../data/resources';
 import { SALVAGE_SITES, shipUpgradeFor } from '../data/shipUpgrades';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
+import { BattleBackdrop } from '../utils/battleBackdrop';
 
 export type EncounterFaction =
   | 'wild'
@@ -29,6 +30,9 @@ export interface WildEncounter {
   faction: EncounterFaction;
   questId?: string;
   rescueId?: string;
+  /** Which scene EncounterScreen renders behind the fight. Defaults to 'sea' at the type level so
+   * any call site that forgets to set it fails safe rather than crashing. */
+  backdrop?: BattleBackdrop;
 }
 
 export interface CapturedCrewMember {

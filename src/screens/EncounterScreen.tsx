@@ -22,6 +22,7 @@ import {
   statsAtLevel,
   xpRewardFor,
 } from '../utils/battle';
+import { BattleBackdrop } from '../utils/battleBackdrop';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Encounter'>;
 
@@ -37,6 +38,115 @@ const SPECIALTY_ICON: Record<string, string> = {
   brawler: '👊',
   curse: '🔮',
 };
+
+// Contextual backdrops (2026-08-09, item 56): "Backdrop will change and be specific to where the
+// battle happens. Town background... jungle, beach, sea, on boats." Which scene renders is decided
+// once, at the moment an encounter starts (see classifyBackdrop in battleBackdrop.ts and every
+// setWildEncounter call site), and carried on the encounter record — this screen just paints
+// whatever it's told.
+type Offset = number | `${number}%`;
+interface Decoration {
+  emoji: string;
+  size: number;
+  opacity: number;
+  top?: Offset;
+  bottom?: Offset;
+  left?: Offset;
+  right?: Offset;
+}
+interface BackdropTheme {
+  gradient: [string, string, ...string[]];
+  groundTint: string;
+  decorations: Decoration[];
+  bars?: boolean; // jail cell bars overlay
+}
+const BACKDROP_THEME: Record<BattleBackdrop, BackdropTheme> = {
+  town: {
+    gradient: ['#40331f', '#241c14', '#241c14'],
+    groundTint: 'rgba(120,102,74,0.4)',
+    decorations: [
+      { emoji: '🏠', size: 30, opacity: 0.55, top: 6, left: 8 },
+      { emoji: '⛪', size: 34, opacity: 0.5, top: 0, left: '42%' },
+      { emoji: '🏚️', size: 28, opacity: 0.5, top: 8, right: 10 },
+    ],
+  },
+  jungle: {
+    gradient: ['#1c3d26', '#0f2417', '#0f2417'],
+    groundTint: 'rgba(63,82,38,0.45)',
+    decorations: [
+      { emoji: '🌴', size: 34, opacity: 0.6, top: 4, left: 6 },
+      { emoji: '🌳', size: 42, opacity: 0.55, top: -4, left: '38%' },
+      { emoji: '🌳', size: 32, opacity: 0.55, top: 6, right: 8 },
+    ],
+  },
+  beach: {
+    gradient: ['#3f7186', '#e8cf8f', '#e8cf8f'],
+    groundTint: 'rgba(224,196,140,0.55)',
+    decorations: [
+      { emoji: '🌴', size: 40, opacity: 0.7, top: 0, left: 6 },
+      { emoji: '🌊', size: 24, opacity: 0.4, top: 92, left: '32%' },
+      { emoji: '🐚', size: 18, opacity: 0.55, bottom: 6, right: 30 },
+    ],
+  },
+  sea: {
+    gradient: ['#173d57', '#0b3d5c', '#0b3d5c'],
+    groundTint: 'rgba(90,58,31,0.4)',
+    decorations: [
+      { emoji: '🌊', size: 22, opacity: 0.35, top: 4, left: '28%' },
+      { emoji: '⛵', size: 26, opacity: 0.35, top: 6, right: 14 },
+    ],
+  },
+  fort: {
+    gradient: ['#4f4c47', '#221f1c', '#221f1c'],
+    groundTint: 'rgba(90,86,78,0.5)',
+    decorations: [
+      { emoji: '🏰', size: 42, opacity: 0.5, top: -6, left: '36%' },
+      { emoji: '💣', size: 22, opacity: 0.55, top: 8, left: 4 },
+      { emoji: '💣', size: 22, opacity: 0.55, top: 8, right: 4 },
+    ],
+  },
+  jail: {
+    gradient: ['#33281d', '#140f0a', '#140f0a'],
+    groundTint: 'rgba(58,47,36,0.5)',
+    decorations: [
+      { emoji: '🔥', size: 22, opacity: 0.75, top: 8, left: 10 },
+      { emoji: '🔥', size: 22, opacity: 0.75, top: 8, right: 10 },
+      { emoji: '⛓️', size: 26, opacity: 0.5, bottom: 92, left: '46%' },
+    ],
+    bars: true,
+  },
+};
+
+function BackdropDecorations({ backdrop }: { backdrop: BattleBackdrop }) {
+  const theme = BACKDROP_THEME[backdrop];
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      {theme.decorations.map((d, i) => (
+        <Text
+          key={i}
+          style={{
+            position: 'absolute',
+            fontSize: d.size,
+            opacity: d.opacity,
+            top: d.top,
+            bottom: d.bottom,
+            left: d.left,
+            right: d.right,
+          }}
+        >
+          {d.emoji}
+        </Text>
+      ))}
+      {theme.bars && (
+        <View style={styles.jailBarsRow}>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <View key={i} style={styles.jailBar} />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
 
 const ALL_TEMPLATES = {
   ...CREW_TEMPLATES,
@@ -140,6 +250,8 @@ export default function EncounterScreen({ navigation }: Props) {
   }
 
   const encounter = wildEncounter;
+  const backdrop: BattleBackdrop = encounter.backdrop ?? 'sea';
+  const backdropTheme = BACKDROP_THEME[backdrop];
   const crewMember = liveCrewMember;
   const isAmbush = encounter.faction !== 'wild';
   const wildTemplate = ALL_TEMPLATES[encounter.templateId];
@@ -475,7 +587,8 @@ export default function EncounterScreen({ navigation }: Props) {
           </Text>
         </View>
       )}
-      <LinearGradient colors={['#173d57', '#0b3d5c', '#0b3d5c']} style={styles.scene}>
+      <LinearGradient colors={backdropTheme.gradient} style={styles.scene}>
+        <BackdropDecorations backdrop={backdrop} />
         <View style={[styles.combatant, styles.combatantFoe]}>
           <View style={[styles.tag, styles.tagFoe]}>
             <Text style={styles.tagText}>🏴‍☠️ Foe</Text>
@@ -489,7 +602,7 @@ export default function EncounterScreen({ navigation }: Props) {
             </Text>
           </View>
           <HpBar current={encounter.currentHp} max={wildMaxHp} align="flex-end" />
-          <View style={[styles.plank, styles.plankFoe]} />
+          <View style={[styles.plank, styles.plankFoe, { backgroundColor: backdropTheme.groundTint }]} />
         </View>
         <View style={[styles.combatant, styles.combatantYou]}>
           <View style={[styles.tag, styles.tagYou]}>
@@ -503,7 +616,7 @@ export default function EncounterScreen({ navigation }: Props) {
             </Text>
           </View>
           <HpBar current={displayHp} max={displayMaxHp} align="flex-start" />
-          <View style={[styles.plank, styles.plankYou]} />
+          <View style={[styles.plank, styles.plankYou, { backgroundColor: backdropTheme.groundTint }]} />
         </View>
       </LinearGradient>
 
@@ -675,7 +788,15 @@ const styles = StyleSheet.create({
   tagText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5, color: '#f4e9cd' },
   emojiFoe: { fontSize: 40, textShadowColor: 'rgba(0,0,0,0.35)', textShadowRadius: 6, textShadowOffset: { width: 0, height: 4 } },
   emojiYou: { fontSize: 48, textShadowColor: 'rgba(0,0,0,0.35)', textShadowRadius: 6, textShadowOffset: { width: 0, height: 4 } },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0,0,0,0.32)',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
   nameRowFoe: { flexDirection: 'row-reverse' },
   specBadge: { fontSize: 15 },
   name: { fontWeight: '700', fontSize: 13 },
@@ -689,6 +810,23 @@ const styles = StyleSheet.create({
   },
   plankYou: { width: 96 },
   plankFoe: { width: 82 },
+  jailBarsRow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  jailBar: {
+    width: 5,
+    backgroundColor: 'rgba(196,192,184,0.4)',
+    shadowColor: '#000',
+    shadowOffset: { width: 1, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 0,
+  },
   hpBarTrack: {
     width: 140,
     height: 14,

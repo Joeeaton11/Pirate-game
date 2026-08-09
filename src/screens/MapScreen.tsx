@@ -65,6 +65,7 @@ import { RootStackParamList } from '../navigation/types';
 import { EncounterFaction, useGameStore } from '../store/gameStore';
 import { CrewTemplate } from '../types';
 import { maxHpFor, pickWildEncounter } from '../utils/battle';
+import { BattleBackdrop, classifyBackdrop } from '../utils/battleBackdrop';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 
@@ -622,7 +623,9 @@ export default function MapScreen({ navigation }: Props) {
     templateId: string,
     level: number,
     faction: EncounterFaction,
-    template: CrewTemplate
+    template: CrewTemplate,
+    atPoint?: { x: number; y: number } | null,
+    forcedBackdrop?: BattleBackdrop
   ) {
     const wildMaxHp = maxHpFor(
       {
@@ -636,11 +639,12 @@ export default function MapScreen({ navigation }: Props) {
       template
     );
     directionRef.current = null;
-    setWildEncounter({ templateId, level, currentHp: wildMaxHp, faction });
+    const backdrop = forcedBackdrop ?? classifyBackdrop(atPoint === undefined ? playerRef.current : atPoint);
+    setWildEncounter({ templateId, level, currentHp: wildMaxHp, faction, backdrop });
     navigation.navigate('Encounter');
   }
 
-  function triggerEncounter(isLand: boolean, islandId: string | null) {
+  function triggerEncounter(isLand: boolean, islandId: string | null, atPoint: { x: number; y: number }) {
     const island = islandId ? ISLAND_LIST.find((i) => i.id === islandId) : null;
     const table = isLand && island ? island.encounterTable : SEA_ENCOUNTER_TABLE;
     if (table.length === 0) return;
@@ -649,10 +653,10 @@ export default function MapScreen({ navigation }: Props) {
     if (!isAlive) return;
 
     const { templateId, level } = pickWildEncounter(table);
-    startEncounter(templateId, level, 'wild', CREW_TEMPLATES[templateId]);
+    startEncounter(templateId, level, 'wild', CREW_TEMPLATES[templateId], atPoint);
   }
 
-  function triggerAmbush(faction: ThreatFaction) {
+  function triggerAmbush(faction: ThreatFaction, atPoint: { x: number; y: number }) {
     const table = faction === 'rival' ? rivalTableForHeat(heatRef.current) : navyTableForHeat(heatRef.current);
     if (!table) return;
 
@@ -660,15 +664,15 @@ export default function MapScreen({ navigation }: Props) {
     if (!isAlive) return;
 
     const { templateId, level } = pickWildEncounter(table);
-    startEncounter(templateId, level, faction, THREAT_TEMPLATES[templateId]);
+    startEncounter(templateId, level, faction, THREAT_TEMPLATES[templateId], atPoint);
   }
 
-  function triggerMerchant() {
+  function triggerMerchant(atPoint: { x: number; y: number }) {
     const isAlive = crewRef.current.some((member) => member.currentHp > 0);
     if (!isAlive) return;
 
     const { templateId, level } = pickWildEncounter(MERCHANT_ENCOUNTER_TABLE);
-    startEncounter(templateId, level, 'merchant', MERCHANT_TEMPLATES[templateId]);
+    startEncounter(templateId, level, 'merchant', MERCHANT_TEMPLATES[templateId], atPoint);
   }
 
   function nearbyLordPos(pos: { x: number; y: number }, island: { id: string; position: { x: number; y: number } }) {
@@ -970,7 +974,9 @@ export default function MapScreen({ navigation }: Props) {
               BLACK_PEARL_CAPTAIN_TEMPLATE.id,
               BLACK_PEARL_CAPTAIN_LEVEL,
               'blackpearl',
-              BLACK_PEARL_CAPTAIN_TEMPLATE
+              BLACK_PEARL_CAPTAIN_TEMPLATE,
+              null,
+              'sea'
             );
             return;
           }
@@ -1108,15 +1114,15 @@ export default function MapScreen({ navigation }: Props) {
           const navyAmbushChance =
             ambushChance('navy', heatRef.current) * (shipUpgradesRef.current.includes('swift_rigging') ? 0.5 : 1);
           if (navyRoll < navyAmbushChance) {
-            triggerAmbush('navy');
+            triggerAmbush('navy', nextPosition);
           } else if (rivalRoll < ambushChance('rival', heatRef.current)) {
-            triggerAmbush('rival');
+            triggerAmbush('rival', nextPosition);
           } else if (!nextIsland && merchantRoll < MERCHANT_SEA_CHANCE) {
-            triggerMerchant();
+            triggerMerchant(nextPosition);
           } else {
             const chance = nextIsland ? nextIsland.encounterChance : SEA_ENCOUNTER_CHANCE;
             if (wildRoll < chance) {
-              triggerEncounter(!!nextIsland, nextIsland?.id ?? null);
+              triggerEncounter(!!nextIsland, nextIsland?.id ?? null, nextPosition);
             }
           }
         }

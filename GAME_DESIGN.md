@@ -1872,32 +1872,56 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     answered by the tag and name color, and the bar's job is to show danger. Verified `npx tsc
     --noEmit` passes and confirmed in-browser via a forced Rival Ambush, both at full HP and
     mid-fight after a few exchanges
-56. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+56. ✅ **Battle backdrops that change with where the fight actually happens** (2026-08-09) —
+    "Backdrop will change and be specific to where the battle happens. Town background with
+    buildings and cobble floor etc, jungle, beach, sea, on boats… loads of scenery and scenarios,"
+    direct follow-up to item 55's layout redesign. Built 6 distinct scenes (Town, Jungle, Beach,
+    Sea, Fort, Jail), each a gradient + a handful of positioned decorative emoji/shapes (building
+    silhouettes and a cobblestone tint for Town, palm trees for Jungle/Beach, a wave/sail motif for
+    Sea, battlements and cannons for Fort, and actual barred-cell stripes for Jail) reusing the
+    existing plank-shadow ground element from item 55, retinted per scene. Added
+    `src/utils/battleBackdrop.ts::classifyBackdrop`, which turns a world position into a backdrop by
+    reusing existing infrastructure — `islandAtPoint` for land-vs-sea, `nearestStreetSegment` for
+    "close enough to count as town," and a new point-to-polygon-edge check against the island's
+    coastline for "close enough to count as beach" — anything else on land reads as jungle. Threaded
+    a `backdrop` field through `WildEncounter` and every `setWildEncounter` call site: MapScreen's
+    wild/ambush/merchant triggers classify from the real position the fight started at; the
+    Pirate-Lord-fort, jail-rescue, and Black-Pearl-duel fights force a fixed backdrop since those
+    happen at a specific, already-known kind of place regardless of where the player's standing;
+    bounty/heat-bounty side quests classify from the quest's own map position, escort quests are
+    always forced to Sea (raiders boarding a convoy underway). Added a "Preview Battle Backdrop" row
+    to the dev Debug screen so every scene can be checked without walking to a matching location.
+    Caught and fixed two real issues while checking all 6 in-browser: gold-on-sand text on the Beach
+    scene was nearly illegible (fixed with a small dark chip behind every name/tag, which also
+    guards every future backdrop from the same issue); the Jail bars were originally a dark tint on
+    a near-black background and effectively invisible (recolored to a visible steel tone). Verified
+    `npx tsc --noEmit` passes and confirmed all 6 scenes in-browser via the new debug preview row
+57. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-57. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+58. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-58. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+59. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-59. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+60. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-60. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+61. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-61. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+62. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-62. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+63. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-63. **GTA-style character switching** (biggest, most novel, probably last)
-64. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+64. **GTA-style character switching** (biggest, most novel, probably last)
+65. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-65. Full e2e test automation, IAP integration, real art asset pipeline —
+66. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps

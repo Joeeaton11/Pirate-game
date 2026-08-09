@@ -15,6 +15,7 @@ import { RootStackParamList } from '../navigation/types';
 import { EncounterFaction, useActiveCrewMember, useGameStore } from '../store/gameStore';
 import { CrewTemplate } from '../types';
 import { maxHpFor } from '../utils/battle';
+import { BattleBackdrop } from '../utils/battleBackdrop';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Debug'>;
 
@@ -66,13 +67,14 @@ export default function DebugScreen({ navigation }: Props) {
     templateId: string,
     level: number,
     faction: EncounterFaction,
-    template: CrewTemplate
+    template: CrewTemplate,
+    backdrop: BattleBackdrop = 'town'
   ) {
     const maxHp = maxHpFor(
       { instanceId: 'wild', templateId, nickname: template.name, level, xp: 0, currentHp: 0 },
       template
     );
-    setWildEncounter({ templateId, level, currentHp: maxHp, faction });
+    setWildEncounter({ templateId, level, currentHp: maxHp, faction, backdrop });
     navigation.navigate('Encounter');
   }
 
@@ -89,6 +91,12 @@ export default function DebugScreen({ navigation }: Props) {
   function handleForceNavy() {
     const template = THREAT_TEMPLATES.navy_marine;
     forceEncounter(template.id, activeCrew?.level ?? 5, 'navy', template);
+  }
+
+  /** Quick visual QA for every battle backdrop without having to walk to a matching location. */
+  function handlePreviewBackdrop(backdrop: BattleBackdrop) {
+    const template = THREAT_TEMPLATES.rival_deckhand;
+    forceEncounter(template.id, activeCrew?.level ?? 5, 'rival', template, backdrop);
   }
 
   function handleForceMerchant() {
@@ -111,6 +119,7 @@ export default function DebugScreen({ navigation }: Props) {
       level: activeCrew?.level ?? 5,
       currentHp: maxHp,
       faction: 'merchant',
+      backdrop: 'sea',
     });
     navigation.navigate('Encounter');
   }
@@ -135,7 +144,8 @@ export default function DebugScreen({ navigation }: Props) {
       BLACK_PEARL_CAPTAIN_TEMPLATE.id,
       BLACK_PEARL_CAPTAIN_LEVEL,
       'blackpearl',
-      BLACK_PEARL_CAPTAIN_TEMPLATE
+      BLACK_PEARL_CAPTAIN_TEMPLATE,
+      'sea'
     );
   }
 
@@ -205,6 +215,19 @@ export default function DebugScreen({ navigation }: Props) {
           <Pressable style={styles.button} onPress={handleForceMerchant}>
             <Text style={styles.buttonText}>Merchant Ship</Text>
           </Pressable>
+        </View>
+
+        <Text style={styles.sectionHeading}>Preview Battle Backdrop</Text>
+        <View style={styles.row}>
+          {(['town', 'jungle', 'beach', 'sea', 'fort', 'jail'] as BattleBackdrop[]).map((backdrop) => (
+            <Pressable
+              key={backdrop}
+              style={styles.button}
+              onPress={() => handlePreviewBackdrop(backdrop)}
+            >
+              <Text style={styles.buttonText}>{backdrop}</Text>
+            </Pressable>
+          ))}
         </View>
 
         <Text style={styles.sectionHeading}>

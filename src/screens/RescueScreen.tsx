@@ -27,7 +27,14 @@ export default function RescueScreen({ navigation }: Props) {
       { instanceId: 'rescue', templateId, nickname: template.name, level, xp: 0, currentHp: 0 },
       template
     );
-    setWildEncounter({ templateId, level, currentHp: maxHp, faction: 'rescue', rescueId: record.id });
+    setWildEncounter({
+      templateId,
+      level,
+      currentHp: maxHp,
+      faction: 'rescue',
+      rescueId: record.id,
+      backdrop: 'jail',
+    });
     navigation.navigate('Encounter');
   }
 

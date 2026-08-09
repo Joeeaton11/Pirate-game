@@ -3,6 +3,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATES } from '../data/crew';
+import { ISLANDS } from '../data/islands';
 import { ITEMS } from '../data/items';
 import { PIRATE_LORDS, PIRATE_LORD_TEMPLATES } from '../data/pirateLords';
 import { BOUNTY_TEMPLATES, SIDE_QUESTS } from '../data/sideQuests';
@@ -10,8 +11,22 @@ import { THREAT_TEMPLATES } from '../data/threats';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 import { maxHpFor } from '../utils/battle';
+import { classifyBackdrop } from '../utils/battleBackdrop';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SideQuest'>;
+
+/** World position a bounty/heat-bounty fight happens at, for backdrop classification — the
+ * quest's own marker offset when it has one (standalone quests), otherwise its island's center
+ * (hosted-by-building quests, which are always somewhere in that island's town). */
+function questWorldPosition(quest: { islandId: string; offset?: { x: number; y: number } }): {
+  x: number;
+  y: number;
+} {
+  const island = ISLANDS[quest.islandId];
+  if (!island) return { x: 0, y: 0 };
+  if (!quest.offset) return island.position;
+  return { x: island.position.x + quest.offset.x, y: island.position.y + quest.offset.y };
+}
 
 export default function SideQuestScreen({ navigation }: Props) {
   const currentSideQuestId = useGameStore((s) => s.currentSideQuestId);
@@ -79,6 +94,7 @@ export default function SideQuestScreen({ navigation }: Props) {
       currentHp: maxHp,
       faction: 'bounty',
       questId: quest.id,
+      backdrop: classifyBackdrop(questWorldPosition(quest)),
     });
     navigation.navigate('Encounter');
   }
@@ -104,7 +120,9 @@ export default function SideQuestScreen({ navigation }: Props) {
       { instanceId: 'escort', templateId, nickname: template.name, level, xp: 0, currentHp: 0 },
       template
     );
-    setWildEncounter({ templateId, level, currentHp: maxHp, faction: 'bounty', questId: quest.id });
+    // Escorts are raiders closing on a convoy underway — always open water, regardless of which
+    // island the quest itself is anchored to.
+    setWildEncounter({ templateId, level, currentHp: maxHp, faction: 'bounty', questId: quest.id, backdrop: 'sea' });
     navigation.navigate('Encounter');
   }
 
@@ -118,7 +136,14 @@ export default function SideQuestScreen({ navigation }: Props) {
       { instanceId: 'heat_bounty', templateId, nickname: template.name, level, xp: 0, currentHp: 0 },
       template
     );
-    setWildEncounter({ templateId, level, currentHp: maxHp, faction: 'bounty', questId: quest.id });
+    setWildEncounter({
+      templateId,
+      level,
+      currentHp: maxHp,
+      faction: 'bounty',
+      questId: quest.id,
+      backdrop: classifyBackdrop(questWorldPosition(quest)),
+    });
     navigation.navigate('Encounter');
   }
 

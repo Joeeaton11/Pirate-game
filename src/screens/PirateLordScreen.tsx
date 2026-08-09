@@ -47,7 +47,13 @@ export default function PirateLordScreen({ navigation }: Props) {
       },
       lord.template
     );
-    setWildEncounter({ templateId: lord.id, level: lord.level, currentHp: maxHp, faction: 'lord' });
+    setWildEncounter({
+      templateId: lord.id,
+      level: lord.level,
+      currentHp: maxHp,
+      faction: 'lord',
+      backdrop: 'fort',
+    });
     navigation.navigate('Encounter');
   }
 
