@@ -563,7 +563,7 @@ export default function EncounterScreen({ navigation }: Props) {
   const displayMaxHp = fallenSnapshot ? fallenSnapshot.maxHp : playerMaxHp;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       {isAmbush && (
         <View style={styles.ambushBanner}>
           <Text style={styles.ambushBannerText}>
@@ -853,7 +853,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
   },
-  actions: { padding: 12 },
+  actions: { paddingHorizontal: 12, paddingTop: 12, paddingBottom: 28 },
   movesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
   moveButton: {
     flexGrow: 1,
