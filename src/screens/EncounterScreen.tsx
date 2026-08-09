@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,6 +26,17 @@ import {
 type Props = NativeStackScreenProps<RootStackParamList, 'Encounter'>;
 
 type Phase = 'battling' | 'victory' | 'defeat' | 'fled' | 'recruited';
+
+// Battle layout redesign (2026-08-09, item 55): a small badge next to each name so the
+// blade/musket/cannon/curse/brawler effectiveness triangle in battle.ts is visible at a
+// glance instead of a hidden dice roll.
+const SPECIALTY_ICON: Record<string, string> = {
+  blade: '⚔️',
+  musket: '🔫',
+  cannon: '💣',
+  brawler: '👊',
+  curse: '🔮',
+};
 
 const ALL_TEMPLATES = {
   ...CREW_TEMPLATES,
@@ -463,24 +475,37 @@ export default function EncounterScreen({ navigation }: Props) {
           </Text>
         </View>
       )}
-      <View style={styles.combatants}>
-        <View style={styles.combatantCard}>
-          <Text style={styles.emoji}>{wildTemplate.emoji}</Text>
-          <Text style={styles.name}>
-            {isAmbush ? '' : 'Wild '}
-            {wildTemplate.name} Lv.{encounter.level}
-          </Text>
-          <HpBar current={encounter.currentHp} max={wildMaxHp} />
+      <LinearGradient colors={['#173d57', '#0b3d5c', '#0b3d5c']} style={styles.scene}>
+        <View style={[styles.combatant, styles.combatantFoe]}>
+          <View style={[styles.tag, styles.tagFoe]}>
+            <Text style={styles.tagText}>🏴‍☠️ Foe</Text>
+          </View>
+          <Text style={styles.emojiFoe}>{wildTemplate.emoji}</Text>
+          <View style={[styles.nameRow, styles.nameRowFoe]}>
+            <Text style={styles.specBadge}>{SPECIALTY_ICON[wildTemplate.specialty]}</Text>
+            <Text style={[styles.name, styles.nameFoe]}>
+              {isAmbush ? '' : 'Wild '}
+              {wildTemplate.name} Lv.{encounter.level}
+            </Text>
+          </View>
+          <HpBar current={encounter.currentHp} max={wildMaxHp} align="flex-end" />
+          <View style={[styles.plank, styles.plankFoe]} />
         </View>
-        <Text style={styles.vs}>VS</Text>
-        <View style={styles.combatantCard}>
-          <Text style={styles.emoji}>{displayEmoji}</Text>
-          <Text style={styles.name}>
-            {displayName} Lv.{displayLevel}
-          </Text>
-          <HpBar current={displayHp} max={displayMaxHp} />
+        <View style={[styles.combatant, styles.combatantYou]}>
+          <View style={[styles.tag, styles.tagYou]}>
+            <Text style={styles.tagText}>🏴 You</Text>
+          </View>
+          <Text style={styles.emojiYou}>{displayEmoji}</Text>
+          <View style={styles.nameRow}>
+            <Text style={styles.specBadge}>{SPECIALTY_ICON[playerTemplate.specialty]}</Text>
+            <Text style={[styles.name, styles.nameYou]}>
+              {displayName} Lv.{displayLevel}
+            </Text>
+          </View>
+          <HpBar current={displayHp} max={displayMaxHp} align="flex-start" />
+          <View style={[styles.plank, styles.plankYou]} />
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView style={styles.log} contentContainerStyle={{ padding: 12 }}>
         {log.map((line, i) => (
@@ -593,12 +618,22 @@ export default function EncounterScreen({ navigation }: Props) {
   );
 }
 
-function HpBar({ current, max }: { current: number; max: number }) {
+function HpBar({
+  current,
+  max,
+  color,
+  align = 'flex-start',
+}: {
+  current: number;
+  max: number;
+  color?: string;
+  align?: 'flex-start' | 'flex-end';
+}) {
   const pct = Math.max(0, Math.min(1, current / max));
-  const color = pct > 0.5 ? '#4caf50' : pct > 0.2 ? '#ffb300' : '#e53935';
+  const fillColor = color ?? (pct > 0.5 ? '#4caf50' : pct > 0.2 ? '#ffb300' : '#e53935');
   return (
-    <View style={styles.hpBarTrack}>
-      <View style={[styles.hpBarFill, { width: `${pct * 100}%`, backgroundColor: color }]} />
+    <View style={[styles.hpBarTrack, { alignSelf: align }]}>
+      <View style={[styles.hpBarFill, { width: `${pct * 100}%`, backgroundColor: fillColor }]} />
       <Text style={styles.hpText}>
         {Math.max(0, current)}/{max}
       </Text>
@@ -619,22 +654,46 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 1,
   },
-  combatants: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingVertical: 20,
+  scene: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 12,
+    minHeight: 260,
   },
-  combatantCard: { alignItems: 'center', width: '42%' },
-  emoji: { fontSize: 48 },
-  name: { color: '#f4e9cd', fontWeight: '700', marginTop: 4, textAlign: 'center' },
-  vs: { color: '#ffd166', fontWeight: '800', fontSize: 18 },
-  hpBarTrack: {
-    width: '100%',
+  combatant: { gap: 5 },
+  combatantFoe: { alignSelf: 'flex-end', alignItems: 'flex-end', width: '68%' },
+  combatantYou: { alignSelf: 'flex-start', alignItems: 'flex-start', width: '74%' },
+  tag: {
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 20,
+  },
+  tagYou: { backgroundColor: 'rgba(255,209,102,0.18)' },
+  tagFoe: { backgroundColor: 'rgba(255,138,117,0.18)' },
+  tagText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5, color: '#f4e9cd' },
+  emojiFoe: { fontSize: 40, textShadowColor: 'rgba(0,0,0,0.35)', textShadowRadius: 6, textShadowOffset: { width: 0, height: 4 } },
+  emojiYou: { fontSize: 48, textShadowColor: 'rgba(0,0,0,0.35)', textShadowRadius: 6, textShadowOffset: { width: 0, height: 4 } },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  nameRowFoe: { flexDirection: 'row-reverse' },
+  specBadge: { fontSize: 15 },
+  name: { fontWeight: '700', fontSize: 13 },
+  nameYou: { color: '#ffd166' },
+  nameFoe: { color: '#ff8a75' },
+  plank: {
     height: 16,
-    backgroundColor: '#123',
+    borderRadius: 999,
+    backgroundColor: 'rgba(90,58,31,0.4)',
+    marginTop: 2,
+  },
+  plankYou: { width: 96 },
+  plankFoe: { width: 82 },
+  hpBarTrack: {
+    width: 140,
+    height: 14,
+    backgroundColor: 'rgba(0,0,0,0.35)',
     borderRadius: 8,
-    marginTop: 8,
     overflow: 'hidden',
     justifyContent: 'center',
   },

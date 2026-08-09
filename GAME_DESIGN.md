@@ -1854,32 +1854,50 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     segments obscured by an unrelated building (same 24-unit-clearance check as item 53); `npx tsc
     --noEmit` passes; confirmed in-browser that each lane renders as a single clean winding path
     past its row of houses, not a web of crossing spurs
-55. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+55. ✅ **Battle screen redesigned so it's obvious which fighter is yours** (2026-08-09) — "It looks a
+    bit bland and boring and limited... I don't even know which person I am in combat." Presented 5
+    layout directions as static mockups (Dueling Platforms, Face-Off Portraits, Ship's Deck
+    Broadside, Captain's Log Card Duel, Cinematic Scene) rendered as images for review; picked
+    Dueling Platforms for being "clean and descriptive," then layered in a light combo of borrowed
+    ideas: a soft gradient backdrop and deck-plank shading from the Ship's Deck direction, and a
+    specialty-type badge (⚔️/🔫/💣/🔮/👊) from the Card Duel direction next to each name so the
+    blade/musket/cannon/curse/brawler triangle in `battle.ts` is visible instead of a hidden dice
+    roll. Rebuilt `EncounterScreen.tsx`'s combatant area for real: a diagonal stance (foe back-right
+    on a smaller platform, you front-left on a bigger one, via ordinary flex layout rather than
+    absolute positioning so it holds up across screen sizes) with an explicit "You"/"Foe" tag pill
+    above each name — added `expo-linear-gradient` as the one new dependency. Caught and fixed a
+    real regression during in-app testing: the first pass hardcoded the HP bars to gold/crimson to
+    match the tag colors, which silently killed the low-HP red-warning signal; reverted the bars to
+    their original green→amber→red-by-actual-health behavior since "which one is mine" is already
+    answered by the tag and name color, and the bar's job is to show danger. Verified `npx tsc
+    --noEmit` passes and confirmed in-browser via a forced Rival Ambush, both at full HP and
+    mid-fight after a few exchanges
+56. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-56. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+57. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-57. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+58. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-58. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+59. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-59. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+60. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-60. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+61. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-61. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+62. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-62. **GTA-style character switching** (biggest, most novel, probably last)
-63. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+63. **GTA-style character switching** (biggest, most novel, probably last)
+64. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-64. Full e2e test automation, IAP integration, real art asset pipeline —
+65. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
