@@ -768,15 +768,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   scene: {
+    flex: 1.2,
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 12,
-    minHeight: 260,
+    paddingVertical: 18,
   },
   combatant: { gap: 5 },
-  combatantFoe: { alignSelf: 'flex-end', alignItems: 'flex-end', width: '68%' },
+  combatantFoe: { alignSelf: 'flex-end', alignItems: 'flex-end', width: '68%', marginBottom: 36 },
   combatantYou: { alignSelf: 'flex-start', alignItems: 'flex-start', width: '74%' },
   tag: {
     paddingHorizontal: 9,
@@ -838,7 +837,7 @@ const styles = StyleSheet.create({
   hpBarFill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 8 },
   hpText: { fontSize: 10, color: '#fff', textAlign: 'center', fontWeight: '700' },
   log: {
-    flex: 1,
+    flex: 0.8,
     backgroundColor: '#062331',
     marginHorizontal: 12,
     borderRadius: 12,
