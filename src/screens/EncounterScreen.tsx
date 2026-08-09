@@ -853,7 +853,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
   },
-  actions: { paddingHorizontal: 12, paddingTop: 12, paddingBottom: 28 },
+  actions: { paddingHorizontal: 12, paddingTop: 12, paddingBottom: 72 },
   movesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
   moveButton: {
     flexGrow: 1,
