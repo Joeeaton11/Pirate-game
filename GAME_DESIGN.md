@@ -1922,36 +1922,81 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     - Verified `npx tsc --noEmit` passes and, in-browser, ran full multi-turn battles to victory,
       to defeat, and against an ambush faction (no Recruit button/crash) — confirmed the lunge,
       flash, shake, popups, HP tween, banner, and recruit-% all fire correctly turn after turn
-58. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+58. ✅ **"Ship's Deck at Dusk" — full battle-scene redesign for real, built after five rounds of
+    HTML mockup iteration** (2026-08-10) — replaces the emoji-scatter backdrop and plain bottom
+    bar from items 55-57 with a considered visual pass, driven start-to-finish by the design-lead
+    conversation ("I'm not liking it much" → fresh mockup → iterate → "green light for what we
+    have worked through today"):
+    - **Backdrop**: emoji-scatter decorations replaced with a small deliberate stack of layers —
+      gradient sky, one SVG horizon silhouette per backdrop (`HORIZON_PATHS`: town skyline, fort
+      crenellations + flag, jungle canopy, beach dunes + palm, sea gets a ship silhouette instead
+      of a horizon line), a ground/water gradient band, and soft `RadialGradient` spotlight pools
+      under each fighter (`react-native-svg`, no new dependency). A glowing moon/sun disc
+      (`Celestial`) sits in the sky for every theme but jungle. Jail stays the one interior
+      exception — cell bars plus two corner torches, no horizon
+    - **Portraits**: bare emoji replaced with ring-bordered circular portraits (colored border +
+      glow, gold for you/red for the foe) — existing lunge/idle/flash/victory-bounce/defeat-slump
+      animations moved onto the ring wrapper unchanged
+    - **Bottom panel**: the flush-to-the-bottom-edge action bar replaced with a raised floating
+      sheet (margin + rounded corners + shadow) containing a "▶ Your Move" turn indicator, the log
+      in its own bordered card, and larger move/secondary buttons
+    - **Crew-swap strip**: every onboard crew member now shows as a small ring in the panel —
+      gold-glowing ring = who's fighting, ring color = their HP (green/amber/red), greyed + ✕ badge
+      = fainted. One tap on a healthy bench member swaps them in instantly and costs the turn
+      (enemy acts), reusing the existing forced-switch-on-faint logic voluntarily. Hidden below 2
+      crew members — nothing to swap to yet, and per design-lead decision, `SHIP_CREW_CAP` stays a
+      flat 6 from the start for now (see item 69) rather than gating it further
+    - **Resolution cards**: every way a fight can end used to be a single "Return to Map" button
+      with the outcome buried in the log; each now gets a dedicated full-screen card over the
+      (dimmed, still-visible) frozen scene, color-coded by kind — gold Victory (with the beaten
+      foe's portrait, a level-up pill, a distinct blue "Promoted!" banner, and reward rows for
+      XP/gold/loot resources), teal Recruit (portrait + specialty/rarity chips), lavender Rescue
+      (a returning crewmate is a different feeling than a new one, so it isn't Recruit's color),
+      muted-red Defeat ("Return to Tortuga Cove" button, a reassuring "crew fully healed" line),
+      a harsher red Defeat-Captured for the navy/rival permadeath case (grayscale portrait, red
+      "LOST" tag, no reassuring line), and a quiet neutral Fled card since nothing consequential
+      happened. Built via a flat `ResolutionInfo` state object populated alongside the existing
+      `appendLog` calls at every branch (lord duel, Black Pearl, escort waves, heat bounty, plain
+      bounty, merchant plunder, rescue, standard win, standard/navy/rival defeat) — no reward logic
+      changed, only what gets shown
+    - Verified `npx tsc --noEmit` clean, then in-browser via Playwright driving the real dev
+      build (not a mockup) through the Debug screen: all 6 backdrops screenshotted individually
+      (caught and fixed one real bug — a second jail torch wasn't rendering because a
+      `{ left: undefined }` style override didn't reliably unset the base style's `left: 10` on
+      web; fixed with two explicit named styles instead of one shared style + override), a full
+      Merchant Ship fight through to the loot-reward Victory card, a Recruit card, and — caught
+      by accident when an automated flee-loop chipped HP down to a real faint — the standard
+      Defeat card, all confirmed rendering correctly with zero console/page errors throughout
+59. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-59. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+60. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-60. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+61. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-61. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+62. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-62. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+63. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-63. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+64. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-64. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+65. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-65. **GTA-style character switching** (biggest, most novel, probably last)
-66. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+66. **GTA-style character switching** (biggest, most novel, probably last)
+67. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-67. Full e2e test automation, IAP integration, real art asset pipeline —
+68. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
-68. **Progressive crew-slot unlocks tied to story milestones** — right now `SHIP_CREW_CAP` is a
+69. **Progressive crew-slot unlocks tied to story milestones** — right now `SHIP_CREW_CAP` is a
     flat 6 available from the very start (see Crew Management above); revisit this so you begin
     with 1-2 slots and unlock more by defeating Pirate Lords (or similar story beats), turning
     party growth into a reward rather than a static number. Pairs with the battle-scene crew-swap
