@@ -1,7 +1,9 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useAudioPlayer } from 'expo-audio';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Defs, Ellipse, Line, Path, RadialGradient, Stop } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BLACK_PEARL_CAPTAIN_TEMPLATE, BLACK_PEARL_CAPTURED_LOG, BLACK_PEARL_INTRO_DIALOGUE } from '../data/blackPearl';
@@ -545,6 +547,13 @@ export default function EncounterScreen({ navigation }: Props) {
   const [resolution, setResolution] = useState<ResolutionInfo | null>(null);
   const [telegraphMoveId, setTelegraphMoveId] = useState<string | null>(null);
 
+  // Sound + haptics (2026-08-10, item 61): "a clash sound on hit, a soft haptic tap on mobile" —
+  // last item on the "improve this scene" follow-up list. expo-audio replaced expo-av as of the
+  // SDK 52+ audio API; useAudioPlayer owns one player instance per source for the component's
+  // lifetime, and seekTo(0) + play() replays it from the start on every hit rather than needing a
+  // fresh player each time.
+  const hitPlayer = useAudioPlayer(require('../../assets/sfx/hit.wav'));
+
   // Battle motion (2026-08-09, item 57): "Build all of these they sound cool" — lunge, hit
   // flash, screen shake, HP tween, floating damage numbers, idle bob, an effectiveness banner,
   // and distinct victory/defeat poses, on top of the layout/backdrop work from items 55-56.
@@ -690,6 +699,21 @@ export default function EncounterScreen({ navigation }: Props) {
     ]).start();
   }
 
+  /** Fires alongside the flash/shake on every landed hit — a short clash sound everywhere, plus
+   * a haptic tap on native (expo-haptics is a no-op on web, but guarded explicitly rather than
+   * relying on that). */
+  function playHitFeedback() {
+    try {
+      hitPlayer.seekTo(0);
+      hitPlayer.play();
+    } catch {
+      // Audio can fail to init in some embedded/headless contexts — never let it break a turn.
+    }
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    }
+  }
+
   function spawnYouPopup(text: string, kind: PopupKind) {
     const id = Date.now() + Math.random();
     setYouPopups((prev) => [...prev, { id, text, kind }]);
@@ -731,6 +755,7 @@ export default function EncounterScreen({ navigation }: Props) {
     setCrewHp(crewMember.instanceId, newHp);
     triggerFlash(youFlash);
     triggerShake();
+    playHitFeedback();
     spawnYouPopup(`-${result.damage}`, 'damage');
     if (result.effectivenessLabel) showBanner(result.effectivenessLabel);
     appendLog(
@@ -872,6 +897,7 @@ export default function EncounterScreen({ navigation }: Props) {
     setWildEncounter({ ...encounter, currentHp: newWildHp });
     triggerFlash(foeFlash);
     triggerShake();
+    playHitFeedback();
     spawnFoePopup(`-${damage}`, 'damage');
     if (result.effectivenessLabel) showBanner(result.effectivenessLabel);
     appendLog(

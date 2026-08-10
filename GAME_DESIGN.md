@@ -1985,36 +1985,50 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     immediately after each turn resolves, ready for the next round. Reuses the power-tier dots
     from item 59 rather than inventing a new indicator. Verified in-browser: the telegraphed move
     name matched the log line for what the foe actually used, turn after turn
-61. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+61. ✅ **Hit sound + haptics** (2026-08-10) — fourth and final item off the "improve this scene"
+    follow-up list. Every landed hit (yours or the foe's) now fires a short synthesized clash
+    sound (`assets/sfx/hit.wav` — a percussive noise burst + metallic high partials + a low thump,
+    generated procedurally, no external asset needed) via `expo-audio`'s `useAudioPlayer` (the
+    SDK 52+ replacement for the now-deprecated `expo-av`; `seekTo(0)` + `play()` replays the same
+    loaded buffer every hit instead of allocating a new player each time), plus a medium haptic
+    tap via `expo-haptics` on native, explicitly skipped on web with a `Platform.OS` guard rather
+    than relying on its own no-op. Both wrapped in try/catch so a failed audio/haptics init can
+    never break a turn. New dependencies: `expo-audio@57.0.3`, `expo-haptics@57.0.1` (installed
+    directly from `registry.npmjs.org`, same as `expo-linear-gradient` earlier — `npx expo
+    install` can't reach `api.expo.dev` in this environment). Verified `npx tsc --noEmit` clean
+    and in-browser: multiple hits both directions with zero console/page errors, and confirmed via
+    the network panel that `hit.wav` actually loads through Metro's dev server (no `<audio>` tag
+    on web — expo-audio plays it through WebAudio directly)
+62. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-62. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+63. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-63. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+64. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-64. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+65. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-65. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+66. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-66. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+67. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-67. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+68. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-68. **GTA-style character switching** (biggest, most novel, probably last)
-69. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+69. **GTA-style character switching** (biggest, most novel, probably last)
+70. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-70. Full e2e test automation, IAP integration, real art asset pipeline —
+71. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
-71. **Progressive crew-slot unlocks tied to story milestones** — right now `SHIP_CREW_CAP` is a
+72. **Progressive crew-slot unlocks tied to story milestones** — right now `SHIP_CREW_CAP` is a
     flat 6 available from the very start (see Crew Management above); revisit this so you begin
     with 1-2 slots and unlock more by defeating Pirate Lords (or similar story beats), turning
     party growth into a reward rather than a static number. Pairs with the battle-scene crew-swap
