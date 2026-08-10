@@ -22,10 +22,12 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   recruit template reskin, a rival, a Pirate Lord). **Update 2026-08-10: that reason now exists —
   see Main Story Arc immediately below.** Blackfin and Octavia are cast as the rival captain and
   Navy antagonist respectively; the other 3 (Polly, Big Beard Bill, Tiny Tim) stay unassigned
-- ✅ Two parallel goals mirroring Pokédex + League: (1) a **Crew Log** (like a Pokédex — every
-  recruitable NPC/species you've met vs. actually recruited, with a completion %), (2) a **main
-  questline** ending in becoming a named Pirate Lord/King — the "beat the League" analog. See
-  Main Story Arc below for the now-decided objective this actually resolves to
+- ✅ Three parallel goals mirroring Pokédex + League (+ a second "catch 'em all" layer): (1) a
+  **Crew Log** (like a Pokédex — every recruitable NPC/species you've met vs. actually recruited,
+  with a completion %), (2) a **main questline** ending in becoming a named Pirate Lord/King — the
+  "beat the League" analog, (3) a **Treasure Codex** — a parallel collection catalog of individually
+  named treasure items, same completion-% shape as the Crew Log. See Main Story Arc below for both
+  the now-decided main-questline objective and the new Treasure Codex design
 - ⬜ Rival captain (named, recurring) mirrors the Pokémon rival — currently our "Rival Captain" is
   just a random hostile template, not a persistent character. **Designed 2026-08-10: this is
   Captain Blackfin — see Main Story Arc below.** Not built yet (no code changes from this pass;
@@ -216,6 +218,56 @@ several of them a reason tied to the new antagonists instead of being generic fi
      to drop small Blackfin/Octavia flavor beats between acts without needing new map markers —
      reuses the Patrons system exactly as already built, just with two recurring named patrons
      instead of one-off ones
+
+### 6. The Treasure Codex (the "gotta catch 'em all" collection layer)
+Requested explicitly as a second Pokédex-shaped goal, but for treasure instead of crew: not one
+hoard to walk up and grab, but a large catalog of individually named items — jewels, relics, coins,
+artifacts — found in varied, sometimes weird places or earned through quests, tracked toward a
+completion % the same way the Crew Log already is. The earlier "one big hoard" idea (prompted by
+"should we be looking for buried treasure, one big hoard?") isn't discarded — it becomes the
+Codex's single hardest capstone entry (see D below) rather than the whole goal, so there's both a
+long collection grind *and* one legendary payoff at the top of it.
+
+   - **A. Concept & UI** — a **Treasure Codex** screen, structurally identical to the existing Crew
+     Log: every known item shown silhouette-until-found, full card once collected (name, rarity,
+     flavor text, where/how it was found), running "X / Y found" completion %. Reuses the existing
+     seen-vs-recruited two-state reveal pattern rather than inventing a new UI concept
+   - **B. Acquisition methods** — deliberately varied, so "weird places, earned, or quested for" is
+     literally true rather than one mechanic repeated forty times:
+     1. **Exploration finds** — hidden off the main path in a specific terrain spot (a cove, a
+        ruin, deep jungle undergrowth). Finally gives the already-brainstormed "Specialty-gated
+        hidden areas" idea (Side Quest Concepts) a concrete payoff — the reward behind the
+        Cannon-blasted cave or Blade-forced door is a Codex item, not just gold
+     2. **Buried treasure maps** — finally builds out the already-stubbed "Buried treasure maps"
+        General Store item (Side Quest Concepts): buy or find a map fragment, it marks a dig site
+        on the map, walk up and dig for a named item instead of an instant gold payout
+     3. **Salvage dives** — extends the existing Diving Bell salvage mechanic (currently gold-only,
+        Port Royal) so specific dive sites can yield a unique Codex item alongside or instead of gold
+     4. **Quest rewards** — side quests, escort/heist quests, and Patron-hosted quests (Tortuga hub)
+        can name a specific Codex item as their payoff instead of only gold/XP
+     5. **Puzzle solves** — the Act III/IV puzzle-gauntlet islands (Roatán's careening-yard,
+        Port Royal's reef maze) each hide one item behind the puzzle itself, a second prize
+        alongside beating the Lord
+     6. **Rare drops** — a low-chance drop from specific named threat templates at legendary rarity,
+        same odds-shape as today's rare recruit encounters
+     7. **Vendor purchase** — a handful of items are simply for sale at specific shops (e.g. Roatán's
+        Smuggler's Den) at a steep price, for players who'd rather buy than hunt
+   - **C. Rarity & rough count** — reuses the existing common/uncommon/rare/legendary tiers as-is
+     (no new economy math needed). Rough target spread, not final: ~18 common (cheap, plentiful
+     exploration finds so early collection feels achievable), ~12 uncommon (quest rewards, buried
+     maps), ~7 rare (salvage dives, puzzle solves, rare drops), and a small handful of legendary
+     pieces topped by the capstone below — roughly 40 items total, "a lot to collect" without being
+     an unreasonable grind
+   - **D. The legendary capstone** — Blackbeard's own lost treasure (per the real history: it was
+     never actually found), assembled from 7 map fragments, one hidden near each mandatory island
+     plus Tortuga (reusing section 4's terrain table locations). Completing the fragment set is the
+     single hardest Codex entry, not a separate system — 100%-ing the Codex and finding Blackbeard's
+     hoard are the same achievement, and it's the natural place for a twist beyond "it's just gold"
+     (exact reveal TBD, worth deciding deliberately when this gets built rather than picked now)
+   - **E. Why it stays optional** — same scope rule as Blackfin's duels (2.B.3): the Codex is
+     parallel content, not a second mandatory gate. A player can beat all 6 Lords having found zero
+     treasure, same as they can beat the game today without 100%-ing the Crew Log — it exists to
+     make exploring off the direct island-to-island path worth doing, not to block progress
 
 ## World & Map Structure
 - ✅ One continuous world (not Pokémon's screen-by-screen grid) — 7 islands + open sea, free-roam,
