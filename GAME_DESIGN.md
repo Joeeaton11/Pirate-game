@@ -19,12 +19,203 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
 - ⬜ The other 5 named crew from the brand sheet (Polly, Big Beard Bill, Tiny Tim, Captain Blackfin,
   Admiral Octavia) are intentionally **not** mapped to specific in-game NPCs/recruit templates yet —
   left as external brand assets until there's a concrete reason to wire one in (e.g. a specific
-  recruit template reskin, a rival, a Pirate Lord)
-- ⬜ Two parallel goals mirroring Pokédex + League: (1) a **Crew Log** (like a Pokédex — every
+  recruit template reskin, a rival, a Pirate Lord). **Update 2026-08-10: that reason now exists —
+  see Main Story Arc immediately below.** Blackfin and Octavia are cast as the rival captain and
+  Navy antagonist respectively; the other 3 (Polly, Big Beard Bill, Tiny Tim) stay unassigned
+- ✅ Two parallel goals mirroring Pokédex + League: (1) a **Crew Log** (like a Pokédex — every
   recruitable NPC/species you've met vs. actually recruited, with a completion %), (2) a **main
-  questline** ending in becoming a named Pirate Lord/King — the "beat the League" analog
+  questline** ending in becoming a named Pirate Lord/King — the "beat the League" analog. See
+  Main Story Arc below for the now-decided objective this actually resolves to
 - ⬜ Rival captain (named, recurring) mirrors the Pokémon rival — currently our "Rival Captain" is
-  just a random hostile template, not a persistent character
+  just a random hostile template, not a persistent character. **Designed 2026-08-10: this is
+  Captain Blackfin — see Main Story Arc below.** Not built yet (no code changes from this pass;
+  this is a pure narrative-design session, deliberately kept separate from implementation so the
+  story gets decided once rather than being invented ad hoc quest-by-quest)
+
+## Main Story Arc (designed 2026-08-10 — not yet built; this whole section is narrative design,
+no code changed for it)
+A direct answer to "what's the ultimate objective, and what's the story that gets you there,"
+requested explicitly so future quest content has a spine to hang off instead of being invented
+one quest at a time. Every named beat below is new **framing** around systems that already exist
+(the 6 Lords, heat/Navy, permadeath, the Pirate Council) — nothing here requires new game
+mechanics, only new dialogue/encounters using the existing `lord`/`navy`/`rival` factions plus two
+newly-named recurring characters pulled from the brand sheet. Reference beats by their number/letter
+(e.g. "III.B", "Antagonists.A.2") rather than re-describing them elsewhere.
+
+### 1. Ultimate Objective
+**Become the uncrowned Pirate King (or Queen) of the Caribbean — recognized by all six Pirate
+Lords, still standing when the Crown comes to end you, and the one name left when your rival's
+isn't.** Concretely, that's the win condition the game already has (defeat all 6 Lords via the
+Pirate Council → Blackbeard), but stated as a story rather than a checklist: the six Letters of
+Marque were never royal paperwork — no king signed them. They're each Lord's own private
+recognition that you're worth reckoning with, extracted one duel at a time from people who don't
+hand out respect. Collecting all six means every power broker in the Caribbean has personally
+conceded you've earned your name. Blackbeard, the seventh and hardest "yes," is the only one who
+gets to make that call twice — first by letting the Council vouch for you, then by seeing for
+himself. Two things are trying to stop that from happening, and neither of them is a wild
+encounter roll:
+   - **A.** The Crown, in the person of Admiral Octavia, who intends to end the golden age of
+     piracy before it produces another Blackbeard — and you are visibly trying to become one
+   - **B.** Captain Blackfin, a rival captain chasing the exact same six marques, for the exact
+     same reason, and not particularly interested in being second
+
+### 2. Named Antagonists
+Both pulled from the existing brand sheet (see Premise & Goal above) rather than invented fresh —
+they were flagged as "waiting for a concrete reason to wire in," and this is that reason.
+
+**A. Admiral Octavia — "the Crown"**
+   1. A Royal Navy admiral, not a random patrol captain — the human face already implied by every
+      `navy` encounter and every heat-triggered ambush. She doesn't appear in early low-heat play;
+      she's what "the Navy" turns out to mean once you're worth her personal attention
+   2. Her campaign is historically grounded rather than invented: 1717-1718 was the real Crown
+      crackdown on the pirate republic at Nassau (New Providence — already the Order-2 Lord's
+      island in this game), led by a real governor who offered pirates the King's Pardon or the
+      noose. Octavia is that campaign's in-fiction face, not a 1:1 historical figure — same
+      "folklore layer on real places" approach already decided for Port Royal's ghosts and
+      Ocracoke's Blackbeard
+   3. **The Pardon beat**: at some point after Lord 3 or 4, Octavia offers Scally a Letter of
+      Pardon in person — walk away now, surrender any captured intel, and live free of the noose.
+      This is the branching-choice mini-quest style already brainstormed (see Side Quest Concepts)
+      finally given a face and stakes. Refusing (the expected heroic path) is what turns her from
+      "the heat system" into a direct antagonist for the endgame; nothing mechanical forces the
+      refusal, so a player who takes the pardon should get a distinct (short, non-punishing)
+      alternate flavor beat instead of just being blocked — exact handling TBD when this gets
+      built, flagging it now so it isn't forgotten
+   4. **Finale**: Octavia's fleet converges on Ocracoke Inlet at the same moment as the Pirate
+      Council showdown — the real Blackbeard was killed there in 1718 by a Royal Navy expedition,
+      so having the Crown arrive to try to end both Blackbeard and Scally in the same stroke isn't
+      an invented coincidence, it's the actual history the game already committed to. This is the
+      natural climax for "Antagonist faction with escalating set-piece confrontations" (previously
+      an unassigned ⬜ bullet under Progression & Story Structure)
+
+**B. Captain Blackfin — "the Rival"**
+   1. A rival pirate captain, introduced at Tortuga before Lord 1 is even challenged (mirrors the
+      Pokémon rival's day-one appearance) — established immediately as chasing the same six
+      marques, for the same reason, openly framing this as a race
+   2. Recurring structure: after each Lord fight (Acts II-V below), Blackfin is waiting at the
+      *next* island, having gotten there first — sometimes having already fought that Lord and
+      lost, sometimes just scouting. "Always one step ahead," per the original wishlist bullet,
+      reframed as "always arriving one step ahead of you, not one step ahead in skill" — he loses
+      to the Lords too, which is why the race stays close instead of making him feel unbeatable
+   3. Optional duels at each reappearance (reuses the existing `rival` encounter faction as-is —
+      no new mechanic) rather than mandatory fights, matching the "mandatory path is exactly the
+      5 Lords → Council → Blackbeard, nothing else" scope decision. Beating Blackfin doesn't grant
+      a marque; it's rivalry/flavor payoff, same tier as a side quest
+   4. **Finale**: Blackfin reaches Ocracoke ahead of the Council, tries Blackbeard himself, and
+      loses — the player arrives to find him humbled rather than triumphant. Whether he then helps
+      against Octavia's fleet (2.A.4) or just steps aside is the last open story beat, left
+      undecided until the endgame sequence actually gets built
+
+### 3. The Storyboard
+One act per mandatory Lord fight, in existing sequence order. "Terrain/Challenge" is the
+*flavor* of the encounter leading up to each Lord — not a new mechanic, just which of the
+already-built backdrop themes (town/jungle/beach/sea/fort/jail, see Battle System) and challenge
+shape (straight fight vs. the still-unbuilt puzzle-gauntlet idea) each island leans into, so the
+run from Cow Island to Ocracoke actually *feels* different leg to leg instead of six reskinned
+copies of the same boss fight. See section 4 for the full terrain map.
+
+**Act I — Cow Island (Redbeard Sully, Order 1)**
+   - **A.** Prologue at Tortuga: Blackfin introduced, taunts Scally into proving himself, sets off
+     for Cow Island first
+   - **B.** Cow Island itself plays as a straightforward physical trial — a fleet-muster ground,
+     jungle/beach terrain, the "cut your teeth" island by design already. No puzzle layer yet;
+     this act is deliberately the plainest one, establishing baseline difficulty before the game
+     starts varying challenge shape
+   - **C.** Defeat Sully, take the Muster Marque. Blackfin isn't here yet — he shows up waiting at
+     New Providence instead (I.A pays off in II.A)
+
+**Act II — New Providence (Iron Jenny, Order 2)**
+   - **A.** Blackfin is already at New Providence, smug about beating you there — first optional
+     rival duel available
+   - **B.** Octavia introduced here specifically, not earlier — this is the real historical pirate
+     republic, so her crackdown campaign starting exactly where it started historically is the
+     whole point (2.A.2). A scripted Navy patrol/dialogue beat, not yet a direct confrontation
+   - **C.** New Providence plays as a social/urban gauntlet through the Republic's taverns and
+     streets (town terrain) — swagger and gunfights rather than Cow Island's straight muster trial
+   - **D.** Defeat Jenny, take the Queen's Marque
+
+**Act III — Roatán (Captain Bellows, Order 3)**
+   - **A.** Blackfin reappears, having tried Bellows and lost — first crack in his confidence
+   - **B.** Roatán plays as a mechanical puzzle before the fight — a careening-yard/shipyard
+     challenge (align capstans, clear a drydock gate) fitting the island's real function as a
+     repair site, and echoing the already-built Cannon-specialty-gated Locked Vault quest that
+     lives here. This is the first island to use the "themed puzzle before the boss" idea
+     (previously an unassigned ⬜ bullet under Progression & Story Structure) rather than a direct
+     walk-in fight
+   - **C.** Defeat Bellows, take the Roatán Marque
+
+**Act IV — Port Royal (Marietta Graves, Order 4)**
+   - **A.** The Pardon beat (2.A.3) lands around here or Act V — Octavia offers Scally a way out.
+     Declining hardens her arc for the endgame
+   - **B.** Port Royal plays as exploration/curse terrain — a reef maze through the drowned city's
+     sunken streets (the other previously-unassigned "themed puzzle" idea), heavy on the ghost
+     lore that's already written for Marietta Graves rather than a straight fight
+   - **C.** Blackfin reappears once more, rattled — the drowned city unsettles him more than any
+     fight has
+   - **D.** Defeat Graves, take the Widow's Marque
+
+**Act V — Île Sainte-Marie (Ezra Vane, Order 5, final sequential Lord)**
+   - **A.** Vane's own existing dialogue already calls this "the sea's about to prove you're not [the
+     real thing]" and references a whirlpool — play that literally: a mystical trial, a scripted
+     run of back-to-back ambushes framing the whirlpool's crews as the last gauntlet before the
+     Last Free Captain himself, rather than a single walk-in fight
+   - **B.** Blackfin's last pre-finale appearance — he's stopped bragging by now, just wishes you
+     luck. The rivalry's tone has shifted from race to mutual respect without him ever winning
+   - **C.** Defeat Vane, take Libertalia's Marque — all 5 sequential Lords now down, the Pirate
+     Council at Ocracoke Inlet unlocks
+
+**Act VI — The Pirate Council (Ocracoke Inlet, endgame)**
+   - **A.** The existing Council rematch (all 5 Lords, boosted, back-to-back, no heal between
+     waves) plays as the "greatest hits" gauntlet — every terrain/challenge flavor from Acts I-V
+     echoed in miniature, tying the whole run together before the true finale
+   - **B.** Blackfin has beaten the Council here first and gone straight for Blackbeard alone —
+     found humbled, having lost (3.B.4)
+   - **C.** Octavia's fleet arrives at Ocracoke in the same moment (2.A.4) — the real 1718 history
+     this game already committed to, played straight
+   - **D.** Blackbeard's own existing dialogue already asks "whose legend that really is" — the
+     final duel is framed as answering that question for both the Lords' world and the Crown's at
+     once. Defeat him, take the Terror's Marque: all six are yours, and there's no seventh to
+     collect. That's the win
+
+### 4. Terrain & Challenge Variety (the "diverse challenges in all terrains" requirement)
+Each mandatory stop uses a distinct backdrop theme (already built, see Battle System) and a
+distinct *shape* of challenge, not just a reskinned fight:
+
+| Stop | Backdrop theme(s) | Challenge shape |
+|---|---|---|
+| Cow Island | jungle, beach | straight physical trial (baseline) |
+| New Providence | town | social/urban gauntlet (taverns, streets) |
+| Roatán | fort/shipyard-flavored | mechanical puzzle (careening-yard gate) |
+| Port Royal | sea/jail-flavored ruins | exploration/curse maze |
+| Île Sainte-Marie | jungle/beach, remote | mystical trial (whirlpool wave-gauntlet) |
+| Ocracoke Inlet | sea, fort | finale — echoes every prior shape at once |
+| Tortuga Cove | town | hub — Blackfin/Octavia beats surface here between acts, not a Lord fight |
+
+The puzzle-shaped stops (Roatán, Port Royal, Île Sainte-Marie) all lean on the existing but
+unbuilt "themed island puzzle gauntlet" idea (Progression & Story Structure) — this section is
+what finally assigns a specific puzzle *concept* to each of the three previously-generic examples
+(reef maze → Port Royal, smuggler's lock → Roatán, bar-brawl gauntlet → New Providence's
+tavern-crawl), rather than three unassigned examples with no home.
+
+### 5. Where Mini Quests Slot In
+"Obviously we will have mini quests as well" — the existing brainstormed mini-quest archetypes
+(Side Quest Concepts, Mini-Quest Styles) already cover the mechanical shapes; this just gives
+several of them a reason tied to the new antagonists instead of being generic filler:
+   - **A.** Octavia's pardon offer *is* the already-brainstormed "Branching/moral choice" archetype
+     — this main-story beat (2.A.3) doubles as the first real example of that style
+   - **B.** "Rival race" mini quests (already an existing archetype) are the natural home for
+     Blackfin showing up between his scripted main-story appearances — small side detours where
+     he's racing you to a resource node or a recruit, not just the Act-transition beats above
+   - **C.** "Escort/protect" quests can be reframed around refugees fleeing Octavia's crackdown at
+     New Providence specifically, once she's introduced there (II.B) — ties an existing archetype
+     to a specific place and reason instead of a generic NPC-in-danger
+   - **D.** "Infiltration/heist" quests fit naturally as stealing intel on Octavia's fleet
+     movements — also the concept doc already flagged this archetype as "a natural setup for
+     GTA-style character switching," so it's a candidate to revisit once that feature exists
+   - **E.** Patron-hosted quests at Tortuga (the hub, per section 3's table) are the cheapest place
+     to drop small Blackfin/Octavia flavor beats between acts without needing new map markers —
+     reuses the Patrons system exactly as already built, just with two recurring named patrons
+     instead of one-off ones
 
 ## World & Map Structure
 - ✅ One continuous world (not Pokémon's screen-by-screen grid) — 7 islands + open sea, free-roam,
