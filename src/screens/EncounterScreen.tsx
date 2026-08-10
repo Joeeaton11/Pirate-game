@@ -45,6 +45,17 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+// Move info on the buttons (2026-08-10, item 60): a crew member's two moves are always the same
+// specialty as each other and as the crew member themselves (already shown in the namecard), so
+// repeating a specialty icon per button wouldn't help anyone choose between them. What actually
+// varies move-to-move is the power/accuracy tradeoff — MOVES ranges roughly power 40-70,
+// accuracy 75%-95% — so that's what gets surfaced instead: a 3-dot power tier plus the hit%.
+function powerTierDots(power: number): string {
+  if (power >= 60) return '●●●';
+  if (power >= 50) return '●●○';
+  return '●○○';
+}
+
 // ============================================================================
 // Scene backdrop (2026-08-10, item 58): "Ship's Deck at Dusk" — a considered redesign of the
 // contextual-backdrop work from item 56. That version leaned on many small scattered emoji for
@@ -1359,16 +1370,22 @@ export default function EncounterScreen({ navigation }: Props) {
               </View>
 
               <View style={styles.movesRow}>
-                {playerTemplate.moveIds.map((moveId) => (
-                  <Pressable
-                    key={moveId}
-                    style={styles.moveButton}
-                    onPress={() => handleAttack(moveId)}
-                    disabled={busy}
-                  >
-                    <Text style={styles.moveButtonText}>{MOVES[moveId].name}</Text>
-                  </Pressable>
-                ))}
+                {playerTemplate.moveIds.map((moveId) => {
+                  const move = MOVES[moveId];
+                  return (
+                    <Pressable
+                      key={moveId}
+                      style={styles.moveButton}
+                      onPress={() => handleAttack(moveId)}
+                      disabled={busy}
+                    >
+                      <Text style={styles.moveButtonText}>{move.name}</Text>
+                      <Text style={styles.moveButtonSubtext}>
+                        {powerTierDots(move.power)} · {Math.round(move.accuracy * 100)}% hit
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
               <View style={styles.secRow}>
                 <Pressable
@@ -1807,6 +1824,7 @@ const styles = StyleSheet.create({
     minWidth: '45%',
   },
   moveButtonText: { color: '#f9f2e0', fontWeight: '800', fontSize: 14.5 },
+  moveButtonSubtext: { color: 'rgba(249,242,224,0.75)', fontWeight: '600', fontSize: 10.5, marginTop: 2 },
   secRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   secondaryButton: {
     flexGrow: 1,
