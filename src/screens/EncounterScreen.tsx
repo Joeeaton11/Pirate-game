@@ -543,6 +543,7 @@ export default function EncounterScreen({ navigation }: Props) {
   const [foePopups, setFoePopups] = useState<Popup[]>([]);
   const [banner, setBannerText] = useState<string | null>(null);
   const [resolution, setResolution] = useState<ResolutionInfo | null>(null);
+  const [telegraphMoveId, setTelegraphMoveId] = useState<string | null>(null);
 
   // Battle motion (2026-08-09, item 57): "Build all of these they sound cool" — lunge, hit
   // flash, screen shake, HP tween, floating damage numbers, idle bob, an effectiveness banner,
@@ -570,6 +571,19 @@ export default function EncounterScreen({ navigation }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wildEncounter?.templateId, wildEncounter?.faction]);
+
+  // Enemy telegraph (2026-08-10, item 61): "no telegraph of what the enemy's about to do — you
+  // find out what hit you after it happens." Fix: the foe's next move is picked and shown up
+  // front, before the player commits their own action, instead of being rolled fresh the instant
+  // it resolves. `playEnemyTurn` below consumes this queued move and re-rolls the next one.
+  useEffect(() => {
+    if (!wildEncounter) return;
+    const template = ALL_TEMPLATES[wildEncounter.templateId];
+    if (template?.moveIds?.length) {
+      setTelegraphMoveId(template.moveIds[Math.floor(Math.random() * template.moveIds.length)]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wildEncounter?.templateId]);
 
   // Idle bob, always running so the scene has life even between turns.
   useEffect(() => {
@@ -699,7 +713,10 @@ export default function EncounterScreen({ navigation }: Props) {
    * the same faint/capture handling the game always has. Awaited by every player action that
    * doesn't end the battle outright. */
   async function playEnemyTurn() {
-    const moveId = wildTemplate.moveIds[Math.floor(Math.random() * wildTemplate.moveIds.length)];
+    const moveId =
+      telegraphMoveId ?? wildTemplate.moveIds[Math.floor(Math.random() * wildTemplate.moveIds.length)];
+    // Queue up what the foe telegraphs next, so it's visible again before the player's next move.
+    setTelegraphMoveId(wildTemplate.moveIds[Math.floor(Math.random() * wildTemplate.moveIds.length)]);
     const result = calcDamage(moveId, wildStats, playerStats, playerTemplate.specialty);
 
     await animateTiming(foeOffsetX, -16, 150);
@@ -1245,6 +1262,13 @@ export default function EncounterScreen({ navigation }: Props) {
             </Text>
           </View>
           <HpBar current={encounter.currentHp} max={wildMaxHp} align="flex-end" />
+          {!resolved && !busy && telegraphMoveId && (
+            <View style={styles.telegraphChip}>
+              <Text style={styles.telegraphText}>
+                ⚠ {MOVES[telegraphMoveId].name} {powerTierDots(MOVES[telegraphMoveId].power)}
+              </Text>
+            </View>
+          )}
         </View>
         <View style={[styles.combatant, styles.combatantYou]}>
           <View style={[styles.tag, styles.tagYou]}>
@@ -1757,6 +1781,16 @@ const styles = StyleSheet.create({
   },
   hpBarFill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 7 },
   hpText: { fontSize: 10, color: '#fff', textAlign: 'center', fontWeight: '700' },
+  telegraphChip: {
+    marginTop: 4,
+    backgroundColor: 'rgba(255,138,117,0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,138,117,0.35)',
+    borderRadius: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  telegraphText: { fontSize: 10, fontWeight: '700', color: '#ffb3a3' },
 
   // ---- floating bottom sheet ----
   sheet: {

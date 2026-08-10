@@ -1976,36 +1976,45 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     "Cutlass Slash ●○○ · 95% hit" next to "Boarding Rush ●●● · 85% hit"), so the reliable/weak vs.
     risky/strong choice is visible at a glance instead of memorized. Verified `npx tsc --noEmit`
     and in-browser at both one-move and two-move crew levels
-60. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
+60. ✅ **Enemy move telegraph** (2026-08-10) — third item off the "improve this scene" follow-up
+    list. Previously the foe's move was rolled fresh the instant `playEnemyTurn` resolved, so you
+    only found out what hit you after it happened. Now the foe's *next* move is picked and shown
+    up front — a small "⚠ Boarding Rush ●●●" chip under the foe's HP bar, visible the whole time
+    the player is choosing their own action — and `playEnemyTurn` consumes that same queued move
+    rather than rolling a new one, so the telegraph is always honest. A fresh move re-rolls
+    immediately after each turn resolves, ready for the next round. Reuses the power-tier dots
+    from item 59 rather than inventing a new indicator. Verified in-browser: the telegraphed move
+    name matched the log line for what the foe actually used, turn after turn
+61. **Author Patron quest batches, building-by-building** — apply the proven Patron pattern
     (`SIDE_QUESTS` entries with `hostedByBuildingId`) to the buildings that don't have any patrons
     yet, drawing from the reusable archetype roster: Barkeep, Local, Drunk, Rival Pirate, Smuggler,
     Fortune Teller, etc., toward the 150+ mini-quest target. Every building already has a bespoke
     floor plan now, so this is purely content authoring — no more engineering prerequisite
-61. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
+62. **More side quests from the brainstormed concepts/styles list** — timed race, clear-the-area,
     investigation, etc.; cheap to add now that one-shot/multi-stage/repeatable are all proven
     patterns. Feeds both standalone map-marker quests and Patron-hosted ones
 
 ### Next
-62. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
+63. **Economy polish** — per-island resource price variance for real trade routes, resource-cost
     recruits, resource-based fetch quests
-63. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
+64. **Themed island "puzzle" gauntlets before each Pirate Lord fort** — forts are currently a
     direct walk-in-and-fight with no lead-up layer
-64. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
+65. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-65. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
+66. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
     systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
     and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
     simultaneously
 
 ### Later
-66. **Recurring named rival captain** with scripted story-beat battles (currently just a random
+67. **Recurring named rival captain** with scripted story-beat battles (currently just a random
     hostile template) — Ocracoke Inlet is already reserved as a natural convergence point
-67. **GTA-style character switching** (biggest, most novel, probably last)
-68. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
+68. **GTA-style character switching** (biggest, most novel, probably last)
+69. Credits screen + real post-game content unlocks once there's more post-Blackbeard content to
     unlock
-69. Full e2e test automation, IAP integration, real art asset pipeline —
+70. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
-70. **Progressive crew-slot unlocks tied to story milestones** — right now `SHIP_CREW_CAP` is a
+71. **Progressive crew-slot unlocks tied to story milestones** — right now `SHIP_CREW_CAP` is a
     flat 6 available from the very start (see Crew Management above); revisit this so you begin
     with 1-2 slots and unlock more by defeating Pirate Lords (or similar story beats), turning
     party growth into a reward rather than a static number. Pairs with the battle-scene crew-swap
