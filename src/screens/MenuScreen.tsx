@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATE_LIST } from '../data/crew';
 import { PIRATE_LORDS } from '../data/pirateLords';
 import { CAPTAIN_NAME, COMPANION_EMOJI, COMPANION_NAME } from '../data/protagonist';
+import { TREASURE_LIST } from '../data/treasures';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
@@ -14,6 +15,7 @@ export default function MenuScreen({ navigation }: Props) {
   const crew = useGameStore((s) => s.crew);
   const recruitedTemplateIds = useGameStore((s) => s.recruitedTemplateIds);
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
+  const foundTreasureIds = useGameStore((s) => s.foundTreasureIds);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -50,6 +52,17 @@ export default function MenuScreen({ navigation }: Props) {
             <Text style={styles.rowTitle}>Quest Log</Text>
             <Text style={styles.rowSubtext}>
               {defeatedLordIds.length}/{PIRATE_LORDS.length} Pirate Lords defeated
+            </Text>
+          </View>
+          <Text style={styles.chevron}>▸</Text>
+        </Pressable>
+
+        <Pressable style={styles.row} onPress={() => navigation.navigate('TreasureCodex')}>
+          <Text style={styles.rowEmoji}>💎</Text>
+          <View style={styles.rowInfo}>
+            <Text style={styles.rowTitle}>Treasure Codex</Text>
+            <Text style={styles.rowSubtext}>
+              {foundTreasureIds.length}/{TREASURE_LIST.length} found
             </Text>
           </View>
           <Text style={styles.chevron}>▸</Text>

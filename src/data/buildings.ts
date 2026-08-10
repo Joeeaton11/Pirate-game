@@ -31,6 +31,7 @@ export interface Building {
     cost: number;
   };
   itemsForSale?: string[]; // item ids, priced from ITEMS
+  treasuresForSale?: string[]; // Treasure Codex item ids, priced from their own `price` field
   buysResources?: boolean; // if true, shows a Sell Resources section priced from RESOURCES
   sellsUpgrades?: boolean; // if true, shows a Ship Upgrades section priced from SHIP_UPGRADES
   // Theft: buy this resource honestly here too, or steal it for free at a heat cost.
@@ -73,7 +74,7 @@ export const BUILDINGS: Building[] = [
     npcEmoji: '🧑‍💼',
     dialogue: "I know a sharpshooter looking for steady work, if you've got the coin.",
     recruit: { templateId: 'dockside_sharpshooter', level: 3, cost: 30 },
-    itemsForSale: ['rum_ration', 'grapeshot_charge', 'ships_biscuit'],
+    itemsForSale: ['rum_ration', 'grapeshot_charge', 'ships_biscuit', 'treasure_map'],
     buysResources: true,
   },
   {
@@ -131,6 +132,7 @@ export const BUILDINGS: Building[] = [
     dialogue: "I don't ask where the gold's from. You shouldn't ask where I've been.",
     recruit: { templateId: 'gun_deck_veteran', level: 8, cost: 130 },
     itemsForSale: ['forged_papers', 'rum_ration'],
+    treasuresForSale: ['smugglers_lucky_coin'],
     buysResources: true,
     sellsUpgrades: true,
   },

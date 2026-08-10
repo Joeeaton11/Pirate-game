@@ -54,6 +54,9 @@ export interface SalvageSite {
   minGold: number;
   maxGold: number;
   cooldownMinutes: number;
+  /** Optional Treasure Codex entry — granted once, on the first successful dive after it's found
+   * to still be missing. Every dive after that just pays gold as before. */
+  treasureId?: string;
 }
 
 export const SALVAGE_SITES: SalvageSite[] = [
@@ -65,6 +68,7 @@ export const SALVAGE_SITES: SalvageSite[] = [
     minGold: 25,
     maxGold: 50,
     cooldownMinutes: 40,
+    treasureId: 'sunken_locket',
   },
 ];
 

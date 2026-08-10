@@ -11,6 +11,7 @@ import { RESOURCE_LIST } from '../data/resources';
 import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
+import { TREASURE_FRAGMENT_IDS, TREASURE_LIST } from '../data/treasures';
 import { RootStackParamList } from '../navigation/types';
 import { EncounterFaction, useActiveCrewMember, useGameStore } from '../store/gameStore';
 import { CrewTemplate } from '../types';
@@ -50,6 +51,8 @@ export default function DebugScreen({ navigation }: Props) {
   const boardBlackPearl = useGameStore((s) => s.boardBlackPearl);
   const disembarkBlackPearl = useGameStore((s) => s.disembarkBlackPearl);
   const blackPearlPosition = useGameStore((s) => s.blackPearlPosition);
+  const foundTreasureIds = useGameStore((s) => s.foundTreasureIds);
+  const debugAddTreasure = useGameStore((s) => s.debugAddTreasure);
 
   function handleGrantUpgrade(upgradeId: string) {
     addGold(9999);
@@ -340,6 +343,33 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => navigation.navigate('Rescue')}>
             <Text style={styles.buttonText}>Jump to Locked Ward</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.sectionHeading}>
+          Treasure Codex ({foundTreasureIds.length}/{TREASURE_LIST.length} found)
+        </Text>
+        <View style={styles.row}>
+          <Pressable
+            style={styles.button}
+            onPress={() => {
+              const next = TREASURE_FRAGMENT_IDS.find((id) => !foundTreasureIds.includes(id));
+              if (next) debugAddTreasure(next);
+            }}
+          >
+            <Text style={styles.buttonText}>+1 Fragment</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={() => TREASURE_FRAGMENT_IDS.forEach((id) => debugAddTreasure(id))}
+          >
+            <Text style={styles.buttonText}>Grant All 7 Fragments</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => addItem('treasure_map', 1)}>
+            <Text style={styles.buttonText}>+1 🗺️ Treasure Map</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => navigation.navigate('TreasureCodex')}>
+            <Text style={styles.buttonText}>Jump to Codex</Text>
           </Pressable>
         </View>
 

@@ -56,6 +56,17 @@ export const ITEMS: Record<string, Item> = {
     usableOutsideBattle: true,
     usableInBattle: false,
   },
+  treasure_map: {
+    id: 'treasure_map',
+    name: 'Treasure Map',
+    emoji: '🗺️',
+    description:
+      "A weathered chart with an X marked in fading ink. Walk to the marked spot and it digs itself up — no separate 'use' needed.",
+    price: 40,
+    effect: 'dig_key',
+    usableOutsideBattle: false,
+    usableInBattle: false,
+  },
 };
 
 export const ITEM_LIST = Object.values(ITEMS);

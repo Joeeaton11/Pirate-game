@@ -324,6 +324,85 @@ describe('ship upgrades and salvage', () => {
 
     expect(useGameStore.getState().salvageSite('port_royal_ruins').success).toBe(false); // cooldown
   });
+
+  it('grants a salvage site treasureId once, and only once', () => {
+    useGameStore.getState().addGold(1000);
+    useGameStore.getState().addResource('gunpowder', 10);
+    useGameStore.getState().buyShipUpgrade('diving_bell');
+
+    const first = useGameStore.getState().salvageSite('port_royal_ruins');
+    expect(first.treasureId).toBe('sunken_locket');
+    expect(useGameStore.getState().foundTreasureIds).toContain('sunken_locket');
+
+    useGameStore.getState().debugClearSalvageCooldowns();
+    const second = useGameStore.getState().salvageSite('port_royal_ruins');
+    expect(second.success).toBe(true);
+    expect(second.treasureId).toBeUndefined(); // already found — gold only, no repeat grant
+  });
+});
+
+describe('Treasure Codex', () => {
+  it('findTreasureSite requires proximity to a real site and refuses to double-grant', () => {
+    expect(useGameStore.getState().findTreasureSite('not_a_real_site').success).toBe(false);
+
+    const result = useGameStore.getState().findTreasureSite('site_rusty_compass');
+    expect(result.success).toBe(true);
+    expect(result.treasureId).toBe('rusty_compass');
+    expect(useGameStore.getState().foundTreasureIds).toContain('rusty_compass');
+
+    // Already found — same site can't be collected twice.
+    expect(useGameStore.getState().findTreasureSite('site_rusty_compass').success).toBe(false);
+  });
+
+  it('gates a buried-map site behind holding the Treasure Map item, and consumes it on dig', () => {
+    expect(useGameStore.getState().findTreasureSite('site_buried_doubloons').success).toBe(false);
+
+    useGameStore.getState().addItem('treasure_map', 1);
+    const result = useGameStore.getState().findTreasureSite('site_buried_doubloons');
+    expect(result.success).toBe(true);
+    expect(result.treasureId).toBe('buried_doubloons');
+    expect(useGameStore.getState().inventory.treasure_map).toBe(0);
+
+    // No more maps left — a second buried site (hypothetically) would fail; re-verify by trying
+    // the same site again, which is already-found and should fail for that reason regardless.
+    expect(useGameStore.getState().findTreasureSite('site_buried_doubloons').success).toBe(false);
+  });
+
+  it('auto-assembles the legendary hoard the instant the 7th fragment is granted', () => {
+    const fragments = [
+      'fragment_tortuga',
+      'fragment_cow_island',
+      'fragment_new_providence',
+      'fragment_roatan',
+      'fragment_port_royal',
+      'fragment_ile_sainte_marie',
+    ];
+    fragments.forEach((id) => useGameStore.getState().debugAddTreasure(id));
+    expect(useGameStore.getState().foundTreasureIds).not.toContain('blackbeards_hoard');
+
+    useGameStore.getState().debugAddTreasure('fragment_ocracoke');
+    expect(useGameStore.getState().foundTreasureIds).toContain('fragment_ocracoke');
+    expect(useGameStore.getState().foundTreasureIds).toContain('blackbeards_hoard');
+  });
+
+  it('debugAddTreasure is idempotent', () => {
+    useGameStore.getState().debugAddTreasure('rusty_compass');
+    useGameStore.getState().debugAddTreasure('rusty_compass');
+    const matches = useGameStore.getState().foundTreasureIds.filter((id) => id === 'rusty_compass');
+    expect(matches).toHaveLength(1);
+  });
+
+  it('buyTreasure deducts gold, grants the item, and refuses if already owned or unaffordable', () => {
+    expect(useGameStore.getState().buyTreasure('smugglers_lucky_coin', 60)).toBe(false); // no gold
+
+    useGameStore.getState().addGold(100);
+    const goldBefore = useGameStore.getState().gold;
+    expect(useGameStore.getState().buyTreasure('smugglers_lucky_coin', 60)).toBe(true);
+    expect(useGameStore.getState().gold).toBe(goldBefore - 60);
+    expect(useGameStore.getState().foundTreasureIds).toContain('smugglers_lucky_coin');
+
+    expect(useGameStore.getState().buyTreasure('smugglers_lucky_coin', 60)).toBe(false); // already owned
+  });
 });
 
 describe('side quests', () => {

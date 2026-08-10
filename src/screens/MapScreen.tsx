@@ -54,6 +54,7 @@ import { STREET_NPCS, StreetNpc } from '../data/streetNpcs';
 import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/resources';
 import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
 import { SIDE_QUESTS, SideQuest, sideQuestWorldPosition } from '../data/sideQuests';
+import { rarityColor, TREASURE_SITES, TREASURES, treasureSiteWorldPosition } from '../data/treasures';
 import {
   THREAT_TEMPLATES,
   ThreatFaction,
@@ -436,6 +437,9 @@ export default function MapScreen({ navigation }: Props) {
   const shipUpgrades = useGameStore((s) => s.shipUpgrades);
   const salvageCooldowns = useGameStore((s) => s.salvageCooldowns);
   const salvageSite = useGameStore((s) => s.salvageSite);
+  const foundTreasureIds = useGameStore((s) => s.foundTreasureIds);
+  const findTreasureSite = useGameStore((s) => s.findTreasureSite);
+  const inventory = useGameStore((s) => s.inventory);
   const capturedCrew = useGameStore((s) => s.capturedCrew);
   const blackPearlCaptured = useGameStore((s) => s.blackPearlCaptured);
   const blackPearlBoarded = useGameStore((s) => s.blackPearlBoarded);
@@ -1060,6 +1064,38 @@ export default function MapScreen({ navigation }: Props) {
           const result = salvageSite(nearbySite.id);
           if (result.success && result.amount) {
             showResourceToast(`🤿 Salvaged ${result.amount} gold!`);
+          }
+          if (result.treasureId) {
+            const treasure = TREASURES[result.treasureId];
+            showResourceToast(`${treasure.emoji} Treasure! ${treasure.name}`, 4500);
+          }
+        }
+
+        // Treasure sites — same passive walk-through pickup as resource nodes/salvage. Skips ones
+        // already found (no marker for those anyway, see the render section below).
+        const nearbyTreasureSite = TREASURE_SITES.find((site) => {
+          if (site.islandId !== nextIsland.id || foundTreasureIds.includes(site.treasureId)) {
+            return false;
+          }
+          const tp = treasureSiteWorldPosition(site, nextIsland.position);
+          return Math.hypot(nextPosition.x - tp.x, nextPosition.y - tp.y) <= ENTER_RADIUS;
+        });
+        if (nearbyTreasureSite) {
+          const result = findTreasureSite(nearbyTreasureSite.id);
+          if (result.success && result.treasureId) {
+            const treasure = TREASURES[result.treasureId];
+            showResourceToast(`${treasure.emoji} Treasure! ${treasure.name}`, 4500);
+            // The hoard auto-assembles inside the store action the instant the 7th fragment lands
+            // (see withHoardCheck in gameStore.ts) — this is just a second, delayed toast so both
+            // reveals are readable instead of one overwriting the other.
+            const hoardJustAssembled =
+              result.treasureId !== 'blackbeards_hoard' &&
+              useGameStore.getState().foundTreasureIds.includes('blackbeards_hoard');
+            if (hoardJustAssembled) {
+              setTimeout(() => {
+                showResourceToast("👑 All 7 fragments found — Blackbeard's Lost Hoard assembles itself!", 5500);
+              }, 1200);
+            }
           }
         }
 
@@ -1696,6 +1732,31 @@ export default function MapScreen({ navigation }: Props) {
                 </View>
               );
             })}
+
+            {TREASURE_SITES.filter((site) => !foundTreasureIds.includes(site.treasureId)).map(
+              (site) => {
+                const islandPos = ISLANDS[site.islandId].position;
+                const pos = treasureSiteWorldPosition(site, islandPos);
+                const treasure = TREASURES[site.treasureId];
+                const locked = !!site.requiresItemId && (inventory[site.requiresItemId] ?? 0) <= 0;
+                return (
+                  <View
+                    key={site.id}
+                    style={[
+                      styles.resourceNode,
+                      { borderColor: rarityColor(treasure.rarity) },
+                      locked && styles.salvageLocked,
+                      {
+                        left: pos.x - BUILDING_SIZE / 2,
+                        top: pos.y - BUILDING_SIZE / 2,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.buildingEmoji}>{locked ? '🔒' : treasure.emoji}</Text>
+                  </View>
+                );
+              }
+            )}
 
             {(() => {
               const islandPos = ISLANDS[RESCUE_POINT.islandId].position;

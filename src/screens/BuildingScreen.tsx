@@ -10,6 +10,7 @@ import { CRAFTING_RECIPES, ITEMS } from '../data/items';
 import { RESOURCE_LIST, RESOURCES } from '../data/resources';
 import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { SIDE_QUESTS } from '../data/sideQuests';
+import { TREASURES } from '../data/treasures';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
@@ -150,6 +151,8 @@ export default function BuildingScreen({ navigation }: Props) {
   const stealFromShop = useGameStore((s) => s.stealFromShop);
   const shipUpgrades = useGameStore((s) => s.shipUpgrades);
   const buyShipUpgrade = useGameStore((s) => s.buyShipUpgrade);
+  const foundTreasureIds = useGameStore((s) => s.foundTreasureIds);
+  const buyTreasure = useGameStore((s) => s.buyTreasure);
   const setCurrentBuilding = useGameStore((s) => s.setCurrentBuilding);
   const markSeen = useGameStore((s) => s.markSeen);
   const setCurrentSideQuest = useGameStore((s) => s.setCurrentSideQuest);
@@ -279,6 +282,7 @@ export default function BuildingScreen({ navigation }: Props) {
   const alreadyHired = hiredBuildingIds.includes(buildingId);
   const canAffordRecruit = !!recruit && gold >= recruit.cost;
   const shopItems = building.itemsForSale ?? [];
+  const treasureItems = building.treasuresForSale ?? [];
   const stealResource = building.stealResourceId ? RESOURCES[building.stealResourceId] : null;
   const stealReadyAt = theftCooldowns[buildingId] ?? 0;
   const stealReady = Date.now() >= stealReadyAt;
@@ -402,6 +406,38 @@ export default function BuildingScreen({ navigation }: Props) {
                     >
                       <Text style={styles.buyButtonText}>{item.price}g</Text>
                     </Pressable>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+
+          {treasureItems.length > 0 && (
+            <View style={styles.shopSection}>
+              <Text style={styles.shopHeading}>Treasure</Text>
+              {treasureItems.map((treasureId) => {
+                const treasure = TREASURES[treasureId];
+                const found = foundTreasureIds.includes(treasureId);
+                const price = treasure.price ?? 0;
+                const canAffordTreasure = gold >= price;
+                return (
+                  <View key={treasureId} style={styles.itemRow}>
+                    <Text style={styles.itemEmoji}>{treasure.emoji}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.itemName}>{treasure.name}</Text>
+                      <Text style={styles.itemDescription}>{treasure.flavor}</Text>
+                    </View>
+                    {found ? (
+                      <Text style={styles.buyButtonText}>✓ Found</Text>
+                    ) : (
+                      <Pressable
+                        style={[styles.buyButton, !canAffordTreasure && styles.disabledButton]}
+                        onPress={() => buyTreasure(treasureId, price)}
+                        disabled={!canAffordTreasure}
+                      >
+                        <Text style={styles.buyButtonText}>{price}g</Text>
+                      </Pressable>
+                    )}
                   </View>
                 );
               })}

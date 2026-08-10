@@ -219,7 +219,7 @@ several of them a reason tied to the new antagonists instead of being generic fi
      reuses the Patrons system exactly as already built, just with two recurring named patrons
      instead of one-off ones
 
-### 6. The Treasure Codex (the "gotta catch 'em all" collection layer)
+### 6. The Treasure Codex (the "gotta catch 'em all" collection layer) — ✅ core system built 2026-08-10
 Requested explicitly as a second Pokédex-shaped goal, but for treasure instead of crew: not one
 hoard to walk up and grab, but a large catalog of individually named items — jewels, relics, coins,
 artifacts — found in varied, sometimes weird places or earned through quests, tracked toward a
@@ -234,23 +234,25 @@ long collection grind *and* one legendary payoff at the top of it.
      seen-vs-recruited two-state reveal pattern rather than inventing a new UI concept
    - **B. Acquisition methods** — deliberately varied, so "weird places, earned, or quested for" is
      literally true rather than one mechanic repeated forty times:
-     1. **Exploration finds** — hidden off the main path in a specific terrain spot (a cove, a
+     1. ✅ **Exploration finds** — hidden off the main path in a specific terrain spot (a cove, a
         ruin, deep jungle undergrowth). Finally gives the already-brainstormed "Specialty-gated
         hidden areas" idea (Side Quest Concepts) a concrete payoff — the reward behind the
         Cannon-blasted cave or Blade-forced door is a Codex item, not just gold
-     2. **Buried treasure maps** — finally builds out the already-stubbed "Buried treasure maps"
+     2. ✅ **Buried treasure maps** — finally builds out the already-stubbed "Buried treasure maps"
         General Store item (Side Quest Concepts): buy or find a map fragment, it marks a dig site
         on the map, walk up and dig for a named item instead of an instant gold payout
-     3. **Salvage dives** — extends the existing Diving Bell salvage mechanic (currently gold-only,
+     3. ✅ **Salvage dives** — extends the existing Diving Bell salvage mechanic (currently gold-only,
         Port Royal) so specific dive sites can yield a unique Codex item alongside or instead of gold
-     4. **Quest rewards** — side quests, escort/heist quests, and Patron-hosted quests (Tortuga hub)
-        can name a specific Codex item as their payoff instead of only gold/XP
-     5. **Puzzle solves** — the Act III/IV puzzle-gauntlet islands (Roatán's careening-yard,
+     4. ⬜ **Quest rewards** — side quests, escort/heist quests, and Patron-hosted quests (Tortuga hub)
+        can name a specific Codex item as their payoff instead of only gold/XP. Deferred — needs the
+        actual quests this Main Story Arc's "quests" phase hasn't designed yet
+     5. ⬜ **Puzzle solves** — the Act III/IV puzzle-gauntlet islands (Roatán's careening-yard,
         Port Royal's reef maze) each hide one item behind the puzzle itself, a second prize
-        alongside beating the Lord
-     6. **Rare drops** — a low-chance drop from specific named threat templates at legendary rarity,
-        same odds-shape as today's rare recruit encounters
-     7. **Vendor purchase** — a handful of items are simply for sale at specific shops (e.g. Roatán's
+        alongside beating the Lord. Deferred — those puzzle gauntlets aren't built yet either
+     6. ⬜ **Rare drops** — a low-chance drop from specific named threat templates at legendary rarity,
+        same odds-shape as today's rare recruit encounters. Deferred — no drop-table hook on wild
+        encounters exists yet; straightforward to add, just not done this pass
+     7. ✅ **Vendor purchase** — a handful of items are simply for sale at specific shops (e.g. Roatán's
         Smuggler's Den) at a steep price, for players who'd rather buy than hunt
    - **C. Rarity & rough count** — reuses the existing common/uncommon/rare/legendary tiers as-is
      (no new economy math needed). Rough target spread, not final: ~18 common (cheap, plentiful
@@ -268,6 +270,28 @@ long collection grind *and* one legendary payoff at the top of it.
      parallel content, not a second mandatory gate. A player can beat all 6 Lords having found zero
      treasure, same as they can beat the game today without 100%-ing the Crew Log — it exists to
      make exploring off the direct island-to-island path worth doing, not to block progress
+
+   **Build status (2026-08-10):** the full engine shipped — `src/data/treasures.ts` (17 items:
+   7 rare fragments, the legendary capstone, 1 buried-map item, 1 salvage item, 1 vendor item, 6
+   common exploration finds), `gameStore.ts` (`foundTreasureIds`, `findTreasureSite`, `buyTreasure`,
+   `debugAddTreasure`, `salvageSite` extended with an optional `treasureId`, and a `withHoardCheck`
+   helper that auto-assembles the legendary hoard the instant the 7th fragment lands, from
+   whichever method delivered it), a new **Treasure Codex** screen (mirrors Crew Log exactly:
+   silhouette-until-found, rarity-colored border, completion %), a **Treasure Chest** status block
+   on the Crew screen's bag area (icons + a "Codex X/Y ▸" shortcut), a Menu row, map markers
+   (rarity-colored, 🔒 when a buried-map site is missing its map), and a **Treasure** purchase
+   section in `BuildingScreen` alongside the General Store. Verified: `tsc --noEmit` clean, 39/39
+   jest tests passing (6 new: site proximity + double-grant guard, buried-map item gating +
+   consumption, salvage-treasureId one-time grant, hoard auto-assembly, debug-grant idempotency,
+   vendor purchase), and a full Playwright pass in a live dev server — granted fragments via Debug,
+   watched the hoard auto-assemble with zero console/page errors, confirmed the Menu row and Crew
+   screen bag both update live, and walked a character in-app up to Roatán's Smuggler's Den counter
+   and completed a real gold-for-treasure purchase end to end.
+   Methods 4 (quest rewards), 5 (puzzle solves), and 6 (rare drops) are intentionally **not** wired
+   yet — they need quest content, the puzzle-gauntlet islands, and a wild-encounter drop table that
+   don't exist yet, all of which are what the next "quests" pass is for. Content is a starter set
+   (17 items), not the full ~40 target from section 4.C — trivial to keep adding via
+   `TREASURES`/`TREASURE_SITES` entries, no further engineering required to grow it.
 
 ## World & Map Structure
 - ✅ One continuous world (not Pokémon's screen-by-screen grid) — 7 islands + open sea, free-roam,

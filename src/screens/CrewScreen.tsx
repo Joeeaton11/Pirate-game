@@ -6,6 +6,7 @@ import { CREW_TEMPLATE_LIST, CREW_TEMPLATES } from '../data/crew';
 import { ITEMS } from '../data/items';
 import { promotionFor } from '../data/promotions';
 import { RESOURCES } from '../data/resources';
+import { rarityColor, TREASURE_LIST, TREASURES } from '../data/treasures';
 import { RootStackParamList } from '../navigation/types';
 import { SHIP_CREW_CAP, useGameStore } from '../store/gameStore';
 import { maxHpFor, xpToNextLevel } from '../utils/battle';
@@ -29,6 +30,7 @@ export default function CrewScreen({ navigation }: Props) {
   const recruitedTemplateIds = useGameStore((s) => s.recruitedTemplateIds);
   const resources = useGameStore((s) => s.resources);
   const promoteCrewMember = useGameStore((s) => s.promoteCrewMember);
+  const foundTreasureIds = useGameStore((s) => s.foundTreasureIds);
 
   const healItem = ITEMS[HEAL_ITEM_ID];
   const healItemCount = inventory[HEAL_ITEM_ID] ?? 0;
@@ -187,6 +189,31 @@ export default function CrewScreen({ navigation }: Props) {
           </View>
         )}
       </View>
+      <Pressable style={styles.bag} onPress={() => navigation.navigate('TreasureCodex')}>
+        <View style={styles.bagHeadingRow}>
+          <Text style={styles.bagHeading}>Treasure Chest</Text>
+          <Text style={styles.bagCodexLink}>
+            Codex {foundTreasureIds.length}/{TREASURE_LIST.length} ▸
+          </Text>
+        </View>
+        {foundTreasureIds.length === 0 ? (
+          <Text style={styles.bagEmpty}>No treasure found yet — explore off the beaten path.</Text>
+        ) : (
+          <View style={styles.bagRow}>
+            {foundTreasureIds.map((treasureId) => {
+              const treasure = TREASURES[treasureId];
+              return (
+                <Text
+                  key={treasureId}
+                  style={[styles.bagItem, { color: rarityColor(treasure.rarity) }]}
+                >
+                  {treasure.emoji} {treasure.name}
+                </Text>
+              );
+            })}
+          </View>
+        )}
+      </Pressable>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>Back</Text>
       </Pressable>
@@ -261,6 +288,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   bagHeading: { color: '#ffd166', fontWeight: '800', fontSize: 14, marginBottom: 6 },
+  bagHeadingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  bagCodexLink: { color: '#ffd166', fontWeight: '700', fontSize: 12 },
   bagEmpty: { color: '#cfe3ee', fontSize: 12, fontStyle: 'italic' },
   bagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   bagItem: { color: '#f4e9cd', fontSize: 12 },

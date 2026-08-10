@@ -9,6 +9,7 @@ import { craftingRecipeFor } from '../data/items';
 import { promotionFor } from '../data/promotions';
 import { RESOURCE_NODES, RESOURCES, ResourceId } from '../data/resources';
 import { SALVAGE_SITES, shipUpgradeFor } from '../data/shipUpgrades';
+import { HOARD_TREASURE_ID, TREASURE_FRAGMENT_IDS, TREASURE_SITES } from '../data/treasures';
 import { OwnedCrewMember } from '../types';
 import { createOwnedCrewMember, maxHpFor, xpToNextLevel } from '../utils/battle';
 import { BattleBackdrop } from '../utils/battleBackdrop';
@@ -46,6 +47,15 @@ export interface CapturedCrewMember {
 
 export const SHIP_CREW_CAP = 6;
 
+/** Auto-assembles the legendary capstone the moment all 7 map fragments are present, so finding
+ * the last fragment anywhere (exploration, debug grant, whatever) always triggers it — no separate
+ * "assemble" button to remember to press. See GAME_DESIGN.md Main Story Arc 6.D. */
+function withHoardCheck(foundTreasureIds: string[]): string[] {
+  if (foundTreasureIds.includes(HOARD_TREASURE_ID)) return foundTreasureIds;
+  const hasAllFragments = TREASURE_FRAGMENT_IDS.every((id) => foundTreasureIds.includes(id));
+  return hasAllFragments ? [...foundTreasureIds, HOARD_TREASURE_ID] : foundTreasureIds;
+}
+
 interface GameState {
   gold: number;
   crew: OwnedCrewMember[];
@@ -76,6 +86,7 @@ interface GameState {
   blackPearlCaptured: boolean;
   blackPearlBoarded: boolean;
   blackPearlPosition: { x: number; y: number };
+  foundTreasureIds: string[];
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -121,7 +132,10 @@ interface GameState {
     amount?: number;
   };
   buyShipUpgrade: (upgradeId: string) => boolean;
-  salvageSite: (siteId: string) => { success: boolean; amount?: number };
+  salvageSite: (siteId: string) => { success: boolean; amount?: number; treasureId?: string };
+  findTreasureSite: (siteId: string) => { success: boolean; treasureId?: string };
+  buyTreasure: (treasureId: string, price: number) => boolean;
+  debugAddTreasure: (treasureId: string) => void;
   debugClearResourceCooldowns: () => void;
   debugClearTheftCooldowns: () => void;
   debugClearSalvageCooldowns: () => void;
@@ -166,6 +180,7 @@ type InitialState = Pick<
   | 'blackPearlCaptured'
   | 'blackPearlBoarded'
   | 'blackPearlPosition'
+  | 'foundTreasureIds'
 >;
 
 function createInitialState(): InitialState {
@@ -202,6 +217,7 @@ function createInitialState(): InitialState {
       x: ISLANDS[BLACK_PEARL_ISLAND_ID].position.x + BLACK_PEARL_START_OFFSET.x,
       y: ISLANDS[BLACK_PEARL_ISLAND_ID].position.y + BLACK_PEARL_START_OFFSET.y,
     },
+    foundTreasureIds: [],
   };
 }
 
@@ -631,12 +647,57 @@ export const useGameStore = create<GameState>()(
         const readyAt = state.salvageCooldowns[siteId] ?? 0;
         if (Date.now() < readyAt) return { success: false };
         const amount = site.minGold + Math.floor(Math.random() * (site.maxGold - site.minGold + 1));
+        const treasureId =
+          site.treasureId && !state.foundTreasureIds.includes(site.treasureId)
+            ? site.treasureId
+            : undefined;
         set({
           gold: state.gold + amount,
           salvageCooldowns: { ...state.salvageCooldowns, [siteId]: Date.now() + site.cooldownMinutes * 60_000 },
+          foundTreasureIds: treasureId
+            ? withHoardCheck([...state.foundTreasureIds, treasureId])
+            : state.foundTreasureIds,
         });
-        return { success: true, amount };
+        return { success: true, amount, treasureId };
       },
+
+      findTreasureSite: (siteId) => {
+        const state = get();
+        const site = TREASURE_SITES.find((s) => s.id === siteId);
+        if (!site || state.foundTreasureIds.includes(site.treasureId)) return { success: false };
+        if (site.requiresItemId && (state.inventory[site.requiresItemId] ?? 0) <= 0) {
+          return { success: false };
+        }
+        set({
+          foundTreasureIds: withHoardCheck([...state.foundTreasureIds, site.treasureId]),
+          inventory: site.requiresItemId
+            ? {
+                ...state.inventory,
+                [site.requiresItemId]: (state.inventory[site.requiresItemId] ?? 0) - 1,
+              }
+            : state.inventory,
+        });
+        return { success: true, treasureId: site.treasureId };
+      },
+
+      buyTreasure: (treasureId, price) => {
+        const state = get();
+        if (state.foundTreasureIds.includes(treasureId) || state.gold < price) return false;
+        set({
+          gold: state.gold - price,
+          foundTreasureIds: withHoardCheck([...state.foundTreasureIds, treasureId]),
+        });
+        return true;
+      },
+
+      debugAddTreasure: (treasureId) =>
+        set((state) => ({
+          foundTreasureIds: withHoardCheck(
+            state.foundTreasureIds.includes(treasureId)
+              ? state.foundTreasureIds
+              : [...state.foundTreasureIds, treasureId]
+          ),
+        })),
 
       debugClearResourceCooldowns: () => set({ resourceNodeCooldowns: {} }),
 
@@ -707,6 +768,7 @@ export const useGameStore = create<GameState>()(
         blackPearlCaptured: state.blackPearlCaptured,
         blackPearlBoarded: state.blackPearlBoarded,
         blackPearlPosition: state.blackPearlPosition,
+        foundTreasureIds: state.foundTreasureIds,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
