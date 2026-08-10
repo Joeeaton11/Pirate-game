@@ -1951,3 +1951,10 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     unlock
 67. Full e2e test automation, IAP integration, real art asset pipeline —
     pre-launch/production concerns rather than gameplay-loop gaps
+68. **Progressive crew-slot unlocks tied to story milestones** — right now `SHIP_CREW_CAP` is a
+    flat 6 available from the very start (see Crew Management above); revisit this so you begin
+    with 1-2 slots and unlock more by defeating Pirate Lords (or similar story beats), turning
+    party growth into a reward rather than a static number. Pairs with the battle-scene crew-swap
+    strip (see Battle System UI work): the strip should show one dim/locked "next slot" placeholder
+    at the end rather than every unearned slot, so a new player's first battle doesn't show 5 empty
+    grey circles
