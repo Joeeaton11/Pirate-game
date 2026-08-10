@@ -2015,10 +2015,30 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
     direct walk-in-and-fight with no lead-up layer
 66. **Reputation-gated ports** — beyond the one hull-gated island, more traversal gating tied to
     heat/reputation rather than a one-time purchase
-67. **A pure-logic unit test suite for `gameStore`** (no rendering) — cheap relative to new
-    systems, and increasingly worth it now that permadeath, crime, quests, ship upgrades, rescue,
-    and the Council/Blackbeard gating all touch shared state (heat/gold/resources/crew/quests)
-    simultaneously
+67. ✅ **A pure-logic unit test suite for `gameStore`** (2026-08-10) — 33 tests, no rendering:
+    `jest` + `ts-jest` (`testEnvironment: 'node'`), a hand-written in-memory
+    `@react-native-async-storage/async-storage` mock (the real package's own jest mock isn't
+    published at a stable path for this SDK version) mapped in via `moduleNameMapper`, and
+    `debugResetSave()` — the same action the Debug screen's "Reset Save" button already calls —
+    reused as the fresh-fixture `beforeEach`. New deps: `jest@30.4.2`, `ts-jest@29.4.12`,
+    `@types/jest@30.0.0`, installed directly from `registry.npmjs.org` like the other recent ones.
+    `npm test` runs it; `npx tsc --noEmit` now needs an explicit `"types": ["jest", "node"]` in
+    `tsconfig.json` since auto-inclusion of `@types/*` wasn't picking up jest's ambient globals in
+    this project's config, plus `"rootDir": "."` and `"isolatedModules": true` for ts-jest itself.
+    Covers gold/heat clamping, XP + promotion (including cascades), the 6-crew ship cap, permadeath
+    (`removeCrewMember`'s two branches — survives vs. entire-crew-wiped auto-replace), rescue,
+    Crew Quarters bench/board, theft heat math + cooldowns, resource gather/sell/craft, ship
+    upgrades + salvage gating, side-quest completion idempotency + wave progress + repeatable
+    turn-ins, `defeatPirateLord` idempotency (the shared state the Council gate reads), and the
+    Black Pearl capture/board/disembark flags.
+    **Found and fixed a real bug in the process**: both `gainXp` and `debugSetCrewLevel` only ever
+    recorded the *final* template of a multi-stage promotion cascade as seen/recruited — a big
+    enough XP dump or debug level jump that crossed two promotion thresholds at once (e.g.
+    deckhand_swordsman → boarding_captain → duelist_first_mate in one call) silently skipped
+    marking the intermediate stage, which would under-count Crew Log completion. Fixed by
+    collecting every stage crossed during the cascade instead of only the last one; verified via
+    the new test and, in-browser, a Debug-screen Lv.25 jump correctly landing on "Duelist First
+    Mate" with zero console errors
 
 ### Later
 68. **Recurring named rival captain** with scripted story-beat battles (currently just a random

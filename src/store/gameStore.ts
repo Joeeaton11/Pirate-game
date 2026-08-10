@@ -6,7 +6,7 @@ import { BUILDINGS } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ISLANDS } from '../data/islands';
 import { craftingRecipeFor } from '../data/items';
-import { promotionFor, resolvePromotion } from '../data/promotions';
+import { promotionFor } from '../data/promotions';
 import { RESOURCE_NODES, RESOURCES, ResourceId } from '../data/resources';
 import { SALVAGE_SITES, shipUpgradeFor } from '../data/shipUpgrades';
 import { OwnedCrewMember } from '../types';
@@ -334,6 +334,11 @@ export const useGameStore = create<GameState>()(
       gainXp: (instanceId, amount) => {
         const state = get();
         let promotedTo: string | null = null;
+        // Every promotion stage crossed in this single XP dump, not just the last one — a big
+        // enough reward can cross two promotion thresholds in one call (found by the gameStore
+        // test suite, item 67), and the old code only ever recorded the final destination
+        // template as seen/recruited, silently skipping whichever stage(s) got passed through.
+        const promotedThrough: string[] = [];
         const crew = state.crew.map((member) => {
           if (member.instanceId !== instanceId) return member;
           let level = member.level;
@@ -350,6 +355,7 @@ export const useGameStore = create<GameState>()(
               templateId = promo.nextTemplateId;
               nickname = CREW_TEMPLATES[templateId].name;
               promotedTo = templateId;
+              promotedThrough.push(templateId);
             }
             const newMaxHp = maxHpFor({ ...member, level, templateId });
             currentHp = Math.min(newMaxHp, currentHp + (newMaxHp - prevMaxHp));
@@ -358,14 +364,10 @@ export const useGameStore = create<GameState>()(
         });
         set({
           crew,
-          seenTemplateIds:
-            promotedTo && !state.seenTemplateIds.includes(promotedTo)
-              ? [...state.seenTemplateIds, promotedTo]
-              : state.seenTemplateIds,
-          recruitedTemplateIds:
-            promotedTo && !state.recruitedTemplateIds.includes(promotedTo)
-              ? [...state.recruitedTemplateIds, promotedTo]
-              : state.recruitedTemplateIds,
+          seenTemplateIds: Array.from(new Set([...state.seenTemplateIds, ...promotedThrough])),
+          recruitedTemplateIds: Array.from(
+            new Set([...state.recruitedTemplateIds, ...promotedThrough])
+          ),
         });
         return promotedTo;
       },
@@ -644,25 +646,30 @@ export const useGameStore = create<GameState>()(
 
       debugSetCrewLevel: (instanceId, level) => {
         const state = get();
-        let promotedTo: string | null = null;
+        // Same fix as gainXp above: walk the promotion chain a stage at a time (instead of
+        // resolvePromotion's single jump straight to the final template) so a debug level jump
+        // that crosses two promotion thresholds at once still marks every intermediate template
+        // as seen/recruited, not just the one the crew member ends up on.
+        const promotedThrough: string[] = [];
         const crew = state.crew.map((member) => {
           if (member.instanceId !== instanceId) return member;
-          const templateId = resolvePromotion(member.templateId, level);
-          if (templateId !== member.templateId) promotedTo = templateId;
+          let templateId = member.templateId;
+          let promo = promotionFor(templateId);
+          while (promo && level >= promo.level) {
+            templateId = promo.nextTemplateId;
+            promotedThrough.push(templateId);
+            promo = promotionFor(templateId);
+          }
           const nickname = templateId !== member.templateId ? CREW_TEMPLATES[templateId].name : member.nickname;
           const newMaxHp = maxHpFor({ ...member, level, templateId });
           return { ...member, level, xp: 0, currentHp: newMaxHp, templateId, nickname };
         });
         set({
           crew,
-          seenTemplateIds:
-            promotedTo && !state.seenTemplateIds.includes(promotedTo)
-              ? [...state.seenTemplateIds, promotedTo]
-              : state.seenTemplateIds,
-          recruitedTemplateIds:
-            promotedTo && !state.recruitedTemplateIds.includes(promotedTo)
-              ? [...state.recruitedTemplateIds, promotedTo]
-              : state.recruitedTemplateIds,
+          seenTemplateIds: Array.from(new Set([...state.seenTemplateIds, ...promotedThrough])),
+          recruitedTemplateIds: Array.from(
+            new Set([...state.recruitedTemplateIds, ...promotedThrough])
+          ),
         });
       },
 
