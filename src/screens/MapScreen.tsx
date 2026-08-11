@@ -33,7 +33,14 @@ import {
   PLAYER_EMOJI_LAND_SIDE,
   PLAYER_EMOJI_SEA,
 } from '../data/protagonist';
-import { FacingDirection, WALK_FRAME_COUNT, scallySpriteSource } from '../data/scallySprites';
+import {
+  FacingDirection,
+  TURN_ANIMATION_MS,
+  TurnFrame,
+  WALK_FRAME_COUNT,
+  scallySpriteSource,
+  turnFrameFor,
+} from '../data/scallySprites';
 import {
   PIRATE_LORDS,
   isLordUnlocked,
@@ -481,6 +488,11 @@ export default function MapScreen({ navigation }: Props) {
   // sets to show; walkSpriteFrame cycles through that set's 5 frames while isMoving.
   const [facingDir, setFacingDir] = useState<FacingDirection>('down');
   const [walkSpriteFrame, setWalkSpriteFrame] = useState(0);
+  // A brief mid-pivot pose shown right after facingDir changes, so turning reads as a turn instead
+  // of an instant cut between direction sprites — see turnFrameFor's doc comment for which pivots
+  // have a real cut frame vs. a mirrored stand-in.
+  const [turningFrame, setTurningFrame] = useState<TurnFrame | null>(null);
+  const prevFacingDirRef = useRef<FacingDirection>('down');
   const walkBounce = useRef(new Animated.Value(0)).current;
   const walkLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const playerRef = useRef(player);
@@ -819,6 +831,19 @@ export default function MapScreen({ navigation }: Props) {
     }, 110);
     return () => clearInterval(id);
   }, [isMoving]);
+
+  // Whenever facingDir actually changes, flash the matching mid-pivot turn frame for a beat before
+  // falling back to the new direction's normal walk/idle art.
+  useEffect(() => {
+    const prev = prevFacingDirRef.current;
+    prevFacingDirRef.current = facingDir;
+    if (prev === facingDir) return;
+    const frame = turnFrameFor(prev, facingDir);
+    if (!frame) return;
+    setTurningFrame(frame);
+    const id = setTimeout(() => setTurningFrame(null), TURN_ANIMATION_MS);
+    return () => clearTimeout(id);
+  }, [facingDir]);
 
   // Street NPCs wander the real street network near their home spot: walk toward a random point
   // on their current/connected street segments, collide with houses same as the player, and pick
@@ -1950,9 +1975,19 @@ export default function MapScreen({ navigation }: Props) {
               // cycle instead of the old front/side emoji + mirror trick (kept below for the sea
               // token, since no ship sprite was cut).
               <Animated.Image
-                source={scallySpriteSource(facingDir, isMoving, walkSpriteFrame)}
+                source={
+                  turningFrame ? turningFrame.source : scallySpriteSource(facingDir, isMoving, walkSpriteFrame)
+                }
                 resizeMode="contain"
-                style={[styles.playerSprite, { transform: [{ translateY: walkBounce }] }]}
+                style={[
+                  styles.playerSprite,
+                  {
+                    transform: [
+                      { translateY: walkBounce },
+                      { scaleX: turningFrame?.mirror ? -1 : 1 },
+                    ],
+                  },
+                ]}
               />
             ) : (
               <Animated.Text

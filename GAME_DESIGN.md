@@ -1329,6 +1329,23 @@ long collection grind *and* one legendary payoff at the top of it.
   confirmed each shows the correct sprite (front/back/left-profile/right-profile), confirmed two
   consecutive in-motion frames differ (walk cycle actually animates), confirmed it holds the last
   facing direction at rest, zero console errors
+- ✅ **Turn frames — Scally pivots instead of snapping between directions (2026-08-11)**: the sheet's
+  "Turn Frames (8 directions)" panel is a continuous half-circle sweep (down -> down/right -> right
+  -> up/right -> up -> up/left -> left) — a real mid-pivot pose for 3 of the 4 cardinal-to-cardinal
+  turns. Cut those 3 (`turn_se.png`, `turn_ne.png`, `turn_nw.png`) with the same cutout pipeline as
+  the walk frames, located by an edge-energy column scan (gradient magnitude per column, valley-
+  finding via `scipy.signal.find_peaks`) rather than eyeballing a grid, since this panel's characters
+  weren't evenly spaced. The 4th pivot (left <-> down, the "SW" quadrant) isn't in the sheet — the
+  sweep only goes one way around — so it reuses the SE frame horizontally mirrored, the same flip
+  trick the old emoji token used. `scallySprites.ts`'s `turnFrameFor(from, to)` looks up the right
+  frame (or null for a direct 180 — down<->up / left<->right — which the sheet doesn't cover either,
+  so those still snap instantly). `MapScreen.tsx` watches `facingDir`, shows the matching turn frame
+  for `TURN_ANIMATION_MS` (100ms) on a real change, then falls back to the normal walk/idle art.
+  Verified in-browser: a long-duration test run confirmed the correct turn pose renders and holds for
+  the full window; an `<img src>`-polling script (more reliable than eyeballing thumbnails — the
+  first screenshot-based pass gave a false negative) confirmed all 4 mapped pivots show the right
+  frame, the down<->left pivot's `matrix(-1, 0, 0, 1, ...)` computed transform confirms the mirror is
+  actually applied, and the unmapped down->up pivot correctly shows no turn frame at all
 - ⬜ Everything else is still emoji-as-sprite placeholders (buildings, islands/tiles, battle
   backdrops, UI chrome, other named crew). Worth tackling incrementally per-screen rather than as
   one giant art pass — this entry is the first slice of that

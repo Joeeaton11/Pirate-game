@@ -52,3 +52,43 @@ export function scallySpriteSource(direction: FacingDirection, moving: boolean, 
   const frames = WALK_SOURCES[direction];
   return moving ? frames[frameIndex % frames.length] : frames[0];
 }
+
+/** How long to hold a turn frame before settling into the new direction's walk/idle art. */
+export const TURN_ANIMATION_MS = 100;
+
+export interface TurnFrame {
+  source: any;
+  /** Mirror horizontally — used for the one pivot the sheet didn't cut a frame for (see below). */
+  mirror: boolean;
+}
+
+// The sheet's "Turn Frames (8 directions)" panel is a continuous half-circle sweep: down (S) ->
+// down/right (SE) -> right (E) -> up/right (NE) -> up (N) -> up/left (NW) -> left (W). That's a
+// mid-pivot pose for 3 of our 4 cardinal-to-cardinal turns directly. The 4th — left <-> down, the
+// "SW" quadrant — isn't in the sheet (the sweep only goes one way around), so it reuses the SE
+// frame horizontally mirrored: the same left/right flip trick the old emoji token used, and
+// Scally's turn pose is symmetric enough that the mirror reads fine.
+const TURN_SE: TurnFrame = { source: require('../../assets/sprites/scally/turn_se.png'), mirror: false };
+const TURN_NE: TurnFrame = { source: require('../../assets/sprites/scally/turn_ne.png'), mirror: false };
+const TURN_NW: TurnFrame = { source: require('../../assets/sprites/scally/turn_nw.png'), mirror: false };
+const TURN_SW: TurnFrame = { source: TURN_SE.source, mirror: true };
+
+const TURN_FRAME_BY_PAIR: Partial<Record<string, TurnFrame>> = {
+  'down|right': TURN_SE,
+  'right|down': TURN_SE,
+  'right|up': TURN_NE,
+  'up|right': TURN_NE,
+  'up|left': TURN_NW,
+  'left|up': TURN_NW,
+  'left|down': TURN_SW,
+  'down|left': TURN_SW,
+};
+
+/** A brief mid-pivot pose to show while the player's facing direction changes, so a joystick
+ * direction change reads as a turn instead of an instant snap. Returns null for a direct 180
+ * (down<->up, left<->right) — the sheet's 8 frames cover one continuous half-turn, not a full
+ * loop, so those flips fall back to the old instant-snap behavior. */
+export function turnFrameFor(from: FacingDirection, to: FacingDirection): TurnFrame | null {
+  if (from === to) return null;
+  return TURN_FRAME_BY_PAIR[`${from}|${to}`] ?? null;
+}
