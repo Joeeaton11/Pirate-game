@@ -173,7 +173,12 @@ copies of the same boss fight. See section 4 for the full terrain map.
    - **D.** Defeat Jenny, take the Queen's Marque
 
 **Act III — Roatán (Captain Bellows, Order 3)**
-   - **A.** Blackfin reappears, having tried Bellows and lost — first crack in his confidence
+   - **A.** ✅ **Built 2026-08-11.** Blackfin reappears, having tried Bellows and lost — first crack
+     in his confidence. Added as `blackfin_roatan_reappearance` (fightable, Lv.11 — between Jenny's
+     9 and Bellows' 12, fort backdrop) with a rattled-not-cocky tone shift in his dialogue and his
+     own victory line reflecting the crack widening. Pure data addition on the pattern from II.A —
+     no new code needed. Verified: `tsc` clean, jest 45/45, live duel resolves correctly with zero
+     console errors
    - **B.** Roatán plays as a mechanical puzzle before the fight — a careening-yard/shipyard
      challenge (align capstans, clear a drydock gate) fitting the island's real function as a
      repair site, and echoing the already-built Cannon-specialty-gated Locked Vault quest that

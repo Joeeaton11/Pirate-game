@@ -10,7 +10,10 @@ import { BattleBackdrop } from '../utils/battleBackdrop';
 // Built 2026-08-10: the Tortuga intro (Act I.A, dialogue-only). Built 2026-08-11: the New
 // Providence duel (Act II.A) — the first stage with `fightable: true`, reusing the existing
 // `rival` encounter faction exactly as 2.B.3 specifies (optional, no marque, same permadeath risk
-// as any other rival ambush — no new mechanic). Acts III-VI are still unbuilt.
+// as any other rival ambush — no new mechanic). Built 2026-08-11: the Roatán reappearance
+// (Act III.A) — "first crack in his confidence" per the design, so this one's fightable too (2.B.3
+// says duels are optional at *each* reappearance, not just New Providence), just rattled instead
+// of cocky. Acts IV-VI are still unbuilt.
 
 export const BLACKFIN_NAME = 'Captain Blackfin';
 export const BLACKFIN_EMOJI = '🦈';
@@ -76,6 +79,20 @@ export const BLACKFIN_STAGES: BlackfinStage[] = [
     level: 8,
     backdrop: 'town',
     victoryLine: "Not bad. Not bad at all. I'll remember this, captain — see you at the next port.",
+  },
+  {
+    id: 'blackfin_roatan_reappearance',
+    islandId: 'roatan',
+    offset: { x: 380, y: 50 },
+    title: 'Cracked Ribs, Dented Pride',
+    dialogue: [
+      "Bellows nearly had me. Cracked ribs, dented pride — but I'm still standing, and still ahead of you.",
+      "Don't get comfortable. A rough patch isn't the same as losing the race.",
+    ],
+    fightable: true,
+    level: 11,
+    backdrop: 'fort',
+    victoryLine: "...Alright. That one stung more than Bellows did. Don't let it go to your head.",
   },
 ];
 
