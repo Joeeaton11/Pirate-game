@@ -19,6 +19,7 @@ import SideQuestScreen from './src/screens/SideQuestScreen';
 import RescueScreen from './src/screens/RescueScreen';
 import TreasureCodexScreen from './src/screens/TreasureCodexScreen';
 import BlackfinScreen from './src/screens/BlackfinScreen';
+import OctaviaScreen from './src/screens/OctaviaScreen';
 import { useGameStore } from './src/store/gameStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -56,6 +57,7 @@ export default function App() {
             <Stack.Screen name="Rescue" component={RescueScreen} />
             <Stack.Screen name="TreasureCodex" component={TreasureCodexScreen} />
             <Stack.Screen name="Blackfin" component={BlackfinScreen} />
+            <Stack.Screen name="Octavia" component={OctaviaScreen} />
             {__DEV__ && <Stack.Screen name="Debug" component={DebugScreen} />}
           </Stack.Navigator>
         </NavigationContainer>

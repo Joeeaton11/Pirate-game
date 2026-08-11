@@ -92,6 +92,8 @@ interface GameState {
   foundTreasureIds: string[];
   currentBlackfinStageId: string | null;
   completedBlackfinStageIds: string[];
+  currentOctaviaStageId: string | null;
+  completedOctaviaStageIds: string[];
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -143,6 +145,8 @@ interface GameState {
   debugAddTreasure: (treasureId: string) => void;
   setCurrentBlackfinStage: (stageId: string | null) => void;
   completeBlackfinStage: (stageId: string) => void;
+  setCurrentOctaviaStage: (stageId: string | null) => void;
+  completeOctaviaStage: (stageId: string) => void;
   debugClearResourceCooldowns: () => void;
   debugClearTheftCooldowns: () => void;
   debugClearSalvageCooldowns: () => void;
@@ -190,6 +194,8 @@ type InitialState = Pick<
   | 'foundTreasureIds'
   | 'currentBlackfinStageId'
   | 'completedBlackfinStageIds'
+  | 'currentOctaviaStageId'
+  | 'completedOctaviaStageIds'
 >;
 
 function createInitialState(): InitialState {
@@ -229,6 +235,8 @@ function createInitialState(): InitialState {
     foundTreasureIds: [],
     currentBlackfinStageId: null,
     completedBlackfinStageIds: [],
+    currentOctaviaStageId: null,
+    completedOctaviaStageIds: [],
   };
 }
 
@@ -719,6 +727,15 @@ export const useGameStore = create<GameState>()(
             : [...state.completedBlackfinStageIds, stageId],
         })),
 
+      setCurrentOctaviaStage: (stageId) => set({ currentOctaviaStageId: stageId }),
+
+      completeOctaviaStage: (stageId) =>
+        set((state) => ({
+          completedOctaviaStageIds: state.completedOctaviaStageIds.includes(stageId)
+            ? state.completedOctaviaStageIds
+            : [...state.completedOctaviaStageIds, stageId],
+        })),
+
       debugClearResourceCooldowns: () => set({ resourceNodeCooldowns: {} }),
 
       debugClearTheftCooldowns: () => set({ theftCooldowns: {} }),
@@ -790,6 +807,7 @@ export const useGameStore = create<GameState>()(
         blackPearlPosition: state.blackPearlPosition,
         foundTreasureIds: state.foundTreasureIds,
         completedBlackfinStageIds: state.completedBlackfinStageIds,
+        completedOctaviaStageIds: state.completedOctaviaStageIds,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

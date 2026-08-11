@@ -433,6 +433,36 @@ describe('Captain Blackfin', () => {
   });
 });
 
+describe('Admiral Octavia', () => {
+  it('completeOctaviaStage is idempotent', () => {
+    expect(useGameStore.getState().completedOctaviaStageIds).toEqual([]);
+
+    useGameStore.getState().completeOctaviaStage('octavia_new_providence_intro');
+    useGameStore.getState().completeOctaviaStage('octavia_new_providence_intro');
+    expect(useGameStore.getState().completedOctaviaStageIds).toEqual([
+      'octavia_new_providence_intro',
+    ]);
+  });
+
+  it('setCurrentOctaviaStage tracks which stage the Octavia screen should show', () => {
+    expect(useGameStore.getState().currentOctaviaStageId).toBeNull();
+
+    useGameStore.getState().setCurrentOctaviaStage('octavia_new_providence_intro');
+    expect(useGameStore.getState().currentOctaviaStageId).toBe('octavia_new_providence_intro');
+
+    useGameStore.getState().setCurrentOctaviaStage(null);
+    expect(useGameStore.getState().currentOctaviaStageId).toBeNull();
+  });
+
+  it('debugResetSave clears completed stages and the current stage pointer', () => {
+    useGameStore.getState().setCurrentOctaviaStage('octavia_new_providence_intro');
+    useGameStore.getState().completeOctaviaStage('octavia_new_providence_intro');
+    reset();
+    expect(useGameStore.getState().completedOctaviaStageIds).toEqual([]);
+    expect(useGameStore.getState().currentOctaviaStageId).toBeNull();
+  });
+});
+
 describe('side quests', () => {
   it('completeSideQuest is idempotent — the gold reward is only granted once', () => {
     const goldBefore = useGameStore.getState().gold;

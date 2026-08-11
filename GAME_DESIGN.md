@@ -154,9 +154,20 @@ copies of the same boss fight. See section 4 for the full terrain map.
      and a full live Playwright duel (Lv.25 crew vs. his Lv.8 — "Not Today" leaves the stage
      available, then the real duel resolves with his custom victory line, XP, and gold, zero
      console errors)
-   - **B.** Octavia introduced here specifically, not earlier — this is the real historical pirate
-     republic, so her crackdown campaign starting exactly where it started historically is the
-     whole point (2.A.2). A scripted Navy patrol/dialogue beat, not yet a direct confrontation
+   - **B.** ✅ **Built 2026-08-11.** Octavia introduced here specifically, not earlier — this is
+     the real historical pirate republic, so her crackdown campaign starting exactly where it
+     started historically is the whole point (2.A.2). A scripted Navy patrol/dialogue beat, not yet
+     a direct confrontation — added as `octavia_new_providence_intro` in the new
+     `src/data/octavia.ts`, deliberately mirroring `blackfin.ts`'s stage-sequence shape (one data
+     entry per Act appearance) but dialogue-only throughout: per 2.A.3/2.A.4 her escalation is the
+     still-unbuilt Pardon beat and the Ocracoke finale, not a fight, so `OctaviaStage` has no
+     `fightable` field at all yet. A new `OctaviaScreen` (measured, formal tone — deliberately
+     colder than Blackfin's swagger, `#101825` vs. his `#1a1420`) shows her three-line "I'm watching
+     you" introduction; the map marker (🫡) and walk-up trigger are the same one-time-visit pattern
+     as every other story-beat marker. Verified: `tsc` clean, jest 45/45 (3 new, mirroring
+     Blackfin's: idempotent completion, current-stage tracking, reset clears both), and a live
+     Playwright pass (Debug jump → all 3 dialogue lines render → Continue marks it complete, zero
+     console errors)
    - **C.** New Providence plays as a social/urban gauntlet through the Republic's taverns and
      streets (town terrain) — swagger and gunfights rather than Cow Island's straight muster trial
    - **D.** Defeat Jenny, take the Queen's Marque

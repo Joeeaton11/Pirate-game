@@ -56,6 +56,7 @@ import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
 import { SIDE_QUESTS, SideQuest, sideQuestWorldPosition } from '../data/sideQuests';
 import { rarityColor, TREASURE_SITES, TREASURES, treasureSiteWorldPosition } from '../data/treasures';
 import { BLACKFIN_EMOJI, BLACKFIN_STAGES, blackfinStageWorldPosition } from '../data/blackfin';
+import { OCTAVIA_EMOJI, OCTAVIA_STAGES, octaviaStageWorldPosition } from '../data/octavia';
 import {
   THREAT_TEMPLATES,
   ThreatFaction,
@@ -443,6 +444,8 @@ export default function MapScreen({ navigation }: Props) {
   const inventory = useGameStore((s) => s.inventory);
   const completedBlackfinStageIds = useGameStore((s) => s.completedBlackfinStageIds);
   const setCurrentBlackfinStage = useGameStore((s) => s.setCurrentBlackfinStage);
+  const completedOctaviaStageIds = useGameStore((s) => s.completedOctaviaStageIds);
+  const setCurrentOctaviaStage = useGameStore((s) => s.setCurrentOctaviaStage);
   const capturedCrew = useGameStore((s) => s.capturedCrew);
   const blackPearlCaptured = useGameStore((s) => s.blackPearlCaptured);
   const blackPearlBoarded = useGameStore((s) => s.blackPearlBoarded);
@@ -1054,6 +1057,20 @@ export default function MapScreen({ navigation }: Props) {
           directionRef.current = null;
           setCurrentBlackfinStage(nearbyBlackfinStage.id);
           navigation.navigate('Blackfin');
+          return;
+        }
+
+        const nearbyOctaviaStage = OCTAVIA_STAGES.find((stage) => {
+          if (stage.islandId !== nextIsland.id || completedOctaviaStageIds.includes(stage.id)) {
+            return false;
+          }
+          const op = octaviaStageWorldPosition(stage, nextIsland.position);
+          return Math.hypot(nextPosition.x - op.x, nextPosition.y - op.y) <= ENTER_RADIUS;
+        });
+        if (nearbyOctaviaStage) {
+          directionRef.current = null;
+          setCurrentOctaviaStage(nearbyOctaviaStage.id);
+          navigation.navigate('Octavia');
           return;
         }
 
@@ -1812,6 +1829,28 @@ export default function MapScreen({ navigation }: Props) {
                     ]}
                   >
                     <Text style={styles.buildingEmoji}>{BLACKFIN_EMOJI}</Text>
+                  </View>
+                );
+              }
+            )}
+
+            {OCTAVIA_STAGES.filter((stage) => !completedOctaviaStageIds.includes(stage.id)).map(
+              (stage) => {
+                const islandPos = ISLANDS[stage.islandId].position;
+                const pos = octaviaStageWorldPosition(stage, islandPos);
+                return (
+                  <View
+                    key={stage.id}
+                    style={[
+                      styles.building,
+                      styles.questMarkerAvailable,
+                      {
+                        left: pos.x - BUILDING_SIZE / 2,
+                        top: pos.y - BUILDING_SIZE / 2,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.buildingEmoji}>{OCTAVIA_EMOJI}</Text>
                   </View>
                 );
               }

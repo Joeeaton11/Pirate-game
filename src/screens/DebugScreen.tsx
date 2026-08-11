@@ -13,6 +13,7 @@ import { SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { TREASURE_FRAGMENT_IDS, TREASURE_LIST } from '../data/treasures';
 import { BLACKFIN_STAGES } from '../data/blackfin';
+import { OCTAVIA_STAGES } from '../data/octavia';
 import { RootStackParamList } from '../navigation/types';
 import { EncounterFaction, useActiveCrewMember, useGameStore } from '../store/gameStore';
 import { CrewTemplate } from '../types';
@@ -56,6 +57,8 @@ export default function DebugScreen({ navigation }: Props) {
   const debugAddTreasure = useGameStore((s) => s.debugAddTreasure);
   const setCurrentBlackfinStage = useGameStore((s) => s.setCurrentBlackfinStage);
   const completedBlackfinStageIds = useGameStore((s) => s.completedBlackfinStageIds);
+  const setCurrentOctaviaStage = useGameStore((s) => s.setCurrentOctaviaStage);
+  const completedOctaviaStageIds = useGameStore((s) => s.completedOctaviaStageIds);
 
   function handleGrantUpgrade(upgradeId: string) {
     addGold(9999);
@@ -148,6 +151,11 @@ export default function DebugScreen({ navigation }: Props) {
   function handleJumpToBlackfin(stageId: string) {
     setCurrentBlackfinStage(stageId);
     navigation.navigate('Blackfin');
+  }
+
+  function handleJumpToOctavia(stageId: string) {
+    setCurrentOctaviaStage(stageId);
+    navigation.navigate('Octavia');
   }
 
   function handleForceBlackPearlFight() {
@@ -391,6 +399,22 @@ export default function DebugScreen({ navigation }: Props) {
             >
               <Text style={styles.buttonText}>
                 {completedBlackfinStageIds.includes(stage.id) ? '✓ ' : ''}
+                {stage.title}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Text style={styles.sectionHeading}>Admiral Octavia</Text>
+        <View style={styles.row}>
+          {OCTAVIA_STAGES.map((stage) => (
+            <Pressable
+              key={stage.id}
+              style={styles.button}
+              onPress={() => handleJumpToOctavia(stage.id)}
+            >
+              <Text style={styles.buttonText}>
+                {completedOctaviaStageIds.includes(stage.id) ? '✓ ' : ''}
                 {stage.title}
               </Text>
             </Pressable>
