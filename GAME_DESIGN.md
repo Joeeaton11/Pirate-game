@@ -1306,9 +1306,32 @@ long collection grind *and* one legendary payoff at the top of it.
 ## Art Direction — DECIDED: Pixel art (16/32-bit RPG style)
 - ✅ Target look: SNES-era JRPG pixel art, not strict 2-bit Game Boy — richer color, still readable
   at small mobile sizes, animates cheaply via spritesheets
-- ⬜ Everything is currently emoji-as-sprite placeholders. Needs a real asset pipeline (character
-  sprites, island/building tiles, battle backdrops, UI chrome) before this can ship or brand
-  properly. Worth tackling incrementally per-screen rather than as one giant art pass
+- ✅ **Real reference art landed (2026-08-11)**: the user supplied the actual "Scallywags" brand
+  sheet and a production sprite sheet for Captain Scally (walk cycles, idle, portrait, and more)
+  generated to match it. Saved as-is for reference at `assets/brand/scallywags_brand_sheet.png` and
+  `assets/brand/scally_sprite_sheet_source.png` — not shipped in-game directly, but the source every
+  future sprite cut should match stylistically
+- ✅ **Captain Scally's map token is real sprite art, not emoji (2026-08-11)** — first slice of the
+  incremental per-screen art pass. Cut 20 walk-cycle frames (4 directions × 5 frames) from the
+  production sheet into individually transparent PNGs (`assets/sprites/scally/walk_<dir>_<frame>.png`,
+  background removed via a flood-fill + connected-component + morphological-opening pipeline, no ML
+  tooling available in this environment) plus a bust portrait (`portrait.png`, not wired into any
+  screen yet). `src/data/scallySprites.ts` exposes `scallySpriteSource(direction, moving, frame)`.
+  `MapScreen.tsx`'s player token now renders `Animated.Image` for Scally on land, replacing the old
+  2-state (front/side + horizontal mirror) emoji trick with a true 4-directional facing (down/left
+  /right/up) driven by drag vector, cycling all 5 walk frames on a 110ms interval while moving and
+  holding frame 0 as the idle pose once stopped (the source sheet's separately-cut idle panel had
+  inconsistent scale/framing between directions, so idle intentionally reuses each direction's own
+  walk-frame-0 rather than shipping mismatched art). The existing vertical `walkBounce` animation is
+  kept layered on top for a little extra life. The sea token (⛵) and the Map header's captain tag
+  are unchanged — no ship sprite was cut, and the header tag is a small inline glyph, not the map
+  token. Verified in-browser via Playwright: dragged in all 4 directions, screenshotted and visually
+  confirmed each shows the correct sprite (front/back/left-profile/right-profile), confirmed two
+  consecutive in-motion frames differ (walk cycle actually animates), confirmed it holds the last
+  facing direction at rest, zero console errors
+- ⬜ Everything else is still emoji-as-sprite placeholders (buildings, islands/tiles, battle
+  backdrops, UI chrome, other named crew). Worth tackling incrementally per-screen rather than as
+  one giant art pass — this entry is the first slice of that
 
 ## Monetization — DECIDED: F2P + cosmetic/convenience IAP
 - ✅ Free download. Sell ship/crew cosmetics, time-savers (e.g. instant heal, faster travel), extra

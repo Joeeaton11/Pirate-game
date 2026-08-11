@@ -33,6 +33,7 @@ import {
   PLAYER_EMOJI_LAND_SIDE,
   PLAYER_EMOJI_SEA,
 } from '../data/protagonist';
+import { FacingDirection, WALK_FRAME_COUNT, scallySpriteSource } from '../data/scallySprites';
 import {
   PIRATE_LORDS,
   isLordUnlocked,
@@ -475,6 +476,11 @@ export default function MapScreen({ navigation }: Props) {
   // Side-profile emoji only reads left/right; swap to a front-facing glyph when the drag is mostly
   // vertical so walking toward/away from the camera actually looks different from walking sideways.
   const [facingMode, setFacingMode] = useState<'side' | 'front'>('side');
+  // True 4-directional facing for Captain Scally's sprite art (on land only — the sea token is
+  // still the ship emoji, no ship sprite was cut). Drives which of the 4 sliced walk-cycle frame
+  // sets to show; walkSpriteFrame cycles through that set's 5 frames while isMoving.
+  const [facingDir, setFacingDir] = useState<FacingDirection>('down');
+  const [walkSpriteFrame, setWalkSpriteFrame] = useState(0);
   const walkBounce = useRef(new Animated.Value(0)).current;
   const walkLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const playerRef = useRef(player);
@@ -606,6 +612,15 @@ export default function MapScreen({ navigation }: Props) {
         setIsMoving(true);
         if (e.translationX !== 0) setFacingRight(e.translationX > 0);
         setFacingMode(Math.abs(e.translationY) > Math.abs(e.translationX) ? 'front' : 'side');
+        setFacingDir(
+          Math.abs(e.translationX) > Math.abs(e.translationY)
+            ? e.translationX > 0
+              ? 'right'
+              : 'left'
+            : e.translationY > 0
+            ? 'down'
+            : 'up'
+        );
       } else {
         directionRef.current = null;
         setIsMoving(false);
@@ -791,6 +806,19 @@ export default function MapScreen({ navigation }: Props) {
     }
     return () => walkLoopRef.current?.stop();
   }, [isMoving, walkBounce]);
+
+  // Cycles Captain Scally's sprite through its 5-frame walk cycle while moving; holds on the
+  // neutral frame (index 0) the instant movement stops, same beat as the emoji bounce above.
+  useEffect(() => {
+    if (!isMoving) {
+      setWalkSpriteFrame(0);
+      return;
+    }
+    const id = setInterval(() => {
+      setWalkSpriteFrame((f) => (f + 1) % WALK_FRAME_COUNT);
+    }, 110);
+    return () => clearInterval(id);
+  }, [isMoving]);
 
   // Street NPCs wander the real street network near their home spot: walk toward a random point
   // on their current/connected street segments, collide with houses same as the player, and pick
@@ -1917,19 +1945,30 @@ export default function MapScreen({ navigation }: Props) {
               },
             ]}
           >
-            <Animated.Text
-              style={[
-                styles.playerEmoji,
-                {
-                  transform: [
-                    { translateY: walkBounce },
-                    { scaleX: facingRight ? -1 : 1 },
-                  ],
-                },
-              ]}
-            >
-              {playerEmoji}
-            </Animated.Text>
+            {currentIsland ? (
+              // On land, Captain Scally renders as real sprite art — a true 4-directional walk
+              // cycle instead of the old front/side emoji + mirror trick (kept below for the sea
+              // token, since no ship sprite was cut).
+              <Animated.Image
+                source={scallySpriteSource(facingDir, isMoving, walkSpriteFrame)}
+                resizeMode="contain"
+                style={[styles.playerSprite, { transform: [{ translateY: walkBounce }] }]}
+              />
+            ) : (
+              <Animated.Text
+                style={[
+                  styles.playerEmoji,
+                  {
+                    transform: [
+                      { translateY: walkBounce },
+                      { scaleX: facingRight ? -1 : 1 },
+                    ],
+                  },
+                ]}
+              >
+                {playerEmoji}
+              </Animated.Text>
+            )}
           </View>
         )}
 
@@ -2545,6 +2584,10 @@ const styles = StyleSheet.create({
   },
   playerEmoji: {
     fontSize: 9 * ZOOM,
+  },
+  playerSprite: {
+    width: PLAYER_SIZE * 1.5,
+    height: PLAYER_SIZE * 1.5,
   },
   miniMap: {
     position: 'absolute',
