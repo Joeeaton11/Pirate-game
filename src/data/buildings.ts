@@ -1,4 +1,5 @@
 import { ResourceId } from './resources';
+import { BuildingSpriteId } from './worldSprites';
 
 export type BuildingType =
   | 'tavern'
@@ -21,6 +22,9 @@ export interface Building {
   name: string;
   type: BuildingType;
   emoji: string;
+  // Real building art (see src/data/worldSprites.ts BUILDING_SPRITES) to render instead of the
+  // emoji, where a genuine match exists — Tortuga Cove only for now, everywhere else still emoji.
+  spriteId?: BuildingSpriteId;
   offset: { x: number; y: number }; // relative to the island's center, in world units
   npcName: string;
   npcEmoji: string;
@@ -53,6 +57,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Salty Parrot',
     type: 'tavern',
     emoji: '🍻',
+    spriteId: 'tavern',
     // Full-town rebuild 2026-08-07 (item 52): every Tortuga building repositioned around the new
     // horseshoe bay (see islands.ts). This one sits in the tavern district, right by the busiest
     // stretch of the quay.
@@ -68,6 +73,7 @@ export const BUILDINGS: Building[] = [
     name: 'Harbor Trading Post',
     type: 'shop',
     emoji: '🏪',
+    spriteId: 'trading_co',
     // Full-town rebuild 2026-08-07 (item 52): tavern-district neighbor to the Salty Parrot.
     offset: { x: 144, y: -99 },
     npcName: 'Merchant Wren',
@@ -178,6 +184,7 @@ export const BUILDINGS: Building[] = [
     name: "The Fishmonger's Stall",
     type: 'market',
     emoji: '🐟',
+    spriteId: 'fishmonger',
     // Full-town rebuild 2026-08-07 (item 52): the east side of the bay, past the chapel, near
     // the working docks.
     offset: { x: 297, y: -199 },
@@ -271,6 +278,7 @@ export const BUILDINGS: Building[] = [
     name: "Smugglers' Warehouse",
     type: 'warehouse',
     emoji: '📦',
+    spriteId: 'smugglers_den',
     // Full-town rebuild 2026-08-07 (item 52): tucked in a nook on the west side of the bay,
     // behind the Cooper's Yard and Sailmaker's Loft — contraband storage, out of sight of the
     // main quay.
@@ -312,6 +320,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Anchor & Forge',
     type: 'smithy',
     emoji: '⚒️',
+    spriteId: 'blacksmith',
     // Full-town rebuild 2026-08-07 (item 52): west side of the bay, between the Chandlery and
     // the Harbourmaster's Office — metalwork close to the working docks.
     offset: { x: -98, y: -105 },
@@ -359,6 +368,7 @@ export const BUILDINGS: Building[] = [
     name: "The Smuggler's Cache",
     type: 'warehouse',
     emoji: '🕳️',
+    spriteId: 'smugglers_den',
     // Nudged 4 units clear of the avenue it runs alongside (2026-08-04 sweep). See GAME_DESIGN.md.
     offset: { x: 250, y: 266 },
     npcName: 'Silent Mara',
@@ -392,6 +402,7 @@ export const BUILDINGS: Building[] = [
     name: "Harbourmaster's Office",
     type: 'customs',
     emoji: '🗼',
+    spriteId: 'dock_office',
     // Full-town rebuild 2026-08-07 (item 52): the sheltered bottom of the bay, right on the
     // quay — the harbor's administrative heart.
     offset: { x: -22, y: -100 },
@@ -406,6 +417,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Chandlery',
     type: 'shop',
     emoji: '🕯️',
+    spriteId: 'shipyard',
     // Full-town rebuild 2026-08-07 (item 52): west side of the bay, past the Warehouse.
     offset: { x: -130, y: -140 },
     npcName: 'Fenwick',
@@ -419,6 +431,7 @@ export const BUILDINGS: Building[] = [
     name: "Dockworkers' Bunkhouse",
     type: 'warehouse',
     emoji: '🛏️',
+    spriteId: 'inn',
     // Full-town rebuild 2026-08-07 (item 52): tavern-district side, east of Harbor Trading Post.
     offset: { x: 190, y: -126 },
     npcName: 'Cutter Doyle',
@@ -436,6 +449,7 @@ export const BUILDINGS: Building[] = [
     name: "The Cooper's Yard",
     type: 'market',
     emoji: '🛢️',
+    spriteId: 'market',
     // Full-town rebuild 2026-08-07 (item 52): west side of the bay, the docks-and-careening
     // quarter, next to the Sailmaker's Loft.
     offset: { x: -228, y: -211 },
@@ -450,6 +464,7 @@ export const BUILDINGS: Building[] = [
     name: "The Sailmaker's Loft",
     type: 'shop',
     emoji: '🧵',
+    spriteId: 'tailor',
     // Full-town rebuild 2026-08-07 (item 52): the west headland side of the bay, closest to the
     // careening beach.
     offset: { x: -246, y: -259 },

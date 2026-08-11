@@ -1,10 +1,29 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, LayoutChangeEvent, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  Image as RNImage,
+  LayoutChangeEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle, Line, Polygon, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, {
+  Circle,
+  Defs,
+  Image as SvgImage,
+  Line,
+  Pattern,
+  Polygon,
+  Rect,
+  Text as SvgText,
+} from 'react-native-svg';
 import OnboardingOverlay from '../components/OnboardingOverlay';
 import {
   BLACK_PEARL_CAPTAIN_LEVEL,
@@ -41,6 +60,7 @@ import {
   scallySpriteSource,
   turnFrameFor,
 } from '../data/scallySprites';
+import { BUILDING_SPRITES, GROUND_TILES, WORLD_SPRITES } from '../data/worldSprites';
 import {
   PIRATE_LORDS,
   isLordUnlocked,
@@ -1463,13 +1483,23 @@ export default function MapScreen({ navigation }: Props) {
               style={StyleSheet.absoluteFill}
               pointerEvents="none"
             >
+              <Defs>
+                {/* Real ground texture, tiled behind Tortuga Cove only for now (first slice of the
+                    incremental art pass — see GAME_DESIGN.md) — everywhere else keeps the flat
+                    fill below. patternUnits="userSpaceOnUse" ties the tile grid to world
+                    coordinates rather than the polygon's own bounding box, so it doesn't stretch. */}
+                <Pattern id="grassPattern" patternUnits="userSpaceOnUse" width={64} height={64}>
+                  <SvgImage href={GROUND_TILES.grass} x={0} y={0} width={64} height={64} />
+                </Pattern>
+              </Defs>
+
               {ISLAND_LIST.map((island) => (
                 <Polygon
                   key={island.id}
                   points={island.shape
                     .map((p) => `${island.position.x + p.x},${island.position.y + p.y}`)
                     .join(' ')}
-                  fill="#2c7a4b"
+                  fill={island.id === 'tortuga_cove' ? 'url(#grassPattern)' : '#2c7a4b'}
                   stroke={island.isSafeZone ? '#ffd166' : '#1f5a37'}
                   strokeWidth={3}
                 />
@@ -1660,19 +1690,34 @@ export default function MapScreen({ navigation }: Props) {
                 (q) => q.hostedByBuildingId === building.id && !completedQuestIds.includes(q.id)
               );
               const isBuildingShaped = BUILDING_SHAPED_EMOJI.has(building.emoji);
+              // Real building art (Tortuga Cove only so far — see worldSprites.ts) reads better
+              // with more room than the emoji marker's tight little box, so it gets a bigger one,
+              // still centered on the same world position the emoji/badge box uses.
+              const size = building.spriteId ? BUILDING_SIZE * 1.7 : BUILDING_SIZE;
               return (
                 <View
                   key={building.id}
                   style={[
                     styles.building,
                     {
-                      left: pos.x - BUILDING_SIZE / 2,
-                      top: pos.y - BUILDING_SIZE / 2,
+                      width: size,
+                      height: size,
+                      left: pos.x - size / 2,
+                      top: pos.y - size / 2,
                     },
+                    // Real sprite art already has its own soft vignette edge — the dark rounded
+                    // badge behind the emoji/badge icons would just muddy it.
+                    building.spriteId && { backgroundColor: 'transparent', borderWidth: 0 },
                   ]}
                 >
                   {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
-                  {isBuildingShaped ? (
+                  {building.spriteId ? (
+                    <RNImage
+                      source={BUILDING_SPRITES[building.spriteId]}
+                      resizeMode="contain"
+                      style={{ width: size, height: size }}
+                    />
+                  ) : isBuildingShaped ? (
                     <Text style={styles.buildingEmoji}>{building.emoji}</Text>
                   ) : (
                     <>
@@ -1703,6 +1748,37 @@ export default function MapScreen({ navigation }: Props) {
                 </View>
               );
             })}
+
+            {/* The Tortuga gate — real sliced art rather than a LANDMARKS entry, since it's a
+                single one-off piece rather than a repeatable type. Sat just off the tavern
+                district, roughly where the town road opens onto the harbor square. */}
+            {(() => {
+              const gatePos = {
+                x: ISLANDS.tortuga_cove.position.x - 40,
+                y: ISLANDS.tortuga_cove.position.y - 40,
+              };
+              const gateSize = BUILDING_SIZE * 2;
+              return (
+                <View
+                  style={[
+                    styles.landmark,
+                    {
+                      width: gateSize,
+                      height: gateSize,
+                      left: gatePos.x - gateSize / 2,
+                      top: gatePos.y - gateSize / 2,
+                    },
+                  ]}
+                  pointerEvents="none"
+                >
+                  <RNImage
+                    source={WORLD_SPRITES.tortugaGate}
+                    resizeMode="contain"
+                    style={{ width: gateSize, height: gateSize }}
+                  />
+                </View>
+              );
+            })()}
 
             {STREET_NPCS.map((npc) => {
               const islandPos = ISLANDS[npc.islandId].position;
@@ -1944,9 +2020,14 @@ export default function MapScreen({ navigation }: Props) {
                 style={[
                   styles.building,
                   blackPearlCaptured ? styles.blackPearlMarkerCaptured : styles.blackPearlMarkerGuarded,
+                  // Keep the status-color ring (red = guarded, green = captured) but drop the
+                  // translucent fill behind it — it would tint the ship art muddy.
+                  { backgroundColor: 'transparent' },
                   {
-                    left: blackPearlPosition.x - BUILDING_SIZE / 2,
-                    top: blackPearlPosition.y - BUILDING_SIZE / 2,
+                    width: BUILDING_SIZE * 1.8,
+                    height: BUILDING_SIZE * 1.8,
+                    left: blackPearlPosition.x - (BUILDING_SIZE * 1.8) / 2,
+                    top: blackPearlPosition.y - (BUILDING_SIZE * 1.8) / 2,
                   },
                 ]}
                 pointerEvents="none"
@@ -1954,7 +2035,11 @@ export default function MapScreen({ navigation }: Props) {
                 {!blackPearlCaptured && (
                   <Text style={styles.buildingQuestIndicator}>{BLACK_PEARL_FLAG_EMOJI}</Text>
                 )}
-                <Text style={styles.buildingEmoji}>{BLACK_PEARL_EMOJI}</Text>
+                <RNImage
+                  source={WORLD_SPRITES.blackShip}
+                  resizeMode="contain"
+                  style={{ width: BUILDING_SIZE * 1.8, height: BUILDING_SIZE * 1.8 }}
+                />
               </View>
             )}
           </View>

@@ -1346,9 +1346,52 @@ long collection grind *and* one legendary payoff at the top of it.
   first screenshot-based pass gave a false negative) confirmed all 4 mapped pivots show the right
   frame, the down<->left pivot's `matrix(-1, 0, 0, 1, ...)` computed transform confirms the mirror is
   actually applied, and the unmapped down->up pivot correctly shows no turn frame at all
-- ⬜ Everything else is still emoji-as-sprite placeholders (buildings, islands/tiles, battle
-  backdrops, UI chrome, other named crew). Worth tackling incrementally per-screen rather than as
-  one giant art pass — this entry is the first slice of that
+- ✅ **Tortuga Cove's ground and buildings are real art, not emoji (2026-08-11)** — second slice of
+  the incremental art pass, and the first for the world map itself rather than the player token.
+  The user supplied two reference tileset sheets (`assets/brand/tileset-catalog/master_catalog_v1
+  .png`, a 16-category master catalog preview, and `tortuga_focus_v1.png`, a Tortuga-specific pass
+  whose building nameplates — INN, TAVERN, TRADING CO, BLACKSMITH, TAILOR, MARKET, FISHMONGER,
+  SHIPYARD, DOCK OFFICE, a skull-flagged "smuggler's den" building — happen to match a good chunk of
+  Tortuga's existing shops almost exactly) with a stated plan to regenerate the rest as one clean
+  sheet per category later. This slice uses what's already in hand:
+  - **Ground texture**: 5 tiles (grass/sand/cobble/wood/water) cut from the master sheet's clean,
+    evenly-gridded terrain panel, tiled behind Tortuga Cove's polygon via a real SVG `<Pattern>` +
+    `<Image>` (`react-native-svg` supports both) referenced as the Polygon's `fill` — no rendering
+    architecture change needed, just swapping `fill="#2c7a4b"` for `fill="url(#grassPattern)"` on
+    Tortuga specifically; every other island keeps the flat color for now.
+  - **13 building icons** (`assets/sprites/buildings/`) cut from the Tortuga sheet's two building
+    rows. Unlike the character sheet, these sit over a continuous blurred photo-style background
+    with no flat/gradient boundary to key on — the flood-fill cutout pipeline that worked for Scally
+    kept bleeding into neighboring buildings here, so this used a different technique: crop
+    generously, then fade a rounded-rect alpha mask to transparent at the edges (a soft vignette)
+    instead of trying to segment a true silhouette. Sidesteps the segmentation problem entirely and
+    reads as a deliberately-framed icon, which is exactly what a small map marker should look like.
+  - **`spriteId` field added to `Building`** (`src/data/buildings.ts`) — set on 10 of Tortuga's 18
+    buildings where a genuine name/theme match exists (tavern→tavern, harbourmaster→dock_office,
+    the two smuggler-themed buildings→smugglers_den, etc. — see `worldSprites.ts`'s header comment
+    for the full mapping); the rest keep their emoji marker unchanged. `MapScreen.tsx`'s building
+    render branches on `spriteId` to show a real `Image` (sized larger than the emoji marker's tight
+    box, no dark badge chrome behind it) instead of the emoji/house-badge fallback.
+  - **The Black Pearl** now renders as the sheet's black skull-flagged ship (a striking thematic
+    fit) instead of an emoji, keeping its captured/guarded status ring but dropping the translucent
+    fill that would've tinted the art.
+  - **A new Tortuga gate landmark**, cut from the sheet's own "TORTUGA" arch prop, placed near the
+    harbor entrance — a one-off piece rendered directly rather than added to the reusable LANDMARKS
+    data type.
+  - Also cut but not yet placed: 3 more building icons with no current 1:1 match (`weapons`,
+    `spice_merchant`, `lighthouse_chapel`), a second ship, a rowboat, a dock/pier piece, and 3 flags
+    (`assets/sprites/world/`) — saved for the next pass.
+  - Everywhere outside Tortuga Cove (other islands, ships at sea, UI chrome, other named crew) is
+    still emoji/procedural, per the user's own incremental plan — worth resuming once more
+    per-category sheets exist.
+  - Verified in-browser: zero console errors across the full session; confirmed via a `getComputedStyle`
+    transform readout that player-drag movement genuinely advances world coordinates (ruling out a
+    stuck-token illusion during manual QA); walked the player to the tavern and screenshotted it
+    rendering correctly in place, nameplate legible, blending into the surrounding procedural streets,
+    with the real "Enter The Salty Parrot?" prompt showing beneath it.
+- ⬜ Everything else is still emoji-as-sprite placeholders (other islands' buildings, islands/tiles
+  elsewhere, battle backdrops, UI chrome, other named crew). Worth tackling incrementally per-screen
+  rather than as one giant art pass — Tortuga Cove is the first full slice of that
 
 ## Monetization — DECIDED: F2P + cosmetic/convenience IAP
 - ✅ Free download. Sell ship/crew cosmetics, time-savers (e.g. instant heal, faster travel), extra
