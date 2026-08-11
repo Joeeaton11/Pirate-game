@@ -405,6 +405,34 @@ describe('Treasure Codex', () => {
   });
 });
 
+describe('Captain Blackfin', () => {
+  it('completeBlackfinStage is idempotent', () => {
+    expect(useGameStore.getState().completedBlackfinStageIds).toEqual([]);
+
+    useGameStore.getState().completeBlackfinStage('blackfin_tortuga_intro');
+    useGameStore.getState().completeBlackfinStage('blackfin_tortuga_intro');
+    expect(useGameStore.getState().completedBlackfinStageIds).toEqual(['blackfin_tortuga_intro']);
+  });
+
+  it('setCurrentBlackfinStage tracks which stage the Blackfin screen should show', () => {
+    expect(useGameStore.getState().currentBlackfinStageId).toBeNull();
+
+    useGameStore.getState().setCurrentBlackfinStage('blackfin_tortuga_intro');
+    expect(useGameStore.getState().currentBlackfinStageId).toBe('blackfin_tortuga_intro');
+
+    useGameStore.getState().setCurrentBlackfinStage(null);
+    expect(useGameStore.getState().currentBlackfinStageId).toBeNull();
+  });
+
+  it('debugResetSave clears completed stages and the current stage pointer', () => {
+    useGameStore.getState().setCurrentBlackfinStage('blackfin_tortuga_intro');
+    useGameStore.getState().completeBlackfinStage('blackfin_tortuga_intro');
+    reset();
+    expect(useGameStore.getState().completedBlackfinStageIds).toEqual([]);
+    expect(useGameStore.getState().currentBlackfinStageId).toBeNull();
+  });
+});
+
 describe('side quests', () => {
   it('completeSideQuest is idempotent — the gold reward is only granted once', () => {
     const goldBefore = useGameStore.getState().gold;

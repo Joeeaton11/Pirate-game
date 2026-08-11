@@ -87,6 +87,8 @@ interface GameState {
   blackPearlBoarded: boolean;
   blackPearlPosition: { x: number; y: number };
   foundTreasureIds: string[];
+  currentBlackfinStageId: string | null;
+  completedBlackfinStageIds: string[];
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -136,6 +138,8 @@ interface GameState {
   findTreasureSite: (siteId: string) => { success: boolean; treasureId?: string };
   buyTreasure: (treasureId: string, price: number) => boolean;
   debugAddTreasure: (treasureId: string) => void;
+  setCurrentBlackfinStage: (stageId: string | null) => void;
+  completeBlackfinStage: (stageId: string) => void;
   debugClearResourceCooldowns: () => void;
   debugClearTheftCooldowns: () => void;
   debugClearSalvageCooldowns: () => void;
@@ -181,6 +185,8 @@ type InitialState = Pick<
   | 'blackPearlBoarded'
   | 'blackPearlPosition'
   | 'foundTreasureIds'
+  | 'currentBlackfinStageId'
+  | 'completedBlackfinStageIds'
 >;
 
 function createInitialState(): InitialState {
@@ -218,6 +224,8 @@ function createInitialState(): InitialState {
       y: ISLANDS[BLACK_PEARL_ISLAND_ID].position.y + BLACK_PEARL_START_OFFSET.y,
     },
     foundTreasureIds: [],
+    currentBlackfinStageId: null,
+    completedBlackfinStageIds: [],
   };
 }
 
@@ -699,6 +707,15 @@ export const useGameStore = create<GameState>()(
           ),
         })),
 
+      setCurrentBlackfinStage: (stageId) => set({ currentBlackfinStageId: stageId }),
+
+      completeBlackfinStage: (stageId) =>
+        set((state) => ({
+          completedBlackfinStageIds: state.completedBlackfinStageIds.includes(stageId)
+            ? state.completedBlackfinStageIds
+            : [...state.completedBlackfinStageIds, stageId],
+        })),
+
       debugClearResourceCooldowns: () => set({ resourceNodeCooldowns: {} }),
 
       debugClearTheftCooldowns: () => set({ theftCooldowns: {} }),
@@ -769,6 +786,7 @@ export const useGameStore = create<GameState>()(
         blackPearlBoarded: state.blackPearlBoarded,
         blackPearlPosition: state.blackPearlPosition,
         foundTreasureIds: state.foundTreasureIds,
+        completedBlackfinStageIds: state.completedBlackfinStageIds,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

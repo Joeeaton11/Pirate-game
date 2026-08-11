@@ -55,6 +55,7 @@ import { RESOURCE_NODES, RESOURCES, resourceNodeWorldPosition } from '../data/re
 import { SALVAGE_SITES, salvageSiteWorldPosition } from '../data/shipUpgrades';
 import { SIDE_QUESTS, SideQuest, sideQuestWorldPosition } from '../data/sideQuests';
 import { rarityColor, TREASURE_SITES, TREASURES, treasureSiteWorldPosition } from '../data/treasures';
+import { BLACKFIN_EMOJI, BLACKFIN_STAGES, blackfinStageWorldPosition } from '../data/blackfin';
 import {
   THREAT_TEMPLATES,
   ThreatFaction,
@@ -440,6 +441,8 @@ export default function MapScreen({ navigation }: Props) {
   const foundTreasureIds = useGameStore((s) => s.foundTreasureIds);
   const findTreasureSite = useGameStore((s) => s.findTreasureSite);
   const inventory = useGameStore((s) => s.inventory);
+  const completedBlackfinStageIds = useGameStore((s) => s.completedBlackfinStageIds);
+  const setCurrentBlackfinStage = useGameStore((s) => s.setCurrentBlackfinStage);
   const capturedCrew = useGameStore((s) => s.capturedCrew);
   const blackPearlCaptured = useGameStore((s) => s.blackPearlCaptured);
   const blackPearlBoarded = useGameStore((s) => s.blackPearlBoarded);
@@ -1037,6 +1040,20 @@ export default function MapScreen({ navigation }: Props) {
         if (nearbyRescuePointPos(nextPosition, nextIsland)) {
           directionRef.current = null;
           navigation.navigate('Rescue');
+          return;
+        }
+
+        const nearbyBlackfinStage = BLACKFIN_STAGES.find((stage) => {
+          if (stage.islandId !== nextIsland.id || completedBlackfinStageIds.includes(stage.id)) {
+            return false;
+          }
+          const bp = blackfinStageWorldPosition(stage, nextIsland.position);
+          return Math.hypot(nextPosition.x - bp.x, nextPosition.y - bp.y) <= ENTER_RADIUS;
+        });
+        if (nearbyBlackfinStage) {
+          directionRef.current = null;
+          setCurrentBlackfinStage(nearbyBlackfinStage.id);
+          navigation.navigate('Blackfin');
           return;
         }
 
@@ -1777,6 +1794,28 @@ export default function MapScreen({ navigation }: Props) {
                 </View>
               );
             })()}
+
+            {BLACKFIN_STAGES.filter((stage) => !completedBlackfinStageIds.includes(stage.id)).map(
+              (stage) => {
+                const islandPos = ISLANDS[stage.islandId].position;
+                const pos = blackfinStageWorldPosition(stage, islandPos);
+                return (
+                  <View
+                    key={stage.id}
+                    style={[
+                      styles.building,
+                      styles.questMarkerAvailable,
+                      {
+                        left: pos.x - BUILDING_SIZE / 2,
+                        top: pos.y - BUILDING_SIZE / 2,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.buildingEmoji}>{BLACKFIN_EMOJI}</Text>
+                  </View>
+                );
+              }
+            )}
 
             {PIRATE_LORDS.map((lord) => {
               const islandPos = ISLANDS[lord.islandId].position;

@@ -11,4 +11,5 @@ export type RootStackParamList = {
   SideQuest: undefined;
   Rescue: undefined;
   TreasureCodex: undefined;
+  Blackfin: undefined;
 };

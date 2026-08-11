@@ -34,8 +34,8 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   this is a pure narrative-design session, deliberately kept separate from implementation so the
   story gets decided once rather than being invented ad hoc quest-by-quest)
 
-## Main Story Arc (designed 2026-08-10 — not yet built; this whole section is narrative design,
-no code changed for it)
+## Main Story Arc (designed 2026-08-10 — build started 2026-08-10: the Treasure Codex, section 6,
+and Act I.A's Blackfin intro are now live; everything else below is still narrative design only)
 A direct answer to "what's the ultimate objective, and what's the story that gets you there,"
 requested explicitly so future quest content has a spine to hang off instead of being invented
 one quest at a time. Every named beat below is new **framing** around systems that already exist
@@ -117,8 +117,19 @@ run from Cow Island to Ocracoke actually *feels* different leg to leg instead of
 copies of the same boss fight. See section 4 for the full terrain map.
 
 **Act I — Cow Island (Redbeard Sully, Order 1)**
-   - **A.** Prologue at Tortuga: Blackfin introduced, taunts Scally into proving himself, sets off
-     for Cow Island first
+   - **A.** ✅ **Built 2026-08-10.** Prologue at Tortuga: Blackfin introduced, taunts Scally into
+     proving himself, sets off for Cow Island first. `src/data/blackfin.ts` models Blackfin as a
+     sequence of `BlackfinStage` entries (one per future Act appearance — only this first one is
+     populated), rendered on the map as a 🦈 marker at Tortuga's docks (near the quay, offset
+     `{170, -255}`) that disappears once visited. Walking up to it navigates to a new dedicated
+     `BlackfinScreen` (modeled on `PirateLordScreen`'s header/dialogue-card layout, minus the
+     Challenge button — this stage is dialogue-only, no fight, per 3.B.3) showing his 3-line taunt,
+     then marks the stage complete via `gameStore`'s new `completedBlackfinStageIds` state. Verified:
+     `tsc` clean, jest 42/42 (3 new: idempotent completion, current-stage tracking, reset clears
+     both), and a live Playwright pass (Debug-screen jump → dialogue renders correctly → Continue
+     marks it complete with zero console errors). Acts II-VI's Blackfin appearances (the optional
+     duels, starting at New Providence) are unbuilt — the `fightable` field on `BlackfinStage`
+     exists for them but nothing wires it up yet
    - **B.** Cow Island itself plays as a straightforward physical trial — a fleet-muster ground,
      jungle/beach terrain, the "cut your teeth" island by design already. No puzzle layer yet;
      this act is deliberately the plainest one, establishing baseline difficulty before the game
