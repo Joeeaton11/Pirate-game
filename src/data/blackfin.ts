@@ -13,7 +13,9 @@ import { BattleBackdrop } from '../utils/battleBackdrop';
 // as any other rival ambush — no new mechanic). Built 2026-08-11: the Roatán reappearance
 // (Act III.A) — "first crack in his confidence" per the design, so this one's fightable too (2.B.3
 // says duels are optional at *each* reappearance, not just New Providence), just rattled instead
-// of cocky. Acts IV-VI are still unbuilt.
+// of cocky. Built 2026-08-11: the Port Royal reappearance (Act IV.C) — "the drowned city unsettles
+// him more than any fight has," so the crack here is superstitious dread, not a fight loss; jail
+// backdrop for the eerie ruins. Acts V-VI are still unbuilt.
 
 export const BLACKFIN_NAME = 'Captain Blackfin';
 export const BLACKFIN_EMOJI = '🦈';
@@ -93,6 +95,20 @@ export const BLACKFIN_STAGES: BlackfinStage[] = [
     level: 11,
     backdrop: 'fort',
     victoryLine: "...Alright. That one stung more than Bellows did. Don't let it go to your head.",
+  },
+  {
+    id: 'blackfin_port_royal_reappearance',
+    islandId: 'port_royal',
+    offset: { x: 350, y: -50 },
+    title: 'Something in the Water',
+    dialogue: [
+      "This city's half underwater and I still don't like it. Feels like it's watching.",
+      "I've faced worse than ghosts. Probably. Still — humor me, and let's get this over with quick.",
+    ],
+    fightable: true,
+    level: 13,
+    backdrop: 'jail',
+    victoryLine: "...Don't tell anyone I lost focus back there. This place plays tricks. I'll be sharper next time — count on it.",
   },
 ];
 

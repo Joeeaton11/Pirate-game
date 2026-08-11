@@ -193,8 +193,13 @@ copies of the same boss fight. See section 4 for the full terrain map.
    - **B.** Port Royal plays as exploration/curse terrain — a reef maze through the drowned city's
      sunken streets (the other previously-unassigned "themed puzzle" idea), heavy on the ghost
      lore that's already written for Marietta Graves rather than a straight fight
-   - **C.** Blackfin reappears once more, rattled — the drowned city unsettles him more than any
-     fight has
+   - **C.** ✅ **Built 2026-08-11.** Blackfin reappears once more, rattled — the drowned city
+     unsettles him more than any fight has. Added as `blackfin_port_royal_reappearance` (fightable,
+     Lv.13 — between Bellows' 12 and Graves' 15, jail backdrop for the eerie ruins). This crack is
+     superstitious dread rather than a fight loss — his dialogue leans on the drowned city itself,
+     and his victory line blames "this place" rather than admitting he's slipping. Pure data
+     addition on the pattern from II.A/III.A. Verified: `tsc` clean, jest 45/45, live duel resolves
+     correctly with zero console errors
    - **D.** Defeat Graves, take the Widow's Marque
 
 **Act V — Île Sainte-Marie (Ezra Vane, Order 5, final sequential Lord)**
