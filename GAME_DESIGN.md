@@ -207,8 +207,14 @@ copies of the same boss fight. See section 4 for the full terrain map.
      real thing]" and references a whirlpool — play that literally: a mystical trial, a scripted
      run of back-to-back ambushes framing the whirlpool's crews as the last gauntlet before the
      Last Free Captain himself, rather than a single walk-in fight
-   - **B.** Blackfin's last pre-finale appearance — he's stopped bragging by now, just wishes you
-     luck. The rivalry's tone has shifted from race to mutual respect without him ever winning
+   - **B.** ✅ **Built 2026-08-11.** Blackfin's last pre-finale appearance — he's stopped bragging by
+     now, just wishes you luck. The rivalry's tone has shifted from race to mutual respect without
+     him ever winning. Added as `blackfin_ile_sainte_marie_reappearance` (fightable, Lv.17 —
+     between Graves' 15 and Vane's 20, beach-dusk backdrop). Still an optional duel he still loses,
+     per the design's "without him winning" — but the dialogue and victory line read as warmth and
+     a send-off ("go remind Vane's ghosts what a real captain looks like") rather than another crack
+     in his pride. Pure data addition on the pattern from II.A/III.A/IV.C. Verified: `tsc` clean,
+     jest 45/45, live duel resolves correctly with zero console errors
    - **C.** Defeat Vane, take Libertalia's Marque — all 5 sequential Lords now down, the Pirate
      Council at Ocracoke Inlet unlocks
 

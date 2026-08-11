@@ -15,7 +15,11 @@ import { BattleBackdrop } from '../utils/battleBackdrop';
 // says duels are optional at *each* reappearance, not just New Providence), just rattled instead
 // of cocky. Built 2026-08-11: the Port Royal reappearance (Act IV.C) — "the drowned city unsettles
 // him more than any fight has," so the crack here is superstitious dread, not a fight loss; jail
-// backdrop for the eerie ruins. Acts V-VI are still unbuilt.
+// backdrop for the eerie ruins. Built 2026-08-11: the Île Sainte-Marie appearance (Act V.B) — his
+// last pre-finale beat, where "the tone shifts from race to respect without him winning" (per the
+// design): still fightable and he still loses, but the dialogue/victoryLine read as warmth and a
+// send-off rather than another crack in his pride. Act VI (the Ocracoke finale, found humbled by
+// Blackbeard) is still unbuilt.
 
 export const BLACKFIN_NAME = 'Captain Blackfin';
 export const BLACKFIN_EMOJI = '🦈';
@@ -109,6 +113,21 @@ export const BLACKFIN_STAGES: BlackfinStage[] = [
     level: 13,
     backdrop: 'jail',
     victoryLine: "...Don't tell anyone I lost focus back there. This place plays tricks. I'll be sharper next time — count on it.",
+  },
+  {
+    id: 'blackfin_ile_sainte_marie_reappearance',
+    islandId: 'ile_sainte_marie',
+    offset: { x: 200, y: -50 },
+    title: 'One for the Road',
+    dialogue: [
+      "Vane's whirlpool nearly finished me. Doesn't care whose name is louder.",
+      "I'm not going to pretend I'll catch you now. Five Lords down and you're still standing — that's not luck anymore.",
+      "One for the road, if you're willing? Not for the race. Just to see how far you've actually come.",
+    ],
+    fightable: true,
+    level: 17,
+    backdrop: 'beach',
+    victoryLine: "...Heh. Good. Go remind Vane's ghosts what a real captain looks like — I'll be watching from somewhere safe.",
   },
 ];
 
