@@ -138,8 +138,22 @@ copies of the same boss fight. See section 4 for the full terrain map.
      New Providence instead (I.A pays off in II.A)
 
 **Act II — New Providence (Iron Jenny, Order 2)**
-   - **A.** Blackfin is already at New Providence, smug about beating you there — first optional
-     rival duel available
+   - **A.** ✅ **Built 2026-08-11.** Blackfin is already at New Providence, smug about beating you
+     there — first optional rival duel available. Added as `blackfin_new_providence_duel`
+     (`fightable: true`, Lv.8 — between Sully's 6 and Jenny's 9) in `src/data/blackfin.ts`, with a
+     shared `BLACKFIN_TEMPLATE` (blade specialty, boarding_rush + cutlass_slash) kept out of
+     `crew.ts` since he's never recruitable, same as a Pirate Lord. `BlackfinScreen` now branches on
+     `stage.fightable`: an unfought fightable stage shows "⚔️ Duel" (sets a `wildEncounter` with
+     `faction: 'rival'` and a new `blackfinStageId` field, backdrop `'town'`) alongside "Not Today"
+     (leaves without marking the stage complete, so the marker stays and you can come back later).
+     Reuses the `rival` faction exactly as designed in 2.B.3 — same permadeath risk as any other
+     rival ambush, no new mechanic, no marque on a win. `EncounterScreen` special-cases
+     `blackfinStageId` on victory: a bespoke opening line, his own `victoryLine` in the resolution
+     card instead of a generic "X is defeated," and calls `completeBlackfinStage` so the map marker
+     disappears once he's actually beaten (not just talked to). Verified: `tsc` clean, jest 42/42,
+     and a full live Playwright duel (Lv.25 crew vs. his Lv.8 — "Not Today" leaves the stage
+     available, then the real duel resolves with his custom victory line, XP, and gold, zero
+     console errors)
    - **B.** Octavia introduced here specifically, not earlier — this is the real historical pirate
      republic, so her crackdown campaign starting exactly where it started historically is the
      whole point (2.A.2). A scripted Navy patrol/dialogue beat, not yet a direct confrontation

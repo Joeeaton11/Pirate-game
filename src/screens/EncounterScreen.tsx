@@ -7,6 +7,7 @@ import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, Vi
 import Svg, { Circle, Defs, Ellipse, Line, Path, RadialGradient, Stop } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BLACK_PEARL_CAPTAIN_TEMPLATE, BLACK_PEARL_CAPTURED_LOG, BLACK_PEARL_INTRO_DIALOGUE } from '../data/blackPearl';
+import { BLACKFIN_TEMPLATE, blackfinStageFor } from '../data/blackfin';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ITEM_LIST, ITEMS } from '../data/items';
 import { MOVES } from '../data/moves';
@@ -310,9 +311,15 @@ const ALL_TEMPLATES = {
   ...BOUNTY_TEMPLATES,
   ...MERCHANT_TEMPLATES,
   [BLACK_PEARL_CAPTAIN_TEMPLATE.id]: BLACK_PEARL_CAPTAIN_TEMPLATE,
+  [BLACKFIN_TEMPLATE.id]: BLACKFIN_TEMPLATE,
 };
 
-function openingLine(faction: EncounterFaction | undefined, questId: string | undefined): string {
+function openingLine(
+  faction: EncounterFaction | undefined,
+  questId: string | undefined,
+  blackfinStageId?: string
+): string {
+  if (blackfinStageId) return 'Captain Blackfin draws his cutlass — this one\'s just for pride!';
   if (faction === 'rival') return 'A rival pirate crew ambushes you!';
   if (faction === 'navy') return "Navy patrol closes in — you're a wanted pirate!";
   if (faction === 'lord') return 'The duel for a Letter of Marque begins!';
@@ -513,6 +520,7 @@ export default function EncounterScreen({ navigation }: Props) {
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const defeatPirateLord = useGameStore((s) => s.defeatPirateLord);
   const captureBlackPearl = useGameStore((s) => s.captureBlackPearl);
+  const completeBlackfinStage = useGameStore((s) => s.completeBlackfinStage);
   const completeSideQuest = useGameStore((s) => s.completeSideQuest);
   const advanceQuestWave = useGameStore((s) => s.advanceQuestWave);
   const completeRepeatableQuest = useGameStore((s) => s.completeRepeatableQuest);
@@ -529,7 +537,8 @@ export default function EncounterScreen({ navigation }: Props) {
   const [log, setLog] = useState<string[]>(() => [
     openingLine(
       useGameStore.getState().wildEncounter?.faction,
-      useGameStore.getState().wildEncounter?.questId
+      useGameStore.getState().wildEncounter?.questId,
+      useGameStore.getState().wildEncounter?.blackfinStageId
     ),
   ]);
   const [phase, setPhase] = useState<Phase>('battling');
@@ -1070,6 +1079,24 @@ export default function EncounterScreen({ navigation }: Props) {
           subtitle: 'Freed from the cell, worse for wear',
           portraitEmoji: rescuedTemplate?.emoji ?? '🧑',
           statusLine: '🎉 Rejoined your crew!',
+        };
+      } else if (encounter.blackfinStageId) {
+        const blackfinStage = blackfinStageFor(encounter.blackfinStageId);
+        const goldReward = 5 + encounter.level * 2;
+        addGold(goldReward);
+        completeBlackfinStage(encounter.blackfinStageId);
+        appendLog(
+          `${wildTemplate.name} concedes the duel! +${reward} XP, +${goldReward} gold. No marque — just bragging rights.`
+        );
+        addHeat(4);
+        victoryInfo = {
+          kind: 'victory',
+          eyebrow: '⚔️ Duel Won ⚔️',
+          title: 'VICTORY!',
+          subtitle: blackfinStage?.victoryLine ?? `${wildTemplate.name} concedes the duel`,
+          foeEmoji: wildTemplate.emoji,
+          xp: reward,
+          gold: goldReward,
         };
       } else {
         const goldReward = 5 + encounter.level * 2;

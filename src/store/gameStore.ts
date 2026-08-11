@@ -34,6 +34,9 @@ export interface WildEncounter {
   /** Which scene EncounterScreen renders behind the fight. Defaults to 'sea' at the type level so
    * any call site that forgets to set it fails safe rather than crashing. */
   backdrop?: BattleBackdrop;
+  /** Set only for a Blackfin duel — tells EncounterScreen's victory branch which BlackfinStage to
+   * mark complete, and to show his own victoryLine instead of a generic "X is defeated" message. */
+  blackfinStageId?: string;
 }
 
 export interface CapturedCrewMember {

@@ -2,19 +2,24 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BLACKFIN_EMOJI, BLACKFIN_NAME, blackfinStageFor } from '../data/blackfin';
+import { BLACKFIN_EMOJI, BLACKFIN_NAME, BLACKFIN_TEMPLATE, blackfinStageFor } from '../data/blackfin';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
+import { maxHpFor } from '../utils/battle';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Blackfin'>;
 
-// A dedicated dialogue-only screen for Captain Blackfin's recurring story beats — deliberately
-// modeled on PirateLordScreen's header/dialogue-card shape, minus the Challenge button, since 3.B.3
-// keeps Blackfin's duels optional and none of the stages built so far are fightable yet.
+// A dedicated dialogue screen for Captain Blackfin's recurring story beats — modeled on
+// PirateLordScreen's header/dialogue-card shape. Dialogue-only stages (Act I) get a single
+// "Continue" that marks the stage complete on dismissal. Fightable stages (Act II onward) get a
+// "Duel"/"Not Today" pair instead — completion for those happens on victory in EncounterScreen, not
+// on dismissal, so the marker stays put if you walk away without fighting.
 export default function BlackfinScreen({ navigation }: Props) {
   const currentBlackfinStageId = useGameStore((s) => s.currentBlackfinStageId);
   const setCurrentBlackfinStage = useGameStore((s) => s.setCurrentBlackfinStage);
   const completeBlackfinStage = useGameStore((s) => s.completeBlackfinStage);
+  const completedBlackfinStageIds = useGameStore((s) => s.completedBlackfinStageIds);
+  const setWildEncounter = useGameStore((s) => s.setWildEncounter);
 
   const stage = blackfinStageFor(currentBlackfinStageId);
 
@@ -31,10 +36,34 @@ export default function BlackfinScreen({ navigation }: Props) {
     );
   }
 
+  const isWon = completedBlackfinStageIds.includes(stage.id);
+
   function handleContinue() {
     completeBlackfinStage(stage!.id);
     setCurrentBlackfinStage(null);
     navigation.goBack();
+  }
+
+  function handleLeave() {
+    setCurrentBlackfinStage(null);
+    navigation.goBack();
+  }
+
+  function handleDuel() {
+    if (!stage!.level) return;
+    const maxHp = maxHpFor(
+      { instanceId: 'blackfin', templateId: BLACKFIN_TEMPLATE.id, nickname: BLACKFIN_NAME, level: stage!.level, xp: 0, currentHp: 0 },
+      BLACKFIN_TEMPLATE
+    );
+    setWildEncounter({
+      templateId: BLACKFIN_TEMPLATE.id,
+      level: stage!.level,
+      currentHp: maxHp,
+      faction: 'rival',
+      backdrop: stage!.backdrop ?? 'sea',
+      blackfinStageId: stage!.id,
+    });
+    navigation.navigate('Encounter');
   }
 
   return (
@@ -46,7 +75,7 @@ export default function BlackfinScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.dialogueList}>
-        {stage.dialogue.map((line, i) => (
+        {(isWon && stage.victoryLine ? [stage.victoryLine] : stage.dialogue).map((line, i) => (
           <View key={i} style={styles.dialogueCard}>
             <Text style={styles.dialogue}>"{line}"</Text>
           </View>
@@ -54,9 +83,20 @@ export default function BlackfinScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.actions}>
-        <Pressable style={styles.continueButton} onPress={handleContinue}>
-          <Text style={styles.continueButtonText}>Continue</Text>
-        </Pressable>
+        {stage.fightable && !isWon ? (
+          <>
+            <Pressable style={styles.continueButton} onPress={handleDuel}>
+              <Text style={styles.continueButtonText}>⚔️ Duel Lv.{stage.level} {BLACKFIN_NAME}</Text>
+            </Pressable>
+            <Pressable style={styles.leaveButton} onPress={handleLeave}>
+              <Text style={styles.leaveButtonText}>Not Today</Text>
+            </Pressable>
+          </>
+        ) : (
+          <Pressable style={styles.continueButton} onPress={handleContinue}>
+            <Text style={styles.continueButtonText}>Continue</Text>
+          </Pressable>
+        )}
       </View>
     </SafeAreaView>
   );
