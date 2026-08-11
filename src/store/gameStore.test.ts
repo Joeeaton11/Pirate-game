@@ -433,33 +433,33 @@ describe('Captain Blackfin', () => {
   });
 });
 
-describe('Admiral Octavia', () => {
-  it('completeOctaviaStage is idempotent', () => {
-    expect(useGameStore.getState().completedOctaviaStageIds).toEqual([]);
+describe('Admiral Grace', () => {
+  it('completeGraceStage is idempotent', () => {
+    expect(useGameStore.getState().completedGraceStageIds).toEqual([]);
 
-    useGameStore.getState().completeOctaviaStage('octavia_new_providence_intro');
-    useGameStore.getState().completeOctaviaStage('octavia_new_providence_intro');
-    expect(useGameStore.getState().completedOctaviaStageIds).toEqual([
-      'octavia_new_providence_intro',
+    useGameStore.getState().completeGraceStage('grace_new_providence_intro');
+    useGameStore.getState().completeGraceStage('grace_new_providence_intro');
+    expect(useGameStore.getState().completedGraceStageIds).toEqual([
+      'grace_new_providence_intro',
     ]);
   });
 
-  it('setCurrentOctaviaStage tracks which stage the Octavia screen should show', () => {
-    expect(useGameStore.getState().currentOctaviaStageId).toBeNull();
+  it('setCurrentGraceStage tracks which stage the Grace screen should show', () => {
+    expect(useGameStore.getState().currentGraceStageId).toBeNull();
 
-    useGameStore.getState().setCurrentOctaviaStage('octavia_new_providence_intro');
-    expect(useGameStore.getState().currentOctaviaStageId).toBe('octavia_new_providence_intro');
+    useGameStore.getState().setCurrentGraceStage('grace_new_providence_intro');
+    expect(useGameStore.getState().currentGraceStageId).toBe('grace_new_providence_intro');
 
-    useGameStore.getState().setCurrentOctaviaStage(null);
-    expect(useGameStore.getState().currentOctaviaStageId).toBeNull();
+    useGameStore.getState().setCurrentGraceStage(null);
+    expect(useGameStore.getState().currentGraceStageId).toBeNull();
   });
 
   it('debugResetSave clears completed stages and the current stage pointer', () => {
-    useGameStore.getState().setCurrentOctaviaStage('octavia_new_providence_intro');
-    useGameStore.getState().completeOctaviaStage('octavia_new_providence_intro');
+    useGameStore.getState().setCurrentGraceStage('grace_new_providence_intro');
+    useGameStore.getState().completeGraceStage('grace_new_providence_intro');
     reset();
-    expect(useGameStore.getState().completedOctaviaStageIds).toEqual([]);
-    expect(useGameStore.getState().currentOctaviaStageId).toBeNull();
+    expect(useGameStore.getState().completedGraceStageIds).toEqual([]);
+    expect(useGameStore.getState().currentGraceStageId).toBeNull();
   });
 });
 

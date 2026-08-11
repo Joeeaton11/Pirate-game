@@ -17,10 +17,10 @@ against. Legend: ✅ built and tested, 🔄 partially built / needs rework, ⬜ 
   exemption to design around. Per the branding decision below, this is packaging on top of the
   existing systems, not a rewrite of them — no mechanics changed
 - ⬜ The other 5 named crew from the brand sheet (Polly, Big Beard Bill, Tiny Tim, Captain Blackfin,
-  Admiral Octavia) are intentionally **not** mapped to specific in-game NPCs/recruit templates yet —
+  Admiral Grace) are intentionally **not** mapped to specific in-game NPCs/recruit templates yet —
   left as external brand assets until there's a concrete reason to wire one in (e.g. a specific
   recruit template reskin, a rival, a Pirate Lord). **Update 2026-08-10: that reason now exists —
-  see Main Story Arc immediately below.** Blackfin and Octavia are cast as the rival captain and
+  see Main Story Arc immediately below.** Blackfin and Grace are cast as the rival captain and
   Navy antagonist respectively; the other 3 (Polly, Big Beard Bill, Tiny Tim) stay unassigned
 - ✅ Three parallel goals mirroring Pokédex + League (+ a second "catch 'em all" layer): (1) a
   **Crew Log** (like a Pokédex — every recruitable NPC/species you've met vs. actually recruited,
@@ -56,7 +56,7 @@ conceded you've earned your name. Blackbeard, the seventh and hardest "yes," is 
 gets to make that call twice — first by letting the Council vouch for you, then by seeing for
 himself. Two things are trying to stop that from happening, and neither of them is a wild
 encounter roll:
-   - **A.** The Crown, in the person of Admiral Octavia, who intends to end the golden age of
+   - **A.** The Crown, in the person of Admiral Grace, who intends to end the golden age of
      piracy before it produces another Blackbeard — and you are visibly trying to become one
    - **B.** Captain Blackfin, a rival captain chasing the exact same six marques, for the exact
      same reason, and not particularly interested in being second
@@ -65,17 +65,17 @@ encounter roll:
 Both pulled from the existing brand sheet (see Premise & Goal above) rather than invented fresh —
 they were flagged as "waiting for a concrete reason to wire in," and this is that reason.
 
-**A. Admiral Octavia — "the Crown"**
+**A. Admiral Grace — "the Crown"**
    1. A Royal Navy admiral, not a random patrol captain — the human face already implied by every
       `navy` encounter and every heat-triggered ambush. She doesn't appear in early low-heat play;
       she's what "the Navy" turns out to mean once you're worth her personal attention
    2. Her campaign is historically grounded rather than invented: 1717-1718 was the real Crown
       crackdown on the pirate republic at Nassau (New Providence — already the Order-2 Lord's
       island in this game), led by a real governor who offered pirates the King's Pardon or the
-      noose. Octavia is that campaign's in-fiction face, not a 1:1 historical figure — same
+      noose. Grace is that campaign's in-fiction face, not a 1:1 historical figure — same
       "folklore layer on real places" approach already decided for Port Royal's ghosts and
       Ocracoke's Blackbeard
-   3. **The Pardon beat**: at some point after Lord 3 or 4, Octavia offers Scally a Letter of
+   3. **The Pardon beat**: at some point after Lord 3 or 4, Grace offers Scally a Letter of
       Pardon in person — walk away now, surrender any captured intel, and live free of the noose.
       This is the branching-choice mini-quest style already brainstormed (see Side Quest Concepts)
       finally given a face and stakes. Refusing (the expected heroic path) is what turns her from
@@ -83,7 +83,7 @@ they were flagged as "waiting for a concrete reason to wire in," and this is tha
       refusal, so a player who takes the pardon should get a distinct (short, non-punishing)
       alternate flavor beat instead of just being blocked — exact handling TBD when this gets
       built, flagging it now so it isn't forgotten
-   4. **Finale**: Octavia's fleet converges on Ocracoke Inlet at the same moment as the Pirate
+   4. **Finale**: Grace's fleet converges on Ocracoke Inlet at the same moment as the Pirate
       Council showdown — the real Blackbeard was killed there in 1718 by a Royal Navy expedition,
       so having the Crown arrive to try to end both Blackbeard and Scally in the same stroke isn't
       an invented coincidence, it's the actual history the game already committed to. This is the
@@ -105,7 +105,7 @@ they were flagged as "waiting for a concrete reason to wire in," and this is tha
       a marque; it's rivalry/flavor payoff, same tier as a side quest
    4. **Finale**: Blackfin reaches Ocracoke ahead of the Council, tries Blackbeard himself, and
       loses — the player arrives to find him humbled rather than triumphant. Whether he then helps
-      against Octavia's fleet (2.A.4) or just steps aside is the last open story beat, left
+      against Grace's fleet (2.A.4) or just steps aside is the last open story beat, left
       undecided until the endgame sequence actually gets built
 
 ### 3. The Storyboard
@@ -154,14 +154,14 @@ copies of the same boss fight. See section 4 for the full terrain map.
      and a full live Playwright duel (Lv.25 crew vs. his Lv.8 — "Not Today" leaves the stage
      available, then the real duel resolves with his custom victory line, XP, and gold, zero
      console errors)
-   - **B.** ✅ **Built 2026-08-11.** Octavia introduced here specifically, not earlier — this is
+   - **B.** ✅ **Built 2026-08-11.** Grace introduced here specifically, not earlier — this is
      the real historical pirate republic, so her crackdown campaign starting exactly where it
      started historically is the whole point (2.A.2). A scripted Navy patrol/dialogue beat, not yet
-     a direct confrontation — added as `octavia_new_providence_intro` in the new
-     `src/data/octavia.ts`, deliberately mirroring `blackfin.ts`'s stage-sequence shape (one data
+     a direct confrontation — added as `grace_new_providence_intro` in the new
+     `src/data/grace.ts`, deliberately mirroring `blackfin.ts`'s stage-sequence shape (one data
      entry per Act appearance) but dialogue-only throughout: per 2.A.3/2.A.4 her escalation is the
-     still-unbuilt Pardon beat and the Ocracoke finale, not a fight, so `OctaviaStage` has no
-     `fightable` field at all yet. A new `OctaviaScreen` (measured, formal tone — deliberately
+     still-unbuilt Pardon beat and the Ocracoke finale, not a fight, so `GraceStage` has no
+     `fightable` field at all yet. A new `GraceScreen` (measured, formal tone — deliberately
      colder than Blackfin's swagger, `#101825` vs. his `#1a1420`) shows her three-line "I'm watching
      you" introduction; the map marker (🫡) and walk-up trigger are the same one-time-visit pattern
      as every other story-beat marker. Verified: `tsc` clean, jest 45/45 (3 new, mirroring
@@ -183,7 +183,7 @@ copies of the same boss fight. See section 4 for the full terrain map.
    - **C.** Defeat Bellows, take the Roatán Marque
 
 **Act IV — Port Royal (Marietta Graves, Order 4)**
-   - **A.** The Pardon beat (2.A.3) lands around here or Act V — Octavia offers Scally a way out.
+   - **A.** The Pardon beat (2.A.3) lands around here or Act V — Grace offers Scally a way out.
      Declining hardens her arc for the endgame
    - **B.** Port Royal plays as exploration/curse terrain — a reef maze through the drowned city's
      sunken streets (the other previously-unassigned "themed puzzle" idea), heavy on the ghost
@@ -208,7 +208,7 @@ copies of the same boss fight. See section 4 for the full terrain map.
      echoed in miniature, tying the whole run together before the true finale
    - **B.** Blackfin has beaten the Council here first and gone straight for Blackbeard alone —
      found humbled, having lost (3.B.4)
-   - **C.** Octavia's fleet arrives at Ocracoke in the same moment (2.A.4) — the real 1718 history
+   - **C.** Grace's fleet arrives at Ocracoke in the same moment (2.A.4) — the real 1718 history
      this game already committed to, played straight
    - **D.** Blackbeard's own existing dialogue already asks "whose legend that really is" — the
      final duel is framed as answering that question for both the Lords' world and the Crown's at
@@ -227,7 +227,7 @@ distinct *shape* of challenge, not just a reskinned fight:
 | Port Royal | sea/jail-flavored ruins | exploration/curse maze |
 | Île Sainte-Marie | jungle/beach, remote | mystical trial (whirlpool wave-gauntlet) |
 | Ocracoke Inlet | sea, fort | finale — echoes every prior shape at once |
-| Tortuga Cove | town | hub — Blackfin/Octavia beats surface here between acts, not a Lord fight |
+| Tortuga Cove | town | hub — Blackfin/Grace beats surface here between acts, not a Lord fight |
 
 The puzzle-shaped stops (Roatán, Port Royal, Île Sainte-Marie) all lean on the existing but
 unbuilt "themed island puzzle gauntlet" idea (Progression & Story Structure) — this section is
@@ -239,19 +239,19 @@ tavern-crawl), rather than three unassigned examples with no home.
 "Obviously we will have mini quests as well" — the existing brainstormed mini-quest archetypes
 (Side Quest Concepts, Mini-Quest Styles) already cover the mechanical shapes; this just gives
 several of them a reason tied to the new antagonists instead of being generic filler:
-   - **A.** Octavia's pardon offer *is* the already-brainstormed "Branching/moral choice" archetype
+   - **A.** Grace's pardon offer *is* the already-brainstormed "Branching/moral choice" archetype
      — this main-story beat (2.A.3) doubles as the first real example of that style
    - **B.** "Rival race" mini quests (already an existing archetype) are the natural home for
      Blackfin showing up between his scripted main-story appearances — small side detours where
      he's racing you to a resource node or a recruit, not just the Act-transition beats above
-   - **C.** "Escort/protect" quests can be reframed around refugees fleeing Octavia's crackdown at
+   - **C.** "Escort/protect" quests can be reframed around refugees fleeing Grace's crackdown at
      New Providence specifically, once she's introduced there (II.B) — ties an existing archetype
      to a specific place and reason instead of a generic NPC-in-danger
-   - **D.** "Infiltration/heist" quests fit naturally as stealing intel on Octavia's fleet
+   - **D.** "Infiltration/heist" quests fit naturally as stealing intel on Grace's fleet
      movements — also the concept doc already flagged this archetype as "a natural setup for
      GTA-style character switching," so it's a candidate to revisit once that feature exists
    - **E.** Patron-hosted quests at Tortuga (the hub, per section 3's table) are the cheapest place
-     to drop small Blackfin/Octavia flavor beats between acts without needing new map markers —
+     to drop small Blackfin/Grace flavor beats between acts without needing new map markers —
      reuses the Patrons system exactly as already built, just with two recurring named patrons
      instead of one-off ones
 

@@ -2,22 +2,22 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { OCTAVIA_EMOJI, OCTAVIA_NAME, octaviaStageFor } from '../data/octavia';
+import { GRACE_EMOJI, GRACE_NAME, graceStageFor } from '../data/grace';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Octavia'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Grace'>;
 
-// A dedicated dialogue-only screen for Admiral Octavia's recurring story beats — same shape as
+// A dedicated dialogue-only screen for Admiral Grace's recurring story beats — same shape as
 // BlackfinScreen's dialogue-only path, minus the duel branch: per 2.A.3/2.A.4 her escalation is the
 // (still-unbuilt) Pardon beat and the Ocracoke finale, not a fight, so nothing here needs to
 // support one yet.
-export default function OctaviaScreen({ navigation }: Props) {
-  const currentOctaviaStageId = useGameStore((s) => s.currentOctaviaStageId);
-  const setCurrentOctaviaStage = useGameStore((s) => s.setCurrentOctaviaStage);
-  const completeOctaviaStage = useGameStore((s) => s.completeOctaviaStage);
+export default function GraceScreen({ navigation }: Props) {
+  const currentGraceStageId = useGameStore((s) => s.currentGraceStageId);
+  const setCurrentGraceStage = useGameStore((s) => s.setCurrentGraceStage);
+  const completeGraceStage = useGameStore((s) => s.completeGraceStage);
 
-  const stage = octaviaStageFor(currentOctaviaStageId);
+  const stage = graceStageFor(currentGraceStageId);
 
   if (!stage) {
     return (
@@ -33,16 +33,16 @@ export default function OctaviaScreen({ navigation }: Props) {
   }
 
   function handleContinue() {
-    completeOctaviaStage(stage!.id);
-    setCurrentOctaviaStage(null);
+    completeGraceStage(stage!.id);
+    setCurrentGraceStage(null);
     navigation.goBack();
   }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.emoji}>{OCTAVIA_EMOJI}</Text>
-        <Text style={styles.name}>{OCTAVIA_NAME}</Text>
+        <Text style={styles.emoji}>{GRACE_EMOJI}</Text>
+        <Text style={styles.name}>{GRACE_NAME}</Text>
         <Text style={styles.title}>{stage.title}</Text>
       </View>
 

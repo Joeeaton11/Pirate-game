@@ -92,8 +92,8 @@ interface GameState {
   foundTreasureIds: string[];
   currentBlackfinStageId: string | null;
   completedBlackfinStageIds: string[];
-  currentOctaviaStageId: string | null;
-  completedOctaviaStageIds: string[];
+  currentGraceStageId: string | null;
+  completedGraceStageIds: string[];
 
   setWildEncounter: (encounter: WildEncounter | null) => void;
   damageWildEncounter: (amount: number) => void;
@@ -145,8 +145,8 @@ interface GameState {
   debugAddTreasure: (treasureId: string) => void;
   setCurrentBlackfinStage: (stageId: string | null) => void;
   completeBlackfinStage: (stageId: string) => void;
-  setCurrentOctaviaStage: (stageId: string | null) => void;
-  completeOctaviaStage: (stageId: string) => void;
+  setCurrentGraceStage: (stageId: string | null) => void;
+  completeGraceStage: (stageId: string) => void;
   debugClearResourceCooldowns: () => void;
   debugClearTheftCooldowns: () => void;
   debugClearSalvageCooldowns: () => void;
@@ -194,8 +194,8 @@ type InitialState = Pick<
   | 'foundTreasureIds'
   | 'currentBlackfinStageId'
   | 'completedBlackfinStageIds'
-  | 'currentOctaviaStageId'
-  | 'completedOctaviaStageIds'
+  | 'currentGraceStageId'
+  | 'completedGraceStageIds'
 >;
 
 function createInitialState(): InitialState {
@@ -235,8 +235,8 @@ function createInitialState(): InitialState {
     foundTreasureIds: [],
     currentBlackfinStageId: null,
     completedBlackfinStageIds: [],
-    currentOctaviaStageId: null,
-    completedOctaviaStageIds: [],
+    currentGraceStageId: null,
+    completedGraceStageIds: [],
   };
 }
 
@@ -727,13 +727,13 @@ export const useGameStore = create<GameState>()(
             : [...state.completedBlackfinStageIds, stageId],
         })),
 
-      setCurrentOctaviaStage: (stageId) => set({ currentOctaviaStageId: stageId }),
+      setCurrentGraceStage: (stageId) => set({ currentGraceStageId: stageId }),
 
-      completeOctaviaStage: (stageId) =>
+      completeGraceStage: (stageId) =>
         set((state) => ({
-          completedOctaviaStageIds: state.completedOctaviaStageIds.includes(stageId)
-            ? state.completedOctaviaStageIds
-            : [...state.completedOctaviaStageIds, stageId],
+          completedGraceStageIds: state.completedGraceStageIds.includes(stageId)
+            ? state.completedGraceStageIds
+            : [...state.completedGraceStageIds, stageId],
         })),
 
       debugClearResourceCooldowns: () => set({ resourceNodeCooldowns: {} }),
@@ -807,7 +807,7 @@ export const useGameStore = create<GameState>()(
         blackPearlPosition: state.blackPearlPosition,
         foundTreasureIds: state.foundTreasureIds,
         completedBlackfinStageIds: state.completedBlackfinStageIds,
-        completedOctaviaStageIds: state.completedOctaviaStageIds,
+        completedGraceStageIds: state.completedGraceStageIds,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

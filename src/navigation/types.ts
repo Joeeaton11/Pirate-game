@@ -12,5 +12,5 @@ export type RootStackParamList = {
   Rescue: undefined;
   TreasureCodex: undefined;
   Blackfin: undefined;
-  Octavia: undefined;
+  Grace: undefined;
 };

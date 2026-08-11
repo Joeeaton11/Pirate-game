@@ -13,7 +13,7 @@ import { SIDE_QUESTS } from '../data/sideQuests';
 import { THREAT_TEMPLATES } from '../data/threats';
 import { TREASURE_FRAGMENT_IDS, TREASURE_LIST } from '../data/treasures';
 import { BLACKFIN_STAGES } from '../data/blackfin';
-import { OCTAVIA_STAGES } from '../data/octavia';
+import { GRACE_STAGES } from '../data/grace';
 import { RootStackParamList } from '../navigation/types';
 import { EncounterFaction, useActiveCrewMember, useGameStore } from '../store/gameStore';
 import { CrewTemplate } from '../types';
@@ -57,8 +57,8 @@ export default function DebugScreen({ navigation }: Props) {
   const debugAddTreasure = useGameStore((s) => s.debugAddTreasure);
   const setCurrentBlackfinStage = useGameStore((s) => s.setCurrentBlackfinStage);
   const completedBlackfinStageIds = useGameStore((s) => s.completedBlackfinStageIds);
-  const setCurrentOctaviaStage = useGameStore((s) => s.setCurrentOctaviaStage);
-  const completedOctaviaStageIds = useGameStore((s) => s.completedOctaviaStageIds);
+  const setCurrentGraceStage = useGameStore((s) => s.setCurrentGraceStage);
+  const completedGraceStageIds = useGameStore((s) => s.completedGraceStageIds);
 
   function handleGrantUpgrade(upgradeId: string) {
     addGold(9999);
@@ -153,9 +153,9 @@ export default function DebugScreen({ navigation }: Props) {
     navigation.navigate('Blackfin');
   }
 
-  function handleJumpToOctavia(stageId: string) {
-    setCurrentOctaviaStage(stageId);
-    navigation.navigate('Octavia');
+  function handleJumpToGrace(stageId: string) {
+    setCurrentGraceStage(stageId);
+    navigation.navigate('Grace');
   }
 
   function handleForceBlackPearlFight() {
@@ -405,16 +405,16 @@ export default function DebugScreen({ navigation }: Props) {
           ))}
         </View>
 
-        <Text style={styles.sectionHeading}>Admiral Octavia</Text>
+        <Text style={styles.sectionHeading}>Admiral Grace</Text>
         <View style={styles.row}>
-          {OCTAVIA_STAGES.map((stage) => (
+          {GRACE_STAGES.map((stage) => (
             <Pressable
               key={stage.id}
               style={styles.button}
-              onPress={() => handleJumpToOctavia(stage.id)}
+              onPress={() => handleJumpToGrace(stage.id)}
             >
               <Text style={styles.buttonText}>
-                {completedOctaviaStageIds.includes(stage.id) ? '✓ ' : ''}
+                {completedGraceStageIds.includes(stage.id) ? '✓ ' : ''}
                 {stage.title}
               </Text>
             </Pressable>
