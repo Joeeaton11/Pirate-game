@@ -5,13 +5,18 @@
 // per-screen art pass GAME_DESIGN.md tracks: Tortuga Cove only, for now — everywhere else stays on
 // the emoji/procedural system until more per-category sheets arrive (see the user's stated plan).
 //
-// Building/prop art background removal note: unlike Scally's character sheet, these sheets render
-// each item over a continuous blurred photo-style background rather than a flat/gradient one — the
-// same flood-fill + connected-component cutout used for Scally's sprites kept bleeding into
-// neighboring items because there's no clean background/foreground color boundary to key on. Cut a
-// soft-edge vignette instead (crop generously, fade a rounded-rect alpha mask to transparent at the
-// edges): it sidesteps the segmentation problem entirely and reads as a deliberately-framed icon
-// rather than a botched cutout, which is exactly what a small map marker should look like anyway.
+// Cutout technique: unlike Scally's character sheet, these sheets render each item over a
+// continuous *blurred* background (real depth-of-field, not a flat color or gradient) — a
+// flood-fill/color-threshold cutout has no boundary to key on there and kept bleeding into
+// neighboring items. The blur itself is the usable signal instead: every foreground object is in
+// sharp focus and the background isn't, so segmenting on local edge/gradient strength (rather than
+// color) reliably separates them. Pipeline per asset: gaussian-smooth, take the gradient magnitude,
+// threshold it to a boundary mask, dilate+close to seal any gaps in that boundary into a closed
+// contour, binary_fill_holes to solidify the interior, erode back off the dilation, keep the
+// largest connected component, then feather the final silhouette edge by ~1px for anti-aliasing.
+// An earlier pass here used a soft vignette-crop (fade a rounded-rect alpha mask at the edges)
+// instead of a real cutout — it hid bleed rather than removing it and shipped visibly blurry,
+// muddy icons; every asset below has been re-cut with the edge/gradient technique instead.
 
 /** Ground tile textures — tiled via an SVG <Pattern> fill, not placed individually. */
 export const GROUND_TILES = {
@@ -49,6 +54,5 @@ export const WORLD_SPRITES = {
   dockPier: require('../../assets/sprites/world/dock_pier.png'),
   tortugaGate: require('../../assets/sprites/world/tortuga_gate.png'),
   flagSkullBlack: require('../../assets/sprites/world/flag_skull_black.png'),
-  flagSkullRed: require('../../assets/sprites/world/flag_skull_red.png'),
   flagUk: require('../../assets/sprites/world/flag_uk.png'),
 };

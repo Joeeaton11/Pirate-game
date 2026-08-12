@@ -1361,11 +1361,11 @@ long collection grind *and* one legendary payoff at the top of it.
     Tortuga specifically; every other island keeps the flat color for now.
   - **13 building icons** (`assets/sprites/buildings/`) cut from the Tortuga sheet's two building
     rows. Unlike the character sheet, these sit over a continuous blurred photo-style background
-    with no flat/gradient boundary to key on — the flood-fill cutout pipeline that worked for Scally
-    kept bleeding into neighboring buildings here, so this used a different technique: crop
-    generously, then fade a rounded-rect alpha mask to transparent at the edges (a soft vignette)
-    instead of trying to segment a true silhouette. Sidesteps the segmentation problem entirely and
-    reads as a deliberately-framed icon, which is exactly what a small map marker should look like.
+    with no flat/gradient boundary to key on, so the flood-fill cutout that worked for Scally kept
+    bleeding into neighboring buildings here. First attempt papered over that with a soft vignette
+    (fade a rounded-rect alpha mask at the edges) instead of a real cutout — the user correctly
+    called this out as lazy, since it hid the bleed rather than removing it and shipped visibly
+    blurry, muddy icons. Replaced 2026-08-11 (see below) with a real edge-based segmentation.
   - **`spriteId` field added to `Building`** (`src/data/buildings.ts`) — set on 10 of Tortuga's 18
     buildings where a genuine name/theme match exists (tavern→tavern, harbourmaster→dock_office,
     the two smuggler-themed buildings→smugglers_den, etc. — see `worldSprites.ts`'s header comment
@@ -1389,6 +1389,26 @@ long collection grind *and* one legendary payoff at the top of it.
     stuck-token illusion during manual QA); walked the player to the tavern and screenshotted it
     rendering correctly in place, nameplate legible, blending into the surrounding procedural streets,
     with the real "Enter The Salty Parrot?" prompt showing beneath it.
+- ✅ **Real cutouts, not vignette crops, for all Tortuga sprite art (2026-08-11)** — the user flagged
+  the vignette approach above as lazy, correctly: it hid background bleed behind a blur instead of
+  actually removing it, so every icon shipped soft and muddy at the edges instead of crisp. Fixed
+  with a real segmentation technique instead of a color-based cutout: these sheets render every
+  foreground object in sharp focus over a genuinely *blurred* background (real depth-of-field, not
+  just a flat/gradient color), so the blur itself is a reliable signal — segment on local edge/
+  gradient strength rather than color. Pipeline: gaussian-smooth, take the gradient magnitude,
+  threshold it into a boundary mask, dilate+close to seal any gaps in that boundary into a closed
+  contour, `binary_fill_holes` to solidify the interior, erode back off the dilation, keep the
+  largest connected component, feather the final edge ~1px for anti-aliasing. Re-cut all 13
+  buildings plus the ship, gate, rowboat, dock/pier, and 2 of the 3 flags with this technique —
+  clean silhouettes, zero bleed, no vignette softness. Along the way, caught and fixed two real
+  mis-crops from the first pass that the vignette blur had been hiding: the ship's masts/sails were
+  silently missing entirely (crop box too tight vertically), and "flag_uk" was actually the red
+  skull flag cut from the wrong coordinates — both now correct. Dropped `flagSkullRed` (couldn't get
+  a clean cut in the time available; it wasn't wired into the game yet, so nothing regressed) and
+  two never-used flag sprites (`flag_france`, `flag_spain`) left over from the first pass, rather
+  than ship unverified assets. Verified in-browser: zero console errors, and walked the player back
+  to the same tavern spot to confirm the new crisp-edged art renders correctly live, replacing the
+  old blurry version.
 - ⬜ Everything else is still emoji-as-sprite placeholders (other islands' buildings, islands/tiles
   elsewhere, battle backdrops, UI chrome, other named crew). Worth tackling incrementally per-screen
   rather than as one giant art pass — Tortuga Cove is the first full slice of that
