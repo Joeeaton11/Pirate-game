@@ -1409,6 +1409,20 @@ long collection grind *and* one legendary payoff at the top of it.
   than ship unverified assets. Verified in-browser: zero console errors, and walked the player back
   to the same tavern spot to confirm the new crisp-edged art renders correctly live, replacing the
   old blurry version.
+- ✅ **Tortuga's roads are real cobblestone, not a flat color (2026-08-11)** — the user asked why the
+  street/path rendering hadn't been touched, correctly: the `cobble` tile had been cut and sat
+  unused in `GROUND_TILES` since the very first pass, an oversight. `STREETS.map` in `MapScreen.tsx`
+  still drew every road as flat-color `Line` strokes. Fixed by adding a second SVG `<Pattern>`
+  (`cobblePattern`, same `GROUND_TILES`/`<Defs>` mechanism as the ground fill) and referencing it as
+  the `stroke` on Tortuga's `'main'`-style street segments — SVG strokes can reference a `<Pattern>`
+  exactly like a fill can, so no new rendering mechanism was needed. The wider light sidewalk stroke
+  underneath stays a flat color (reads as a curb/edge); only the inner road surface got the texture.
+  Scoped the same way as the ground tile fill: Tortuga Cove's `'main'` streets only — every other
+  island, and Tortuga's own dirt `'path'`-style tracks (no sidewalk, dashed line), keep the flat
+  color they had, since there's no dirt-track tile cut yet and forcing cobblestone onto a "rough,
+  treacherous route" would contradict its own design intent. Verified in-browser: zero console
+  errors, walked to the tavern and confirmed the road surface now shows visible stone-block texture
+  instead of a flat tan fill.
 - ⬜ Everything else is still emoji-as-sprite placeholders (other islands' buildings, islands/tiles
   elsewhere, battle backdrops, UI chrome, other named crew). Worth tackling incrementally per-screen
   rather than as one giant art pass — Tortuga Cove is the first full slice of that

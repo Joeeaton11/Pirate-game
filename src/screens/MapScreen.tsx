@@ -1491,6 +1491,11 @@ export default function MapScreen({ navigation }: Props) {
                 <Pattern id="grassPattern" patternUnits="userSpaceOnUse" width={64} height={64}>
                   <SvgImage href={GROUND_TILES.grass} x={0} y={0} width={64} height={64} />
                 </Pattern>
+                {/* Same deal for Tortuga's paved 'main' streets, used as a stroke pattern below —
+                    SVG strokes can reference a <Pattern> exactly like a fill can. */}
+                <Pattern id="cobblePattern" patternUnits="userSpaceOnUse" width={32} height={32}>
+                  <SvgImage href={GROUND_TILES.cobble} x={0} y={0} width={32} height={32} />
+                </Pattern>
               </Defs>
 
               {ISLAND_LIST.map((island) => (
@@ -1556,10 +1561,15 @@ export default function MapScreen({ navigation }: Props) {
                 // stroke, so downtown reads as a real paved street instead of a bare dirt track.
                 // 'path' stays a single thin dashed line — a rough or treacherous route, no sidewalk.
                 if (street.style === 'main') {
+                  // Real cobblestone texture on Tortuga's roads (same incremental scoping as the
+                  // ground tile fill — only Tortuga has tile art cut so far); everywhere else keeps
+                  // the flat road color.
+                  const roadStroke =
+                    street.islandId === 'tortuga_cove' ? 'url(#cobblePattern)' : '#a9825a';
                   return (
                     <React.Fragment key={i}>
                       <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d9cdb0" strokeWidth={28} strokeLinecap="round" />
-                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#a9825a" strokeWidth={16} strokeLinecap="round" />
+                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke={roadStroke} strokeWidth={16} strokeLinecap="round" />
                     </React.Fragment>
                   );
                 }
