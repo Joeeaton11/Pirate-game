@@ -177,7 +177,7 @@ export const SIDE_QUESTS: SideQuest[] = [
     islandId: 'tortuga_cove',
     // Full-town rebuild 2026-08-07 (item 52): near Basse-Terre Square, the harbor town's
     // administrative core.
-    offset: { x: 0, y: -48 },
+    offset: { x: -216, y: -132 },
     title: 'The Bounty Board',
     npcName: 'Constable Duval',
     npcEmoji: '📋',

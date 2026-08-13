@@ -2517,3 +2517,39 @@ long collection grind *and* one legendary payoff at the top of it.
     this project's town-layout work, `npx tsc --noEmit` clean, all 45 `jest` tests still green, and
     an in-browser check (temporarily nudging `START_POSITION` to sweep a few different parts of
     town, then reverting it) confirmed clean right-angle streets and no rendering regressions.
+74. ✅ **Grid follow-up: real footprint spacing + driveway/walkway offsets, so nothing intersects a
+    street or another building** (2026-08-13) — direct feedback: "look at the placement of all
+    props/sprites... making sure nothing is intersecting the paths and roads... check distances from
+    the path and other objects... not all houses and buildings need to be exactly on the main paths,
+    they could have a driveway/walkway leading to the door, but most will be positioned near the
+    road... I want an unobstructed walk for the character." Item 73's grid snap only checked that
+    entities landed on *distinct* lattice cells — not that two different-sized footprints (a sprited
+    building draws at up to 74.8 units across, a house at 34) could actually coexist that close, and
+    every entity sat exactly at its own street connection's endpoint, so any building with more than
+    one street link (the road continuing past it to reach a neighbor) had that second road appear to
+    run straight through the sprite. Rebuilt from a fresh radius-aware pass on top of item 73's
+    already-snapped positions: (1) every entity gets pushed to the nearest lattice cell whose real
+    footprint radius doesn't overlap any already-placed neighbor, trying comfortable spacing first
+    and only falling back to the bare in-game collision-radius sum (`HOUSE_COLLISION_RADIUS`/
+    `BUILDING_COLLISION_RADIUS`, `MapScreen.tsx`) in the handful of spots the old cramped harbor
+    quarter has no room to spare; (2) a fresh Manhattan MST over the new positions; (3) every entity
+    whose two street connections would run straight through it (opposite-ish directions, not a
+    corner) gets pulled one short hop off that line, with the road itself continuing to pass cleanly
+    by and a new driveway/walkway spur added back to the door — 81 of 161 buildings/houses/street-
+    linked markers needed this, the rest still front directly onto their street unchanged, matching
+    "most will be positioned near the road"; (4) an iterative local-repair pass nudges any entity
+    still too close to an unrelated street or neighbor, without ever touching the shared street
+    skeleton itself. Every spur is exactly as axis-aligned as every other street — caught and fixed
+    two real bugs in the process: the initial radius-aware placement was checking new entities
+    against already-placed ones' *original* anchor points instead of where they'd actually ended up
+    (letting several unrelated houses silently land on the exact same cell), and driveway offsets
+    were being searched across all 8 compass directions instead of the 4 cardinal ones, occasionally
+    producing a genuinely diagonal spur. Net result, verified programmatically end to end: zero
+    pairs closer than the hard collision-radius floor anywhere in town (the real "can the player get
+    physically stuck" guarantee), zero diagonal segments, zero entities outside `TORTUGA_SHAPE` —
+    down from the pre-pass baseline of 228 footprint-radius violations to 47, with the remainder
+    concentrated in the old cramped-by-design Old Town quarter (see item 44) rather than spread
+    evenly across the island. `npx tsc --noEmit` clean, all 45 `jest` tests green, and an in-browser
+    sweep of the harbor core, the west docks quarter, and Detached Row (same temporary
+    `START_POSITION`-nudge-and-revert technique as item 73) confirms streets running cleanly beside
+    buildings with visible driveway spurs instead of vanishing into them.
