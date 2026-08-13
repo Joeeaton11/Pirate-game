@@ -577,6 +577,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Counting House',
     type: 'customs',
     emoji: '📒',
+    // Standing in on the Harbourmaster's Office's sprite until it gets bespoke art — both read as
+    // "the boring grey administrative building," per ART_BRIEF.md's "use something similar" note.
+    spriteId: 'dock_office',
     offset: { x: -262, y: -73 },
     npcName: 'Clerk Osei',
     npcEmoji: '🧑🏿‍💼',
@@ -613,6 +616,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Apothecary',
     type: 'shop',
     emoji: '🌿',
+    // Standing in on the unused spice_merchant sprite — same small stall-with-hanging-goods
+    // archetype as an apothecary, until bespoke art arrives.
+    spriteId: 'spice_merchant',
     offset: { x: -383, y: -45 },
     npcName: 'Herbalist Coline',
     npcEmoji: '🧪',
@@ -625,6 +631,9 @@ export const BUILDINGS: Building[] = [
     name: 'The Lucky Draw',
     type: 'tavern',
     emoji: '🎲',
+    // Standing in on the tavern sprite — same rowdy-drinking-den archetype — until bespoke art
+    // arrives.
+    spriteId: 'tavern',
     offset: { x: -392, y: 87 },
     npcName: 'Faro Jacques',
     npcEmoji: '🃏',
