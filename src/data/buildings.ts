@@ -63,7 +63,7 @@ export const BUILDINGS: Building[] = [
     // Full-town rebuild 2026-08-07 (item 52): every Tortuga building repositioned around the new
     // horseshoe bay (see islands.ts). This one sits in the tavern district, right by the busiest
     // stretch of the quay.
-    offset: { x: 72, y: -96 },
+    offset: { x: 384, y: -96 },
     npcName: 'Old Tom',
     npcEmoji: '🧔',
     dialogue: "Buy a round and I'll sign on, no questions asked.",
@@ -189,7 +189,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'fishmonger',
     // Full-town rebuild 2026-08-07 (item 52): the east side of the bay, past the chapel, near
     // the working docks.
-    offset: { x: 288, y: -192 },
+    offset: { x: 312, y: -192 },
     npcName: 'Old Dinah',
     npcEmoji: '🧓',
     dialogue: "Freshest catch on the wharf. Buy it fair, or don't let me catch you taking it.",
@@ -270,7 +270,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'chapel',
     // Full-town rebuild 2026-08-07 (item 52): east side of the bay, between the tavern district
     // and Fort de Rocher's headland.
-    offset: { x: 264, y: -144 },
+    offset: { x: 288, y: -144 },
     npcName: 'Brother Aldric',
     npcEmoji: '🙏',
     dialogue: "Even outlaws want forgiveness sometimes. I keep the door open and ask no questions about the cargo.",
@@ -312,7 +312,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🏛️',
     // Full-town rebuild 2026-08-07 (item 52): right by the Harbourmaster's Office at the
     // sheltered bottom of the bay, the harbor's administrative core.
-    offset: { x: 24, y: -72 },
+    offset: { x: 0, y: -96 },
     npcName: 'Inspector Hale',
     npcEmoji: '🎩',
     dialogue:
@@ -327,7 +327,7 @@ export const BUILDINGS: Building[] = [
     name: "Le Vasseur's Residence",
     type: 'manor',
     emoji: '🏛️',
-    offset: { x: 0, y: 0 },
+    offset: { x: -72, y: 96 },
     npcName: 'Governor Le Vasseur',
     npcEmoji: '👑',
     dialogue:
@@ -472,7 +472,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'dock_office',
     // Full-town rebuild 2026-08-07 (item 52): the sheltered bottom of the bay, right on the
     // quay — the harbor's administrative heart.
-    offset: { x: -24, y: -96 },
+    offset: { x: -24, y: 48 },
     npcName: 'Harbourmaster Voss',
     npcEmoji: '🎖️',
     dialogue: "Every hull that ties up on this dock answers to me first — the Customs House gets its cut after. Been running this waterfront since before some of you had teeth.",
@@ -534,7 +534,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'tailor',
     // Full-town rebuild 2026-08-07 (item 52): the west headland side of the bay, closest to the
     // careening beach.
-    offset: { x: -240, y: -264 },
+    offset: { x: -216, y: -264 },
     npcName: 'Needle Annie',
     npcEmoji: '🪡',
     dialogue: "Torn canvas, a busted seam mid-squall, a flag shot clean off its halyard — bring it here before you bring it to the bottom of the sea.",
@@ -783,7 +783,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Turtle Kraal',
     type: 'market',
     emoji: '🐢',
-    offset: { x: 24, y: 0 },
+    offset: { x: 144, y: 0 },
     npcName: 'Kraal-Keeper Junot',
     npcEmoji: '🧑🏿‍🌾',
     dialogue: "Live pens, penned right off the shallows — the same trade the Dutch named this whole island for. We just never stopped doing it.",

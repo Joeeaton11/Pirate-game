@@ -19,7 +19,7 @@ export const LANDMARKS: Landmark[] = [
     // quay, near the harbor's administrative core (Harbourmaster's Office, Customs House).
     id: 'tortuga_town_square',
     islandId: 'tortuga_cove',
-    offset: { x: 24, y: -120 },
+    offset: { x: 24, y: -72 },
     name: 'Basse-Terre Square',
     emoji: '⛲',
     description:

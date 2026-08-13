@@ -2517,3 +2517,29 @@ long collection grind *and* one legendary payoff at the top of it.
     this project's town-layout work, `npx tsc --noEmit` clean, all 45 `jest` tests still green, and
     an in-browser check (temporarily nudging `START_POSITION` to sweep a few different parts of
     town, then reverting it) confirmed clean right-angle streets and no rendering regressions.
+74. ✅ **Minimal overlap fix: 19 buildings/houses nudged, nothing else touched** (2026-08-13) — a
+    first attempt at "check distances from the path and other objects... unobstructed walk for the
+    character" over-corrected: it rebuilt the whole street network with a driveway/setback for
+    every building whose street ran through it, more than doubling the segment count (193 → 455)
+    into a visibly cluttered mess. Direct feedback: "why are there lots and lots of paths
+    everywhere... place the buildings in a logical position near the paths... they should be
+    intersecting the paths and should have a clear unobscured route around... use logic and game
+    logic." Reverted that attempt outright (`git revert`, back to item 73's 193 segments) and
+    re-read the actual ask: buildings fronting directly onto their street is correct and wanted —
+    item 39 already established this is "working as designed, not a bug" — the only real problem is
+    the handful of buildings/houses sitting so close to an *unrelated* building/house that there's
+    no walkable room around them. Fixed with the smallest change that solves that: checked every
+    pair of Tortuga buildings/houses/street-linked markers against (a) the real in-game collision
+    radii (`HOUSE_COLLISION_RADIUS`/`BUILDING_COLLISION_RADIUS`, `MapScreen.tsx`) — the actual "can
+    the player get stuck" test — and (b) a looser visual-footprint check for the worst sprite-on-
+    sprite overlaps, leaving ordinary row-house touching alone as the established cramped-quarter
+    look. 19 of 161 entities needed a nudge: first tried sliding an entity along its own street's
+    existing line (the street just gets longer or shorter, stays perfectly straight, no new
+    segment); only where that wasn't possible — a true corner where two streets meet at the
+    building from different directions — did it get a short local move with its street elbowed to
+    still reach it exactly (never diagonally). Net effect: 213 street segments (193 unchanged + 20
+    new elbow pieces for the corner cases), not 455; zero pairs closer than the hard collision floor
+    anywhere in town; the 142 untouched buildings/houses and the rest of the street layout are
+    pixel-identical to item 73. Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and an
+    in-browser check of the town core shows the same layout as before with only the handful of
+    nudges visible.

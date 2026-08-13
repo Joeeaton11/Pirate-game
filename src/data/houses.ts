@@ -32,13 +32,13 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: -48, y: -192 } },
   { islandId: 'tortuga_cove', offset: { x: -144, y: -48 } },
   { islandId: 'tortuga_cove', offset: { x: -216, y: -120 } },
-  { islandId: 'tortuga_cove', offset: { x: 288, y: -120 } },
+  { islandId: 'tortuga_cove', offset: { x: 288, y: 0 } },
   { islandId: 'tortuga_cove', offset: { x: 240, y: -240 } },
   { islandId: 'tortuga_cove', offset: { x: 168, y: -216 } },
   { islandId: 'tortuga_cove', offset: { x: 312, y: -96 } },
   { islandId: 'tortuga_cove', offset: { x: 24, y: -192 } },
   { islandId: 'tortuga_cove', offset: { x: -144, y: -72 } },
-  { islandId: 'tortuga_cove', offset: { x: -168, y: -48 } },
+  { islandId: 'tortuga_cove', offset: { x: -168, y: -72 } },
   { islandId: 'tortuga_cove', offset: { x: 360, y: -192 } },
   { islandId: 'tortuga_cove', offset: { x: -192, y: -240 } },
   { islandId: 'tortuga_cove', offset: { x: -48, y: -24 } },
@@ -55,10 +55,10 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: 192, y: -216 } },
   { islandId: 'tortuga_cove', offset: { x: 336, y: -120 } },
   { islandId: 'tortuga_cove', offset: { x: 72, y: -168 } },
-  { islandId: 'tortuga_cove', offset: { x: -96, y: -144 } },
+  { islandId: 'tortuga_cove', offset: { x: -96, y: -168 } },
   { islandId: 'tortuga_cove', offset: { x: -168, y: -288 } },
   { islandId: 'tortuga_cove', offset: { x: 216, y: -264 } },
-  { islandId: 'tortuga_cove', offset: { x: 216, y: -96 } },
+  { islandId: 'tortuga_cove', offset: { x: 240, y: -96 } },
   { islandId: 'tortuga_cove', offset: { x: -240, y: -144 } },
   { islandId: 'tortuga_cove', offset: { x: -264, y: -120 } },
   { islandId: 'tortuga_cove', offset: { x: 192, y: -240 } },
@@ -84,7 +84,7 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: -144, y: -288 } },
   { islandId: 'tortuga_cove', offset: { x: -288, y: -216 } },
   { islandId: 'tortuga_cove', offset: { x: 384, y: -144 } },
-  { islandId: 'tortuga_cove', offset: { x: -240, y: -96 } },
+  { islandId: 'tortuga_cove', offset: { x: -216, y: -72 } },
   { islandId: 'tortuga_cove', offset: { x: 24, y: -168 } },
   { islandId: 'tortuga_cove', offset: { x: 240, y: -120 } },
   { islandId: 'tortuga_cove', offset: { x: 96, y: -120 } },
@@ -95,7 +95,7 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: 216, y: -72 } },
   { islandId: 'tortuga_cove', offset: { x: -216, y: -96 } },
   { islandId: 'tortuga_cove', offset: { x: -48, y: -72 } },
-  { islandId: 'tortuga_cove', offset: { x: -72, y: -72 } },
+  { islandId: 'tortuga_cove', offset: { x: -48, y: -96 } },
   { islandId: 'tortuga_cove', offset: { x: -144, y: -240 } },
   { islandId: 'tortuga_cove', offset: { x: 192, y: -168 } },
   { islandId: 'tortuga_cove', offset: { x: 96, y: -216 } },
@@ -113,7 +113,7 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: 360, y: -168 } },
   { islandId: 'tortuga_cove', offset: { x: 240, y: -48 } },
   { islandId: 'tortuga_cove', offset: { x: -192, y: -72 } },
-  { islandId: 'tortuga_cove', offset: { x: 336, y: -168 } },
+  { islandId: 'tortuga_cove', offset: { x: 336, y: -216 } },
   { islandId: 'tortuga_cove', offset: { x: 264, y: -96 } },
   { islandId: 'tortuga_cove', offset: { x: -24, y: -168 } },
   { islandId: 'tortuga_cove', offset: { x: 192, y: -24 } },
@@ -128,8 +128,8 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: -360, y: 48 } }, // near West Point Shack
   { islandId: 'tortuga_cove', offset: { x: -480, y: 24 } }, // near El Fuerte Viejo (the Ruins)
   { islandId: 'tortuga_cove', offset: { x: 384, y: 168 } }, // near the Trapper's Camp
-  { islandId: 'tortuga_cove', offset: { x: 216, y: 360 } }, // near the Old Landing Dock
-  { islandId: 'tortuga_cove', offset: { x: 312, y: 216 } }, // near La Ringot Fields
+  { islandId: 'tortuga_cove', offset: { x: 240, y: 360 } }, // near the Old Landing Dock
+  { islandId: 'tortuga_cove', offset: { x: 336, y: 216 } }, // near La Ringot Fields
   { islandId: 'tortuga_cove', offset: { x: 480, y: -48 } }, // near the High Woods
   { islandId: 'tortuga_cove', offset: { x: -120, y: 408 } }, // near the Forgotten Graves
 
@@ -145,7 +145,7 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: 0, y: 288 } },
   { islandId: 'tortuga_cove', offset: { x: 72, y: 288 } },
   { islandId: 'tortuga_cove', offset: { x: 144, y: 288 } },
-  { islandId: 'tortuga_cove', offset: { x: 216, y: 288 } },
+  { islandId: 'tortuga_cove', offset: { x: 192, y: 288 } },
   { islandId: 'tortuga_cove', offset: { x: 288, y: 288 } },
 
   // New Providence residential grid: generated the same way as Tortuga's original grid — candidate positions
