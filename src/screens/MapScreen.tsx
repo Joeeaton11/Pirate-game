@@ -5,6 +5,7 @@ import {
   Animated,
   Easing,
   Image as RNImage,
+  ImageSourcePropType,
   LayoutChangeEvent,
   Platform,
   Pressable,
@@ -45,6 +46,7 @@ import {
 } from '../data/islands';
 import { HOUSES, houseWorldPosition, housesForIsland } from '../data/houses';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
+import { PROPS, propWorldPosition } from '../data/props';
 import { SCENERY, sceneryWorldPosition } from '../data/scenery';
 import {
   CAPTAIN_NAME,
@@ -60,7 +62,14 @@ import {
   scallySpriteSource,
   turnFrameFor,
 } from '../data/scallySprites';
-import { BUILDING_SPRITES, GROUND_TILES, WORLD_SPRITES } from '../data/worldSprites';
+import {
+  BUILDING_SPRITES,
+  GROUND_TILES,
+  HOUSE_SPRITES,
+  NATURE_SPRITES,
+  PROP_SPRITES,
+  WORLD_SPRITES,
+} from '../data/worldSprites';
 import {
   PIRATE_LORDS,
   isLordUnlocked,
@@ -112,6 +121,9 @@ const ZOOM = 5;
 const PLAYER_SIZE = 12 * ZOOM;
 const BUILDING_SIZE = 44;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
+// Real house art (2026-08-13 art pass) reads better with more room than the 26px emoji box —
+// same reasoning as buildings getting BUILDING_SIZE*1.7 when they have real sprite art.
+const HOUSE_SPRITE_SIZE = 34;
 // Some building types already have a ready-made emoji that IS a structure (fort's castle, shop's
 // storefront, chapel's church, etc.) — those render large and alone, same as before. The rest
 // (tavern's mugs, fishmonger's fish, smithy's hammer, ...) aren't shaped like a building at all, so
@@ -130,6 +142,19 @@ const MINIMAP_WORLD_PER_PX = (MINIMAP_RADIUS * 2) / MINIMAP_SIZE;
 // Scenery emoji that read as "forest" for the minimap's dark-green tree-mass fill — 🌿 (scrub) and
 // 🪨/🪦 (rocks/graves) are dressing for the ruins/abandoned zones, not woodland.
 const FOREST_EMOJI = new Set(['🌴', '🌲', '🌳']);
+// Real art pass (2026-08-13) — maps a SCENERY prop's emoji to a cut nature sprite where a genuine
+// match exists (worldSprites.ts NATURE_SPRITES). 🌿 alternates between the two bush designs for
+// variety instead of always picking one; everything else keeps rendering its emoji as before.
+const TREE_ROCK_SPRITE: Partial<Record<string, keyof typeof NATURE_SPRITES>> = {
+  '🌴': 'tree_palm',
+  '🌲': 'tree_tall',
+  '🌳': 'tree_round',
+  '🪨': 'rock_spire',
+};
+function natureSpriteFor(emoji: string, index: number): keyof typeof NATURE_SPRITES | null {
+  if (emoji === '🌿') return index % 2 === 0 ? 'bush_plain' : 'bush_flower';
+  return TREE_ROCK_SPRITE[emoji] ?? null;
+}
 // Slowed from 260 — full sea speed made sailing feel uncontrollable, especially threading the
 // harbor mouth/piers right after boarding the Black Pearl.
 const SEA_SPEED = 150; // world units per second
@@ -1646,6 +1671,21 @@ export default function MapScreen({ navigation }: Props) {
             {HOUSES.map((house, i) => {
               const islandPos = ISLANDS[house.islandId].position;
               const pos = houseWorldPosition(house, islandPos);
+              // Tortuga Cove is the only island with real house art cut so far (see
+              // worldSprites.ts HOUSE_SPRITES) — everywhere else keeps the emoji rotation.
+              if (house.islandId === 'tortuga_cove') {
+                const sprite = HOUSE_SPRITES[i % HOUSE_SPRITES.length];
+                const size = HOUSE_SPRITE_SIZE;
+                return (
+                  <View
+                    key={i}
+                    style={[styles.house, { left: pos.x - size / 2, top: pos.y - size / 2, width: size, height: size }]}
+                    pointerEvents="none"
+                  >
+                    <RNImage source={sprite} resizeMode="contain" style={{ width: size, height: size }} />
+                  </View>
+                );
+              }
               const emoji = HOUSE_EMOJIS[i % HOUSE_EMOJIS.length];
               return (
                 <View
@@ -1661,6 +1701,23 @@ export default function MapScreen({ navigation }: Props) {
             {SCENERY.map((prop, i) => {
               const islandPos = ISLANDS[prop.islandId].position;
               const pos = sceneryWorldPosition(prop, islandPos);
+              const natureId = natureSpriteFor(prop.emoji, i);
+              if (natureId) {
+                const size = (prop.fontSize ?? 22) * 1.9;
+                return (
+                  <View
+                    key={i}
+                    style={[styles.scenery, { left: pos.x - size / 2, top: pos.y - size / 2, width: size, height: size }]}
+                    pointerEvents="none"
+                  >
+                    <RNImage
+                      source={NATURE_SPRITES[natureId]}
+                      resizeMode="contain"
+                      style={{ width: size, height: size }}
+                    />
+                  </View>
+                );
+              }
               return (
                 <View
                   key={i}
@@ -1668,6 +1725,25 @@ export default function MapScreen({ navigation }: Props) {
                   pointerEvents="none"
                 >
                   <Text style={{ fontSize: prop.fontSize ?? 22 }}>{prop.emoji}</Text>
+                </View>
+              );
+            })}
+
+            {PROPS.map((prop, i) => {
+              const islandPos = ISLANDS[prop.islandId].position;
+              const pos = propWorldPosition(prop, islandPos);
+              const size = (prop.fontSize ?? 22) * 1.7;
+              return (
+                <View
+                  key={`prop-${i}`}
+                  style={[styles.scenery, { left: pos.x - size / 2, top: pos.y - size / 2, width: size, height: size }]}
+                  pointerEvents="none"
+                >
+                  <RNImage
+                    source={PROP_SPRITES[prop.spriteId]}
+                    resizeMode="contain"
+                    style={{ width: size, height: size }}
+                  />
                 </View>
               );
             })}
@@ -1742,6 +1818,28 @@ export default function MapScreen({ navigation }: Props) {
             {LANDMARKS.map((landmark) => {
               const islandPos = ISLANDS[landmark.islandId].position;
               const pos = landmarkWorldPosition(landmark, islandPos);
+              if (landmark.sprite) {
+                const sourceMap =
+                  landmark.sprite.category === 'building'
+                    ? BUILDING_SPRITES
+                    : landmark.sprite.category === 'nature'
+                    ? NATURE_SPRITES
+                    : PROP_SPRITES;
+                const source = (sourceMap as Record<string, ImageSourcePropType>)[landmark.sprite.id];
+                const size = BUILDING_SIZE * 1.6;
+                return (
+                  <View
+                    key={landmark.id}
+                    style={[
+                      styles.landmark,
+                      { left: pos.x - size / 2, top: pos.y - size / 2, width: size, height: size },
+                    ]}
+                    pointerEvents="none"
+                  >
+                    <RNImage source={source} resizeMode="contain" style={{ width: size, height: size }} />
+                  </View>
+                );
+              }
               return (
                 <View
                   key={landmark.id}

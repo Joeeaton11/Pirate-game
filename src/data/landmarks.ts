@@ -8,6 +8,9 @@ export interface Landmark {
   name: string;
   emoji: string;
   description: string;
+  // Real map art (2026-08-13 art pass), for the handful of landmarks with a genuine match in
+  // worldSprites.ts — everything else keeps rendering its emoji marker as before.
+  sprite?: { category: 'building' | 'nature' | 'prop'; id: string };
 }
 
 export const LANDMARKS: Landmark[] = [
@@ -21,6 +24,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '⛲',
     description:
       "The heart of Basse-Terre — a well, a market stall or two, and enough loose talk to start three duels before noon.",
+    sprite: { category: 'prop', id: 'fountain' },
   },
   {
     // Full-town rebuild 2026-08-07 (item 52): the main pier off the busiest stretch of quay,
@@ -41,6 +45,7 @@ export const LANDMARKS: Landmark[] = [
     name: 'The Lighthouse',
     emoji: '🗼',
     description: "Lit every night without fail — the one soul in Tortuga everyone agrees is worth paying, raid or no raid.",
+    sprite: { category: 'building', id: 'lighthouse' },
   },
   {
     id: 'tortuga_la_ringot_fields',
@@ -143,6 +148,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🕳️',
     description:
       "A low sea cave that floods at high tide and hides a landing no customs man has ever mapped. Whatever doesn't cross the quay in daylight has a way of turning up in Basse-Terre a few days after passing through here.",
+    sprite: { category: 'nature', id: 'cave_arch' },
   },
   {
     // Blueprint Sheet 4, 2026-08-13: an invented cove notch on the west cape, near El Fuerte Viejo

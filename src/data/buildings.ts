@@ -251,6 +251,7 @@ export const BUILDINGS: Building[] = [
     name: 'Fort de Rocher',
     type: 'fort',
     emoji: '🏰',
+    spriteId: 'fort',
     // Full-town rebuild 2026-08-07 (item 52): moved onto the east headland guarding the harbor
     // mouth — "sat on high ground overlooking both the town and the sea approach," per the brief.
     offset: { x: 265, y: -290 },
@@ -266,6 +267,7 @@ export const BUILDINGS: Building[] = [
     name: 'Chapelle Notre-Dame',
     type: 'chapel',
     emoji: '⛪',
+    spriteId: 'chapel',
     // Full-town rebuild 2026-08-07 (item 52): east side of the bay, between the tavern district
     // and Fort de Rocher's headland.
     offset: { x: 260, y: -151 },
@@ -342,6 +344,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Gaol',
     type: 'gaol',
     emoji: '⛓️',
+    spriteId: 'jail',
     offset: { x: 75, y: -10 },
     npcName: 'Warden Achille',
     npcEmoji: '🔑',
@@ -549,6 +552,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Signal Post',
     type: 'watchtower',
     emoji: '🚩',
+    spriteId: 'tower_stone',
     // Nudged from the original scatter-generated (-283,-267) — that rounded to just outside the
     // coastline polygon on re-verification.
     offset: { x: -278, y: -258 },
@@ -596,6 +600,7 @@ export const BUILDINGS: Building[] = [
     name: "The Gunsmith's Shop",
     type: 'smithy',
     emoji: '🔫',
+    spriteId: 'weapons',
     offset: { x: -376, y: -108 },
     npcName: 'Powder-Burn Iyabo',
     npcEmoji: '🧑🏿‍🔧',
@@ -682,6 +687,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Careening Shed',
     type: 'smithy',
     emoji: '🛶',
+    spriteId: 'shipyard',
     offset: { x: -185, y: 25 },
     npcName: 'Bosun Katell',
     npcEmoji: '👷🏻‍♀️',
@@ -730,6 +736,7 @@ export const BUILDINGS: Building[] = [
     name: "The Ship's Provisioner",
     type: 'shop',
     emoji: '🧺',
+    spriteId: 'trading_co',
     offset: { x: -65, y: 24 },
     npcName: 'Provisioner Idelle',
     npcEmoji: '🧑🏾‍💼',
@@ -754,6 +761,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Boarding House',
     type: 'tavern',
     emoji: '🛏️',
+    spriteId: 'inn',
     offset: { x: 19, y: 67 },
     npcName: 'Landlady Fenn',
     npcEmoji: '🧑🏽‍🦱',
@@ -801,6 +809,7 @@ export const BUILDINGS: Building[] = [
     name: "Fishermen's Guildhall",
     type: 'market',
     emoji: '🎣',
+    spriteId: 'fishmonger',
     offset: { x: 97, y: 38 },
     npcName: 'Guildmaster Perrin',
     npcEmoji: '🧑🏻‍🦲',
@@ -813,6 +822,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Old Watchtower',
     type: 'watchtower',
     emoji: '🏯',
+    spriteId: 'tower_wood',
     offset: { x: 52, y: -119 },
     npcName: 'Old Garrick',
     npcEmoji: '🧓🏾',

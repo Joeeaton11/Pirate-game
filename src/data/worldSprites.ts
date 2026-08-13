@@ -43,6 +43,15 @@ export const BUILDING_SPRITES = {
   spice_merchant: require('../../assets/sprites/buildings/spice_merchant.png'),
   market: require('../../assets/sprites/buildings/market.png'),
   fishmonger: require('../../assets/sprites/buildings/fishmonger.png'),
+  // "Whole-island art pass" (2026-08-13) — cut from master_catalog_v1.png's "Buildings – Special"
+  // row (jail/fort/2 towers/lighthouse) and tortuga_focus_v1.png (chapel, re-cropped separately
+  // from the lighthouse this time). See ART_BRIEF.md Part A — these were already drawn and unused.
+  jail: require('../../assets/sprites/buildings/jail.png'),
+  fort: require('../../assets/sprites/buildings/fort.png'),
+  tower_stone: require('../../assets/sprites/buildings/tower_stone.png'),
+  tower_wood: require('../../assets/sprites/buildings/tower_wood.png'),
+  lighthouse: require('../../assets/sprites/buildings/lighthouse.png'),
+  chapel: require('../../assets/sprites/buildings/chapel.png'),
 };
 export type BuildingSpriteId = keyof typeof BUILDING_SPRITES;
 
@@ -56,3 +65,45 @@ export const WORLD_SPRITES = {
   flagSkullBlack: require('../../assets/sprites/world/flag_skull_black.png'),
   flagUk: require('../../assets/sprites/world/flag_uk.png'),
 };
+
+/** Real house art (2026-08-13 art pass) — 8 designs cut from master_catalog_v1.png's
+ * "Buildings – Residential" row, replacing the 3-emoji rotation MapScreen used to draw every
+ * house with. Purely decorative like HOUSES itself — no per-house identity. */
+export const HOUSE_SPRITES = [
+  require('../../assets/sprites/houses/house_1.png'),
+  require('../../assets/sprites/houses/house_2.png'),
+  require('../../assets/sprites/houses/house_3.png'),
+  require('../../assets/sprites/houses/house_4.png'),
+  require('../../assets/sprites/houses/house_5.png'),
+  require('../../assets/sprites/houses/house_6.png'),
+  require('../../assets/sprites/houses/house_7.png'),
+  require('../../assets/sprites/houses/house_8.png'),
+];
+
+/** Real vegetation/terrain-feature art (2026-08-13 art pass), cut from master_catalog_v1.png's
+ * "Vegetation" and "Cliffs, Rocks & Caves" rows. Keyed so scenery.ts entries can opt in per-prop;
+ * anything not listed here keeps rendering its emoji as before. */
+export const NATURE_SPRITES = {
+  tree_palm: require('../../assets/sprites/nature/tree_palm.png'),
+  tree_round: require('../../assets/sprites/nature/tree_round.png'),
+  tree_tall: require('../../assets/sprites/nature/tree_tall.png'),
+  bush_plain: require('../../assets/sprites/nature/bush_plain.png'),
+  bush_flower: require('../../assets/sprites/nature/bush_flower.png'),
+  rock_spire: require('../../assets/sprites/nature/rock_spire.png'),
+  cave_arch: require('../../assets/sprites/nature/cave_arch.png'),
+};
+export type NatureSpriteId = keyof typeof NATURE_SPRITES;
+
+/** Small decorative set-dressing (2026-08-13 art pass), cut from master_catalog_v1.png's
+ * "Street Props" and "Props & Containers" rows — scattered around the town core and docks for
+ * visual density, same spirit as SCENERY but its own table since these aren't foliage. */
+export const PROP_SPRITES = {
+  fountain: require('../../assets/sprites/props/fountain.png'),
+  lamppost: require('../../assets/sprites/props/lamppost.png'),
+  market_stall: require('../../assets/sprites/props/market_stall.png'),
+  bench: require('../../assets/sprites/props/bench.png'),
+  barrel: require('../../assets/sprites/props/barrel.png'),
+  crate: require('../../assets/sprites/props/crate.png'),
+  flag_skull: require('../../assets/sprites/props/flag_skull.png'),
+};
+export type PropSpriteId = keyof typeof PROP_SPRITES;
