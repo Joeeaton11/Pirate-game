@@ -14,7 +14,8 @@ export type BuildingType =
   | 'warehouse'
   | 'customs'
   | 'smithy'
-  | 'ruins';
+  | 'ruins'
+  | 'gaol';
 
 export interface Building {
   id: string;
@@ -313,6 +314,39 @@ export const BUILDINGS: Building[] = [
     npcEmoji: '🎩',
     dialogue:
       "Every crate that crosses this harbor's meant to pay its due to the crown. Half of it does. I've learned not to ask about the other half.",
+  },
+  {
+    // Blueprint Sheet 3, 2026-08-13: the governor's house, first added as an invented "hero"
+    // building in the illustrated town plan. Set back from the busiest quay, near Customs House
+    // and Basse-Terre Square, per the sheet's own placement.
+    id: 'tortuga_le_vasseur_residence',
+    islandId: 'tortuga_cove',
+    name: "Le Vasseur's Residence",
+    type: 'manor',
+    emoji: '🏛️',
+    offset: { x: -10, y: -10 },
+    npcName: 'Governor Le Vasseur',
+    npcEmoji: '👑',
+    dialogue:
+      "Every crew that sails from my harbor pays a courtesy call, sooner or later. Call it a landing fee, call it insurance — either way, I'll have my due, same as the Customs House gets theirs.",
+    recruit: { templateId: 'boarding_captain', level: 7, cost: 110 },
+  },
+  {
+    // Blueprint Sheet 3, 2026-08-13: the town gaol, first added as an invented "hero" building in
+    // the illustrated town plan. Placed near the harbor's admin core, close enough to the Locked
+    // Ward (rescue.ts) to read as the same complex — the Gaol is the front door, the Locked Ward
+    // is the wing nobody's supposed to know about.
+    id: 'tortuga_gaol',
+    islandId: 'tortuga_cove',
+    name: 'The Gaol',
+    type: 'gaol',
+    emoji: '⛓️',
+    offset: { x: 75, y: -10 },
+    npcName: 'Warden Achille',
+    npcEmoji: '🔑',
+    dialogue:
+      "This is the gaol proper — debtors, drunks, the odd deserter. The Locked Ward's around back, for the ones nobody's supposed to know we're holding. I don't ask who sent you, and I'd rather you didn't tell me.",
+    recruit: { templateId: 'cursed_bosun', level: 6, cost: 90 },
   },
   {
     id: 'tortuga_smithy',

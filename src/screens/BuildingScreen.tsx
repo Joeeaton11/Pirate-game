@@ -30,6 +30,7 @@ const INTERIOR_COLORS: Record<BuildingType, string> = {
   customs: '#2a2a20',
   smithy: '#2a1c18',
   ruins: '#26301f',
+  gaol: '#26262a',
 };
 
 const FLOOR_COLORS: Record<BuildingType, string> = {
@@ -46,6 +47,7 @@ const FLOOR_COLORS: Record<BuildingType, string> = {
   customs: '#3a3a2c',
   smithy: '#3a2a22',
   ruins: '#3a4a30',
+  gaol: '#3a3a40',
 };
 
 const PLAYER_SIZE = 28;
