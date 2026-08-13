@@ -1,5 +1,19 @@
 {
   "enabledPlugins": {
     "expo@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc --noEmit)",
+      "Bash(node test-game.js)",
+      "Bash(git -C /home/user/Pirate-game log*)",
+      "Bash(git -C /home/user/Pirate-game status*)",
+      "Bash(curl -s *)",
+      "mcp__github__actions_get",
+      "mcp__github__actions_list",
+      "Bash(node .tmpscripts/shot_ultimate.js)",
+      "Bash(node .tmpscripts/verify_battle.js)",
+      "mcp__github__get_job_logs"
+    ]
   }
 }
