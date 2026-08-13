@@ -52,27 +52,6 @@ export const LANDMARKS: Landmark[] = [
       "Real tobacco fields once grew on Tortuga's south side, in a district the buccaneers called La Ringot. Whatever coin doesn't come from plunder comes from here.",
   },
   {
-    // Full-town rebuild 2026-08-07 (item 52): east side of the bay, near the Fishmonger's Stall
-    // and Chapelle Notre-Dame.
-    id: 'tortuga_bakery',
-    islandId: 'tortuga_cove',
-    offset: { x: 319, y: -241 },
-    name: "The Baker's Oven",
-    emoji: '🍞',
-    description: "Bread at dawn, before the tavern crowd's even awake. Half the town lines up for it anyway.",
-  },
-  {
-    // Full-town rebuild 2026-08-07 (item 52): the docks-and-careening quarter on the west side of
-    // the bay, near the Cooper's Yard — rope-makers alongside the barrel-makers, matching a real
-    // outlaw port's waterfront trades.
-    id: 'tortuga_ropewalk',
-    islandId: 'tortuga_cove',
-    offset: { x: -280, y: -175 },
-    name: 'The Ropewalk',
-    emoji: '🪢',
-    description: "A long, low shed where hemp gets twisted into rigging, coil by coil. No ship sails without what's made here.",
-  },
-  {
     id: 'tortuga_high_woods',
     islandId: 'tortuga_cove',
     offset: { x: 436, y: -40 },

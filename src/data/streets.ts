@@ -170,6 +170,37 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: -70, y: 416 }, to: { x: 120, y: 410 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 120, y: 410 }, to: { x: 162, y: 371 }, style: 'path' },
 
+  // "Add everything" pass (2026-08-13): alleys to the rest of Blueprint Sheet 3's named
+  // buildings — one straight connector each, from the nearest existing street point.
+  { islandId: 'tortuga_cove', from: { x: -246, y: -259 }, to: { x: -278, y: -258 }, style: 'main' }, // -> The Signal Post
+  { islandId: 'tortuga_cove', from: { x: -293, y: -64 }, to: { x: -315, y: -78 }, style: 'main' }, // -> The Powder Magazine
+  { islandId: 'tortuga_cove', from: { x: -280, y: -84 }, to: { x: -262, y: -73 }, style: 'main' }, // -> The Counting House
+  { islandId: 'tortuga_cove', from: { x: -308, y: -40 }, to: { x: -291, y: -29 }, style: 'main' }, // -> The Vendue House
+  { islandId: 'tortuga_cove', from: { x: -297, y: -57 }, to: { x: -376, y: -108 }, style: 'main' }, // -> The Gunsmith's Shop
+  { islandId: 'tortuga_cove', from: { x: -414, y: -10 }, to: { x: -383, y: -45 }, style: 'main' }, // -> The Apothecary
+  { islandId: 'tortuga_cove', from: { x: -350, y: 25 }, to: { x: -392, y: 87 }, style: 'main' }, // -> The Lucky Draw
+  { islandId: 'tortuga_cove', from: { x: -350, y: 25 }, to: { x: -320, y: 86 }, style: 'main' }, // -> The Tailor's Shop
+  { islandId: 'tortuga_cove', from: { x: -340, y: 9 }, to: { x: -315, y: 25 }, style: 'main' }, // -> The Netmender's Shed
+  { islandId: 'tortuga_cove', from: { x: -313, y: -33 }, to: { x: -243, y: 12 }, style: 'main' }, // -> The Almshouse
+  { islandId: 'tortuga_cove', from: { x: -268, y: -132 }, to: { x: -305, y: -136 }, style: 'main' }, // -> Shipwright's Slip
+  { islandId: 'tortuga_cove', from: { x: -122, y: -24 }, to: { x: -185, y: 25 }, style: 'main' }, // -> The Careening Shed
+  { islandId: 'tortuga_cove', from: { x: -122, y: -24 }, to: { x: -135, y: 25 }, style: 'main' }, // -> The Tannery
+  { islandId: 'tortuga_cove', from: { x: -122, y: -24 }, to: { x: -165, y: -17 }, style: 'main' }, // -> The Distillery
+  { islandId: 'tortuga_cove', from: { x: -187, y: -60 }, to: { x: -220, y: -31 }, style: 'main' }, // -> The Tobacco Warehouse
+  { islandId: 'tortuga_cove', from: { x: -70, y: -24 }, to: { x: -65, y: 24 }, style: 'main' }, // -> The Ship's Provisioner
+  { islandId: 'tortuga_cove', from: { x: -53, y: -26 }, to: { x: -7, y: 32 }, style: 'main' }, // -> The Salt Works
+  { islandId: 'tortuga_cove', from: { x: 47, y: -38 }, to: { x: 19, y: 67 }, style: 'main' }, // -> The Boarding House
+  { islandId: 'tortuga_cove', from: { x: 47, y: -38 }, to: { x: 33, y: 4 }, style: 'main' }, // -> The Turtle Kraal
+  { islandId: 'tortuga_cove', from: { x: 165, y: -23 }, to: { x: 158, y: 32 }, style: 'main' }, // -> The Timber Yard
+  { islandId: 'tortuga_cove', from: { x: 117, y: -25 }, to: { x: 123, y: 86 }, style: 'main' }, // -> The Sexton's House
+  { islandId: 'tortuga_cove', from: { x: 117, y: -25 }, to: { x: 97, y: 38 }, style: 'main' }, // -> Fishermen's Guildhall
+  { islandId: 'tortuga_cove', from: { x: 66, y: -134 }, to: { x: 52, y: -119 }, style: 'main' }, // -> The Old Watchtower
+
+  // Detached Row ("add everything" pass, 2026-08-13): a straighter street south of the packed
+  // core, plus a connector back into the rural trail network.
+  { islandId: 'tortuga_cove', from: { x: -260, y: 300 }, to: { x: 284, y: 300 }, style: 'main' },
+  { islandId: 'tortuga_cove', from: { x: -56, y: 300 }, to: { x: -98, y: 353 }, style: 'main' },
+
   // New Providence (Nassau) — Republic Square as the hub, same pattern as Basse-Terre Square.
   { islandId: 'new_providence', from: { x: 0, y: -20 }, to: { x: -119, y: 99 }, style: 'main' }, // -> The Cracked Hull
   { islandId: 'new_providence', from: { x: 0, y: -20 }, to: { x: 311, y: 72 }, style: 'main' }, // -> The Distillery

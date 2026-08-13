@@ -132,6 +132,22 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: 320, y: 220 } }, // near La Ringot Fields
   { islandId: 'tortuga_cove', offset: { x: 476, y: -40 } }, // near the High Woods
   { islandId: 'tortuga_cove', offset: { x: -110, y: 416 } }, // near the Forgotten Graves
+
+  // Detached Row ("add everything" pass, 2026-08-13): nine houses evenly spaced along a straight
+  // street south of the packed harbor core, per Blueprint Sheet 3 — a later, tidier addition to
+  // the town rather than more of the cramped waterfront. Sits on the one long clear east-west
+  // stretch of open ground between Bois Sombre and the coastline, checked clear of every existing
+  // offset. See streets.ts for the row's own street plus its connector back to the harbor.
+  { islandId: 'tortuga_cove', offset: { x: -260, y: 300 } },
+  { islandId: 'tortuga_cove', offset: { x: -192, y: 300 } },
+  { islandId: 'tortuga_cove', offset: { x: -124, y: 300 } },
+  { islandId: 'tortuga_cove', offset: { x: -56, y: 300 } },
+  { islandId: 'tortuga_cove', offset: { x: 12, y: 300 } },
+  { islandId: 'tortuga_cove', offset: { x: 80, y: 300 } },
+  { islandId: 'tortuga_cove', offset: { x: 148, y: 300 } },
+  { islandId: 'tortuga_cove', offset: { x: 216, y: 300 } },
+  { islandId: 'tortuga_cove', offset: { x: 284, y: 300 } },
+
   // New Providence residential grid: generated the same way as Tortuga's original grid — candidate positions
   // along a residential avenue grid, filtered to inside the real island polygon and clear of
   // every building/fort/quest marker and every other house (see GAME_DESIGN.md for the script).
