@@ -1582,9 +1582,9 @@ export default function MapScreen({ navigation }: Props) {
                 const y1 = islandPos.y + street.from.y;
                 const x2 = islandPos.x + street.to.x;
                 const y2 = islandPos.y + street.to.y;
-                // 'main' streets get a wider light sidewalk stroke under a narrower dark road
-                // stroke, so downtown reads as a real paved street instead of a bare dirt track.
-                // 'path' stays a single thin dashed line — a rough or treacherous route, no sidewalk.
+                // 'main' streets render as a single clean paved stroke — no separate lighter
+                // sidewalk layer underneath, which used to peek out on both edges as a border.
+                // 'path' stays a single thin dashed line — a rough or treacherous route.
                 if (street.style === 'main') {
                   // Real cobblestone texture on Tortuga's roads (same incremental scoping as the
                   // ground tile fill — only Tortuga has tile art cut so far); everywhere else keeps
@@ -1592,10 +1592,16 @@ export default function MapScreen({ navigation }: Props) {
                   const roadStroke =
                     street.islandId === 'tortuga_cove' ? 'url(#cobblePattern)' : '#a9825a';
                   return (
-                    <React.Fragment key={i}>
-                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d9cdb0" strokeWidth={28} strokeLinecap="round" />
-                      <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke={roadStroke} strokeWidth={16} strokeLinecap="round" />
-                    </React.Fragment>
+                    <Line
+                      key={i}
+                      x1={x1}
+                      y1={y1}
+                      x2={x2}
+                      y2={y2}
+                      stroke={roadStroke}
+                      strokeWidth={20}
+                      strokeLinecap="round"
+                    />
                   );
                 }
                 return (
@@ -1791,9 +1797,10 @@ export default function MapScreen({ navigation }: Props) {
                       left: pos.x - size / 2,
                       top: pos.y - size / 2,
                     },
-                    // Real sprite art already has its own soft vignette edge — the dark rounded
-                    // badge behind the emoji/badge icons would just muddy it.
-                    building.spriteId && { backgroundColor: 'transparent', borderWidth: 0 },
+                    // No boxed/highlighted background — buildings render as plain art or emoji on
+                    // the map now. Enterability is signaled some other way (still to be decided),
+                    // not by a badge around every building.
+                    { backgroundColor: 'transparent', borderWidth: 0 },
                   ]}
                 >
                   {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
