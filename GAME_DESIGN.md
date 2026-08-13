@@ -2543,3 +2543,22 @@ long collection grind *and* one legendary payoff at the top of it.
     pixel-identical to item 73. Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and an
     in-browser check of the town core shows the same layout as before with only the handful of
     nudges visible.
+75. ✅ **Captain Scally's map sprite re-cut: fixed the shadow smudge, added the missing SW turn
+    frame** (2026-08-13) — "captain scally has a weird shadow... do we also need any new animation
+    frames, I know we were missing one view right?" Both were cutting/tooling bugs, not missing
+    art: `assets/brand/scally_sprite_sheet_source.png` already has real per-pixel alpha (confirmed
+    by inspecting the channel directly) with a small, soft, centered shadow ellipse baked under
+    each pose's feet — clean on every row checked (down/left/right/up walk, all 4 idle rows, all 8
+    turn-frame poses). Whatever cut the shipped `assets/sprites/scally/*.png` files previously
+    didn't use that native alpha; each frame instead carried a lopsided dark smudge (background/
+    row bleed). Re-cut every walk (20), idle (12), and turn (now 4, was 3) frame straight from the
+    sheet's own alpha channel — auto-detected row/column boundaries via content gaps, tight-trimmed
+    each frame to its own bbox with a few px of padding, no re-derived thresholding at all. Also
+    answers the "missing view": the sheet's "TURN FRAMES (8 DIRECTIONS)" panel has all 8 real
+    poses, but the previous cut only pulled 3 (SE/NE/NW) and stood in for the missing SW pivot
+    (the left<->down turn) with a horizontal mirror of SE (`scallySprites.ts`'s `TURN_SW`). The
+    4th real pose was sitting uncut in the sheet the whole time — cut it as `turn_sw.png` and wired
+    it in directly, no mirror trick needed anymore. Nothing else in the sheet needs new frames for
+    what's currently wired up (movement + idle + the 4 turn pivots are all covered by real art).
+    Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and an in-browser crop over the
+    player token confirms a clean, centered, symmetric shadow.

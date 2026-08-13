@@ -62,16 +62,15 @@ export interface TurnFrame {
   mirror: boolean;
 }
 
-// The sheet's "Turn Frames (8 directions)" panel is a continuous half-circle sweep: down (S) ->
-// down/right (SE) -> right (E) -> up/right (NE) -> up (N) -> up/left (NW) -> left (W). That's a
-// mid-pivot pose for 3 of our 4 cardinal-to-cardinal turns directly. The 4th — left <-> down, the
-// "SW" quadrant — isn't in the sheet (the sweep only goes one way around), so it reuses the SE
-// frame horizontally mirrored: the same left/right flip trick the old emoji token used, and
-// Scally's turn pose is symmetric enough that the mirror reads fine.
+// The sheet's "Turn Frames (8 directions)" panel is a full circular sweep, all 8 genuine poses:
+// down (S) -> down/right (SE) -> up/right-ish (NE) -> up (N) -> up/left-ish (NW) -> down/left (SW)
+// -> back to down. Re-cut 2026-08-13 (all 4 are real art now, straight off the source sheet — the
+// previous cut only found 3 of the 8 and stood the missing SW in with a horizontal mirror of SE;
+// turn_sw.png is a real, distinct frame, not a mirror).
 const TURN_SE: TurnFrame = { source: require('../../assets/sprites/scally/turn_se.png'), mirror: false };
 const TURN_NE: TurnFrame = { source: require('../../assets/sprites/scally/turn_ne.png'), mirror: false };
 const TURN_NW: TurnFrame = { source: require('../../assets/sprites/scally/turn_nw.png'), mirror: false };
-const TURN_SW: TurnFrame = { source: TURN_SE.source, mirror: true };
+const TURN_SW: TurnFrame = { source: require('../../assets/sprites/scally/turn_sw.png'), mirror: false };
 
 const TURN_FRAME_BY_PAIR: Partial<Record<string, TurnFrame>> = {
   'down|right': TURN_SE,
