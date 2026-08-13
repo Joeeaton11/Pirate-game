@@ -19,7 +19,7 @@ export const LANDMARKS: Landmark[] = [
     // quay, near the harbor's administrative core (Harbourmaster's Office, Customs House).
     id: 'tortuga_town_square',
     islandId: 'tortuga_cove',
-    offset: { x: 0, y: -180 },
+    offset: { x: 24, y: -120 },
     name: 'Basse-Terre Square',
     emoji: '⛲',
     description:
@@ -41,7 +41,7 @@ export const LANDMARKS: Landmark[] = [
     // harbor's mouth, opposite Fort de Rocher on the east headland.
     id: 'tortuga_lighthouse',
     islandId: 'tortuga_cove',
-    offset: { x: -204, y: -372 },
+    offset: { x: -192, y: -336 },
     name: 'The Lighthouse',
     emoji: '🗼',
     description: "Lit every night without fail — the one soul in Tortuga everyone agrees is worth paying, raid or no raid.",
