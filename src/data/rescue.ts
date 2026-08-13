@@ -10,7 +10,7 @@ export const RESCUE_POINT: RescuePoint = {
   islandId: 'tortuga_cove',
   // Full-town rebuild 2026-08-07 (item 52): near Basse-Terre Square, the harbor town's
   // administrative core.
-  offset: { x: 47, y: -38 },
+  offset: { x: 48, y: -48 },
 };
 
 export function rescuePointWorldPosition(islandPosition: { x: number; y: number }): {

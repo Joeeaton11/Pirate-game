@@ -416,7 +416,9 @@ long collection grind *and* one legendary payoff at the top of it.
 ## Movement & Exploration
 - ✅ **Deliberately not grid-based** — this is our biggest intentional divergence from Pokémon.
   Kingshot-style drag-to-move continuous movement instead of tile-by-tile. Keep this; it's core to
-  the pitch.
+  the pitch. This is about *movement*, not *town layout* — item 73 later in this doc puts Tortuga
+  Cove's streets/buildings/houses on an orthogonal grid too, but the player still glides over it
+  continuously rather than stepping tile-by-tile; the two aren't in tension.
 - ✅ Camera follows player; speed and sprite change between sea (ship) and land (on-foot)
 - ✅ **Pokémon-close camera zoom, built 2026-07-31, tuned to 5x against reference screenshots**:
   the outdoor map now renders at 5x its native scale (`ZOOM` in `MapScreen.tsx`) — buildings,
@@ -2491,3 +2493,27 @@ long collection grind *and* one legendary payoff at the top of it.
     strip (see Battle System UI work): the strip should show one dim/locked "next slot" placeholder
     at the end rather than every unearned slot, so a new player's first battle doesn't show 5 empty
     grey circles
+73. ✅ **Tortuga Cove's town snapped onto an orthogonal grid, diagonal streets removed** (2026-08-13)
+    — direct feedback: "I thought we were going for the grid layout, everything in a grid, and
+    tiled, removing all diagonal roads and paths etc." Movement itself is unchanged (still the
+    continuous drag-to-sail from the "Movement & Exploration" section above — see that note for why
+    tile-stepping stays off the table); only the *town's* street/building/house layout got gridded,
+    and only on Tortuga Cove — the other 6 islands' street plans are untouched. Built
+    programmatically, not redesigned by hand: every Tortuga building, house, and street-connected
+    landmark/marker (Basse-Terre Square, the Lighthouse, La Ringot Fields, the Locked Ward, the
+    Bounty Board — the handful whose offset was also a literal street endpoint) got snapped to the
+    nearest free cell of a 24-unit lattice (collision-resolved via spiral search, re-verified inside
+    `TORTUGA_SHAPE`), then reconnected with a Manhattan minimum spanning tree — the shortest network
+    of strictly horizontal/vertical edges that still reaches every point, each multi-axis hop split
+    into an L-shaped elbow instead of a diagonal line. Average displacement from each entity's old
+    position was ~9 units (max ~18) — this is a snap, not a redesign, per the same direct feedback's
+    scope. Deliberately left un-gridded: decorative Scenery (the High Woods/Bois Sombre/ruins/
+    graveyard trees, rocks, and grave markers — hundreds of them, meant to read as natural, not
+    town blocks), the wilderness Landmarks with no street connection, Resource nodes, Treasure
+    sites, and the Blackfin duel-stage markers — none of these are part of "the roads and paths,"
+    and gridding a forest canopy would look wrong rather than better. Piers/quays/the breakwater
+    (`harbor.ts`) are also untouched — they hug the real coastline by design, same as the coastline
+    itself. Verified with the same Python collision/polygon-membership scripting used throughout
+    this project's town-layout work, `npx tsc --noEmit` clean, all 45 `jest` tests still green, and
+    an in-browser check (temporarily nudging `START_POSITION` to sweep a few different parts of
+    town, then reverting it) confirmed clean right-angle streets and no rendering regressions.
