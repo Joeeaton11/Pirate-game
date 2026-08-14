@@ -2643,6 +2643,15 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })
             : [];
+          const nearPiers = SHOW_STREETS
+            ? PIERS.filter((p) => {
+                const islandPos = ISLANDS[p.islandId].position;
+                return (
+                  inView(islandPos.x + p.from.x, islandPos.y + p.from.y) ||
+                  inView(islandPos.x + p.to.x, islandPos.y + p.to.y)
+                );
+              })
+            : [];
           const nearLords = SHOW_MAP_MARKERS
             ? PIRATE_LORDS.filter((l) => {
                 const pos = pirateLordWorldPosition(l, ISLANDS[l.islandId].position);
@@ -2714,6 +2723,19 @@ export default function MapScreen({ navigation }: Props) {
                       strokeWidth={10}
                       strokeLinecap="round"
                     />
+                  );
+                })}
+                {/* Piers/jetties — a distinct warm brown from both street colors above so they
+                    read as a separate, wooden feature reaching off the coastline rather than
+                    another road. */}
+                {nearPiers.map((pier, i) => {
+                  const islandPos = ISLANDS[pier.islandId].position;
+                  const x1 = islandPos.x + pier.from.x;
+                  const y1 = islandPos.y + pier.from.y;
+                  const x2 = islandPos.x + pier.to.x;
+                  const y2 = islandPos.y + pier.to.y;
+                  return (
+                    <Line key={`pier-${i}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8a5a2b" strokeWidth={14} strokeLinecap="square" />
                   );
                 })}
                 {nearHouses.map((house, i) => {

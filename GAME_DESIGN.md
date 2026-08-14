@@ -3156,3 +3156,15 @@ long collection grind *and* one legendary payoff at the top of it.
     Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk to the
     harbor: piers read as clean straight wooden boardwalks with real plank-seam texture, no
     distorted horizontal chunk anywhere along their length.
+93. ✅ **Piers/jetties added to the minimap** (2026-08-14) — direct request: "Show the jetty and
+    piers on the mini map." They were already filtered into every other `near*`/`SHOW_*`-gated
+    category (streets, houses, buildings, lords, resource nodes, quest markers) but `PIERS` itself
+    had no minimap entry at all, gated or not — a plain oversight, not a hidden-by-design case.
+    Added `nearPiers` alongside the existing `nearStreets` (same `inView` bounds check, same
+    `SHOW_STREETS` gate PIERS' main-map render already uses) and a matching `<Line>` render in the
+    minimap `<Svg>`, positioned right after the street lines. Given a distinct warm brown
+    (`#8a5a2b`) rather than either street color (tan `#d9cdb0` for 'main', darker tan `#a9825a` for
+    'path') so a pier reads as its own wooden-jetty feature reaching off the coastline, not another
+    road. Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright
+    capture of the minimap near Tortuga's harbor: all 4 piers now show as short brown spurs poking
+    out from the green coastline into the blue water, clearly distinct from the tan street network.
