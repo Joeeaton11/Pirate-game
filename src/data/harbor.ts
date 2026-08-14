@@ -20,13 +20,24 @@ export interface PierSegment {
   to: { x: number; y: number };
 }
 
+// Straightened to due-vertical 2026-08-14, per direct feedback ("the jetty's need to also be
+// vertical and horizontal not diagonal") — each pier's original diagonal `to` point had real
+// lateral drift (up to 86 units sideways over its length), left over from the Shapely-generated
+// harbor rebuild that only checked "does the tip land in open water," never "is this axis-aligned."
+// Since every pier already reaches outward from its quay attachment more north than sideways (the
+// bay opens north), snapping was a one-line fix per pier: keep `from` (the quay attachment, which
+// has to stay put) and set `to.x = from.x`, keeping the original `to.y` so the pier's length is
+// unchanged — turns every pier into a straight vertical spur. Re-verified with the same
+// point-in-polygon check the original rebuild used: all 4 new tips still fall outside
+// TORTUGA_SHAPE. DOCKED_BOATS' first 4 entries and BLACK_PEARL_START_OFFSET (blackPearl.ts) are
+// anchored to these tips and were moved to match.
 export const PIERS: PierSegment[] = [
   // Four piers off the quay, spread around the bay — the docks-and-careening quarter (west),
   // the harbor's administrative core, the tavern district, and the east side by the chapel.
-  { islandId: 'tortuga_cove', from: { x: -146, y: -311 }, to: { x: -200, y: -440 } },
-  { islandId: 'tortuga_cove', from: { x: -9, y: -210 }, to: { x: -23, y: -389 } },
-  { islandId: 'tortuga_cove', from: { x: 68, y: -205 }, to: { x: 95, y: -342 } },
-  { islandId: 'tortuga_cove', from: { x: 205, y: -281 }, to: { x: 291, y: -439 } },
+  { islandId: 'tortuga_cove', from: { x: -146, y: -311 }, to: { x: -146, y: -440 } },
+  { islandId: 'tortuga_cove', from: { x: -9, y: -210 }, to: { x: -9, y: -389 } },
+  { islandId: 'tortuga_cove', from: { x: 68, y: -205 }, to: { x: 68, y: -342 } },
+  { islandId: 'tortuga_cove', from: { x: 205, y: -281 }, to: { x: 205, y: -439 } },
 ];
 
 /** A built stone quay along the natural curve of the new horseshoe bay's coastline — rendered
@@ -59,12 +70,13 @@ export interface HarborBoat {
   rotationDeg?: number;
 }
 
-/** Small boats moored right at or along the piers and quay themselves — one per pier tip. */
+/** Small boats moored right at or along the piers and quay themselves — one per pier tip.
+ * First 4 offsets moved 2026-08-14 to match PIERS' new straightened (due-vertical) tips. */
 export const DOCKED_BOATS: HarborBoat[] = [
-  { islandId: 'tortuga_cove', offset: { x: -200, y: -440 }, emoji: '⛵', fontSize: 26, rotationDeg: -15 },
-  { islandId: 'tortuga_cove', offset: { x: -23, y: -389 }, emoji: '🛶', fontSize: 20, rotationDeg: 20 },
-  { islandId: 'tortuga_cove', offset: { x: 95, y: -342 }, emoji: '🚣', fontSize: 20, rotationDeg: -25 },
-  { islandId: 'tortuga_cove', offset: { x: 291, y: -439 }, emoji: '⛵', fontSize: 26, rotationDeg: 10 },
+  { islandId: 'tortuga_cove', offset: { x: -146, y: -440 }, emoji: '⛵', fontSize: 26, rotationDeg: -15 },
+  { islandId: 'tortuga_cove', offset: { x: -9, y: -389 }, emoji: '🛶', fontSize: 20, rotationDeg: 20 },
+  { islandId: 'tortuga_cove', offset: { x: 68, y: -342 }, emoji: '🚣', fontSize: 20, rotationDeg: -25 },
+  { islandId: 'tortuga_cove', offset: { x: 205, y: -439 }, emoji: '⛵', fontSize: 26, rotationDeg: 10 },
   // Rowboats tied up directly against the quay wall, not off a pier tip.
   { islandId: 'tortuga_cove', offset: { x: -87, y: -280 }, emoji: '🚣', fontSize: 18, rotationDeg: 5 },
   { islandId: 'tortuga_cove', offset: { x: 146, y: -261 }, emoji: '🛶', fontSize: 18, rotationDeg: -10 },

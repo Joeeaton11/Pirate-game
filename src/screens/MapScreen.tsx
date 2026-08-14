@@ -1927,24 +1927,10 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
 
-              {SHOW_STREETS &&
-                PIERS.map((pier, i) => {
-                const islandPos = ISLANDS[pier.islandId].position;
-                const x1 = islandPos.x + pier.from.x;
-                const y1 = islandPos.y + pier.from.y;
-                const x2 = islandPos.x + pier.to.x;
-                const y2 = islandPos.y + pier.to.y;
-                // Real wood-plank texture for the deck (was a flat brown stroke), plus a thin
-                // dark seam down the center for the plank-joint line the flat inner stroke used
-                // to stand in for — visually distinct from both paved 'main' streets and dirt
-                // 'path' tracks, and free to run straight out over open water.
-                return (
-                  <React.Fragment key={`pier-${i}`}>
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#woodPattern)" strokeWidth={20} strokeLinecap="square" />
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#3d2c1e" strokeOpacity={0.5} strokeWidth={4} strokeLinecap="square" />
-                  </React.Fragment>
-                );
-              })}
+              {/* PIERS themselves are no longer drawn here — replaced with the real dock_pier
+                  sprite, rendered as a normal View-layer image below (alongside HOUSES/BUILDINGS)
+                  instead of an SVG stroke, since it's a placed piece of art, not a tileable
+                  texture. See that render for why. */}
 
               {SHOW_STREETS &&
                 QUAYS.map((quay, i) => {
@@ -1983,6 +1969,38 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
             </Svg>
+
+            {/* Real generated jetty art (assets/sprites/world/dock_pier.png, cut during the
+                Black Pearl pass but never actually wired into a render) replacing the plain
+                wood-pattern SVG stroke PIERS used to draw — direct request: "replace them with
+                the sprites we generated for the jetty." Every pier is now due-vertical (see
+                harbor.ts), so this stretches the one piece of dock art to each pier's exact
+                x1..x2/y1..y2 span rather than tiling it — it's a single illustrated scene, not a
+                repeatable plank texture, so tiling it the way cobble/wood/dirt work would repeat
+                the same chest/post detail down the boardwalk. */}
+            {SHOW_STREETS &&
+              PIERS.map((pier, i) => {
+                const islandPos = ISLANDS[pier.islandId].position;
+                const x1 = islandPos.x + pier.from.x;
+                const y1 = islandPos.y + pier.from.y;
+                const y2 = islandPos.y + pier.to.y;
+                const pierWidth = 36;
+                const pierHeight = Math.abs(y2 - y1);
+                return (
+                  <RNImage
+                    key={`pier-sprite-${i}`}
+                    source={WORLD_SPRITES.dockPier}
+                    resizeMode="stretch"
+                    style={{
+                      position: 'absolute',
+                      left: x1 - pierWidth / 2,
+                      top: Math.min(y1, y2),
+                      width: pierWidth,
+                      height: pierHeight,
+                    }}
+                  />
+                );
+              })}
 
             {SHOW_HOUSES &&
               HOUSES.map((house, i) => {

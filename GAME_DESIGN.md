@@ -3096,3 +3096,37 @@ long collection grind *and* one legendary payoff at the top of it.
     rectangular paving tile. Pure rendering change, no data/geometry touched. Verified `npx tsc
     --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk confirming both the
     dirt path and the cobblestone streets now end in flat square blocks with no rounding anywhere.
+91. 🔄 **Piers straightened to due-vertical + wired to the real generated jetty sprite**
+    (2026-08-14) — direct follow-up: "The jetty's need to also be vertical and horizontal not
+    diagonal. Then replace them with the sprites we generated for the jetty." Two separate fixes.
+
+    **Straightening**: `harbor.ts`'s 4 `PIERS` each had real diagonal drift (up to 86 units
+    sideways over their length) left over from the original Shapely harbor-rebuild script, which
+    only checked "does the tip land in open water," never axis-alignment. Since every pier already
+    reaches predominantly north (the bay opens north) more than sideways, snapping was a one-line
+    fix per pier: keep `from` (the quay attachment point, which has to stay put) and set
+    `to.x = from.x`, unchanged `to.y` — turns every pier into a straight vertical spur, length
+    unchanged. Re-verified with the same ray-casting point-in-polygon check the original harbor
+    build used (run standalone against `TORTUGA_SHAPE`, not a new dependency): all 4 new tips still
+    land outside the island polygon, same invariant the original rebuild documented. `DOCKED_BOATS`'
+    first 4 entries and `blackPearl.ts`'s `BLACK_PEARL_START_OFFSET` are anchored to these exact
+    tips (boats moor there, the Black Pearl docks a few units past pier 0's tip) — moved to match,
+    same "a few units past the tip" extension, now purely north instead of along the old diagonal.
+
+    **Sprite wiring**: `assets/sprites/world/dock_pier.png` — real generated jetty art, cut during
+    the earlier Black Pearl pass and exported as `WORLD_SPRITES.dockPier` (`worldSprites.ts:77`) —
+    was never actually placed anywhere; piers kept rendering as a plain wood-pattern SVG stroke
+    (see item 88) instead. Wired it in properly: since it's a single illustrated dock scene (posts,
+    planking, water gaps), not a repeatable plank texture, tiling it the way cobble/wood/dirt do
+    would repeat the same chest/post detail down the boardwalk, so instead each pier gets one
+    `<Image resizeMode="stretch">` instance sized to its own exact `x1..x2/y1..y2` span (36 units
+    wide, height = the pier's real length) — the same "one placed image per feature" pattern
+    buildings/landmarks already use, just stretched to a line's bounding box instead of a fixed
+    icon size. Moved out of the `<Svg>` block entirely into the View-layer render (alongside
+    HOUSES/BUILDINGS) since `Image` handles this more predictably than an `SvgImage`. The old
+    two-stroke SVG pier render (wood-pattern deck + dark seam) is gone.
+
+    Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk to the
+    harbor: all 4 piers render as straight vertical wooden jetties with visible plank/post detail
+    reaching from the quay into open water, no diagonal drift, boats and the Black Pearl's docked
+    position still line up at the new tips.

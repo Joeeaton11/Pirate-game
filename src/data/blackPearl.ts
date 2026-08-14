@@ -11,7 +11,9 @@ export const BLACK_PEARL_ISLAND_ID = 'tortuga_cove';
 // — a few units past the actual tip, so her hull sits in open water just beyond the boardwalk
 // instead of overlapping it. islandAtPoint() treats the pier itself as walkable land (see
 // islands.ts's PIER_WALK_RADIUS), so walking to the end of the jetty is enough to board her.
-export const BLACK_PEARL_START_OFFSET = { x: -208, y: -458 };
+// Moved 2026-08-14 to match PIERS[0]'s new straightened (due-vertical) tip — same ~19-unit
+// extension past the tip, now purely north instead of along the old diagonal.
+export const BLACK_PEARL_START_OFFSET = { x: -146, y: -459 };
 export const BLACK_PEARL_EMOJI = '🚢';
 export const BLACK_PEARL_FLAG_EMOJI = '🏴‍☠️';
 
