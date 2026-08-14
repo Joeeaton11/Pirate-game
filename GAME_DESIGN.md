@@ -3084,3 +3084,15 @@ long collection grind *and* one legendary payoff at the top of it.
     termini, and the cobblestone reads as a clean, light, continuous paved surface much closer to
     the reference screenshot. Houses/buildings/scenery/landmarks/NPCs/markers are all still hidden
     per item 87 — this pass only touched tile art and the 'path' stroke.
+90. ✅ **Street/pier/quay/breakwater ends switched to square caps** (2026-08-14) — immediate
+    direct follow-up on item 89's fix: "I don't want rounded paths. Change this so it's a full
+    tile." Item 89 fixed the dashed-chain-of-pills bug but left `strokeLinecap="round"` on the
+    (now single, continuous) stroke, which still rounds off the two true endpoints of every street
+    segment — reads as a stubby rounded-off tile rather than a flat one wherever the network
+    dead-ends or two segments meet at an angle. Switched every street-family stroke —
+    `STREETS`' 'main' and 'path', plus `PIERS`/`QUAYS`/`BREAKWATER`'s double-strokes — from
+    `strokeLinecap="round"` to `"square"`: SVG's square cap extends the stroke a half-width past
+    the endpoint with flat corners instead of a curve, so a segment's end reads as a complete
+    rectangular paving tile. Pure rendering change, no data/geometry touched. Verified `npx tsc
+    --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk confirming both the
+    dirt path and the cobblestone streets now end in flat square blocks with no rounding anywhere.

@@ -1891,10 +1891,14 @@ export default function MapScreen({ navigation }: Props) {
                 // start/end, so a dashed path rendered as a chain of little pill/capsule shapes
                 // rather than one continuous track (worse once the dashes were pattern-filled
                 // instead of flat-colored, per direct feedback: "why are the paths rounded at the
-                // end"). Fixed by dropping the dash entirely — 'path' is now one continuous stroke
-                // like 'main', just narrower and dirt-textured; strokeLinecap="round" now only
-                // rounds the two genuine endpoints of the track, which is the look it was always
-                // meant to produce.
+                // end"). Dropped the dash entirely so 'path' is one continuous stroke like 'main' —
+                // but a round linecap still rounded off the two genuine endpoints of every segment,
+                // which reads as a stubby rounded-off tile rather than a flat one wherever a street
+                // network ends or two segments meet at an angle. Switched both to
+                // strokeLinecap="square" per direct follow-up ("I don't want rounded paths...
+                // change this so it's a full tile") — square extends the stroke a half-width past
+                // the endpoint with flat corners, so a segment's end reads as a complete rectangular
+                // paving tile instead of being rounded off.
                 if (street.style === 'main') {
                   return (
                     <Line
@@ -1905,7 +1909,7 @@ export default function MapScreen({ navigation }: Props) {
                       y2={y2}
                       stroke="url(#cobblePattern)"
                       strokeWidth={20}
-                      strokeLinecap="round"
+                      strokeLinecap="square"
                     />
                   );
                 }
@@ -1918,7 +1922,7 @@ export default function MapScreen({ navigation }: Props) {
                     y2={y2}
                     stroke="url(#dirtPattern)"
                     strokeWidth={14}
-                    strokeLinecap="round"
+                    strokeLinecap="square"
                   />
                 );
               })}
@@ -1936,8 +1940,8 @@ export default function MapScreen({ navigation }: Props) {
                 // 'path' tracks, and free to run straight out over open water.
                 return (
                   <React.Fragment key={`pier-${i}`}>
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#woodPattern)" strokeWidth={20} strokeLinecap="round" />
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#3d2c1e" strokeOpacity={0.5} strokeWidth={4} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#woodPattern)" strokeWidth={20} strokeLinecap="square" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#3d2c1e" strokeOpacity={0.5} strokeWidth={4} strokeLinecap="square" />
                   </React.Fragment>
                 );
               })}
@@ -1955,8 +1959,8 @@ export default function MapScreen({ navigation }: Props) {
                 // piers above and the paved town streets despite sharing the texture.
                 return (
                   <React.Fragment key={`quay-${i}`}>
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#cobblePattern)" strokeWidth={24} strokeLinecap="round" />
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#c9c9c0" strokeOpacity={0.35} strokeWidth={14} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#cobblePattern)" strokeWidth={24} strokeLinecap="square" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#c9c9c0" strokeOpacity={0.35} strokeWidth={14} strokeLinecap="square" />
                   </React.Fragment>
                 );
               })}
@@ -1973,8 +1977,8 @@ export default function MapScreen({ navigation }: Props) {
                 // basin, not somewhere a ship ties up.
                 return (
                   <React.Fragment key={`breakwater-${i}`}>
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#cobblePattern)" strokeWidth={18} strokeLinecap="round" />
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#1c1c18" strokeOpacity={0.4} strokeWidth={18} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#cobblePattern)" strokeWidth={18} strokeLinecap="square" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#1c1c18" strokeOpacity={0.4} strokeWidth={18} strokeLinecap="square" />
                   </React.Fragment>
                 );
               })}
