@@ -2959,3 +2959,43 @@ long collection grind *and* one legendary payoff at the top of it.
     the entire un-revert once the building art/placement gets a real pass — no data or logic
     changed. Next up, per direct request: get the street/road layout itself right first, with
     buildings out of the way.
+87. 🔄 **Everything but the ground hidden from the map, at direct request** (2026-08-14) — item 86
+    only hid buildings; the follow-up was blunter: "remove everything that isn't the ground." Took
+    it literally rather than partially, since the point is a clean slate to judge the street/road
+    layout against before rebuilding anything on top of it. Extended the exact `SHOW_BUILDINGS`
+    pattern with six more render-time toggles, all `false`, one per content category: `SHOW_STREETS`
+    (streets/piers/quays/breakwater), `SHOW_HOUSES`, `SHOW_SCENERY` (trees/rocks/props/decorative
+    boats), `SHOW_LANDMARKS` (including the one-off Tortuga gate art, not just the `LANDMARKS`
+    array), `SHOW_STREET_NPCS`, and `SHOW_MAP_MARKERS` (every interactive world marker that isn't a
+    building — side quests, resource/salvage/treasure sites, the rescue point, Blackfin/Grace story
+    stages, Pirate Lord forts, the Black Pearl marker). Left standing: each island's ground polygon
+    (the literal ground) and the player token/camera/joystick, since those are what "the ground" and
+    "being able to look at it" require.
+
+    Learned from item 86's narrower scope and went further this time on three fronts that a
+    render-only toggle doesn't automatically cover:
+    - **Collision** — the house obstacle list (separately from buildings', already handled in item
+      86) now empties out under `SHOW_HOUSES`, so an invisible house can't still block movement.
+    - **The minimap** — it draws its own miniature copy of streets/houses/buildings/lords/resource
+      nodes/quest markers from local `near*` variables, which would otherwise leak all this content
+      right back into view in the corner even with the main map clean. Every one of those now
+      returns `[]` under its matching toggle instead of the real filtered list.
+    - **Proximity triggers** — the biggest gap, and the one that actually surfaced in testing: this
+      game's walk-up interactions aren't all a dismissible prompt like buildings' "Enter?" card.
+      Pirate Lords, side quests, the rescue point, and the Blackfin/Grace stages *auto-navigate to a
+      new screen* on proximity with zero UI cue first; resource/salvage/treasure nodes gather
+      passively with a toast; landmarks and street NPCs fire a one-shot flavor toast. All of those
+      read as "the screen just changed" or "a toast appeared from nothing" with their marker
+      invisible — worse than the old invisible-collision problem, not better. Gated every one of
+      these behind its matching toggle too. Caught the landmark/street-NPC toasts specifically via a
+      live Playwright walk after the first pass looked clean in a static screenshot — the "A Couple:
+      Young love, or old love..." flavor line firing over a bare grass field was the tell that the
+      render-only pass wasn't enough.
+
+    Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright capture:
+    Tortuga Cove now renders as plain ground texture and the player token only — empty minimap
+    outline, no streets, houses, scenery, landmarks, NPCs, or markers — and a wandering drag across
+    the area that used to trigger the street-NPC flavor toast now stays silent. Every `SHOW_*` flag
+    flips independently, so the natural next step (per the standing request) is turning
+    `SHOW_STREETS` back on alone once the road layout itself is redesigned, before touching anything
+    else.

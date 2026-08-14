@@ -220,6 +220,23 @@ const SHOW_GARDENS = false;
 // walk-up "Enter?" prompts changed, so buildings are still fully functional, just invisible until
 // this flips back to `true` once the art/placement pass is redone.
 const SHOW_BUILDINGS = false;
+// Disabled 2026-08-14, same request as SHOW_BUILDINGS above but taken further: "remove everything
+// that isn't the ground" — so the street/road network itself, houses, decorative scenery/props,
+// landmarks, ambient street NPCs, and every interactive map marker (quests, resource/salvage/
+// treasure sites, the rescue point, Blackfin/Grace stages, Pirate Lord forts, the Black Pearl
+// marker) are all gated off too, leaving only each island's ground polygon and the player token.
+// Same render-time-only pattern throughout — no data deleted, nothing in gameStore touched. The
+// intent is to rebuild this up in layers (ground now, then streets/roads per the standing request,
+// then everything else) by flipping these back on one at a time rather than all at once.
+const SHOW_STREETS = false; // STREETS, PIERS, QUAYS, BREAKWATER
+const SHOW_HOUSES = false;
+const SHOW_SCENERY = false; // SCENERY (trees/rocks), PROPS, decorative DOCKED_BOATS/OFFSHORE_SHIPS
+const SHOW_LANDMARKS = false;
+const SHOW_STREET_NPCS = false;
+// Every interactive world marker that isn't a building: side quests, resource/salvage/treasure
+// sites, the rescue point, Blackfin/Grace story-stage markers, Pirate Lord forts, the Black Pearl
+// marker, and the matching edge-of-screen indicators/minimap blips for all of the above.
+const SHOW_MAP_MARKERS = false;
 const HOUSE_GARDEN_RADIUS = 18;
 const BUILDING_GARDEN_RADIUS = 30;
 // Street NPCs are much smaller than the player on screen, so they get a tighter collision
@@ -1134,9 +1151,9 @@ export default function MapScreen({ navigation }: Props) {
           dist = 1;
         }
         const pushDist = ENTER_RADIUS + 15;
-        const houseObstacles = housesForIsland(island.id).map((house) =>
-          houseWorldPosition(house, island.position)
-        );
+        const houseObstacles = SHOW_HOUSES
+          ? housesForIsland(island.id).map((house) => houseWorldPosition(house, island.position))
+          : [];
         const clearSpot = findClearExitSpot(
           bp,
           dx,
@@ -1189,7 +1206,7 @@ export default function MapScreen({ navigation }: Props) {
       // player slide along it on the other axis, rather than hard-stopping dead at the first
       // touch. Two sequential passes (each with its own radius) since slideAroundObstacles takes
       // one uniform keep-out radius per call and houses/buildings need different ones.
-      const houseObstacles = currentIsland
+      const houseObstacles = SHOW_HOUSES && currentIsland
         ? housesForIsland(currentIsland.id).map((house) => houseWorldPosition(house, currentIsland.position))
         : [];
       const buildingObstacles = SHOW_BUILDINGS && currentIsland
@@ -1297,7 +1314,7 @@ export default function MapScreen({ navigation }: Props) {
             return;
           }
         } else if (!blackPearlBoardedRef.current) {
-          const bp = nearbyBlackPearlPos(nextPosition);
+          const bp = SHOW_MAP_MARKERS ? nearbyBlackPearlPos(nextPosition) : null;
           if (bp) {
             if (!boardPromptShownRef.current) {
               boardPromptShownRef.current = true;
@@ -1325,7 +1342,7 @@ export default function MapScreen({ navigation }: Props) {
           setNearbyBuildingPrompt(null);
         }
 
-        const lord = pirateLordForIsland(nextIsland.id);
+        const lord = SHOW_MAP_MARKERS ? pirateLordForIsland(nextIsland.id) : undefined;
         if (lord) {
           const lp = pirateLordWorldPosition(lord, nextIsland.position);
           if (Math.hypot(nextPosition.x - lp.x, nextPosition.y - lp.y) <= ENTER_RADIUS) {
@@ -1336,11 +1353,13 @@ export default function MapScreen({ navigation }: Props) {
           }
         }
 
-        const nearbyQuest = SIDE_QUESTS.find((q) => {
-          if (q.islandId !== nextIsland.id || !q.offset) return false;
-          const qp = sideQuestWorldPosition(q as SideQuest & { offset: { x: number; y: number } }, nextIsland.position);
-          return Math.hypot(nextPosition.x - qp.x, nextPosition.y - qp.y) <= ENTER_RADIUS;
-        });
+        const nearbyQuest = SHOW_MAP_MARKERS
+          ? SIDE_QUESTS.find((q) => {
+              if (q.islandId !== nextIsland.id || !q.offset) return false;
+              const qp = sideQuestWorldPosition(q as SideQuest & { offset: { x: number; y: number } }, nextIsland.position);
+              return Math.hypot(nextPosition.x - qp.x, nextPosition.y - qp.y) <= ENTER_RADIUS;
+            })
+          : undefined;
         if (nearbyQuest) {
           directionRef.current = null;
           setCurrentSideQuest(nearbyQuest.id);
@@ -1348,19 +1367,21 @@ export default function MapScreen({ navigation }: Props) {
           return;
         }
 
-        if (nearbyRescuePointPos(nextPosition, nextIsland)) {
+        if (SHOW_MAP_MARKERS && nearbyRescuePointPos(nextPosition, nextIsland)) {
           directionRef.current = null;
           navigation.navigate('Rescue');
           return;
         }
 
-        const nearbyBlackfinStage = BLACKFIN_STAGES.find((stage) => {
-          if (stage.islandId !== nextIsland.id || completedBlackfinStageIds.includes(stage.id)) {
-            return false;
-          }
-          const bp = blackfinStageWorldPosition(stage, nextIsland.position);
-          return Math.hypot(nextPosition.x - bp.x, nextPosition.y - bp.y) <= ENTER_RADIUS;
-        });
+        const nearbyBlackfinStage = SHOW_MAP_MARKERS
+          ? BLACKFIN_STAGES.find((stage) => {
+              if (stage.islandId !== nextIsland.id || completedBlackfinStageIds.includes(stage.id)) {
+                return false;
+              }
+              const bp = blackfinStageWorldPosition(stage, nextIsland.position);
+              return Math.hypot(nextPosition.x - bp.x, nextPosition.y - bp.y) <= ENTER_RADIUS;
+            })
+          : undefined;
         if (nearbyBlackfinStage) {
           directionRef.current = null;
           setCurrentBlackfinStage(nearbyBlackfinStage.id);
@@ -1368,13 +1389,15 @@ export default function MapScreen({ navigation }: Props) {
           return;
         }
 
-        const nearbyGraceStage = GRACE_STAGES.find((stage) => {
-          if (stage.islandId !== nextIsland.id || completedGraceStageIds.includes(stage.id)) {
-            return false;
-          }
-          const op = graceStageWorldPosition(stage, nextIsland.position);
-          return Math.hypot(nextPosition.x - op.x, nextPosition.y - op.y) <= ENTER_RADIUS;
-        });
+        const nearbyGraceStage = SHOW_MAP_MARKERS
+          ? GRACE_STAGES.find((stage) => {
+              if (stage.islandId !== nextIsland.id || completedGraceStageIds.includes(stage.id)) {
+                return false;
+              }
+              const op = graceStageWorldPosition(stage, nextIsland.position);
+              return Math.hypot(nextPosition.x - op.x, nextPosition.y - op.y) <= ENTER_RADIUS;
+            })
+          : undefined;
         if (nearbyGraceStage) {
           directionRef.current = null;
           setCurrentGraceStage(nearbyGraceStage.id);
@@ -1383,11 +1406,13 @@ export default function MapScreen({ navigation }: Props) {
         }
 
         // Resource nodes gather passively while walking through — no navigation, no interrupt.
-        const nearbyNode = RESOURCE_NODES.find((n) => {
-          if (n.islandId !== nextIsland.id) return false;
-          const np = resourceNodeWorldPosition(n, nextIsland.position);
-          return Math.hypot(nextPosition.x - np.x, nextPosition.y - np.y) <= ENTER_RADIUS;
-        });
+        const nearbyNode = SHOW_MAP_MARKERS
+          ? RESOURCE_NODES.find((n) => {
+              if (n.islandId !== nextIsland.id) return false;
+              const np = resourceNodeWorldPosition(n, nextIsland.position);
+              return Math.hypot(nextPosition.x - np.x, nextPosition.y - np.y) <= ENTER_RADIUS;
+            })
+          : undefined;
         if (nearbyNode) {
           const result = gatherResource(nearbyNode.id);
           if (result.success && result.resourceId && result.amount) {
@@ -1397,11 +1422,13 @@ export default function MapScreen({ navigation }: Props) {
         }
 
         // Salvage sites gather passively too, once the Diving Bell is owned.
-        const nearbySite = SALVAGE_SITES.find((site) => {
-          if (site.islandId !== nextIsland.id) return false;
-          const sp = salvageSiteWorldPosition(site, nextIsland.position);
-          return Math.hypot(nextPosition.x - sp.x, nextPosition.y - sp.y) <= ENTER_RADIUS;
-        });
+        const nearbySite = SHOW_MAP_MARKERS
+          ? SALVAGE_SITES.find((site) => {
+              if (site.islandId !== nextIsland.id) return false;
+              const sp = salvageSiteWorldPosition(site, nextIsland.position);
+              return Math.hypot(nextPosition.x - sp.x, nextPosition.y - sp.y) <= ENTER_RADIUS;
+            })
+          : undefined;
         if (nearbySite && shipUpgradesRef.current.includes(nearbySite.requiresUpgradeId)) {
           const result = salvageSite(nearbySite.id);
           if (result.success && result.amount) {
@@ -1415,13 +1442,15 @@ export default function MapScreen({ navigation }: Props) {
 
         // Treasure sites — same passive walk-through pickup as resource nodes/salvage. Skips ones
         // already found (no marker for those anyway, see the render section below).
-        const nearbyTreasureSite = TREASURE_SITES.find((site) => {
-          if (site.islandId !== nextIsland.id || foundTreasureIds.includes(site.treasureId)) {
-            return false;
-          }
-          const tp = treasureSiteWorldPosition(site, nextIsland.position);
-          return Math.hypot(nextPosition.x - tp.x, nextPosition.y - tp.y) <= ENTER_RADIUS;
-        });
+        const nearbyTreasureSite = SHOW_MAP_MARKERS
+          ? TREASURE_SITES.find((site) => {
+              if (site.islandId !== nextIsland.id || foundTreasureIds.includes(site.treasureId)) {
+                return false;
+              }
+              const tp = treasureSiteWorldPosition(site, nextIsland.position);
+              return Math.hypot(nextPosition.x - tp.x, nextPosition.y - tp.y) <= ENTER_RADIUS;
+            })
+          : undefined;
         if (nearbyTreasureSite) {
           const result = findTreasureSite(nearbyTreasureSite.id);
           if (result.success && result.treasureId) {
@@ -1442,7 +1471,7 @@ export default function MapScreen({ navigation }: Props) {
         }
 
         // Landmarks are scenery, not gameplay — a flavor toast once per approach, no navigation.
-        const landmark = nearbyLandmark(nextPosition, nextIsland);
+        const landmark = SHOW_LANDMARKS ? nearbyLandmark(nextPosition, nextIsland) : undefined;
         if (landmark) {
           if (lastLandmarkIdRef.current !== landmark.id) {
             lastLandmarkIdRef.current = landmark.id;
@@ -1453,7 +1482,7 @@ export default function MapScreen({ navigation }: Props) {
         }
 
         // Street NPCs are ambient too — same one-shot toast pattern, never a quest.
-        const streetNpc = nearbyStreetNpc(nextPosition, nextIsland);
+        const streetNpc = SHOW_STREET_NPCS ? nearbyStreetNpc(nextPosition, nextIsland) : undefined;
         if (streetNpc) {
           if (lastStreetNpcIdRef.current !== streetNpc.id) {
             lastStreetNpcIdRef.current = streetNpc.id;
@@ -1659,11 +1688,13 @@ export default function MapScreen({ navigation }: Props) {
         const edgePos = edgeIndicatorPosition(player, blackPearlPosition, viewport, EDGE_ICON_MARGIN);
         return edgePos ? { id: 'black_pearl', emoji: BLACK_PEARL_EMOJI, pos: edgePos } : null;
       })();
-  const edgeIndicators = [
-    ...resourceEdgeIndicators,
-    ...sideQuestEdgeIndicators,
-    ...(blackPearlEdgeIndicator ? [blackPearlEdgeIndicator] : []),
-  ];
+  const edgeIndicators = SHOW_MAP_MARKERS
+    ? [
+        ...resourceEdgeIndicators,
+        ...sideQuestEdgeIndicators,
+        ...(blackPearlEdgeIndicator ? [blackPearlEdgeIndicator] : []),
+      ]
+    : [];
 
   // Mood badge over the header portrait, driven by the same wanted-heat gauge shown just below it
   // (see the heat bar render further down) — neutral in the clear, determined once law/rivals start
@@ -1826,7 +1857,8 @@ export default function MapScreen({ navigation }: Props) {
                   );
                 })}
 
-              {STREETS.map((street, i) => {
+              {SHOW_STREETS &&
+                STREETS.map((street, i) => {
                 const islandPos = ISLANDS[street.islandId].position;
                 const x1 = islandPos.x + street.from.x;
                 const y1 = islandPos.y + street.from.y;
@@ -1869,7 +1901,8 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
 
-              {PIERS.map((pier, i) => {
+              {SHOW_STREETS &&
+                PIERS.map((pier, i) => {
                 const islandPos = ISLANDS[pier.islandId].position;
                 const x1 = islandPos.x + pier.from.x;
                 const y1 = islandPos.y + pier.from.y;
@@ -1885,7 +1918,8 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
 
-              {QUAYS.map((quay, i) => {
+              {SHOW_STREETS &&
+                QUAYS.map((quay, i) => {
                 const islandPos = ISLANDS[quay.islandId].position;
                 const x1 = islandPos.x + quay.from.x;
                 const y1 = islandPos.y + quay.from.y;
@@ -1901,7 +1935,8 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
 
-              {BREAKWATER.map((arm, i) => {
+              {SHOW_STREETS &&
+                BREAKWATER.map((arm, i) => {
                 const islandPos = ISLANDS[arm.islandId].position;
                 const x1 = islandPos.x + arm.from.x;
                 const y1 = islandPos.y + arm.from.y;
@@ -1924,7 +1959,8 @@ export default function MapScreen({ navigation }: Props) {
               })}
             </Svg>
 
-            {HOUSES.map((house, i) => {
+            {SHOW_HOUSES &&
+              HOUSES.map((house, i) => {
               const islandPos = ISLANDS[house.islandId].position;
               const pos = houseWorldPosition(house, islandPos);
               // Tortuga Cove is the only island with real house art cut so far (see
@@ -1954,7 +1990,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {SCENERY.map((prop, i) => {
+            {SHOW_SCENERY &&
+              SCENERY.map((prop, i) => {
               const islandPos = ISLANDS[prop.islandId].position;
               const pos = sceneryWorldPosition(prop, islandPos);
               const natureId = natureSpriteFor(prop.emoji, i);
@@ -1985,7 +2022,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {PROPS.map((prop, i) => {
+            {SHOW_SCENERY &&
+              PROPS.map((prop, i) => {
               const islandPos = ISLANDS[prop.islandId].position;
               const pos = propWorldPosition(prop, islandPos);
               const size = (prop.fontSize ?? 22) * 1.7;
@@ -2004,7 +2042,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {[...DOCKED_BOATS, ...OFFSHORE_SHIPS].map((boat, i) => {
+            {SHOW_SCENERY &&
+              [...DOCKED_BOATS, ...OFFSHORE_SHIPS].map((boat, i) => {
               const islandPos = ISLANDS[boat.islandId].position;
               const pos = harborBoatWorldPosition(boat, islandPos);
               return (
@@ -2075,7 +2114,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {LANDMARKS.map((landmark) => {
+            {SHOW_LANDMARKS &&
+              LANDMARKS.map((landmark) => {
               const islandPos = ISLANDS[landmark.islandId].position;
               const pos = landmarkWorldPosition(landmark, islandPos);
               if (landmark.sprite) {
@@ -2120,7 +2160,7 @@ export default function MapScreen({ navigation }: Props) {
             {/* The Tortuga gate — real sliced art rather than a LANDMARKS entry, since it's a
                 single one-off piece rather than a repeatable type. Sat just off the tavern
                 district, roughly where the town road opens onto the harbor square. */}
-            {(() => {
+            {SHOW_LANDMARKS && (() => {
               const gatePos = {
                 x: ISLANDS.tortuga_cove.position.x - 40,
                 y: ISLANDS.tortuga_cove.position.y - 40,
@@ -2148,7 +2188,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })()}
 
-            {STREET_NPCS.map((npc) => {
+            {SHOW_STREET_NPCS &&
+              STREET_NPCS.map((npc) => {
               const islandPos = ISLANDS[npc.islandId].position;
               const sim = npcSimRef.current.get(npc.id) ?? initNpcSim(npc);
               const pos = { x: islandPos.x + sim.x, y: islandPos.y + sim.y };
@@ -2188,7 +2229,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {SIDE_QUESTS.filter((quest) => quest.offset).map((quest) => {
+            {SHOW_MAP_MARKERS &&
+              SIDE_QUESTS.filter((quest) => quest.offset).map((quest) => {
               const islandPos = ISLANDS[quest.islandId].position;
               const pos = sideQuestWorldPosition(quest as SideQuest & { offset: { x: number; y: number } }, islandPos);
               const isCompleted = completedQuestIds.includes(quest.id);
@@ -2215,7 +2257,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {RESOURCE_NODES.map((node) => {
+            {SHOW_MAP_MARKERS &&
+              RESOURCE_NODES.map((node) => {
               const islandPos = ISLANDS[node.islandId].position;
               const pos = resourceNodeWorldPosition(node, islandPos);
               const isReady = (resourceNodeCooldowns[node.id] ?? 0) <= Date.now();
@@ -2236,7 +2279,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {SALVAGE_SITES.map((site) => {
+            {SHOW_MAP_MARKERS &&
+              SALVAGE_SITES.map((site) => {
               const islandPos = ISLANDS[site.islandId].position;
               const pos = salvageSiteWorldPosition(site, islandPos);
               const isReady =
@@ -2264,7 +2308,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {TREASURE_SITES.filter((site) => !foundTreasureIds.includes(site.treasureId)).map(
+            {SHOW_MAP_MARKERS &&
+              TREASURE_SITES.filter((site) => !foundTreasureIds.includes(site.treasureId)).map(
               (site) => {
                 const islandPos = ISLANDS[site.islandId].position;
                 const pos = treasureSiteWorldPosition(site, islandPos);
@@ -2289,7 +2334,7 @@ export default function MapScreen({ navigation }: Props) {
               }
             )}
 
-            {(() => {
+            {SHOW_MAP_MARKERS && (() => {
               const islandPos = ISLANDS[RESCUE_POINT.islandId].position;
               const pos = rescuePointWorldPosition(islandPos);
               const hasPrisoners = capturedCrew.length > 0;
@@ -2309,7 +2354,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })()}
 
-            {BLACKFIN_STAGES.filter((stage) => !completedBlackfinStageIds.includes(stage.id)).map(
+            {SHOW_MAP_MARKERS &&
+              BLACKFIN_STAGES.filter((stage) => !completedBlackfinStageIds.includes(stage.id)).map(
               (stage) => {
                 const islandPos = ISLANDS[stage.islandId].position;
                 const pos = blackfinStageWorldPosition(stage, islandPos);
@@ -2331,7 +2377,8 @@ export default function MapScreen({ navigation }: Props) {
               }
             )}
 
-            {GRACE_STAGES.filter((stage) => !completedGraceStageIds.includes(stage.id)).map(
+            {SHOW_MAP_MARKERS &&
+              GRACE_STAGES.filter((stage) => !completedGraceStageIds.includes(stage.id)).map(
               (stage) => {
                 const islandPos = ISLANDS[stage.islandId].position;
                 const pos = graceStageWorldPosition(stage, islandPos);
@@ -2353,7 +2400,8 @@ export default function MapScreen({ navigation }: Props) {
               }
             )}
 
-            {PIRATE_LORDS.map((lord) => {
+            {SHOW_MAP_MARKERS &&
+              PIRATE_LORDS.map((lord) => {
               const islandPos = ISLANDS[lord.islandId].position;
               const pos = pirateLordWorldPosition(lord, islandPos);
               const isDefeated = defeatedLordIds.includes(lord.id);
@@ -2383,7 +2431,7 @@ export default function MapScreen({ navigation }: Props) {
             {/* Hidden while boarded — she's under the player's feet at that point, represented by
                 the sea player-emoji instead of a separate marker. Otherwise always visible,
                 wherever she was last left, guarded or not. */}
-            {!blackPearlBoarded && (
+            {SHOW_MAP_MARKERS && !blackPearlBoarded && (
               <View
                 style={[
                   styles.building,
@@ -2535,42 +2583,58 @@ export default function MapScreen({ navigation }: Props) {
           const inView = (x: number, y: number) =>
             x >= minX - 100 && x <= minX + span + 100 && y >= minY - 100 && y <= minY + span + 100;
 
-          const forestProps = SCENERY.filter((p) => {
-            if (!FOREST_EMOJI.has(p.emoji)) return false;
-            const pos = sceneryWorldPosition(p, ISLANDS[p.islandId].position);
-            return inView(pos.x, pos.y);
-          });
-          const nearHouses = HOUSES.filter((h) => {
-            const pos = houseWorldPosition(h, ISLANDS[h.islandId].position);
-            return inView(pos.x, pos.y);
-          });
-          const nearBuildings = BUILDINGS.filter((b) => {
-            const pos = buildingWorldPosition(b, ISLANDS[b.islandId].position);
-            return inView(pos.x, pos.y);
-          });
-          const nearStreets = STREETS.filter((s) => {
-            const islandPos = ISLANDS[s.islandId].position;
-            return (
-              inView(islandPos.x + s.from.x, islandPos.y + s.from.y) ||
-              inView(islandPos.x + s.to.x, islandPos.y + s.to.y)
-            );
-          });
-          const nearLords = PIRATE_LORDS.filter((l) => {
-            const pos = pirateLordWorldPosition(l, ISLANDS[l.islandId].position);
-            return inView(pos.x, pos.y);
-          });
+          // Each mirrors its corresponding SHOW_* toggle above, so the minimap doesn't leak the
+          // same content back into view in miniature while the full map has it hidden.
+          const forestProps = SHOW_SCENERY
+            ? SCENERY.filter((p) => {
+                if (!FOREST_EMOJI.has(p.emoji)) return false;
+                const pos = sceneryWorldPosition(p, ISLANDS[p.islandId].position);
+                return inView(pos.x, pos.y);
+              })
+            : [];
+          const nearHouses = SHOW_HOUSES
+            ? HOUSES.filter((h) => {
+                const pos = houseWorldPosition(h, ISLANDS[h.islandId].position);
+                return inView(pos.x, pos.y);
+              })
+            : [];
+          const nearBuildings = SHOW_BUILDINGS
+            ? BUILDINGS.filter((b) => {
+                const pos = buildingWorldPosition(b, ISLANDS[b.islandId].position);
+                return inView(pos.x, pos.y);
+              })
+            : [];
+          const nearStreets = SHOW_STREETS
+            ? STREETS.filter((s) => {
+                const islandPos = ISLANDS[s.islandId].position;
+                return (
+                  inView(islandPos.x + s.from.x, islandPos.y + s.from.y) ||
+                  inView(islandPos.x + s.to.x, islandPos.y + s.to.y)
+                );
+              })
+            : [];
+          const nearLords = SHOW_MAP_MARKERS
+            ? PIRATE_LORDS.filter((l) => {
+                const pos = pirateLordWorldPosition(l, ISLANDS[l.islandId].position);
+                return inView(pos.x, pos.y);
+              })
+            : [];
           // Same two categories the edge-of-screen icons already track (see edgeIndicators below) —
           // ready resource nodes, and standalone side quests with their own map marker — but plotted
           // at their exact position instead of clamped to a screen edge, like a GTA blip.
-          const nearResourceNodes = RESOURCE_NODES.filter((n) => {
-            const pos = resourceNodeWorldPosition(n, ISLANDS[n.islandId].position);
-            return (resourceNodeCooldowns[n.id] ?? 0) <= Date.now() && inView(pos.x, pos.y);
-          });
-          const nearQuestMarkers = SIDE_QUESTS.filter((q) => {
-            if (!q.offset || completedQuestIds.includes(q.id)) return false;
-            const pos = sideQuestWorldPosition(q as SideQuest & { offset: { x: number; y: number } }, ISLANDS[q.islandId].position);
-            return inView(pos.x, pos.y);
-          });
+          const nearResourceNodes = SHOW_MAP_MARKERS
+            ? RESOURCE_NODES.filter((n) => {
+                const pos = resourceNodeWorldPosition(n, ISLANDS[n.islandId].position);
+                return (resourceNodeCooldowns[n.id] ?? 0) <= Date.now() && inView(pos.x, pos.y);
+              })
+            : [];
+          const nearQuestMarkers = SHOW_MAP_MARKERS
+            ? SIDE_QUESTS.filter((q) => {
+                if (!q.offset || completedQuestIds.includes(q.id)) return false;
+                const pos = sideQuestWorldPosition(q as SideQuest & { offset: { x: number; y: number } }, ISLANDS[q.islandId].position);
+                return inView(pos.x, pos.y);
+              })
+            : [];
 
           const arrowLen = 12 * MINIMAP_WORLD_PER_PX;
           const arrowWidth = 8 * MINIMAP_WORLD_PER_PX;
@@ -2686,7 +2750,7 @@ export default function MapScreen({ navigation }: Props) {
                 })}
                 {/* Parked and findable on the radar same as any other blip — hidden while
                     boarded, since at that point the player's own arrow marker is the ship. */}
-                {!blackPearlBoarded && inView(blackPearlPosition.x, blackPearlPosition.y) && (
+                {SHOW_MAP_MARKERS && !blackPearlBoarded && inView(blackPearlPosition.x, blackPearlPosition.y) && (
                   <SvgText
                     x={blackPearlPosition.x}
                     y={blackPearlPosition.y}
