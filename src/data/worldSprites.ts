@@ -57,7 +57,10 @@ export type BuildingSpriteId = keyof typeof BUILDING_SPRITES;
 
 /** Ships, the Tortuga gate landmark, and harbor dressing. */
 export const WORLD_SPRITES = {
-  blackShip: require('../../assets/sprites/world/black_ship.png'),
+  // The docked Black Pearl marker — was the old detailed galleon render, now the "DOCKED IDLE"
+  // frame cut from the same sheet as the sailing/turn sprites in shipSprites.ts, so the ship reads
+  // as one consistent piece of art whether she's parked at the jetty or under sail.
+  blackShip: require('../../assets/sprites/ship/ship_docked.png'),
   tanShip: require('../../assets/sprites/world/tan_ship.png'),
   rowboat: require('../../assets/sprites/world/rowboat.png'),
   dockPier: require('../../assets/sprites/world/dock_pier.png'),

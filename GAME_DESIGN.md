@@ -2562,3 +2562,60 @@ long collection grind *and* one legendary payoff at the top of it.
     what's currently wired up (movement + idle + the 4 turn pivots are all covered by real art).
     Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and an in-browser crop over the
     player token confirms a clean, centered, symmetric shadow.
+76. ✅ **The Black Pearl gets real ship art** (2026-08-14) — "Here is captains Scallys ship. Swap
+    out the animations like you did for captain scally for his boat. Include the wake and turns.
+    Dock the black in the harbour and when I approach the boat and step into it. I then control
+    the boat... when I hit the jetty I turn back into captain scally and the boat parks up on the
+    jetty waiting for a return." The user's "CAPTAIN'S BOAT – SPRITE SHEET" reference has no alpha
+    channel (flat RGB, unlike Scally's sheet), so a new chroma-key cutout module
+    (`scratchpad/.../cutout.py`, not committed — a throwaway tool) computed a soft alpha mask from
+    color-distance to the sheet's sampled background, then connected-component-labeled the result
+    to pull each sprite. Cut 16 frames into `assets/sprites/ship/`: all 8 "Quarter Turns" compass
+    poses (S/SE/E/NE/N/NW/W/SW), the Docking panel's 3-frame "APPROACH DOCK" loop and its separate
+    "DOCKED IDLE"/"DEPART DOCK" frames (these two were one merged connected-component at first —
+    their pier posts touch with no background gap between them, same touching-frame issue as
+    Scally's walk_up — fixed with a hard x-boundary split at the gap column instead of a bbox per
+    component), and 3 wake sizes from the Effects panel. New `src/data/shipSprites.ts` mirrors
+    `scallySprites.ts`'s structure: `shipSpriteSource(heading)` for the 8-way sailing art,
+    `headingFromVector()` bucketing the same drag vector the joystick already produces into one of
+    8 compass headings (`scallySprites.ts`'s `turnFrameFor` only had 4 to bucket into), plus the
+    approach/depart/wake exports.
+
+    Turns out no new state machine was needed at all — sea travel was already fully gated behind
+    boarding the Black Pearl (capturing her from Captain Odessa Kane is the game's first main
+    quest), with an existing board/sail/auto-disembark-on-landfall loop in `MapScreen.tsx`. This
+    was purely an art-and-polish pass over that existing mechanic: `MapScreen.tsx`'s sea-render
+    branch (previously the `PLAYER_EMOJI_SEA` ⛵ glyph) now shows the real 8-direction sprite, with
+    a wake image trailing opposite the heading while moving. A per-tick proximity check against
+    every `PIERS` line (not just its tip — `distToSegment`-style projection) swaps in the 3-frame
+    approach loop once she's closing on a jetty; `confirmBoardBlackPearl()` flashes the depart pose
+    for `DEPART_ANIMATION_MS` right as she pulls off the pier. `WORLD_SPRITES.blackShip` (the
+    docked marker, previously a detailed non-matching galleon render) now points at the same
+    `ship_docked.png` "DOCKED IDLE" frame, so she reads as one consistent piece of art whether
+    parked or under sail — satisfying "the boat parks up on the jetty waiting for a return" for
+    free, since that marker already re-appears the instant `blackPearlBoarded` goes false.
+
+    `BLACK_PEARL_START_OFFSET` (`blackPearl.ts`) moved from an arbitrary open-water point (192
+    units from the nearest coastline — never actually reachable on foot, a latent bug from before
+    this pass) to 20 units past the tip of `harbor.ts` `PIERS[0]` (the westernmost pier, the
+    docks-and-careening quarter) — confirmed reachable because `islands.ts`'s `islandAtPoint()`
+    already treats standing within `PIER_WALK_RADIUS` of a pier's line as land, so the very end of
+    the jetty is walkable and sits within `ENTER_RADIUS` of her new position. "Dock the black in
+    the harbour" — done, at a real named pier instead of a bare sea coordinate.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green. In-browser: confirmed via the
+    Debug screen's Black Pearl shortcuts (Instant Capture/Board/Force Disembark) that the app loads
+    and runs with zero console errors through many capture/board cycles (meaning all 16 new asset
+    `require()`s resolve and the sea-render branch mounts cleanly), and that normal on-land movement
+    (walk cycle, turn frames, building/quest prompts) is unaffected. Tortuga's harbor front turned
+    out to be built out wall-to-wall with no direct unobstructed line from the town center to open
+    water — repeated scripted drag-navigation toward the ship's exact coordinates (read via a
+    temporary on-screen debug readout, removed before commit) made steady progress but didn't
+    finish closing the last ~200-300 units before time was called on that approach; the live sea
+    render (8-way heading swap, wake, approach/depart flashes) is therefore verified by code review
+    and the individually-inspected cut frames rather than a full in-browser sail-to-the-ship
+    screenshot. Scoped out for now (available in the source sheet, unused): Sail States
+    (furled/half/full), the south-view Sail-Idle/Sail-Move/Row-Move loops, Special Animations
+    (turn-left/right/accelerate/stop-skid/reverse), Combat/Actions (cannon fire/take damage/
+    sinking — no sea-combat hook exists yet), and the Rowboat/Captain's-Longboat panel — same
+    "flag it, don't force it in" treatment the unused Scally portrait/emote content got.

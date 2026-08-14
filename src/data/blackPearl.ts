@@ -7,9 +7,11 @@ import { CrewTemplate } from '../types';
  * walk back and board her again. See MapScreen.tsx for the board/disembark/sea-blocked logic
  * this drives. */
 export const BLACK_PEARL_ISLAND_ID = 'tortuga_cove';
-// Sits right on the quay (see harbor.ts QUAYS) — one step north is already open water, so
-// boarding her puts you immediately at the harbor mouth rather than still needing to walk further.
-export const BLACK_PEARL_START_OFFSET = { x: 100, y: -467 };
+// Docked at the tip of the westernmost pier (harbor.ts PIERS[0], the docks-and-careening quarter)
+// — a few units past the actual tip, so her hull sits in open water just beyond the boardwalk
+// instead of overlapping it. islandAtPoint() treats the pier itself as walkable land (see
+// islands.ts's PIER_WALK_RADIUS), so walking to the end of the jetty is enough to board her.
+export const BLACK_PEARL_START_OFFSET = { x: -208, y: -458 };
 export const BLACK_PEARL_EMOJI = '🚢';
 export const BLACK_PEARL_FLAG_EMOJI = '🏴‍☠️';
 

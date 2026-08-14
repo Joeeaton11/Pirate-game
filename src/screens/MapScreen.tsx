@@ -63,6 +63,17 @@ import {
   turnFrameFor,
 } from '../data/scallySprites';
 import {
+  DEPART_ANIMATION_MS,
+  SHIP_APPROACH_FRAMES,
+  SHIP_APPROACH_RADIUS,
+  SHIP_DEPART_SPRITE,
+  SHIP_HEADING_VECTOR,
+  ShipHeading,
+  WAKE_SPRITES,
+  headingFromVector,
+  shipSpriteSource,
+} from '../data/shipSprites';
+import {
   BUILDING_SPRITES,
   GROUND_TILES,
   HOUSE_SPRITES,
@@ -120,6 +131,10 @@ const ZOOM = 5;
 // giving the player a genuinely small native footprint before the same ZOOM is applied to it.
 const PLAYER_SIZE = 12 * ZOOM;
 const BUILDING_SIZE = 44;
+// The Black Pearl under sail reads as a ship, not a person, so she gets a footprint closer to the
+// docked marker's (BUILDING_SIZE * 1.8) than to Captain Scally's own on-foot sprite.
+const SHIP_SPRITE_SIZE = 80;
+const SHIP_WAKE_SIZE = 46;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 // Real house art (2026-08-13 art pass) reads better with more room than the 26px emoji box —
 // same reasoning as buildings getting BUILDING_SIZE*1.7 when they have real sprite art.
@@ -538,6 +553,18 @@ export default function MapScreen({ navigation }: Props) {
   // have a real cut frame vs. a mirrored stand-in.
   const [turningFrame, setTurningFrame] = useState<TurnFrame | null>(null);
   const prevFacingDirRef = useRef<FacingDirection>('down');
+  // The Black Pearl's own 8-way facing, driven by the same drag vector as facingDir above but
+  // bucketed finer (the ship sheet was cut with real diagonal poses, unlike Scally's 4-direction
+  // walk cycle). Only rendered while boarded, but harmless to keep updating unconditionally.
+  const [shipHeading, setShipHeading] = useState<ShipHeading>('s');
+  // Swaps the normal directional sprite for the sheet's 3-frame "APPROACH DOCK" loop once the
+  // ship closes in on a pier, per the user's ask to use those frames on the way in.
+  const [shipApproaching, setShipApproaching] = useState(false);
+  const [shipApproachFrame, setShipApproachFrame] = useState(0);
+  const shipApproachingRef = useRef(false);
+  // Held for a beat right as the player re-boards, so pulling off the pier reads as a depart
+  // instead of an instant cut from the docked marker to a mid-sail pose.
+  const [shipDeparting, setShipDeparting] = useState(false);
   const walkBounce = useRef(new Animated.Value(0)).current;
   const walkLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const playerRef = useRef(player);
@@ -678,6 +705,7 @@ export default function MapScreen({ navigation }: Props) {
             ? 'down'
             : 'up'
         );
+        setShipHeading(headingFromVector(e.translationX, e.translationY));
       } else {
         directionRef.current = null;
         setIsMoving(false);
@@ -828,6 +856,10 @@ export default function MapScreen({ navigation }: Props) {
     directionRef.current = null;
     blackPearlBoardedRef.current = true;
     boardBlackPearl();
+    // Flash the "DEPART DOCK" pose for a beat before falling back to normal directional sailing
+    // art — same beat as turnFrameFor's mid-pivot flash, just for pulling off the pier.
+    setShipDeparting(true);
+    setTimeout(() => setShipDeparting(false), DEPART_ANIMATION_MS);
   }
 
   useEffect(() => {
@@ -876,6 +908,18 @@ export default function MapScreen({ navigation }: Props) {
     }, 110);
     return () => clearInterval(id);
   }, [isMoving]);
+
+  // Cycles the Black Pearl's 3-frame "APPROACH DOCK" loop while she's lined up on a pier.
+  useEffect(() => {
+    if (!shipApproaching) {
+      setShipApproachFrame(0);
+      return;
+    }
+    const id = setInterval(() => {
+      setShipApproachFrame((f) => (f + 1) % SHIP_APPROACH_FRAMES.length);
+    }, 220);
+    return () => clearInterval(id);
+  }, [shipApproaching]);
 
   // Whenever facingDir actually changes, flash the matching mid-pivot turn frame for a beat before
   // falling back to the new direction's normal walk/idle art.
@@ -1057,6 +1101,39 @@ export default function MapScreen({ navigation }: Props) {
 
       playerRef.current = nextPosition;
       setPlayer(nextPosition);
+
+      // Swap to the "APPROACH DOCK" loop once she's closing in on a pier, still under sail — only
+      // meaningful while boarded and still at sea (nextIsland null); once ashore the docked marker
+      // takes over entirely. Checked against the pier's actual line (not just its tip) so the loop
+      // starts the moment she lines up with the jetty, same radius as a building's ENTER_RADIUS
+      // logic elsewhere, just wider since a ship closes distance faster than a walking player.
+      if (blackPearlBoardedRef.current && !nextIsland) {
+        const nearPier = PIERS.some((p) => {
+          const islandPos = ISLANDS[p.islandId].position;
+          const from = { x: islandPos.x + p.from.x, y: islandPos.y + p.from.y };
+          const to = { x: islandPos.x + p.to.x, y: islandPos.y + p.to.y };
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const lenSq = dx * dx + dy * dy;
+          const t =
+            lenSq === 0
+              ? 0
+              : Math.max(
+                  0,
+                  Math.min(1, ((nextPosition.x - from.x) * dx + (nextPosition.y - from.y) * dy) / lenSq)
+                );
+          const cx = from.x + t * dx;
+          const cy = from.y + t * dy;
+          return Math.hypot(nextPosition.x - cx, nextPosition.y - cy) <= SHIP_APPROACH_RADIUS;
+        });
+        if (nearPier !== shipApproachingRef.current) {
+          shipApproachingRef.current = nearPier;
+          setShipApproaching(nearPier);
+        }
+      } else if (shipApproachingRef.current) {
+        shipApproachingRef.current = false;
+        setShipApproaching(false);
+      }
 
       // Making landfall while under sail auto-disembarks: the Black Pearl parks herself right
       // here, waiting to be boarded again, rather than the player staying "boarded" while walking
@@ -2172,8 +2249,7 @@ export default function MapScreen({ navigation }: Props) {
           >
             {currentIsland ? (
               // On land, Captain Scally renders as real sprite art — a true 4-directional walk
-              // cycle instead of the old front/side emoji + mirror trick (kept below for the sea
-              // token, since no ship sprite was cut).
+              // cycle instead of the old front/side emoji + mirror trick.
               <Animated.Image
                 source={
                   turningFrame ? turningFrame.source : scallySpriteSource(facingDir, isMoving, walkSpriteFrame)
@@ -2190,19 +2266,39 @@ export default function MapScreen({ navigation }: Props) {
                 ]}
               />
             ) : (
-              <Animated.Text
-                style={[
-                  styles.playerEmoji,
-                  {
-                    transform: [
-                      { translateY: walkBounce },
-                      { scaleX: facingRight ? -1 : 1 },
-                    ],
-                  },
-                ]}
-              >
-                {playerEmoji}
-              </Animated.Text>
+              // At sea, the Black Pearl herself renders as real sprite art — 8-way directional
+              // sailing, a brief "APPROACH DOCK" loop near a pier, a "DEPART DOCK" flash right off
+              // a fresh boarding, and a trailing wake while under way. islandAtPoint() blocks sea
+              // movement entirely unless boarded (see the movement tick), so this branch is only
+              // ever reached while boarded in practice.
+              <View style={styles.shipWrap}>
+                {isMoving && !shipDeparting && (
+                  <RNImage
+                    source={shipApproaching ? WAKE_SPRITES.small : WAKE_SPRITES.medium}
+                    resizeMode="contain"
+                    style={[
+                      styles.shipWake,
+                      {
+                        transform: [
+                          { translateX: -SHIP_HEADING_VECTOR[shipHeading].x * SHIP_SPRITE_SIZE * 0.4 },
+                          { translateY: -SHIP_HEADING_VECTOR[shipHeading].y * SHIP_SPRITE_SIZE * 0.4 + 6 },
+                        ],
+                      },
+                    ]}
+                  />
+                )}
+                <Animated.Image
+                  source={
+                    shipDeparting
+                      ? SHIP_DEPART_SPRITE
+                      : shipApproaching
+                      ? SHIP_APPROACH_FRAMES[shipApproachFrame]
+                      : shipSpriteSource(shipHeading)
+                  }
+                  resizeMode="contain"
+                  style={[styles.shipSprite, { transform: [{ translateY: walkBounce }] }]}
+                />
+              </View>
             )}
           </View>
         )}
@@ -2823,6 +2919,22 @@ const styles = StyleSheet.create({
   playerSprite: {
     width: PLAYER_SIZE * 1.5,
     height: PLAYER_SIZE * 1.5,
+  },
+  shipWrap: {
+    width: SHIP_SPRITE_SIZE,
+    height: SHIP_SPRITE_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shipSprite: {
+    width: SHIP_SPRITE_SIZE,
+    height: SHIP_SPRITE_SIZE,
+  },
+  shipWake: {
+    position: 'absolute',
+    width: SHIP_WAKE_SIZE,
+    height: SHIP_WAKE_SIZE,
+    opacity: 0.85,
   },
   miniMap: {
     position: 'absolute',
