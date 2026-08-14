@@ -69,6 +69,7 @@ import {
   SHIP_APPROACH_FRAMES,
   SHIP_APPROACH_RADIUS,
   SHIP_DEPART_SPRITE,
+  SHIP_FURL_RADIUS,
   SHIP_HEADING_VECTOR,
   SHIP_STOP_SKID_SPRITE,
   SHIP_TURN_ANIMATION_MS,
@@ -276,6 +277,22 @@ function closestPointOnSegment(
   if (lenSq === 0) return { ...a };
   const t = Math.max(0, Math.min(1, ((p.x - a.x) * abx + (p.y - a.y) * aby) / lenSq));
   return { x: a.x + abx * t, y: a.y + aby * t };
+}
+
+/** Shortest distance from a point to any real pier's line — used to gate the Black Pearl's
+ * furled-sail art (which bakes in a pier's dock posts) so it only ever shows up genuinely near a
+ * jetty, never floating phantom timbers over a plain beach landing. */
+function distanceToNearestPier(point: { x: number; y: number }): number {
+  let best = Infinity;
+  for (const p of PIERS) {
+    const islandPos = ISLANDS[p.islandId].position;
+    const from = { x: islandPos.x + p.from.x, y: islandPos.y + p.from.y };
+    const to = { x: islandPos.x + p.to.x, y: islandPos.y + p.to.y };
+    const closest = closestPointOnSegment(point, from, to);
+    const d = Math.hypot(point.x - closest.x, point.y - closest.y);
+    if (d < best) best = d;
+  }
+  return best;
 }
 
 interface PathObstacle {
@@ -569,6 +586,10 @@ export default function MapScreen({ navigation }: Props) {
   const [shipApproaching, setShipApproaching] = useState(false);
   const [shipApproachFrame, setShipApproachFrame] = useState(0);
   const shipApproachingRef = useRef(false);
+  // Sails actually come down (furled DEPART_SPRITE pose) once she's within SHIP_FURL_RADIUS of a
+  // real pier, still under way — pier-only, see SHIP_FURL_RADIUS's doc comment for why.
+  const [shipFurling, setShipFurling] = useState(false);
+  const shipFurlingRef = useRef(false);
   // Held for a beat right as the player re-boards, so pulling off the pier reads as a depart
   // instead of an instant cut from the docked marker to a mid-sail pose.
   const [shipDeparting, setShipDeparting] = useState(false);
@@ -897,16 +918,21 @@ export default function MapScreen({ navigation }: Props) {
     directionRef.current = null;
     blackPearlBoardedRef.current = true;
     boardBlackPearl();
-    // Two-stage depart: the "DEPART DOCK" pose (still shows the pier under her) for a beat, then
-    // the "Accelerate" pose (open water, picking up speed) for a second beat, before falling back
-    // to normal directional sailing art — reads as pulling off the pier and getting under way,
-    // not one flat cut.
-    setShipDeparting(true);
-    setTimeout(() => {
-      setShipDeparting(false);
-      setShipAccelerating(true);
-      setTimeout(() => setShipAccelerating(false), ACCELERATE_ANIMATION_MS);
-    }, DEPART_ANIMATION_MS);
+    // Two-stage depart: the "DEPART DOCK" pose (furled sail, still shows the pier under her) for a
+    // beat, then the "Accelerate" pose (full sail, open water, picking up speed) for a second beat,
+    // before falling back to normal directional sailing art — reads as pulling off the pier and
+    // getting under way, not one flat cut. Only played when she's actually at a real pier — the
+    // depart sprite bakes in dock posts, which would float over open water on a beach reboarding
+    // (see SHIP_FURL_RADIUS's doc comment); boarding from a plain coastline skips straight to
+    // normal sailing instead.
+    if (distanceToNearestPier(blackPearlPositionRef.current) <= SHIP_FURL_RADIUS) {
+      setShipDeparting(true);
+      setTimeout(() => {
+        setShipDeparting(false);
+        setShipAccelerating(true);
+        setTimeout(() => setShipAccelerating(false), ACCELERATE_ANIMATION_MS);
+      }, DEPART_ANIMATION_MS);
+    }
   }
 
   useEffect(() => {
@@ -1171,13 +1197,8 @@ export default function MapScreen({ navigation }: Props) {
       // potential landing, not only the one with named jetties, so the docking moment shows up
       // wherever the player actually makes for shore.
       if (blackPearlBoardedRef.current && !nextIsland) {
-        const nearPier = PIERS.some((p) => {
-          const islandPos = ISLANDS[p.islandId].position;
-          const from = { x: islandPos.x + p.from.x, y: islandPos.y + p.from.y };
-          const to = { x: islandPos.x + p.to.x, y: islandPos.y + p.to.y };
-          const closest = closestPointOnSegment(nextPosition, from, to);
-          return Math.hypot(nextPosition.x - closest.x, nextPosition.y - closest.y) <= SHIP_APPROACH_RADIUS;
-        });
+        const pierDist = distanceToNearestPier(nextPosition);
+        const nearPier = pierDist <= SHIP_APPROACH_RADIUS;
         const nearCoast =
           !nearPier &&
           ISLAND_LIST.some((island) => {
@@ -1199,9 +1220,18 @@ export default function MapScreen({ navigation }: Props) {
           shipApproachingRef.current = nearLand;
           setShipApproaching(nearLand);
         }
-      } else if (shipApproachingRef.current) {
+        // The sail only actually comes down this close to a genuine pier — see SHIP_FURL_RADIUS's
+        // doc comment for why plain coastline never gets this beat.
+        const furling = pierDist <= SHIP_FURL_RADIUS;
+        if (furling !== shipFurlingRef.current) {
+          shipFurlingRef.current = furling;
+          setShipFurling(furling);
+        }
+      } else if (shipApproachingRef.current || shipFurlingRef.current) {
         shipApproachingRef.current = false;
         setShipApproaching(false);
+        shipFurlingRef.current = false;
+        setShipFurling(false);
       }
 
       // Making landfall while under sail auto-disembarks: the Black Pearl parks herself right
@@ -2414,6 +2444,8 @@ export default function MapScreen({ navigation }: Props) {
                           ? SHIP_DEPART_SPRITE
                           : shipAccelerating
                           ? SHIP_ACCELERATE_SPRITE
+                          : shipFurling
+                          ? SHIP_DEPART_SPRITE
                           : shipApproaching
                           ? SHIP_APPROACH_FRAMES[shipApproachFrame]
                           : shipTurnBank

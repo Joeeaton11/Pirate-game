@@ -2685,3 +2685,30 @@ long collection grind *and* one legendary payoff at the top of it.
     render code (wake layering, turn-bank selection, the `Animated.add` idle-sway composite) is
     verified by code review and the individually re-inspected cut frames, not a live screenshot of
     it firing at sea.
+78. ✅ **Sails actually furl at a pier, both directions** (2026-08-14) — the user asked directly:
+    "Does the boat have stored sails when docked? And drop when setting sail. And vice versa when
+    docking?" Checking the actual cut art (not memory) confirmed the sheet's Docking panel already
+    draws this distinction on its own: DOCKED IDLE and DEPART DOCK both show a small furled sail
+    bundle at the masthead, while APPROACH DOCK and every sailing pose show the full spread black
+    canvas. So: yes for departure already (item 77's depart→accelerate sequence goes furled→full),
+    but arrival was asymmetric — the approach loop stayed full-sail right up to the instant of
+    landfall, then cut straight to the furled docked marker with no transition. Fixed by adding a
+    tighter `SHIP_FURL_RADIUS` (55 units, inside the existing 130-unit `SHIP_APPROACH_RADIUS`):
+    once she's this close to a real pier, still under sail, the approach loop hands off to
+    `SHIP_DEPART_SPRITE`'s furled pose for the final stretch, so the sail is visibly already down
+    by the time the static docked marker takes over. Symmetric with departure now.
+
+    Investigating this also surfaced a real bug worth fixing while in there: `SHIP_DEPART_SPRITE`
+    bakes in a pier's dock posts (it's cut from the same source image as the docked marker), but
+    item 77's depart→accelerate flourish played on *every* boarding, regardless of whether the
+    Black Pearl was actually sitting at a real pier — since item 76 already lets her park anywhere
+    a player makes landfall, boarding her from a plain beach would have shown phantom jetty timbers
+    floating over open sand. Fixed by gating both the new arrival-furl and the existing departure
+    flourish on the same `SHIP_FURL_RADIUS` check (via a new shared `distanceToNearestPier()`
+    helper): only a genuine pier gets the furled-sail art either direction; a coastline-only landing
+    keeps the simpler instant full-sail-to-marker cut, no pier art. Cutting a pier-free furled-sail
+    frame to cover that case too would need new art (the ship and pier are fused in the one source
+    image) — flagged as a gap, not solved here, since it's low-frequency (most disembarks happen
+    near Tortuga's real piers) and the fallback already reads fine.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.

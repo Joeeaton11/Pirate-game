@@ -115,3 +115,11 @@ export const WAKE_SPRITES = {
 /** How close (world units) to a pier's line, or to any island's coastline, before the approach
  * loop takes over from the normal directional sprite. */
 export const SHIP_APPROACH_RADIUS = 130;
+
+/** A tighter radius, pier-only: once inside it the sail actually comes down (SHIP_DEPART_SPRITE's
+ * furled pose takes over from the full-sail approach loop) before the docked marker appears, and
+ * symmetrically, boarding only plays the furled-depart-into-accelerate sequence when she's this
+ * close to a real pier. Not checked against plain coastline — SHIP_DEPART_SPRITE bakes in a
+ * pier's dock posts, which would show up as phantom jetty timbers on a beach landing that has no
+ * real pier there. A beach/coastline landing keeps the simpler instant cut instead. */
+export const SHIP_FURL_RADIUS = 55;
