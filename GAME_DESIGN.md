@@ -2865,3 +2865,37 @@ long collection grind *and* one legendary payoff at the top of it.
 
     Verified `npx tsc --noEmit` clean and all 45 `jest` tests green, and a direct diff of the on-land
     render block against `4321591` shows only comment text differs, not code.
+84. ✅ **Found the actual bug: `facingDir` flicker on a not-perfectly-straight drag was interrupting
+    the walk cycle** (2026-08-14) — item 83's full revert still didn't satisfy the user, who
+    clarified precisely: the walk *does* have real art (confirmed, again, by cropping the individual
+    `walk_left_0..4.png` files and viewing them in sequence — a clean, clearly alternating stride,
+    unchanged since before this session), but it doesn't read that way in the game specifically when
+    moving left/right. That ruled out both the art and the frame-cycling state (already proven
+    correct via instrumented logging in item 82) and pointed at the one piece never actually
+    scrutinized: how `facingDir` itself gets picked.
+
+    `MapScreen.tsx`'s pan gesture recomputes `facingDir` from raw, instantaneous
+    `e.translationX`/`e.translationY` on *every* `onUpdate` call, with no margin — whichever axis has
+    the (even barely) larger magnitude wins. A real drag is never a laser-straight line; a thumb
+    moving "left" still has constant small vertical wobble. Traced the actual numbers with a
+    realistic arced synthetic drag (net leftward, ±25px vertical sine wobble) and confirmed several
+    points along the path where `|translationY|` genuinely exceeds `|translationX|` — enough to flip
+    `facingDir` to `'up'`/`'down'` under the letter of the old code. Every such flip does two things
+    at once: fires the mid-pivot `turnFrameFor` flash (a diagonal turn pose, not a walk-cycle frame)
+    for `TURN_ANIMATION_MS`, and swaps the walk art to the `up`/`down` set — which items 79-83
+    already established is real but far subtler than `left`/`right` (confirmed again by zooming into
+    the master sheet: the artist drew almost no leg movement for the front-facing view). The result:
+    a left/right drag with any natural wobble gets diluted with random turn-pose flashes and stretches
+    of the weak front-facing art, which reads exactly as "not really alternating" even though the
+    `left`/`right` art and its frame cycle are both genuinely fine on their own.
+
+    Fixed with hysteresis on the direction pick: added `DIRECTION_HYSTERESIS = 1.4`, and `facingDir`
+    now only flips to the other axis when that axis's magnitude leads by that factor — otherwise it
+    holds the current facing through the wobble, via a functional `setFacingDir` update rather than
+    an unconditional one. This is a real, load-bearing fix (not a revert) — this exact code, wobble
+    sensitivity included, has been present since `502ad31`, the very first sprite-art commit, so it
+    predates every "before" state this whole thread reverted back to; none of the earlier reverts
+    could have touched it. `facingRight`/`facingMode` (the old emoji-era direction state, now
+    otherwise unused) were left as-is, out of scope for this fix.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.

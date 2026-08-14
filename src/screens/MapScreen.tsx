@@ -228,6 +228,9 @@ const NPC_ARRIVE_RADIUS = 4; // world units — close enough to a target to pick
 const NPC_PATROL_RADIUS = 45;
 const DEADZONE = 12; // px of drag before movement starts
 const MAX_DRAG = 70; // px of drag for full speed
+// How much one drag axis must lead the other before facingDir commits to it — see the pan gesture's
+// onUpdate for why this exists (prevents facing flicker on a not-perfectly-straight drag).
+const DIRECTION_HYSTERESIS = 1.4;
 const ENCOUNTER_TICK_MS = 1400;
 
 /** Shared circle-vs-circle obstacle collision with axis-separated sliding: if the full move is
@@ -758,15 +761,20 @@ export default function MapScreen({ navigation }: Props) {
         setIsMoving(true);
         if (e.translationX !== 0) setFacingRight(e.translationX > 0);
         setFacingMode(Math.abs(e.translationY) > Math.abs(e.translationX) ? 'front' : 'side');
-        setFacingDir(
-          Math.abs(e.translationX) > Math.abs(e.translationY)
-            ? e.translationX > 0
-              ? 'right'
-              : 'left'
-            : e.translationY > 0
-            ? 'down'
-            : 'up'
-        );
+        // Hysteresis on which axis is "dominant": a drag close to the left/right diagonal has real
+        // per-update wobble on the other axis (a finger doesn't move in a laser-straight line), and
+        // without a margin here that wobble flips facingDir back and forth every update — each flip
+        // fires a turn-frame flash (see the effect below) and swaps in whichever direction's walk art
+        // is momentarily "dominant," interrupting an otherwise-clean left/right stride with random
+        // pivot poses and stretches of the much subtler up/down frames. Requiring the dominant axis
+        // to lead by DIRECTION_HYSTERESIS keeps the facing locked through that wobble.
+        setFacingDir((prevDir) => {
+          const ax = Math.abs(e.translationX);
+          const ay = Math.abs(e.translationY);
+          if (ax > ay * DIRECTION_HYSTERESIS) return e.translationX > 0 ? 'right' : 'left';
+          if (ay > ax * DIRECTION_HYSTERESIS) return e.translationY > 0 ? 'down' : 'up';
+          return prevDir;
+        });
         setShipHeading(headingFromVector(e.translationX, e.translationY));
         setDragIntensity(clampedDist / MAX_DRAG);
       } else {
