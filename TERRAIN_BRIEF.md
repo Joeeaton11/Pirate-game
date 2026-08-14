@@ -7,10 +7,11 @@ visible in that reference or a tiling-mechanics requirement it implies (corner/j
 for anything linear, since a curb or a road needs the same wrap-around-a-corner treatment a road
 itself does).
 
-**164 distinct, named items.** Not padded to hit a round number and not trimmed to look modest either
-— this is what "properly" costs for a kit this dense. Organized so **every item is usable on any
-island**, not just Tortuga, the same shared-library principle `GROUND_TILES`/`WORLD_SPRITES` already
-use in `worldSprites.ts`.
+**208 distinct, named items** (164 in the original pass, 44 more in §XX's addendum, weighted toward
+terrain/roads/paths per direct request). Not padded to hit a round number and not trimmed to look
+modest either — this is what "properly" costs for a kit this dense. Organized so **every item is
+usable on any island**, not just Tortuga, the same shared-library principle
+`GROUND_TILES`/`WORLD_SPRITES` already use in `worldSprites.ts`.
 
 ## Format notes (apply to every tile below)
 
@@ -285,6 +286,82 @@ Grounded in each island's actual brief (`islands.ts`), not generic requests.
 
 ---
 
+## XX. Addendum — 44 more (2026-08-14, second pass) — terrain/roads/paths-weighted
+
+Grounded in real gaps found by re-checking existing data: `landmarks.ts` already has **La Ringot
+Fields** (farmland/tobacco district) and **The Forgotten Graves** with zero dedicated ground tile —
+both currently just sit on plain grass.
+
+**Terrain — more ground types**
+165. Farmland — tilled rows: bare brown soil in furrowed rows, for La Ringot Fields.
+166. Farmland — planted crop rows: the same furrows with small green sprouts, a working field.
+167. Farmland — ready-to-harvest: tall golden crop rows (tobacco or wheat), ready to cut.
+168. Orchard ground: grass with scattered fallen fruit beneath implied trees.
+169. Graveyard ground: patchy dirt-and-grass with small mound shapes, for The Forgotten Graves.
+170. Salt flat: bright white, cracked mineral-crust ground for a distinct desert-coast biome.
+171. Volcanic rock: dark basalt/obsidian ground with cooled-lava cracks, for a future volcanic island.
+172. Ash-dusted ground: grey ash-covered grass or dirt, for anywhere near volcanic activity.
+173. Quicksand/bog patch: a dark, wet, slightly sunken danger-flavored ground patch.
+174. Quarry ground: bare cut stone with pickaxe/chisel marks, general mining-flavor variety.
+175. Coral sand: pale pink-tinted beach sand for reef-adjacent coastlines.
+176. Duel-ground floor: a packed-dirt circle with a chalked/worn boundary ring, for Blackfin's duel
+     stages (`blackfin.ts`), which currently render on whatever terrain happens to be underneath.
+
+**Water — more variants**
+177. Stream/creek water: narrow freshwater ripple texture, visually distinct from sea/harbor water —
+     nothing like this exists even though inland water crossings are a real gap (see the bridge
+     items below).
+178. Pond water: still freshwater with a lily-pad option, for an inland water feature.
+179. Waterfall: a small cascading-water sprite/prop for a cliffside or jungle scene.
+180. Sandbar: a shallow, exposed sand ridge sitting in open water.
+181. Mudflat: wet, dark, exposed-at-low-tide ground for a tidal coastline.
+182. Mangrove-root water edge: water threading between gnarled root shapes, for swampy coastlines.
+183. Underground/cave stream: a darker, dimmer water tile for an in-cave water feature.
+
+**Roads & paths — more variants**
+184. Herringbone plaza inlay: a "hero" cobblestone tile with a herringbone/radial pattern for a
+     town-square centerpiece.
+185. Mosaic/emblem inlay: a one-off decorative paving tile with an inlaid compass rose or crest, for
+     a plaza focal point.
+186. Gravel path: a lighter, stonier loose-gravel texture, distinct from packed dirt.
+187. Cart-rut path: a dirt path with visible parallel wheel-rut grooves, for character.
+188. Sandy footpath: a path made of packed beach sand, for trails near the coast.
+189. Wood-plank street: a full street surfaced in wood planks (not just piers), for a lower-town or
+     swamp-adjacent quarter.
+190. Elevated boardwalk with posts: a raised wood walkway over mud/marsh, distinct from a pier over
+     open water.
+191. Path fork/Y-junction: a three-way branch piece, rounding out the junction set beyond T and cross
+     (§III already covers those two).
+192. Sloped path with built-in steps: small stepped risers built into a dirt trail on a hillside,
+     distinct from a building's entrance steps (§V).
+193. Switchback trail segment: an angled mountain-trail piece for zigzagging up a slope.
+194. Log crossing: a single fallen-log bridge over a narrow stream.
+195. Rope-and-plank rickety bridge: a swaying jungle-style crossing, an alternative to item 68's
+     plain "bridge tile."
+196. Stone arch bridge: a sturdier masonry bridge for a formal town crossing — the third variant on
+     the same bridge idea, so whoever's cutting the sheet can pick per-scene instead of one generic
+     bridge everywhere.
+197. Stepping stones: a line of individual flat stones crossing shallow water or a garden.
+198. Plank-reinforced mud patch: a short stretch of boards laid over a muddy trail section.
+199. Cliffside rope railing: a post-and-rope safety rail to run along a clifftop path.
+
+**Fences & boundaries** (needed to dress farmland/pasture — nothing like this exists today)
+200. Wood fence — straight: a simple post-and-rail section.
+201. Wood fence — corner: matching corner piece.
+202. Wood fence — gate: a gate section reading as a deliberate opening in the fence line.
+203. Stone wall — straight: a low dry-stone wall section, for a more permanent boundary.
+204. Stone wall — corner: matching corner piece.
+205. Hedgerow: a trimmed green living-fence section, softer than wood or stone.
+
+**Bonus — a few more worth having**
+206. Cave wall: a vertical, damp stone-wall texture for cave interiors — distinct from item 81's
+     sunlit exterior cliff face (mossier, darker, wetter).
+207. Trade-route marker path: a subtly worn/lighter dirt-path variant marking a well-traveled trade
+     route, distinct from an ordinary path.
+208. Gallows/hanging-cage ground stain: a dark, stained patch of ground for a landmark like that.
+
+---
+
 ## Priority if the sheet can't cover everything at once
 
 1. **§III Roads/curbs/plaza** + **§IV Plinths** + **§V Steps** — the direct ask, and the biggest gap
@@ -293,4 +370,7 @@ Grounded in each island's actual brief (`islands.ts`), not generic requests.
 3. **§I Grass/sand/dirt variants** — fixes the tiling repeat already shipped a workaround for.
 4. **§VI Jetty/dock kit** — builds on art already proven to work (item 94-95).
 5. **§IX-§XII Props** — cheap per-item, high density payoff, matches the reference image's clutter.
-6. Everything else, roughly in the order listed.
+6. **§XX's stream/bridge/farmland/fence cluster** (177-205) — the addendum's own highest-value
+   group: inland water crossings and La Ringot Fields/The Forgotten Graves ground are real,
+   already-named gaps, not speculative asks.
+7. Everything else, roughly in the order listed.
