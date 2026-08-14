@@ -2837,3 +2837,31 @@ long collection grind *and* one legendary payoff at the top of it.
     walk, not a hop.
 
     Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.
+83. ✅ **Full revert of Scally's walk rendering to before the art pass, at the user's direct request**
+    (2026-08-14) — item 82's fix didn't land either: the user pointed out that its own verification
+    screenshots showed one leg stepping forward repeatedly rather than a genuine alternating gait,
+    and asked directly to revert to before any of this session's changes touched the walk. Honored
+    literally rather than attempted as a fourth diagnosis: the on-land sprite's `Animated.Image`
+    (source ternary + transform) is now byte-for-byte what shipped at `4321591` (the commit
+    immediately before this whole Scally pass began) — `turningFrame` takes priority, otherwise the
+    plain walk cycle, with the original `walkBounce` restored. `scallySpriteSource`/`WALK_SOURCES`/
+    the walk-frame-cycling effect were already at that same baseline (items 80-81 already reverted
+    those), so this was the one remaining piece.
+
+    Two features from items 184/185 existed only to override this same render — the emote overlay
+    (wave/victory/idle-flourish) and the attack/sword-ready forced-encounter flash — so reverting
+    the render left them calling `setState` with no visible effect anywhere. Rather than leave that
+    dead weight in, they were removed outright: `emoteOverlay`/`flashEmote` and its three triggers
+    (building-prompt wave, defeated-lord/completed-quest victory watch, prolonged-idle flourish
+    interval), `scallyAttackFlash`/`scallySwordReadyFlash` state, and `startEncounter`'s two-stage
+    on-foot flash all deleted; `startEncounter` is back to firing straight through when not boarded,
+    exactly as it was at `4321591`. The now-unused `EMOTE_*`/`IDLE_FLOURISH_*`/`POSE_ATTACK`/
+    `POSE_SWORD_READY`/`ATTACK_FLASH_MS`/`WAVE_ANIMATION_MS`/`VICTORY_ANIMATION_MS` imports were
+    dropped from `MapScreen.tsx` accordingly (their exports stay in `scallySprites.ts`, available if
+    a future pass wants to build genuinely walk-independent triggers for them). Everything else from
+    the Scally pass that doesn't touch walking — the header portrait, the heat-driven face badge,
+    the idle-frame-count/run-cycle exports left cut-but-unwired, the UI icon swaps, Cheeky on the
+    docked ship — was left as is, since the ask was specifically about the walk.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green, and a direct diff of the on-land
+    render block against `4321591` shows only comment text differs, not code.

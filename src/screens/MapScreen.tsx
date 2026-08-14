@@ -54,25 +54,15 @@ import {
   PLAYER_EMOJI_LAND_SIDE,
 } from '../data/protagonist';
 import {
-  ATTACK_FLASH_MS,
-  EMOTE_VICTORY,
-  EMOTE_WAVE,
   FACE_DETERMINED,
   FACE_HURT,
   FacingDirection,
   ICON_EXCLAIM,
   ICON_MAP,
-  IDLE_FLOURISH_DELAY_MS,
-  IDLE_FLOURISH_HOLD_MS,
-  IDLE_FLOURISH_POOL,
-  POSE_ATTACK,
-  POSE_SWORD_READY,
   SCALLY_PORTRAIT,
   TURN_ANIMATION_MS,
   TurnFrame,
-  VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
-  WAVE_ANIMATION_MS,
   scallySpriteSource,
   turnFrameFor,
 } from '../data/scallySprites';
@@ -592,21 +582,6 @@ export default function MapScreen({ navigation }: Props) {
   // have a real cut frame vs. a mirrored stand-in.
   const [turningFrame, setTurningFrame] = useState<TurnFrame | null>(null);
   const prevFacingDirRef = useRef<FacingDirection>('down');
-  // A brief emote pose that overrides the normal walk/idle art — waving hello at a building door,
-  // a victory flourish on a quest/Pirate Lord win, or one of the "prolonged idle" flourishes below.
-  // Whichever fires most recently wins; these are all short and rare enough that stepping on each
-  // other isn't a real concern.
-  const [emoteOverlay, setEmoteOverlay] = useState<any>(null);
-  const emoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function flashEmote(source: any, durationMs: number) {
-    setEmoteOverlay(source);
-    if (emoteTimeoutRef.current) clearTimeout(emoteTimeoutRef.current);
-    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), durationMs);
-  }
-  // On-foot equivalent of the ship's Stop/Skid flash (see startEncounter below): a fight breaking
-  // out while Scally's walking reads as her squaring up, not an instant cut to the battle screen.
-  const [scallyAttackFlash, setScallyAttackFlash] = useState(false);
-  const [scallySwordReadyFlash, setScallySwordReadyFlash] = useState(false);
   // Cheeky blinks every so often while perched on the docked, unboarded Black Pearl (see the ship
   // marker render below) — see monkeySprites.ts for why he lives there instead of trailing on foot.
   const [monkeyWinking, setMonkeyWinking] = useState(false);
@@ -854,18 +829,7 @@ export default function MapScreen({ navigation }: Props) {
         fire();
       }, STOP_SKID_ANIMATION_MS);
     } else {
-      // On foot, the land equivalent: a beat of the attack pose, then a beat of sword-ready, before
-      // the cut — two poses instead of the ship's one because the sheet cut them as a real windup
-      // pair, not because the timing needs to be longer.
-      setScallyAttackFlash(true);
-      setTimeout(() => {
-        setScallyAttackFlash(false);
-        setScallySwordReadyFlash(true);
-        setTimeout(() => {
-          setScallySwordReadyFlash(false);
-          fire();
-        }, ATTACK_FLASH_MS);
-      }, ATTACK_FLASH_MS);
+      fire();
     }
   }
 
@@ -991,14 +955,11 @@ export default function MapScreen({ navigation }: Props) {
   useEffect(() => {
     return () => {
       if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
-      if (emoteTimeoutRef.current) clearTimeout(emoteTimeoutRef.current);
     };
   }, []);
 
-  // Originally Captain Scally's whole "walk cycle" back in the single-glyph emoji era (no
-  // spritesheet, so this bob was the entire animation) — no longer applied to her sprite (see the
-  // on-land render below), but the Black Pearl still layers it into her idle sway while sailing, so
-  // the loop itself stays.
+  // Single-glyph "walk cycle": bob the player emoji up and down in a loop while actively moving,
+  // settle back to rest the moment movement stops. No spritesheet, so this is the whole animation.
   useEffect(() => {
     if (isMoving) {
       walkLoopRef.current = Animated.loop(
@@ -1341,7 +1302,6 @@ export default function MapScreen({ navigation }: Props) {
           if (nearbyBuildingPromptIdRef.current !== nearbyBuilding.id) {
             nearbyBuildingPromptIdRef.current = nearbyBuilding.id;
             setNearbyBuildingPrompt(nearbyBuilding);
-            flashEmote(EMOTE_WAVE, WAVE_ANIMATION_MS);
           }
         } else if (nearbyBuildingPromptIdRef.current) {
           nearbyBuildingPromptIdRef.current = null;
@@ -1534,40 +1494,6 @@ export default function MapScreen({ navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused]);
 
-  // Victory flourish whenever the player comes back to the map having just defeated a Pirate Lord
-  // or completed a side quest (both happen on other screens, so this screen only sees the result:
-  // the store's tracking arrays got longer since last render). Skips the very first render so
-  // loading a save with lords already defeated doesn't fire a spurious flash.
-  const prevDefeatedLordCountRef = useRef<number | null>(null);
-  const prevCompletedQuestCountRef = useRef<number | null>(null);
-  useEffect(() => {
-    const prevLords = prevDefeatedLordCountRef.current;
-    const prevQuests = prevCompletedQuestCountRef.current;
-    if (
-      (prevLords !== null && defeatedLordIds.length > prevLords) ||
-      (prevQuests !== null && completedQuestIds.length > prevQuests)
-    ) {
-      flashEmote(EMOTE_VICTORY, VICTORY_ANIMATION_MS);
-    }
-    prevDefeatedLordCountRef.current = defeatedLordIds.length;
-    prevCompletedQuestCountRef.current = completedQuestIds.length;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defeatedLordIds.length, completedQuestIds.length]);
-
-  // Prolonged-idle flourish: stand still long enough and Scally cycles through a little
-  // wave/cheer/think/laugh pose instead of holding the same breathing loop forever — the classic
-  // "idle animation after inactivity" trick. Only eligible while actually stationary; resets the
-  // instant she moves.
-  useEffect(() => {
-    if (isMoving) return;
-    const id = setInterval(() => {
-      const pick = IDLE_FLOURISH_POOL[Math.floor(Math.random() * IDLE_FLOURISH_POOL.length)];
-      flashEmote(pick, IDLE_FLOURISH_HOLD_MS);
-    }, IDLE_FLOURISH_DELAY_MS);
-    return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMoving]);
-
   const currentIsland = islandAtPoint(player);
 
   // Gentle continuous sway while boarded and drifting at sea (not actively sailing, not docked)
@@ -1721,24 +1647,6 @@ export default function MapScreen({ navigation }: Props) {
     ...sideQuestEdgeIndicators,
     ...(blackPearlEdgeIndicator ? [blackPearlEdgeIndicator] : []),
   ];
-
-  // Reverted 2026-08-14: the heat-triggered run cycle and the emote overlay could both override
-  // mid-stride (the wave in particular, since its trigger — a building prompt appearing — routinely
-  // fires while still walking up to the door), popping Scally into a static pose for a beat while
-  // she kept sliding across the map. Read as hopping rather than walking, so while actually moving
-  // she now always renders the plain walk cycle, full stop; the attack/sword-ready flash is the one
-  // exception, since it's meant to interrupt movement (same as the ship's Stop/Skid). Emotes and
-  // flourishes are idle-only now — they simply don't show if she's still moving when triggered.
-  const scallySpriteRenderSource = turningFrame
-    ? turningFrame.source
-    : scallyAttackFlash
-    ? POSE_ATTACK
-    : scallySwordReadyFlash
-    ? POSE_SWORD_READY
-    : !isMoving && emoteOverlay
-    ? emoteOverlay
-    : scallySpriteSource(facingDir, isMoving, walkSpriteFrame);
-  const scallySpriteMirrored = turningFrame ? turningFrame.mirror : false;
 
   // Mood badge over the header portrait, driven by the same wanted-heat gauge shown just below it
   // (see the heat bar render further down) — neutral in the clear, determined once law/rivals start
@@ -2506,20 +2414,28 @@ export default function MapScreen({ navigation }: Props) {
           >
             {currentIsland ? (
               // On land, Captain Scally renders as real sprite art — a true 4-directional walk
-              // cycle instead of the old front/side emoji + mirror trick. No walkBounce here
-              // (reverted 2026-08-14): that vertical bob was written for the single-glyph emoji
-              // era ("no spritesheet, so this is the whole animation" — see its doc comment above)
-              // to fake motion with no real stride art behind it. The 5-frame walk cycle now
-              // provides the actual stride, and the fast -6px bob was fighting it — the frame
-              // changes are the intended motion, and the bounce on top of them was what read as
-              // hopping in place instead of walking.
+              // cycle instead of the old front/side emoji + mirror trick (kept below for the sea
+              // token, since no ship sprite was cut).
+              //
+              // Reverted to this exact pre-Scally-art-pass form on 2026-08-14 at the user's direct
+              // request, after three attempted fixes (items 80-82) didn't resolve their "hopping,
+              // not walking" report. This is byte-for-byte what shipped before that pass touched
+              // anything: turningFrame takes priority, otherwise the plain walk cycle, with the
+              // original walkBounce. The attack/sword-ready flash and emote-overlay systems that
+              // pass added were removed outright rather than left inert, since they existed only to
+              // override this render.
               <Animated.Image
-                source={scallySpriteRenderSource}
+                source={
+                  turningFrame ? turningFrame.source : scallySpriteSource(facingDir, isMoving, walkSpriteFrame)
+                }
                 resizeMode="contain"
                 style={[
                   styles.playerSprite,
                   {
-                    transform: [{ scaleX: scallySpriteMirrored ? -1 : 1 }],
+                    transform: [
+                      { translateY: walkBounce },
+                      { scaleX: turningFrame?.mirror ? -1 : 1 },
+                    ],
                   },
                 ]}
               />
