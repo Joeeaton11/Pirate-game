@@ -3246,3 +3246,52 @@ long collection grind *and* one legendary payoff at the top of it.
     vertical spur at a right angle, water fully visible around and between every module, no seam or
     clipping at the joint. Same asset, same tile size, same per-orientation `strokeWidth` logic the
     shipped code uses — a faithful preview of the in-game result.
+96. ✅ **Street junctions patched, 7 duplicate/degenerate segments removed, grass tiling
+    de-repeated** (2026-08-14) — direct follow-up to a "look at the whole map" review: streets-only
+    screenshots showed every point where a `'path'` crossed a `'main'` road cutting a hard
+    rectangular gap with bare grass poking through at the corners, since `STREETS.map()` draws each
+    segment as its own independent `<Line>` with no shared concept of an intersection —
+    `strokeLinecap="square"` only extends a stroke past its own endpoint *along its own direction*,
+    so it never covers the outer corner of a plain right-angle elbow either, not just a
+    style-mismatched crossing.
+
+    Added `streets.ts::STREET_JUNCTIONS` — every point where 2+ segments on an island share an
+    endpoint (exact-match epsilon of 3, tight enough for the grid-snapped data to never falsely
+    merge two separate corners), computed once at module load same as the existing
+    `HOUSE_GARDEN_OFFSETS` pattern. `MapScreen.tsx`'s `STREETS` render now draws a small filled
+    `<Circle>` at every one of these (`url(#cobblePattern)` r=12 if any touching segment is
+    `'main'`, else `url(#dirtPattern)` r=9), after all the `<Line>`s so each patch sits on top and
+    covers the seam — fixes every elbow and crossing at once, not just the style-mismatched ones.
+
+    While tracking down exactly which points still looked wrong after that landed, found real data
+    bugs instead of a rendering gap: **7 duplicate/degenerate `STREETS` entries** — one dead
+    zero-length segment (`from` equal to `to`), and 6 pairs/triples of fully-overlapping duplicate
+    lines (one pair a genuine `'main'`/`'path'` duplicate on the identical line, the rest same-style
+    dupes, one segment tripled) — found with a from/to-order-independent key script and removed
+    (234 → 227 segments), keeping `'main'` over `'path'` where the pair mismatched. None affect
+    walkability (`isOnPath`/`islandAtPoint` only need distance to *a* segment, and a real one always
+    remained), just dead weight in the data.
+
+    The remaining bare-grass patches turned out not to be a bug at all once traced through the
+    actual rendered SVG geometry (dumped and cross-referenced against screenshot pixels, not
+    eyeballed): they're the ordinary interior of a city block — two parallel `'main'`/`'path'`
+    streets one 24-unit grid cell apart, exactly as a real orthogonal grid town should look, just
+    empty because `SHOW_BUILDINGS` is still off (see item 88). Confirmed by pairwise-scanning every
+    near-parallel segment pair on the island (63 found, every one's combined half-width less than
+    the 24-unit gap by design, not accident) — nothing to fix there; it'll read as intended the
+    moment buildings come back.
+
+    Also gave `grassPattern` a 2x2 mirrored super-tile (four placements of the same source image,
+    alternating flipped via `transform="translate(...) scale(±1,±1)"`) instead of one 64x64 tile
+    repeated directly — with only one real grass source image, a plain repeat reads as an obvious
+    "wallpaper" once several tiles are visible together (the same blob motif recurring on a
+    predictable grid, flagged in the same review). Doubles the effective repeat period to 128 units
+    for free, no new art needed — swap back to a plain tile (or real variants) once the incoming
+    terrain sheet lands.
+
+    Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright check:
+    dumped every rendered `<line>`/`<circle>` from the actual page DOM and cross-referenced specific
+    screenshot pixels against world coordinates (not guessing from images) to confirm each junction
+    patch lands exactly where a real corner needed one, and that the leftover green patches are
+    block interiors, not seams — a T-junction that used to show a hard rectangular cut with grass
+    corners now blends into one continuous paved circle with no gap anywhere.

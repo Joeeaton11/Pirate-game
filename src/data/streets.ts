@@ -29,7 +29,6 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 240, y: -240 }, to: { x: 264, y: -240 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 264, y: -240 }, to: { x: 264, y: -288 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 288, y: 0 }, to: { x: 288, y: -144 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: 288, y: -144 }, to: { x: 288, y: -144 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -168, y: -120 }, to: { x: -168, y: -168 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -168, y: -168 }, to: { x: -192, y: -168 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -312, y: 24 }, to: { x: -384, y: 24 }, style: 'main' },
@@ -148,7 +147,6 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: -72, y: -216 }, to: { x: -96, y: -216 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -96, y: -48 }, to: { x: -96, y: -24 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -72, y: -216 }, to: { x: -72, y: -240 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: -24, y: 48 }, to: { x: -24, y: -120 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -24, y: -120 }, to: { x: -48, y: -120 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 240, y: -216 }, to: { x: 240, y: -192 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 120, y: -216 }, to: { x: 144, y: -216 }, style: 'path' },
@@ -223,16 +221,10 @@ export const STREETS: StreetSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 240, y: 288 }, to: { x: 240, y: 360 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -96, y: -144 }, to: { x: -96, y: -168 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 216, y: -96 }, to: { x: 240, y: -96 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: 216, y: -96 }, to: { x: 240, y: -96 }, style: 'path' },
-  { islandId: 'tortuga_cove', from: { x: -168, y: -48 }, to: { x: -168, y: -72 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: -168, y: -48 }, to: { x: -168, y: -72 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 312, y: 216 }, to: { x: 336, y: 216 }, style: 'path' },
   { islandId: 'tortuga_cove', from: { x: 0, y: -120 }, to: { x: 0, y: -96 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 0, y: -72 }, to: { x: 0, y: -96 }, style: 'main' },
   { islandId: 'tortuga_cove', from: { x: 24, y: -120 }, to: { x: 24, y: -72 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 24, y: -120 }, to: { x: 24, y: -72 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 24, y: -120 }, to: { x: 24, y: -72 }, style: 'main' },
-  { islandId: 'tortuga_cove', from: { x: 0, y: 96 }, to: { x: -72, y: 96 }, style: 'main' },
   { islandId: 'tortuga_cove', from: { x: 0, y: 96 }, to: { x: -72, y: 96 }, style: 'main' },
   { islandId: 'tortuga_cove', from: { x: -72, y: 0 }, to: { x: -72, y: 96 }, style: 'main' },
   { islandId: 'tortuga_cove', from: { x: -216, y: -216 }, to: { x: -216, y: -264 }, style: 'main' },
@@ -272,6 +264,66 @@ export const STREETS: StreetSegment[] = [
 export function streetsForIsland(islandId: string): StreetSegment[] {
   return STREETS.filter((s) => s.islandId === islandId);
 }
+
+/** A point where 2+ street segments meet, with the texture the patch drawn there should use. */
+export interface StreetJunction {
+  islandId: string;
+  point: { x: number; y: number };
+  style: 'main' | 'path';
+}
+
+// A junction needs a real "fits everything that touches it" test, not the looser epsilon
+// `connectedSegments` uses for NPC wandering — grid-snapped segments share an endpoint exactly,
+// so a tight tolerance still catches every real junction without accidentally merging two
+// separate corners a few units apart.
+const JUNCTION_EPSILON = 3;
+
+/** Every point on an island where 2+ street segments share an endpoint — including plain "passes
+ * through" crossings authored as two segments meeting at one point, and ordinary elbow turns, not
+ * just style-mismatched intersections. Rendering a small filled patch at each of these (see
+ * MapScreen.tsx's STREETS render) covers a real gap two independent `<Line>` strokes always leave:
+ * `strokeLinecap="square"` only extends a stroke past its own endpoint *along its own direction*,
+ * so at a plain right-angle elbow the outer corner is never covered by either rectangle, and where
+ * a narrower 'path' crosses a wider 'main' the mismatch leaves visible grass showing through at the
+ * corners (the bug direct feedback flagged: "the paths and roads" not reading as clean crossings).
+ * A junction that touches at least one 'main' segment gets the paved patch — a paved street stub
+ * meeting a dirt path should still look paved right at the joint, matching how the two styles
+ * already read (main is the through-route, path yields to it). Computed once per island at module
+ * load, the same precomputed-at-import pattern `HOUSE_GARDEN_OFFSETS` (MapScreen.tsx) already uses. */
+function streetJunctions(islandId: string): StreetJunction[] {
+  const segments = streetsForIsland(islandId);
+  const endpoints = segments.flatMap((s) => [
+    { point: s.from, style: s.style },
+    { point: s.to, style: s.style },
+  ]);
+  const used = new Array(endpoints.length).fill(false);
+  const junctions: StreetJunction[] = [];
+  for (let i = 0; i < endpoints.length; i++) {
+    if (used[i]) continue;
+    const cluster = [endpoints[i]];
+    used[i] = true;
+    for (let j = i + 1; j < endpoints.length; j++) {
+      if (used[j]) continue;
+      if (
+        Math.hypot(endpoints[i].point.x - endpoints[j].point.x, endpoints[i].point.y - endpoints[j].point.y) <
+        JUNCTION_EPSILON
+      ) {
+        cluster.push(endpoints[j]);
+        used[j] = true;
+      }
+    }
+    if (cluster.length < 2) continue; // a lone dead-end's own square cap already covers it cleanly
+    junctions.push({
+      islandId,
+      point: cluster[0].point,
+      style: cluster.some((c) => c.style === 'main') ? 'main' : 'path',
+    });
+  }
+  return junctions;
+}
+
+const STREET_ISLAND_IDS = Array.from(new Set(STREETS.map((s) => s.islandId)));
+export const STREET_JUNCTIONS: StreetJunction[] = STREET_ISLAND_IDS.flatMap((id) => streetJunctions(id));
 
 function closestPointOnSegment(
   p: { x: number; y: number },

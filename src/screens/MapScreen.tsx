@@ -105,6 +105,7 @@ import { RESCUE_POINT, rescuePointWorldPosition } from '../data/rescue';
 import { PIERS, QUAYS, BREAKWATER, DOCKED_BOATS, OFFSHORE_SHIPS, harborBoatWorldPosition } from '../data/harbor';
 import {
   STREETS,
+  STREET_JUNCTIONS,
   connectedSegments,
   nearestStreetSegment,
   randomPointOnSegment,
@@ -1800,8 +1801,40 @@ export default function MapScreen({ navigation }: Props) {
                     incremental art pass — see GAME_DESIGN.md) — everywhere else keeps the flat
                     fill below. patternUnits="userSpaceOnUse" ties the tile grid to world
                     coordinates rather than the polygon's own bounding box, so it doesn't stretch. */}
-                <Pattern id="grassPattern" patternUnits="userSpaceOnUse" width={64} height={64}>
+                {/* A 2x2 mirrored super-tile instead of one 64x64 tile repeated directly — with
+                    only one grass source image (until the incoming terrain sheet adds real
+                    variants), a plain repeat reads as an obvious "wallpaper" once several tiles
+                    are visible at once (same blob motif recurring on a predictable grid). Flipping
+                    alternating quadrants doubles the effective repeat period to 128 units and
+                    breaks the direct copy-paste look for free, no new art needed — the standard
+                    trick for stretching one tileable source further. Swap back to a plain single
+                    tile (or better, several real variants) once the new sheet lands. */}
+                <Pattern id="grassPattern" patternUnits="userSpaceOnUse" width={128} height={128}>
                   <SvgImage href={GROUND_TILES.grass} x={0} y={0} width={64} height={64} />
+                  <SvgImage
+                    href={GROUND_TILES.grass}
+                    x={64}
+                    y={0}
+                    width={64}
+                    height={64}
+                    transform="translate(192,0) scale(-1,1)"
+                  />
+                  <SvgImage
+                    href={GROUND_TILES.grass}
+                    x={0}
+                    y={64}
+                    width={64}
+                    height={64}
+                    transform="translate(0,192) scale(1,-1)"
+                  />
+                  <SvgImage
+                    href={GROUND_TILES.grass}
+                    x={64}
+                    y={64}
+                    width={64}
+                    height={64}
+                    transform="translate(192,192) scale(-1,-1)"
+                  />
                 </Pattern>
                 {/* Same deal for paved 'main' streets and the stone quay/breakwater, used as a
                     stroke pattern below — SVG strokes can reference a <Pattern> exactly like a
@@ -1928,6 +1961,29 @@ export default function MapScreen({ navigation }: Props) {
                     stroke="url(#dirtPattern)"
                     strokeWidth={14}
                     strokeLinecap="square"
+                  />
+                );
+              })}
+
+              {/* Junction patches — a real seam two independent `<Line>` strokes always leave at
+                  every point 2+ street segments meet: `strokeLinecap="square"` only extends a
+                  stroke past its own endpoint along its own direction, so a plain right-angle elbow
+                  never gets its outer corner covered, and where a narrower 'path' crosses a wider
+                  'main' the mismatch leaves bare grass showing through at the corners — the exact
+                  bug direct feedback flagged looking at the street network as a whole. Drawn after
+                  every STREETS line so each patch sits on top and covers the gap; STREET_JUNCTIONS
+                  is precomputed once at module load (see streets.ts) from every shared endpoint,
+                  not just the style-mismatched ones, since a same-style elbow has the identical gap. */}
+              {SHOW_STREETS &&
+                STREET_JUNCTIONS.map((junction, i) => {
+                const islandPos = ISLANDS[junction.islandId].position;
+                return (
+                  <Circle
+                    key={`junction-${i}`}
+                    cx={islandPos.x + junction.point.x}
+                    cy={islandPos.y + junction.point.y}
+                    r={junction.style === 'main' ? 12 : 9}
+                    fill={junction.style === 'main' ? 'url(#cobblePattern)' : 'url(#dirtPattern)'}
                   />
                 );
               })}
