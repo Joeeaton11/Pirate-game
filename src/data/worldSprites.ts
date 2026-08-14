@@ -18,10 +18,21 @@
 // instead of a real cutout — it hid bleed rather than removing it and shipped visibly blurry,
 // muddy icons; every asset below has been re-cut with the edge/gradient technique instead.
 
-/** Ground tile textures — tiled via an SVG <Pattern> fill, not placed individually. */
+/** Ground tile textures — tiled via an SVG <Pattern> fill, not placed individually.
+ * Re-cut 2026-08-14 (grass/sand/cobble/wood) from `tileset-catalog/tortuga_focus_v1.png`'s own
+ * Terrain & Tiles panel — the original cuts (still used for `dirt` below, and for `water`) were
+ * arbitrary crops that happened to straddle a tile boundary in the source sheet, so they carried a
+ * sliver of the *next* tile's color/border baked into one edge. That's invisible as a single 64x64
+ * icon but turns into an obvious repeating seam once tiled via an SVG <Pattern> — see the
+ * MapScreen.tsx street-rendering comment for the visible symptom this caused. Re-cut from a clean,
+ * fully-interior region of each tile cell instead (verified by tiling each candidate crop 4x4/5x5
+ * before committing) — see GAME_DESIGN.md for the exact before/after. `dirt` is new, cut from
+ * `master_catalog_v1.png`'s matching panel (soil/path texture, not present in the Tortuga-focused
+ * sheet) using the same interior-crop, tile-verified method. */
 export const GROUND_TILES = {
   grass: require('../../assets/sprites/tiles/grass.png'),
   sand: require('../../assets/sprites/tiles/sand.png'),
+  dirt: require('../../assets/sprites/tiles/dirt.png'),
   cobble: require('../../assets/sprites/tiles/cobble.png'),
   wood: require('../../assets/sprites/tiles/wood.png'),
   water: require('../../assets/sprites/tiles/water.png'),

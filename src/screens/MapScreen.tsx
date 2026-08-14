@@ -1810,11 +1810,10 @@ export default function MapScreen({ navigation }: Props) {
                 <Pattern id="cobblePattern" patternUnits="userSpaceOnUse" width={32} height={32}>
                   <SvgImage href={GROUND_TILES.cobble} x={0} y={0} width={32} height={32} />
                 </Pattern>
-                {/* Dirt/rough 'path' style tracks — no dedicated dirt tile exists yet, so the sand
-                    texture stands in (same warm, unpaved tone), applied as a dashed pattern-fill
-                    stroke rather than a flat dashed color. */}
-                <Pattern id="sandPattern" patternUnits="userSpaceOnUse" width={32} height={32}>
-                  <SvgImage href={GROUND_TILES.sand} x={0} y={0} width={32} height={32} />
+                {/* Dirt/rough 'path' style tracks — real soil texture (see GROUND_TILES' doc
+                    comment for where this was cut from). */}
+                <Pattern id="dirtPattern" patternUnits="userSpaceOnUse" width={32} height={32}>
+                  <SvgImage href={GROUND_TILES.dirt} x={0} y={0} width={32} height={32} />
                 </Pattern>
                 {/* Piers — real wood-plank texture instead of a flat brown stroke. */}
                 <Pattern id="woodPattern" patternUnits="userSpaceOnUse" width={32} height={32}>
@@ -1884,9 +1883,18 @@ export default function MapScreen({ navigation }: Props) {
                 const y2 = islandPos.y + street.to.y;
                 // 'main' streets render as a single clean paved stroke, real cobblestone texture
                 // now on every island (previously Tortuga-only while the tile art was still being
-                // cut in — see the item below documenting this pass). 'path' stays a single
-                // stroke too, but now dashes real sand/dirt texture instead of a flat dashed
-                // color, for a rough/treacherous-route read.
+                // cut in — see the item below documenting this pass). 'path' is real dirt texture
+                // too, narrower than a paved street so it still reads as the rougher route.
+                //
+                // 'path' used to be a dashed stroke (strokeDasharray) with a round linecap — SVG
+                // rounds *every* dash segment's end under a round linecap, not just the line's true
+                // start/end, so a dashed path rendered as a chain of little pill/capsule shapes
+                // rather than one continuous track (worse once the dashes were pattern-filled
+                // instead of flat-colored, per direct feedback: "why are the paths rounded at the
+                // end"). Fixed by dropping the dash entirely — 'path' is now one continuous stroke
+                // like 'main', just narrower and dirt-textured; strokeLinecap="round" now only
+                // rounds the two genuine endpoints of the track, which is the look it was always
+                // meant to produce.
                 if (street.style === 'main') {
                   return (
                     <Line
@@ -1908,9 +1916,8 @@ export default function MapScreen({ navigation }: Props) {
                     y1={y1}
                     x2={x2}
                     y2={y2}
-                    stroke="url(#sandPattern)"
-                    strokeWidth={8}
-                    strokeDasharray="10,8"
+                    stroke="url(#dirtPattern)"
+                    strokeWidth={14}
                     strokeLinecap="round"
                   />
                 );

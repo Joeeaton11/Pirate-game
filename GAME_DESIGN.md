@@ -3034,3 +3034,53 @@ long collection grind *and* one legendary payoff at the top of it.
     Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk through
     Tortuga Cove's town core and harbor: cobblestone streets, wood-plank piers, and sand-dashed
     paths all render with visible tile texture, houses/buildings/scenery/markers all still hidden.
+89. 🔄 **Fixed the actual tile art item 88 shipped, plus the dashed-path round-cap bug** (2026-08-14)
+    — direct feedback on item 88's result: a reference screenshot of the target look ("Remember I
+    want the streets to look like this"), the question "why are the paths rounded at the end," and
+    "I don't think you cut the sprites very well... make sure they are correct and fill what's
+    supposed to be filled and positioned correctly." All three trace back to the same root cause.
+
+    **The sprite-cutting bug.** `GROUND_TILES`' `sand`/`cobble`/`wood` PNGs (and the pre-existing
+    `grass`) were each a single 64x64 crop taken from an arbitrary spot in
+    `tileset-catalog/master_catalog_v1.png`'s Terrain & Tiles panel, close enough to the right
+    material to look correct as one static icon but never checked against the one thing that
+    actually matters for a tile meant to *repeat*: whether its own edges match its own opposite
+    edges. They didn't — cropped straight from the panel, `cobble.png` and `sand.png` each carried a
+    sliver of the neighboring tile's color and a soft rounded-corner vignette baked into their
+    border (the source sheet renders each material as an isolated bordered "chip" sitting on a
+    blurred background, not seamless yardage — see `worldSprites.ts`'s cutout-technique comment for
+    why that blur exists). Tiled via the SVG `<Pattern>` used for street rendering, that border
+    repeats every 32px as a visible seam, and on the dashed 'path' stroke specifically, the sand
+    chip's own rounded fringe compounded with the dash's round linecaps to produce the "rounded
+    blob" look that prompted the direct question below.
+
+    Confirmed with a real diagnostic rather than eyeballing: built 4x4/5x5 tiled previews of every
+    candidate crop before committing any of them (`PIL`, offline, same workflow as the sprite-sheet
+    cuts elsewhere in this doc) — the old crops showed an obvious repeating seam in this test, every
+    replacement crop below was verified clean in it first.
+
+    **Re-cut properly**, this time from `tileset-catalog/tortuga_focus_v1.png`'s own Terrain & Tiles
+    panel — a cleaner, Tortuga-focused pass of the same sheet that turned out to have much better
+    pre-tiled material (light, regular stone pavers for cobble — a real match for the reference
+    screenshot's plaza, not the old sheet's mossy grey — plus grass/sand/wood that tile with
+    essentially no visible seam). `dirt` (new, for 'path') isn't in that sheet, so it's cut from
+    `master_catalog_v1.png`'s matching panel instead, using the same interior-crop-then-verify
+    method — a genuine soil/track texture, not sand reused as a stand-in like item 88 shipped.
+    `water` is untouched (wasn't part of the complaint, already tiled acceptably).
+
+    **The rounded-path-ends bug**, fixed directly rather than just explained: 'path' style used
+    `strokeDasharray` with `strokeLinecap="round"` — SVG rounds *every* dash segment's end under a
+    round linecap, not only the line's true start/end, so a dashed path always rendered as a chain
+    of pill/capsule shapes, not a continuous track; the bad tile art made this worse but didn't
+    cause it. Dropped the dash entirely — 'path' is now one continuous stroke exactly like 'main'
+    (dirt-textured, `strokeWidth` 14 vs. main's 20, so it still reads as the rougher/narrower
+    route), and `strokeLinecap="round"` now only rounds the two genuine endpoints of each real
+    track, which is the look a rounded cap was always supposed to produce.
+
+    Verified: rebuilt the same tiled-preview check on the final saved 64x64 PNGs (not just the
+    source crops, in case the resize introduced its own edge softening — it didn't), `npx tsc
+    --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk through Tortuga Cove —
+    the dirt path now bends as one continuous textured track with rounded ends only at its true
+    termini, and the cobblestone reads as a clean, light, continuous paved surface much closer to
+    the reference screenshot. Houses/buildings/scenery/landmarks/NPCs/markers are all still hidden
+    per item 87 — this pass only touched tile art and the 'path' stroke.
