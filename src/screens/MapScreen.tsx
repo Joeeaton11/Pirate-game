@@ -1815,9 +1815,14 @@ export default function MapScreen({ navigation }: Props) {
                 <Pattern id="dirtPattern" patternUnits="userSpaceOnUse" width={32} height={32}>
                   <SvgImage href={GROUND_TILES.dirt} x={0} y={0} width={32} height={32} />
                 </Pattern>
-                {/* Piers — real wood-plank texture instead of a flat brown stroke. */}
-                <Pattern id="woodPattern" patternUnits="userSpaceOnUse" width={32} height={32}>
-                  <SvgImage href={GROUND_TILES.wood} x={0} y={0} width={32} height={32} />
+                {/* Piers/jetties — a real repeatable dock module (4 corner posts + a plank deck,
+                    with genuine alpha transparency around it) instead of a flat wood texture,
+                    per direct feedback: "What happened to the jetty's we designed? Not just lines
+                    sticking out the water?" Tiled at its native pixel size (56x64) so the posts
+                    land at regular intervals down the pier's length, same technique as the ground
+                    tile patterns above, just with a structural module instead of a flat texture. */}
+                <Pattern id="pierModulePattern" patternUnits="userSpaceOnUse" width={56} height={64}>
+                  <SvgImage href={WORLD_SPRITES.pierModule} x={0} y={0} width={56} height={64} />
                 </Pattern>
               </Defs>
 
@@ -1934,20 +1939,27 @@ export default function MapScreen({ navigation }: Props) {
                 const y1 = islandPos.y + pier.from.y;
                 const x2 = islandPos.x + pier.to.x;
                 const y2 = islandPos.y + pier.to.y;
-                // Real, tiled wood-plank texture (GROUND_TILES.wood via woodPattern) — reverted
-                // 2026-08-14 back to this from a single stretched dock_pier.png instance. That
-                // sprite is one fixed illustrated scene (a dock platform's horizontal plank rows
-                // + mooring posts + a diagonal walkway baked in one composition, not a repeatable
-                // strip), so stretching it to fill each pier's tall/narrow line span distorted its
-                // own horizontal/diagonal structure into the vertical run — exactly the "still see
-                // a bit of horizontal jetty" artifact reported. A tiled plank pattern is naturally
-                // orientation-agnostic (it reads as parallel planks whichever way the stroke runs),
-                // which is what an axis-aligned pier actually needs.
+                // A real repeatable dock module (pierModulePattern — 4 corner posts + a plank
+                // deck, cut with genuine alpha transparency) instead of a flat wood-plank
+                // texture — a flat tiled texture read as "just lines sticking out the water" per
+                // direct feedback asking where "the jetty's we designed" went. This module is the
+                // exact piece the reference sheet itself draws stacked in a column (confirming
+                // it's meant to tile), so repeating it down each pier's length reads as a real
+                // built structure — regularly spaced posts, a woven deck, sea visible through the
+                // gaps between modules — rather than a solid colored/textured band. strokeWidth
+                // matches the module's native pixel width (56) so its posts aren't clipped at
+                // either edge.
                 return (
-                  <React.Fragment key={`pier-${i}`}>
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#woodPattern)" strokeWidth={36} strokeLinecap="square" />
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#3d2c1e" strokeOpacity={0.5} strokeWidth={4} strokeLinecap="square" />
-                  </React.Fragment>
+                  <Line
+                    key={`pier-${i}`}
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke="url(#pierModulePattern)"
+                    strokeWidth={56}
+                    strokeLinecap="square"
+                  />
                 );
               })}
 

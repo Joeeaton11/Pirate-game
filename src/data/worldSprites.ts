@@ -75,6 +75,15 @@ export const WORLD_SPRITES = {
   tanShip: require('../../assets/sprites/world/tan_ship.png'),
   rowboat: require('../../assets/sprites/world/rowboat.png'),
   dockPier: require('../../assets/sprites/world/dock_pier.png'),
+  // A single repeatable pier/jetty module — 4 corner posts + a woven-plank deck, cut from
+  // master_catalog_v1.png's "Docks & Harbour" panel, which draws this exact module stacked
+  // several times in a column (confirming it's meant to tile, unlike dock_pier above). Unlike
+  // every other GROUND_TILES/WORLD_SPRITES cutout in this project, this crop keeps its real alpha
+  // channel instead of getting flattened to RGB — the source sheet turned out to already have each
+  // item individually cut with transparency, so the posts/deck sit on nothing, letting the sea
+  // color underneath show through the gaps once tiled vertically along a pier's SVG stroke. See
+  // MapScreen.tsx's PIERS render for how it's used.
+  pierModule: require('../../assets/sprites/world/pier_module.png'),
   tortugaGate: require('../../assets/sprites/world/tortuga_gate.png'),
   flagSkullBlack: require('../../assets/sprites/world/flag_skull_black.png'),
   flagUk: require('../../assets/sprites/world/flag_uk.png'),

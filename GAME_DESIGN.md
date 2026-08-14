@@ -3168,3 +3168,37 @@ long collection grind *and* one legendary payoff at the top of it.
     road. Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright
     capture of the minimap near Tortuga's harbor: all 4 piers now show as short brown spurs poking
     out from the green coastline into the blue water, clearly distinct from the tan street network.
+94. ✅ **Piers switched from a flat wood texture to a real repeatable dock module** (2026-08-14) —
+    direct follow-up on item 92's revert: "What happened to the jetty's we designed? Not just lines
+    sticking out the water?" Item 92's fix (a plain plank-pattern SVG stroke) solved the *distortion*
+    complaint from item 91 but still read as a flat colored/textured band, not a built structure —
+    genuinely just a wide line, which is exactly what got called out.
+
+    Went back to `master_catalog_v1.png`'s "Docks & Harbour" panel looking for real jetty
+    structure rather than a texture swatch, and found it draws one small dock module — 4 corner
+    posts plus a woven-plank deck — stacked repeatedly in a column, confirming it's meant to tile
+    end-to-end rather than sit as a single fixed scene the way `dock_pier.png` (item 91/92) does.
+    Isolated one clean module by pixel-coordinate scanning and cropped it to a 56x64 PNG
+    (`assets/sprites/world/pier_module.png`). Along the way, found this specific crop — unlike
+    every other `GROUND_TILES`/`WORLD_SPRITES` cutout in this project, all of which get flattened
+    to RGB — already carries genuine per-item alpha transparency baked into the source sheet: the
+    posts/deck sit on nothing, confirmed by extracting and viewing the alpha channel directly (a
+    clean module silhouette on a transparent background, not a soft vignette fade). That transparency
+    is what makes the tiled result read as a structure and not a texture — the sea color shows
+    through the real gaps between and around the posts once repeated, instead of a solid stroke.
+
+    Wired it as a new SVG `<Pattern id="pierModulePattern" patternUnits="userSpaceOnUse" width={56}
+    height={64}>` (same technique as `GROUND_TILES`' patterns, just with a structural module image
+    instead of a flat texture) and pointed `PIERS`' render at it — one `<Line stroke="url(#pierModulePattern)"
+    strokeWidth={56} strokeLinecap="square">` per pier, `strokeWidth` matched to the module's native
+    pixel width so its posts aren't clipped at either edge. This replaces the item-92 two-stroke
+    `woodPattern` render entirely; `woodPattern` itself is now unused (QUAYS was already on
+    `cobblePattern`, not wood) and was removed from the `<Defs>` block rather than left as dead code.
+
+    Verified with the same tiled-preview discipline used throughout this doc — composited the
+    module over a simulated sea-blue background, both singly and stacked 3x, before touching any
+    app code — then `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk
+    to the harbor: all 4 piers now show regularly-spaced corner posts and a plank deck down their
+    full length, water visibly showing through the gaps between modules, ending in a clean square
+    cross-braced tip — reads as an actual built jetty rather than a solid line, and the minimap's
+    item-93 brown spurs are unaffected (that render never depended on `PIERS`' main-map stroke).
