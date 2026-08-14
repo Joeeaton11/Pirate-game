@@ -228,7 +228,13 @@ const SHOW_BUILDINGS = false;
 // Same render-time-only pattern throughout — no data deleted, nothing in gameStore touched. The
 // intent is to rebuild this up in layers (ground now, then streets/roads per the standing request,
 // then everything else) by flipping these back on one at a time rather than all at once.
-const SHOW_STREETS = false; // STREETS, PIERS, QUAYS, BREAKWATER
+//
+// SHOW_STREETS flipped back on 2026-08-14, first layer of that rebuild: "add only the roads and
+// paths. Skin them using the sprites and tiles" — every one of STREETS/PIERS/QUAYS/BREAKWATER now
+// renders with a real tile-pattern stroke (cobble for paved streets/quay/breakwater, sand standing
+// in for dirt 'path' tracks, wood for piers) instead of the old flat stroke colors — see the
+// GAME_DESIGN.md entry for this pass for the exact per-category mapping.
+const SHOW_STREETS = true; // STREETS, PIERS, QUAYS, BREAKWATER
 const SHOW_HOUSES = false;
 const SHOW_SCENERY = false; // SCENERY (trees/rocks), PROPS, decorative DOCKED_BOATS/OFFSHORE_SHIPS
 const SHOW_LANDMARKS = false;
@@ -1797,10 +1803,22 @@ export default function MapScreen({ navigation }: Props) {
                 <Pattern id="grassPattern" patternUnits="userSpaceOnUse" width={64} height={64}>
                   <SvgImage href={GROUND_TILES.grass} x={0} y={0} width={64} height={64} />
                 </Pattern>
-                {/* Same deal for Tortuga's paved 'main' streets, used as a stroke pattern below —
-                    SVG strokes can reference a <Pattern> exactly like a fill can. */}
+                {/* Same deal for paved 'main' streets and the stone quay/breakwater, used as a
+                    stroke pattern below — SVG strokes can reference a <Pattern> exactly like a
+                    fill can. One real stone texture (cobble) covers all three; they're kept
+                    visually distinct from each other by width/overlay, not by separate art. */}
                 <Pattern id="cobblePattern" patternUnits="userSpaceOnUse" width={32} height={32}>
                   <SvgImage href={GROUND_TILES.cobble} x={0} y={0} width={32} height={32} />
+                </Pattern>
+                {/* Dirt/rough 'path' style tracks — no dedicated dirt tile exists yet, so the sand
+                    texture stands in (same warm, unpaved tone), applied as a dashed pattern-fill
+                    stroke rather than a flat dashed color. */}
+                <Pattern id="sandPattern" patternUnits="userSpaceOnUse" width={32} height={32}>
+                  <SvgImage href={GROUND_TILES.sand} x={0} y={0} width={32} height={32} />
+                </Pattern>
+                {/* Piers — real wood-plank texture instead of a flat brown stroke. */}
+                <Pattern id="woodPattern" patternUnits="userSpaceOnUse" width={32} height={32}>
+                  <SvgImage href={GROUND_TILES.wood} x={0} y={0} width={32} height={32} />
                 </Pattern>
               </Defs>
 
@@ -1864,15 +1882,12 @@ export default function MapScreen({ navigation }: Props) {
                 const y1 = islandPos.y + street.from.y;
                 const x2 = islandPos.x + street.to.x;
                 const y2 = islandPos.y + street.to.y;
-                // 'main' streets render as a single clean paved stroke — no separate lighter
-                // sidewalk layer underneath, which used to peek out on both edges as a border.
-                // 'path' stays a single thin dashed line — a rough or treacherous route.
+                // 'main' streets render as a single clean paved stroke, real cobblestone texture
+                // now on every island (previously Tortuga-only while the tile art was still being
+                // cut in — see the item below documenting this pass). 'path' stays a single
+                // stroke too, but now dashes real sand/dirt texture instead of a flat dashed
+                // color, for a rough/treacherous-route read.
                 if (street.style === 'main') {
-                  // Real cobblestone texture on Tortuga's roads (same incremental scoping as the
-                  // ground tile fill — only Tortuga has tile art cut so far); everywhere else keeps
-                  // the flat road color.
-                  const roadStroke =
-                    street.islandId === 'tortuga_cove' ? 'url(#cobblePattern)' : '#a9825a';
                   return (
                     <Line
                       key={i}
@@ -1880,7 +1895,7 @@ export default function MapScreen({ navigation }: Props) {
                       y1={y1}
                       x2={x2}
                       y2={y2}
-                      stroke={roadStroke}
+                      stroke="url(#cobblePattern)"
                       strokeWidth={20}
                       strokeLinecap="round"
                     />
@@ -1893,7 +1908,7 @@ export default function MapScreen({ navigation }: Props) {
                     y1={y1}
                     x2={x2}
                     y2={y2}
-                    stroke="#8a7452"
+                    stroke="url(#sandPattern)"
                     strokeWidth={8}
                     strokeDasharray="10,8"
                     strokeLinecap="round"
@@ -1908,12 +1923,14 @@ export default function MapScreen({ navigation }: Props) {
                 const y1 = islandPos.y + pier.from.y;
                 const x2 = islandPos.x + pier.to.x;
                 const y2 = islandPos.y + pier.to.y;
-                // Weathered-plank double stroke — visually distinct from both paved 'main'
-                // streets and dirt 'path' tracks, and free to run straight out over open water.
+                // Real wood-plank texture for the deck (was a flat brown stroke), plus a thin
+                // dark seam down the center for the plank-joint line the flat inner stroke used
+                // to stand in for — visually distinct from both paved 'main' streets and dirt
+                // 'path' tracks, and free to run straight out over open water.
                 return (
                   <React.Fragment key={`pier-${i}`}>
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8a7a6a" strokeWidth={20} strokeLinecap="round" />
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#5c4632" strokeWidth={10} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#woodPattern)" strokeWidth={20} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#3d2c1e" strokeOpacity={0.5} strokeWidth={4} strokeLinecap="round" />
                   </React.Fragment>
                 );
               })}
@@ -1925,12 +1942,14 @@ export default function MapScreen({ navigation }: Props) {
                 const y1 = islandPos.y + quay.from.y;
                 const x2 = islandPos.x + quay.to.x;
                 const y2 = islandPos.y + quay.to.y;
-                // Solid stone-grey double stroke — a built embankment, not a wooden walkway, so
-                // it reads distinctly from both the piers above and the paved town streets.
+                // Real stone texture (the same cobble tile as paved streets, since it's the only
+                // stone art cut so far) plus a lighter flat highlight down the center — a built
+                // embankment, not a wooden walkway, so it still reads distinctly from both the
+                // piers above and the paved town streets despite sharing the texture.
                 return (
                   <React.Fragment key={`quay-${i}`}>
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#6b6b66" strokeWidth={24} strokeLinecap="round" />
-                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8f8f88" strokeWidth={14} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#cobblePattern)" strokeWidth={24} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#c9c9c0" strokeOpacity={0.35} strokeWidth={14} strokeLinecap="round" />
                   </React.Fragment>
                 );
               })}
@@ -1942,19 +1961,14 @@ export default function MapScreen({ navigation }: Props) {
                 const y1 = islandPos.y + arm.from.y;
                 const x2 = islandPos.x + arm.to.x;
                 const y2 = islandPos.y + arm.to.y;
-                // Rougher, darker stone than the quay — a rubble arm sheltering the harbor basin,
-                // not somewhere a ship ties up.
+                // Same cobble texture as the quay, darkened with a translucent overlay stroke —
+                // rougher, darker stone than the quay, since it's rubble sheltering the harbor
+                // basin, not somewhere a ship ties up.
                 return (
-                  <Line
-                    key={`breakwater-${i}`}
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
-                    stroke="#565650"
-                    strokeWidth={18}
-                    strokeLinecap="round"
-                  />
+                  <React.Fragment key={`breakwater-${i}`}>
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#cobblePattern)" strokeWidth={18} strokeLinecap="round" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#1c1c18" strokeOpacity={0.4} strokeWidth={18} strokeLinecap="round" />
+                  </React.Fragment>
                 );
               })}
             </Svg>

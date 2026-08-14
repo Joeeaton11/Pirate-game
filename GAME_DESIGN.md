@@ -2999,3 +2999,38 @@ long collection grind *and* one legendary payoff at the top of it.
     flips independently, so the natural next step (per the standing request) is turning
     `SHOW_STREETS` back on alone once the road layout itself is redesigned, before touching anything
     else.
+88. 🔄 **Roads and paths turned back on and re-skinned with real tile textures** (2026-08-14) — first
+    layer of the item 87 rebuild plan, per direct request: "add only the roads and paths. Skin them
+    using the sprites and tiles." Flipped `SHOW_STREETS` back to `true` — that one toggle already
+    covered exactly this category (`STREETS`, `PIERS`, `QUAYS`, `BREAKWATER`) from how item 87 split
+    things up, so no new toggle needed. Everything else from item 87 (houses, buildings, scenery,
+    landmarks, street NPCs, map markers) stays off.
+
+    The "skin them" half needed real work, not just the flag flip: `STREETS`' paved 'main' style
+    already had a `cobblePattern` SVG tile fill, but only for Tortuga Cove — every other island fell
+    back to a flat color, and `PIERS`/`QUAYS`/`BREAKWATER` were flat-color double-strokes
+    everywhere, no tile art at all. Only 5 ground tiles exist (`GROUND_TILES`: grass, sand, cobble,
+    wood, water — see `worldSprites.ts`), no dedicated dirt/path or stone-embankment art, so this
+    pass mapped the closest real texture to each category rather than waiting on new art:
+    - **'main' streets** — `cobblePattern`, now on every island, not just Tortuga.
+    - **'path' style** (dirt/rough tracks) — new `sandPattern` (sand tile's warm unpaved tone
+      stands in for dirt), still a dashed stroke, just pattern-filled instead of flat-colored.
+    - **Piers** — new `woodPattern` for the deck, with a thin dark translucent stroke down the
+      center standing in for a plank-joint seam (previously two flat-colored strokes).
+    - **Quays** — `cobblePattern` (the only stone tile available) plus a light translucent overlay
+      stroke down the center, keeping the same two-tone silhouette the old flat double-stroke had
+      so quays still read as distinct from plain streets despite sharing cobble's texture.
+    - **Breakwater** — `cobblePattern` again, darkened with a semi-transparent black overlay stroke
+      of the same width, so it still reads "rougher, darker stone than the quay" per its original
+      design intent even without a second stone texture to draw on.
+
+    All five reuse the existing SVG `<Pattern patternUnits="userSpaceOnUse">` technique the ground
+    fill and Tortuga's old cobble streets already established — tied to world coordinates, so the
+    tile grid doesn't stretch or slide as the pattern gets reused across differently-angled street
+    segments. Minimap street rendering (the small schematic blips, not the main map) intentionally
+    kept its flat colors — texture doesn't read at that scale, and the minimap already used flat
+    colors as a deliberate simplification before this pass.
+
+    Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk through
+    Tortuga Cove's town core and harbor: cobblestone streets, wood-plank piers, and sand-dashed
+    paths all render with visible tile texture, houses/buildings/scenery/markers all still hidden.
