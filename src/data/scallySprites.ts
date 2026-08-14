@@ -41,11 +41,17 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
 
 export const IDLE_FRAME_COUNT = 3;
 
-// Re-examined 2026-08-14: these were re-cut alongside the walk/turn frames in the item-75 alpha
-// re-cut and are clean, consistently scaled with the walk cycle — the old "mismatched
-// framing/scale" call that kept idle frozen on the walk cycle's frame 0 was stale, describing a
-// problem from before that re-cut. Wired in for real now: a slow 3-frame breathing/shifting-weight
-// loop while stationary, instead of a held pose.
+// Cut but NOT wired — reverted 2026-08-14, second time. First attempt (2026-08-14, earlier) wired
+// this in as a real 3-frame breathing/shifting-weight loop while stationary, on the theory that the
+// old "mismatched framing/scale" excuse was stale. The framing was fine; the real problem is the
+// joystick: `isMoving` in MapScreen flips on the drag distance crossing DEADZONE, which happens on
+// nearly every pointer-move event while dragging near that threshold, not just at genuine
+// start/stop. With a real idle pose wired in, each flip swapped Scally between a mid-stride walk
+// frame and a feet-together standing frame — a much bigger visual jump than the previous "hold walk
+// frame 0" approach, and it read as hopping rather than walking. Reverted `scallySpriteSource` back
+// to holding walk-cycle frame 0 while idle (same pose family as walking, so an `isMoving` flicker is
+// invisible) until `isMoving` itself gets debounced — only then does swapping in a real idle stance
+// become safe.
 const IDLE_SOURCES: Record<FacingDirection, any[]> = {
   down: [
     require('../../assets/sprites/scally/idle_down_0.png'),
@@ -72,21 +78,12 @@ const IDLE_SOURCES: Record<FacingDirection, any[]> = {
 /** Bust portrait, cut from the same sheet — now wired into the map header (see MapScreen.tsx). */
 export const SCALLY_PORTRAIT = require('../../assets/sprites/scally/portrait.png');
 
-/** Which frame image to show for a given facing direction/movement state. `idleFrameIndex` only
- * matters while not moving; `frameIndex` only matters while moving — each cycles its own set
- * independently so switching between them doesn't skip or jump mid-cycle. */
-export function scallySpriteSource(
-  direction: FacingDirection,
-  moving: boolean,
-  frameIndex: number,
-  idleFrameIndex = 0
-) {
-  if (moving) {
-    const frames = WALK_SOURCES[direction];
-    return frames[frameIndex % frames.length];
-  }
-  const idleFrames = IDLE_SOURCES[direction];
-  return idleFrames[idleFrameIndex % idleFrames.length];
+/** Which frame image to show for a given facing direction/movement state. Idle holds walk-cycle
+ * frame 0 (see IDLE_SOURCES' doc comment above for why a real idle stance isn't safe to swap in
+ * yet); moving cycles through all 5 walk frames. */
+export function scallySpriteSource(direction: FacingDirection, moving: boolean, frameIndex: number) {
+  const frames = WALK_SOURCES[direction];
+  return moving ? frames[frameIndex % frames.length] : frames[0];
 }
 
 /** How long to hold a turn frame before settling into the new direction's walk/idle art. */

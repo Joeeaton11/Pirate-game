@@ -65,7 +65,6 @@ import {
   IDLE_FLOURISH_DELAY_MS,
   IDLE_FLOURISH_HOLD_MS,
   IDLE_FLOURISH_POOL,
-  IDLE_FRAME_COUNT,
   POSE_ATTACK,
   POSE_SWORD_READY,
   SCALLY_PORTRAIT,
@@ -588,10 +587,6 @@ export default function MapScreen({ navigation }: Props) {
   // sets to show; walkSpriteFrame cycles through that set's 5 frames while isMoving.
   const [facingDir, setFacingDir] = useState<FacingDirection>('down');
   const [walkSpriteFrame, setWalkSpriteFrame] = useState(0);
-  // Slow breathing/shifting-weight loop shown while Scally is standing still (see IDLE_SOURCES'
-  // doc comment in scallySprites.ts) — cycles independently of walkSpriteFrame so switching between
-  // moving/stopped never skips or jumps mid-cycle.
-  const [idleSpriteFrame, setIdleSpriteFrame] = useState(0);
   // A brief mid-pivot pose shown right after facingDir changes, so turning reads as a turn instead
   // of an instant cut between direction sprites — see turnFrameFor's doc comment for which pivots
   // have a real cut frame vs. a mirrored stand-in.
@@ -1038,20 +1033,6 @@ export default function MapScreen({ navigation }: Props) {
     const id = setInterval(() => {
       setWalkSpriteFrame((f) => (f + 1) % WALK_FRAME_COUNT);
     }, 110);
-    return () => clearInterval(id);
-  }, [isMoving]);
-
-  // Cycles Captain Scally's 3-frame idle breathing loop while stationary; holds on the neutral
-  // frame (index 0) the instant she sets off, same shape as the walk-cycle effect above but slower —
-  // this is a resting shift-of-weight, not a stride.
-  useEffect(() => {
-    if (isMoving) {
-      setIdleSpriteFrame(0);
-      return;
-    }
-    const id = setInterval(() => {
-      setIdleSpriteFrame((f) => (f + 1) % IDLE_FRAME_COUNT);
-    }, 450);
     return () => clearInterval(id);
   }, [isMoving]);
 
@@ -1754,7 +1735,7 @@ export default function MapScreen({ navigation }: Props) {
     ? POSE_SWORD_READY
     : !isMoving && emoteOverlay
     ? emoteOverlay
-    : scallySpriteSource(facingDir, isMoving, walkSpriteFrame, idleSpriteFrame);
+    : scallySpriteSource(facingDir, isMoving, walkSpriteFrame);
   const scallySpriteMirrored = turningFrame ? turningFrame.mirror : false;
 
   // Mood badge over the header portrait, driven by the same wanted-heat gauge shown just below it

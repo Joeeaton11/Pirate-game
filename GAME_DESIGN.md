@@ -2792,3 +2792,21 @@ long collection grind *and* one legendary payoff at the top of it.
     for whenever a real crossfade (not a hard swap) gets designed between walk and run.
 
     Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.
+81. ✅ **Actually fixed the hop: idle breathing animation reverted, `scallySpriteSource` back to
+    holding walk frame 0** (2026-08-14) — item 80's fix didn't work; the user reported it was still
+    hopping. Item 80 addressed two real overlay bugs (run cycle, emotes) but missed the actual
+    culprit: item 79's idle breathing animation. In `MapScreen.tsx`, `isMoving` is driven directly
+    off the joystick drag distance crossing `DEADZONE` inside the pan gesture's `onUpdate`, which
+    fires on every pointer-move event — so near the deadzone boundary (a slow drag, a hand
+    micro-tremor) `isMoving` can flip true/false rapidly, well beyond genuine start/stop moments.
+    Before item 79, that flicker was invisible: idle held `WALK_SOURCES[direction][0]`, the same
+    pose family as walking. Item 79 swapped that for a real 3-frame standing/breathing pose
+    (`IDLE_SOURCES`) — visually a different stance (feet together) from mid-stride walk frames — so
+    every `isMoving` flicker now popped Scally between two distinct poses. That's the hop. Fixed by
+    reverting `scallySpriteSource` to its pre-item-79 form (idle = walk-cycle frame 0, full stop) and
+    removing the idle-frame-cycling state/effect from `MapScreen.tsx`. `IDLE_SOURCES`/
+    `IDLE_FRAME_COUNT` stay exported, cut but unwired, with a doc comment explaining a real idle
+    stance isn't safe to wire in until `isMoving` itself gets debounced — a genuine fix belongs in
+    the drag-gesture code, not the sprite-selection code, and wasn't done here.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.
