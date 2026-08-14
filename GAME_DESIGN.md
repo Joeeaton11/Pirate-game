@@ -2899,3 +2899,46 @@ long collection grind *and* one legendary payoff at the top of it.
     otherwise unused) were left as-is, out of scope for this fix.
 
     Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.
+85. ✅ **Found the actual `walk_down` bug: the front-facing cut frames never alternated feet at all**
+    (2026-08-14) — user follow-up after item 84 confirmed left/right now reads as a real walk, but
+    flagged down as still broken, precisely: "only using the leg on the left as you look at him."
+    That phrasing (a *specific, consistent* leg, not a flicker) pointed away from the direction/state
+    bugs items 80-84 had been chasing and straight at the down-facing art itself, so this time the
+    diagnosis started there instead of in `MapScreen.tsx`.
+
+    Cropped and bottom-aligned all 5 `walk_down_0..4.png` frames on a shared canvas (necessary
+    because each frame had been independently alpha-trimmed to its own bounding box —
+    73-76px wide, 113-120px tall — so laid directly over each other at native offset they'd
+    misleadingly appear to "jump around" regardless of the actual pose). Once aligned, the leg
+    region made the bug plain: frames 0, 1, and 4 are all close variants of the same pose — left
+    foot (as drawn, viewer's left) planted forward, right foot trailing — frame 2 is a crossed
+    "passing" pose, and frame 3 is another near-duplicate of the passing pose. At no point in the
+    5-frame set does the *opposite* foot ever plant forward. Compared this against the `walk_left`
+    set the same way (same alignment technique) as a sanity check, since item 84 had called that
+    art "genuinely fine" — confirmed: left/right's 5 frames are a real, clearly alternating side-on
+    stride, so this is specific to the down cut, not a project-wide art problem. (`walk_up`, the
+    back view, turned out to have the same non-alternating-leg issue on inspection, but the user
+    only reported down; left it untouched since a back-view stride reads far more subtly than a
+    front view one to begin with, and wasn't in scope for this fix.)
+
+    There was no missing source art to re-cut from — the master sheet's front-view walk panel
+    simply wasn't drawn with a mirrored opposite-foot-forward contact pose, only the one side's.
+    Rather than ship a walk cycle that can't alternate, synthesized the missing pose: mirrored
+    frame 0 horizontally (`ImageOps.mirror`) to produce a genuine "right foot forward" contact
+    frame, and did the same to frame 2's passing pose for a second, distinct crossed frame. Front
+    view means the character reads as bilaterally close-to-symmetric already (centered hat/face,
+    both hands at the sides), so a full-sprite mirror doesn't introduce any obvious seam; the one
+    asymmetric detail, the bandana tail, simply swaps sides on the mirrored frames, which reads as
+    natural cloth sway rather than an error. Rebuilt the 5-frame sequence as a real alternating
+    cycle: `0` contact-left (original), `1` passing (original frame 2), `2` contact-right (new
+    mirror of frame 0), `3` passing (new mirror of frame 2), `4` contact-left variant (original
+    frame 1, for a touch of extra life before the loop repeats). Only
+    `walk_down_1..4.png` changed on disk; `walk_down_0.png` is untouched.
+
+    Verified three ways: (1) the same bottom-aligned crop comparison, now showing a clean
+    left-forward / passing / right-forward / passing / left-forward cycle; (2) `npx tsc --noEmit`
+    clean and all 45 `jest` tests green (asset-only change, no code touched); (3) a live Playwright
+    capture against the actual dev server — dismissed onboarding, held a downward drag, and
+    screenshotted the character every ~110ms through a full multi-cycle hold. The captured
+    sequence shows the leg position genuinely alternating frame to frame in the running app, not
+    just in the isolated source PNGs.
