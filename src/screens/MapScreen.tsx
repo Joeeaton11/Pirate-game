@@ -63,15 +63,22 @@ import {
   turnFrameFor,
 } from '../data/scallySprites';
 import {
+  ACCELERATE_ANIMATION_MS,
   DEPART_ANIMATION_MS,
+  SHIP_ACCELERATE_SPRITE,
   SHIP_APPROACH_FRAMES,
   SHIP_APPROACH_RADIUS,
   SHIP_DEPART_SPRITE,
   SHIP_HEADING_VECTOR,
+  SHIP_STOP_SKID_SPRITE,
+  SHIP_TURN_ANIMATION_MS,
+  STOP_SKID_ANIMATION_MS,
   ShipHeading,
   WAKE_SPRITES,
   headingFromVector,
   shipSpriteSource,
+  turnBankSource,
+  turnDirectionFor,
 } from '../data/shipSprites';
 import {
   BUILDING_SPRITES,
@@ -565,6 +572,23 @@ export default function MapScreen({ navigation }: Props) {
   // Held for a beat right as the player re-boards, so pulling off the pier reads as a depart
   // instead of an instant cut from the docked marker to a mid-sail pose.
   const [shipDeparting, setShipDeparting] = useState(false);
+  // Second beat of the depart sequence — the "Accelerate" pose, held briefly right after the
+  // depart flash, once she's clear of the pier and picking up speed.
+  const [shipAccelerating, setShipAccelerating] = useState(false);
+  // A brief banked pose (left or right) shown right after shipHeading changes, same idea as
+  // Scally's turningFrame but for all 8 headings — see turnDirectionFor's doc comment.
+  const [shipTurnBank, setShipTurnBank] = useState<'left' | 'right' | null>(null);
+  const prevShipHeadingRef = useRef<ShipHeading>('s');
+  // A wide "Stop/Skid" flash the instant a fight interrupts a sail (see startEncounter) — reads
+  // as the ship being intercepted rather than an instant cut to the battle screen.
+  const [shipStopSkid, setShipStopSkid] = useState(false);
+  // How far the joystick is pushed (0-1 past the deadzone), used to scale the wake's size —
+  // a light nudge trails a small wake, a full push trails the big one.
+  const [dragIntensity, setDragIntensity] = useState(0);
+  // Continuous gentle sway while boarded and drifting (not actively sailing, not docked) —
+  // stacks with walkBounce below so she never looks frozen sitting on open water.
+  const shipIdleSway = useRef(new Animated.Value(0)).current;
+  const shipIdleLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const walkBounce = useRef(new Animated.Value(0)).current;
   const walkLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const playerRef = useRef(player);
@@ -706,9 +730,11 @@ export default function MapScreen({ navigation }: Props) {
             : 'up'
         );
         setShipHeading(headingFromVector(e.translationX, e.translationY));
+        setDragIntensity(clampedDist / MAX_DRAG);
       } else {
         directionRef.current = null;
         setIsMoving(false);
+        setDragIntensity(0);
       }
       const origin = dragOriginRef.current;
       if (origin) {
@@ -750,8 +776,23 @@ export default function MapScreen({ navigation }: Props) {
     );
     directionRef.current = null;
     const backdrop = forcedBackdrop ?? classifyBackdrop(atPoint === undefined ? playerRef.current : atPoint);
-    setWildEncounter({ templateId, level, currentHp: wildMaxHp, faction, backdrop });
-    navigation.navigate('Encounter');
+    const fire = () => {
+      setWildEncounter({ templateId, level, currentHp: wildMaxHp, faction, backdrop });
+      navigation.navigate('Encounter');
+    };
+    // A fight breaking out mid-sail reads as the ship being intercepted — flash the "Stop/Skid"
+    // pose for a beat before cutting to the battle screen, instead of an instant cut. Gated on
+    // being boarded rather than on which particular encounter this is (wild sea encounter,
+    // merchant ship, the Odessa Kane duel), since all of them are "something stops the ship."
+    if (blackPearlBoardedRef.current) {
+      setShipStopSkid(true);
+      setTimeout(() => {
+        setShipStopSkid(false);
+        fire();
+      }, STOP_SKID_ANIMATION_MS);
+    } else {
+      fire();
+    }
   }
 
   function triggerEncounter(isLand: boolean, islandId: string | null, atPoint: { x: number; y: number }) {
@@ -856,10 +897,16 @@ export default function MapScreen({ navigation }: Props) {
     directionRef.current = null;
     blackPearlBoardedRef.current = true;
     boardBlackPearl();
-    // Flash the "DEPART DOCK" pose for a beat before falling back to normal directional sailing
-    // art — same beat as turnFrameFor's mid-pivot flash, just for pulling off the pier.
+    // Two-stage depart: the "DEPART DOCK" pose (still shows the pier under her) for a beat, then
+    // the "Accelerate" pose (open water, picking up speed) for a second beat, before falling back
+    // to normal directional sailing art — reads as pulling off the pier and getting under way,
+    // not one flat cut.
     setShipDeparting(true);
-    setTimeout(() => setShipDeparting(false), DEPART_ANIMATION_MS);
+    setTimeout(() => {
+      setShipDeparting(false);
+      setShipAccelerating(true);
+      setTimeout(() => setShipAccelerating(false), ACCELERATE_ANIMATION_MS);
+    }, DEPART_ANIMATION_MS);
   }
 
   useEffect(() => {
@@ -933,6 +980,19 @@ export default function MapScreen({ navigation }: Props) {
     const id = setTimeout(() => setTurningFrame(null), TURN_ANIMATION_MS);
     return () => clearTimeout(id);
   }, [facingDir]);
+
+  // Same idea, for the ship: whenever shipHeading changes, bank left or right for a beat before
+  // settling into the new heading's normal sailing sprite.
+  useEffect(() => {
+    const prev = prevShipHeadingRef.current;
+    prevShipHeadingRef.current = shipHeading;
+    if (prev === shipHeading) return;
+    const direction = turnDirectionFor(prev, shipHeading);
+    if (!direction) return;
+    setShipTurnBank(direction);
+    const id = setTimeout(() => setShipTurnBank(null), SHIP_TURN_ANIMATION_MS);
+    return () => clearTimeout(id);
+  }, [shipHeading]);
 
   // Street NPCs wander the real street network near their home spot: walk toward a random point
   // on their current/connected street segments, collide with houses same as the player, and pick
@@ -1102,33 +1162,42 @@ export default function MapScreen({ navigation }: Props) {
       playerRef.current = nextPosition;
       setPlayer(nextPosition);
 
-      // Swap to the "APPROACH DOCK" loop once she's closing in on a pier, still under sail — only
+      // Swap to the "APPROACH DOCK" loop once she's closing in on land, still under sail — only
       // meaningful while boarded and still at sea (nextIsland null); once ashore the docked marker
-      // takes over entirely. Checked against the pier's actual line (not just its tip) so the loop
-      // starts the moment she lines up with the jetty, same radius as a building's ENTER_RADIUS
-      // logic elsewhere, just wider since a ship closes distance faster than a walking player.
+      // takes over entirely. Checked against a pier's actual line (not just its tip) so the loop
+      // starts the moment she lines up with a jetty, same radius as a building's ENTER_RADIUS logic
+      // elsewhere, just wider since a ship closes distance faster than a walking player. Also
+      // checked against every island's own coastline, not just Tortuga's piers — every island is a
+      // potential landing, not only the one with named jetties, so the docking moment shows up
+      // wherever the player actually makes for shore.
       if (blackPearlBoardedRef.current && !nextIsland) {
         const nearPier = PIERS.some((p) => {
           const islandPos = ISLANDS[p.islandId].position;
           const from = { x: islandPos.x + p.from.x, y: islandPos.y + p.from.y };
           const to = { x: islandPos.x + p.to.x, y: islandPos.y + p.to.y };
-          const dx = to.x - from.x;
-          const dy = to.y - from.y;
-          const lenSq = dx * dx + dy * dy;
-          const t =
-            lenSq === 0
-              ? 0
-              : Math.max(
-                  0,
-                  Math.min(1, ((nextPosition.x - from.x) * dx + (nextPosition.y - from.y) * dy) / lenSq)
-                );
-          const cx = from.x + t * dx;
-          const cy = from.y + t * dy;
-          return Math.hypot(nextPosition.x - cx, nextPosition.y - cy) <= SHIP_APPROACH_RADIUS;
+          const closest = closestPointOnSegment(nextPosition, from, to);
+          return Math.hypot(nextPosition.x - closest.x, nextPosition.y - closest.y) <= SHIP_APPROACH_RADIUS;
         });
-        if (nearPier !== shipApproachingRef.current) {
-          shipApproachingRef.current = nearPier;
-          setShipApproaching(nearPier);
+        const nearCoast =
+          !nearPier &&
+          ISLAND_LIST.some((island) => {
+            const shape = island.shape;
+            for (let i = 0; i < shape.length; i++) {
+              const a = shape[i];
+              const b = shape[(i + 1) % shape.length];
+              const from = { x: island.position.x + a.x, y: island.position.y + a.y };
+              const to = { x: island.position.x + b.x, y: island.position.y + b.y };
+              const closest = closestPointOnSegment(nextPosition, from, to);
+              if (Math.hypot(nextPosition.x - closest.x, nextPosition.y - closest.y) <= SHIP_APPROACH_RADIUS) {
+                return true;
+              }
+            }
+            return false;
+          });
+        const nearLand = nearPier || nearCoast;
+        if (nearLand !== shipApproachingRef.current) {
+          shipApproachingRef.current = nearLand;
+          setShipApproaching(nearLand);
         }
       } else if (shipApproachingRef.current) {
         shipApproachingRef.current = false;
@@ -1384,6 +1453,38 @@ export default function MapScreen({ navigation }: Props) {
       ? PLAYER_EMOJI_LAND_FRONT
       : PLAYER_EMOJI_LAND_SIDE
     : PLAYER_EMOJI_SEA;
+
+  // Gentle continuous sway while boarded and drifting at sea (not actively sailing, not docked)
+  // so she never looks frozen sitting on open water between drags. Declared here rather than up
+  // with the other effects since it needs `currentIsland`, computed fresh each render just above —
+  // keyed on its id (a stable primitive) rather than the object itself, which is a new reference
+  // every render and would restart the loop on every tick.
+  const isDriftingAtSea = blackPearlBoarded && !isMoving && !currentIsland;
+  useEffect(() => {
+    if (isDriftingAtSea) {
+      shipIdleLoopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(shipIdleSway, {
+            toValue: -3,
+            duration: 900,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(shipIdleSway, {
+            toValue: 3,
+            duration: 900,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      shipIdleLoopRef.current.start();
+    } else {
+      shipIdleLoopRef.current?.stop();
+      Animated.timing(shipIdleSway, { toValue: 0, duration: 200, useNativeDriver: true }).start();
+    }
+    return () => shipIdleLoopRef.current?.stop();
+  }, [isDriftingAtSea, shipIdleSway]);
 
   const sortedLords = [...PIRATE_LORDS].sort((a, b) => a.order - b.order);
   const nextLord = sortedLords.find(
@@ -2267,38 +2368,67 @@ export default function MapScreen({ navigation }: Props) {
               />
             ) : (
               // At sea, the Black Pearl herself renders as real sprite art — 8-way directional
-              // sailing, a brief "APPROACH DOCK" loop near a pier, a "DEPART DOCK" flash right off
-              // a fresh boarding, and a trailing wake while under way. islandAtPoint() blocks sea
-              // movement entirely unless boarded (see the movement tick), so this branch is only
-              // ever reached while boarded in practice.
-              <View style={styles.shipWrap}>
-                {isMoving && !shipDeparting && (
-                  <RNImage
-                    source={shipApproaching ? WAKE_SPRITES.small : WAKE_SPRITES.medium}
-                    resizeMode="contain"
-                    style={[
-                      styles.shipWake,
-                      {
-                        transform: [
-                          { translateX: -SHIP_HEADING_VECTOR[shipHeading].x * SHIP_SPRITE_SIZE * 0.4 },
-                          { translateY: -SHIP_HEADING_VECTOR[shipHeading].y * SHIP_SPRITE_SIZE * 0.4 + 6 },
-                        ],
-                      },
-                    ]}
-                  />
-                )}
-                <Animated.Image
-                  source={
-                    shipDeparting
-                      ? SHIP_DEPART_SPRITE
-                      : shipApproaching
-                      ? SHIP_APPROACH_FRAMES[shipApproachFrame]
-                      : shipSpriteSource(shipHeading)
-                  }
-                  resizeMode="contain"
-                  style={[styles.shipSprite, { transform: [{ translateY: walkBounce }] }]}
-                />
-              </View>
+              // sailing with a banked pose while turning, a brief "APPROACH DOCK" loop near land,
+              // a two-stage "DEPART DOCK" -> "Accelerate" flash right off a fresh boarding, a
+              // "Stop/Skid" flash if a fight interrupts the sail, and a layered wake trail that
+              // grows with how hard the joystick is pushed. islandAtPoint() blocks sea movement
+              // entirely unless boarded (see the movement tick), so this branch is only ever
+              // reached while boarded in practice.
+              (() => {
+                const wakeTier = shipApproaching
+                  ? WAKE_SPRITES.small
+                  : dragIntensity < 0.45
+                  ? WAKE_SPRITES.small
+                  : dragIntensity < 0.8
+                  ? WAKE_SPRITES.medium
+                  : WAKE_SPRITES.large;
+                const headingVec = SHIP_HEADING_VECTOR[shipHeading];
+                const wakeLayer = (distanceFrac: number, opacity: number) => ({
+                  transform: [
+                    { translateX: -headingVec.x * SHIP_SPRITE_SIZE * distanceFrac },
+                    { translateY: -headingVec.y * SHIP_SPRITE_SIZE * distanceFrac + 6 },
+                  ],
+                  opacity,
+                });
+                return (
+                  <View style={styles.shipWrap}>
+                    {isMoving && !shipDeparting && (
+                      <>
+                        <RNImage
+                          source={wakeTier}
+                          resizeMode="contain"
+                          style={[styles.shipWake, wakeLayer(0.35, 0.85)]}
+                        />
+                        <RNImage
+                          source={wakeTier}
+                          resizeMode="contain"
+                          style={[styles.shipWake, wakeLayer(0.7, 0.4)]}
+                        />
+                      </>
+                    )}
+                    <Animated.Image
+                      source={
+                        shipStopSkid
+                          ? SHIP_STOP_SKID_SPRITE
+                          : shipDeparting
+                          ? SHIP_DEPART_SPRITE
+                          : shipAccelerating
+                          ? SHIP_ACCELERATE_SPRITE
+                          : shipApproaching
+                          ? SHIP_APPROACH_FRAMES[shipApproachFrame]
+                          : shipTurnBank
+                          ? turnBankSource(shipTurnBank)
+                          : shipSpriteSource(shipHeading)
+                      }
+                      resizeMode="contain"
+                      style={[
+                        styles.shipSprite,
+                        { transform: [{ translateY: Animated.add(walkBounce, shipIdleSway) }] },
+                      ]}
+                    />
+                  </View>
+                );
+              })()
             )}
           </View>
         )}

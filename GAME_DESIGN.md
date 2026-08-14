@@ -2619,3 +2619,69 @@ long collection grind *and* one legendary payoff at the top of it.
     (turn-left/right/accelerate/stop-skid/reverse), Combat/Actions (cannon fire/take damage/
     sinking — no sea-combat hook exists yet), and the Rowboat/Captain's-Longboat panel — same
     "flag it, don't force it in" treatment the unused Scally portrait/emote content got.
+77. ✅ **Ship polish pass: smooth turns, layered wake, idle sway, universal docking, a "stop/skid"
+    battle flash** (2026-08-14) — the user liked all 8 suggestions offered after item 76 shipped
+    and said to go ahead on each. What actually landed, and what got reshaped or cut along the way:
+
+    - **Smooth turns.** `shipSprites.ts` gained `turnDirectionFor()` — the shortest-arc left/right
+      call between two of the 8 headings (mirrors `turnFrameFor`'s logic but across 8 points
+      instead of 4, and returns null on a dead-on 180 same as that function does) — paired with the
+      sheet's "Special Animations" TURN LEFT/TURN RIGHT poses. `MapScreen.tsx` flashes the banked
+      pose for `SHIP_TURN_ANIMATION_MS` whenever `shipHeading` changes, same pattern as Scally's
+      `turningFrame` effect.
+    - **Wake that scales with speed.** The joystick's existing clamped-distance-to-max-drag ratio
+      (previously computed and discarded every drag update) is now kept as `dragIntensity` state
+      and used to pick small/medium/large wake tiers. Two copies of the chosen tier render behind
+      the ship at different offsets/opacities along `-SHIP_HEADING_VECTOR` instead of one static
+      blob, reading as a short fading trail without tracking real trail-point history.
+    - **Idle sway.** A continuous slow sea-legs bob (`shipIdleSway`, composed with the existing
+      `walkBounce` via `Animated.add`) runs while boarded, stationary, and off any island — so she
+      doesn't look frozen sitting on open water between drags.
+    - **Piers on other islands, reframed.** Rather than hand-author pier art+data for one more
+      island, the "APPROACH DOCK" trigger now checks distance to *every* island's own coastline
+      (`ISLAND_LIST`, via the already-existing `closestPointOnSegment` helper), not just Tortuga's
+      named piers. The docking moment now shows up wherever the player actually makes for shore,
+      not only at the one island with a jetty — same practical outcome as adding more piers, no new
+      art needed.
+    - **A "stop/skid" moment for sea fights.** The sheet's "Stop/Skid" special-animation pose (a
+      wide double-wake sudden-halt frame) flashes for `STOP_SKID_ANIMATION_MS` right before
+      `startEncounter()` actually cuts to the battle screen, whenever `blackPearlBoardedRef.current`
+      is true — covers the pre-capture Odessa Kane duel, wild sea encounters, and merchant-ship
+      encounters alike, since all three are "something stops the ship," not just one of them.
+    - **Two-stage depart.** Boarding now flashes DEPART DOCK (still shows the pier) then a second
+      beat of the sheet's "Accelerate" pose (open water, gaining speed) before settling into normal
+      sailing — uses a frame that was sitting cut-but-unused after the first pass.
+    - **Sail State (furled/half/full), dropped.** Cutting this panel for real showed its ships have
+      tan/cream sails with only a small skull flag at the masthead — not the solid black sails the
+      rest of the sheet (and the game) uses for Captain Scally's boat. Swapping it in for idle
+      moments would have read as a mismatched ship, not a state change, so it was left uncut/unused
+      rather than forced in.
+    - **Bulldozing a "boat lane" through the harbor front, reconsidered and dropped.** The original
+      suggestion assumed the harbor front was a genuine dead end. Checking `buildings.ts`'s
+      waterfront row against `BUILDING_COLLISION_RADIUS` showed there's already a walkable corridor
+      along Dock Street (y≈0 between the two building rows) with real clearance — what read as a
+      wall during testing was a scripted-drag precision problem, not a structural one. Given the
+      user's earlier, still-open feedback about layout edits happening without being asked ("the
+      layout is still following the old paths and buildings... we will come back to that shortly"
+      — still unresolved, not touched here), moving buildings on a hunch that turned out to be
+      wrong wasn't the right call; nothing in `buildings.ts`/`houses.ts`/`streets.ts` was touched
+      this pass.
+    - **Rowboat mechanic, deferred outright.** This needs real gameplay decisions this pass
+      shouldn't make unilaterally (where would rowboat-only landings exist that the ship can't
+      already reach, given she already docks anywhere; is it faster/slower; any rowboat-specific
+      encounters) — flagged back to the user rather than half-built.
+    - **Cannon-fire/take-damage sprites, not integrated.** Attempted cuts from the Combat/Actions
+      panel kept fusing adjacent ships' muzzle-flash/smoke clouds into one connected component —
+      same touching-art problem as the docking panel, but without a clean hard-boundary column to
+      split on this time. Given no real sea-combat mechanic exists to hang it on anyway, this was
+      dropped in favor of reusing the already-clean Stop/Skid pose for the "a fight interrupted the
+      sail" moment instead.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green. In-browser: zero console errors
+    across several long boarded sessions exercising heading changes, drag-intensity updates, and
+    the tick loop's per-frame approach/coastline checks — the same kind of partial live coverage
+    documented for item 76, for the same reason (Tortuga's harbor front is dense enough that
+    scripted straight-line dragging repeatedly got boxed in before reaching open water). The new
+    render code (wake layering, turn-bank selection, the `Animated.add` idle-sway composite) is
+    verified by code review and the individually re-inspected cut frames, not a live screenshot of
+    it firing at sea.

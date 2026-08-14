@@ -19,6 +19,10 @@ const SHIP_DIRECTION_SOURCES: Record<ShipHeading, any> = {
   sw: require('../../assets/sprites/ship/ship_sw.png'),
 };
 
+/** Compass order, clockwise from north — the single source of truth both `headingFromVector` and
+ * `turnDirectionFor` bucket/compare against. */
+const HEADING_ORDER: ShipHeading[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
+
 /** Unit vector for each heading, screen space (+x right, +y down) — used to aim the wake behind
  * the ship (opposite the heading) instead of it dragging off to one fixed side. */
 export const SHIP_HEADING_VECTOR: Record<ShipHeading, { x: number; y: number }> = {
@@ -42,9 +46,32 @@ export function headingFromVector(dx: number, dy: number): ShipHeading {
   if (dx === 0 && dy === 0) return 's';
   const angle = Math.atan2(dx, -dy); // 0 = north, sweeping clockwise
   const deg = ((angle * 180) / Math.PI + 360) % 360;
-  const order: ShipHeading[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
-  return order[Math.round(deg / 45) % 8];
+  return HEADING_ORDER[Math.round(deg / 45) % 8];
 }
+
+/** The sheet's "Special Animations" panel — a banked mid-turn pose for each rotation direction,
+ * shown for a beat whenever the heading changes, same idea as scallySprites' turnFrameFor but for
+ * all 8 headings instead of just 4. */
+const SHIP_TURN_LEFT = require('../../assets/sprites/ship/ship_turn_left.png');
+const SHIP_TURN_RIGHT = require('../../assets/sprites/ship/ship_turn_right.png');
+
+/** Which way the wheel turns going from one heading to the next, by shortest arc around the
+ * compass. Returns null for no change or a dead-on 180 (equally short either way — not worth a
+ * banked pose for, same call scallySprites makes for its direct opposites). */
+export function turnDirectionFor(from: ShipHeading, to: ShipHeading): 'left' | 'right' | null {
+  const fromIdx = HEADING_ORDER.indexOf(from);
+  const toIdx = HEADING_ORDER.indexOf(to);
+  const diff = (toIdx - fromIdx + 8) % 8;
+  if (diff === 0 || diff === 4) return null;
+  return diff < 4 ? 'right' : 'left';
+}
+
+export function turnBankSource(direction: 'left' | 'right') {
+  return direction === 'left' ? SHIP_TURN_LEFT : SHIP_TURN_RIGHT;
+}
+
+/** How long the banked turn pose holds before falling back to the new heading's normal sprite. */
+export const SHIP_TURN_ANIMATION_MS = 180;
 
 /** The "Docking" panel's 3-frame APPROACH DOCK loop — shown in place of the normal directional
  * sprite while under sail and closing in on a pier. */
@@ -54,8 +81,26 @@ export const SHIP_APPROACH_FRAMES = [
   require('../../assets/sprites/ship/ship_approach_2.png'),
 ];
 
-/** Held for a beat the moment the player re-boards and the ship pulls off the pier. */
+/** Held for a beat the moment the player re-boards, then a second beat of the "Accelerate" pose
+ * (open water, no pier under her) before settling into normal directional sailing — two-stage so
+ * pulling off the dock reads as leaving the pier, then picking up speed, instead of one flat cut. */
 export const SHIP_DEPART_SPRITE = require('../../assets/sprites/ship/ship_depart.png');
+export const SHIP_ACCELERATE_SPRITE = require('../../assets/sprites/ship/ship_accelerate.png');
+export const DEPART_ANIMATION_MS = 500;
+export const ACCELERATE_ANIMATION_MS = 450;
+
+/** The sheet's "Reverse" special animation — cut alongside turn/accelerate/stop-skid but not
+ * wired into any screen yet, since there's no backing-away-from-dock maneuver to show it for.
+ * Ready if that ever gets a use (e.g. a deliberate "cast off" step before the depart sequence
+ * above), same as scallySprites.ts's SCALLY_PORTRAIT sitting cut-but-unused. */
+export const SHIP_REVERSE_SPRITE = require('../../assets/sprites/ship/ship_reverse.png');
+
+/** A wide double-wake "sudden stop" pose, flashed for a beat the instant a sea encounter or the
+ * pre-capture duel interrupts a sail — reuses the sheet's own "Stop/Skid" special animation
+ * instead of the Combat panel's cannon-fire/take-damage frames, whose smoke clouds run together
+ * between adjacent poses on the sheet and don't cut cleanly to a single frame. */
+export const SHIP_STOP_SKID_SPRITE = require('../../assets/sprites/ship/ship_stop_skid.png');
+export const STOP_SKID_ANIMATION_MS = 500;
 
 /** Parked at a pier, sails furled — the docked marker shown whenever the Black Pearl isn't
  * boarded (see worldSprites.ts's `blackShip`, which now points at this same art). */
@@ -64,11 +109,9 @@ export const SHIP_DOCKED_SPRITE = require('../../assets/sprites/ship/ship_docked
 export const WAKE_SPRITES = {
   small: require('../../assets/sprites/ship/wake_small.png'),
   medium: require('../../assets/sprites/ship/wake_medium.png'),
+  large: require('../../assets/sprites/ship/wake_large.png'),
 };
 
-/** How close (world units) to a pier's line before the approach loop takes over from the normal
- * directional sprite. */
+/** How close (world units) to a pier's line, or to any island's coastline, before the approach
+ * loop takes over from the normal directional sprite. */
 export const SHIP_APPROACH_RADIUS = 130;
-
-/** How long the depart pose holds before falling back to normal directional sailing art. */
-export const DEPART_ANIMATION_MS = 550;
