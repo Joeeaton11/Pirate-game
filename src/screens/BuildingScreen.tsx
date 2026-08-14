@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useRef, useState } from 'react';
-import { LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BUILDINGS, BuildingType } from '../data/buildings';
@@ -8,6 +8,7 @@ import { CREW_TEMPLATES } from '../data/crew';
 import { AMBIENT_NPCS, BuildingInterior, InteriorFurniture, interiorForBuilding } from '../data/interiors';
 import { CRAFTING_RECIPES, ITEMS } from '../data/items';
 import { RESOURCE_LIST, RESOURCES } from '../data/resources';
+import { ICON_EXCLAIM, ICON_SPEECH } from '../data/scallySprites';
 import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { SIDE_QUESTS } from '../data/sideQuests';
 import { TREASURES } from '../data/treasures';
@@ -642,7 +643,7 @@ export default function BuildingScreen({ navigation }: Props) {
                   ]}
                 >
                   {hasOpenQuest && (
-                    <Text style={styles.questIndicator}>❗</Text>
+                    <Image source={ICON_EXCLAIM} resizeMode="contain" style={styles.questIndicator} />
                   )}
                   <Text style={styles.npcTokenEmoji}>{emoji}</Text>
                 </View>
@@ -683,6 +684,7 @@ export default function BuildingScreen({ navigation }: Props) {
 
       {nearbyNpcId && !ambientMessage && (
         <Pressable style={styles.talkButton} onPress={handleTalk}>
+          <Image source={ICON_SPEECH} resizeMode="contain" style={styles.talkButtonIcon} />
           <Text style={styles.talkButtonText}>Talk to {nearbyLabel}</Text>
         </Pressable>
       )}
@@ -786,10 +788,10 @@ const styles = StyleSheet.create({
   npcTokenEmoji: { fontSize: 28 },
   questIndicator: {
     position: 'absolute',
-    top: -14,
-    width: NPC_SIZE,
-    textAlign: 'center',
-    fontSize: 14,
+    top: -16,
+    left: NPC_SIZE / 2 - 8,
+    width: 16,
+    height: 16,
   },
   roomPlayer: {
     position: 'absolute',
@@ -816,6 +818,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 209, 102, 0.85)',
   },
   talkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     alignSelf: 'center',
     backgroundColor: '#ffd166',
     paddingHorizontal: 20,
@@ -823,6 +828,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 8,
   },
+  talkButtonIcon: { width: 20, height: 20 },
   talkButtonText: { color: '#0b3d5c', fontWeight: '800', fontSize: 14 },
   ambientToast: {
     alignSelf: 'center',

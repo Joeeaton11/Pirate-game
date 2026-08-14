@@ -1,10 +1,11 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATE_LIST } from '../data/crew';
+import { MONKEY_IDLE } from '../data/monkeySprites';
 import { PIRATE_LORDS } from '../data/pirateLords';
-import { CAPTAIN_NAME, COMPANION_EMOJI, COMPANION_NAME } from '../data/protagonist';
+import { CAPTAIN_NAME, COMPANION_NAME } from '../data/protagonist';
 import { TREASURE_LIST } from '../data/treasures';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
@@ -21,9 +22,10 @@ export default function MenuScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>{CAPTAIN_NAME}'s Log</Text>
-        <Text style={styles.subtitle}>
-          {COMPANION_EMOJI} {COMPANION_NAME} is minding the ship
-        </Text>
+        <View style={styles.subtitleRow}>
+          <Image source={MONKEY_IDLE} resizeMode="contain" style={styles.companionIcon} />
+          <Text style={styles.subtitle}>{COMPANION_NAME} is minding the ship</Text>
+        </View>
       </View>
       <View style={styles.list}>
         <Pressable style={styles.row} onPress={() => navigation.navigate('Crew')}>
@@ -79,7 +81,9 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#0b3d5c' },
   header: { padding: 16 },
   title: { fontSize: 22, fontWeight: '700', color: '#f4e9cd' },
-  subtitle: { fontSize: 13, color: '#cfe3ee', marginTop: 4 },
+  subtitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  companionIcon: { width: 18, height: 18 },
+  subtitle: { fontSize: 13, color: '#cfe3ee' },
   list: { paddingHorizontal: 16, gap: 10 },
   row: {
     flexDirection: 'row',

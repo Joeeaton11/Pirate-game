@@ -2712,3 +2712,66 @@ long collection grind *and* one legendary payoff at the top of it.
     near Tortuga's real piers) and the fallback already reads fine.
 
     Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.
+79. ✅ **Captain Scally art pass: idle loop, portrait, emotes, faces, run cycle, interact poses, UI
+    icons, Cheeky the monkey** (2026-08-14) — the user asked "How can we improve Captain Scally?",
+    got 8 sheet-grounded suggestions back (all cut from `assets/brand/scally_sprite_sheet_source.png`,
+    same alpha-based extraction technique as the item-75 re-cut), then said "Try them all. If they
+    don't work at this stage that's fine." Wired all 8, several trimmed to something honest rather
+    than forced:
+    - **Idle animation.** `IDLE_SOURCES` (4 directions × 3 frames) was already cut in item 75 but
+      never actually cycled — Scally just held the walk cycle's frame 0 while stationary. Re-checked
+      the frames against the walk cycle's scale/framing (clean, no mismatch) and wired a slow
+      450ms/frame breathing loop, independent of `walkSpriteFrame` so switching between
+      moving/stopped never skips mid-cycle.
+    - **Header portrait.** The map header's plain `{emoji} Captain Scally` text swapped for the cut
+      bust portrait (`SCALLY_PORTRAIT`), with the now-fully-replaced `playerEmoji` derivation (and
+      its orphaned `PLAYER_EMOJI_SEA` import and dead `styles.playerEmoji` rule) removed.
+    - **Emotes.** Two get real narrative triggers: a wave (`EMOTE_WAVE`) flashes the instant a
+      building's enter-prompt appears — greeting the door — and a victory flourish
+      (`EMOTE_VICTORY`) flashes when the map screen notices `defeatedLordIds`/`completedQuestIds`
+      grew since last render (a Pirate Lord fell or a side quest completed on another screen). The
+      other four (cheer/think/laugh/sit) don't have one clean story beat each, so they share an
+      `IDLE_FLOURISH_POOL`: stand still 5s and Scally cycles a random one of the four for 2.2s
+      before returning to the ordinary breathing loop — the standard "idle animation after
+      inactivity" trick rather than four separate bespoke triggers.
+    - **Expression faces.** `SCALLY_FACES` doesn't have a home in `EncounterScreen` — battles are
+      fought by whichever crew member is active, not Scally herself, so pinning his expression to a
+      duel he isn't visually in would misrepresent the actual fighter. Redirected to something the
+      map screen genuinely knows: a small mood badge on the corner of the header portrait, driven by
+      the same wanted-heat gauge already on screen (neutral under 25%, `FACE_DETERMINED` above it,
+      `FACE_HURT` above 60% — the existing amber/red heat-bar thresholds).
+    - **Run cycle.** `RUN_SOURCES` (side view only, faces right in the source art) swaps in for the
+      ordinary walk cycle once heat crosses `RUN_HEAT_THRESHOLD` (60%, matching the heat-bar's red
+      line) while moving left/right; mirrored via the same `scaleX` trick already used for turn
+      frames when facing left. Up/down movement keeps the normal walk cycle regardless of heat — no
+      matching run art was cut for those facings.
+    - **Attack/sword-ready poses.** The on-foot equivalent of item 77's ship Stop/Skid flash: forced
+      fights (`startEncounter`'s `else` branch, i.e. not boarded) now flash `POSE_ATTACK` then
+      `POSE_SWORD_READY` for `ATTACK_FLASH_MS` each before cutting to the battle screen, instead of
+      an instant cut. `POSE_POINT` and `POSE_CHEER_FIST` are cut and exported but left unwired —
+      same precedent as `SHIP_REVERSE_SPRITE` in item 76, available for whenever a real "pointing at
+      something"/"cheering a recruit" moment gets designed.
+    - **UI icons.** `ICON_EXCLAIM` replaces the plain `❗` text on both BuildingScreen's quest badge
+      and MapScreen's own building quest-indicator; `ICON_SPEECH` sits next to BuildingScreen's Talk
+      button; `ICON_MAP` replaces the `📜` side-quest world marker. `ICON_QUESTION` stayed unwired —
+      no existing "?"/mystery UI moment turned up that didn't also require an unrelated design call
+      (e.g. hiding a locked Pirate Lord's identity, which `QuestScreen` currently doesn't do), so
+      forcing it in would have been a scope decision disguised as an icon swap.
+    - **Cheeky the monkey.** `protagonist.ts` and the Menu screen already establish Cheeky stays
+      aboard ship ("Cheeky is minding the ship") rather than trailing Scally on foot — an early draft
+      of `monkeySprites.ts` assumed a trailing companion before this was caught via grep and
+      corrected. Wired instead as a small idle/wink figure perched on the docked, unboarded,
+      uncaptured Black Pearl marker (blinks to `MONKEY_WINK` every 4s), and swapped into the Menu
+      screen's subtitle in place of the plain 🐒 emoji. `MONKEY_WALK`/`MONKEY_SLEEP` and the sheet's
+      whole "Extras" row (climbing a rope, hanging from a bar, sitting with a banana/barrel) are cut
+      but unused — no on-foot or asleep-at-the-wheel moment currently calls for them, and where
+      Cheeky would actually climb/hang is a real design decision this pass didn't make.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green. In-browser: confirmed the idle
+    breathing loop, header portrait, and heat-driven face badge (`FACE_HURT` at 90% heat via the
+    Debug screen's heat shortcuts) render correctly via Playwright screenshots. The run cycle,
+    attack/sword-ready flash, and monkey-on-deck marker are verified by code review and typecheck
+    only — the Debug screen's "Force Captain Duel"/board shortcuts bypass MapScreen's transition
+    code entirely (they set the encounter/board state directly), and Tortuga's harbor front is
+    dense enough that scripted dragging to trigger a real forced encounter or get the docked-ship
+    marker in frame wasn't reliable in the time budget, same limitation noted in items 76 and 77.

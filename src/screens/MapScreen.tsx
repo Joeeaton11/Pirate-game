@@ -52,16 +52,35 @@ import {
   CAPTAIN_NAME,
   PLAYER_EMOJI_LAND_FRONT,
   PLAYER_EMOJI_LAND_SIDE,
-  PLAYER_EMOJI_SEA,
 } from '../data/protagonist';
 import {
+  ATTACK_FLASH_MS,
+  EMOTE_VICTORY,
+  EMOTE_WAVE,
+  FACE_DETERMINED,
+  FACE_HURT,
   FacingDirection,
+  ICON_EXCLAIM,
+  ICON_MAP,
+  IDLE_FLOURISH_DELAY_MS,
+  IDLE_FLOURISH_HOLD_MS,
+  IDLE_FLOURISH_POOL,
+  IDLE_FRAME_COUNT,
+  POSE_ATTACK,
+  POSE_SWORD_READY,
+  RUN_FRAME_COUNT,
+  RUN_HEAT_THRESHOLD,
+  SCALLY_PORTRAIT,
   TURN_ANIMATION_MS,
   TurnFrame,
+  VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
+  WAVE_ANIMATION_MS,
+  runSpriteSource,
   scallySpriteSource,
   turnFrameFor,
 } from '../data/scallySprites';
+import { MONKEY_IDLE, MONKEY_WINK, MONKEY_WINK_HOLD_MS, MONKEY_WINK_INTERVAL_MS } from '../data/monkeySprites';
 import {
   ACCELERATE_ANIMATION_MS,
   DEPART_ANIMATION_MS,
@@ -572,11 +591,42 @@ export default function MapScreen({ navigation }: Props) {
   // sets to show; walkSpriteFrame cycles through that set's 5 frames while isMoving.
   const [facingDir, setFacingDir] = useState<FacingDirection>('down');
   const [walkSpriteFrame, setWalkSpriteFrame] = useState(0);
+  // Slow breathing/shifting-weight loop shown while Scally is standing still (see IDLE_SOURCES'
+  // doc comment in scallySprites.ts) — cycles independently of walkSpriteFrame so switching between
+  // moving/stopped never skips or jumps mid-cycle.
+  const [idleSpriteFrame, setIdleSpriteFrame] = useState(0);
   // A brief mid-pivot pose shown right after facingDir changes, so turning reads as a turn instead
   // of an instant cut between direction sprites — see turnFrameFor's doc comment for which pivots
   // have a real cut frame vs. a mirrored stand-in.
   const [turningFrame, setTurningFrame] = useState<TurnFrame | null>(null);
   const prevFacingDirRef = useRef<FacingDirection>('down');
+  // A brief emote pose that overrides the normal walk/idle art — waving hello at a building door,
+  // a victory flourish on a quest/Pirate Lord win, or one of the "prolonged idle" flourishes below.
+  // Whichever fires most recently wins; these are all short and rare enough that stepping on each
+  // other isn't a real concern.
+  const [emoteOverlay, setEmoteOverlay] = useState<any>(null);
+  const emoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function flashEmote(source: any, durationMs: number) {
+    setEmoteOverlay(source);
+    if (emoteTimeoutRef.current) clearTimeout(emoteTimeoutRef.current);
+    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), durationMs);
+  }
+  // On-foot equivalent of the ship's Stop/Skid flash (see startEncounter below): a fight breaking
+  // out while Scally's walking reads as her squaring up, not an instant cut to the battle screen.
+  const [scallyAttackFlash, setScallyAttackFlash] = useState(false);
+  const [scallySwordReadyFlash, setScallySwordReadyFlash] = useState(false);
+  // Cheeky blinks every so often while perched on the docked, unboarded Black Pearl (see the ship
+  // marker render below) — see monkeySprites.ts for why he lives there instead of trailing on foot.
+  const [monkeyWinking, setMonkeyWinking] = useState(false);
+  const showMonkeyOnDeck = !blackPearlBoarded && !blackPearlCaptured;
+  useEffect(() => {
+    if (!showMonkeyOnDeck) return;
+    const id = setInterval(() => {
+      setMonkeyWinking(true);
+      setTimeout(() => setMonkeyWinking(false), MONKEY_WINK_HOLD_MS);
+    }, MONKEY_WINK_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [showMonkeyOnDeck]);
   // The Black Pearl's own 8-way facing, driven by the same drag vector as facingDir above but
   // bucketed finer (the ship sheet was cut with real diagonal poses, unlike Scally's 4-direction
   // walk cycle). Only rendered while boarded, but harmless to keep updating unconditionally.
@@ -812,7 +862,18 @@ export default function MapScreen({ navigation }: Props) {
         fire();
       }, STOP_SKID_ANIMATION_MS);
     } else {
-      fire();
+      // On foot, the land equivalent: a beat of the attack pose, then a beat of sword-ready, before
+      // the cut — two poses instead of the ship's one because the sheet cut them as a real windup
+      // pair, not because the timing needs to be longer.
+      setScallyAttackFlash(true);
+      setTimeout(() => {
+        setScallyAttackFlash(false);
+        setScallySwordReadyFlash(true);
+        setTimeout(() => {
+          setScallySwordReadyFlash(false);
+          fire();
+        }, ATTACK_FLASH_MS);
+      }, ATTACK_FLASH_MS);
     }
   }
 
@@ -938,6 +999,7 @@ export default function MapScreen({ navigation }: Props) {
   useEffect(() => {
     return () => {
       if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
+      if (emoteTimeoutRef.current) clearTimeout(emoteTimeoutRef.current);
     };
   }, []);
 
@@ -979,6 +1041,20 @@ export default function MapScreen({ navigation }: Props) {
     const id = setInterval(() => {
       setWalkSpriteFrame((f) => (f + 1) % WALK_FRAME_COUNT);
     }, 110);
+    return () => clearInterval(id);
+  }, [isMoving]);
+
+  // Cycles Captain Scally's 3-frame idle breathing loop while stationary; holds on the neutral
+  // frame (index 0) the instant she sets off, same shape as the walk-cycle effect above but slower —
+  // this is a resting shift-of-weight, not a stride.
+  useEffect(() => {
+    if (isMoving) {
+      setIdleSpriteFrame(0);
+      return;
+    }
+    const id = setInterval(() => {
+      setIdleSpriteFrame((f) => (f + 1) % IDLE_FRAME_COUNT);
+    }, 450);
     return () => clearInterval(id);
   }, [isMoving]);
 
@@ -1285,6 +1361,7 @@ export default function MapScreen({ navigation }: Props) {
           if (nearbyBuildingPromptIdRef.current !== nearbyBuilding.id) {
             nearbyBuildingPromptIdRef.current = nearbyBuilding.id;
             setNearbyBuildingPrompt(nearbyBuilding);
+            flashEmote(EMOTE_WAVE, WAVE_ANIMATION_MS);
           }
         } else if (nearbyBuildingPromptIdRef.current) {
           nearbyBuildingPromptIdRef.current = null;
@@ -1477,12 +1554,41 @@ export default function MapScreen({ navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused]);
 
+  // Victory flourish whenever the player comes back to the map having just defeated a Pirate Lord
+  // or completed a side quest (both happen on other screens, so this screen only sees the result:
+  // the store's tracking arrays got longer since last render). Skips the very first render so
+  // loading a save with lords already defeated doesn't fire a spurious flash.
+  const prevDefeatedLordCountRef = useRef<number | null>(null);
+  const prevCompletedQuestCountRef = useRef<number | null>(null);
+  useEffect(() => {
+    const prevLords = prevDefeatedLordCountRef.current;
+    const prevQuests = prevCompletedQuestCountRef.current;
+    if (
+      (prevLords !== null && defeatedLordIds.length > prevLords) ||
+      (prevQuests !== null && completedQuestIds.length > prevQuests)
+    ) {
+      flashEmote(EMOTE_VICTORY, VICTORY_ANIMATION_MS);
+    }
+    prevDefeatedLordCountRef.current = defeatedLordIds.length;
+    prevCompletedQuestCountRef.current = completedQuestIds.length;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defeatedLordIds.length, completedQuestIds.length]);
+
+  // Prolonged-idle flourish: stand still long enough and Scally cycles through a little
+  // wave/cheer/think/laugh pose instead of holding the same breathing loop forever — the classic
+  // "idle animation after inactivity" trick. Only eligible while actually stationary; resets the
+  // instant she moves.
+  useEffect(() => {
+    if (isMoving) return;
+    const id = setInterval(() => {
+      const pick = IDLE_FLOURISH_POOL[Math.floor(Math.random() * IDLE_FLOURISH_POOL.length)];
+      flashEmote(pick, IDLE_FLOURISH_HOLD_MS);
+    }, IDLE_FLOURISH_DELAY_MS);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMoving]);
+
   const currentIsland = islandAtPoint(player);
-  const playerEmoji = currentIsland
-    ? facingMode === 'front'
-      ? PLAYER_EMOJI_LAND_FRONT
-      : PLAYER_EMOJI_LAND_SIDE
-    : PLAYER_EMOJI_SEA;
 
   // Gentle continuous sway while boarded and drifting at sea (not actively sailing, not docked)
   // so she never looks frozen sitting on open water between drags. Declared here rather than up
@@ -1636,15 +1742,46 @@ export default function MapScreen({ navigation }: Props) {
     ...(blackPearlEdgeIndicator ? [blackPearlEdgeIndicator] : []),
   ];
 
+  // Sprints instead of walks once wanted heat crosses RUN_HEAT_THRESHOLD — cut for the side view
+  // only (see runSpriteSource's doc comment), so up/down movement keeps the ordinary walk cycle
+  // regardless of heat. The run art itself faces right; mirrored for left the same way turn frames
+  // already are.
+  const scallyRunning = isMoving && (facingDir === 'left' || facingDir === 'right') && heat / 100 >= RUN_HEAT_THRESHOLD;
+  const scallySpriteRenderSource = turningFrame
+    ? turningFrame.source
+    : scallyAttackFlash
+    ? POSE_ATTACK
+    : scallySwordReadyFlash
+    ? POSE_SWORD_READY
+    : emoteOverlay
+    ? emoteOverlay
+    : scallyRunning
+    ? runSpriteSource(walkSpriteFrame)
+    : scallySpriteSource(facingDir, isMoving, walkSpriteFrame, idleSpriteFrame);
+  const scallySpriteMirrored = turningFrame ? turningFrame.mirror : scallyRunning && facingDir === 'left';
+
+  // Mood badge over the header portrait, driven by the same wanted-heat gauge shown just below it
+  // (see the heat bar render further down) — neutral in the clear, determined once law/rivals start
+  // paying attention, visibly rattled once heat is genuinely dangerous. A real, honest use of the
+  // face set: it reflects state MapScreen actually has, rather than reaching for an expression with
+  // no story behind it.
+  const captainFace = heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : null;
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <View>
-            <Text style={styles.captainTag}>
-              {playerEmoji} {CAPTAIN_NAME}
-            </Text>
-            <Text style={styles.title}>🏴‍☠️ {zoneLabel}</Text>
+          <View style={styles.captainTagRow}>
+            <View>
+              <RNImage source={SCALLY_PORTRAIT} resizeMode="contain" style={styles.captainPortrait} />
+              {captainFace && (
+                <RNImage source={captainFace} resizeMode="contain" style={styles.captainFaceBadge} />
+              )}
+            </View>
+            <View>
+              <Text style={styles.captainTag}>{CAPTAIN_NAME}</Text>
+              <Text style={styles.title}>🏴‍☠️ {zoneLabel}</Text>
+            </View>
           </View>
           {__DEV__ && (
             <Pressable onPress={() => navigation.navigate('Debug')} style={styles.debugButton}>
@@ -2011,7 +2148,9 @@ export default function MapScreen({ navigation }: Props) {
                     { backgroundColor: 'transparent', borderWidth: 0 },
                   ]}
                 >
-                  {hasOpenChallenge && <Text style={styles.buildingQuestIndicator}>❗</Text>}
+                  {hasOpenChallenge && (
+                    <RNImage source={ICON_EXCLAIM} resizeMode="contain" style={styles.buildingQuestIndicator} />
+                  )}
                   {building.spriteId ? (
                     <RNImage
                       source={BUILDING_SPRITES[building.spriteId]}
@@ -2165,7 +2304,7 @@ export default function MapScreen({ navigation }: Props) {
                     },
                   ]}
                 >
-                  <Text style={styles.buildingEmoji}>📜</Text>
+                  <RNImage source={ICON_MAP} resizeMode="contain" style={styles.questMarkerIcon} />
                 </View>
               );
             })}
@@ -2363,6 +2502,13 @@ export default function MapScreen({ navigation }: Props) {
                   resizeMode="contain"
                   style={{ width: BUILDING_SIZE * 1.8, height: BUILDING_SIZE * 1.8 }}
                 />
+                {showMonkeyOnDeck && (
+                  <RNImage
+                    source={monkeyWinking ? MONKEY_WINK : MONKEY_IDLE}
+                    resizeMode="contain"
+                    style={styles.monkeyOnDeck}
+                  />
+                )}
               </View>
             )}
           </View>
@@ -2382,16 +2528,14 @@ export default function MapScreen({ navigation }: Props) {
               // On land, Captain Scally renders as real sprite art — a true 4-directional walk
               // cycle instead of the old front/side emoji + mirror trick.
               <Animated.Image
-                source={
-                  turningFrame ? turningFrame.source : scallySpriteSource(facingDir, isMoving, walkSpriteFrame)
-                }
+                source={scallySpriteRenderSource}
                 resizeMode="contain"
                 style={[
                   styles.playerSprite,
                   {
                     transform: [
                       { translateY: walkBounce },
-                      { scaleX: turningFrame?.mirror ? -1 : 1 },
+                      { scaleX: scallySpriteMirrored ? -1 : 1 },
                     ],
                   },
                 ]}
@@ -2741,6 +2885,29 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     borderBottomColor: '#c9a227',
   },
+  captainTagRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  captainPortrait: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#c9a227',
+  },
+  captainFaceBadge: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#2b1c12',
+    backgroundColor: '#2b1c12',
+  },
   captainTag: {
     fontSize: 11,
     fontWeight: '800',
@@ -2921,11 +3088,16 @@ const styles = StyleSheet.create({
   buildingEmoji: {
     fontSize: 24,
   },
+  questMarkerIcon: {
+    width: 26,
+    height: 26,
+  },
   buildingQuestIndicator: {
     position: 'absolute',
     top: -6,
     right: -6,
-    fontSize: 16,
+    width: 18,
+    height: 18,
     zIndex: 1,
   },
   questMarkerAvailable: {
@@ -3068,15 +3240,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(44, 122, 75, 0.5)',
     borderColor: '#4caf50',
   },
+  monkeyOnDeck: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    left: '20%',
+    top: '18%',
+  },
   player: {
     position: 'absolute',
     width: PLAYER_SIZE,
     height: PLAYER_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  playerEmoji: {
-    fontSize: 9 * ZOOM,
   },
   playerSprite: {
     width: PLAYER_SIZE * 1.5,
