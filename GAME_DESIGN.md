@@ -3130,3 +3130,29 @@ long collection grind *and* one legendary payoff at the top of it.
     harbor: all 4 piers render as straight vertical wooden jetties with visible plank/post detail
     reaching from the quay into open water, no diagonal drift, boats and the Black Pearl's docked
     position still line up at the new tips.
+92. 🔄 **Reverted the dock_pier sprite, back to the tiled wood-plank texture** (2026-08-14) — item
+    91's single-stretched-image approach didn't work, per direct feedback: "I can still see a bit
+    horizontal jetty. And why haven't you used the wooden board sprite tile we have in the assets?"
+    Both point at the same root cause. `dock_pier.png` is one fixed illustrated scene — horizontal
+    plank rows forming a small dock platform, mooring posts, a diagonal walkway, all baked into a
+    single 180x145 composition, not a repeatable strip. Stretching that whole scene to fill each
+    pier's tall, narrow vertical bounding box (item 91's `resizeMode="stretch"`) distorted its own
+    horizontal/diagonal structure along with it — the platform's horizontal plank rows survived the
+    stretch as a visibly horizontal chunk, which is exactly the "still see a bit horizontal jetty"
+    artifact reported, even though the pier's actual line geometry was already correctly vertical.
+
+    Reverted to the tiled `woodPattern` (`GROUND_TILES.wood` via SVG `<Pattern>`) the piers used
+    before item 91 — the actual "wooden board sprite tile in the assets" the feedback was asking
+    for, re-cut and verified seamless back in item 89. A tiled plank pattern is inherently
+    orientation-agnostic (parallel planks read correctly whichever way the stroke runs), which is
+    what an axis-aligned pier actually needs, unlike a single posed scene. Removed the item-91
+    `<Image resizeMode="stretch">` render block entirely; piers are back to the two-stroke SVG line
+    (wood-pattern deck + dark center seam) at their now-correctly-vertical coordinates from item 91,
+    just with the deck stroke widened slightly (36, was 20) to read clearly at pier length.
+    `WORLD_SPRITES.dockPier` stays exported/available (same "cut but not currently wired" pattern
+    already used elsewhere in this doc) in case a future pass wants it as a fixed-size dock-platform
+    prop rather than a stretched line-fill.
+
+    Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and a live Playwright walk to the
+    harbor: piers read as clean straight wooden boardwalks with real plank-seam texture, no
+    distorted horizontal chunk anywhere along their length.

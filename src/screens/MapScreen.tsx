@@ -1927,10 +1927,29 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
 
-              {/* PIERS themselves are no longer drawn here — replaced with the real dock_pier
-                  sprite, rendered as a normal View-layer image below (alongside HOUSES/BUILDINGS)
-                  instead of an SVG stroke, since it's a placed piece of art, not a tileable
-                  texture. See that render for why. */}
+              {SHOW_STREETS &&
+                PIERS.map((pier, i) => {
+                const islandPos = ISLANDS[pier.islandId].position;
+                const x1 = islandPos.x + pier.from.x;
+                const y1 = islandPos.y + pier.from.y;
+                const x2 = islandPos.x + pier.to.x;
+                const y2 = islandPos.y + pier.to.y;
+                // Real, tiled wood-plank texture (GROUND_TILES.wood via woodPattern) — reverted
+                // 2026-08-14 back to this from a single stretched dock_pier.png instance. That
+                // sprite is one fixed illustrated scene (a dock platform's horizontal plank rows
+                // + mooring posts + a diagonal walkway baked in one composition, not a repeatable
+                // strip), so stretching it to fill each pier's tall/narrow line span distorted its
+                // own horizontal/diagonal structure into the vertical run — exactly the "still see
+                // a bit of horizontal jetty" artifact reported. A tiled plank pattern is naturally
+                // orientation-agnostic (it reads as parallel planks whichever way the stroke runs),
+                // which is what an axis-aligned pier actually needs.
+                return (
+                  <React.Fragment key={`pier-${i}`}>
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#woodPattern)" strokeWidth={36} strokeLinecap="square" />
+                    <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#3d2c1e" strokeOpacity={0.5} strokeWidth={4} strokeLinecap="square" />
+                  </React.Fragment>
+                );
+              })}
 
               {SHOW_STREETS &&
                 QUAYS.map((quay, i) => {
@@ -1969,38 +1988,6 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
             </Svg>
-
-            {/* Real generated jetty art (assets/sprites/world/dock_pier.png, cut during the
-                Black Pearl pass but never actually wired into a render) replacing the plain
-                wood-pattern SVG stroke PIERS used to draw — direct request: "replace them with
-                the sprites we generated for the jetty." Every pier is now due-vertical (see
-                harbor.ts), so this stretches the one piece of dock art to each pier's exact
-                x1..x2/y1..y2 span rather than tiling it — it's a single illustrated scene, not a
-                repeatable plank texture, so tiling it the way cobble/wood/dirt work would repeat
-                the same chest/post detail down the boardwalk. */}
-            {SHOW_STREETS &&
-              PIERS.map((pier, i) => {
-                const islandPos = ISLANDS[pier.islandId].position;
-                const x1 = islandPos.x + pier.from.x;
-                const y1 = islandPos.y + pier.from.y;
-                const y2 = islandPos.y + pier.to.y;
-                const pierWidth = 36;
-                const pierHeight = Math.abs(y2 - y1);
-                return (
-                  <RNImage
-                    key={`pier-sprite-${i}`}
-                    source={WORLD_SPRITES.dockPier}
-                    resizeMode="stretch"
-                    style={{
-                      position: 'absolute',
-                      left: x1 - pierWidth / 2,
-                      top: Math.min(y1, y2),
-                      width: pierWidth,
-                      height: pierHeight,
-                    }}
-                  />
-                );
-              })}
 
             {SHOW_HOUSES &&
               HOUSES.map((house, i) => {
