@@ -3202,3 +3202,47 @@ long collection grind *and* one legendary payoff at the top of it.
     full length, water visibly showing through the gaps between modules, ending in a clean square
     cross-braced tip — reads as an actual built jetty rather than a solid line, and the minimap's
     item-93 brown spurs are unaffected (that render never depended on `PIERS`' main-map stroke).
+95. ✅ **Two piers given axis-aligned bends (T-head/L-head) instead of a single straight run**
+    (2026-08-14) — direct follow-up: "The jetty's we designed were more than just one straight
+    line. One wrapped around for example. Change the bits of the jetty that aren't horizontal or
+    vertical to horizontal and vertical." Every pier since item 90's straightening pass had been a
+    single vertical spur — the "wraps around" shape the reference sheets actually depict (a dock
+    that turns a corner at its tip) had simply been dropped when the diagonals were straightened,
+    never rebuilt as an axis-aligned bend.
+
+    `harbor.ts`'s `PIERS` array has no notion of a multi-segment "pier" as one object — each entry
+    is just an independent `PierSegment` line — so the simplest correct fix was to add more
+    segments that share an endpoint with an existing spur, rather than invent a new data shape.
+    Added a **T-head** on the west pier (docks-and-careening quarter): two new horizontal segments
+    both starting at the spur's existing tip `(-146, -440)`, one running to `(-206, -440)`, the
+    other to `(-86, -440)` — the dock turns a full corner in both directions, a real "wraps around"
+    jetty. Added an **L-head** on the east pier (by the chapel): one new horizontal segment from its
+    tip `(205, -439)` to `(265, -439)`, bending just one way so it doesn't crowd the neighboring
+    pier's tip. Both middle piers (harbor admin core, tavern district) were left as single straight
+    spurs — they sit close enough together that a head on either would visually collide with the
+    other. Every new endpoint is still purely horizontal or vertical (no diagonal reintroduced) and
+    was re-verified with the same point-in-polygon check against `TORTUGA_SHAPE` the straightening
+    pass in item 90 used — all land outside the island, same invariant.
+
+    One rendering wrinkle the bends surfaced: `pierModulePattern` tiles in fixed world-space
+    coordinates (56 wide x 64 tall), not rotated to follow the stroke, so the old constant
+    `strokeWidth={56}` (correct for a vertical spur, where 56 is the module's own width) would have
+    clipped the top/bottom off every post on the new horizontal arms, where 64 (the module's
+    height) is the dimension that actually needs to match the stroke's cross-section. `PIERS`'
+    render now picks `strokeWidth` per segment (`y1 === y2 ? 64 : 56`) instead of a single constant.
+
+    `islandAtPoint()`'s pier-walkability check (`islands.ts`) already iterates every entry in
+    `PIERS` generically (`distToSegment` against each one), so the new head segments are walkable
+    boardwalk with zero code changes there — confirmed live by literally walking into Captain
+    Odessa Kane's forced duel at the west pier's tip while probing the new geometry, which only
+    triggers standing right at the Black Pearl's dock. `DOCKED_BOATS`/`BLACK_PEARL_START_OFFSET`
+    weren't touched (they anchor to the spurs' original tips, which are unchanged, not the new arms).
+
+    Verified `npx tsc --noEmit` clean, all 45 `jest` tests green, and — since the in-game camera
+    proved hard to walk to the exact tip for a live screenshot (the collision system doesn't slide
+    along a diagonal quay edge, so several Playwright drag attempts stalled short of the bend) —
+    an offline PIL composite of the T-head using the exact same `pier_module.png` asset and tiling
+    math the SVG `<Pattern>` performs: a horizontal crossbar of regularly-spaced posts meeting a
+    vertical spur at a right angle, water fully visible around and between every module, no seam or
+    clipping at the joint. Same asset, same tile size, same per-orientation `strokeWidth` logic the
+    shipped code uses — a faithful preview of the in-game result.

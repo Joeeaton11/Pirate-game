@@ -1946,9 +1946,16 @@ export default function MapScreen({ navigation }: Props) {
                 // exact piece the reference sheet itself draws stacked in a column (confirming
                 // it's meant to tile), so repeating it down each pier's length reads as a real
                 // built structure — regularly spaced posts, a woven deck, sea visible through the
-                // gaps between modules — rather than a solid colored/textured band. strokeWidth
-                // matches the module's native pixel width (56) so its posts aren't clipped at
-                // either edge.
+                // gaps between modules — rather than a solid colored/textured band.
+                //
+                // Some piers now bend (T-head/L-head "wraps around" jetties — see harbor.ts) so a
+                // single PIERS entry can be a vertical spur OR one of its horizontal head arms.
+                // pierModulePattern tiles in fixed world-space coordinates (56 wide x 64 tall), not
+                // rotated to follow the stroke, so strokeWidth has to match whichever pattern
+                // dimension is actually the segment's cross-section: 56 (the module's own width)
+                // for a vertical run, 64 (its height) for a horizontal one — using 56 on a
+                // horizontal segment would clip the top/bottom of every post.
+                const isHorizontal = y1 === y2;
                 return (
                   <Line
                     key={`pier-${i}`}
@@ -1957,7 +1964,7 @@ export default function MapScreen({ navigation }: Props) {
                     x2={x2}
                     y2={y2}
                     stroke="url(#pierModulePattern)"
-                    strokeWidth={56}
+                    strokeWidth={isHorizontal ? 64 : 56}
                     strokeLinecap="square"
                   />
                 );

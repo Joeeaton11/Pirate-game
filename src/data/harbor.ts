@@ -31,6 +31,18 @@ export interface PierSegment {
 // point-in-polygon check the original rebuild used: all 4 new tips still fall outside
 // TORTUGA_SHAPE. DOCKED_BOATS' first 4 entries and BLACK_PEARL_START_OFFSET (blackPearl.ts) are
 // anchored to these tips and were moved to match.
+//
+// Given bends 2026-08-14, per direct follow-up: "The jetty's we designed were more than just one
+// straight line. One wrapped around for example. Change the bits of the jetty that aren't
+// horizontal or vertical to horizontal and vertical." Every pier before this was a single straight
+// spur — the "wrapped around" shape the reference sheets actually showed (a T-head/L-head where
+// the dock turns a corner at the tip, letting boats moor on more than one face) had been dropped
+// entirely when the piers were straightened above, not carried forward as a bend. Restored it here
+// as extra `PierSegment` entries sharing a tip with their parent spur — each `PIERS` "pier" is now
+// however many axis-aligned segments it takes to draw its shape, not necessarily one. Every new
+// segment is still purely horizontal or vertical (no diagonal reintroduced) and every new endpoint
+// was re-verified with the same point-in-polygon check against TORTUGA_SHAPE as the spurs above —
+// all land outside the island, same invariant.
 export const PIERS: PierSegment[] = [
   // Four piers off the quay, spread around the bay — the docks-and-careening quarter (west),
   // the harbor's administrative core, the tavern district, and the east side by the chapel.
@@ -38,6 +50,15 @@ export const PIERS: PierSegment[] = [
   { islandId: 'tortuga_cove', from: { x: -9, y: -210 }, to: { x: -9, y: -389 } },
   { islandId: 'tortuga_cove', from: { x: 68, y: -205 }, to: { x: 68, y: -342 } },
   { islandId: 'tortuga_cove', from: { x: 205, y: -281 }, to: { x: 205, y: -439 } },
+  // T-head on the west pier (docks-and-careening quarter): the spur above ends at (-146,-440),
+  // and this pier turns a full corner in both directions there — a real "wraps around" jetty,
+  // not just a longer straight run. Both arms are pure horizontal, meeting the vertical spur at a
+  // right angle.
+  { islandId: 'tortuga_cove', from: { x: -146, y: -440 }, to: { x: -206, y: -440 } },
+  { islandId: 'tortuga_cove', from: { x: -146, y: -440 }, to: { x: -86, y: -440 } },
+  // L-head on the east pier (by the chapel): the spur above ends at (205,-439); this one bends
+  // just one way, away from the harbor's other piers, so it doesn't crowd pier 2's tip.
+  { islandId: 'tortuga_cove', from: { x: 205, y: -439 }, to: { x: 265, y: -439 } },
 ];
 
 /** A built stone quay along the natural curve of the new horseshoe bay's coastline — rendered
