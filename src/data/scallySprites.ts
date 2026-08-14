@@ -171,8 +171,12 @@ export const FACE_HAPPY = SCALLY_FACES[4];
 export const FACE_LAUGH = SCALLY_FACES[5];
 
 // --- Run cycle (side view) -----------------------------------------------------------------------
-// Only cut for the side view, so it only replaces the walk cycle while facing left/right — up/down
-// movement keeps the normal walk cycle regardless of heat (no matching run art for those facings).
+// Cut but NOT wired into MapScreen — reverted 2026-08-14. It briefly replaced the walk cycle once
+// heat crossed RUN_HEAT_THRESHOLD, but the swap read as a pop/hop rather than a smooth speed-up
+// (the run pose is a bigger stride than the walk cycle's, and the existing walkBounce animation
+// exaggerated the jump between the two). Left here, available whenever a real transition between
+// the two gets designed (e.g. crossfading rather than a hard swap), same as POSE_POINT/
+// POSE_CHEER_FIST below.
 export const RUN_FRAME_COUNT = 5;
 const RUN_SOURCES = [
   require('../../assets/sprites/scally/run_0.png'),

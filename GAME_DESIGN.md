@@ -2775,3 +2775,20 @@ long collection grind *and* one legendary payoff at the top of it.
     code entirely (they set the encounter/board state directly), and Tortuga's harbor front is
     dense enough that scripted dragging to trigger a real forced encounter or get the docked-ship
     marker in frame wasn't reliable in the time budget, same limitation noted in items 76 and 77.
+80. ✅ **Fixed item 79's walk cycle regression: run cycle reverted, emotes made idle-only**
+    (2026-08-14) — the user reported Scally's walk now "looks like he is hopping." Root cause was
+    two of item 79's overlays being able to override the moving sprite mid-stride: the run cycle
+    swapped in a bigger-stride pose set once heat crossed 60% (compounding with the existing
+    `walkBounce` vertical animation into a visible pop), and the emote overlay — most commonly the
+    wave, since its trigger (a building's enter-prompt appearing) routinely fires while still
+    walking up to the door — could freeze Scally into a static pose for up to 900ms while she kept
+    sliding across the map. Both read as the same thing: a hop instead of a smooth walk. Fixed by
+    (a) removing the run-cycle swap from the move-rendering path entirely — walking is always the
+    plain `WALK_SOURCES` cycle now, full stop, and (b) gating the emote overlay on `!isMoving`, so
+    a wave/victory/flourish that fires while still moving simply doesn't show rather than freezing
+    the walk. The attack/sword-ready flash keeps overriding movement, since that one's *meant* to
+    interrupt a stride (same as the ship's Stop/Skid) rather than being a bug. `RUN_SOURCES`/
+    `runSpriteSource`/`RUN_HEAT_THRESHOLD` stay exported from `scallySprites.ts`, cut but unwired,
+    for whenever a real crossfade (not a hard swap) gets designed between walk and run.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.

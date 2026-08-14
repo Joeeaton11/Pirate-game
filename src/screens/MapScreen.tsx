@@ -68,15 +68,12 @@ import {
   IDLE_FRAME_COUNT,
   POSE_ATTACK,
   POSE_SWORD_READY,
-  RUN_FRAME_COUNT,
-  RUN_HEAT_THRESHOLD,
   SCALLY_PORTRAIT,
   TURN_ANIMATION_MS,
   TurnFrame,
   VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
   WAVE_ANIMATION_MS,
-  runSpriteSource,
   scallySpriteSource,
   turnFrameFor,
 } from '../data/scallySprites';
@@ -1742,23 +1739,23 @@ export default function MapScreen({ navigation }: Props) {
     ...(blackPearlEdgeIndicator ? [blackPearlEdgeIndicator] : []),
   ];
 
-  // Sprints instead of walks once wanted heat crosses RUN_HEAT_THRESHOLD — cut for the side view
-  // only (see runSpriteSource's doc comment), so up/down movement keeps the ordinary walk cycle
-  // regardless of heat. The run art itself faces right; mirrored for left the same way turn frames
-  // already are.
-  const scallyRunning = isMoving && (facingDir === 'left' || facingDir === 'right') && heat / 100 >= RUN_HEAT_THRESHOLD;
+  // Reverted 2026-08-14: the heat-triggered run cycle and the emote overlay could both override
+  // mid-stride (the wave in particular, since its trigger — a building prompt appearing — routinely
+  // fires while still walking up to the door), popping Scally into a static pose for a beat while
+  // she kept sliding across the map. Read as hopping rather than walking, so while actually moving
+  // she now always renders the plain walk cycle, full stop; the attack/sword-ready flash is the one
+  // exception, since it's meant to interrupt movement (same as the ship's Stop/Skid). Emotes and
+  // flourishes are idle-only now — they simply don't show if she's still moving when triggered.
   const scallySpriteRenderSource = turningFrame
     ? turningFrame.source
     : scallyAttackFlash
     ? POSE_ATTACK
     : scallySwordReadyFlash
     ? POSE_SWORD_READY
-    : emoteOverlay
+    : !isMoving && emoteOverlay
     ? emoteOverlay
-    : scallyRunning
-    ? runSpriteSource(walkSpriteFrame)
     : scallySpriteSource(facingDir, isMoving, walkSpriteFrame, idleSpriteFrame);
-  const scallySpriteMirrored = turningFrame ? turningFrame.mirror : scallyRunning && facingDir === 'left';
+  const scallySpriteMirrored = turningFrame ? turningFrame.mirror : false;
 
   // Mood badge over the header portrait, driven by the same wanted-heat gauge shown just below it
   // (see the heat bar render further down) — neutral in the clear, determined once law/rivals start
