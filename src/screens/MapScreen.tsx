@@ -213,6 +213,13 @@ const BUILDING_COLLISION_RADIUS = 15;
 // toggle — the offset math, collision radii, and precomputed *_GARDEN_OFFSETS below are all still
 // intact and cost nothing when off, so flipping this back to `true` is the entire un-revert.
 const SHOW_GARDENS = false;
+// Disabled 2026-08-14 per direct feedback: the building sprites are cut/placed badly enough
+// (wrong scale, wrong offsets relative to the street grid) that they need a real re-pass, and
+// they were making it hard to judge the street/road layout on its own. Same pattern as
+// SHOW_GARDENS above — a pure render-time toggle, nothing about building data, collision, or
+// walk-up "Enter?" prompts changed, so buildings are still fully functional, just invisible until
+// this flips back to `true` once the art/placement pass is redone.
+const SHOW_BUILDINGS = false;
 const HOUSE_GARDEN_RADIUS = 18;
 const BUILDING_GARDEN_RADIUS = 30;
 // Street NPCs are much smaller than the player on screen, so they get a tighter collision
@@ -1185,7 +1192,7 @@ export default function MapScreen({ navigation }: Props) {
       const houseObstacles = currentIsland
         ? housesForIsland(currentIsland.id).map((house) => houseWorldPosition(house, currentIsland.position))
         : [];
-      const buildingObstacles = currentIsland
+      const buildingObstacles = SHOW_BUILDINGS && currentIsland
         ? buildingsForIsland(currentIsland.id).map((building) =>
             buildingWorldPosition(building, currentIsland.position)
           )
@@ -1302,10 +1309,12 @@ export default function MapScreen({ navigation }: Props) {
           }
         }
 
-        const nearbyBuilding = buildingsForIsland(nextIsland.id).find((building) => {
-          const pos = buildingWorldPosition(building, nextIsland.position);
-          return Math.hypot(nextPosition.x - pos.x, nextPosition.y - pos.y) <= ENTER_RADIUS;
-        });
+        const nearbyBuilding = SHOW_BUILDINGS
+          ? buildingsForIsland(nextIsland.id).find((building) => {
+              const pos = buildingWorldPosition(building, nextIsland.position);
+              return Math.hypot(nextPosition.x - pos.x, nextPosition.y - pos.y) <= ENTER_RADIUS;
+            })
+          : undefined;
         if (nearbyBuilding) {
           if (nearbyBuildingPromptIdRef.current !== nearbyBuilding.id) {
             nearbyBuildingPromptIdRef.current = nearbyBuilding.id;
@@ -2016,7 +2025,8 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {BUILDINGS.map((building) => {
+            {SHOW_BUILDINGS &&
+              BUILDINGS.map((building) => {
               const islandPos = ISLANDS[building.islandId].position;
               const pos = buildingWorldPosition(building, islandPos);
               const hasOpenChallenge = SIDE_QUESTS.some(

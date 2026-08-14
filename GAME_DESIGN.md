@@ -2942,3 +2942,20 @@ long collection grind *and* one legendary payoff at the top of it.
     screenshotted the character every ~110ms through a full multi-cycle hold. The captured
     sequence shows the leg position genuinely alternating frame to frame in the running app, not
     just in the isolated source PNGs.
+86. 🔄 **Buildings hidden from the map to isolate the street/road layout for review** (2026-08-14) —
+    direct feedback: the building sprites aren't cut or placed well enough yet, and they're making
+    it hard to judge the street network on its own. Rather than delete `buildings.ts` or any
+    building logic (they're still load-bearing — shops, quest givers, the Patrons system, walk-up
+    "Enter?" prompts all key off building data elsewhere), added a single render-time toggle,
+    `SHOW_BUILDINGS = false` in `MapScreen.tsx`, following the exact pattern `SHOW_GARDENS` already
+    established for this kind of "keep the data, hide the render" flag. Gated three things behind
+    it: the building icon/sprite render on the map, the building collision obstacle list (so an
+    invisible building doesn't still block movement), and the walk-up "Enter {name}?" bottom prompt
+    (so no building-related UI surfaces while they're invisible). Houses (`houses.ts`, generic 🏠
+    scatter, no sprite art, not what was flagged) and landmarks (`landmarks.ts`) are untouched and
+    still render — the complaint was specifically about buildings. Verified in-browser: Tortuga
+    Cove now shows streets, houses, landmarks, and NPCs with zero building markers anywhere.
+    `npx tsc --noEmit` clean, all 45 `jest` tests green. Flipping `SHOW_BUILDINGS` back to `true` is
+    the entire un-revert once the building art/placement gets a real pass — no data or logic
+    changed. Next up, per direct request: get the street/road layout itself right first, with
+    buildings out of the way.
