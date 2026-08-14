@@ -995,8 +995,10 @@ export default function MapScreen({ navigation }: Props) {
     };
   }, []);
 
-  // Single-glyph "walk cycle": bob the player emoji up and down in a loop while actively moving,
-  // settle back to rest the moment movement stops. No spritesheet, so this is the whole animation.
+  // Originally Captain Scally's whole "walk cycle" back in the single-glyph emoji era (no
+  // spritesheet, so this bob was the entire animation) — no longer applied to her sprite (see the
+  // on-land render below), but the Black Pearl still layers it into her idle sway while sailing, so
+  // the loop itself stays.
   useEffect(() => {
     if (isMoving) {
       walkLoopRef.current = Animated.loop(
@@ -2504,17 +2506,20 @@ export default function MapScreen({ navigation }: Props) {
           >
             {currentIsland ? (
               // On land, Captain Scally renders as real sprite art — a true 4-directional walk
-              // cycle instead of the old front/side emoji + mirror trick.
+              // cycle instead of the old front/side emoji + mirror trick. No walkBounce here
+              // (reverted 2026-08-14): that vertical bob was written for the single-glyph emoji
+              // era ("no spritesheet, so this is the whole animation" — see its doc comment above)
+              // to fake motion with no real stride art behind it. The 5-frame walk cycle now
+              // provides the actual stride, and the fast -6px bob was fighting it — the frame
+              // changes are the intended motion, and the bounce on top of them was what read as
+              // hopping in place instead of walking.
               <Animated.Image
                 source={scallySpriteRenderSource}
                 resizeMode="contain"
                 style={[
                   styles.playerSprite,
                   {
-                    transform: [
-                      { translateY: walkBounce },
-                      { scaleX: scallySpriteMirrored ? -1 : 1 },
-                    ],
+                    transform: [{ scaleX: scallySpriteMirrored ? -1 : 1 }],
                   },
                 ]}
               />

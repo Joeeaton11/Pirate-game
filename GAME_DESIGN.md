@@ -2810,3 +2810,30 @@ long collection grind *and* one legendary payoff at the top of it.
     the drag-gesture code, not the sprite-selection code, and wasn't done here.
 
     Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.
+82. ✅ **Found the real hop: a leftover single-glyph "walk bounce" was drowning out the walk cycle**
+    (2026-08-14) — item 81's fix didn't work either; the user, understandably out of patience,
+    clarified what "hopping" actually meant: "It doesn't switch between the walking cycle anymore.
+    It doesn't go left foot right foot." That's a different claim than items 80/81 chased (a pose
+    popping between two different stances) — this is about the stride itself not reading as a
+    stride. Rather than guess a fifth time, this got verified two ways before touching code: (1) a
+    temporary `console.log` inside the walk-frame interval, read back via Playwright, proved
+    `walkSpriteFrame` cycles 0→1→2→3→4→0… reliably every 110ms with zero interruption during a
+    sustained drag — the state machinery was never broken; (2) a side-by-side of the actual
+    `walk_left_0..4.png` frames showed a real, clear alternating stride in the art (unlike the
+    `walk_down` set, which is subtler — a front-on view inherently shows less leg motion than a
+    side view). So the frames were cycling and the art was fine. What was left: `styles.playerSprite`
+    still applied `{ translateY: walkBounce }` — a sharp -6px/160ms vertical bob — to Scally's
+    sprite. Its own doc comment gave it away: *"Single-glyph 'walk cycle': bob the player emoji up
+    and down… No spritesheet, so this is the whole animation."* That comment predates the real
+    walk-cycle art entirely (item 75) and was never cleaned up when the emoji got replaced — the
+    bounce kept firing on top of the now-real stride animation, and being a fast, sharp,
+    unmistakable motion, it visually drowned out the subtle frame-to-frame leg changes underneath
+    it. The result reads exactly as described: a bob in place, not a walk. Fixed by dropping
+    `translateY: walkBounce` from the on-land sprite's transform entirely — the 5-frame cycle is the
+    motion now, full stop. `walkBounce` itself stays (the Black Pearl's idle sway while sailing
+    still layers on top of it), only the on-foot character stopped receiving it. Verified with a
+    frame-by-frame Playwright capture of a sustained leftward drag against the production build:
+    the leg position now visibly changes frame to frame with a level, non-bouncing torso — a real
+    walk, not a hop.
+
+    Verified `npx tsc --noEmit` clean and all 45 `jest` tests green.
