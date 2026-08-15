@@ -130,3 +130,295 @@ export const PROP_SPRITES = {
   flag_skull: require('../../assets/sprites/props/flag_skull.png'),
 };
 export type PropSpriteId = keyof typeof PROP_SPRITES;
+
+/** Terrain & Town Kit master sheet (2026-08-15) — a purpose-generated 1536x1024 catalog of
+ * ground/road/water/vegetation/prop tiles, requested via TERRAIN_BRIEF.md. Cutting method:
+ * uniform-grid crops worked fine for the large, evenly-spaced ground/road/water panels below, but
+ * broke down on the tightly-packed, non-uniformly-spaced small-prop panels (rocks, logs, flowers,
+ * mushrooms, vines, weeds, bushes) — a rigid pitch kept misaligning with sprites of varying size.
+ * Those panels were instead cut with connected-component detection on the chroma-keyed alpha mask:
+ * each sprite becomes its own blob, and its bounding box (not a guessed grid cell) is the crop — the
+ * automated equivalent of centering a grid on each sprite, without hand-placing every one. */
+
+/** Flat ground materials + grass variety pack, tileable via SVG <Pattern> like GROUND_TILES. */
+export const TERRAIN_TILES = {
+  grass1: require('../../assets/sprites/tiles/grass_1.png'),
+  grass2: require('../../assets/sprites/tiles/grass_2.png'),
+  dirt1: require('../../assets/sprites/tiles/dirt_1.png'),
+  dirt2: require('../../assets/sprites/tiles/dirt_2.png'),
+  sand1: require('../../assets/sprites/tiles/sand_1.png'),
+  sand2: require('../../assets/sprites/tiles/sand_2.png'),
+  grassVar1: require('../../assets/sprites/tiles/grass_var_1.png'),
+  grassVar2: require('../../assets/sprites/tiles/grass_var_2.png'),
+  grassVar3: require('../../assets/sprites/tiles/grass_var_3.png'),
+  grassVar4: require('../../assets/sprites/tiles/grass_var_4.png'),
+  grassVar5: require('../../assets/sprites/tiles/grass_var_5.png'),
+  grassVar6: require('../../assets/sprites/tiles/grass_var_6.png'),
+  grassVar7: require('../../assets/sprites/tiles/grass_var_7.png'),
+  grassVar8: require('../../assets/sprites/tiles/grass_var_8.png'),
+  grassVar9: require('../../assets/sprites/tiles/grass_var_9.png'),
+  grassVar10: require('../../assets/sprites/tiles/grass_var_10.png'),
+  grassVar11: require('../../assets/sprites/tiles/grass_var_11.png'),
+  grassVar12: require('../../assets/sprites/tiles/grass_var_12.png'),
+  jungleGround1: require('../../assets/sprites/tiles/jungle_ground_1.png'),
+  jungleGround2: require('../../assets/sprites/tiles/jungle_ground_2.png'),
+  jungleGround3: require('../../assets/sprites/tiles/jungle_ground_3.png'),
+  jungleGround4: require('../../assets/sprites/tiles/jungle_ground_4.png'),
+  jungleGround5: require('../../assets/sprites/tiles/jungle_ground_5.png'),
+  jungleGround6: require('../../assets/sprites/tiles/jungle_ground_6.png'),
+  jungleGround7: require('../../assets/sprites/tiles/jungle_ground_7.png'),
+  jungleGround8: require('../../assets/sprites/tiles/jungle_ground_8.png'),
+  jungleGround9: require('../../assets/sprites/tiles/jungle_ground_9.png'),
+  jungleGround10: require('../../assets/sprites/tiles/jungle_ground_10.png'),
+  jungleGround11: require('../../assets/sprites/tiles/jungle_ground_11.png'),
+  jungleGround12: require('../../assets/sprites/tiles/jungle_ground_12.png'),
+};
+
+/** Road/path autotile sets — each shape has {straight, corner, tjunction, cross}, each an array
+ * of 2-3 weathering variants to pick from randomly so a long road doesn't look copy-pasted. */
+export const PATH_TILES = {
+  dirt: {
+    straight: [require('../../assets/sprites/tiles/path_dirt_straight_1.png'), require('../../assets/sprites/tiles/path_dirt_straight_2.png'), require('../../assets/sprites/tiles/path_dirt_straight_3.png')],
+    corner: [require('../../assets/sprites/tiles/path_dirt_corner_1.png'), require('../../assets/sprites/tiles/path_dirt_corner_2.png'), require('../../assets/sprites/tiles/path_dirt_corner_3.png')],
+    tjunction: [require('../../assets/sprites/tiles/path_dirt_tjunction_1.png'), require('../../assets/sprites/tiles/path_dirt_tjunction_2.png'), require('../../assets/sprites/tiles/path_dirt_tjunction_3.png')],
+    cross: [require('../../assets/sprites/tiles/path_dirt_cross_1.png'), require('../../assets/sprites/tiles/path_dirt_cross_2.png'), require('../../assets/sprites/tiles/path_dirt_cross_3.png')],
+  },
+  grass: {
+    straight: [require('../../assets/sprites/tiles/path_grass_straight_1.png'), require('../../assets/sprites/tiles/path_grass_straight_2.png'), require('../../assets/sprites/tiles/path_grass_straight_3.png')],
+    corner: [require('../../assets/sprites/tiles/path_grass_corner_1.png'), require('../../assets/sprites/tiles/path_grass_corner_2.png'), require('../../assets/sprites/tiles/path_grass_corner_3.png')],
+    tjunction: [require('../../assets/sprites/tiles/path_grass_tjunction_1.png'), require('../../assets/sprites/tiles/path_grass_tjunction_2.png'), require('../../assets/sprites/tiles/path_grass_tjunction_3.png')],
+    cross: [require('../../assets/sprites/tiles/path_grass_cross_1.png'), require('../../assets/sprites/tiles/path_grass_cross_2.png'), require('../../assets/sprites/tiles/path_grass_cross_3.png')],
+  },
+  cobble: {
+    straight: [require('../../assets/sprites/tiles/cobble_straight_1.png'), require('../../assets/sprites/tiles/cobble_straight_2.png'), require('../../assets/sprites/tiles/cobble_straight_3.png')],
+    corner: [require('../../assets/sprites/tiles/cobble_corner_1.png'), require('../../assets/sprites/tiles/cobble_corner_2.png'), require('../../assets/sprites/tiles/cobble_corner_3.png')],
+    tjunction: [require('../../assets/sprites/tiles/cobble_tjunction_1.png'), require('../../assets/sprites/tiles/cobble_tjunction_2.png'), require('../../assets/sprites/tiles/cobble_tjunction_3.png')],
+    cross: [require('../../assets/sprites/tiles/cobble_cross_1.png'), require('../../assets/sprites/tiles/cobble_cross_2.png'), require('../../assets/sprites/tiles/cobble_cross_3.png')],
+  },
+  roadWorn: {
+    straight: [require('../../assets/sprites/tiles/road_worn_straight_1.png'), require('../../assets/sprites/tiles/road_worn_straight_2.png')],
+    corner: [require('../../assets/sprites/tiles/road_worn_corner_1.png'), require('../../assets/sprites/tiles/road_worn_corner_2.png')],
+    tjunction: [require('../../assets/sprites/tiles/road_worn_tjunction_1.png'), require('../../assets/sprites/tiles/road_worn_tjunction_2.png')],
+    cross: [require('../../assets/sprites/tiles/road_worn_cross_1.png'), require('../../assets/sprites/tiles/road_worn_cross_2.png')],
+  },
+};
+
+/** Water, sand & shoreline dressing. */
+export const WATER_TILES = {
+  seaDeep: require('../../assets/sprites/tiles/sea_deep.png'),
+  seaMid: require('../../assets/sprites/tiles/sea_mid.png'),
+  seaShallow: require('../../assets/sprites/tiles/sea_shallow.png'),
+  seaShoreFoam: require('../../assets/sprites/tiles/sea_shore_foam.png'),
+  wave1: require('../../assets/sprites/tiles/wave_1.png'),
+  wave2: require('../../assets/sprites/tiles/wave_2.png'),
+  wave3: require('../../assets/sprites/tiles/wave_3.png'),
+  wave4: require('../../assets/sprites/tiles/wave_4.png'),
+  wave5: require('../../assets/sprites/tiles/wave_5.png'),
+  sandDry: require('../../assets/sprites/tiles/sand_dry.png'),
+  sandWet: require('../../assets/sprites/tiles/sand_wet.png'),
+  sandFootprints: require('../../assets/sprites/tiles/sand_footprints.png'),
+  sandShells: require('../../assets/sprites/tiles/sand_shells.png'),
+  beachStarfish: require('../../assets/sprites/tiles/beach_detail_starfish.png'),
+  beachCrossbones: require('../../assets/sprites/tiles/beach_detail_crossbones.png'),
+  beachDriftwood: require('../../assets/sprites/tiles/beach_detail_driftwood.png'),
+  beachCoral: require('../../assets/sprites/tiles/beach_detail_coral.png'),
+};
+
+/** Grass/dirt/road blend edges — for softening a hard material change into a gradient. */
+export const TRANSITION_TILES = {
+  grassDirtRoad: [
+    require('../../assets/sprites/tiles/trans_gdr_1.png'),
+    require('../../assets/sprites/tiles/trans_gdr_2.png'),
+    require('../../assets/sprites/tiles/trans_gdr_3.png'),
+    require('../../assets/sprites/tiles/trans_gdr_4.png'),
+    require('../../assets/sprites/tiles/trans_gdr_5.png'),
+    require('../../assets/sprites/tiles/trans_gdr_6.png'),
+    require('../../assets/sprites/tiles/trans_gdr_7.png'),
+    require('../../assets/sprites/tiles/trans_gdr_8.png'),
+    require('../../assets/sprites/tiles/trans_gdr_9.png'),
+    require('../../assets/sprites/tiles/trans_gdr_10.png'),
+    require('../../assets/sprites/tiles/trans_gdr_11.png'),
+    require('../../assets/sprites/tiles/trans_gdr_12.png'),
+    require('../../assets/sprites/tiles/trans_gdr_13.png'),
+    require('../../assets/sprites/tiles/trans_gdr_14.png'),
+    require('../../assets/sprites/tiles/trans_gdr_15.png'),
+    require('../../assets/sprites/tiles/trans_gdr_16.png'),
+    require('../../assets/sprites/tiles/trans_gdr_17.png'),
+    require('../../assets/sprites/tiles/trans_gdr_18.png'),
+    require('../../assets/sprites/tiles/trans_gdr_19.png'),
+    require('../../assets/sprites/tiles/trans_gdr_20.png'),
+  ],
+  cornerEdge: [
+    require('../../assets/sprites/tiles/trans_corner_1.png'),
+    require('../../assets/sprites/tiles/trans_corner_2.png'),
+    require('../../assets/sprites/tiles/trans_corner_3.png'),
+    require('../../assets/sprites/tiles/trans_corner_4.png'),
+    require('../../assets/sprites/tiles/trans_corner_5.png'),
+    require('../../assets/sprites/tiles/trans_corner_6.png'),
+    require('../../assets/sprites/tiles/trans_corner_7.png'),
+    require('../../assets/sprites/tiles/trans_corner_8.png'),
+    require('../../assets/sprites/tiles/trans_corner_9.png'),
+    require('../../assets/sprites/tiles/trans_corner_10.png'),
+    require('../../assets/sprites/tiles/trans_corner_11.png'),
+    require('../../assets/sprites/tiles/trans_corner_12.png'),
+    require('../../assets/sprites/tiles/trans_corner_13.png'),
+    require('../../assets/sprites/tiles/trans_corner_14.png'),
+    require('../../assets/sprites/tiles/trans_corner_15.png'),
+    require('../../assets/sprites/tiles/trans_corner_16.png'),
+  ],
+};
+
+/** Cliff faces and their grass-capped top edges. */
+export const CLIFF_TILES = {
+  topEdge: [
+    require('../../assets/sprites/tiles/cliff_top_edge_1.png'),
+    require('../../assets/sprites/tiles/cliff_top_edge_2.png'),
+    require('../../assets/sprites/tiles/cliff_top_edge_3.png'),
+    require('../../assets/sprites/tiles/cliff_top_edge_4.png'),
+    require('../../assets/sprites/tiles/cliff_top_edge_5.png'),
+    require('../../assets/sprites/tiles/cliff_top_edge_6.png'),
+  ],
+  wall: [
+    require('../../assets/sprites/tiles/cliff_wall_1.png'),
+    require('../../assets/sprites/tiles/cliff_wall_2.png'),
+    require('../../assets/sprites/tiles/cliff_wall_3.png'),
+    require('../../assets/sprites/tiles/cliff_wall_4.png'),
+    require('../../assets/sprites/tiles/cliff_wall_5.png'),
+    require('../../assets/sprites/tiles/cliff_wall_6.png'),
+  ],
+};
+
+/** Height-change kit — stacked ledges plus dirt/stone/wood stairs and ramps. */
+export const ELEVATION_TILES = {
+  ledgeTop1: require('../../assets/sprites/tiles/ledge_top_1.png'),
+  ledgeTop2: require('../../assets/sprites/tiles/ledge_top_2.png'),
+  ledgeMiddle1: require('../../assets/sprites/tiles/ledge_middle_1.png'),
+  ledgeMiddle2: require('../../assets/sprites/tiles/ledge_middle_2.png'),
+  ledgeBottom1: require('../../assets/sprites/tiles/ledge_bottom_1.png'),
+  ledgeBottom2: require('../../assets/sprites/tiles/ledge_bottom_2.png'),
+  stairsDirt: require('../../assets/sprites/tiles/stairs_dirt.png'),
+  stairsStone: require('../../assets/sprites/tiles/stairs_stone.png'),
+  stairsWood: require('../../assets/sprites/tiles/stairs_wood.png'),
+  rampUp: require('../../assets/sprites/tiles/ramp_up.png'),
+  rampDown: require('../../assets/sprites/tiles/ramp_down.png'),
+};
+
+/** One-off ground tiles for specific terrain features (mud pits, puddles, bridge decking). */
+export const SPECIAL_GROUND_TILES = {
+  mud: require('../../assets/sprites/tiles/mud_1.png'),
+  puddle1: require('../../assets/sprites/tiles/puddle_1.png'),
+  puddle2: require('../../assets/sprites/tiles/puddle_2.png'),
+  bridgeWood: require('../../assets/sprites/tiles/bridge_wood_1.png'),
+  bridgeRope1: require('../../assets/sprites/tiles/bridge_rope_1.png'),
+  bridgeRope2: require('../../assets/sprites/tiles/bridge_rope_2.png'),
+  brokenGround: require('../../assets/sprites/tiles/broken_ground_1.png'),
+};
+
+/** Six new tree silhouettes (2 palm, 2 broadleaf, 1 jungle canopy, 1 dead/bare) — a bigger variety
+ * pool than NATURE_SPRITES' single tree_palm/tree_round/tree_tall, for denser forest scenery. */
+export const TREE_SPRITES = {
+  palm1: require('../../assets/sprites/nature/tree_palm_1.png'),
+  palm2: require('../../assets/sprites/nature/tree_palm_2.png'),
+  broad1: require('../../assets/sprites/nature/tree_broad_1.png'),
+  broad2: require('../../assets/sprites/nature/tree_broad_2.png'),
+  jungle: require('../../assets/sprites/nature/tree_jungle.png'),
+  dead: require('../../assets/sprites/nature/tree_dead.png'),
+};
+
+/** Loose rocks and boulder clusters for scattering along cliffs, shorelines and rough ground. */
+export const ROCK_SPRITES = {
+  small: [
+    require('../../assets/sprites/nature/rock_small_1.png'),
+    require('../../assets/sprites/nature/rock_small_2.png'),
+    require('../../assets/sprites/nature/rock_small_3.png'),
+    require('../../assets/sprites/nature/rock_small_4.png'),
+    require('../../assets/sprites/nature/rock_small_5.png'),
+    require('../../assets/sprites/nature/rock_small_6.png'),
+    require('../../assets/sprites/nature/rock_small_7.png'),
+    require('../../assets/sprites/nature/rock_small_8.png'),
+  ],
+  boulder: [
+    require('../../assets/sprites/nature/boulder_large_1.png'),
+    require('../../assets/sprites/nature/boulder_large_2.png'),
+  ],
+};
+
+/** Small scatterable vegetation/decor — logs, stumps, flowers, mushrooms, vines, weeds and the
+ * full 27-sprite bush/flowering-plant set (row of plain bushes shading into flowering variants). */
+export const PLANT_SPRITES = {
+  log: [
+    require('../../assets/sprites/nature/log_1.png'),
+    require('../../assets/sprites/nature/log_2.png'),
+    require('../../assets/sprites/nature/log_3.png'),
+  ],
+  stump: [
+    require('../../assets/sprites/nature/stump_1.png'),
+    require('../../assets/sprites/nature/stump_2.png'),
+  ],
+  flowers: [
+    require('../../assets/sprites/nature/flowers_1.png'),
+    require('../../assets/sprites/nature/flowers_2.png'),
+    require('../../assets/sprites/nature/flowers_3.png'),
+    require('../../assets/sprites/nature/flowers_4.png'),
+  ],
+  mushrooms: [
+    require('../../assets/sprites/nature/mushrooms_1.png'),
+    require('../../assets/sprites/nature/mushrooms_2.png'),
+    require('../../assets/sprites/nature/mushrooms_3.png'),
+    require('../../assets/sprites/nature/mushrooms_4.png'),
+    require('../../assets/sprites/nature/mushrooms_5.png'),
+    require('../../assets/sprites/nature/mushrooms_6.png'),
+    require('../../assets/sprites/nature/mushrooms_7.png'),
+  ],
+  vines: [
+    require('../../assets/sprites/nature/vines_1.png'),
+    require('../../assets/sprites/nature/vines_2.png'),
+  ],
+  weeds: [
+    require('../../assets/sprites/nature/weeds_1.png'),
+    require('../../assets/sprites/nature/weeds_2.png'),
+    require('../../assets/sprites/nature/weeds_3.png'),
+    require('../../assets/sprites/nature/weeds_4.png'),
+  ],
+  bush: [
+    require('../../assets/sprites/nature/bush_plant_1.png'),
+    require('../../assets/sprites/nature/bush_plant_2.png'),
+    require('../../assets/sprites/nature/bush_plant_3.png'),
+    require('../../assets/sprites/nature/bush_plant_4.png'),
+    require('../../assets/sprites/nature/bush_plant_5.png'),
+    require('../../assets/sprites/nature/bush_plant_6.png'),
+    require('../../assets/sprites/nature/bush_plant_7.png'),
+    require('../../assets/sprites/nature/bush_plant_8.png'),
+    require('../../assets/sprites/nature/bush_plant_9.png'),
+    require('../../assets/sprites/nature/bush_plant_10.png'),
+    require('../../assets/sprites/nature/bush_plant_11.png'),
+    require('../../assets/sprites/nature/bush_plant_12.png'),
+    require('../../assets/sprites/nature/bush_plant_13.png'),
+    require('../../assets/sprites/nature/bush_plant_14.png'),
+    require('../../assets/sprites/nature/bush_plant_15.png'),
+    require('../../assets/sprites/nature/bush_plant_16.png'),
+    require('../../assets/sprites/nature/bush_plant_17.png'),
+    require('../../assets/sprites/nature/bush_plant_18.png'),
+    require('../../assets/sprites/nature/bush_plant_19.png'),
+    require('../../assets/sprites/nature/bush_plant_20.png'),
+    require('../../assets/sprites/nature/bush_plant_21.png'),
+    require('../../assets/sprites/nature/bush_plant_22.png'),
+    require('../../assets/sprites/nature/bush_plant_23.png'),
+    require('../../assets/sprites/nature/bush_plant_24.png'),
+    require('../../assets/sprites/nature/bush_plant_25.png'),
+    require('../../assets/sprites/nature/bush_plant_26.png'),
+    require('../../assets/sprites/nature/bush_plant_27.png'),
+  ],
+};
+
+/** Additional set-dressing props — supply crates/sacks/barrels, a hay bale, campfire, signpost. */
+export const DECOR_PROPS = {
+  hay: require('../../assets/sprites/props/hay_1.png'),
+  crates: require('../../assets/sprites/props/crates_1.png'),
+  barrels1: require('../../assets/sprites/props/barrels_1.png'),
+  barrels2: require('../../assets/sprites/props/barrels_2.png'),
+  sacks: require('../../assets/sprites/props/sacks_1.png'),
+  campfire: require('../../assets/sprites/props/campfire_1.png'),
+  signpost1: require('../../assets/sprites/props/signpost_1.png'),
+  signpost2: require('../../assets/sprites/props/signpost_2.png'),
+};
