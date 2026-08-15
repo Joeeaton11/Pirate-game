@@ -3338,3 +3338,41 @@ long collection grind *and* one legendary payoff at the top of it.
     into `MapScreen.tsx`'s actual rendering (they're available as exports, nothing draws them yet)
     and building the autotile-selection logic for `PATH_TILES` — left for a follow-up pass, likely
     once the user's remaining sheets arrive so both land together.
+
+98. ✅ **Grid-panel tiles re-cut from measured boundaries, not guessed pitch** (2026-08-15) —
+    direct user pushback on item 97's delivery: *"you're missing parts of the sprite and cutting
+    into another one because the lines aren't aligned to cut the tile... the layout of the sheet
+    isn't compatible with the grid you have drawn."* Correct — the uniform-grid panels (ground
+    basics, road/path/cobble autotile sets, water, transitions, cliffs, elevation) used an
+    eyeballed pitch/cell-size per panel, close but not exact, so crop boundaries drifted from the
+    sheet's real tile edges over many columns: some cells clipped a sliver of the neighboring
+    tile, others clipped their own tile's edge short (`cliff_wall_2`, `cobble_corner`, and
+    `trans_corner` all showed this in review).
+
+    Fix: stopped guessing pitch and started measuring the sheet's actual tile boundaries per
+    panel, in three tiers depending on what the art needed:
+    - Flat/simple panels: column/row gap detection (a real inter-tile gap reads as background
+      across a column's *entire* height) with a morphological closing pass added — a single dark
+      shadow pixel inside a tile's own texture was getting mistaken for a tile boundary without it.
+    - Busy autotile panels (dirt/grass paths, cobble, road, jungle ground, transitions): even with
+      closing, high-contrast internal art still misfired against a fixed threshold. Switched to
+      measuring only each row's two *outer* edges (against a long run of true background, far
+      harder to fool than a 1-2px internal dip) and dividing that span evenly by the known column
+      count — guarantees uniform cell width by construction, matching how the sheet was actually
+      generated.
+    - Row height itself was a separate bug: using a single narrow reference column to find a row's
+      vertical extent broke when that column happened to land on a short/notched tile (e.g. an
+      inner-corner transition) sharing a row with a full-square tile — it truncated the *whole
+      row* to the short tile's height, clipping the taller ones beside it. Fixed by taking MAX
+      across the full row width instead of one column.
+    - `cliff_walls` turned out to be 3 tall wall faces in a single row, not 6 short ones as
+      originally guessed — re-measured directly, and `worldSprites.ts`'s `CLIFF_TILES.wall`
+      shrunk from 6 entries to 3 (stale `cliff_wall_4/5/6.png` deleted).
+    - `trees` (organic, non-rectangular canopies) dropped the grid idea entirely in favor of
+      per-tree windows with connected-component bbox tightening, same technique as the row D/E
+      props in item 97.
+
+    Verified with a purpose-built edge-continuity check: every row's re-cut tiles pasted flush
+    with zero gap between them, confirming complete uncut content and no bleed into neighbors, not
+    just "the count matched." All 142 changed sprite files re-copied into `assets/sprites/`,
+    `npx tsc --noEmit` clean.
