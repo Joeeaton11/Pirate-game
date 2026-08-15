@@ -3413,3 +3413,29 @@ long collection grind *and* one legendary payoff at the top of it.
     pass and fixed by measuring the true label-to-content gap directly from the pixel data rather
     than reusing an assumed y-offset from a different panel). `npx tsc --noEmit` and all 45 `jest`
     tests clean.
+
+100. ✅ **Hand-painted bitmap pirate glyph set cut and added** (2026-08-15) — user uploaded a
+    reference sheet of a full hand-painted "pirate" character set (A-Z, a-z, 0-9, the standard
+    ASCII punctuation set, plus two bonus decorative icons) on a black background with real,
+    already-authentic alpha transparency. Cut with the same connected-component method as every
+    other sheet (see item 99 and `assets/sprites/README.md`), against the sheet's real alpha
+    channel directly rather than re-deriving one from a flat background color.
+
+    Row-clustering by y-center worked cleanly for the 62 alphanumeric glyphs (verified against a
+    contact sheet) but failed for the 38-component punctuation/symbol zone — those glyphs have
+    deliberately different vertical extents and baselines by design (tall brackets, low-sitting
+    commas, high carets), so there's no clean y-gap to cluster on. That zone was identified by
+    hand against a gridded, numbered reference render of the source image instead, then verified
+    against a final labeled contact sheet before shipping.
+
+    96 named glyph files landed in the new `assets/fonts/bitmap_pirate/` folder (not
+    `assets/sprites/` — it's a font-like asset despite being image-based, so it sits beside the
+    two vector fonts instead), with its own README covering the naming convention and a full
+    punctuation-to-filename table. Colon and semicolon are each shipped as one merged image
+    spanning their two naturally-disconnected marks (dot+dot, dot+tail) rather than two separate
+    files, since they're one character to place despite the real gap in the art. The two bonus
+    icons (skull & crossbones, compass rose) were split out to `assets/sprites/ui/` instead, per
+    the sprite library's own "categorize by what the object is, not where it was drawn" rule — not
+    part of the character set. Not yet wired into any screen; per-character `<Image>` compositing
+    (no kerning/spacing table built yet) is the eventual path, separate from the `expo-font`
+    path used for the two vector fonts.

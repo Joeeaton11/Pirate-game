@@ -6,6 +6,7 @@
 |---|---|---|---|
 | `IMFellEnglishSC-Regular.ttf` | IM FELL English SC | Small-caps, 18th-century English printing revival | SIL OFL 1.1 — `licenses/IMFellEnglishSC-OFL.txt` |
 | `PirataOne-Regular.ttf` | Pirata One | Bold weathered blackletter-style display face | SIL OFL 1.1 — `licenses/PirataOne-OFL.txt` |
+| `bitmap_pirate/` | — | Hand-painted bitmap glyph set (96 individual PNGs, not a vector font) — see its own README | User-provided art, not third-party |
 
 **Small-caps note (IM Fell English SC):** lowercase input renders as smaller capital letters, not
 true lowercase forms. Good for titles, nameplates, headers, banners — not recommended for dense
