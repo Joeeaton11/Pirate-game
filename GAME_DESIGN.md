@@ -3295,3 +3295,46 @@ long collection grind *and* one legendary payoff at the top of it.
     patch lands exactly where a real corner needed one, and that the leftover green patches are
     block interiors, not seams — a T-junction that used to show a hard rectangular cut with grass
     corners now blends into one continuous paved circle with no gap anywhere.
+
+97. ✅ **Master terrain sheet cut into 230 tiles/sprites, wired into worldSprites.ts**
+    (2026-08-15) — the user supplied a purpose-generated 1536x1024 "master terrain sheet" (21
+    labeled categories: ground basics, road/path/cobble autotile sets, water, cliffs, vegetation,
+    small props) built from TERRAIN_BRIEF.md's request list, and asked for it cut into individual,
+    cleanly-transparent game assets.
+
+    First attempt used one uniform grid per panel (fixed pitch/cell-size, same technique as the
+    earlier ship-sprite and building-icon cuts). That worked cleanly for the large, evenly-spaced
+    ground/road/water panels but produced badly broken output for the small-prop panels (rocks,
+    logs, stumps, flowers, mushrooms, vines, weeds, bushes) — wrong content, label-banner bleed,
+    empty crops — because those panels were never actually on a uniform grid: the source sheet
+    hand-places sprites of varying size at irregular spacing, so a rigid pitch just doesn't line up.
+    The user caught this directly: *"A one set grid isn't lining up correctly with all the sprites.
+    Do you think we need put a grid over each sprite individually... or is there a better way?"*
+
+    Answer landed on a hybrid, not per-sprite manual placement: kept the uniform grid where it
+    already worked (ground basics, grass variety, dirt/grass/cobble/road_worn path autotiles,
+    beach/sea/wave tiles, grass-dirt-road transitions, corner transitions, cliff walls/top-edges,
+    elevation ledges, stairs/ramps, trees), and re-cut the irregular small-prop panels with
+    **connected-component detection on the chroma-keyed alpha mask** instead of a grid: crop a
+    generous window around each category (verified against the actual sheet via the Read tool's
+    image support, not blind pixel-math), threshold the alpha, label connected blobs
+    (`scipy.ndimage.label`), and take each blob's own bounding box (with small padding) as the crop.
+    Each sprite finds its own true extent automatically — the automated equivalent of centering a
+    grid on each sprite, without hand-placing coordinates for the ~100 individual small props. A
+    thin-sliver filter (min width/height + min pixel area) dropped spurious divider-line/text
+    fragments the label banners left in the chroma-keyed mask.
+
+    Result: 230 clean PNGs organized into `assets/sprites/{tiles,nature,props}/` and exported from
+    `worldSprites.ts` as 11 new tables — `TERRAIN_TILES`, `PATH_TILES` (dirt/grass/cobble/road_worn,
+    each `{straight, corner, tjunction, cross}` autotile arrays), `WATER_TILES`, `TRANSITION_TILES`,
+    `CLIFF_TILES`, `ELEVATION_TILES`, `SPECIAL_GROUND_TILES`, `TREE_SPRITES`, `ROCK_SPRITES`,
+    `PLANT_SPRITES` (log/stump/flowers/mushrooms/vines/weeds/the 27-sprite bush set), and
+    `DECOR_PROPS`. A handful of items came out unrecoverable from the source sheet itself (label
+    text baked across the full sample height of `rocky_ground`, and `wave_variations`/
+    `cliffs_top_edges`' second rows) and were dropped rather than shipped wrong.
+
+    Verified `npx tsc --noEmit` clean and every one of the 230 crops against a fresh contact-sheet
+    (viewed directly via the Read tool, not inferred from coordinates). Not yet done: wiring these
+    into `MapScreen.tsx`'s actual rendering (they're available as exports, nothing draws them yet)
+    and building the autotile-selection logic for `PATH_TILES` — left for a follow-up pass, likely
+    once the user's remaining sheets arrive so both land together.
