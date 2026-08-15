@@ -5,11 +5,17 @@
 | File | Family | Style | License |
 |---|---|---|---|
 | `IMFellEnglishSC-Regular.ttf` | IM FELL English SC | Small-caps, 18th-century English printing revival | SIL OFL 1.1 — `licenses/IMFellEnglishSC-OFL.txt` |
+| `PirataOne-Regular.ttf` | Pirata One | Bold weathered blackletter-style display face | SIL OFL 1.1 — `licenses/PirataOne-OFL.txt` |
 
-**Small-caps note:** lowercase input renders as smaller capital letters, not true lowercase forms.
-Good for titles, nameplates, headers, banners — not recommended for dense body text (dialogue,
-descriptions), where long lowercase-heavy lines get harder to scan in small-caps. Pair with a
-plainer body font for that once one's picked.
+**Small-caps note (IM Fell English SC):** lowercase input renders as smaller capital letters, not
+true lowercase forms. Good for titles, nameplates, headers, banners — not recommended for dense
+body text (dialogue, descriptions), where long lowercase-heavy lines get harder to scan in
+small-caps.
+
+**Current pairing:** Pirata One for headline/title punch (game title, big banner text), IM Fell
+English SC for secondary/subtitle text underneath it — confirmed together on the parchment banner
+art and they read well as a pair. Neither is meant for dense body text (dialogue boxes, item
+descriptions) — still need a plainer, more legible face for that whenever one arrives.
 
 ## License policy
 
