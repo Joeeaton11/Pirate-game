@@ -1,36 +1,54 @@
 # Sprite Asset Library
 
 Reference for where new art goes and how it gets cut. Read this before dropping in a new
-reference sheet or adding a new folder — the goal is that a year from now, finding "the rock
-sprites" or "the tavern interior tiles" is a one-glance folder lookup, not a grep.
+reference sheet — the goal is a one-glance folder lookup, not a grep, without 250 nested branches
+to click through to find 12 files.
+
+## Structure: flat categories, descriptive filenames
+
+One level of folders. No `combat/weapons/pistols/`, just `combat/weapon_pistol_1.png` — the full
+taxonomy still exists, it's just carried in the filename instead of the folder path. Naming
+convention: `{category}_{descriptor}_{n}.png`, e.g. `harbour_dock_straight_2.png`,
+`combat_weapon_sword_1.png`, `wildlife_parrot_3.png`. Plain sequential numbers within a
+descriptor, not semantic shape names (see "Cutting convention" below for why).
+
+**When a category earns a subfolder:** once it crosses roughly 15-20 files *and* has genuinely
+distinct sub-groups worth browsing separately — not before. `interiors/ship/` is the one place
+this is already pre-approved (deck/captain's cabin/crew quarters/cargo hold/gun deck are really
+different spaces, not just a naming variant), everything else waits until it actually has the
+volume to justify it.
 
 ## Folder map
 
 | Folder | Holds | Wired from |
 |---|---|---|
-| `tiles/` | Ground/terrain: grass, dirt, sand, paths, cobble, road, jungle floor, beach, sea, cliff faces/edges, elevation ledges, stairs/ramps, transition blends, mud/puddle/bridge | `src/data/worldSprites.ts` |
+| `tiles/` | Ground/terrain: grass, dirt, sand, paths, cobble, road, jungle floor, beach, sea, cliffs, elevation, stairs/ramps, transition blends, mud/puddle/bridge | `src/data/worldSprites.ts` |
 | `nature/` | Vegetation & natural scatter: trees, bushes, flowers, mushrooms, vines, weeds, rocks, boulders, logs, stumps | `src/data/worldSprites.ts` |
-| `props/` | Placeable set-dressing: crates, barrels, sacks, hay, campfires, signposts, fountains, lampposts, market stalls, benches, flags | `src/data/worldSprites.ts` |
-| `decals/` | Ground overlays — cracks, stains, footprints, scorch marks, spilled-cargo splatter. Meant to sit *on top* of a ground tile, not replace it | *(not yet wired)* |
-| `buildings/` | Building icon art (whole-building sprites) + building materials (roofs, walls, windows, doors, chimneys) | `src/data/worldSprites.ts` → `buildings.ts` `spriteId` |
+| `wildlife/` | Animals: parrots, gulls, dogs, cats, rats, monkeys, crabs, fish, sharks — living creatures, not plant/rock scatter (that's `nature/`) | *(not yet wired)* |
+| `props/` | Placeable set-dressing: crates, barrels, sacks, hay, campfires, signposts, fountains, lampposts, benches, market stalls, flags, furniture, tools, carts | `src/data/worldSprites.ts` |
+| `decals/` | Ground overlays — cracks, stains, footprints, scorch marks. Sits *on top of* a ground tile, not a replacement for one | *(not yet wired)* |
+| `market/` | Stall goods & displays: fish, fruit, spices, textiles, pottery, awnings — the *contents* of a market stall (the stall structure itself is `props/`) | *(not yet wired)* |
+| `buildings/` | Whole-building icon art + building materials (roofs, walls, windows, doors, chimneys) | `src/data/worldSprites.ts` → `buildings.ts` `spriteId` |
 | `houses/` | Generic house variants (no per-house identity) | `src/data/worldSprites.ts` |
-| `interiors/` | Building-interior floor tiles, furniture, interior decor | *(not yet wired — `src/data/interiors.ts` currently uses a procedural fallback)* |
-| `world/` | One-off/singular world objects: dock/pier kit, Tortuga gate, flags | `src/data/worldSprites.ts` |
-| `characters/` | NPCs beyond Scally: crew portraits, pirate lords, merchants, enemies, prisoners | *(not yet wired)* |
-| `scally/` | The player character's own sprite set (idle, run, emotes, faces) — kept separate from `characters/` since he's the one character with a full animation set, not a single portrait | `src/data/scallySprites.ts` (or equivalent) |
+| `interiors/` | Building-interior floor tiles, furniture, decor. `interiors/ship/` may split into `deck/`, `captains_cabin/`, `crew_quarters/`, `cargo_hold/`, `gun_deck/` once that art exists | *(not yet wired — `src/data/interiors.ts` uses a procedural fallback)* |
+| `harbour/` | Docks, piers, jetties, quays, cranes, winches, capstans, anchors, gangplanks, ladders — the working harbour, distinct from `world/`'s one-off landmark objects | *(not yet wired)* |
+| `landmarks/` | Named one-of-a-kind sights: statues, lighthouses, waterfalls, temples, graveyards, monuments, giant trees, shipwrecks — matches `src/data/landmarks.ts` entries | *(not yet wired)* |
+| `world/` | Existing one-off world objects (dock/pier kit, Tortuga gate, flags) — kept as-is; new harbour art goes in `harbour/` instead | `src/data/worldSprites.ts` |
+| `characters/` | NPCs beyond Scally: crew, named NPCs, generic townsfolk/pirates/sailors/etc. Use filename prefixes (`crew_01_idle.png`, `generic_sailor_drunk_1.png`) rather than a folder per archetype | *(not yet wired)* |
+| `scally/` | The player character's own full sprite set (idle, run, emotes, faces, poses) — kept separate since he's the one character with a complete animation set, not a single portrait | `src/data/scallySprites.ts` |
 | `ship/` | Ship sprites: sailing/turning/docking frames, wake, sails | `src/data/shipSprites.ts` |
-| `items/` | Treasure, weapons, inventory/collectible icons | *(not yet wired)* |
-| `effects/` | Particles, splashes, weather, combat FX | *(not yet wired)* |
-| `ui/` | HUD icons, buttons, banners, signage-as-UI (not signage-as-world-prop, which is `props/`) | *(not yet wired)* |
+| `combat/` | Weapons (swords, pistols, muskets, cannons) and combat FX (muzzle flash, slashes, explosions, smoke, hit/defend/status effects) | *(not yet wired)* |
+| `water_fx/` | Animated/overlay water effects: waves, foam, splashes, ripples, wakes, whirlpools, fountains, bubbles — distinct from the static sea *tiles* in `tiles/` | *(not yet wired)* |
+| `weather_fx/` | Rain, storms, lightning, fog, mist, wind-blown leaves/sand | *(not yet wired)* |
+| `treasure/` | The treasure-hunting quest line: chests, coins, gems, maps, map fragments, dig sites, X-marks, clues, legendary items | *(not yet wired)* |
+| `items/` | Everything else inventory-related: cargo goods, consumables, quest items, keys, resources | *(not yet wired)* |
+| `quest_markers/` | Map/world icons for quest state: available, in-progress, discovered, locked | *(not yet wired)* |
+| `ui/` | HUD icons, buttons, panels, frames, dialogue boxes, portraits-in-UI | *(not yet wired)* |
+| `effects/` | Catch-all for FX that don't fit `combat/`, `water_fx/`, or `weather_fx/` (leave this one empty in practice — prefer the specific category) | *(not yet wired)* |
 
-When a new sheet doesn't obviously fit one folder (e.g. a sheet mixing furniture and wall
-materials), it's fine to split its cuts across folders by content rather than by source sheet —
-the folder is "what this is," not "where it came from."
-
-## Naming convention
-
-`{category}_{n}.png`, e.g. `rock_small_4.png`, `path_dirt_11.png`, `tree_3.png`. Plain sequential
-numbers, not semantic shape names (not `path_dirt_corner_1.png`) — see below for why.
+If something seems to fit two folders, pick the one for what the object *is*, not where it's
+used — a lantern prop that happens to light a tavern interior is still `props/`, not
+`interiors/tavern/`.
 
 ## Cutting convention (read before cutting a new sheet)
 
