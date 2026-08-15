@@ -282,9 +282,6 @@ export const CLIFF_TILES = {
     require('../../assets/sprites/tiles/cliff_wall_1.png'),
     require('../../assets/sprites/tiles/cliff_wall_2.png'),
     require('../../assets/sprites/tiles/cliff_wall_3.png'),
-    require('../../assets/sprites/tiles/cliff_wall_4.png'),
-    require('../../assets/sprites/tiles/cliff_wall_5.png'),
-    require('../../assets/sprites/tiles/cliff_wall_6.png'),
   ],
 };
 
