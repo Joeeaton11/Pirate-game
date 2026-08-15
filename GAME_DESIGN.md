@@ -3376,3 +3376,40 @@ long collection grind *and* one legendary payoff at the top of it.
     with zero gap between them, confirming complete uncut content and no bleed into neighbors, not
     just "the count matched." All 142 changed sprite files re-copied into `assets/sprites/`,
     `npx tsc --noEmit` clean.
+
+99. ✅ **Terrain sheet re-cut as individual objects, grid approach abandoned entirely**
+    (2026-08-15) — after two rounds of grid-alignment fixes (item 98) still didn't hold up, the
+    user cut it short: *"this method isn't working... just remove the background and use them as
+    individual sprites we can place throughout the scene."* Right call — this sheet genuinely does
+    not keep a uniform cell size even within one nominal "row" of what looked like an autotile
+    set: corner/notch shapes, wider cross-junctions, and tapered edges all differ in size, so
+    every pitch-based method (rigid grid, measured-outer-edge-divide, longest-stable-threshold
+    auto-tune) kept finding a *new* way to misalign, because they all shared the same underlying
+    assumption — a uniform cell — that this sheet doesn't honor.
+
+    Replaced the grid with pure connected-component detection per panel region: find every real
+    object by its alpha-cut boundary against the sheet's reliable near-black background, with no
+    assumption about how many items a panel "should" contain or what shape family it belongs to.
+    Where an object's own art naturally fragments into pieces under this scheme — cliff-wall
+    stonework with dark mortar lines, dead-tree branches, tightly-packed transition corners with
+    thin waists — group with a dilated copy of the mask first, but still measure and crop from the
+    *real, undilated* pixels within each dilated group; this keeps genuinely separate neighboring
+    tiles apart (dilation only has to bridge a tile's own internal gaps, not the real gap to its
+    neighbor) while stopping one object's internal texture from splitting it into fragments.
+
+    Result: 148 individually-detected, alpha-cut sprites replacing every prior grid-cut file for
+    the ground/road/water/cliff/elevation/tree categories (rocks/bushes/decor/props from item 97
+    were already individual-object style and untouched). `worldSprites.ts` restructured to match —
+    `TERRAIN_TILES`, `PATH_DIRT_TILES`, `PATH_GRASS_BORDER_TILES`, `COBBLE_TILES`,
+    `ROAD_WORN_TILES`, `JUNGLE_GROUND_TILES`, `BEACH_TILES`, `SEA_TILES`,
+    `TRANSITION_GRASS_DIRT_ROAD_TILES`, `TRANSITION_CORNER_TILES`, `CLIFF_TOP_EDGE_TILES`,
+    `CLIFF_WALL_TILES`, `ELEVATION_LEDGE_TILES`, `STAIRS_RAMP_TILES`, and `TREE_SPRITES` are now
+    flat arrays of individually-cut sprites — a variety pool meant to be placed/scattered
+    individually, not a `{straight, corner, tjunction, cross}` autotile system keyed by shape.
+
+    Verified with contact sheets across every category plus targeted zoomed spot-checks on every
+    category that had previously misaligned (cliff walls, transition corners, trees — which also
+    turned out to be clipping their own per-column label text, a separate bug caught in the same
+    pass and fixed by measuring the true label-to-content gap directly from the pixel data rather
+    than reusing an assumed y-offset from a different panel). `npx tsc --noEmit` and all 45 `jest`
+    tests clean.
