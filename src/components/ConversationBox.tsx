@@ -2,13 +2,11 @@
 // (see GAME_DESIGN.md) — not wired into any real screen yet, previewable from the Debug screen
 // ("Conversation Box Preview") until the layout and lip-sync feel are confirmed.
 //
-// Layout: a parchment scroll pinned to the bottom of the screen, with the speaker's portrait
+// Layout: the real torn-parchment banner (assets/sprites/ui/ui_dialogue_parchment_1.png, see
+// src/data/uiSprites.ts) pinned to the bottom of the screen, with the speaker's portrait
 // (torso/chest-up) overlapping its top edge at whichever side the speaker is on, and the dialogue
-// text lettered onto the parchment next to it. No real parchment texture asset exists in the repo
-// yet (the earlier parchment banner upload was only ever used for a font preview, never saved as
-// an asset) so this fakes the look with a warm gradient + a double inner border, matching the
-// warm-tan/aged-paper tones from that preview — swap `PARCHMENT_COLORS` below for a real texture
-// image whenever one is cut.
+// text lettered onto the parchment next to it. The advance indicator sits bottom-center rather
+// than a corner so it never sits on top of the art's own wax-seal decoration (bottom-right).
 //
 // Lip-sync: there's no voice audio in this game, so this can't be phoneme-accurate lip sync. What
 // it does instead is a text-driven lip sync — as the line types itself onto the parchment, on
@@ -20,8 +18,8 @@
 // else about the component changes.
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { FONT_IM_FELL, FONT_PIRATA_ONE } from '../hooks/useGameFonts';
+import { UI_DIALOGUE_PARCHMENT } from '../data/uiSprites';
 
 export interface ConversationBoxProps {
   speakerName: string;
@@ -51,8 +49,6 @@ const PORTRAIT_HEIGHT = 198;
 const PORTRAIT_OVERLAP = 54; // how far the portrait's bottom edge sinks into the parchment
 const PARCHMENT_HEIGHT = 220;
 const SIDE_MARGIN = 18;
-
-const PARCHMENT_COLORS = ['#ecd8a8', '#ddbd7e', '#c8a35e'] as const;
 
 export default function ConversationBox({
   speakerName,
@@ -120,8 +116,16 @@ export default function ConversationBox({
         <Image source={portrait} style={styles.portraitImg} resizeMode="contain" />
       </View>
 
-      <LinearGradient colors={PARCHMENT_COLORS} style={styles.parchment}>
-        <View style={styles.parchmentInnerBorder} pointerEvents="none" />
+      <View style={styles.parchment}>
+        {/* Plain absolutely-filled Image rather than ImageBackground: RN Web's ImageBackground
+            sized itself to the source PNG's natural pixel width (1485px) instead of stretching to
+            fill this box, silently pushing the wax-seal decoration off past the right edge of the
+            screen on any device narrower than that. Pinning all four sides to 0 sidesteps it. */}
+        <Image
+          source={UI_DIALOGUE_PARCHMENT}
+          style={styles.parchmentImg}
+          resizeMode="stretch"
+        />
         <Text
           style={[styles.nameLabel, textIndent, isLeft ? undefined : { textAlign: 'right' }]}
           numberOfLines={1}
@@ -139,7 +143,7 @@ export default function ConversationBox({
             ▼
           </Animated.Text>
         )}
-      </LinearGradient>
+      </View>
     </Pressable>
   );
 }
@@ -174,26 +178,21 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: PARCHMENT_HEIGHT,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-    borderTopWidth: 3,
-    borderColor: '#5a3a1e',
+    paddingHorizontal: 26,
+    paddingTop: 30,
+    paddingBottom: 34,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 12,
   },
-  parchmentInnerBorder: {
+  parchmentImg: {
     position: 'absolute',
-    top: 6,
-    left: 6,
-    right: 6,
-    bottom: 6,
-    borderWidth: 1.5,
-    borderColor: 'rgba(90, 58, 30, 0.35)',
-    borderRadius: 2,
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
   },
   nameLabel: {
     fontFamily: FONT_PIRATA_ONE,
@@ -209,8 +208,10 @@ const styles = StyleSheet.create({
   },
   advanceIndicator: {
     position: 'absolute',
-    right: 16,
-    bottom: 10,
+    bottom: 12,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
     fontSize: 16,
     color: '#5a3a1e',
   },

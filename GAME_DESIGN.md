@@ -3518,3 +3518,45 @@ long collection grind *and* one legendary payoff at the top of it.
     mid-line and cropping tightly to just the mouth — confirmed the shape genuinely alternates
     between open (vowel) and closed/narrow (consonant) frames as different letters are revealed,
     not just a static image. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+103. ✅ **Real parchment texture cut and wired into ConversationBox** (2026-08-16) — user sent the
+    actual torn-scroll banner art with "this is the parchment," replacing item 101's fake
+    gradient-and-border stand-in.
+
+    First real gotcha: the upload displayed with a checkerboard background in chat, which read as
+    "already transparent" — but direct inspection showed the file itself was `mode: 'RGB'` with no
+    alpha channel at all; the checkerboard was baked into the RGB pixels as actual near-white
+    pixel data, not real transparency. (Same category of trap as this project's very first
+    sprite-cutting lesson, just inverted — there it was a fake box that looked real; here it's fake
+    transparency that displays real.) Verified directly rather than assumed, per that lesson.
+
+    Chroma-keyed it out with a two-condition test — brightness AND desaturation, not just distance
+    from one background color — because the source used a two-tone checkerboard, not a flat key
+    color, so a single-color distance test wouldn't cover both tones. This also correctly avoided a
+    second trap: the art's own near-black outline/crack strokes are *desaturated* the same way the
+    checkerboard is (low saturation is what near-black and near-white have in common), so a
+    saturation-only test would have keyed out the dark linework along with the background. Requiring
+    *both* high brightness and low saturation fixed that — dark strokes have low brightness and
+    survive. Verified against a real checkerboard composite (not a solid color) at multiple zoom
+    levels, specifically checking the two intentional punch-holes in the scroll (fully enclosed
+    within the parchment silhouette, not touching the canvas edge) render correctly transparent, not
+    just the connected exterior background — confirmed clean on both after the fact, no separate
+    flood-fill handling needed. Cropped tight to the art's own bounding box (the source canvas had a
+    lot of empty space above the scroll) and saved as `assets/sprites/ui/ui_dialogue_parchment_1.png`
+    — the sprite library's `ui/` folder's first real wire-up (`src/data/uiSprites.ts`), holding the
+    "dialogue boxes" line in its own README row that had sat unwired since that folder was created.
+
+    Wiring it into `ConversationBox` hit a real react-native-web bug: `ImageBackground` sized itself
+    to the source PNG's *natural pixel width* (1485px) instead of stretching to fill its container,
+    silently pushing the whole right portion of the art — including the wax-seal decoration — off
+    past the edge of any screen narrower than that. Caught by inspecting the actual rendered `<img>`
+    element's bounding rect via Playwright rather than guessing from a screenshot alone (a screenshot
+    alone just showed "the seal isn't here," not why). Fixed by dropping `ImageBackground` for a
+    plain `Image` — but the first fix attempt (`position:absolute` with all four sides pinned to 0)
+    hit the *same* intrinsic-sizing bug again; what actually worked was explicit `width:'100%',
+    height:'100%'` on the Image style. Re-verified the fix with the same DOM-rect check before
+    trusting a screenshot again.
+
+    `npx tsc --noEmit` and all 45 `jest` tests clean; both portrait-left and portrait-right layouts
+    re-verified visually afterward, wax seal and both parchment edges now rendering correctly on a
+    430px-wide viewport.
