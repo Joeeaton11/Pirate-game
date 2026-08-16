@@ -3835,3 +3835,14 @@ long collection grind *and* one legendary payoff at the top of it.
     against the tavern backdrop; sent for review rather than second-guessed against my own read of
     the previous crop, since this is a by-eye call the user is iterating on directly. `npx tsc
     --noEmit` and all 45 `jest` tests clean.
+
+116. ✅ **Real video demo, then slowed the typing speed** (2026-08-16) — user asked to see the box
+    actually playing the script rather than another screenshot sequence. Static screenshots can't
+    show a typewriter animation, so this used Playwright's real video recording (`recordVideo` on
+    the browser context, not screenshots-in-a-loop) to capture genuine footage of a full reveal —
+    mouth shapes changing, the ember glow tracking word-to-word, the advance-indicator bounce at the
+    end. First export was `.webm` (Playwright's native format), which the user's client couldn't open
+    inline; re-encoded to `.mp4` with OpenCV (already available; no `ffmpeg` binary on this box) for
+    a format that opens directly. Watched it and asked for the pace to slow down —
+    `DEFAULT_TYPING_SPEED_MS` in `ConversationBox.tsx` raised from `26` to `38`. Re-recorded and
+    re-sent at the new pace. `npx tsc --noEmit` and all 45 `jest` tests clean.

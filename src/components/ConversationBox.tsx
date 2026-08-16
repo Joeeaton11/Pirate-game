@@ -66,7 +66,7 @@ export interface ConversationBoxProps {
   typingSpeedMs?: number;
 }
 
-const DEFAULT_TYPING_SPEED_MS = 26;
+const DEFAULT_TYPING_SPEED_MS = 38; // slowed down from 26 per user feedback on the recorded demo
 
 /** Which word is currently being "read" — the word containing the most-recently-revealed
  * character — so the dialogue text can highlight it in sync with the mouth, the same way a
