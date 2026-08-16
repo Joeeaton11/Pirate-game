@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BLACK_PEARL_CAPTAIN_LEVEL, BLACK_PEARL_CAPTAIN_TEMPLATE } from '../data/blackPearl';
@@ -19,6 +19,8 @@ import { EncounterFaction, useActiveCrewMember, useGameStore } from '../store/ga
 import { CrewTemplate } from '../types';
 import { maxHpFor } from '../utils/battle';
 import { BattleBackdrop } from '../utils/battleBackdrop';
+import ConversationBox from '../components/ConversationBox';
+import { SCALLY_PORTRAIT } from '../data/scallySprites';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Debug'>;
 
@@ -26,7 +28,18 @@ const LEVEL_JUMPS = [5, 10, 15, 20, 25, 30];
 const GOLD_AMOUNTS = [100, 1000];
 const HEAT_VALUES = [0, 30, 60, 90];
 
+// Sample script for the Conversation Box preview — proves the typewriter reveal, the mouth-flap
+// hook (static for now — no talkFrames until Scally's mouth-movement range is cut), and the
+// tap-to-fast-forward / tap-to-advance interaction across more than one line.
+const DEMO_SCRIPT = [
+  "Ahoy there! This be the new parchment talk box — mouth still, 'til I've got me proper frames.",
+  'Tap me while I\'m talkin\' and I\'ll skip straight to the end of the line.',
+  "Once a line's done, tap again to move to the next — same as this one right here.",
+];
+
 export default function DebugScreen({ navigation }: Props) {
+  const [conversationDemoLine, setConversationDemoLine] = useState<number | null>(null);
+  const [conversationDemoSide, setConversationDemoSide] = useState<'left' | 'right'>('left');
   const activeCrew = useActiveCrewMember();
   const debugSetCrewLevel = useGameStore((s) => s.debugSetCrewLevel);
   const debugResetSave = useGameStore((s) => s.debugResetSave);
@@ -430,6 +443,28 @@ export default function DebugScreen({ navigation }: Props) {
           ))}
         </View>
 
+        <Text style={styles.sectionHeading}>Conversation Box Preview</Text>
+        <View style={styles.row}>
+          <Pressable
+            style={styles.button}
+            onPress={() => {
+              setConversationDemoSide('left');
+              setConversationDemoLine(0);
+            }}
+          >
+            <Text style={styles.buttonText}>Show (portrait left)</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={() => {
+              setConversationDemoSide('right');
+              setConversationDemoLine(0);
+            }}
+          >
+            <Text style={styles.buttonText}>Show (portrait right)</Text>
+          </Pressable>
+        </View>
+
         <Text style={styles.sectionHeading}>Save</Text>
         <View style={styles.row}>
           <Pressable style={styles.dangerButton} onPress={handleReset}>
@@ -441,6 +476,19 @@ export default function DebugScreen({ navigation }: Props) {
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>Back to Map</Text>
       </Pressable>
+
+      {conversationDemoLine !== null && (
+        <ConversationBox
+          speakerName="Captain Scally"
+          text={DEMO_SCRIPT[conversationDemoLine]}
+          portraitSource={SCALLY_PORTRAIT}
+          side={conversationDemoSide}
+          onAdvance={() => {
+            const next = conversationDemoLine + 1;
+            setConversationDemoLine(next < DEMO_SCRIPT.length ? next : null);
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }

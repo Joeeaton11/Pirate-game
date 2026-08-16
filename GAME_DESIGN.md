@@ -3439,3 +3439,40 @@ long collection grind *and* one legendary payoff at the top of it.
     part of the character set. Not yet wired into any screen; per-character `<Image>` compositing
     (no kerning/spacing table built yet) is the eventual path, separate from the `expo-font`
     path used for the two vector fonts.
+
+101. ✅ **Parchment/portrait Conversation Box, previewable — not yet wired into real dialogue**
+    (2026-08-16) — user asked for a dialogue popup: parchment anchored to the bottom of the
+    screen, the speaking character's portrait (torso-up) overlapping its top edge at whichever
+    side they're on, text lettered onto the parchment, and the character's mouth flapping in sync
+    with the words as they appear — "does this make sense, and can you make it look like he's lip
+    syncing to the text." Confirmed the design and answered the lip-sync question honestly before
+    building: there's no voice audio in this game, so it can't be phoneme-accurate lip sync — what
+    it does instead is the classic visual-novel/Animal-Crossing trick, a text-driven mouth-flap
+    that cycles a `talkFrames` frame range in step with the typewriter reveal (rest on
+    spaces/punctuation, cycling open shapes while a word is mid-reveal). User confirmed: build the
+    reusable component first (not wired into a real screen yet), and hold off on the actual
+    mouth-movement art until they upload it rather than build against a placeholder.
+
+    First real use of the two vector fonts added earlier this project (item 100's session) —
+    `expo-font` installed and wired via a `useGameFonts()` hook (`useFonts` gating `App.tsx`'s
+    first paint alongside `hasHydrated`), Pirata One for the speaker name, IM Fell English SC for
+    the dialogue body. No parchment texture asset exists in the repo (the earlier parchment banner
+    upload was only ever used for a font preview, never saved as an asset), so `ConversationBox`
+    fakes the look with a warm gradient + a double inner border rather than guessing at one of many
+    stale files in the shared uploads directory — swap `PARCHMENT_COLORS` for a real texture image
+    whenever one is cut.
+
+    `src/components/ConversationBox.tsx`: parchment pinned to the screen bottom, portrait
+    (`portraitSource`) overlapping its top edge on the given `side`, character-by-character
+    typewriter reveal, tap-to-fast-forward mid-line / tap-to-advance once fully revealed with a
+    bouncing "▼" indicator, and the mouth-flap hook already wired to an optional `talkFrames` prop
+    (frame 0 = rest, 1..n cycled while "talking") — passing nothing (today's state, using Scally's
+    existing bust `portrait.png`) just renders a static portrait, no other behavior changes when
+    real frames land. Previewable from the Debug screen's new "Conversation Box Preview" section
+    (left/right portrait toggle, 3-line demo script proving reveal/fast-forward/advance) rather
+    than wired into BuildingScreen's existing plain-text NPC dialogue yet — that's the next pass
+    once the look is confirmed.
+
+    Verified with a headless-Chromium Playwright run against the live web build (screenshot at
+    each step: typewriter mid-reveal, full line with bounce indicator, tap-advance to line 2,
+    portrait-right layout) plus `npx tsc --noEmit` and all 45 `jest` tests clean.

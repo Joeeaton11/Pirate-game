@@ -21,13 +21,15 @@ import TreasureCodexScreen from './src/screens/TreasureCodexScreen';
 import BlackfinScreen from './src/screens/BlackfinScreen';
 import GraceScreen from './src/screens/GraceScreen';
 import { useGameStore } from './src/store/gameStore';
+import { useGameFonts } from './src/hooks/useGameFonts';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   const hasHydrated = useGameStore((s) => s.hasHydrated);
+  const [fontsLoaded] = useGameFonts();
 
-  if (!hasHydrated) {
+  if (!hasHydrated || !fontsLoaded) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" color="#f4e9cd" />
