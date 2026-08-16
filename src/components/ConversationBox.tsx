@@ -2,11 +2,14 @@
 // (see GAME_DESIGN.md) — not wired into any real screen yet, previewable from the Debug screen
 // ("Conversation Box Preview") until the layout and lip-sync feel are confirmed.
 //
-// Layout: the real torn-parchment banner (assets/sprites/ui/ui_dialogue_parchment_1.png, see
-// src/data/uiSprites.ts) pinned to the bottom of the screen, with the speaker's portrait
-// (torso/chest-up) overlapping its top edge at whichever side the speaker is on, and the dialogue
-// text lettered onto the parchment next to it. The advance indicator sits bottom-center rather
-// than a corner so it never sits on top of the art's own wax-seal decoration (bottom-right).
+// Layout: matches the reference mockup the user sent (GAME_DESIGN.md) — the real torn-parchment
+// banner (assets/sprites/ui/ui_dialogue_parchment_1.png) pinned to the bottom of the screen, with
+// a big torso-up portrait flush against the screen edge and overlapping deep into the parchment
+// (not a small floating card), a wood-sign name-plate straddling the parchment's top edge, and the
+// advance indicator in a small dark tab bottom-right, nudged clear of the parchment art's own
+// wax-seal decoration. The name-plate is coded (LinearGradient + the cut skull-and-crossbones
+// icon), not real signage art — no reference was provided for it, so this is a placeholder in the
+// same spirit as earlier placeholders in this file; swap for real art if/when it arrives.
 //
 // Lip-sync: there's no voice audio in this game, so this can't be phoneme-accurate lip sync. What
 // it does instead is a text-driven lip sync — as the line types itself onto the parchment, on
@@ -18,8 +21,9 @@
 // else about the component changes.
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { FONT_IM_FELL, FONT_PIRATA_ONE } from '../hooks/useGameFonts';
-import { UI_DIALOGUE_PARCHMENT } from '../data/uiSprites';
+import { UI_DIALOGUE_PARCHMENT, UI_ICON_SKULL_CROSSBONES } from '../data/uiSprites';
 
 export interface ConversationBoxProps {
   speakerName: string;
@@ -36,7 +40,8 @@ export interface ConversationBoxProps {
   /** Which side of the parchment the portrait sits on. */
   side?: 'left' | 'right';
   /** Called when the player taps after the line has fully revealed — advance/close the box. Bare
-   * tap while the line is still revealing instead fast-forwards it to complete. */
+   * tap while the line is still revealing instead fast-forwards it to complete. Text may contain
+   * blank-line paragraph breaks ("\n\n") — they render as a gap, same page, same tap-to-advance. */
   onAdvance?: () => void;
   /** ms per revealed character. */
   typingSpeedMs?: number;
@@ -44,11 +49,16 @@ export interface ConversationBoxProps {
 
 const DEFAULT_TYPING_SPEED_MS = 26;
 
-const PORTRAIT_WIDTH = 118;
-const PORTRAIT_HEIGHT = 198;
-const PORTRAIT_OVERLAP = 54; // how far the portrait's bottom edge sinks into the parchment
-const PARCHMENT_HEIGHT = 220;
-const SIDE_MARGIN = 18;
+// Portrait sized and overlapped to match the reference mockup: flush to the screen edge (no side
+// margin) and overlapping deep into the parchment rather than floating mostly above it as a small
+// card. Aspect ratio taken from the real lip-sync frames (129x251 native).
+const PORTRAIT_WIDTH = 175;
+const PORTRAIT_HEIGHT = Math.round(PORTRAIT_WIDTH * (251 / 129));
+const PORTRAIT_OVERLAP = Math.round(PORTRAIT_HEIGHT * 0.45); // how far the portrait sinks into the parchment
+const PARCHMENT_HEIGHT = 240;
+
+const NAMEPLATE_HEIGHT = 34;
+const NAMEPLATE_STRADDLE = 14; // how far the plate's bottom edge sinks below the parchment's top edge
 
 export default function ConversationBox({
   speakerName,
@@ -103,16 +113,12 @@ export default function ConversationBox({
       ? getTalkFrame(text, revealedCount - 1)
       : portraitSource;
   const isLeft = side === 'left';
-  const textIndent = { [isLeft ? 'marginLeft' : 'marginRight']: PORTRAIT_WIDTH + 14 } as const;
+  const sideProp = isLeft ? 'left' : 'right';
+  const textIndent = { [isLeft ? 'marginLeft' : 'marginRight']: PORTRAIT_WIDTH + 18 } as const;
 
   return (
     <Pressable style={styles.wrapper} onPress={handlePress}>
-      <View
-        style={[
-          styles.portraitSlot,
-          isLeft ? { left: SIDE_MARGIN } : { right: SIDE_MARGIN },
-        ]}
-      >
+      <View style={[styles.portraitSlot, { [sideProp]: 0 } as const]}>
         <Image source={portrait} style={styles.portraitImg} resizeMode="contain" />
       </View>
 
@@ -120,30 +126,35 @@ export default function ConversationBox({
         {/* Plain absolutely-filled Image rather than ImageBackground: RN Web's ImageBackground
             sized itself to the source PNG's natural pixel width (1485px) instead of stretching to
             fill this box, silently pushing the wax-seal decoration off past the right edge of the
-            screen on any device narrower than that. Pinning all four sides to 0 sidesteps it. */}
-        <Image
-          source={UI_DIALOGUE_PARCHMENT}
-          style={styles.parchmentImg}
-          resizeMode="stretch"
-        />
-        <Text
-          style={[styles.nameLabel, textIndent, isLeft ? undefined : { textAlign: 'right' }]}
-          numberOfLines={1}
-        >
-          {speakerName}
-        </Text>
+            screen on any device narrower than that. An explicit percentage width/height sidesteps
+            it (inset-only positioning hit the same bug). */}
+        <Image source={UI_DIALOGUE_PARCHMENT} style={styles.parchmentImg} resizeMode="stretch" />
         <Text style={[styles.dialogueText, textIndent]}>{text.slice(0, revealedCount)}</Text>
         {fullyRevealed && onAdvance && (
-          <Animated.Text
-            style={[
-              styles.advanceIndicator,
-              { transform: [{ translateY: bounce.interpolate({ inputRange: [0, 1], outputRange: [0, 6] }) }] },
-            ]}
-          >
-            ▼
-          </Animated.Text>
+          <View style={styles.advanceTab}>
+            <Animated.Text
+              style={[
+                styles.advanceIndicator,
+                { transform: [{ translateY: bounce.interpolate({ inputRange: [0, 1], outputRange: [0, 5] }) }] },
+              ]}
+            >
+              ▼
+            </Animated.Text>
+          </View>
         )}
       </View>
+
+      <LinearGradient
+        colors={['#8a5a30', '#5c3417']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.nameplate, { [sideProp]: PORTRAIT_WIDTH + 18 } as const]}
+      >
+        <Image source={UI_ICON_SKULL_CROSSBONES} style={styles.nameplateIcon} resizeMode="contain" />
+        <Text style={styles.nameplateText} numberOfLines={1}>
+          {speakerName}
+        </Text>
+      </LinearGradient>
     </Pressable>
   );
 }
@@ -179,7 +190,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     height: PARCHMENT_HEIGHT,
     paddingHorizontal: 26,
-    paddingTop: 30,
+    paddingTop: 32,
     paddingBottom: 34,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
@@ -194,25 +205,55 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  nameLabel: {
-    fontFamily: FONT_PIRATA_ONE,
-    fontSize: 20,
-    color: '#3f2410',
-    marginBottom: 4,
-  },
   dialogueText: {
     fontFamily: FONT_IM_FELL,
     fontSize: 17,
-    lineHeight: 22,
+    lineHeight: 23,
     color: '#2c1a0c',
   },
-  advanceIndicator: {
+  nameplate: {
     position: 'absolute',
-    bottom: 12,
-    left: 0,
-    right: 0,
-    textAlign: 'center',
+    bottom: PARCHMENT_HEIGHT - NAMEPLATE_STRADDLE,
+    height: NAMEPLATE_HEIGHT,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    borderRadius: NAMEPLATE_HEIGHT / 2,
+    borderWidth: 2,
+    borderColor: '#2c1a0a',
+    zIndex: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 9,
+  },
+  nameplateIcon: {
+    width: 20,
+    height: 20,
+  },
+  nameplateText: {
+    fontFamily: FONT_PIRATA_ONE,
     fontSize: 16,
-    color: '#5a3a1e',
+    color: '#f4e4c1',
+  },
+  advanceTab: {
+    position: 'absolute',
+    right: 14,
+    // Nudged up clear of the parchment art's own wax-seal + ribbon decoration, which sits in this
+    // same bottom-right corner (roughly the bottom third of the box) and made the tab hard to
+    // read sitting directly on top of it.
+    bottom: 82,
+    width: 26,
+    height: 26,
+    borderRadius: 6,
+    backgroundColor: 'rgba(44, 26, 10, 0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  advanceIndicator: {
+    fontSize: 14,
+    color: '#f4e4c1',
   },
 });

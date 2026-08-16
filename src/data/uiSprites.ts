@@ -12,3 +12,7 @@
 // (dark but equally desaturated) fully opaque instead of keying them out too. Cropped tight to the
 // scroll's own bounding box (the source canvas had a lot of empty space above it).
 export const UI_DIALOGUE_PARCHMENT = require('../../assets/sprites/ui/ui_dialogue_parchment_1.png');
+
+/** Small skull-and-crossbones badge — cut from the pirate bitmap-glyph sheet's two bonus icons
+ * (see assets/fonts/bitmap_pirate/README.md). Used on ConversationBox's speaker name-plate. */
+export const UI_ICON_SKULL_CROSSBONES = require('../../assets/sprites/ui/ui_icon_skull_crossbones_1.png');

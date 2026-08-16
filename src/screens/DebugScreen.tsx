@@ -33,6 +33,7 @@ const HEAT_VALUES = [0, 30, 60, 90];
 // per-letter lip sync (built from Scally's cut "Lip Sync & Talking Animations" sheet), and the
 // tap-to-fast-forward / tap-to-advance interaction across more than one line.
 const DEMO_SCRIPT = [
+  "Blackbeard's men were here. I can smell 'em.\n\n...Actually, that might be Cheeky.",
   "Ahoy there! Now watch me mouth move — every letter's got its own shape.",
   'Tap me while I\'m talkin\' and I\'ll skip straight to the end of the line.',
   "Once a line's done, tap again to move to the next — same as this one right here.",

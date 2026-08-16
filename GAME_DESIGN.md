@@ -3560,3 +3560,35 @@ long collection grind *and* one legendary payoff at the top of it.
     `npx tsc --noEmit` and all 45 `jest` tests clean; both portrait-left and portrait-right layouts
     re-verified visually afterward, wax seal and both parchment edges now rendering correctly on a
     430px-wide viewport.
+
+104. ✅ **Reference mockup composition matched: big overlapping portrait, name-plate, corner tab**
+    (2026-08-16) — user sent a target mockup ("this is what we're aiming for... this layout") and
+    asked what else was missing besides background art. Compared point-by-point against item 103's
+    layout and closed every gap that wasn't the background:
+
+    - **Portrait**: was a small floating card (118x198, inset 18px from the screen edge, ~27% of
+      its own height overlapping the parchment). Rescaled to the mockup's proportions — flush
+      against the screen edge (no inset) and overlapping ~45% of its height into the parchment —
+      by upsizing to 175 wide (aspect-locked to the real lip-sync frames' native 129:251 ratio) and
+      recomputing the overlap/wrapper math off that.
+    - **Name-plate**: the mockup shows a proper wood-sign banner (skull icon + name, straddling
+      the parchment's top edge) — previously just plain text inline at the top of the parchment.
+      No reference art exists for this specific element, so it's coded: a `LinearGradient`
+      pill with a dark border, straddling the parchment top edge the same way the portrait does,
+      using the skull-and-crossbones icon already cut from the bitmap-glyph sheet (item 100) as its
+      badge. Flagged to the user as a placeholder, same as the parchment gradient was before real
+      parchment art arrived — swappable for real signage art later.
+    - **Advance indicator**: moved from bottom-center to a small dark corner tab, matching the
+      mockup's bottom-right placement — but nudged up off the very corner, since (unlike the
+      mockup's plain concept parchment) the real cut parchment has its own wax-seal decoration
+      sitting in exactly that corner; sitting the tab directly on top of it made both illegible.
+    - **Paragraph spacing**: the mockup's dialogue has a blank-line gap between two sentences on
+      the same page (not two separate advances) — already worked for free (`Text` respects literal
+      `\n`), just hadn't been exercised; the Debug preview's demo script now includes the mockup's
+      actual line as a two-paragraph example to prove it.
+
+    Re-verified both portrait-left/right layouts visually against the mockup via the same
+    Playwright screenshot loop as item 103. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+    Only thing left unaddressed, by the user's own framing: the full background scene (harbor,
+    ship, tavern, sky) — explicitly deferred, coming later.
