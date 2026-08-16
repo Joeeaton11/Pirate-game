@@ -25,8 +25,10 @@ import { visemeForPosition } from '../data/visemes';
 import {
   SCENE_COW_ISLAND_BEACH_CAMP,
   SCENE_COW_ISLAND_MUSTER_FLATS,
+  SCENE_LORD_CAPTAIN_BELLOWS_FORT,
   SCENE_LORD_REDBEARD_SULLY_FORT,
   SCENE_NEW_PROVIDENCE_HARBOR,
+  SCENE_NEW_PROVIDENCE_TAVERN,
   SCENE_ROATAN_CAREENING_YARD,
   SCENE_ROATAN_FORGE_NIGHT,
   SCENE_TORTUGA_GAOL_INTERIOR,
@@ -545,6 +547,14 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_ROATAN_FORGE_NIGHT)}>
             <Text style={styles.buttonText}>BG: Anchor & Forge</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_LORD_CAPTAIN_BELLOWS_FORT)}>
+            <Text style={styles.buttonText}>BG: Bellows' fort</Text>
+          </Pressable>
+        </View>
+        <View style={styles.row}>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_NEW_PROVIDENCE_TAVERN)}>
+            <Text style={styles.buttonText}>BG: Cracked Hull</Text>
           </Pressable>
         </View>
 

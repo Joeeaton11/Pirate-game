@@ -4092,3 +4092,16 @@ long collection grind *and* one legendary payoff at the top of it.
     sign fully legible against the dark scene, composites cleanly. `npx tsc --noEmit` and all 45
     `jest` tests clean. Only Captain Bellows' fort (#13) remains to complete Roatán's three-scene
     set.
+
+132. ✅ **Two scenes delivered together, closing out both open gaps from the status tally: #13
+    Captain Bellows' fort and #9 New Providence's tavern** (2026-08-16) — `lord_captain_bellows_fort_1`:
+    a full cannon battery along a clifftop wall, stone keep with a red banner, powder/armament crates
+    in the foreground — cannon-focused per Bellows' "commands the careening yards of Roatán with an
+    iron gun crew" flavor text, completing Roatán's three-scene set (careening yard, forge, this
+    fort). `new_providence_tavern_1`: The Cracked Hull's open-air porch at night, patrons drinking at
+    outdoor tables, a moored ship under a full moon; sign reads "THE CRACKED HULL," matching
+    `buildings.ts`'s real `new_providence` building name exactly. Both an exact 853x1844 canvas
+    match, no crop needed. Wired as `SCENE_LORD_CAPTAIN_BELLOWS_FORT`/`SCENE_NEW_PROVIDENCE_TAVERN`,
+    thirteenth and fourteenth "BG:" toggles added. Verified live on both — signage legible,
+    composites cleanly. Only Iron Jenny's stronghold (#10) remains to complete New Providence.
+    `npx tsc --noEmit` and all 45 `jest` tests clean.

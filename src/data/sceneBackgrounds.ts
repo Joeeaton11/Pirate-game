@@ -93,3 +93,17 @@ export const SCENE_ROATAN_CAREENING_YARD = require('../../assets/backgrounds/roa
  * background. Sign reads "THE ANCHOR & FORGE," matching `buildings.ts`'s real `roatan` building
  * name exactly. Exact 853x1844 canvas match, no crop needed. */
 export const SCENE_ROATAN_FORGE_NIGHT = require('../../assets/backgrounds/roatan_forge_night_1.png');
+
+/** Captain Bellows' fort — scene #13, "Lord of Roatán" (`lord_captain_bellows_fort_1`): a full
+ * cannon battery along a clifftop wall, a stone keep with a red banner, powder and armament crates
+ * in the foreground. Bellows is a cannon specialist ("commands the careening yards of Roatán with
+ * an iron gun crew" — see `pirateLords.ts`), so artillery is the visual focus, matching the brief.
+ * Exact 853x1844 canvas match, no continuity-sensitive signage (just "POWDER"/"ARMAMENT" crate
+ * labels), no crop needed. Completes Roatán's three-scene set. */
+export const SCENE_LORD_CAPTAIN_BELLOWS_FORT = require('../../assets/backgrounds/lord_captain_bellows_fort_1.png');
+
+/** The Cracked Hull — scene #9, New Providence's tavern porch at night (`new_providence_tavern_1`):
+ * an open-air waterfront bar, patrons drinking at outdoor tables, a moored ship under a full moon.
+ * Sign reads "THE CRACKED HULL," matching `buildings.ts`'s real `new_providence` building name
+ * exactly. Exact 853x1844 canvas match, no crop needed. */
+export const SCENE_NEW_PROVIDENCE_TAVERN = require('../../assets/backgrounds/new_providence_tavern_1.png');
