@@ -30,6 +30,7 @@ import {
   SCENE_TORTUGA_GAOL_INTERIOR,
   SCENE_TORTUGA_MARKET_DAY,
   SCENE_TORTUGA_OLD_LANDING,
+  SCENE_TORTUGA_SIGNAL_POST,
   SCENE_TORTUGA_TAVERN_DUSK,
   SCENE_TORTUGA_TAVERN_NIGHT,
 } from '../data/sceneBackgrounds';
@@ -531,6 +532,11 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_NEW_PROVIDENCE_HARBOR)}>
             <Text style={styles.buttonText}>BG: New Providence harbor</Text>
+          </Pressable>
+        </View>
+        <View style={styles.row}>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_TORTUGA_SIGNAL_POST)}>
+            <Text style={styles.buttonText}>BG: Signal Post lookout</Text>
           </Pressable>
         </View>
 

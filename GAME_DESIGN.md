@@ -4055,3 +4055,13 @@ long collection grind *and* one legendary payoff at the top of it.
     the "no crown, no law" flavor text, the two figures talking) stayed intact. Wired as
     `SCENE_NEW_PROVIDENCE_HARBOR`, ninth "BG:" toggle added. Verified live — no legible signage
     anywhere in frame. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+129. ✅ **A bonus scene outside the 30-item brief, `tortuga_signal_post_1`, matched to a real building
+    on its own merits** (2026-08-16) — a lookout-tower-over-a-bay piece the user sent wasn't one of
+    the 30 planned scenes, but it's a strong match for an existing named building: `buildings.ts`'s
+    `tortuga_signal_post` ("The Signal Post"), Tortuga's watchtower, home to lookout NPC Yann whose
+    entire dialogue line is about spotting sails from a vantage point ("First to spot a sail, first
+    to ring the bell"). The delivered art — a thatched tower on a cliff over a wide bay, a ship
+    visible offshore, misty peaks behind — is exactly that vantage point. Exact 853x1844 canvas
+    match, no text, no crop needed. Wired as `SCENE_TORTUGA_SIGNAL_POST`, tenth "BG:" toggle added.
+    Verified live. `npx tsc --noEmit` and all 45 `jest` tests clean.

@@ -73,3 +73,11 @@ export const SCENE_LORD_REDBEARD_SULLY_FORT = require('../../assets/backgrounds/
  * existing on two different islands. The crop leaves only a bare unreadable sliver of signboard at
  * the border; everything else (ship, dock, market scene, the two figures talking) is intact. */
 export const SCENE_NEW_PROVIDENCE_HARBOR = require('../../assets/backgrounds/new_providence_harbor_1.png');
+
+/** The Signal Post — Tortuga's watchtower, home to lookout NPC Yann (see `buildings.ts`,
+ * `tortuga_signal_post`). Not one of the 30 scenes in CONVERSATION_BACKGROUNDS_BRIEF.md — delivered
+ * separately, but a strong enough real-location match (an actual named building with its own
+ * lookout NPC, whose whole dialogue is about spotting sails) that it earned wiring in the same way.
+ * A thatched lookout tower on a cliff over a wide bay, ship visible offshore, distant misty peaks —
+ * exactly the vantage point Yann's dialogue describes. Exact 853x1844 canvas match, no text. */
+export const SCENE_TORTUGA_SIGNAL_POST = require('../../assets/backgrounds/tortuga_signal_post_1.png');
