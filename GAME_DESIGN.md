@@ -3846,3 +3846,23 @@ long collection grind *and* one legendary payoff at the top of it.
     a format that opens directly. Watched it and asked for the pace to slow down —
     `DEFAULT_TYPING_SPEED_MS` in `ConversationBox.tsx` raised from `26` to `38`. Re-recorded and
     re-sent at the new pace. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+117. ✅ **Decoupled mouth-frame cadence from the character-reveal rate** (2026-08-16) — user asked
+    whether the mouth movements were actually synced to the words, and separately said the mouth
+    still looked "quick" and "not smooth." Verified sync first rather than assuming: a Playwright
+    script polled the live DOM every 20ms, logging the revealed text and the portrait `<img>`'s frame
+    filename together — confirmed `visemeForPosition()` fires the exact right viseme on every single
+    revealed character, including correctly *not* changing the visible frame when consecutive letters
+    share a viseme (e.g. "c" then "k" both map to `consonant_kg`). So the sync was already exact; the
+    "not smooth" complaint was a separate cadence problem — the mouth frame was updating on every
+    character (every `typingSpeedMs` = 38ms), several times faster than real speech ever changes
+    mouth shape (a syllable holds for more like 150-200ms), which reads as flicker rather than
+    talking. Fixed by decoupling the two rates: a new `MOUTH_TICK_MS = 160` constant drives its own
+    `setInterval` that samples the latest reveal position via a `revealedCountRef` (kept current by a
+    separate effect, so the mouth-tick interval itself doesn't need to restart every character — only
+    when the line changes or talking starts/stops); the text reveal keeps running on its own 38ms
+    timer, untouched. Render now reads from the resulting `mouthFrame` state instead of calling
+    `getTalkFrame` directly inline. Re-ran the same DOM-polling approach afterward to confirm the
+    fix: mouth-frame changes now land ~120-160ms apart (quantized against the 20ms poll) while the
+    revealed-text length keeps climbing every poll at the original pace — the two rates are now
+    independent, as intended. `npx tsc --noEmit` and all 45 `jest` tests clean.

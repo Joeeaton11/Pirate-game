@@ -68,6 +68,11 @@ export interface ConversationBoxProps {
 
 const DEFAULT_TYPING_SPEED_MS = 38; // slowed down from 26 per user feedback on the recorded demo
 
+// How often the mouth frame is allowed to change, independent of the (much faster) character
+// reveal rate. Real speech holds a mouth shape for roughly a syllable's worth of time, so this is
+// tuned to that instead of to typingSpeedMs -- see the effect below that uses it.
+const MOUTH_TICK_MS = 160;
+
 /** Which word is currently being "read" — the word containing the most-recently-revealed
  * character — so the dialogue text can highlight it in sync with the mouth, the same way a
  * karaoke caption or a read-along app tracks the active word. Returns null when nothing is
@@ -213,6 +218,34 @@ export default function ConversationBox({
     return () => clearTimeout(id);
   }, [revealedCount, text, typingSpeedMs]);
 
+  // The mouth used to update on every single revealed character — at a comfortable reading speed
+  // that's a new mouth shape every 30-40ms, several times faster than real speech ever changes
+  // shape (a syllable takes more like 150-200ms), so it read as a fast flicker rather than talking.
+  // Decoupled from the character-reveal rate here: `revealedCountRef` always has the latest reveal
+  // position, but the mouth frame itself only samples it on its own slower, fixed-cadence tick, so
+  // the text can keep reading at whatever pace feels right while the mouth moves at a natural one.
+  const revealedCountRef = useRef(revealedCount);
+  useEffect(() => {
+    revealedCountRef.current = revealedCount;
+  }, [revealedCount]);
+
+  const isTalking = !!getTalkFrame && revealedCount > 0 && !fullyRevealed;
+  const [mouthFrame, setMouthFrame] = useState<ImageSourcePropType | null>(null);
+  useEffect(() => {
+    if (!isTalking || !getTalkFrame) {
+      setMouthFrame(null);
+      return;
+    }
+    setMouthFrame(getTalkFrame(text, revealedCountRef.current - 1));
+    const id = setInterval(() => {
+      setMouthFrame(getTalkFrame(text, revealedCountRef.current - 1));
+    }, MOUTH_TICK_MS);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately NOT keyed on
+    // revealedCount: restarting this effect every character is exactly the per-letter flicker
+    // this is meant to fix. It only needs to restart when the line changes or talking starts/stops.
+  }, [text, isTalking, getTalkFrame]);
+
   // Bounce the "tap to continue" indicator once the line has fully revealed.
   const bounce = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -235,12 +268,9 @@ export default function ConversationBox({
     }
   }
 
-  // Rest pose before typing starts and once the line finishes; otherwise the frame for whichever
-  // character was just revealed, straight from the caller's lookup.
-  const portrait =
-    getTalkFrame && revealedCount > 0 && !fullyRevealed
-      ? getTalkFrame(text, revealedCount - 1)
-      : portraitSource;
+  // Rest pose before typing starts and once the line finishes; otherwise the mouth frame from the
+  // slower-cadence tick above (not a direct getTalkFrame call -- see that effect for why).
+  const portrait = isTalking ? mouthFrame ?? portraitSource : portraitSource;
   const isLeft = side === 'left';
   const sideProp = isLeft ? 'left' : 'right';
   const textIndent = { [isLeft ? 'marginLeft' : 'marginRight']: PORTRAIT_WIDTH + 18 } as const;
