@@ -26,6 +26,7 @@ import {
   SCENE_COW_ISLAND_BEACH_CAMP,
   SCENE_COW_ISLAND_MUSTER_FLATS,
   SCENE_LORD_REDBEARD_SULLY_FORT,
+  SCENE_NEW_PROVIDENCE_HARBOR,
   SCENE_TORTUGA_GAOL_INTERIOR,
   SCENE_TORTUGA_MARKET_DAY,
   SCENE_TORTUGA_OLD_LANDING,
@@ -527,6 +528,9 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_LORD_REDBEARD_SULLY_FORT)}>
             <Text style={styles.buttonText}>BG: Redbeard's fort</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_NEW_PROVIDENCE_HARBOR)}>
+            <Text style={styles.buttonText}>BG: New Providence harbor</Text>
           </Pressable>
         </View>
 

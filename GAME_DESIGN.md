@@ -4040,3 +4040,18 @@ long collection grind *and* one legendary payoff at the top of it.
     needed. Wired as `SCENE_LORD_REDBEARD_SULLY_FORT`, eighth "BG:" toggle added. Verified live —
     reads genuinely menacing, composites cleanly. All three Cow Island scenes (beach camp, muster
     flats, this fort) are now done. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+128. ✅ **Scene #8, `new_providence_harbor_1`, caught and fixed a real continuity conflict, not just
+    a framing one** (2026-08-16) — New Providence's Harbor Trading Post came in at a much wider
+    1023x1537 (0.67) source aspect than the 0.46 target, the biggest mismatch yet, and its
+    background carried a hand-painted "SALTY PARROT" tavern sign — the exact name already
+    established as Tortuga's own tavern (`SCENE_TORTUGA_TAVERN_NIGHT`). Two different islands both
+    having a "Salty Parrot" isn't a framing nitpick like the earlier garbled-text case; it's a
+    continuity error that would read as the same tavern existing in two places. Cropped to 711x1537
+    (0.4626, exact) with an asymmetric trim (60px off the left, 252px off the right) specifically
+    aimed at pushing the sign past the frame edge rather than just hitting the target ratio — the
+    result leaves only a bare, unreadable sliver of signboard at the border, confirmed by eye before
+    wiring it in. Everything else (the ship, dock, market stalls, the gallows-lantern touch fitting
+    the "no crown, no law" flavor text, the two figures talking) stayed intact. Wired as
+    `SCENE_NEW_PROVIDENCE_HARBOR`, ninth "BG:" toggle added. Verified live — no legible signage
+    anywhere in frame. `npx tsc --noEmit` and all 45 `jest` tests clean.

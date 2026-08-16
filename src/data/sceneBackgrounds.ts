@@ -62,3 +62,14 @@ export const SCENE_COW_ISLAND_MUSTER_FLATS = require('../../assets/backgrounds/c
  * lord fought). Exact 853x1844 canvas match, no text, no crop needed. Completes Cow Island's
  * three-scene set (beach camp, muster flats, this one). */
 export const SCENE_LORD_REDBEARD_SULLY_FORT = require('../../assets/backgrounds/lord_redbeard_sully_fort_1.png');
+
+/** New Providence's Harbor Trading Post — scene #8 (`new_providence_harbor_1`): a crowded
+ * pirate-republic waterfront at midday, a tall ship at the dock, market stalls, a gallows-lantern
+ * post fitting the "no crown, no law" flavor text. Source came in at a much wider 1023x1537 (0.67)
+ * aspect than the 0.46 target — cropped to 711x1537 (0.4626, exact), trimmed unevenly (60px off the
+ * left, 252px off the right) specifically to push a background tavern sign that read "SALTY PARROT"
+ * off the right edge. That sign is Tortuga's own tavern name (see `SCENE_TORTUGA_TAVERN_NIGHT`) —
+ * a real continuity conflict, not just a framing choice, since it would've read as the same tavern
+ * existing on two different islands. The crop leaves only a bare unreadable sliver of signboard at
+ * the border; everything else (ship, dock, market scene, the two figures talking) is intact. */
+export const SCENE_NEW_PROVIDENCE_HARBOR = require('../../assets/backgrounds/new_providence_harbor_1.png');
