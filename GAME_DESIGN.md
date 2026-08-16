@@ -3866,3 +3866,58 @@ long collection grind *and* one legendary payoff at the top of it.
     fix: mouth-frame changes now land ~120-160ms apart (quantized against the 20ms poll) while the
     revealed-text length keeps climbing every poll at the original pace — the two rates are now
     independent, as intended. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+118. ✅ **"Are we using all of the face animations?" — audited, then wired up everything that had a
+    real trigger** (2026-08-16) — the question turned up two separate systems, not one. Lip-sync: 28
+    of 29 cut mouth frames were reachable from real text; `vowel_ah` was cut but nothing in
+    `visemes.ts` ever pointed to it. Fixed with one new digraph, `ar` -> `vowel_ah` (as in "Arrr",
+    "harbor", "starboard" — the open-mouth shape a plain short `a` doesn't cover). Expression faces
+    (`SCALLY_FACES`, 6 total): only 2 were wired (the heat-tier mood badge). The user then asked to
+    wire up everything "as realistic as possible," including the emotes/idle-breathing/run-cycle/
+    attack-pose system that item 83 (2026-08-14) had fully reverted after three failed attempts at a
+    walk-cycle "hopping" bug — so this pass fixed the actual root causes those revert notes had
+    already diagnosed, rather than repeating the same swap a fourth time:
+    - **isMoving debounce (the real prerequisite).** The pan gesture's `onUpdate` used to flip
+      `isMoving` the instant drag distance crossed `DEADZONE` (12px) in either direction, with no
+      margin — a slow drag or hand tremor hovering right at that line could flip it several times a
+      second, which is what made every previous idle-pose/emote attempt pop. Added a second, lower
+      `STOP_DEADZONE` (4px): entering "moving" is unchanged (still fires exactly at `DEADZONE`, so
+      real movement itself never got slower or laggier), but *leaving* moving now only fires once
+      distance drops below `STOP_DEADZONE` — a value oscillating in the 4-12px gap no longer toggles
+      the animation flag at all.
+    - **Idle breathing** (`IDLE_SOURCES`, 3 frames) now cycles for real on its own slower ~450ms
+      interval once `isMoving` is stable, instead of holding walk-frame 0. `scallySpriteSource`
+      gained a fourth `idleFrameIndex` param for this (defaults to 0, so every other caller is
+      unaffected).
+    - **Emotes**: wave fires on `nearbyBuildingPrompt` appearing (door greeting), victory fires on
+      `defeatedLordIds`/`completedQuestIds` growing, and the 4-pose idle-flourish pool fires once
+      after 5s stationary — all gated on `!isMoving`, and an extra effect force-clears any showing
+      emote the instant movement resumes, so an emote can never freeze a stride even if a trigger's
+      own gate is somehow stale.
+    - **Run cycle**: reuses the walk cycle's own frame counter directly (`RUN_FRAME_COUNT ===
+      WALK_FRAME_COUNT === 5`) so a heat-triggered swap always lands on the matching stride position
+      instead of resetting to frame 0, and dampens `walkBounce`'s amplitude (-6px -> -3px) while
+      running, since the run pose's own bigger stride was compounding with the full bounce to read
+      as a pop (the specific bug the original run-cycle revert note described).
+    - **Attack/sword-ready flash**: the on-foot equivalent of the ship's Stop/Skid flash, now flashes
+      on a forced (not-boarded) fight in `startEncounter`'s `else` branch. Never actually implicated
+      in the hop bug — item 83's revert removed it only as cleanup alongside the render it briefly
+      overrode, not because it caused anything.
+    - **Faces**: extended the mood badge to a full range instead of `null` below 25% heat —
+      `FACE_NEUTRAL` fills that gap, `FACE_WINK` (the sixth face, previously cut but nameless) gives
+      an occasional idle blink at heat=0 reusing Cheeky the monkey's already-shipped wink mechanism,
+      and `FACE_HAPPY`/`FACE_LAUGH` flash transiently on the same quest-complete/lord-defeat triggers
+      as the victory emote.
+    - **Left honestly unwired**: `POSE_CHEER_FIST`/`POSE_POINT` and Cheeky's climb/hang/sleep extras
+      still have no real one-off story moment to attach to (the two nearest candidates — lord-fort
+      and side-quest markers — navigate away the instant you're in range, leaving no on-map moment
+      to show a pose in) — forcing a generic trigger in would be a scope decision disguised as an
+      asset swap, same reasoning that already left `ICON_QUESTION` unwired.
+
+    Verified in the real running app via Playwright rather than by inspection alone: a sustained
+    drag showed a genuine 5-frame alternating walk cycle (not the old "one leg" repeat bug); a
+    simulated hand-tremor wobble held on a single idle-breathing frame family the whole time, no
+    idle/walk flicker; heat=90 correctly showed `face_2` (HURT) and a clean 5-frame run cycle while
+    moving sideways; heat=0 defaulted to `face_0` (NEUTRAL) and a real wink (`face_3`) fired and
+    reverted on schedule; the idle flourish fired once after ~5s stationary and held for its full
+    duration before returning to breathing. `npx tsc --noEmit` and all 45 `jest` tests clean.

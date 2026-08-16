@@ -54,15 +54,33 @@ import {
   PLAYER_EMOJI_LAND_SIDE,
 } from '../data/protagonist';
 import {
+  ATTACK_FLASH_MS,
+  EMOTE_VICTORY,
+  EMOTE_WAVE,
   FACE_DETERMINED,
+  FACE_HAPPY,
   FACE_HURT,
+  FACE_LAUGH,
+  FACE_NEUTRAL,
+  FACE_WINK,
   FacingDirection,
   ICON_EXCLAIM,
   ICON_MAP,
+  IDLE_FLOURISH_DELAY_MS,
+  IDLE_FLOURISH_HOLD_MS,
+  IDLE_FLOURISH_POOL,
+  IDLE_FRAME_COUNT,
+  POSE_ATTACK,
+  POSE_SWORD_READY,
+  RUN_FRAME_COUNT,
+  RUN_HEAT_THRESHOLD,
   SCALLY_PORTRAIT,
   TURN_ANIMATION_MS,
   TurnFrame,
+  VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
+  WAVE_ANIMATION_MS,
+  runSpriteSource,
   scallySpriteSource,
   turnFrameFor,
 } from '../data/scallySprites';
@@ -258,6 +276,13 @@ const NPC_ARRIVE_RADIUS = 4; // world units — close enough to a target to pick
 // original anchor keeps them exactly on real street points while staying local.
 const NPC_PATROL_RADIUS = 45;
 const DEADZONE = 12; // px of drag before movement starts
+// Below this, `isMoving` (the animation-facing flag) is allowed to drop back to false. Deliberately
+// lower than DEADZONE itself: a drag distance oscillating in the gap between the two (hand tremor,
+// a slow drag hovering right at the edge) no longer toggles isMoving at all, only a genuine
+// start/stop does. Real movement (directionRef) still stops exactly at DEADZONE, unchanged — only
+// the animation flag got the hysteresis. See scallySprites.ts's IDLE_SOURCES doc comment for why
+// this needed fixing before a real idle stance was safe to wire in.
+const STOP_DEADZONE = 4;
 const MAX_DRAG = 70; // px of drag for full speed
 // How much one drag axis must lead the other before facingDir commits to it — see the pan gesture's
 // onUpdate for why this exists (prevents facing flicker on a not-perfectly-straight drag).
@@ -611,11 +636,31 @@ export default function MapScreen({ navigation }: Props) {
   // sets to show; walkSpriteFrame cycles through that set's 5 frames while isMoving.
   const [facingDir, setFacingDir] = useState<FacingDirection>('down');
   const [walkSpriteFrame, setWalkSpriteFrame] = useState(0);
+  // The idle breathing loop's own frame counter, cycled by a separate, slower interval than the
+  // walk cycle's — see IDLE_SOURCES' doc comment in scallySprites.ts for why this is safe now.
+  const [idleSpriteFrame, setIdleSpriteFrame] = useState(0);
   // A brief mid-pivot pose shown right after facingDir changes, so turning reads as a turn instead
   // of an instant cut between direction sprites — see turnFrameFor's doc comment for which pivots
   // have a real cut frame vs. a mirrored stand-in.
   const [turningFrame, setTurningFrame] = useState<TurnFrame | null>(null);
   const prevFacingDirRef = useRef<FacingDirection>('down');
+  // Overrides the normal walk/idle render with one of Scally's emote poses for a fixed hold time —
+  // see the effects below for the three triggers (door greeting, quest/lord win, prolonged idle).
+  // Cleared immediately if isMoving flips true while one is showing, so an emote can never freeze a
+  // stride (the actual bug in item 79's first attempt was elsewhere — see scallySprites.ts — but
+  // this guard costs nothing and removes any risk of repeating it).
+  const [emoteOverlay, setEmoteOverlay] = useState<{ source: any } | null>(null);
+  const emoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idleFlourishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevDefeatedLordCountRef = useRef(defeatedLordIds.length);
+  const prevCompletedQuestCountRef = useRef(completedQuestIds.length);
+  // On-foot equivalent of shipStopSkid — flashes right as a forced (not-boarded) fight triggers.
+  const [scallyAttackFlash, setScallyAttackFlash] = useState<'attack' | 'sword_ready' | null>(null);
+  // Transient override for the header portrait's mood badge — a happy/laugh flash on a real win, or
+  // an occasional idle wink while heat is totally clear. Takes priority over the plain heat-tier
+  // face computed at render time below.
+  const [captainFaceOverride, setCaptainFaceOverride] = useState<any>(null);
+  const captainFaceOverrideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Cheeky blinks every so often while perched on the docked, unboarded Black Pearl (see the ship
   // marker render below) — see monkeySprites.ts for why he lives there instead of trailing on foot.
   const [monkeyWinking, setMonkeyWinking] = useState(false);
@@ -809,9 +854,12 @@ export default function MapScreen({ navigation }: Props) {
         setShipHeading(headingFromVector(e.translationX, e.translationY));
         setDragIntensity(clampedDist / MAX_DRAG);
       } else {
+        // Real movement stops here exactly as before, at DEADZONE — no gameplay change. Only the
+        // animation-facing isMoving flag gets the lower STOP_DEADZONE threshold (see its const doc
+        // comment): between the two, isMoving is simply left alone rather than forced false.
         directionRef.current = null;
-        setIsMoving(false);
         setDragIntensity(0);
+        if (dist < STOP_DEADZONE) setIsMoving(false);
       }
       const origin = dragOriginRef.current;
       if (origin) {
@@ -868,7 +916,19 @@ export default function MapScreen({ navigation }: Props) {
         fire();
       }, STOP_SKID_ANIMATION_MS);
     } else {
-      fire();
+      // On-foot equivalent of the ship's Stop/Skid flash above: a forced fight not at sea flashes
+      // attack then sword-ready for a beat each before cutting to the battle screen, instead of an
+      // instant cut. Also clears any showing emote outright — a duel starting is a harder interrupt
+      // than ordinary movement, so it doesn't wait for the emote's own hold timer to finish.
+      setEmoteOverlay(null);
+      setScallyAttackFlash('attack');
+      setTimeout(() => {
+        setScallyAttackFlash('sword_ready');
+        setTimeout(() => {
+          setScallyAttackFlash(null);
+          fire();
+        }, ATTACK_FLASH_MS);
+      }, ATTACK_FLASH_MS);
     }
   }
 
@@ -997,14 +1057,29 @@ export default function MapScreen({ navigation }: Props) {
     };
   }, []);
 
+  // Same "moving, side-facing, above the heat threshold" test the run-cycle render uses further
+  // down — recomputed here directly from `player` rather than shared, since this effect runs
+  // earlier in the component than `currentIsland` is otherwise derived. Only used to dampen the
+  // bounce below during a run swap — see RUN_HEAT_THRESHOLD's doc comment in scallySprites.ts for
+  // why the swap needed this instead of the walk cycle's full -6px bounce.
+  const isRunning =
+    isMoving &&
+    !!islandAtPoint(player) &&
+    (facingDir === 'left' || facingDir === 'right') &&
+    heat > RUN_HEAT_THRESHOLD * 100;
+
   // Single-glyph "walk cycle": bob the player emoji up and down in a loop while actively moving,
   // settle back to rest the moment movement stops. No spritesheet, so this is the whole animation.
+  // Dampened to a smaller amplitude while running — the run pose's own bigger stride already reads
+  // as more motion, and the full walk-cycle bounce on top of it was what made the run swap read as
+  // a pop rather than a smooth speed-up (see scallySprites.ts's run-cycle comment).
   useEffect(() => {
     if (isMoving) {
+      const bounceHeight = isRunning ? -3 : -6;
       walkLoopRef.current = Animated.loop(
         Animated.sequence([
           Animated.timing(walkBounce, {
-            toValue: -6,
+            toValue: bounceHeight,
             duration: 160,
             easing: Easing.out(Easing.quad),
             useNativeDriver: true,
@@ -1023,7 +1098,7 @@ export default function MapScreen({ navigation }: Props) {
       Animated.timing(walkBounce, { toValue: 0, duration: 120, useNativeDriver: true }).start();
     }
     return () => walkLoopRef.current?.stop();
-  }, [isMoving, walkBounce]);
+  }, [isMoving, isRunning, walkBounce]);
 
   // Cycles Captain Scally's sprite through its 5-frame walk cycle while moving; holds on the
   // neutral frame (index 0) the instant movement stops, same beat as the emoji bounce above.
@@ -1037,6 +1112,101 @@ export default function MapScreen({ navigation }: Props) {
     }, 110);
     return () => clearInterval(id);
   }, [isMoving]);
+
+  // Idle breathing loop — a slow 3-frame standing/shifting-weight cycle, independent of the walk
+  // cycle's own (much faster) interval above. Only runs while genuinely stationary; resets to frame
+  // 0 the moment movement resumes, so a real start always begins from the same standing pose rather
+  // than mid-breath. Safe now that isMoving itself is debounced (STOP_DEADZONE, above) — see
+  // IDLE_SOURCES' doc comment in scallySprites.ts for the history here.
+  useEffect(() => {
+    if (isMoving) {
+      setIdleSpriteFrame(0);
+      return;
+    }
+    const id = setInterval(() => {
+      setIdleSpriteFrame((f) => (f + 1) % IDLE_FRAME_COUNT);
+    }, 450);
+    return () => clearInterval(id);
+  }, [isMoving]);
+
+  function flashEmote(source: any, holdMs: number) {
+    if (emoteTimeoutRef.current) clearTimeout(emoteTimeoutRef.current);
+    setEmoteOverlay({ source });
+    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), holdMs);
+  }
+
+  function flashCaptainFace(source: any, holdMs: number) {
+    if (captainFaceOverrideTimeoutRef.current) clearTimeout(captainFaceOverrideTimeoutRef.current);
+    setCaptainFaceOverride(source);
+    captainFaceOverrideTimeoutRef.current = setTimeout(() => setCaptainFaceOverride(null), holdMs);
+  }
+
+  // Wave greeting: fires the instant a building's enter-prompt appears (the same `nearbyBuildingPrompt`
+  // transition the prompt UI itself renders off of), gated on `!isMoving` since walking past a
+  // building shouldn't interrupt the stride to wave at it.
+  useEffect(() => {
+    if (nearbyBuildingPrompt && !isMoving) {
+      flashEmote(EMOTE_WAVE, WAVE_ANIMATION_MS);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once per prompt appearing, not
+    // once per render while it's showing.
+  }, [nearbyBuildingPrompt]);
+
+  // Victory flourish + a happy/laugh face flash, the instant defeatedLordIds/completedQuestIds grows
+  // (a Pirate Lord fell or a side quest completed, possibly from another screen). Lord defeats get
+  // the bigger LAUGH face; ordinary quest completions get HAPPY. Body emote only shows if currently
+  // stationary — same guard as the wave above — but the face badge flash isn't tied to movement at
+  // all (it's a header UI overlay, not part of the on-map sprite), so it always fires.
+  useEffect(() => {
+    const grew =
+      defeatedLordIds.length > prevDefeatedLordCountRef.current ||
+      completedQuestIds.length > prevCompletedQuestCountRef.current;
+    const lordGrew = defeatedLordIds.length > prevDefeatedLordCountRef.current;
+    prevDefeatedLordCountRef.current = defeatedLordIds.length;
+    prevCompletedQuestCountRef.current = completedQuestIds.length;
+    if (!grew) return;
+    if (!isMoving) flashEmote(EMOTE_VICTORY, VICTORY_ANIMATION_MS);
+    flashCaptainFace(lordGrew ? FACE_LAUGH : FACE_HAPPY, VICTORY_ANIMATION_MS);
+  }, [defeatedLordIds.length, completedQuestIds.length, isMoving]);
+
+  // Idle flourish pool: after standing still for IDLE_FLOURISH_DELAY_MS, cycle a random one of the
+  // four flourish poses for IDLE_FLOURISH_HOLD_MS before returning to the ordinary breathing loop —
+  // the "idle animation after inactivity" trick. Cancels cleanly the moment movement resumes.
+  useEffect(() => {
+    if (isMoving) {
+      if (idleFlourishTimerRef.current) {
+        clearTimeout(idleFlourishTimerRef.current);
+        idleFlourishTimerRef.current = null;
+      }
+      return;
+    }
+    idleFlourishTimerRef.current = setTimeout(() => {
+      const pick = IDLE_FLOURISH_POOL[Math.floor(Math.random() * IDLE_FLOURISH_POOL.length)];
+      flashEmote(pick, IDLE_FLOURISH_HOLD_MS);
+    }, IDLE_FLOURISH_DELAY_MS);
+    return () => {
+      if (idleFlourishTimerRef.current) clearTimeout(idleFlourishTimerRef.current);
+    };
+  }, [isMoving]);
+
+  // Drop any showing emote immediately if movement resumes — the actual bug item 79's first attempt
+  // hit (an emote freezing the stride) would have to slip past both this and each trigger's own
+  // `!isMoving` gate above to recur.
+  useEffect(() => {
+    if (isMoving && emoteOverlay) setEmoteOverlay(null);
+  }, [isMoving, emoteOverlay]);
+
+  // Captain's idle wink: while heat is completely clear (no badge would otherwise show), Scally
+  // occasionally winks for a beat — the same idle-personality mechanism already shipped for Cheeky
+  // the monkey (see MONKEY_WINK_INTERVAL_MS above), just applied to the header portrait instead of
+  // the docked ship.
+  useEffect(() => {
+    if (heat > 25) return;
+    const id = setInterval(() => {
+      flashCaptainFace(FACE_WINK, MONKEY_WINK_HOLD_MS);
+    }, MONKEY_WINK_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [heat]);
 
   // Cycles the Black Pearl's 3-frame "APPROACH DOCK" loop while she's lined up on a pier.
   useEffect(() => {
@@ -1707,8 +1877,10 @@ export default function MapScreen({ navigation }: Props) {
   // (see the heat bar render further down) — neutral in the clear, determined once law/rivals start
   // paying attention, visibly rattled once heat is genuinely dangerous. A real, honest use of the
   // face set: it reflects state MapScreen actually has, rather than reaching for an expression with
-  // no story behind it.
-  const captainFace = heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : null;
+  // no story behind it. `captainFaceOverride` (occasional idle wink, or a happy/laugh flash on a
+  // real win — see the effects above) takes priority over the plain heat tier while it's set.
+  const captainFace =
+    captainFaceOverride ?? (heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : FACE_NEUTRAL);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -2588,16 +2760,29 @@ export default function MapScreen({ navigation }: Props) {
               // cycle instead of the old front/side emoji + mirror trick (kept below for the sea
               // token, since no ship sprite was cut).
               //
-              // Reverted to this exact pre-Scally-art-pass form on 2026-08-14 at the user's direct
+              // Reverted to a bare walk-cycle-only render on 2026-08-14 at the user's direct
               // request, after three attempted fixes (items 80-82) didn't resolve their "hopping,
-              // not walking" report. This is byte-for-byte what shipped before that pass touched
-              // anything: turningFrame takes priority, otherwise the plain walk cycle, with the
-              // original walkBounce. The attack/sword-ready flash and emote-overlay systems that
-              // pass added were removed outright rather than left inert, since they existed only to
-              // override this render.
+              // not walking" report — every overlay this render could show got pulled at once.
+              // Re-wired individually on 2026-08-15, each behind the fix for whichever specific
+              // thing actually caused the hop (see scallySprites.ts's IDLE_SOURCES/run-cycle doc
+              // comments): attack/sword-ready flash takes top priority (a duel interrupt), then a
+              // mid-turn pivot, then any showing emote, then the heat-triggered run cycle, and
+              // otherwise the plain walk/idle cycle. The idle and run branches are the two that
+              // needed a real fix rather than just an `!isMoving` guard — see those comments for
+              // what each one was.
               <Animated.Image
                 source={
-                  turningFrame ? turningFrame.source : scallySpriteSource(facingDir, isMoving, walkSpriteFrame)
+                  scallyAttackFlash
+                    ? scallyAttackFlash === 'attack'
+                      ? POSE_ATTACK
+                      : POSE_SWORD_READY
+                    : turningFrame
+                    ? turningFrame.source
+                    : emoteOverlay
+                    ? emoteOverlay.source
+                    : isRunning
+                    ? runSpriteSource(walkSpriteFrame)
+                    : scallySpriteSource(facingDir, isMoving, walkSpriteFrame, idleSpriteFrame)
                 }
                 resizeMode="contain"
                 style={[

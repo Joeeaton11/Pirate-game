@@ -16,6 +16,10 @@ const DIGRAPHS: Record<string, VisemeKey> = {
   oo: 'vowel_oo',
   ee: 'vowel_ee',
   ou: 'vowel_ou',
+  // "ar" as in "Arrr", "harbor", "starboard", "cargo" — the open-mouth "ah" shape a plain "a" (short
+  // vowel_a) doesn't cover. The one digraph added specifically to stop vowel_ah from being a cut
+  // frame nothing ever pointed to.
+  ar: 'vowel_ah',
   br: 'blend_br',
   dr: 'blend_dr',
   tr: 'blend_tr',

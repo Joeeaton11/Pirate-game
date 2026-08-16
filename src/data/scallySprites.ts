@@ -41,17 +41,19 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
 
 export const IDLE_FRAME_COUNT = 3;
 
-// Cut but NOT wired — reverted 2026-08-14, second time. First attempt (2026-08-14, earlier) wired
-// this in as a real 3-frame breathing/shifting-weight loop while stationary, on the theory that the
-// old "mismatched framing/scale" excuse was stale. The framing was fine; the real problem is the
-// joystick: `isMoving` in MapScreen flips on the drag distance crossing DEADZONE, which happens on
-// nearly every pointer-move event while dragging near that threshold, not just at genuine
-// start/stop. With a real idle pose wired in, each flip swapped Scally between a mid-stride walk
-// frame and a feet-together standing frame — a much bigger visual jump than the previous "hold walk
-// frame 0" approach, and it read as hopping rather than walking. Reverted `scallySpriteSource` back
-// to holding walk-cycle frame 0 while idle (same pose family as walking, so an `isMoving` flicker is
-// invisible) until `isMoving` itself gets debounced — only then does swapping in a real idle stance
-// become safe.
+// Wired a third time, 2026-08-15 — this time by actually fixing the thing the first two attempts'
+// revert notes said was the real blocker instead of retrying the same swap. `isMoving` used to flip
+// on every pointer-move update the instant drag distance crossed DEADZONE, with no margin — a slow
+// drag or hand tremor hovering right at that line flipped it several times a second. Any real idle
+// pose wired on top of that flicker popped Scally between a mid-stride walk frame and a
+// feet-together standing frame — a much bigger visual jump than the old "hold walk frame 0"
+// approach, and it read as hopping rather than walking. Fixed at the source in MapScreen's pan
+// gesture: entering "moving" still fires the instant drag crosses DEADZONE (unchanged — real
+// movement itself, driven by `directionRef`, was never the flickery part), but *leaving* moving only
+// fires once drag distance drops below a lower `STOP_DEADZONE`, so a value oscillating in the gap
+// between the two doesn't toggle animation state at all. With that hysteresis in place, an
+// `isMoving` flip is a genuine start/stop, and swapping to a real breathing pose on it stopped
+// reading as a hop in testing.
 const IDLE_SOURCES: Record<FacingDirection, any[]> = {
   down: [
     require('../../assets/sprites/scally/idle_down_0.png'),
@@ -78,12 +80,24 @@ const IDLE_SOURCES: Record<FacingDirection, any[]> = {
 /** Bust portrait, cut from the same sheet — now wired into the map header (see MapScreen.tsx). */
 export const SCALLY_PORTRAIT = require('../../assets/sprites/scally/portrait.png');
 
-/** Which frame image to show for a given facing direction/movement state. Idle holds walk-cycle
- * frame 0 (see IDLE_SOURCES' doc comment above for why a real idle stance isn't safe to swap in
- * yet); moving cycles through all 5 walk frames. */
-export function scallySpriteSource(direction: FacingDirection, moving: boolean, frameIndex: number) {
-  const frames = WALK_SOURCES[direction];
-  return moving ? frames[frameIndex % frames.length] : frames[0];
+/** Which frame image to show for a given facing direction/movement state. Moving cycles through
+ * all 5 walk frames (`frameIndex`, from MapScreen's walk-cycle interval); idle cycles the slower
+ * 3-frame breathing loop instead (`idleFrameIndex`, from MapScreen's own separate, slower interval —
+ * see IDLE_SOURCES' doc comment for why this needed `isMoving` debounced before it was safe to
+ * wire in). `idleFrameIndex` defaults to 0 (a plain standing pose) for any caller that doesn't
+ * track it. */
+export function scallySpriteSource(
+  direction: FacingDirection,
+  moving: boolean,
+  frameIndex: number,
+  idleFrameIndex = 0
+) {
+  if (moving) {
+    const frames = WALK_SOURCES[direction];
+    return frames[frameIndex % frames.length];
+  }
+  const idleFrames = IDLE_SOURCES[direction];
+  return idleFrames[idleFrameIndex % idleFrames.length];
 }
 
 /** How long to hold a turn frame before settling into the new direction's walk/idle art. */
@@ -126,8 +140,11 @@ export function turnFrameFor(from: FacingDirection, to: FacingDirection): TurnFr
 }
 
 // --- Emotes ("Animated Idle / Emotes" panel) ---------------------------------------------------
-// Two real narrative triggers (see MapScreen.tsx): VICTORY flashes on a quest/Pirate Lord
-// completion, WAVE flashes when a building's enter-prompt appears (greeting the door). The other
+// Re-wired 2026-08-15 (see the IDLE_SOURCES note above for the isMoving-debounce fix that made
+// this safe again). Two real narrative triggers (see MapScreen.tsx): VICTORY flashes on a
+// quest/Pirate Lord completion, WAVE flashes when a building's enter-prompt appears (greeting the
+// door). Both are gated on `!isMoving` and drop out immediately if movement resumes while one is
+// showing, so an emote can never freeze a stride the way item 79's first attempt did. The other
 // four don't have an obvious one-to-one story moment each, so they share a single "prolonged
 // idle" pool instead — stand still long enough and Scally cycles through a little flourish rather
 // than holding the same breathing loop forever, the same "idle animation after inactivity" trick
@@ -148,11 +165,18 @@ export const IDLE_FLOURISH_DELAY_MS = 5000;
 export const IDLE_FLOURISH_HOLD_MS = 2200;
 
 // --- Faces / Portraits (small expression icons) -------------------------------------------------
-// Six mood variants, roughly neutral -> determined -> surprised -> delighted -> laughing -> wink.
-// Wired into EncounterScreen's battle header (see that screen) rather than every dialogue box —
-// picking a believable expression per NPC/topic across every screen wasn't a call this pass could
-// make well, but "neutral by default, pained on a big hit, happy on a win" in one battle-focused
-// spot is a real, honest use of the set.
+// Six mood variants. Live on the map header's portrait badge (see MapScreen.tsx), not
+// EncounterScreen — battles are fought by whichever crew member is active, not Scally herself, so
+// pinning his expression to a duel he isn't visually in would misrepresent the actual fighter.
+// All six now have a real, honest trigger there instead:
+//   - NEUTRAL / DETERMINED / HURT: the original heat-tier mood badge (clear / being watched /
+//     genuinely in danger) — unchanged, just extended to cover the low-heat case with an actual
+//     face instead of no badge at all.
+//   - WINK: heat-zero only, an occasional idle blink (same mechanism already shipped for Cheeky
+//     the monkey's dockside wink, just applied to the captain) — a small personality beat with no
+//     story stakes, so it only shows up when nothing else is asking for attention.
+//   - HAPPY / LAUGH: brief transient flashes over whichever badge is currently showing, fired the
+//     instant `completedQuestIds` (HAPPY) or `defeatedLordIds` (LAUGH, the bigger win) grows.
 export const SCALLY_FACES = [
   require('../../assets/sprites/scally/face_0.png'),
   require('../../assets/sprites/scally/face_1.png'),
@@ -164,16 +188,19 @@ export const SCALLY_FACES = [
 export const FACE_NEUTRAL = SCALLY_FACES[0];
 export const FACE_DETERMINED = SCALLY_FACES[1];
 export const FACE_HURT = SCALLY_FACES[2];
+/** A sly half-grin, one eye closed — the sixth face, previously cut but nameless/unused. */
+export const FACE_WINK = SCALLY_FACES[3];
 export const FACE_HAPPY = SCALLY_FACES[4];
 export const FACE_LAUGH = SCALLY_FACES[5];
 
 // --- Run cycle (side view) -----------------------------------------------------------------------
-// Cut but NOT wired into MapScreen — reverted 2026-08-14. It briefly replaced the walk cycle once
-// heat crossed RUN_HEAT_THRESHOLD, but the swap read as a pop/hop rather than a smooth speed-up
-// (the run pose is a bigger stride than the walk cycle's, and the existing walkBounce animation
-// exaggerated the jump between the two). Left here, available whenever a real transition between
-// the two gets designed (e.g. crossfading rather than a hard swap), same as POSE_POINT/
-// POSE_CHEER_FIST below.
+// Re-wired 2026-08-15. The original swap read as a pop (bigger stride + the existing walkBounce
+// animation exaggerating the jump between the two poses); rather than a hard instant swap,
+// MapScreen now (a) reuses the same walk-cycle frame counter for the run frames too, since both
+// sets are RUN_FRAME_COUNT === WALK_FRAME_COUNT === 5, so a mid-stride swap always lands on the
+// matching stride position instead of resetting to frame 0, and (b) dampens walkBounce's amplitude
+// specifically while running, since the run pose's own bigger stride already reads as more motion
+// without the added bounce stacking on top of it.
 export const RUN_FRAME_COUNT = 5;
 const RUN_SOURCES = [
   require('../../assets/sprites/scally/run_0.png'),
@@ -189,13 +216,25 @@ export function runSpriteSource(frameIndex: number) {
 export const RUN_HEAT_THRESHOLD = 0.6;
 
 // --- Special / Interact poses ---------------------------------------------------------------------
+// ATTACK/SWORD_READY re-wired 2026-08-15: the on-foot equivalent of the ship's Stop/Skid flash (see
+// shipSprites.ts) — a forced fight while not boarded flashes both poses for ATTACK_FLASH_MS each
+// before cutting to the battle screen, instead of an instant cut. This is a one-shot transition,
+// not a per-frame overlay, so it was never actually implicated in the walk-cycle hop bug (item 83's
+// revert removed it only as cleanup alongside the render it briefly overrode, not because it caused
+// the bug itself).
 export const POSE_ATTACK = require('../../assets/sprites/scally/attack.png');
 export const POSE_SWORD_READY = require('../../assets/sprites/scally/sword_ready.png');
-export const POSE_CHEER_FIST = require('../../assets/sprites/scally/cheer_fist.png');
-export const POSE_POINT = require('../../assets/sprites/scally/point.png');
 /** How long the attack flash holds right as a forced duel triggers, before the screen cuts to
  * Encounter. */
 export const ATTACK_FLASH_MS = 450;
+// POSE_CHEER_FIST / POSE_POINT stay cut but unwired. Both need a real one-off story moment (a
+// specific recruit celebration, a specific "look over there" beat) rather than a generic map-loop
+// trigger — the two nearest candidates (lord-fort and side-quest markers) navigate to a different
+// screen the instant you're close enough to reach them, so there's no on-map moment left standing
+// to show the pose in. Forcing one in anyway would be a scope decision disguised as an asset swap
+// (the same reasoning that left ICON_QUESTION and Cheeky's climb/hang/sleep frames unwired below).
+export const POSE_CHEER_FIST = require('../../assets/sprites/scally/cheer_fist.png');
+export const POSE_POINT = require('../../assets/sprites/scally/point.png');
 
 // --- Lip-sync mouth frames ("Captain Scally: Lip Sync & Talking Animations" reference sheet) ----
 // 29 full torso poses (same crossed-arms stance throughout — only the mouth shape changes), cut
