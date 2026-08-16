@@ -3808,3 +3808,14 @@ long collection grind *and* one legendary payoff at the top of it.
     old overlap value. Verified both portrait sides in the real app against the tavern backdrop —
     the boot-cutoff line sits exactly on the parchment's bottom edge on both. `npx tsc --noEmit` and
     all 45 `jest` tests clean.
+
+113. ✅ **Portrait past the parchment's edge, whole box raised further** (2026-08-16) — item 112's
+    flat `bottom: 0` was, per user feedback, "still not quite flush" — a `getBoundingClientRect`-true
+    match apparently doesn't read as *touching* the way a few px of genuine overlap does. New
+    `PORTRAIT_BOTTOM_NUDGE = 10` constant; `portraitSlot.bottom` is now `-PORTRAIT_BOTTOM_NUDGE`
+    rather than a flat `0`, sinking the boots slightly past the parchment's own bottom edge instead
+    of stopping exactly on it. Separately, `WRAPPER_BOTTOM_OFFSET` (item 111) doubled from `20` to
+    `40` — "move the box and him higher again." Verified both portrait sides in the real app against
+    the tavern backdrop, with a tight crop on the boot area confirming the torn-paper edge now sits
+    visibly above the boots (planted on the ground below) rather than level with them. `npx tsc
+    --noEmit` and all 45 `jest` tests clean.

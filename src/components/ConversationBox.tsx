@@ -174,9 +174,13 @@ const PORTRAIT_FULL_HEIGHT = Math.round(PORTRAIT_WIDTH * (251 / 129));
 const PORTRAIT_CROP_FRACTION = 0.85;
 const PORTRAIT_HEIGHT = Math.round(PORTRAIT_FULL_HEIGHT * PORTRAIT_CROP_FRACTION);
 const PARCHMENT_HEIGHT = 240;
+// A few extra px of sink below the parchment's own bottom edge — a flat 0 (matching parchment
+// exactly) still read as not-quite-touching, per user feedback.
+const PORTRAIT_BOTTOM_NUDGE = 10;
 // Lifts the whole box (parchment, portrait, name-plate together — they're all positioned relative
-// to `wrapper`, not the screen) a little clear of the very bottom edge, per user feedback.
-const WRAPPER_BOTTOM_OFFSET = 20;
+// to `wrapper`, not the screen) clear of the very bottom edge, per user feedback (raised again from
+// an initial 20 — "move the box and him higher again").
+const WRAPPER_BOTTOM_OFFSET = 40;
 
 // Name-plate: sized to its own content (icon + bitmap-font name) rather than a fixed width, since
 // speaker names vary in length and the real board art has to stretch to fit whatever comes out —
@@ -363,9 +367,9 @@ const styles = StyleSheet.create({
   },
   portraitSlot: {
     position: 'absolute',
-    // Flush with the parchment's own bottom edge, so the leg crop lands right at the bottom of
-    // the paper rather than floating above it — per user feedback.
-    bottom: 0,
+    // A few px past the parchment's own bottom edge (not a flat 0 — that still read as
+    // not-quite-touching), so the leg crop visibly meets the paper rather than floating above it.
+    bottom: -PORTRAIT_BOTTOM_NUDGE,
     width: PORTRAIT_WIDTH,
     height: PORTRAIT_HEIGHT, // the cropped (waist-up) height
     zIndex: 2,
