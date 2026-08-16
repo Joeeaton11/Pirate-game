@@ -4015,3 +4015,9 @@ long collection grind *and* one legendary payoff at the top of it.
     needing a call either way. Wired as `SCENE_TORTUGA_GAOL_INTERIOR`, fourth "BG:" toggle added.
     Verified live — moody and tense, parchment box stays fully legible against the dark stone.
     `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+125. ✅ **Scene #4 delivered clean: `tortuga_old_landing_dusk_1`** (2026-08-16) — the Ruins of the
+    Old Landing, a collapsed dock being reclaimed by jungle. Exact 853x1844 canvas match, no text,
+    naturally simple dirt-path lower half. Wired as `SCENE_TORTUGA_OLD_LANDING`, fifth "BG:" toggle
+    added. Verified live — composites cleanly on both portrait sides. `npx tsc --noEmit` and all 45
+    `jest` tests clean.

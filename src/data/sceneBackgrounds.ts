@@ -39,3 +39,9 @@ export const SCENE_TORTUGA_TAVERN_NIGHT = require('../../assets/backgrounds/tort
  * lower half is already dark, plain wet stone, so it naturally satisfies the "keep the bottom
  * simple" composition rule without needing a check like the market/tavern-night pieces did. */
 export const SCENE_TORTUGA_GAOL_INTERIOR = require('../../assets/backgrounds/tortuga_gaol_interior_1.png');
+
+/** The Ruins of the Old Landing — scene #4 from the background brief
+ * (`tortuga_old_landing_dusk_1`): a collapsed, overgrown dock being reclaimed by jungle, broken
+ * pilings in shallow water, late-day gold-to-purple sky. Matches the brief's 853x1844 canvas
+ * exactly, no crop/resize needed. */
+export const SCENE_TORTUGA_OLD_LANDING = require('../../assets/backgrounds/tortuga_old_landing_dusk_1.png');

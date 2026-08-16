@@ -25,6 +25,7 @@ import { visemeForPosition } from '../data/visemes';
 import {
   SCENE_TORTUGA_GAOL_INTERIOR,
   SCENE_TORTUGA_MARKET_DAY,
+  SCENE_TORTUGA_OLD_LANDING,
   SCENE_TORTUGA_TAVERN_DUSK,
   SCENE_TORTUGA_TAVERN_NIGHT,
 } from '../data/sceneBackgrounds';
@@ -509,6 +510,9 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_TORTUGA_GAOL_INTERIOR)}>
             <Text style={styles.buttonText}>BG: Gaol interior</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_TORTUGA_OLD_LANDING)}>
+            <Text style={styles.buttonText}>BG: Old landing dusk</Text>
           </Pressable>
         </View>
 
