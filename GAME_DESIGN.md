@@ -4083,3 +4083,12 @@ long collection grind *and* one legendary payoff at the top of it.
     - **Still open:** #9 New Providence tavern porch, #10 Iron Jenny's stronghold, #12 The Anchor &
       Forge (Roatán blacksmith), #13 Captain Bellows' fort, and all of #14-30 (Port Royal, Île
       Sainte-Marie, Ocracoke, the Black Pearl/sea scenes, and the 5 landmark/wilderness scenes).
+
+131. ✅ **Scene #12, `roatan_forge_night_1`, delivered clean, closing the gap the status tally just
+    flagged** (2026-08-16) — The Anchor & Forge at night: an open-air forge glowing orange, anchors
+    and chains mid-repair, a cannon nearby, moonlit sea behind. Sign reads "THE ANCHOR & FORGE,"
+    matching `buildings.ts`'s real `roatan` building name exactly. Exact 853x1844 canvas match, no
+    crop needed. Wired as `SCENE_ROATAN_FORGE_NIGHT`, twelfth "BG:" toggle added. Verified live —
+    sign fully legible against the dark scene, composites cleanly. `npx tsc --noEmit` and all 45
+    `jest` tests clean. Only Captain Bellows' fort (#13) remains to complete Roatán's three-scene
+    set.

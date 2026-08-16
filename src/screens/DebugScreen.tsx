@@ -28,6 +28,7 @@ import {
   SCENE_LORD_REDBEARD_SULLY_FORT,
   SCENE_NEW_PROVIDENCE_HARBOR,
   SCENE_ROATAN_CAREENING_YARD,
+  SCENE_ROATAN_FORGE_NIGHT,
   SCENE_TORTUGA_GAOL_INTERIOR,
   SCENE_TORTUGA_MARKET_DAY,
   SCENE_TORTUGA_OLD_LANDING,
@@ -541,6 +542,9 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_ROATAN_CAREENING_YARD)}>
             <Text style={styles.buttonText}>BG: Careening Yard</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_ROATAN_FORGE_NIGHT)}>
+            <Text style={styles.buttonText}>BG: Anchor & Forge</Text>
           </Pressable>
         </View>
 

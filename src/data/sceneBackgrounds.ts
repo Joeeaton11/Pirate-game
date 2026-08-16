@@ -87,3 +87,9 @@ export const SCENE_TORTUGA_SIGNAL_POST = require('../../assets/backgrounds/tortu
  * matching `buildings.ts`'s real building name exactly — no continuity issue like scene #8's. Exact
  * 853x1844 canvas match, no crop needed. */
 export const SCENE_ROATAN_CAREENING_YARD = require('../../assets/backgrounds/roatan_careening_yard_1.png');
+
+/** The Anchor & Forge — scene #12, Roatán's blacksmith at night (`roatan_forge_night_1`): open-air
+ * forge glowing orange, anchors and chains mid-repair, a cannon nearby, moonlit sea in the
+ * background. Sign reads "THE ANCHOR & FORGE," matching `buildings.ts`'s real `roatan` building
+ * name exactly. Exact 853x1844 canvas match, no crop needed. */
+export const SCENE_ROATAN_FORGE_NIGHT = require('../../assets/backgrounds/roatan_forge_night_1.png');
