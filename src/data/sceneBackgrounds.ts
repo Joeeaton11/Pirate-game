@@ -55,3 +55,10 @@ export const SCENE_COW_ISLAND_BEACH_CAMP = require('../../assets/backgrounds/cow
  * flats "where real pirate fleets once mustered before a raid," dramatic orange sunset, a pirate
  * flag and supply crates in the foreground. Exact 853x1844 canvas match. */
 export const SCENE_COW_ISLAND_MUSTER_FLATS = require('../../assets/backgrounds/cow_island_muster_flats_1.png');
+
+/** Redbeard Sully's fort — scene #7, the first Pirate Lord lair (`lord_redbeard_sully_fort_1`): a
+ * rough palisade-and-timber stronghold, skull-and-crossbones banners, a stone keep behind the gate,
+ * appropriately entry-level (not yet the grandest fort in the run, matching Sully being the first
+ * lord fought). Exact 853x1844 canvas match, no text, no crop needed. Completes Cow Island's
+ * three-scene set (beach camp, muster flats, this one). */
+export const SCENE_LORD_REDBEARD_SULLY_FORT = require('../../assets/backgrounds/lord_redbeard_sully_fort_1.png');

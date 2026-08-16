@@ -4032,3 +4032,11 @@ long collection grind *and* one legendary payoff at the top of it.
     load-per-check pattern — the Debug preview's known pre-existing overlap bug still applies when
     switching backgrounds with a box already open). Only Redbeard Sully's fort remains to complete
     Cow Island's three-scene set. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+127. ✅ **Scene #7 delivered clean: `lord_redbeard_sully_fort_1`, completing Cow Island's set**
+    (2026-08-16) — the first Pirate Lord's stronghold: rough palisade-and-timber walls, skull
+    banners, a stone keep behind the gate, deliberately not the grandest fort in the run (fits
+    Sully being the entry-level lord, per the brief). Exact 853x1844 canvas match, no text, no crop
+    needed. Wired as `SCENE_LORD_REDBEARD_SULLY_FORT`, eighth "BG:" toggle added. Verified live —
+    reads genuinely menacing, composites cleanly. All three Cow Island scenes (beach camp, muster
+    flats, this fort) are now done. `npx tsc --noEmit` and all 45 `jest` tests clean.
