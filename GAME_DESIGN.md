@@ -3795,3 +3795,16 @@ long collection grind *and* one legendary payoff at the top of it.
     unit with a single number. Verified both portrait sides in the real running app against the
     tavern backdrop — a clear strip of ground now shows below the parchment. `npx tsc --noEmit` and
     all 45 `jest` tests clean.
+
+112. ✅ **Portrait now flush with the parchment's bottom edge** (2026-08-16) — direct follow-up:
+    Scally's leg crop was floating well above the bottom of the paper (the old `PORTRAIT_OVERLAP`
+    math sat his crop slot's bottom edge `PARCHMENT_HEIGHT - PORTRAIT_OVERLAP` px above the
+    parchment's own bottom), and the user asked for the cutoff to land right at the bottom of the
+    box instead. `portraitSlot.bottom` changed from that offset to a flat `0` — same baseline as
+    `parchment` itself, both children of `wrapper` — so the crop line now touches the paper's edge
+    exactly. `PORTRAIT_OVERLAP` no longer has any use once both elements share a baseline, so it's
+    gone entirely rather than left dead; `wrapper`'s height is now `Math.max(PARCHMENT_HEIGHT,
+    PORTRAIT_HEIGHT)`, whichever of the two is actually taller, instead of a formula built around the
+    old overlap value. Verified both portrait sides in the real app against the tavern backdrop —
+    the boot-cutoff line sits exactly on the parchment's bottom edge on both. `npx tsc --noEmit` and
+    all 45 `jest` tests clean.

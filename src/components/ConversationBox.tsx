@@ -158,7 +158,7 @@ function EmberWord({ text }: { text: string }) {
   );
 }
 
-// Portrait sized and overlapped to match the reference mockup: flush to the screen edge (no side
+// Portrait sized and cropped to match the reference mockup: flush to the screen edge (no side
 // margin), overlapping deep into the parchment, and cropped off partway down rather than showing
 // the full standing figure (boots and all) — the mockup's shot is a tight torso close-up, cut off
 // by the frame, not a small complete mini-figure floating above the paper. Achieved by rendering
@@ -166,12 +166,13 @@ function EmberWord({ text }: { text: string }) {
 // squashed) inside a shorter, `overflow: 'hidden'` slot that clips the legs off. Aspect ratio read
 // off the real lip-sync frames (129x251 native); crop fraction tuned up from an initial 0.66 (cut
 // right at the belt) to 0.85 per user feedback ("move the cut off lower so can see more of him") —
-// now shows the coat's full flare and upper legs, cutting just above the boot tops.
+// now shows the coat's full flare and upper legs, cutting just above the boot tops. That crop slot
+// sits flush with the parchment's own bottom edge (see portraitSlot below) so the leg cutoff lands
+// right at the bottom of the paper rather than floating above it, per later feedback.
 const PORTRAIT_WIDTH = 175;
 const PORTRAIT_FULL_HEIGHT = Math.round(PORTRAIT_WIDTH * (251 / 129));
 const PORTRAIT_CROP_FRACTION = 0.85;
 const PORTRAIT_HEIGHT = Math.round(PORTRAIT_FULL_HEIGHT * PORTRAIT_CROP_FRACTION);
-const PORTRAIT_OVERLAP = Math.round(PORTRAIT_HEIGHT * 0.55); // how far the portrait sinks into the parchment
 const PARCHMENT_HEIGHT = 240;
 // Lifts the whole box (parchment, portrait, name-plate together — they're all positioned relative
 // to `wrapper`, not the screen) a little clear of the very bottom edge, per user feedback.
@@ -356,11 +357,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: WRAPPER_BOTTOM_OFFSET,
-    height: PARCHMENT_HEIGHT - PORTRAIT_OVERLAP + PORTRAIT_HEIGHT,
+    // Portrait and parchment now share the same bottom (0) — see portraitSlot below — so the
+    // taller of the two (the portrait) is what sets the wrapper's overall height.
+    height: Math.max(PARCHMENT_HEIGHT, PORTRAIT_HEIGHT),
   },
   portraitSlot: {
     position: 'absolute',
-    bottom: PARCHMENT_HEIGHT - PORTRAIT_OVERLAP,
+    // Flush with the parchment's own bottom edge, so the leg crop lands right at the bottom of
+    // the paper rather than floating above it — per user feedback.
+    bottom: 0,
     width: PORTRAIT_WIDTH,
     height: PORTRAIT_HEIGHT, // the cropped (waist-up) height
     zIndex: 2,
