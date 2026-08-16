@@ -20,9 +20,9 @@
 // else about the component changes.
 //
 // Read-along highlight: the same trick karaoke captions/read-along apps use — `activeWordSpan()`
-// finds whichever word contains the most-recently-revealed character and tints it with a soft
-// highlighter-style background (not a hard digital selection box, to stay in the parchment's
-// visual language) so it's visually obvious which word the mouth is currently on, independent of
+// finds whichever word contains the most-recently-revealed character and gives it an amber
+// outline glow (see styles.activeWord below for why that's a web-only text-stroke rather than
+// RN's textShadow) so it's visually obvious which word the mouth is currently on, independent of
 // the mouth animation itself. Clears for the one tick between words (space/punctuation revealing)
 // same as the mouth resting on those characters in visemes.ts.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -30,6 +30,7 @@ import {
   Animated,
   Image,
   ImageSourcePropType,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -333,11 +334,39 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     color: '#2c1a0c',
   },
-  // Soft "highlighter pen over old paper" tint for the word currently being read, not a hard-edged
-  // digital selection box — a warm, translucent amber that sits on top of the ink rather than
-  // looking like a UI element pasted onto the parchment.
+  // Glow around the letters themselves for the word currently being read, not a block behind
+  // them — an amber outline that lights up the letter shapes — rather than a highlighter box, per
+  // user feedback that the solid tint read as too bulky.
+  //
+  // This is NOT React Native's textShadow* — that was the first attempt, and it's the technically
+  // "correct" RN API for a glow, but on web (react-native-web, which is what every screenshot in
+  // this session has been verified against) it silently fails to paint with our custom carved-bone
+  // display font (IM Fell / assets/fonts/IMFellEnglishSC-Regular.ttf): the CSS text-shadow blur
+  // pass computes its blur region from the font's glyph ink-overflow box, and this particular
+  // hand-built webfont reports wildly wrong metrics for that box, so the blur renders as a faint
+  // blob offset well away from the actual letters — invisible in practice. Confirmed by isolating
+  // the exact failure down to (custom font) + (text-shadow) specifically: swap in a generic system
+  // font and the identical shadow renders fine; keep the custom font and it silently breaks, on
+  // both headless and headed Chromium, static or animated, at any radius/color — so it's not a
+  // headless quirk or a timing/contrast issue, it's this webfont's metrics.
+  // `-webkit-text-stroke` sidesteps it entirely: it strokes the real glyph outline instead of a
+  // computed ink-overflow box, so it isn't affected by this font's bad metrics — confirmed working
+  // with the same custom font. `paint-order: stroke fill` draws the stroke first so it reads as an
+  // outline glow sitting behind the crisp dark letters, not a bulky block. Web-only (RN has no
+  // native stroke prop); native platforms keep the standard RN textShadow* trio, which is the
+  // documented-correct API there and isn't known to share this particular web/font-metrics bug.
   activeWord: {
-    backgroundColor: 'rgba(214, 158, 46, 0.4)',
+    color: '#1c0f04',
+    ...(Platform.OS === 'web'
+      ? ({
+          WebkitTextStroke: '1.5px rgba(255, 140, 0, 0.95)',
+          paintOrder: 'stroke fill',
+        } as Record<string, string>)
+      : {
+          textShadowColor: 'rgba(255, 140, 0, 0.95)',
+          textShadowOffset: { width: 0, height: 0 },
+          textShadowRadius: 6,
+        }),
   },
   nameplate: {
     position: 'absolute',

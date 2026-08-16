@@ -3683,3 +3683,37 @@ long collection grind *and* one legendary payoff at the top of it.
     word-to-word ("here" -> "smell" -> "might", etc.) rather than staying static or drifting out of
     sync, and clears cleanly once the line finishes on a period. `npx tsc --noEmit` and all 45
     `jest` tests clean.
+
+108. ✅ **Read-along highlight: swapped the solid tint for an outline glow** (2026-08-16) — direct
+    follow-up: user tried the shipped highlighter tint and asked for "just the outline of the word
+    like a glow behind rather than a big bulky block behind it." Straightforward style swap in
+    principle — `activeWordSpan()` and its wiring didn't change at all, only `styles.activeWord` —
+    but getting a glow to actually render turned into a real debugging chase.
+
+    First attempt used React Native's standard `textShadowColor`/`textShadowOffset`/
+    `textShadowRadius` trio (the documented-correct RN API for exactly this). `getComputedStyle()`
+    confirmed the CSS `text-shadow` was genuinely present and correctly cascaded on the live DOM
+    span — and it still didn't render. Not "too subtle": even a maxed-out debug value (40px radius,
+    fully-opaque cyan, `!important` inline style) painted nothing, in both headless and headed
+    (xvfb) Chromium alike, on a fully static replay page with the animation stopped. Bisecting by
+    swapping pieces in and out of an isolated test page traced it to one specific combination: our
+    custom carved-bone display webfont (`assets/fonts/IMFellEnglishSC-Regular.ttf`, wired in
+    `useGameFonts.ts`) plus `text-shadow`. Swap in a generic system serif and the identical shadow
+    renders perfectly; keep the custom font and it silently fails — the shadow's blur region is
+    computed from the font's glyph ink-overflow box, and this hand-built font reports bad-enough
+    metrics for that box that the blurred glow paints as a faint blob well off to the side of the
+    actual letters, invisible in a normal screenshot. A real font-metrics bug, not a headless quirk,
+    a timing issue, or a contrast problem (all three were suspected and ruled out in turn first).
+
+    Fix: `-webkit-text-stroke` instead. It strokes the real glyph outline rather than a computed
+    ink-overflow box, so the bad font metrics don't touch it — confirmed rendering cleanly with the
+    same custom font in the same isolated test. `paint-order: stroke fill` draws the amber stroke
+    first so it reads as a glow sitting behind crisp dark letters rather than a bulky block, per the
+    original ask. Web-only (`Platform.OS === 'web'`, since RN has no native stroke style prop);
+    native iOS/Android keep the standard RN `textShadow*` trio as a fallback, since nothing here
+    suggests that one is broken anywhere except web + this specific webfont.
+
+    Re-verified the same way as item 107 (screenshots across a live reveal) plus a tight zoomed crop
+    to confirm the outline itself looks right up close — clean amber outline glow, walks word-to-word
+    correctly, no regressions to the mouth-sync or the reveal timing. `npx tsc --noEmit` and all 45
+    `jest` tests clean.
