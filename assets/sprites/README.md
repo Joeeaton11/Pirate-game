@@ -4,6 +4,12 @@ Reference for where new art goes and how it gets cut. Read this before dropping 
 reference sheet — the goal is a one-glance folder lookup, not a grep, without 250 nested branches
 to click through to find 12 files.
 
+This file is specifically about *sprites* — individual pieces cut out of a reference sheet (see
+"Cutting convention" below). Whole-scene backdrop illustrations meant to be used as-is, uncut, are
+a different kind of asset entirely and live in the sibling `assets/backgrounds/` folder instead
+(`{descriptor}_{n}.png`, no category prefix needed since there's no sprite sheet taxonomy to carry
+— e.g. `harbour_tavern_dusk_1.png`), wired from `src/data/sceneBackgrounds.ts`.
+
 ## Structure: flat categories, descriptive filenames
 
 One level of folders. No `combat/weapons/pistols/`, just `combat/weapon_pistol_1.png` — the full

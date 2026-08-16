@@ -3755,3 +3755,34 @@ long collection grind *and* one legendary payoff at the top of it.
     confirm the two-tone glow renders correctly on real words, a pixel diff between two consecutive
     frames on the same word confirms the flicker is genuinely animating (not a static screenshot),
     and the browser console stayed clean throughout. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+110. ✅ **First real background art for ConversationBox — Tortuga's tavern at dusk** (2026-08-16) —
+    user sent a portrait-oriented harbour/tavern illustration and asked to add it as the backdrop,
+    fulfilling the "I'll provide a load of background artwork later" note from the very first
+    ConversationBox mockup back in item 104. A complete standalone scene, not a sheet to cut, so it
+    introduces a genuinely new asset category rather than another sprite: `assets/backgrounds/`, a
+    sibling to `assets/sprites/` for whole-scene art meant to be used exactly as delivered — see the
+    new note at the top of `assets/sprites/README.md` pointing to it. Wired from a new
+    `src/data/sceneBackgrounds.ts` (first entry: `SCENE_TORTUGA_TAVERN_DUSK`), matching the
+    one-file-per-category pattern `uiSprites.ts` already established.
+
+    Wired into the Debug screen's "Conversation Box Preview" specifically (not ConversationBox
+    itself — the component stays a reusable overlay with no opinion about what's behind it; the
+    background belongs to whatever screen hosts it, which for now is just this preview). Real bug
+    caught during verification: wrapping the backdrop `Image` and `ConversationBox` together in a
+    full-screen `View` blocked every debug button underneath it, including the very button used to
+    relaunch the preview — a full-screen decorative wrapper has to be `pointerEvents="box-none"` so
+    only its actual interactive subview (ConversationBox's own `Pressable`) still catches touches.
+    That alone wasn't enough: RN Web's `Image` renders its own inner `<img>` with an explicit
+    `pointer-events: auto` that does not inherit the parent's box-none `none` — verified directly via
+    `getComputedStyle` on the live DOM, confirming the `<img>` really was the one re-blocking clicks
+    despite its ancestor being correctly set. Fixed by setting `pointerEvents: 'none'` directly in
+    the image's own style object (a style field, not the unsupported top-level `Image` prop TypeScript
+    rejected first) rather than relying on inheritance.
+
+    Verified both `side="left"` and `side="right"` render cleanly against the real scene (separate
+    fresh page loads per side, after an initial combined test surfaced a second, unrelated finding:
+    clicking "Show (portrait right)" while "Show (portrait left)"'s box was still open can fail
+    because the still-open box legitimately covers that button on screen — a pre-existing debug-panel
+    interaction quirk, not something this change introduced, so each side was verified independently
+    instead). Zero console errors on either. `npx tsc --noEmit` and all 45 `jest` tests clean.

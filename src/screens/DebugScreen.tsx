@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BLACK_PEARL_CAPTAIN_LEVEL, BLACK_PEARL_CAPTAIN_TEMPLATE } from '../data/blackPearl';
 import { BUILDINGS } from '../data/buildings';
@@ -22,6 +22,7 @@ import { BattleBackdrop } from '../utils/battleBackdrop';
 import ConversationBox from '../components/ConversationBox';
 import { LIP_SYNC_FRAMES, VISEME_REST } from '../data/scallySprites';
 import { visemeForPosition } from '../data/visemes';
+import { SCENE_TORTUGA_TAVERN_DUSK } from '../data/sceneBackgrounds';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Debug'>;
 
@@ -484,17 +485,28 @@ export default function DebugScreen({ navigation }: Props) {
       </Pressable>
 
       {conversationDemoLine !== null && (
-        <ConversationBox
-          speakerName="Captain Scally"
-          text={DEMO_SCRIPT[conversationDemoLine]}
-          portraitSource={LIP_SYNC_FRAMES[VISEME_REST]}
-          getTalkFrame={scallyTalkFrame}
-          side={conversationDemoSide}
-          onAdvance={() => {
-            const next = conversationDemoLine + 1;
-            setConversationDemoLine(next < DEMO_SCRIPT.length ? next : null);
-          }}
-        />
+        // box-none: this wrapper spans the full screen (so the backdrop can fill it) but must
+        // never itself catch touches, or every debug button underneath — including the very
+        // "Show (portrait right)" button used to relaunch this overlay — stops responding.
+        // ConversationBox's own Pressable still receives touches normally as a subview.
+        <View style={styles.conversationDemoOverlay} pointerEvents="box-none">
+          {/* The tavern backdrop this dialogue is actually set in — first background art provided
+              for ConversationBox, matching the original mockup this component was built from. Fills
+              the whole preview so the parchment/portrait overlay reads as sitting in a real scene
+              rather than floating on the debug panel's plain dark background. */}
+          <Image source={SCENE_TORTUGA_TAVERN_DUSK} style={styles.conversationDemoBg} resizeMode="cover" />
+          <ConversationBox
+            speakerName="Captain Scally"
+            text={DEMO_SCRIPT[conversationDemoLine]}
+            portraitSource={LIP_SYNC_FRAMES[VISEME_REST]}
+            getTalkFrame={scallyTalkFrame}
+            side={conversationDemoSide}
+            onAdvance={() => {
+              const next = conversationDemoLine + 1;
+              setConversationDemoLine(next < DEMO_SCRIPT.length ? next : null);
+            }}
+          />
+        </View>
       )}
     </SafeAreaView>
   );
@@ -503,6 +515,24 @@ export default function DebugScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#1a1a1a' },
   content: { padding: 16, paddingBottom: 20 },
+  conversationDemoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  conversationDemoBg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    // RN Web's <Image> renders its own inner <img> with an explicit pointer-events: auto that
+    // does NOT inherit the box-none 'none' set on conversationDemoOverlay above it — has to be
+    // overridden here directly or the picture alone re-blocks every touch across the full screen.
+    pointerEvents: 'none',
+  },
   title: { fontSize: 22, fontWeight: '800', color: '#f4e9cd' },
   warning: { color: '#ffb300', fontSize: 12, marginTop: 4, marginBottom: 16 },
   sectionHeading: { color: '#ffd166', fontWeight: '800', fontSize: 14, marginTop: 16, marginBottom: 8 },
