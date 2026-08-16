@@ -3981,3 +3981,15 @@ long collection grind *and* one legendary payoff at the top of it.
     canvas, and — the one easy detail to miss — a composition rule keeping the bottom 35-40% of the
     canvas simple, since that's where the parchment/portrait overlay sits in the real UI) meant to
     be pasted once and reused ahead of each of the 30 scene-specific prompts.
+
+122. ✅ **First delivery from the background brief: `tortuga_market_day_1`, wired and verified**
+    (2026-08-16) — matched the brief's 853×1844 canvas exactly, no resize needed. Saved to
+    `assets/backgrounds/`, exported as `SCENE_TORTUGA_MARKET_DAY` from `sceneBackgrounds.ts`, and
+    added a second "BG:" toggle row to the Debug screen's Conversation Box Preview (alongside the
+    existing tavern-dusk one) so any future delivery can be previewed the same way without more
+    plumbing than picking which constant a button sets. One deviation from the brief worth flagging
+    honestly: the composition rule asked for the bottom 35-40% to stay simple, and this piece has a
+    fruit cart, barrels, and crates well into that band instead. Checked it in the real running app
+    rather than assuming it's a problem — the parchment box is opaque and sits fully on top of that
+    detail, so it reads perfectly clean in practice; not sending it back. `npx tsc --noEmit` and all
+    45 `jest` tests clean.

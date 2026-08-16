@@ -22,7 +22,7 @@ import { BattleBackdrop } from '../utils/battleBackdrop';
 import ConversationBox from '../components/ConversationBox';
 import { LIP_SYNC_FRAMES, TALK_EXPRESSIONS, TalkExpressionKey } from '../data/scallySprites';
 import { visemeForPosition } from '../data/visemes';
-import { SCENE_TORTUGA_TAVERN_DUSK } from '../data/sceneBackgrounds';
+import { SCENE_TORTUGA_MARKET_DAY, SCENE_TORTUGA_TAVERN_DUSK } from '../data/sceneBackgrounds';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Debug'>;
 
@@ -65,6 +65,9 @@ function scallyTalkFrame(text: string, revealedIndex: number) {
 export default function DebugScreen({ navigation }: Props) {
   const [conversationDemoLine, setConversationDemoLine] = useState<number | null>(null);
   const [conversationDemoSide, setConversationDemoSide] = useState<'left' | 'right'>('left');
+  // Which delivered background art to preview behind the box — as more scenes arrive from
+  // CONVERSATION_BACKGROUNDS_BRIEF.md, add them here rather than to a single hardcoded backdrop.
+  const [conversationDemoBg, setConversationDemoBg] = useState(SCENE_TORTUGA_TAVERN_DUSK);
   const activeCrew = useActiveCrewMember();
   const debugSetCrewLevel = useGameStore((s) => s.debugSetCrewLevel);
   const debugResetSave = useGameStore((s) => s.debugResetSave);
@@ -489,6 +492,14 @@ export default function DebugScreen({ navigation }: Props) {
             <Text style={styles.buttonText}>Show (portrait right)</Text>
           </Pressable>
         </View>
+        <View style={styles.row}>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_TORTUGA_TAVERN_DUSK)}>
+            <Text style={styles.buttonText}>BG: Tavern dusk</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_TORTUGA_MARKET_DAY)}>
+            <Text style={styles.buttonText}>BG: Market day</Text>
+          </Pressable>
+        </View>
 
         <Text style={styles.sectionHeading}>Save</Text>
         <View style={styles.row}>
@@ -512,7 +523,7 @@ export default function DebugScreen({ navigation }: Props) {
               for ConversationBox, matching the original mockup this component was built from. Fills
               the whole preview so the parchment/portrait overlay reads as sitting in a real scene
               rather than floating on the debug panel's plain dark background. */}
-          <Image source={SCENE_TORTUGA_TAVERN_DUSK} style={styles.conversationDemoBg} resizeMode="cover" />
+          <Image source={conversationDemoBg} style={styles.conversationDemoBg} resizeMode="cover" />
           <ConversationBox
             speakerName="Captain Scally"
             text={DEMO_SCRIPT[conversationDemoLine].text}
