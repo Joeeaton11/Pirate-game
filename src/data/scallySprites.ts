@@ -285,6 +285,42 @@ export type VisemeKey = keyof typeof LIP_SYNC_FRAMES;
  * resting between lines doesn't pop to a different scale/crop. */
 export const VISEME_REST: VisemeKey = 'consonant_bmp';
 
+// --- Talking expressions ("Captain Scally: Talking Expressions" reference sheet) ---------------
+// 20 full torso poses — same crossed-arms family and crop as LIP_SYNC_FRAMES, but varying the
+// *face* instead of just the mouth. These are NOT a drop-in replacement for LIP_SYNC_FRAMES during
+// active dialogue: the lip-sync sheet's whole mouth-shape set was drawn against one fixed facial
+// expression, so there's no "surprised" or "angry" version of each of the 29 mouth shapes — only
+// this one frame per expression, mouth already closed/set. Swapping expression mid-word would
+// therefore look identical for every syllable rather than talking, i.e. wrong for the same reason
+// the mouth-shape set doesn't have expression variants. Real uses are ones that don't require
+// syncing to letters: a per-line REST/mood pose for ConversationBox (before typing starts / after
+// it ends, no mouth animation running), or a reaction pose on another screen entirely (battle
+// outcome, quest completion) — not yet wired to either; see GAME_DESIGN.md for the open question.
+export const TALK_EXPRESSIONS = {
+  neutral: require('../../assets/sprites/scally/talk_expressions/neutral.png'),
+  happy: require('../../assets/sprites/scally/talk_expressions/happy.png'),
+  big_smile: require('../../assets/sprites/scally/talk_expressions/big_smile.png'),
+  laugh: require('../../assets/sprites/scally/talk_expressions/laugh.png'),
+  smug: require('../../assets/sprites/scally/talk_expressions/smug.png'),
+  confident: require('../../assets/sprites/scally/talk_expressions/confident.png'),
+  determined: require('../../assets/sprites/scally/talk_expressions/determined.png'),
+  surprised: require('../../assets/sprites/scally/talk_expressions/surprised.png'),
+  scared: require('../../assets/sprites/scally/talk_expressions/scared.png'),
+  angry: require('../../assets/sprites/scally/talk_expressions/angry.png'),
+  thinking: require('../../assets/sprites/scally/talk_expressions/thinking.png'),
+  wink: require('../../assets/sprites/scally/talk_expressions/wink.png'),
+  raised_brow: require('../../assets/sprites/scally/talk_expressions/raised_brow.png'),
+  curious: require('../../assets/sprites/scally/talk_expressions/curious.png'),
+  disappointed: require('../../assets/sprites/scally/talk_expressions/disappointed.png'),
+  tired: require('../../assets/sprites/scally/talk_expressions/tired.png'),
+  excited: require('../../assets/sprites/scally/talk_expressions/excited.png'),
+  shouting: require('../../assets/sprites/scally/talk_expressions/shouting.png'),
+  tongue_out: require('../../assets/sprites/scally/talk_expressions/tongue_out.png'),
+  puffed_cheeks: require('../../assets/sprites/scally/talk_expressions/puffed_cheeks.png'),
+} as const;
+
+export type TalkExpressionKey = keyof typeof TALK_EXPRESSIONS;
+
 // --- Extras: hand-drawn UI icons -------------------------------------------------------------------
 export const ICON_EXCLAIM = require('../../assets/sprites/scally/icon_exclaim.png');
 export const ICON_QUESTION = require('../../assets/sprites/scally/icon_question.png');

@@ -24,7 +24,10 @@ this is already pre-approved (deck/captain's cabin/crew quarters/cargo hold/gun 
 different spaces, not just a naming variant), everything else waits until it actually has the
 volume to justify it. `scally/lipsync/` is the second: `scally/` had already crossed 60+ flat
 files, and the 29 lip-sync mouth frames are a clearly distinct, always-browsed-as-a-set group (see
-`src/data/scallySprites.ts`'s `LIP_SYNC_FRAMES` and `src/data/visemes.ts`).
+`src/data/scallySprites.ts`'s `LIP_SYNC_FRAMES` and `src/data/visemes.ts`). `scally/talk_expressions/`
+is the third, same reasoning: 20 full-body poses cut as one set from "Captain Scally: Talking
+Expressions" (see `TALK_EXPRESSIONS` in `scallySprites.ts`) — same crossed-arms crop/scale as
+`lipsync/`, varying face instead of mouth.
 
 ## Folder map
 

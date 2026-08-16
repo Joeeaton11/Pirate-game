@@ -3921,3 +3921,20 @@ long collection grind *and* one legendary payoff at the top of it.
     moving sideways; heat=0 defaulted to `face_0` (NEUTRAL) and a real wink (`face_3`) fired and
     reverted on schedule; the idle flourish fired once after ~5s stationary and held for its full
     duration before returning to breathing. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+119. ✅ **Cut the "Talking Expressions" sheet — 20 new full-body poses, not yet wired anywhere**
+    (2026-08-16) — the user supplied a new reference sheet as a library addition, not a specific
+    request. Cut with the same connected-component method as every other sheet (near-white
+    background this time, not near-black — the method adapts to whatever the sheet's actual bg
+    color is, chroma-key threshold aside): 2 rows of 10 components each, exact count match, clean
+    even spacing, no merges. New `scally/talk_expressions/` subfolder (third one to earn it, same
+    bar as `scally/lipsync/`: a clearly distinct, always-browsed-as-a-set group). Wired as a typed
+    `TALK_EXPRESSIONS` export in `scallySprites.ts`, but deliberately **not** wired into any actual
+    game moment yet — these share `LIP_SYNC_FRAMES`' crossed-arms crop/scale but vary the *face*,
+    while the lip-sync set's 29 mouth shapes were all drawn against one fixed expression. There's no
+    "angry" version of each mouth shape, so these can't drive ConversationBox's active-typing mouth
+    animation the way LIP_SYNC_FRAMES does — using one mid-word would just hold one closed-mouth
+    face for the whole line, not talk. Real candidates (a per-line REST/mood pose before/after
+    typing, or a reaction pose on a different screen entirely) are a real product decision with more
+    than one honest answer, not something to guess at silently — asked the user which they want
+    before building either. `npx tsc --noEmit` and all 45 `jest` tests clean.
