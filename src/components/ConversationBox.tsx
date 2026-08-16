@@ -50,17 +50,17 @@ export interface ConversationBoxProps {
 const DEFAULT_TYPING_SPEED_MS = 26;
 
 // Portrait sized and overlapped to match the reference mockup: flush to the screen edge (no side
-// margin), overlapping deep into the parchment, and cropped off at the waist/hip rather than
-// showing the full standing figure (boots and all) — the mockup's shot is a tight torso close-up,
-// cut off by the frame partway down, not a small complete mini-figure floating above the paper.
-// Achieved by rendering the portrait at its real full-body height (so head/torso stay correctly
-// proportioned, not squashed) inside a shorter, `overflow: 'hidden'` slot that clips the legs off.
-// Aspect ratio and crop line both read off the real lip-sync frames (129x251 native; the belt sits
-// at roughly 60% down, so cropping at 66% keeps a little coat-flare below it without reaching the
-// boots).
+// margin), overlapping deep into the parchment, and cropped off partway down rather than showing
+// the full standing figure (boots and all) — the mockup's shot is a tight torso close-up, cut off
+// by the frame, not a small complete mini-figure floating above the paper. Achieved by rendering
+// the portrait at its real full-body height (so head/torso stay correctly proportioned, not
+// squashed) inside a shorter, `overflow: 'hidden'` slot that clips the legs off. Aspect ratio read
+// off the real lip-sync frames (129x251 native); crop fraction tuned up from an initial 0.66 (cut
+// right at the belt) to 0.85 per user feedback ("move the cut off lower so can see more of him") —
+// now shows the coat's full flare and upper legs, cutting just above the boot tops.
 const PORTRAIT_WIDTH = 175;
 const PORTRAIT_FULL_HEIGHT = Math.round(PORTRAIT_WIDTH * (251 / 129));
-const PORTRAIT_CROP_FRACTION = 0.66;
+const PORTRAIT_CROP_FRACTION = 0.85;
 const PORTRAIT_HEIGHT = Math.round(PORTRAIT_FULL_HEIGHT * PORTRAIT_CROP_FRACTION);
 const PORTRAIT_OVERLAP = Math.round(PORTRAIT_HEIGHT * 0.45); // how far the portrait sinks into the parchment
 const PARCHMENT_HEIGHT = 240;

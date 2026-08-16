@@ -3614,3 +3614,9 @@ long collection grind *and* one legendary payoff at the top of it.
 
     `npx tsc --noEmit` and all 45 `jest` tests clean; re-verified both portrait-left/right layouts
     visually, crop line landing cleanly at the belt on both.
+
+    Immediate follow-up, same session: "move the cut off lower so can see more of him" — the 66%
+    crop read too tight once seen live. Bumped `PORTRAIT_CROP_FRACTION` to 0.85 (same clipping
+    mechanism, just a taller visible slot) — now shows the coat's full flare and upper legs,
+    cutting just above the boot tops instead of right at the belt. Re-verified both sides again;
+    `npx tsc --noEmit` and all 45 `jest` tests still clean.
