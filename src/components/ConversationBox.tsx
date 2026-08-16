@@ -62,7 +62,7 @@ const PORTRAIT_WIDTH = 175;
 const PORTRAIT_FULL_HEIGHT = Math.round(PORTRAIT_WIDTH * (251 / 129));
 const PORTRAIT_CROP_FRACTION = 0.85;
 const PORTRAIT_HEIGHT = Math.round(PORTRAIT_FULL_HEIGHT * PORTRAIT_CROP_FRACTION);
-const PORTRAIT_OVERLAP = Math.round(PORTRAIT_HEIGHT * 0.45); // how far the portrait sinks into the parchment
+const PORTRAIT_OVERLAP = Math.round(PORTRAIT_HEIGHT * 0.55); // how far the portrait sinks into the parchment
 const PARCHMENT_HEIGHT = 240;
 
 const NAMEPLATE_HEIGHT = 34;
