@@ -3969,3 +3969,15 @@ long collection grind *and* one legendary payoff at the top of it.
       revisiting once/if a real story-beat moment exists to attach it to.
 
     `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+121. ✅ **Wrote `CONVERSATION_BACKGROUNDS_BRIEF.md` — 30 background scenes for ConversationBox, ready
+    to hand to an image generator** (2026-08-16) — same purpose `ART_BRIEF.md` served for the sprite
+    pass (item 151), applied to this new asset category. Every scene is a real place already in the
+    game data, not invented setting: one harbor/tavern/landmark trio for Tortuga Cove, a
+    harbor+interior+Pirate-Lord-lair set for each of the other 6 islands (pulling the lord's actual
+    name/title/specialty/flavor text straight from `pirateLords.ts` so each lair looks like *that*
+    lord's, not a generic fort), 3 Black Pearl/open-sea scenes, and 5 named landmarks/wilderness
+    scenes. Opens with a reusable style-guide paragraph (art direction, the 853×1844 portrait
+    canvas, and — the one easy detail to miss — a composition rule keeping the bottom 35-40% of the
+    canvas simple, since that's where the parchment/portrait overlay sits in the real UI) meant to
+    be pasted once and reused ahead of each of the 30 scene-specific prompts.
