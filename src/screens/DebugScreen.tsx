@@ -20,7 +20,7 @@ import { CrewTemplate } from '../types';
 import { maxHpFor } from '../utils/battle';
 import { BattleBackdrop } from '../utils/battleBackdrop';
 import ConversationBox from '../components/ConversationBox';
-import { LIP_SYNC_FRAMES, VISEME_REST } from '../data/scallySprites';
+import { LIP_SYNC_FRAMES, TALK_EXPRESSIONS, TalkExpressionKey } from '../data/scallySprites';
 import { visemeForPosition } from '../data/visemes';
 import { SCENE_TORTUGA_TAVERN_DUSK } from '../data/sceneBackgrounds';
 
@@ -32,12 +32,30 @@ const HEAT_VALUES = [0, 30, 60, 90];
 
 // Sample script for the Conversation Box preview — proves the typewriter reveal, the real
 // per-letter lip sync (built from Scally's cut "Lip Sync & Talking Animations" sheet), and the
-// tap-to-fast-forward / tap-to-advance interaction across more than one line.
-const DEMO_SCRIPT = [
-  "Blackbeard's men were here. I can smell 'em.\n\n...Actually, that might be Cheeky.",
-  "Ahoy there! Now watch me mouth move — every letter's got its own shape.",
-  'Tap me while I\'m talkin\' and I\'ll skip straight to the end of the line.',
-  "Once a line's done, tap again to move to the next — same as this one right here.",
+// tap-to-fast-forward / tap-to-advance interaction across more than one line. Each line also
+// carries a `restExpression` — see TALK_EXPRESSIONS' doc comment in scallySprites.ts for why this
+// can only be a REST pose (before typing starts, after it ends) rather than something that plays
+// through the talking animation itself: the lip-sync mouth shapes only exist against one fixed
+// face, so the portrait necessarily settles to plain neutral for the actual talking beat, then
+// picks the line's expression back up once it's done. Watch the demo through a full line to see
+// that handoff.
+const DEMO_SCRIPT: { text: string; restExpression: TalkExpressionKey }[] = [
+  {
+    text: "Blackbeard's men were here. I can smell 'em.\n\n...Actually, that might be Cheeky.",
+    restExpression: 'curious',
+  },
+  {
+    text: 'Ahoy there! Now watch me mouth move — every letter\'s got its own shape.',
+    restExpression: 'happy',
+  },
+  {
+    text: 'Tap me while I\'m talkin\' and I\'ll skip straight to the end of the line.',
+    restExpression: 'confident',
+  },
+  {
+    text: "Once a line's done, tap again to move to the next — same as this one right here.",
+    restExpression: 'neutral',
+  },
 ];
 
 function scallyTalkFrame(text: string, revealedIndex: number) {
@@ -497,8 +515,8 @@ export default function DebugScreen({ navigation }: Props) {
           <Image source={SCENE_TORTUGA_TAVERN_DUSK} style={styles.conversationDemoBg} resizeMode="cover" />
           <ConversationBox
             speakerName="Captain Scally"
-            text={DEMO_SCRIPT[conversationDemoLine]}
-            portraitSource={LIP_SYNC_FRAMES[VISEME_REST]}
+            text={DEMO_SCRIPT[conversationDemoLine].text}
+            portraitSource={TALK_EXPRESSIONS[DEMO_SCRIPT[conversationDemoLine].restExpression]}
             getTalkFrame={scallyTalkFrame}
             side={conversationDemoSide}
             onAdvance={() => {

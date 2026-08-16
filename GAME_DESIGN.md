@@ -3938,3 +3938,34 @@ long collection grind *and* one legendary payoff at the top of it.
     typing, or a reaction pose on a different screen entirely) are a real product decision with more
     than one honest answer, not something to guess at silently — asked the user which they want
     before building either. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+120. ✅ **Wired the rest-pose half of item 119's question — battle reactions and story beats stayed
+    unbuilt, for reasons that predate this session** (2026-08-16) — user picked all four options
+    (rest pose, battle reactions, story beat, undecided), which reads less like "build three
+    features" than "these are all reasonable, pick what's actually buildable now." Built the one
+    with a real, already-proven mechanism and no open design question:
+    - **ConversationBox REST pose.** `DEMO_SCRIPT` in `DebugScreen.tsx` is now `{ text,
+      restExpression }[]` instead of plain strings; `restExpression` picks a `TALK_EXPRESSIONS` frame
+      shown before typing starts and after the line finishes (the neutral lip-sync mouth animation
+      still owns the talking beat itself, per item 119's constraint). `ConversationBox` itself needed
+      zero changes — `portraitSource` was always just a generic `ImageSourcePropType`, so any frame
+      from the same crop/scale family works. Assigned: `curious` (the Blackbeard/Cheeky line),
+      `happy` (the "watch me mouth move" intro), `confident` (the fast-forward tip), `neutral` (the
+      last line). Verified live: portrait shows `curious` immediately on open, swaps to the ordinary
+      neutral lip-sync frames the instant typing starts, and returns to `curious` once the line's
+      fully revealed — confirmed via the DOM image-src poll, and visually via before/after
+      screenshots (no crop/scale seam between the two sprite sets, they compose cleanly).
+    - **Battle reactions: left unbuilt, and not just for lack of time.** Item 79 already looked at
+      this exact idea (an expression tied to battle outcomes) and rejected it on purpose: Scally
+      isn't the one fighting in `EncounterScreen` — whichever crew member is active is — so pinning
+      his expression to a duel he isn't visually in would misrepresent the actual fighter. That's why
+      the *existing* heat-tier face badge lives on the map header instead, reflecting state MapScreen
+      actually has. Nothing about the new sheet changes that reasoning; building it now would
+      re-introduce the same problem item 79 deliberately avoided.
+    - **Story beat pose: left unbuilt, no reachable trigger yet.** No cutscene/story-beat system
+      exists to hook a one-off expression into — `ConversationBox` is the only dialogue surface today
+      (still Debug-preview-only), and the map/quest flow doesn't have a moment that isn't already
+      just a state change with its own established reaction (toast text, badge flash). Worth
+      revisiting once/if a real story-beat moment exists to attach it to.
+
+    `npx tsc --noEmit` and all 45 `jest` tests clean.
