@@ -81,3 +81,9 @@ export const SCENE_NEW_PROVIDENCE_HARBOR = require('../../assets/backgrounds/new
  * A thatched lookout tower on a cliff over a wide bay, ship visible offshore, distant misty peaks —
  * exactly the vantage point Yann's dialogue describes. Exact 853x1844 canvas match, no text. */
 export const SCENE_TORTUGA_SIGNAL_POST = require('../../assets/backgrounds/tortuga_signal_post_1.png');
+
+/** The Careening Yard — scene #11, Roatán's shipyard (`roatan_careening_yard_1`): hulls tilted on
+ * scaffolding for repair, a wrecked ship offshore, dramatic sunset. Sign reads "CAREENING YARD",
+ * matching `buildings.ts`'s real building name exactly — no continuity issue like scene #8's. Exact
+ * 853x1844 canvas match, no crop needed. */
+export const SCENE_ROATAN_CAREENING_YARD = require('../../assets/backgrounds/roatan_careening_yard_1.png');

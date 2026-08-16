@@ -4065,3 +4065,21 @@ long collection grind *and* one legendary payoff at the top of it.
     visible offshore, misty peaks behind — is exactly that vantage point. Exact 853x1844 canvas
     match, no text, no crop needed. Wired as `SCENE_TORTUGA_SIGNAL_POST`, tenth "BG:" toggle added.
     Verified live. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+130. ✅ **Scene #11, `roatan_careening_yard_1`, delivered clean** (2026-08-16) — Roatán's shipyard:
+    hulls tilted on scaffolding for repair, a wrecked ship offshore, dramatic sunset. Sign reads
+    "CAREENING YARD," matching `buildings.ts`'s real `roatan` building name exactly — no continuity
+    conflict like scene #8's. Exact 853x1844 canvas match, no crop needed. Wired as
+    `SCENE_ROATAN_CAREENING_YARD`, eleventh "BG:" toggle added. Verified live. `npx tsc --noEmit`
+    and all 45 `jest` tests clean.
+
+    User asked for a status check on the 30-scene brief at this point — full tally below, since
+    delivery has been arriving out of the brief's original order (skipped New Providence's tavern
+    and Iron Jenny's fort to jump to Roatán, plus one bonus scene outside the list entirely):
+    - **Done (11 wired):** #1 Tortuga market day, #2 Tortuga tavern night, #3 Tortuga gaol interior,
+      #4 Tortuga old landing, #5 Cow Island beach camp, #6 Cow Island muster flats, #7 Redbeard
+      Sully's fort, #8 New Providence harbor, #11 Roatán careening yard — plus the original tavern-
+      dusk piece from before the brief existed, and the bonus Signal Post lookout scene.
+    - **Still open:** #9 New Providence tavern porch, #10 Iron Jenny's stronghold, #12 The Anchor &
+      Forge (Roatán blacksmith), #13 Captain Bellows' fort, and all of #14-30 (Port Royal, Île
+      Sainte-Marie, Ocracoke, the Black Pearl/sea scenes, and the 5 landmark/wilderness scenes).

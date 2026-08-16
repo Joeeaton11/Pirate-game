@@ -27,6 +27,7 @@ import {
   SCENE_COW_ISLAND_MUSTER_FLATS,
   SCENE_LORD_REDBEARD_SULLY_FORT,
   SCENE_NEW_PROVIDENCE_HARBOR,
+  SCENE_ROATAN_CAREENING_YARD,
   SCENE_TORTUGA_GAOL_INTERIOR,
   SCENE_TORTUGA_MARKET_DAY,
   SCENE_TORTUGA_OLD_LANDING,
@@ -537,6 +538,9 @@ export default function DebugScreen({ navigation }: Props) {
         <View style={styles.row}>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_TORTUGA_SIGNAL_POST)}>
             <Text style={styles.buttonText}>BG: Signal Post lookout</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_ROATAN_CAREENING_YARD)}>
+            <Text style={styles.buttonText}>BG: Careening Yard</Text>
           </Pressable>
         </View>
 
