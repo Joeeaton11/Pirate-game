@@ -18,6 +18,13 @@
 // spoken rather than just flapping generically. Rest pose shows before the line starts and once
 // it finishes. Omit `getTalkFrame` and the portrait just stays static the whole time — nothing
 // else about the component changes.
+//
+// Read-along highlight: the same trick karaoke captions/read-along apps use — `activeWordSpan()`
+// finds whichever word contains the most-recently-revealed character and tints it with a soft
+// highlighter-style background (not a hard digital selection box, to stay in the parchment's
+// visual language) so it's visually obvious which word the mouth is currently on, independent of
+// the mouth animation itself. Clears for the one tick between words (space/punctuation revealing)
+// same as the mouth resting on those characters in visemes.ts.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
@@ -60,6 +67,28 @@ export interface ConversationBoxProps {
 }
 
 const DEFAULT_TYPING_SPEED_MS = 26;
+
+/** Which word is currently being "read" — the word containing the most-recently-revealed
+ * character — so the dialogue text can highlight it in sync with the mouth, the same way a
+ * karaoke caption or a read-along app tracks the active word. Returns null when nothing is
+ * revealed yet or the most recent character is whitespace (between words, mouth at rest — no word
+ * should be highlighted). `before` is everything revealed up to the active word's start (rendered
+ * plain); `active` is the active word's own revealed portion (rendered highlighted) — it grows
+ * letter by letter like the rest of the reveal, then stays highlighted until the space after it
+ * reveals, at which point this returns null again for that one tick before the next word starts. */
+function activeWordSpan(text: string, revealedCount: number): { before: string; active: string } | null {
+  if (revealedCount <= 0) return null;
+  const wordPattern = /\S+/g;
+  let match: RegExpExecArray | null;
+  while ((match = wordPattern.exec(text))) {
+    const start = match.index;
+    const end = start + match[0].length;
+    if (start < revealedCount && revealedCount <= end) {
+      return { before: text.slice(0, start), active: text.slice(start, revealedCount) };
+    }
+  }
+  return null;
+}
 
 // Portrait sized and overlapped to match the reference mockup: flush to the screen edge (no side
 // margin), overlapping deep into the parchment, and cropped off partway down rather than showing
@@ -167,6 +196,8 @@ export default function ConversationBox({
   const glyphsWidth = naturalGlyphsWidth * scale;
   const plateWidth = fixedWidth + glyphsWidth;
 
+  const activeSpan = useMemo(() => activeWordSpan(text, revealedCount), [text, revealedCount]);
+
   return (
     <Pressable style={styles.wrapper} onPress={handlePress}>
       <View style={[styles.portraitSlot, { [sideProp]: 0 } as const]}>
@@ -184,7 +215,16 @@ export default function ConversationBox({
             screen on any device narrower than that. An explicit percentage width/height sidesteps
             it (inset-only positioning hit the same bug). */}
         <Image source={UI_DIALOGUE_PARCHMENT} style={styles.parchmentImg} resizeMode="stretch" />
-        <Text style={[styles.dialogueText, textIndent]}>{text.slice(0, revealedCount)}</Text>
+        <Text style={[styles.dialogueText, textIndent]}>
+          {activeSpan ? (
+            <>
+              {activeSpan.before}
+              <Text style={styles.activeWord}>{activeSpan.active}</Text>
+            </>
+          ) : (
+            text.slice(0, revealedCount)
+          )}
+        </Text>
         {fullyRevealed && onAdvance && (
           <View style={styles.advanceTab}>
             <Animated.Text
@@ -292,6 +332,12 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 23,
     color: '#2c1a0c',
+  },
+  // Soft "highlighter pen over old paper" tint for the word currently being read, not a hard-edged
+  // digital selection box — a warm, translucent amber that sits on top of the ink rather than
+  // looking like a UI element pasted onto the parchment.
+  activeWord: {
+    backgroundColor: 'rgba(214, 158, 46, 0.4)',
   },
   nameplate: {
     position: 'absolute',

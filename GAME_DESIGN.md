@@ -3657,3 +3657,29 @@ long collection grind *and* one legendary payoff at the top of it.
     size) scales down together if the name would overflow, floored at 50% scale so it never goes
     illegibly small. Re-verified both portrait-left/right layouts visually, full name now fits
     cleanly on a 430px-wide viewport. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+107. ✅ **Read-along word highlight, synced with the lip-sync reveal** (2026-08-16) — user asked how
+    to make it visually obvious which word Scally is "reading" as the mouth animates, floating a
+    background-color-behind-the-active-word idea themselves and asking whether there was a better
+    way. Answered honestly (this is the standard karaoke/read-along-app trick — Duolingo Stories
+    does the same thing) and offered a choice on the actual open design question, which was style
+    rather than mechanism: a hard-edged digital selection box would read as a UI element pasted onto
+    the parchment, so the options were a soft translucent "highlighter pen over old paper" tint, a
+    solid box, no background at all (just darker/bolder ink), or an underline/caret. User picked the
+    soft highlighter tint.
+
+    `activeWordSpan()` in `ConversationBox.tsx` finds whichever word contains the
+    most-recently-revealed character (same idea as `visemes.ts`'s per-character viseme lookup, one
+    level up — word-grained instead of letter-grained) and splits the revealed text into a plain
+    "before" portion and a highlighted "active word" portion, rendered as nested `Text` with a
+    `rgba(214, 158, 46, 0.4)` translucent amber background — just the active word tinted, nothing
+    else about the text changes. Returns null (no highlight) the instant the space/punctuation after
+    a word reveals, matching the mouth's own rest state on those same characters, so the highlight
+    and the mouth go idle in lockstep even though they're two independently-computed systems reading
+    the same `revealedCount`.
+
+    Verified by capturing 10 screenshots at 150ms intervals through a live reveal (a single "final"
+    screenshot can't show a transient per-word effect) — confirmed the tint genuinely walks
+    word-to-word ("here" -> "smell" -> "might", etc.) rather than staying static or drifting out of
+    sync, and clears cleanly once the line finishes on a period. `npx tsc --noEmit` and all 45
+    `jest` tests clean.
