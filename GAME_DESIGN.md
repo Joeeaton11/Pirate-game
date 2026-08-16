@@ -4008,3 +4008,10 @@ long collection grind *and* one legendary payoff at the top of it.
     `SCENE_TORTUGA_TAVERN_NIGHT`, third "BG:" toggle added to the Debug preview. Verified live: sign
     fully legible, composites cleanly with the parchment box on the right-side layout, no stretch or
     distortion visible. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+124. ✅ **Scene #3 delivered clean on the first try: `tortuga_gaol_interior_1`** (2026-08-16) — the
+    jail cell interior, matching the brief's 853x1844 canvas almost exactly (853x1843) with no text
+    to garble and a naturally dark, simple lower half that satisfies the composition rule without
+    needing a call either way. Wired as `SCENE_TORTUGA_GAOL_INTERIOR`, fourth "BG:" toggle added.
+    Verified live — moody and tense, parchment box stays fully legible against the dark stone.
+    `npx tsc --noEmit` and all 45 `jest` tests clean.

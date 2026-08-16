@@ -32,3 +32,10 @@ export const SCENE_TORTUGA_MARKET_DAY = require('../../assets/backgrounds/tortug
  * background barrel/crate on the right got trimmed, and the sign, doorway, and windows that
  * actually carry the scene are untouched in the middle. */
 export const SCENE_TORTUGA_TAVERN_NIGHT = require('../../assets/backgrounds/tortuga_tavern_night_1.png');
+
+/** Interior of The Gaol — scene #3 from the background brief (`tortuga_gaol_interior_1`): a small
+ * stone cell, barred window, wet flagstones, a manacle-and-chain bolted to the wall. Matches the
+ * brief's 853x1844 canvas almost exactly (853x1843, 1px off) — no resize/crop needed, and the whole
+ * lower half is already dark, plain wet stone, so it naturally satisfies the "keep the bottom
+ * simple" composition rule without needing a check like the market/tavern-night pieces did. */
+export const SCENE_TORTUGA_GAOL_INTERIOR = require('../../assets/backgrounds/tortuga_gaol_interior_1.png');
