@@ -3993,3 +3993,18 @@ long collection grind *and* one legendary payoff at the top of it.
     rather than assuming it's a problem — the parchment box is opaque and sits fully on top of that
     detail, so it reads perfectly clean in practice; not sending it back. `npx tsc --noEmit` and all
     45 `jest` tests clean.
+
+123. ✅ **Scene #2 delivered as two versions — picked legibility over an exact canvas match, cropped
+    to fix it** (2026-08-16) — `tortuga_tavern_night_1` (The Salty Parrot's front door at night)
+    came back twice: one at the exact 853x1844 target canvas, but with garbled AI-generated sign
+    text ("the The — SALTY PARROT — The TAVERN" — a real, ship-blocking flaw on a building whose
+    entire identity is that sign); the other with clean, correct "THE SALTY PARROT" lettering and
+    better overall composition, but a wider 941x1672 (0.56) source aspect than the 0.46 target.
+    Rather than ask for a third regeneration, cropped the clean one down to 773x1672 (0.4623 —
+    effectively identical to the target ratio) with an asymmetric trim (67px off the left, 101px off
+    the right) chosen by eye to cut the least essential content — a sliver of distant building on the
+    left survives whole, a bit of background barrel/crate on the right got trimmed, and the sign,
+    doorway, and windows that actually carry the scene are untouched. Wired as
+    `SCENE_TORTUGA_TAVERN_NIGHT`, third "BG:" toggle added to the Debug preview. Verified live: sign
+    fully legible, composites cleanly with the parchment box on the right-side layout, no stretch or
+    distortion visible. `npx tsc --noEmit` and all 45 `jest` tests clean.

@@ -20,3 +20,15 @@ export const SCENE_TORTUGA_TAVERN_DUSK = require('../../assets/backgrounds/harbo
  * fight the parchment for attention; see the item 122 GAME_DESIGN.md note for the actual in-app
  * check before deciding whether to send this one back for a redo. */
 export const SCENE_TORTUGA_MARKET_DAY = require('../../assets/backgrounds/tortuga_market_day_1.png');
+
+/** The Salty Parrot's own front door at night — scene #2 from the background brief
+ * (`tortuga_tavern_night_1`), a closer match to the actual building than the wide dusk-harbor
+ * piece above. Two versions came in for this scene: one at the exact 853x1844 target canvas but
+ * with garbled sign text ("the The... The TAVERN"), and this one with a clean, correctly-lettered
+ * "THE SALTY PARROT" sign but a wider 941x1672 (0.56) source aspect. Picked legibility over an
+ * exact canvas match and re-cropped this file to 773x1672 (0.4623, effectively identical to the
+ * 0.4626 target) — trimmed unevenly (67px off the left, 101px off the right) to cut the least
+ * essential content: a sliver of a distant building on the left survives untouched, a bit of
+ * background barrel/crate on the right got trimmed, and the sign, doorway, and windows that
+ * actually carry the scene are untouched in the middle. */
+export const SCENE_TORTUGA_TAVERN_NIGHT = require('../../assets/backgrounds/tortuga_tavern_night_1.png');
