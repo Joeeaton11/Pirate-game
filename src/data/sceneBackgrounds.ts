@@ -107,3 +107,21 @@ export const SCENE_LORD_CAPTAIN_BELLOWS_FORT = require('../../assets/backgrounds
  * Sign reads "THE CRACKED HULL," matching `buildings.ts`'s real `new_providence` building name
  * exactly. Exact 853x1844 canvas match, no crop needed. */
 export const SCENE_NEW_PROVIDENCE_TAVERN = require('../../assets/backgrounds/new_providence_tavern_1.png');
+
+/** Iron Jenny's Stronghold — scene #10, "Queen of the Republic" (`lord_iron_jenny_fort_1`): a tall
+ * fortified watchtower on a cliff, red skull banners, a cannon and gate guards, sign reads "IRON
+ * JENNY'S STRONGHOLD." Completes New Providence's three-scene set (harbor, Cracked Hull tavern,
+ * this stronghold). Source came in at 852x1846 (0.4615) — essentially identical to the 0.4626
+ * target (a fraction of a percent off), well within what `resizeMode="cover"` absorbs invisibly, so
+ * no crop was needed. */
+export const SCENE_LORD_IRON_JENNY_FORT = require('../../assets/backgrounds/lord_iron_jenny_fort_1.png');
+
+/** Port Royal's flooded street — scene #14 (`port_royal_flooded_street_1`): a half-submerged
+ * colonial street, buildings tilted into brackish water, a "PORT ROYAL" sign post in the
+ * foreground. Exact 853x1844 canvas match, no crop needed. One thing worth flagging: the building
+ * on the right is signed "CUSTOMS HOUSE," but the real Customs House in `buildings.ts`
+ * (`tortuga_customs`) is on Tortuga Cove, not Port Royal — wiring this in under the generic
+ * "flooded street" scene rather than as "Port Royal's Customs House" specifically, so nothing here
+ * asserts a location that contradicts the real building data. Worth cropping or requesting a redo
+ * if a genuine Port Royal Customs House scene is ever needed later. */
+export const SCENE_PORT_ROYAL_FLOODED_STREET = require('../../assets/backgrounds/port_royal_flooded_street_1.png');

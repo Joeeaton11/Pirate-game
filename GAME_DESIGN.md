@@ -4105,3 +4105,29 @@ long collection grind *and* one legendary payoff at the top of it.
     thirteenth and fourteenth "BG:" toggles added. Verified live on both — signage legible,
     composites cleanly. Only Iron Jenny's stronghold (#10) remains to complete New Providence.
     `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+133. ✅ **Iron Jenny's stronghold (#10) completes New Providence; Port Royal's flooded street (#14)
+    opens the next island — and catches a second sign/geography mismatch** (2026-08-16) —
+    `lord_iron_jenny_fort_1`: a tall fortified watchtower on a cliff, red skull banners, cannon and
+    gate guards, sign reads "IRON JENNY'S STRONGHOLD." Source came in at 852x1846 (0.4615) — a
+    fraction of a percent off the 0.4626 target, well within what `resizeMode="cover"` absorbs, no
+    crop needed. Completes New Providence's three-scene set (harbor, Cracked Hull, this stronghold).
+    `port_royal_flooded_street_1`: a half-submerged colonial street, buildings tilting into brackish
+    water, a "PORT ROYAL" sign post in the foreground — exact 853x1844 canvas match. One thing
+    caught before wiring it in: the building on the right is signed "CUSTOMS HOUSE," but the real
+    Customs House in `buildings.ts` (`tortuga_customs`) is on Tortuga Cove, not Port Royal — a
+    smaller-scale version of item 128's Salty Parrot problem (art asserting a named location that
+    contradicts where the game data actually puts it). Rather than crop it out like the Salty Parrot
+    sign, filed this one under the generic "flooded street" scene name instead of "Port Royal's
+    Customs House" specifically, so nothing here actually claims a location the real data
+    contradicts — left a comment flagging it as worth revisiting (crop, or a redo) if a genuine Port
+    Royal Customs House scene is ever needed. Wired as
+    `SCENE_LORD_IRON_JENNY_FORT`/`SCENE_PORT_ROYAL_FLOODED_STREET`, fifteenth and sixteenth "BG:"
+    toggles added. Verified live on both. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+    Half the 6 island Pirate Lord forts are now done (Redbeard Sully, Iron Jenny, Captain Bellows —
+    Marietta Graves, Ezra Vane, and Blackbeard still open). New Providence and Roatán are fully
+    complete (all 3 scenes each, plus Tortuga's 4 + the tavern-dusk original + the bonus Signal Post
+    = 16 backgrounds total). Next open: #15 Port Royal's own Customs House (a real one, not the
+    flooded-street sign), #16 Marietta Graves' drowned lair, then Île Sainte-Marie (#17-19), Ocracoke
+    (#20-22), Black Pearl/sea (#23-25), and the 5 landmark/wilderness scenes (#26-30).
