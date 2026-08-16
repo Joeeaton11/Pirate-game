@@ -16,3 +16,8 @@ export const UI_DIALOGUE_PARCHMENT = require('../../assets/sprites/ui/ui_dialogu
 /** Small skull-and-crossbones badge — cut from the pirate bitmap-glyph sheet's two bonus icons
  * (see assets/fonts/bitmap_pirate/README.md). Used on ConversationBox's speaker name-plate. */
 export const UI_ICON_SKULL_CROSSBONES = require('../../assets/sprites/ui/ui_icon_skull_crossbones_1.png');
+
+/** Blank riveted wood signboard — ConversationBox's real speaker name-plate background, replacing
+ * the earlier coded LinearGradient placeholder. See src/data/bitmapNameplateFont.ts for the
+ * matching carved-bone bitmap font it ships paired with. */
+export const UI_NAMEPLATE_BOARD = require('../../assets/sprites/ui/ui_nameplate_board_1.png');

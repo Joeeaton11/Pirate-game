@@ -5,11 +5,10 @@
 // Layout: matches the reference mockup the user sent (GAME_DESIGN.md) — the real torn-parchment
 // banner (assets/sprites/ui/ui_dialogue_parchment_1.png) pinned to the bottom of the screen, with
 // a big torso-up portrait flush against the screen edge and overlapping deep into the parchment
-// (not a small floating card), a wood-sign name-plate straddling the parchment's top edge, and the
-// advance indicator in a small dark tab bottom-right, nudged clear of the parchment art's own
-// wax-seal decoration. The name-plate is coded (LinearGradient + the cut skull-and-crossbones
-// icon), not real signage art — no reference was provided for it, so this is a placeholder in the
-// same spirit as earlier placeholders in this file; swap for real art if/when it arrives.
+// (not a small floating card), a real riveted wood-sign name-plate straddling the parchment's top
+// edge (assets/sprites/ui/ui_nameplate_board_1.png, lettered with the matching carved-bone bitmap
+// font — see src/data/bitmapNameplateFont.ts), and the advance indicator in a small dark tab
+// bottom-right, nudged clear of the parchment art's own wax-seal decoration.
 //
 // Lip-sync: there's no voice audio in this game, so this can't be phoneme-accurate lip sync. What
 // it does instead is a text-driven lip sync — as the line types itself onto the parchment, on
@@ -19,11 +18,24 @@
 // spoken rather than just flapping generically. Rest pose shows before the line starts and once
 // it finishes. Omit `getTalkFrame` and the portrait just stays static the whole time — nothing
 // else about the component changes.
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { FONT_IM_FELL, FONT_PIRATA_ONE } from '../hooks/useGameFonts';
-import { UI_DIALOGUE_PARCHMENT, UI_ICON_SKULL_CROSSBONES } from '../data/uiSprites';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Animated,
+  Image,
+  ImageSourcePropType,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { FONT_IM_FELL } from '../hooks/useGameFonts';
+import { UI_DIALOGUE_PARCHMENT, UI_ICON_SKULL_CROSSBONES, UI_NAMEPLATE_BOARD } from '../data/uiSprites';
+import {
+  NAMEPLATE_LETTER_GAP_FRACTION,
+  NAMEPLATE_SPACE_FRACTION,
+  nameplateChars,
+} from '../data/bitmapNameplateFont';
 
 export interface ConversationBoxProps {
   speakerName: string;
@@ -65,8 +77,15 @@ const PORTRAIT_HEIGHT = Math.round(PORTRAIT_FULL_HEIGHT * PORTRAIT_CROP_FRACTION
 const PORTRAIT_OVERLAP = Math.round(PORTRAIT_HEIGHT * 0.55); // how far the portrait sinks into the parchment
 const PARCHMENT_HEIGHT = 240;
 
-const NAMEPLATE_HEIGHT = 34;
-const NAMEPLATE_STRADDLE = 14; // how far the plate's bottom edge sinks below the parchment's top edge
+// Name-plate: sized to its own content (icon + bitmap-font name) rather than a fixed width, since
+// speaker names vary in length and the real board art has to stretch to fit whatever comes out —
+// same "no ImageBackground, explicit width/height" fix as the parchment (see parchmentImg below).
+const NAMEPLATE_HEIGHT = 40;
+const NAMEPLATE_H_PADDING = 16; // inside the board's own rounded/riveted ends
+const NAMEPLATE_ICON_SIZE = 24;
+const NAMEPLATE_ICON_GAP = 8; // between the skull icon and the first letter
+const NAMEPLATE_GLYPH_HEIGHT = 22;
+const NAMEPLATE_STRADDLE = 16; // how far the plate's bottom edge sinks below the parchment's top edge
 
 export default function ConversationBox({
   speakerName,
@@ -124,6 +143,30 @@ export default function ConversationBox({
   const sideProp = isLeft ? 'left' : 'right';
   const textIndent = { [isLeft ? 'marginLeft' : 'marginRight']: PORTRAIT_WIDTH + 18 } as const;
 
+  // Name-plate content width: icon + each glyph at its own aspect ratio (a fixed monospace cell
+  // would look wrong — "I" and "M" aren't the same width) + a small gap between letters, a wider
+  // gap for spaces, all wrapped in the board art's own end padding. Scaled down to fit whatever
+  // width is actually left beside the (now much wider) portrait on a narrow phone screen — at full
+  // size a longer name (e.g. "Captain Scally") ran off the right edge entirely.
+  const { width: windowWidth } = useWindowDimensions();
+  const chars = useMemo(() => nameplateChars(speakerName), [speakerName]);
+  const fixedWidth = NAMEPLATE_H_PADDING * 2 + NAMEPLATE_ICON_SIZE + NAMEPLATE_ICON_GAP;
+  const naturalGlyphsWidth = chars.reduce(
+    (sum, c) =>
+      sum +
+      (c === 'space'
+        ? NAMEPLATE_GLYPH_HEIGHT * NAMEPLATE_SPACE_FRACTION
+        : NAMEPLATE_GLYPH_HEIGHT * c.aspect + NAMEPLATE_GLYPH_HEIGHT * NAMEPLATE_LETTER_GAP_FRACTION),
+    0
+  );
+  const availableWidth = windowWidth - (PORTRAIT_WIDTH + 18) - 12;
+  const scale = Math.min(1, Math.max(0.5, (availableWidth - fixedWidth) / naturalGlyphsWidth));
+  const glyphHeight = NAMEPLATE_GLYPH_HEIGHT * scale;
+  const letterGap = glyphHeight * NAMEPLATE_LETTER_GAP_FRACTION;
+  const spaceWidth = glyphHeight * NAMEPLATE_SPACE_FRACTION;
+  const glyphsWidth = naturalGlyphsWidth * scale;
+  const plateWidth = fixedWidth + glyphsWidth;
+
   return (
     <Pressable style={styles.wrapper} onPress={handlePress}>
       <View style={[styles.portraitSlot, { [sideProp]: 0 } as const]}>
@@ -156,17 +199,36 @@ export default function ConversationBox({
         )}
       </View>
 
-      <LinearGradient
-        colors={['#8a5a30', '#5c3417']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.nameplate, { [sideProp]: PORTRAIT_WIDTH + 18 } as const]}
+      <View
+        style={[styles.nameplate, { [sideProp]: PORTRAIT_WIDTH + 18, width: plateWidth } as const]}
       >
-        <Image source={UI_ICON_SKULL_CROSSBONES} style={styles.nameplateIcon} resizeMode="contain" />
-        <Text style={styles.nameplateText} numberOfLines={1}>
-          {speakerName}
-        </Text>
-      </LinearGradient>
+        <Image source={UI_NAMEPLATE_BOARD} style={styles.nameplateBoardImg} resizeMode="stretch" />
+        <Image
+          source={UI_ICON_SKULL_CROSSBONES}
+          style={{
+            width: NAMEPLATE_ICON_SIZE * scale,
+            height: NAMEPLATE_ICON_SIZE * scale,
+            marginRight: NAMEPLATE_ICON_GAP,
+          }}
+          resizeMode="contain"
+        />
+        {chars.map((c, i) =>
+          c === 'space' ? (
+            <View key={i} style={{ width: spaceWidth }} />
+          ) : (
+            <Image
+              key={i}
+              source={c.source}
+              style={{
+                height: glyphHeight,
+                width: glyphHeight * c.aspect,
+                marginRight: letterGap,
+              }}
+              resizeMode="contain"
+            />
+          )
+        )}
+      </View>
     </Pressable>
   );
 }
@@ -237,11 +299,7 @@ const styles = StyleSheet.create({
     height: NAMEPLATE_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    borderRadius: NAMEPLATE_HEIGHT / 2,
-    borderWidth: 2,
-    borderColor: '#2c1a0a',
+    paddingHorizontal: NAMEPLATE_H_PADDING,
     zIndex: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
@@ -249,14 +307,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 9,
   },
-  nameplateIcon: {
-    width: 20,
-    height: 20,
-  },
-  nameplateText: {
-    fontFamily: FONT_PIRATA_ONE,
-    fontSize: 16,
-    color: '#f4e4c1',
+  nameplateBoardImg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
   },
   advanceTab: {
     position: 'absolute',

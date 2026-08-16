@@ -3619,4 +3619,41 @@ long collection grind *and* one legendary payoff at the top of it.
     crop read too tight once seen live. Bumped `PORTRAIT_CROP_FRACTION` to 0.85 (same clipping
     mechanism, just a taller visible slot) — now shows the coat's full flare and upper legs,
     cutting just above the boot tops instead of right at the belt. Re-verified both sides again;
-    `npx tsc --noEmit` and all 45 `jest` tests still clean.
+    `npx tsc --noEmit` and all 45 `jest` tests still clean. Also: "move Scally down a little bit" —
+    bumped `PORTRAIT_OVERLAP` from 45% to 55% of the portrait height so the whole portrait sits
+    lower (the wrapper auto-sizes around it, so this shifts the top edge down too, not just the
+    bottom).
+
+106. ✅ **Real wood-signboard art + matching carved-bone bitmap font for the name-plate** (2026-08-16)
+    — user sent the promised name-plate art: a blank riveted wood board, and a reference sheet
+    pairing it with a "CAPTAIN SCALLY" example plus the full carved-bone bitmap font that renders
+    it (uppercase A-Z, digits, and ! ? . , : ; ' " ( ) [ ] - _ / &) — replacing item 104's coded
+    LinearGradient-and-Pirata-One placeholder with the real thing.
+
+    Same chroma-key trap as the parchment (item 103) and hit again without re-deriving the fix from
+    scratch: both source PNGs were flat RGB with the checkerboard baked into the pixels, not real
+    alpha — verified directly, keyed out with the same brightness+desaturation two-condition test.
+
+    Cut with the same per-row connected-component method as every bitmap alphabet sheet in this
+    repo: 52 glyphs into `assets/fonts/bitmap_nameplate/`, the board cropped to its own bounding box
+    into `assets/sprites/ui/ui_nameplate_board_1.png`. One new wrinkle handled the same way as the
+    bitmap_pirate alphabet's colon/semicolon: this sheet's semicolon also split into two raw
+    components (dot + tail) that a blind dilation-based count-match doesn't reliably separate from
+    a coincidentally-correct total, so it's merged by explicit index rather than asserted by count.
+    Verified against a labeled contact sheet before wiring anything in.
+
+    `src/data/bitmapNameplateFont.ts` maps each character to its glyph and its own measured aspect
+    ratio (letters aren't monospace — "I" and "M" are very different widths) so a name lays out like
+    real type, not a slot machine; uppercases automatically since no lowercase forms exist.
+    `ConversationBox`'s name-plate is now a content-sized box (icon + glyph row width, not a fixed
+    size) with the board art stretched to fit — same "explicit width/height, not ImageBackground"
+    fix as the parchment.
+
+    One real layout bug caught before shipping: at full glyph size, "CAPTAIN SCALLY" ran off the
+    right edge of the screen entirely — the portrait had grown much wider since the plate's sizing
+    was last tuned (items 104-105), and nobody had re-checked the plate against that width budget.
+    Fixed with a shrink-to-fit: `useWindowDimensions()` measures what's actually left beside the
+    portrait, and the glyph height (plus everything derived from it — letter gaps, space width, icon
+    size) scales down together if the name would overflow, floored at 50% scale so it never goes
+    illegibly small. Re-verified both portrait-left/right layouts visually, full name now fits
+    cleanly on a 430px-wide viewport. `npx tsc --noEmit` and all 45 `jest` tests clean.

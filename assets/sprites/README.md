@@ -45,7 +45,7 @@ files, and the 29 lip-sync mouth frames are a clearly distinct, always-browsed-a
 | `treasure/` | The treasure-hunting quest line: chests, coins, gems, maps, map fragments, dig sites, X-marks, clues, legendary items | *(not yet wired)* |
 | `items/` | Everything else inventory-related: cargo goods, consumables, quest items, keys, resources | *(not yet wired)* |
 | `quest_markers/` | Map/world icons for quest state: available, in-progress, discovered, locked | *(not yet wired)* |
-| `ui/` | HUD icons, buttons, panels, frames, dialogue boxes, portraits-in-UI | `src/data/uiSprites.ts` (parchment dialogue banner) → `ConversationBox`; the 2 lipsync-sheet icons are cut but not yet wired |
+| `ui/` | HUD icons, buttons, panels, frames, dialogue boxes, portraits-in-UI | `src/data/uiSprites.ts` (parchment banner, name-plate board, skull badge) → `ConversationBox`; the compass-rose icon is cut but not yet wired |
 | `effects/` | Catch-all for FX that don't fit `combat/`, `water_fx/`, or `weather_fx/` (leave this one empty in practice — prefer the specific category) | *(not yet wired)* |
 
 If something seems to fit two folders, pick the one for what the object *is*, not where it's

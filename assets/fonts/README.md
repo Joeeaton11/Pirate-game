@@ -7,6 +7,7 @@
 | `IMFellEnglishSC-Regular.ttf` | IM FELL English SC | Small-caps, 18th-century English printing revival | SIL OFL 1.1 — `licenses/IMFellEnglishSC-OFL.txt` |
 | `PirataOne-Regular.ttf` | Pirata One | Bold weathered blackletter-style display face | SIL OFL 1.1 — `licenses/PirataOne-OFL.txt` |
 | `bitmap_pirate/` | — | Hand-painted bitmap glyph set (96 individual PNGs, not a vector font) — see its own README | User-provided art, not third-party |
+| `bitmap_nameplate/` | — | Carved-bone bitmap glyph set (52 PNGs — uppercase A-Z, digits, punctuation), purpose-built for the wood-signboard name-plate — see `src/data/bitmapNameplateFont.ts` | User-provided art, not third-party |
 
 **Small-caps note (IM Fell English SC):** lowercase input renders as smaller capital letters, not
 true lowercase forms. Good for titles, nameplates, headers, banners — not recommended for dense
@@ -30,7 +31,9 @@ art is a perfect fit.
 
 ## Wiring status
 
-**Not yet wired into the app.** The Expo/React Native path is `expo-font`'s `useFonts()` hook,
-loaded once at the app root (typically in `App.tsx` or a root layout) before rendering anything
-that uses the custom family — `expo-font` isn't installed yet. That's the next step whenever
-there's a screen ready to use this font; until then it just sits here as an asset.
+**IM Fell English SC and Pirata One are wired.** `expo-font`'s `useFonts()` hook loads both at the
+app root (`src/hooks/useGameFonts.ts`, gating `App.tsx`'s first paint) — IM Fell English SC renders
+`ConversationBox`'s dialogue text. `bitmap_pirate/` is cut but not wired into any screen yet.
+`bitmap_nameplate/` is wired into `ConversationBox`'s speaker name-plate (`src/data/bitmapNameplateFont.ts`
+lays out each character at its own aspect ratio next to the wood-board art, not a fixed monospace
+cell) — the one bitmap set actually in use.
