@@ -364,9 +364,9 @@ const styles = StyleSheet.create({
   },
   portraitSlot: {
     position: 'absolute',
-    // Flush with the parchment's own bottom edge — same baseline as `parchment` below, both
-    // children of `wrapper` — so the leg crop lands level with the bottom of the paper.
-    bottom: 0,
+    // A flat 0 (same baseline as `parchment`) still didn't read as level — raised a bit further
+    // per user feedback.
+    bottom: 12,
     width: PORTRAIT_WIDTH,
     height: PORTRAIT_HEIGHT, // the cropped (waist-up) height
     zIndex: 2,

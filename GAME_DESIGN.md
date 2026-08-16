@@ -3828,3 +3828,10 @@ long collection grind *and* one legendary payoff at the top of it.
     raised to 40 in item 113) is untouched — this round was leg position only. Verified both portrait
     sides in the real app; a tight crop on the boot area confirms the torn-paper edge and boot
     bottoms now sit on the same line. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+115. ✅ **Raised the portrait again — flush still read as not level** (2026-08-16) — item 114's flat
+    `bottom: 0` still wasn't right per user feedback ("It's not level. Raise him up more").
+    `portraitSlot.bottom` moved to `12` (up from `0`). Verified both portrait sides in the real app
+    against the tavern backdrop; sent for review rather than second-guessed against my own read of
+    the previous crop, since this is a by-eye call the user is iterating on directly. `npx tsc
+    --noEmit` and all 45 `jest` tests clean.
