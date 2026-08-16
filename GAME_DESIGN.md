@@ -4021,3 +4021,14 @@ long collection grind *and* one legendary payoff at the top of it.
     naturally simple dirt-path lower half. Wired as `SCENE_TORTUGA_OLD_LANDING`, fifth "BG:" toggle
     added. Verified live — composites cleanly on both portrait sides. `npx tsc --noEmit` and all 45
     `jest` tests clean.
+
+126. ✅ **Cow Island's first two scenes: `cow_island_beach_camp_1` + `cow_island_muster_flats_1`**
+    (2026-08-16) — both delivered together, both an exact 853x1844 canvas match, no text, no crop
+    needed. Beach camp is an overcast grey morning (driftwood tent, cook-fire, cattle grazing, ships
+    anchored offshore); muster flats is the same island's open grazing ground at a dramatic orange
+    sunset, per the brief's note that these are "where real pirate fleets once mustered before a
+    raid." Wired as `SCENE_COW_ISLAND_BEACH_CAMP`/`SCENE_COW_ISLAND_MUSTER_FLATS`, sixth and seventh
+    "BG:" toggles added. Verified live on both portrait sides (used the established separate-page-
+    load-per-check pattern — the Debug preview's known pre-existing overlap bug still applies when
+    switching backgrounds with a box already open). Only Redbeard Sully's fort remains to complete
+    Cow Island's three-scene set. `npx tsc --noEmit` and all 45 `jest` tests clean.

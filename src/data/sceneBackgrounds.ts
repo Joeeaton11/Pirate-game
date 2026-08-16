@@ -45,3 +45,13 @@ export const SCENE_TORTUGA_GAOL_INTERIOR = require('../../assets/backgrounds/tor
  * pilings in shallow water, late-day gold-to-purple sky. Matches the brief's 853x1844 canvas
  * exactly, no crop/resize needed. */
 export const SCENE_TORTUGA_OLD_LANDING = require('../../assets/backgrounds/tortuga_old_landing_dusk_1.png');
+
+/** Cow Island Beach Camp — scene #5 from the background brief (`cow_island_beach_camp_1`): a
+ * driftwood-and-canvas pirate camp on the grazing flats, cook-fire, grey overcast morning, real
+ * cattle grazing distantly with pirate ships anchored offshore. Exact 853x1844 canvas match. */
+export const SCENE_COW_ISLAND_BEACH_CAMP = require('../../assets/backgrounds/cow_island_beach_camp_1.png');
+
+/** Cow Island's muster flats at sunset — scene #6 (`cow_island_muster_flats_1`): the open grazing
+ * flats "where real pirate fleets once mustered before a raid," dramatic orange sunset, a pirate
+ * flag and supply crates in the foreground. Exact 853x1844 canvas match. */
+export const SCENE_COW_ISLAND_MUSTER_FLATS = require('../../assets/backgrounds/cow_island_muster_flats_1.png');

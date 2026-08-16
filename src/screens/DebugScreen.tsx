@@ -23,6 +23,8 @@ import ConversationBox from '../components/ConversationBox';
 import { LIP_SYNC_FRAMES, TALK_EXPRESSIONS, TalkExpressionKey } from '../data/scallySprites';
 import { visemeForPosition } from '../data/visemes';
 import {
+  SCENE_COW_ISLAND_BEACH_CAMP,
+  SCENE_COW_ISLAND_MUSTER_FLATS,
   SCENE_TORTUGA_GAOL_INTERIOR,
   SCENE_TORTUGA_MARKET_DAY,
   SCENE_TORTUGA_OLD_LANDING,
@@ -513,6 +515,14 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_TORTUGA_OLD_LANDING)}>
             <Text style={styles.buttonText}>BG: Old landing dusk</Text>
+          </Pressable>
+        </View>
+        <View style={styles.row}>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_COW_ISLAND_BEACH_CAMP)}>
+            <Text style={styles.buttonText}>BG: Cow Island camp</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_COW_ISLAND_MUSTER_FLATS)}>
+            <Text style={styles.buttonText}>BG: Cow Island flats</Text>
           </Pressable>
         </View>
 
