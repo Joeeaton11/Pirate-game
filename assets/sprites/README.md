@@ -16,7 +16,9 @@ descriptor, not semantic shape names (see "Cutting convention" below for why).
 distinct sub-groups worth browsing separately — not before. `interiors/ship/` is the one place
 this is already pre-approved (deck/captain's cabin/crew quarters/cargo hold/gun deck are really
 different spaces, not just a naming variant), everything else waits until it actually has the
-volume to justify it.
+volume to justify it. `scally/lipsync/` is the second: `scally/` had already crossed 60+ flat
+files, and the 29 lip-sync mouth frames are a clearly distinct, always-browsed-as-a-set group (see
+`src/data/scallySprites.ts`'s `LIP_SYNC_FRAMES` and `src/data/visemes.ts`).
 
 ## Folder map
 

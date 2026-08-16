@@ -3476,3 +3476,45 @@ long collection grind *and* one legendary payoff at the top of it.
     Verified with a headless-Chromium Playwright run against the live web build (screenshot at
     each step: typewriter mid-reveal, full line with bounce indicator, tap-advance to line 2,
     portrait-right layout) plus `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+102. ✅ **Real per-letter lip sync wired in from Scally's actual mouth-shape sheet** (2026-08-16)
+    — immediately following item 101, user sent the promised reference sheet: 29 full torso poses
+    (same crossed-arms stance, arms don't move) organized in the sheet's own three sections —
+    9 vowels (A E I O U OO EE AH OU), 11 consonant groups (B/M/P F/V TH L W/OO R S/Z SH/CH/J D/T/N
+    K/G H/Y), 9 blends (BR DR TR PR KR GR CL GL SN) — with "let's separate these so we can use them
+    first."
+
+    Cut with the same per-row connected-component method as every other sheet (real alpha channel
+    already present in the source, no chroma-key re-derivation needed) into
+    `assets/sprites/scally/lipsync/` — the second subfolder in the whole sprite library (after
+    `interiors/ship/`), earned because `scally/` had already crossed 60+ flat files and this is a
+    clearly distinct, always-used-as-a-set group. Verified against a labeled contact sheet (all 29
+    correctly ordered/named) and a zoomed mouth-only crop confirming the shapes actually read as
+    distinct up close (closed lips on `consonant_bmp`, wide open on the vowels, pursed on
+    `consonant_w_oo`, etc.) before wiring anything.
+
+    This unlocked a real upgrade over item 101's generic mouth-flap: instead of just cycling
+    frames while typing, `src/data/visemes.ts`'s `visemeForPosition()` looks up which of the 29
+    frames matches the *actual letter* currently being revealed — two-letter digraphs/blends
+    (`th`, `sh`, `ch`, `oo`, `ee`, `ou`, and the sheet's own `br/dr/tr/pr/kr/gr/cl/gl/sn` blends)
+    checked first so both ticks of a 2-letter reveal land on the same correct shape, then a
+    per-letter fallback table, with anything that isn't a real letter (space, punctuation, line
+    ends) resting on `consonant_bmp` — the sheet's own closed-lips B/M/P frame, which doubles as
+    the natural "not talking" pose since it's the same pose family as every talking frame (no
+    scale/crop pop when resting). Not real phoneme detection (no dictionary, can't tell "read"
+    past-tense from present-tense), but the same trick hand-timed 2D lip sync has always used —
+    now driven by the typewriter reveal instead of an animator's ear.
+
+    `ConversationBox`'s API changed from item 101's generic `talkFrames` array + interval-cycling
+    to a `getTalkFrame(text, revealedIndex)` callback the caller controls — cleaner separation
+    (the component knows nothing about visemes or Scally specifically; DebugScreen's demo wires
+    `LIP_SYNC_FRAMES` + `visemeForPosition` together) and it also let the mouth-cycling `setState`
+    interval be deleted entirely: the frame now updates in lockstep with the same `revealedCount`
+    that drives the typewriter, no separate timer needed. Portrait size in the box tuned from the
+    old bust proportions (140x168) to the new pose's real ~0.51 aspect ratio (118x198) so it
+    doesn't letterbox.
+
+    Verified with a headless-Chromium Playwright run capturing 6 screenshots in quick succession
+    mid-line and cropping tightly to just the mouth — confirmed the shape genuinely alternates
+    between open (vowel) and closed/narrow (consonant) frames as different letters are revealed,
+    not just a static image. `npx tsc --noEmit` and all 45 `jest` tests clean.

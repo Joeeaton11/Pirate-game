@@ -20,7 +20,8 @@ import { CrewTemplate } from '../types';
 import { maxHpFor } from '../utils/battle';
 import { BattleBackdrop } from '../utils/battleBackdrop';
 import ConversationBox from '../components/ConversationBox';
-import { SCALLY_PORTRAIT } from '../data/scallySprites';
+import { LIP_SYNC_FRAMES, VISEME_REST } from '../data/scallySprites';
+import { visemeForPosition } from '../data/visemes';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Debug'>;
 
@@ -28,14 +29,18 @@ const LEVEL_JUMPS = [5, 10, 15, 20, 25, 30];
 const GOLD_AMOUNTS = [100, 1000];
 const HEAT_VALUES = [0, 30, 60, 90];
 
-// Sample script for the Conversation Box preview — proves the typewriter reveal, the mouth-flap
-// hook (static for now — no talkFrames until Scally's mouth-movement range is cut), and the
+// Sample script for the Conversation Box preview — proves the typewriter reveal, the real
+// per-letter lip sync (built from Scally's cut "Lip Sync & Talking Animations" sheet), and the
 // tap-to-fast-forward / tap-to-advance interaction across more than one line.
 const DEMO_SCRIPT = [
-  "Ahoy there! This be the new parchment talk box — mouth still, 'til I've got me proper frames.",
+  "Ahoy there! Now watch me mouth move — every letter's got its own shape.",
   'Tap me while I\'m talkin\' and I\'ll skip straight to the end of the line.',
   "Once a line's done, tap again to move to the next — same as this one right here.",
 ];
+
+function scallyTalkFrame(text: string, revealedIndex: number) {
+  return LIP_SYNC_FRAMES[visemeForPosition(text, revealedIndex)];
+}
 
 export default function DebugScreen({ navigation }: Props) {
   const [conversationDemoLine, setConversationDemoLine] = useState<number | null>(null);
@@ -481,7 +486,8 @@ export default function DebugScreen({ navigation }: Props) {
         <ConversationBox
           speakerName="Captain Scally"
           text={DEMO_SCRIPT[conversationDemoLine]}
-          portraitSource={SCALLY_PORTRAIT}
+          portraitSource={LIP_SYNC_FRAMES[VISEME_REST]}
+          getTalkFrame={scallyTalkFrame}
           side={conversationDemoSide}
           onAdvance={() => {
             const next = conversationDemoLine + 1;

@@ -197,6 +197,55 @@ export const POSE_POINT = require('../../assets/sprites/scally/point.png');
  * Encounter. */
 export const ATTACK_FLASH_MS = 450;
 
+// --- Lip-sync mouth frames ("Captain Scally: Lip Sync & Talking Animations" reference sheet) ----
+// 29 full torso poses (same crossed-arms stance throughout — only the mouth shape changes), cut
+// with the same connected-component method as every other sheet (see assets/sprites/README.md's
+// "Cutting convention"). Organized exactly as the source sheet's own three sections and keyed by
+// viseme name so ConversationBox (or anything else) can pick the frame that matches whichever
+// letter is currently being "spoken" — see src/data/visemes.ts for the letter -> viseme lookup
+// that drives that. Full narrative in GAME_DESIGN.md.
+export const LIP_SYNC_FRAMES = {
+  // Vowels
+  vowel_a: require('../../assets/sprites/scally/lipsync/vowel_a.png'),
+  vowel_e: require('../../assets/sprites/scally/lipsync/vowel_e.png'),
+  vowel_i: require('../../assets/sprites/scally/lipsync/vowel_i.png'),
+  vowel_o: require('../../assets/sprites/scally/lipsync/vowel_o.png'),
+  vowel_u: require('../../assets/sprites/scally/lipsync/vowel_u.png'),
+  vowel_oo: require('../../assets/sprites/scally/lipsync/vowel_oo.png'),
+  vowel_ee: require('../../assets/sprites/scally/lipsync/vowel_ee.png'),
+  vowel_ah: require('../../assets/sprites/scally/lipsync/vowel_ah.png'),
+  vowel_ou: require('../../assets/sprites/scally/lipsync/vowel_ou.png'),
+  // Consonants
+  consonant_bmp: require('../../assets/sprites/scally/lipsync/consonant_bmp.png'),
+  consonant_fv: require('../../assets/sprites/scally/lipsync/consonant_fv.png'),
+  consonant_th: require('../../assets/sprites/scally/lipsync/consonant_th.png'),
+  consonant_l: require('../../assets/sprites/scally/lipsync/consonant_l.png'),
+  consonant_w_oo: require('../../assets/sprites/scally/lipsync/consonant_w_oo.png'),
+  consonant_r: require('../../assets/sprites/scally/lipsync/consonant_r.png'),
+  consonant_sz: require('../../assets/sprites/scally/lipsync/consonant_sz.png'),
+  consonant_shchj: require('../../assets/sprites/scally/lipsync/consonant_shchj.png'),
+  consonant_dtn: require('../../assets/sprites/scally/lipsync/consonant_dtn.png'),
+  consonant_kg: require('../../assets/sprites/scally/lipsync/consonant_kg.png'),
+  consonant_hy: require('../../assets/sprites/scally/lipsync/consonant_hy.png'),
+  // Blends & other sounds
+  blend_br: require('../../assets/sprites/scally/lipsync/blend_br.png'),
+  blend_dr: require('../../assets/sprites/scally/lipsync/blend_dr.png'),
+  blend_tr: require('../../assets/sprites/scally/lipsync/blend_tr.png'),
+  blend_pr: require('../../assets/sprites/scally/lipsync/blend_pr.png'),
+  blend_kr: require('../../assets/sprites/scally/lipsync/blend_kr.png'),
+  blend_gr: require('../../assets/sprites/scally/lipsync/blend_gr.png'),
+  blend_cl: require('../../assets/sprites/scally/lipsync/blend_cl.png'),
+  blend_gl: require('../../assets/sprites/scally/lipsync/blend_gl.png'),
+  blend_sn: require('../../assets/sprites/scally/lipsync/blend_sn.png'),
+} as const;
+
+export type VisemeKey = keyof typeof LIP_SYNC_FRAMES;
+
+/** consonant_bmp is drawn lips-together (the sheet's own closed-mouth frame for B/M/P) — the
+ * natural "not talking" pose for this set, and the same pose family as every other frame here so
+ * resting between lines doesn't pop to a different scale/crop. */
+export const VISEME_REST: VisemeKey = 'consonant_bmp';
+
 // --- Extras: hand-drawn UI icons -------------------------------------------------------------------
 export const ICON_EXCLAIM = require('../../assets/sprites/scally/icon_exclaim.png');
 export const ICON_QUESTION = require('../../assets/sprites/scally/icon_question.png');

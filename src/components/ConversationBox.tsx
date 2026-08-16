@@ -11,13 +11,13 @@
 // image whenever one is cut.
 //
 // Lip-sync: there's no voice audio in this game, so this can't be phoneme-accurate lip sync. What
-// it does instead is a text-driven mouth-flap, the same trick classic visual-novel/Animal
-// Crossing-style talking heads use — as the line types itself onto the parchment, the portrait
-// cycles through `talkFrames` in step with that reveal (closed/rest on spaces and punctuation
-// pauses, cycling open shapes while a word is mid-reveal), and holds the rest frame the instant
-// the line pauses or finishes. Pass `talkFrames` (frame 0 = mouth closed/rest, 1..n = open
-// variants) once Scally's mouth-movement range is cut; until then this renders a static portrait
-// with no animation — nothing else about the component changes when the frames are added.
+// it does instead is a text-driven lip sync — as the line types itself onto the parchment, on
+// every revealed character the caller's `getTalkFrame` picks the portrait frame that matches it
+// (see src/data/visemes.ts for Scally's letter -> mouth-shape lookup, built from his real
+// "Lip Sync & Talking Animations" reference sheet), so the mouth genuinely tracks the word being
+// spoken rather than just flapping generically. Rest pose shows before the line starts and once
+// it finishes. Omit `getTalkFrame` and the portrait just stays static the whole time — nothing
+// else about the component changes.
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -26,12 +26,15 @@ import { FONT_IM_FELL, FONT_PIRATA_ONE } from '../hooks/useGameFonts';
 export interface ConversationBoxProps {
   speakerName: string;
   text: string;
-  /** Static bust/torso portrait, shown whenever talkFrames isn't provided (or between cycles). */
+  /** Rest-pose portrait: shown statically whenever getTalkFrame isn't provided, and as the
+   * before/after-talking pose whenever it is. Should be the same pose family as whatever
+   * getTalkFrame returns (e.g. Scally's closed-mouth LIP_SYNC_FRAMES.consonant_bmp) so resting
+   * between lines doesn't pop to a different scale/crop. */
   portraitSource: ImageSourcePropType;
-  /** Optional mouth-movement frame range for the lip-sync flap. Frame 0 is treated as mouth
-   * closed/rest; frames 1..n are cycled through while a word is being "spoken". Omit until real
-   * art exists — the portrait just stays static, no other behavior changes. */
-  talkFrames?: ImageSourcePropType[];
+  /** Called with the full line and the index of the character that was just revealed; return the
+   * portrait frame that matches it (a mouth-shape lookup, typically). Called on every reveal tick
+   * while the line is mid-typewriter; portraitSource shows before typing starts and once it ends. */
+  getTalkFrame?: (text: string, revealedIndex: number) => ImageSourcePropType;
   /** Which side of the parchment the portrait sits on. */
   side?: 'left' | 'right';
   /** Called when the player taps after the line has fully revealed — advance/close the box. Bare
@@ -42,11 +45,10 @@ export interface ConversationBoxProps {
 }
 
 const DEFAULT_TYPING_SPEED_MS = 26;
-const MOUTH_CYCLE_MS = 110;
 
-const PORTRAIT_WIDTH = 140;
-const PORTRAIT_HEIGHT = 168;
-const PORTRAIT_OVERLAP = 46; // how far the portrait's bottom edge sinks into the parchment
+const PORTRAIT_WIDTH = 118;
+const PORTRAIT_HEIGHT = 198;
+const PORTRAIT_OVERLAP = 54; // how far the portrait's bottom edge sinks into the parchment
 const PARCHMENT_HEIGHT = 220;
 const SIDE_MARGIN = 18;
 
@@ -56,7 +58,7 @@ export default function ConversationBox({
   speakerName,
   text,
   portraitSource,
-  talkFrames,
+  getTalkFrame,
   side = 'left',
   onAdvance,
   typingSpeedMs = DEFAULT_TYPING_SPEED_MS,
@@ -75,23 +77,6 @@ export default function ConversationBox({
     const id = setTimeout(() => setRevealedCount((c) => c + 1), typingSpeedMs);
     return () => clearTimeout(id);
   }, [revealedCount, text, typingSpeedMs]);
-
-  // Mouth flap, driven by the reveal rather than audio: "talking" is true while there's more line
-  // left to reveal AND the most-recently-revealed character is a real (non-whitespace) glyph, so
-  // it pauses naturally on spaces/punctuation instead of flapping through the whole line at once.
-  const lastRevealedChar = text[revealedCount - 1] ?? '';
-  const isTalking = !fullyRevealed && /\S/.test(lastRevealedChar);
-  const [mouthFrame, setMouthFrame] = useState(0);
-  useEffect(() => {
-    if (!talkFrames || talkFrames.length <= 1 || !isTalking) {
-      setMouthFrame(0);
-      return;
-    }
-    const id = setInterval(() => {
-      setMouthFrame((f) => (f % (talkFrames.length - 1)) + 1);
-    }, MOUTH_CYCLE_MS);
-    return () => clearInterval(id);
-  }, [isTalking, talkFrames]);
 
   // Bounce the "tap to continue" indicator once the line has fully revealed.
   const bounce = useRef(new Animated.Value(0)).current;
@@ -115,7 +100,12 @@ export default function ConversationBox({
     }
   }
 
-  const portrait = talkFrames && talkFrames.length > 0 ? talkFrames[mouthFrame] ?? portraitSource : portraitSource;
+  // Rest pose before typing starts and once the line finishes; otherwise the frame for whichever
+  // character was just revealed, straight from the caller's lookup.
+  const portrait =
+    getTalkFrame && revealedCount > 0 && !fullyRevealed
+      ? getTalkFrame(text, revealedCount - 1)
+      : portraitSource;
   const isLeft = side === 'left';
   const textIndent = { [isLeft ? 'marginLeft' : 'marginRight']: PORTRAIT_WIDTH + 14 } as const;
 
