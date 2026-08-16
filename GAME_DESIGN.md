@@ -3717,3 +3717,41 @@ long collection grind *and* one legendary payoff at the top of it.
     to confirm the outline itself looks right up close — clean amber outline glow, walks word-to-word
     correctly, no regressions to the mouth-sync or the reveal timing. `npx tsc --noEmit` and all 45
     `jest` tests clean.
+
+109. ✅ **"Ember Stroke" — the read-along glow's final form** (2026-08-16) — user liked item 108's
+    outline glow and asked for ideas to push it further. Rather than guess, pitched four independent
+    refinements (two-tone stroke, torchlight flicker, softened edge, reveal-synced flash) and built
+    all four as live, actually-animating CSS demos plus a 5th "all combined" version, published as an
+    artifact so the user could see real motion rather than static mockups. User picked #5 and asked
+    for it wired into the real component as-is.
+
+    New `EmberWord` component replaces the single-style `styles.activeWord` on web (native keeps the
+    plain `textShadow*` fallback from item 108 unchanged — none of these four ingredients have a
+    native equivalent). Each letter of the active word renders as three stacked `Text` layers sharing
+    one `position: relative` box: a wider dark-rust `-webkit-text-stroke` layer, a thinner amber one
+    on top of that (both with a touch of `filter: blur()`), and the plain ink fill on top of both —
+    same "stroke/blur the real glyph, not a computed shadow box" principle as item 108, extended to
+    two stroke layers instead of one, which is what makes the glow read as it has depth instead of a
+    flat line.
+
+    The flash-then-flicker motion is RN's `Animated` API, not CSS `@keyframes` — one `Animated.Value`
+    per letter position, driving only the amber layer's opacity through a fixed
+    `Animated.sequence`: quick flash to full brightness, settle, then an `Animated.loop` gently
+    breathing between two opacity levels for as long as that letter stays part of the active word.
+    Matches the pattern already used for the advance-indicator bounce elsewhere in this file, so the
+    whole component now animates through one consistent API rather than mixing in raw CSS keyframes
+    on web only. `EmberWord` is remounted (via `key={activeSpan.before}`, a string that's different
+    for every word occurrence) each time the active word changes, so every new word's letters always
+    start their animation fresh rather than inheriting stale state from the previous word.
+
+    First real-app screenshot came out with the amber/rust strokes almost entirely swallowing the ink
+    fill instead of rimming it — the stroke widths ported over from the artifact's 54px demo font
+    were proportionally far too thick for the dialogue box's actual 17px text, wide enough that the
+    two strokes met in the middle of each thin serif letterform. Fixed by scaling the stroke widths
+    down to match the font size actually in use (outer 1.3px, inner 0.6px) rather than the demo's
+    absolute pixel values.
+
+    Verified in the real running component (not the artifact): screenshots across a live reveal
+    confirm the two-tone glow renders correctly on real words, a pixel diff between two consecutive
+    frames on the same word confirms the flicker is genuinely animating (not a static screenshot),
+    and the browser console stayed clean throughout. `npx tsc --noEmit` and all 45 `jest` tests clean.

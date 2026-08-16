@@ -20,11 +20,10 @@
 // else about the component changes.
 //
 // Read-along highlight: the same trick karaoke captions/read-along apps use — `activeWordSpan()`
-// finds whichever word contains the most-recently-revealed character and gives it an amber
-// outline glow (see styles.activeWord below for why that's a web-only text-stroke rather than
-// RN's textShadow) so it's visually obvious which word the mouth is currently on, independent of
-// the mouth animation itself. Clears for the one tick between words (space/punctuation revealing)
-// same as the mouth resting on those characters in visemes.ts.
+// finds whichever word contains the most-recently-revealed character and gives it an "ember"
+// glow (see EmberWord below) so it's visually obvious which word the mouth is currently on,
+// independent of the mouth animation itself. Clears for the one tick between words
+// (space/punctuation revealing) same as the mouth resting on those characters in visemes.ts.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
@@ -89,6 +88,74 @@ function activeWordSpan(text: string, revealedCount: number): { before: string; 
     }
   }
   return null;
+}
+
+// The active word's glow, live on web — "Ember Stroke" (see GAME_DESIGN.md, and the "Ember
+// Stroke" artifact this was picked from). Three ingredients per letter, all landed on for the
+// same reason: they're built from real glyph outlines/rasterized pixels rather than a computed
+// text-shadow blur region, which is the thing that silently breaks on this custom carved-bone
+// font (see the long comment on styles.letterInk below for the actual diagnosis):
+//   1. Two-tone stroke — a wider dark-rust rim under a thinner amber one, for depth instead of a
+//      single flat outline.
+//   2. Softened edge — a touch of `filter: blur()` on both stroke layers (never the ink fill on
+//      top), so it reads as hand-inked rather than vector-crisp.
+//   3. Reveal-synced flash, then idle flicker — each letter's glow snaps bright the instant it's
+//      revealed, settles, then breathes gently (like nearby torchlight) for as long as it stays
+//      the active word. Driven by RN's Animated API (not CSS @keyframes) so it's the same
+//      portable approach as the advance-indicator bounce elsewhere in this file.
+// Native (iOS/Android) has no stroke/blur equivalent for Text, so it keeps the simpler
+// styles.activeWord textShadow* fallback instead of this component — see ConversationBox's main
+// render.
+function EmberWord({ text }: { text: string }) {
+  // One Animated.Value per letter position, reused across re-renders of the same word instance
+  // (this component remounts — see the `key={activeSpan.before}` where it's used — every time the
+  // active word changes, so a fresh set of letters always starts fresh). `startedCount` tracks how
+  // many letters already have their animation kicked off, so a letter's sequence only starts once
+  // even though this effect re-runs on every new letter reveal.
+  const animsRef = useRef<Animated.Value[]>([]);
+  const startedCountRef = useRef(0);
+
+  useEffect(() => {
+    while (animsRef.current.length < text.length) {
+      animsRef.current.push(new Animated.Value(0));
+    }
+    for (let i = startedCountRef.current; i < text.length; i++) {
+      const v = animsRef.current[i];
+      Animated.sequence([
+        Animated.timing(v, { toValue: 1, duration: 90, useNativeDriver: false }),
+        Animated.timing(v, { toValue: 0.55, duration: 260, useNativeDriver: false }),
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(v, { toValue: 0.3, duration: 760, useNativeDriver: false }),
+            Animated.timing(v, { toValue: 0.55, duration: 940, useNativeDriver: false }),
+          ])
+        ),
+      ]).start();
+    }
+    startedCountRef.current = text.length;
+  }, [text.length]);
+
+  return (
+    <>
+      {text.split('').map((ch, i) => {
+        const v = animsRef.current[i];
+        const glowOpacity = v
+          ? v.interpolate({
+              inputRange: [0, 0.3, 0.55, 1],
+              outputRange: [0, 0.55, 0.85, 1],
+              extrapolate: 'clamp',
+            })
+          : 0;
+        return (
+          <Text key={i} style={styles.letterWrap}>
+            <Text style={styles.letterStrokeOuter}>{ch}</Text>
+            <Animated.Text style={[styles.letterStrokeInner, { opacity: glowOpacity }]}>{ch}</Animated.Text>
+            <Text style={styles.letterInk}>{ch}</Text>
+          </Text>
+        );
+      })}
+    </>
+  );
 }
 
 // Portrait sized and overlapped to match the reference mockup: flush to the screen edge (no side
@@ -220,7 +287,13 @@ export default function ConversationBox({
           {activeSpan ? (
             <>
               {activeSpan.before}
-              <Text style={styles.activeWord}>{activeSpan.active}</Text>
+              {Platform.OS === 'web' ? (
+                // Remounts (fresh letter animations) every time the active word changes, since
+                // `before` — everything up to this word's start — is a new string each time.
+                <EmberWord key={activeSpan.before} text={activeSpan.active} />
+              ) : (
+                <Text style={styles.activeWord}>{activeSpan.active}</Text>
+              )}
             </>
           ) : (
             text.slice(0, revealedCount)
@@ -334,39 +407,54 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     color: '#2c1a0c',
   },
-  // Glow around the letters themselves for the word currently being read, not a block behind
-  // them — an amber outline that lights up the letter shapes — rather than a highlighter box, per
-  // user feedback that the solid tint read as too bulky.
-  //
-  // This is NOT React Native's textShadow* — that was the first attempt, and it's the technically
-  // "correct" RN API for a glow, but on web (react-native-web, which is what every screenshot in
-  // this session has been verified against) it silently fails to paint with our custom carved-bone
-  // display font (IM Fell / assets/fonts/IMFellEnglishSC-Regular.ttf): the CSS text-shadow blur
-  // pass computes its blur region from the font's glyph ink-overflow box, and this particular
-  // hand-built webfont reports wildly wrong metrics for that box, so the blur renders as a faint
-  // blob offset well away from the actual letters — invisible in practice. Confirmed by isolating
-  // the exact failure down to (custom font) + (text-shadow) specifically: swap in a generic system
-  // font and the identical shadow renders fine; keep the custom font and it silently breaks, on
-  // both headless and headed Chromium, static or animated, at any radius/color — so it's not a
-  // headless quirk or a timing/contrast issue, it's this webfont's metrics.
-  // `-webkit-text-stroke` sidesteps it entirely: it strokes the real glyph outline instead of a
-  // computed ink-overflow box, so it isn't affected by this font's bad metrics — confirmed working
-  // with the same custom font. `paint-order: stroke fill` draws the stroke first so it reads as an
-  // outline glow sitting behind the crisp dark letters, not a bulky block. Web-only (RN has no
-  // native stroke prop); native platforms keep the standard RN textShadow* trio, which is the
-  // documented-correct API there and isn't known to share this particular web/font-metrics bug.
+  // Native (iOS/Android) fallback for the active word — EmberWord (see above) is web-only since
+  // RN Text has no stroke/blur equivalent there. Plain RN textShadow* trio, the
+  // documented-correct RN API for a glow; not known to share the web/custom-font text-shadow bug
+  // documented on EmberWord's letterInk style below (that bug is specifically about how Chromium
+  // computes a *blur* region from this font's glyph metrics — iOS/Android don't go through that
+  // code path at all).
   activeWord: {
     color: '#1c0f04',
+    textShadowColor: 'rgba(255, 140, 0, 0.95)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
+  },
+  // EmberWord's three stacked layers per letter (outer dark stroke, inner amber stroke, ink fill
+  // on top) — see EmberWord's own comment for why stroke+blur instead of text-shadow.
+  letterWrap: {
+    position: 'relative',
+  },
+  letterStrokeOuter: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    color: 'transparent',
     ...(Platform.OS === 'web'
-      ? ({
-          WebkitTextStroke: '1.5px rgba(255, 140, 0, 0.95)',
-          paintOrder: 'stroke fill',
-        } as Record<string, string>)
-      : {
-          textShadowColor: 'rgba(255, 140, 0, 0.95)',
-          textShadowOffset: { width: 0, height: 0 },
-          textShadowRadius: 6,
-        }),
+      ? ({ WebkitTextStroke: '1.3px #5a2a06', filter: 'blur(0.6px)' } as Record<string, string>)
+      : {}),
+  },
+  letterStrokeInner: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    color: 'transparent',
+    ...(Platform.OS === 'web'
+      ? ({ WebkitTextStroke: '0.6px rgba(255, 170, 50, 0.98)', filter: 'blur(0.3px)' } as Record<
+          string,
+          string
+        >)
+      : {}),
+  },
+  // The dark stroke's own comment has the full diagnosis: text-shadow's blur region is computed
+  // from this font's (IM Fell / assets/fonts/IMFellEnglishSC-Regular.ttf) glyph metrics, which are
+  // bad enough that the blur renders off to the side of the actual letters — invisible in
+  // practice, confirmed by isolating the exact (custom font) + (text-shadow) combination outside
+  // the app. `-webkit-text-stroke` and `filter: blur()` both sidestep it — they work from the real
+  // glyph outline / rasterized pixels instead of a computed metrics box, confirmed working with
+  // this same font.
+  letterInk: {
+    position: 'relative',
+    color: '#1c0f04',
   },
   nameplate: {
     position: 'absolute',
