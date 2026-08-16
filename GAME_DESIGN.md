@@ -3819,3 +3819,12 @@ long collection grind *and* one legendary payoff at the top of it.
     the tavern backdrop, with a tight crop on the boot area confirming the torn-paper edge now sits
     visibly above the boots (planted on the ground below) rather than level with them. `npx tsc
     --noEmit` and all 45 `jest` tests clean.
+
+114. ✅ **Back to flush — boots level with the paper, not past it** (2026-08-16) — item 113's sink
+    past the edge wasn't what was wanted after all; asked to move him back up so his bottom lands
+    level with the bottom of the paper. `PORTRAIT_BOTTOM_NUDGE` removed entirely and
+    `portraitSlot.bottom` is a flat `0` again — the same state item 112 first landed on, this time
+    confirmed as the actual target rather than a stepping stone. `WRAPPER_BOTTOM_OFFSET` (item 111,
+    raised to 40 in item 113) is untouched — this round was leg position only. Verified both portrait
+    sides in the real app; a tight crop on the boot area confirms the torn-paper edge and boot
+    bottoms now sit on the same line. `npx tsc --noEmit` and all 45 `jest` tests clean.
