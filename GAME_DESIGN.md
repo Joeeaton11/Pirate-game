@@ -3786,3 +3786,12 @@ long collection grind *and* one legendary payoff at the top of it.
     because the still-open box legitimately covers that button on screen — a pre-existing debug-panel
     interaction quirk, not something this change introduced, so each side was verified independently
     instead). Zero console errors on either. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+111. ✅ **Lifted ConversationBox clear of the screen's bottom edge** (2026-08-16) — with real
+    background art behind it now (item 110), the parchment sitting flush against the very bottom
+    edge read as cropped rather than intentional. One new `WRAPPER_BOTTOM_OFFSET = 20` constant on
+    `styles.wrapper`'s `bottom` (was a hard `0`) — parchment, portrait, and name-plate are all
+    positioned relative to `wrapper`, not the screen, so the whole assembly lifts together as one
+    unit with a single number. Verified both portrait sides in the real running app against the
+    tavern backdrop — a clear strip of ground now shows below the parchment. `npx tsc --noEmit` and
+    all 45 `jest` tests clean.

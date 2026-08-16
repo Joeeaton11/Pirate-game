@@ -173,6 +173,9 @@ const PORTRAIT_CROP_FRACTION = 0.85;
 const PORTRAIT_HEIGHT = Math.round(PORTRAIT_FULL_HEIGHT * PORTRAIT_CROP_FRACTION);
 const PORTRAIT_OVERLAP = Math.round(PORTRAIT_HEIGHT * 0.55); // how far the portrait sinks into the parchment
 const PARCHMENT_HEIGHT = 240;
+// Lifts the whole box (parchment, portrait, name-plate together — they're all positioned relative
+// to `wrapper`, not the screen) a little clear of the very bottom edge, per user feedback.
+const WRAPPER_BOTTOM_OFFSET = 20;
 
 // Name-plate: sized to its own content (icon + bitmap-font name) rather than a fixed width, since
 // speaker names vary in length and the real board art has to stretch to fit whatever comes out —
@@ -352,7 +355,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: WRAPPER_BOTTOM_OFFSET,
     height: PARCHMENT_HEIGHT - PORTRAIT_OVERLAP + PORTRAIT_HEIGHT,
   },
   portraitSlot: {
