@@ -50,10 +50,18 @@ export interface ConversationBoxProps {
 const DEFAULT_TYPING_SPEED_MS = 26;
 
 // Portrait sized and overlapped to match the reference mockup: flush to the screen edge (no side
-// margin) and overlapping deep into the parchment rather than floating mostly above it as a small
-// card. Aspect ratio taken from the real lip-sync frames (129x251 native).
+// margin), overlapping deep into the parchment, and cropped off at the waist/hip rather than
+// showing the full standing figure (boots and all) — the mockup's shot is a tight torso close-up,
+// cut off by the frame partway down, not a small complete mini-figure floating above the paper.
+// Achieved by rendering the portrait at its real full-body height (so head/torso stay correctly
+// proportioned, not squashed) inside a shorter, `overflow: 'hidden'` slot that clips the legs off.
+// Aspect ratio and crop line both read off the real lip-sync frames (129x251 native; the belt sits
+// at roughly 60% down, so cropping at 66% keeps a little coat-flare below it without reaching the
+// boots).
 const PORTRAIT_WIDTH = 175;
-const PORTRAIT_HEIGHT = Math.round(PORTRAIT_WIDTH * (251 / 129));
+const PORTRAIT_FULL_HEIGHT = Math.round(PORTRAIT_WIDTH * (251 / 129));
+const PORTRAIT_CROP_FRACTION = 0.66;
+const PORTRAIT_HEIGHT = Math.round(PORTRAIT_FULL_HEIGHT * PORTRAIT_CROP_FRACTION);
 const PORTRAIT_OVERLAP = Math.round(PORTRAIT_HEIGHT * 0.45); // how far the portrait sinks into the parchment
 const PARCHMENT_HEIGHT = 240;
 
@@ -119,7 +127,11 @@ export default function ConversationBox({
   return (
     <Pressable style={styles.wrapper} onPress={handlePress}>
       <View style={[styles.portraitSlot, { [sideProp]: 0 } as const]}>
-        <Image source={portrait} style={styles.portraitImg} resizeMode="contain" />
+        {/* overflow:'hidden' on the same view as the shadow clips the shadow too on iOS/Android —
+            the crop and the shadow live on separate nested views so both work. */}
+        <View style={styles.portraitCrop}>
+          <Image source={portrait} style={styles.portraitImg} resizeMode="contain" />
+        </View>
       </View>
 
       <View style={styles.parchment}>
@@ -171,7 +183,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: PARCHMENT_HEIGHT - PORTRAIT_OVERLAP,
     width: PORTRAIT_WIDTH,
-    height: PORTRAIT_HEIGHT,
+    height: PORTRAIT_HEIGHT, // the cropped (waist-up) height
     zIndex: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
@@ -179,9 +191,17 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-  portraitImg: {
+  portraitCrop: {
     width: '100%',
     height: '100%',
+    overflow: 'hidden',
+  },
+  portraitImg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: PORTRAIT_FULL_HEIGHT, // full body at correct proportions; portraitCrop clips the legs
   },
   parchment: {
     position: 'absolute',

@@ -3592,3 +3592,25 @@ long collection grind *and* one legendary payoff at the top of it.
 
     Only thing left unaddressed, by the user's own framing: the full background scene (harbor,
     ship, tavern, sky) — explicitly deferred, coming later.
+
+105. ✅ **Portrait cropped at the waist to match the mockup's tight torso shot** (2026-08-16) —
+    user pointed out the one remaining mismatch: the mockup's Scally is cut off partway down (a
+    tight bust/torso close-up, cropped by the frame), while item 104's version showed the full
+    standing figure, boots and all, just bigger and lower. "Adjust our version to match."
+
+    Implemented as a real crop, not a smaller/differently-posed source image (the lip-sync frames
+    are the only Scally art at this scale, and re-cutting them would lose the boots permanently) —
+    the portrait renders at its true full-body height so the head/torso stay correctly
+    proportioned, inside a shorter sibling `View` with `overflow: 'hidden'` that clips the legs off
+    partway down. Crop line (66% of the frame's height) read off the source art's own proportions
+    rather than guessed — the belt sits at roughly 60% down, so cropping a little past that keeps
+    the coat's flare visible without reaching the boots, verified with a zoomed crop of the
+    rendered result afterward (belt buckle right at the cut line, no boots showing).
+
+    One real gotcha: `overflow: 'hidden'` and the portrait's drop shadow can't live on the same
+    `View` — on native, overflow-hidden clips the shadow along with the content, since the shadow
+    is drawn outside the view's own bounds. Split into two nested views — outer keeps the shadow
+    (no overflow), inner adds the crop — so both survive.
+
+    `npx tsc --noEmit` and all 45 `jest` tests clean; re-verified both portrait-left/right layouts
+    visually, crop line landing cleanly at the belt on both.
