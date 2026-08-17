@@ -4232,3 +4232,22 @@ long collection grind *and* one legendary payoff at the top of it.
     Re-verified every re-cut category visually via contact sheets — no clipped edges, no fragments,
     no residual label-text bleed. `npx tsc --noEmit` and all 45 `jest` tests clean (asset-only
     changes).
+
+137. 🔒 **Locked in a standing policy: never request multi-item grid/catalog sheets for art
+    generation going forward — one asset per image, always** (2026-08-17) — item 136 fixed how
+    already-delivered grid sheets get *cut*; this closes the loop on the far cheaper fix: don't ask
+    for a grid in the first place. Added a durable rule to `AGENTS.md` (loaded every session via
+    `CLAUDE.md`'s `@AGENTS.md`) so this persists automatically rather than depending on a brief
+    doc being re-read. Updated every brief that asked for multi-item sheets: `ART_BRIEF.md`'s
+    "Universal technical spec" flipped from "multiple items per sheet (never one-per-image)" and
+    "clean grid" layout to one-asset-per-image with individually-sized canvases, and its Part C-F
+    "Sheet 1-6" groupings relabeled "Batch 1-6" with an explicit note that each named item is still
+    its own separate generation; `UI_MENU_ART_BRIEF.md`'s entire "Sheet 1-6" structure relabeled to
+    "Batch 1-6" with the same one-asset-per-image note added to both its intro and its reusable
+    paste-once prompt; `TERRAIN_BRIEF.md` — the doc most directly responsible for the sheet item
+    135/136 had to un-grid — got a correction notice up top flagging that its original "master
+    terrain sheet" framing produced the exact 250-sprite mess that just took an extensive re-cut to
+    fix, plus a fixed "Format notes" line that no longer implies one shared canvas across items.
+    `CONVERSATION_BACKGROUNDS_BRIEF.md` already asked for one continuous scene per image ("not a
+    collage or vignette grid") — checked, no change needed. `npx tsc --noEmit` and all 45 `jest`
+    tests clean (doc-only changes).

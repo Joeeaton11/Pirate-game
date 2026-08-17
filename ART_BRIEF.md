@@ -45,38 +45,49 @@ gradient/edge-threshold method documented at the top of `worldSprites.ts`).
 | The Ship's Provisioner | `'trading_co'` | Same shop archetype |
 | The Careening Shed | `'shipyard'` | Shared with Shipwright's Slip |
 
-## Part C — New buildings that need real generation (16 total, 3 sheets)
+## Part C — New buildings that need real generation (16 total, 3 batches)
 
-Full prompts (with the locked style paragraph) live in the published artifact — summary here for reference:
+Full prompts (with the locked style paragraph) live in the published artifact — summary here for
+reference. 🔒 Each named building below is its own separate single-item image generation (see
+"Universal technical spec" below) — "batch" here is a checklist grouping only, not a multi-item
+sheet:
 
-- **Sheet 1, Trades & Industry (6):** The Ropewalk, The Netmender's Shed, The Tannery, The Timber Yard, The Salt Works, The Tobacco Warehouse
-- **Sheet 2, Commerce & Vice (5):** The Vendue House, The Counting House, The Lucky Draw, The Apothecary, The Baker's Oven
-- **Sheet 3, Civic & Curiosities (5):** The Powder Magazine, The Almshouse, The Sexton's House, The Turtle Kraal, The Distillery
+- **Batch 1, Trades & Industry (6):** The Ropewalk, The Netmender's Shed, The Tannery, The Timber Yard, The Salt Works, The Tobacco Warehouse
+- **Batch 2, Commerce & Vice (5):** The Vendue House, The Counting House, The Lucky Draw, The Apothecary, The Baker's Oven
+- **Batch 3, Civic & Curiosities (5):** The Powder Magazine, The Almshouse, The Sexton's House, The Turtle Kraal, The Distillery
 
-## Part D — Wild-card landmarks (Sheet 4)
+## Part D — Wild-card landmarks (Batch 4)
 
 Blackwood's Hollow, Old Suzette's Still, The Marked Palm, plus an optional second visually-distinct
-shipwreck (the free one from Part A can cover both wrecks if you'd rather skip this).
+shipwreck (the free one from Part A can cover both wrecks if you'd rather skip this). Each its own
+single-item image, same as Part C.
 
-## Part E — House variety expansion (Sheet 5, optional)
+## Part E — House variety expansion (Batch 5, optional)
 
 6 more archetypes beyond the free 8: two-story merchant townhouse, fisherman's stilt shack, plain
 laborer's cottage, half-collapsed ruin (for the Abandoned Quarter), walled courtyard house, leaning
-"drunkard's" house.
+"drunkard's" house. Each its own single-item image.
 
-## Part F — Rural trail tile (Sheet 6, optional)
+## Part F — Rural trail tile (Batch 6, optional)
 
 One seamless dirt/trodden-earth tile — the only real terrain gap. Right now `streets.ts`'s `'path'`
 style (every rural trail) renders as a flat dashed line with no texture.
 
 ## Universal technical spec
 
-- PNG, 1536×1024+ canvas, multiple items per sheet (never one-per-image)
+🔒 **One asset per image — never a multi-item grid or catalog sheet.** (Locked in 2026-08-17,
+reversing this doc's original guidance below — see `AGENTS.md`.) Every generation call should
+produce exactly one building/prop/tile, on its own canvas, full stop. Grouping items into "sheets"
+elsewhere in this doc is a checklist/ordering convenience only, not a delivery format — each line
+item still gets its own separate image.
+
+- PNG, 1024×1024+ canvas (or whatever aspect suits the individual item — square for most
+  buildings/props, tall for anything vertical like a lighthouse)
 - **Continuous soft-focus blurred background** — not flat, not transparent, not a hard vignette. The
   cutout pipeline segments by edge/gradient strength, and only works against a real continuous blur.
 - Semi-isometric 3/4 front view for buildings/scenes; flat top-down only for ground tiles
 - Attach `tortuga_focus_v1.png` as a style reference on every generation if the tool supports image input
-- Single evenly-spaced row (or clean grid), same scale/baseline, generous margin for cropping
+- Generous margin around the single item for cropping
 - Keep exact signboard wording where a prompt specifies it in quotes
 
 ## Handoff, once art comes back

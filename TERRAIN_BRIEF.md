@@ -1,11 +1,20 @@
 # Terrain & Town Kit — Exact Tile List
 
-Companion doc for the incoming "master island terrain sheet." Rewritten 2026-08-14 against a direct
-reference image (a finished pirate-town scene: curbed cobblestone roads, raised building plinths
-with entrance steps, dense street props, jetty with moored boat) — every item below is either
-visible in that reference or a tiling-mechanics requirement it implies (corner/junction/end pieces
-for anything linear, since a curb or a road needs the same wrap-around-a-corner treatment a road
-itself does).
+🔒 **2026-08-17 correction — read this before requesting anything from this doc.** Earlier language
+here (and the "master island terrain sheet" this doc was originally a companion to) asked for
+items packed into multi-item catalog sheets. That produced a real, expensive mess: a
+250-sprite delivery that took an extensive re-cutting pass to un-grid correctly (see
+`GAME_DESIGN.md` items 135–136, `assets/sprites/TERRAIN_EXTRAS_MANIFEST.md`). **Do not request a
+"terrain sheet" of any kind going forward.** Every item in the list below is its own separate
+single-item image generation — see `AGENTS.md`'s standing art-asset rule. Treat every "sheet"
+reference below as historical description of how this was done before, not as current instruction.
+
+Companion doc to a now-outdated "master island terrain sheet" concept. Rewritten 2026-08-14 against
+a direct reference image (a finished pirate-town scene: curbed cobblestone roads, raised building
+plinths with entrance steps, dense street props, jetty with moored boat) — every item below is
+either visible in that reference or a tiling-mechanics requirement it implies (corner/junction/end
+pieces for anything linear, since a curb or a road needs the same wrap-around-a-corner treatment a
+road itself does).
 
 **208 distinct, named items** (164 in the original pass, 44 more in §XX's addendum, weighted toward
 terrain/roads/paths per direct request). Not padded to hit a round number and not trimmed to look
@@ -29,10 +38,11 @@ usable on any island**, not just Tortuga, the same shared-library principle
   §III/§IV.
 - **2-4 variants minimum for anything tiled edge-to-edge at scale** (grass, sand, water, plaza
   paving) — a single source always reads as wallpaper once several copies are on screen together.
-- **One consistent top-down angle and light direction across the entire sheet.** The reference image
-  is a slight-isometric angle with a consistent upper-left light source — match that across every
-  single item below, not just within one category. Mixing angles is the fastest way to make an
-  otherwise well-drawn tile look wrong once it's placed next to everything else.
+- **One consistent top-down angle and light direction across every item.** The reference image is a
+  slight-isometric angle with a consistent upper-left light source — match that across every single
+  item below, not just within one category, even though each is generated as its own separate
+  image. Mixing angles is the fastest way to make an otherwise well-drawn tile look wrong once it's
+  placed next to everything else.
 - **Real alpha transparency on every irregular-silhouette item** (props, vegetation, steps, decals) —
   a tile that ships with genuine alpha (like `pier_module.png` turned out to) skips the
   gradient/edge-threshold segmentation pass entirely; flattened-to-RGB costs real cutting time.
