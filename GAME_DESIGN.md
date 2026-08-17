@@ -4150,3 +4150,41 @@ long collection grind *and* one legendary payoff at the top of it.
     same issue as Marietta Graves' lair (item 132's redo request) — no pixel-art texture at all.
     Flagged it rather than wiring it in silently; user asked for a pixel-art redo, same as before.
     Both #16 and #17 now sit on hold pending redos rather than shipped as mismatched art.
+
+135. ✅ **New track opened: a UI & Menus art brief, then a 245-sprite terrain/world "extras" dump
+    cut and filed into the sprite library** (2026-08-17) — two separate pieces of work.
+
+    First, audited every screen/component rendering UI chrome (`src/screens/*.tsx`,
+    `ConversationBox.tsx`, `OnboardingOverlay.tsx`): every button, panel, progress bar, and stat/
+    currency icon across all 16 is still a flat `StyleSheet` box with an emoji standing in for real
+    art — only 4 sprites exist in `assets/sprites/ui/` today (the `ConversationBox` parchment/
+    nameplate/skull badge, plus an unwired compass rose). Wrote `UI_MENU_ART_BRIEF.md`, splitting
+    the gap into 6 requestable sheets (buttons & panels, bars & meters, currency/resource/specialty
+    icons, badges/ranks/quest markers, header & nav chrome, full-screen overlays), same paste-once
+    style-guide convention as `ART_BRIEF.md`/`CONVERSATION_BACKGROUNDS_BRIEF.md`. Published as a
+    designed artifact alongside the plain-text repo doc, then sent the `.md` directly to the user
+    for pasting into their image generator.
+
+    Second — and unrelated to the UI brief above — a dense 1536×1024 terrain/world "extras" catalog
+    sheet came back (12 labeled panels: additional ground/water/road/edge-transition/cliff/
+    vegetation/stairs/wall variants, a Majestic Waterfall hero feature set, a Neptune Fountain hero
+    landmark set, 15 one-off Hero Environmental Landmarks matching `landmarks.ts`-style named
+    sights, and a Misc Details & Overlays decal sheet). This maps onto `TERRAIN_BRIEF.md`'s
+    long-open request, not the UI brief — routed it there instead of trying to force it into
+    `uiSprites.ts`. Cut using the README's established method (row/column background-profile
+    detection instead of assuming a fixed grid, since several panels turned out to have two-line
+    wrapped labels and per-cell layouts that a naive pitch-division would have sliced wrong) —
+    caught and fixed a systematic y-offset bug partway through (relative in-panel coordinates were
+    being used as absolute image coordinates for 7 of the 9 grid panels, which briefly cropped the
+    wrong region entirely — e.g. "cliffs" coming out as water tiles — fixed by re-deriving every
+    panel's true absolute y-band and re-cutting), plus several rounds of trimming labels that had
+    bled into the top or bottom of a crop. Filed 245 sprites across `tiles/`, `nature/`, `props/`,
+    `decals/` (first entries — was empty), `water_fx/` (first entries — was empty), and
+    `landmarks/` (first entries — was empty), using the codebase's plain-sequential-number filename
+    convention rather than baking each label into the filename. Wrote
+    `assets/sprites/TERRAIN_EXTRAS_MANIFEST.md` as the filename → real-label lookup table, since
+    the sequential names alone don't say what's in them. Dropped 3 small fountain edge/corner trim
+    pieces whose column boundaries didn't segment cleanly rather than spend more time perfecting a
+    minor detail category. Scope for this pass was cut-and-file only, per explicit request — no
+    renderer wiring yet (that's the natural next step whenever it's wanted). `npx tsc --noEmit` and
+    all 45 `jest` tests clean throughout (asset-only changes, no code touched).
