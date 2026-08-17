@@ -4131,3 +4131,22 @@ long collection grind *and* one legendary payoff at the top of it.
     = 16 backgrounds total). Next open: #15 Port Royal's own Customs House (a real one, not the
     flooded-street sign), #16 Marietta Graves' drowned lair, then Île Sainte-Marie (#17-19), Ocracoke
     (#20-22), Black Pearl/sea (#23-25), and the 5 landmark/wilderness scenes (#26-30).
+
+134. ✅ **A second Iron Jenny's Stronghold delivery, kept as an alternate rather than a
+    replacement; two style-mismatched deliveries caught and held back** (2026-08-17) — a second
+    pixel-art take on scene #10 came in (`lord_iron_jenny_fort_2`): same stronghold, framed from
+    the gate looking in rather than the first version's approach shot — "IRON JENNY'S STRONGHOLD"
+    sign on the palisade at left, open gate, a captain walking through, fort and cannon battery
+    behind, ship offshore at sunset. User's call on the duplicate: keep both. Source came in wide
+    at 1024x1536 (0.667); cropped to 711x1536 (0.4629, matches target), trimming 60px off the left
+    and 253px off the right — loses a torch-bearing guard at the right edge, keeps the sign, gate,
+    ship, and fort fully intact. Wired as `SCENE_LORD_IRON_JENNY_FORT_ALT`, a seventeenth "BG:"
+    toggle ("Iron Jenny's fort (alt)") alongside the original rather than swapping it out. Verified
+    live — composites cleanly behind the parchment box. `npx tsc --noEmit` and all 45 `jest` tests
+    clean.
+
+    Two other deliveries arrived alongside this one and were *not* wired in: a second style-mismatch
+    case (Republic Square, Île Sainte-Marie, scene #17) came back photorealistic/painterly again,
+    same issue as Marietta Graves' lair (item 132's redo request) — no pixel-art texture at all.
+    Flagged it rather than wiring it in silently; user asked for a pixel-art redo, same as before.
+    Both #16 and #17 now sit on hold pending redos rather than shipped as mismatched art.

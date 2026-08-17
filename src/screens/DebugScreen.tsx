@@ -27,6 +27,7 @@ import {
   SCENE_COW_ISLAND_MUSTER_FLATS,
   SCENE_LORD_CAPTAIN_BELLOWS_FORT,
   SCENE_LORD_IRON_JENNY_FORT,
+  SCENE_LORD_IRON_JENNY_FORT_ALT,
   SCENE_LORD_REDBEARD_SULLY_FORT,
   SCENE_NEW_PROVIDENCE_HARBOR,
   SCENE_NEW_PROVIDENCE_TAVERN,
@@ -565,6 +566,9 @@ export default function DebugScreen({ navigation }: Props) {
         <View style={styles.row}>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_PORT_ROYAL_FLOODED_STREET)}>
             <Text style={styles.buttonText}>BG: Port Royal street</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_LORD_IRON_JENNY_FORT_ALT)}>
+            <Text style={styles.buttonText}>BG: Iron Jenny's fort (alt)</Text>
           </Pressable>
         </View>
 

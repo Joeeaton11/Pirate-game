@@ -125,3 +125,13 @@ export const SCENE_LORD_IRON_JENNY_FORT = require('../../assets/backgrounds/lord
  * asserts a location that contradicts the real building data. Worth cropping or requesting a redo
  * if a genuine Port Royal Customs House scene is ever needed later. */
 export const SCENE_PORT_ROYAL_FLOODED_STREET = require('../../assets/backgrounds/port_royal_flooded_street_1.png');
+
+/** Iron Jenny's Stronghold, alternate angle — a second delivery for scene #10, framed from the
+ * gate looking in rather than the first version's approach shot: "IRON JENNY'S STRONGHOLD" sign on
+ * the palisade at left, open gate, a pirate captain walking through, fort and cannon battery behind,
+ * ship offshore at sunset. User's call: keep both rather than replace — wired in as a second "BG:"
+ * toggle rather than swapping out `SCENE_LORD_IRON_JENNY_FORT`. Source came in wide at 1024x1536
+ * (0.667); cropped to 711x1536 (0.4629, matches target), trimmed 60px off the left and 253px off
+ * the right — loses a torch-bearing guard on the right edge, keeps the sign, gate, ship, and fort
+ * fully intact. */
+export const SCENE_LORD_IRON_JENNY_FORT_ALT = require('../../assets/backgrounds/lord_iron_jenny_fort_2.png');
