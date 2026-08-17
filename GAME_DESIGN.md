@@ -4251,3 +4251,20 @@ long collection grind *and* one legendary payoff at the top of it.
     `CONVERSATION_BACKGROUNDS_BRIEF.md` already asked for one continuous scene per image ("not a
     collage or vignette grid") — checked, no change needed. `npx tsc --noEmit` and all 45 `jest`
     tests clean (doc-only changes).
+
+138. ✅ **Saved the original terrain-extras sheet into the repo as a permanent reference, for
+    re-verification and future style-matching** (2026-08-17) — the 1536×1024 sheet items 135/136
+    cut 245 sprites from only ever existed in ephemeral upload/scratch storage; nothing tied the cut
+    sprites back to their source once the session ended. Copied it to
+    `assets/brand/tileset-catalog/terrain_extras_sheet_v1.png`, following the exact precedent
+    already set by `master_catalog_v1.png`/`tortuga_focus_v1.png` in that same folder (original,
+    uncut reference sheets a cutting pass came from — not used directly in-game). Two reasons this
+    matters going forward: re-verification (if a cut sprite ever looks wrong, the real source panel
+    is sitting right there to check against instead of trusting the crop blind) and future
+    requests (matching the same visual language if more items in this style are ever needed).
+    Updated `TERRAIN_EXTRAS_MANIFEST.md` to point at the saved file and added the source sheet's own
+    roman-numeral panel labels (Panel I ground variants, II water, III paving, IV edges/
+    transitions, V cliffs, VI vegetation, VII stairs, VIII fences, IX waterfall hero set, X
+    fountain hero set, XI hero landmarks, XII decals) to every section heading, so any future
+    lookup goes straight to the right part of the sheet rather than searching by eye. `npx tsc
+    --noEmit` and all 45 `jest` tests clean (asset + doc changes only).
