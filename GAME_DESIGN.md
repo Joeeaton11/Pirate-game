@@ -4268,3 +4268,35 @@ long collection grind *and* one legendary payoff at the top of it.
     fountain hero set, XI hero landmarks, XII decals) to every section heading, so any future
     lookup goes straight to the right part of the sheet rather than searching by eye. `npx tsc
     --noEmit` and all 45 `jest` tests clean (asset + doc changes only).
+
+139. ✅ **Future-proofed the cutting process and asset filing itself, ahead of many more incoming
+    deliveries** (2026-08-17) — the user's own framing: fix storage/filing *before* the next dump
+    lands, not after. Two changes, both process, no new sprites.
+
+    Rewrote `assets/sprites/README.md`'s "Cutting convention" section to bake the item 136 fix in
+    as the actual default method, not just a lesson learned in `GAME_DESIGN.md` history: explicit
+    warning against the equal-width-division shortcut (the exact mistake made in item 135, even
+    though the README's older text technically already said not to trust a matching count alone);
+    concrete technique for both failure directions found this session — auto-tuned dilation radius
+    for items that over-fragment (fence rails, coral branches, scattered decals) and a raised
+    on/off threshold or group-then-subdivide approach for items that under-fragment (touching
+    tiles, blended anti-aliased edges); a new standing step to always save the original sheet to
+    `assets/brand/tileset-catalog/` (previously only done because it was asked for — item 138); and
+    a naming-continuation rule for future deliveries in an already-existing category (`ground_extra_25`,
+    not a fresh descriptor).
+
+    Created `assets/sprites/DELIVERY_LOG.md` — a running per-delivery index (date, source sheet,
+    manifest doc, item count, folders touched, wired status) so "which sheet did this come from"
+    and "is this wired in yet" both stay answerable after many more deliveries, rather than
+    requiring a commit-history search or relying on memory. Pre-populated with the two prior
+    deliveries (`master_catalog_v1.png`, `tortuga_focus_v1.png`) plus this session's terrain-extras
+    delivery, and seeded with a "known free wiring opportunities" section capturing the landmark
+    gaps and variant-pool opportunities found while answering the user's "what else could we do"
+    question — so those findings don't get lost before wiring work actually starts.
+
+    Flagged but did *not* do: `tiles/` (268 files) and `nature/` (116 files) are both well past the
+    README's own stated subfolder-split threshold. Not split yet because it means updating every
+    `require()` path already wired into `worldSprites.ts` for the pre-existing files in those
+    folders — a real refactor, not a free action — so it's recorded in `DELIVERY_LOG.md` as an open
+    decision rather than done unilaterally. `npx tsc --noEmit` and all 45 `jest` tests clean
+    (doc-only changes).

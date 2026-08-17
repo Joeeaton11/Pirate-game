@@ -63,13 +63,24 @@ used — a lantern prop that happens to light a tavern interior is still `props/
 
 ## Cutting convention (read before cutting a new sheet)
 
-**Do not assume a grid.** Every reference sheet so far has looked like a uniform grid at a glance
-and turned out not to be one on inspection — corner/notch shapes, wider cross-junctions, tapered
-edges, and scattered props all break a fixed pitch somewhere. Any method that assumes a uniform
-cell size will eventually misalign: either clipping a tile's own edge short, or bleeding into a
-neighbor.
+🔒 **Per `AGENTS.md`, new deliveries should already be one asset per image** — grids/catalog
+sheets shouldn't be arriving at all going forward. This section is still real and still matters
+for two cases: (a) sheets already in the library from before that rule existed, and (b) it's the
+same underlying discipline — "trust real pixel boundaries, not an assumption" — that also applies
+to filing a batch of individually-generated images that happen to need consistent naming/sizing.
 
-The reliable method, used for every sprite currently in this library:
+**Do not assume a grid, and do not shortcut with equal-width division either.** Every reference
+sheet so far has looked like a uniform grid at a glance and turned out not to be one on inspection
+— corner/notch shapes, wider cross-junctions, tapered edges, and scattered props all break a fixed
+pitch somewhere. This includes the tempting middle-ground shortcut of dividing a row into N
+equal-width cells (N read off a label count) and then tight-cropping the real content *within*
+each cell — that still silently mis-segments the moment items aren't actually equal width, and the
+inner crop makes the error hard to spot without deliberately checking. Confirmed the hard way: a
+250-sprite pass using that shortcut had 10 of 21 rows drift off the real boundaries (`GAME_DESIGN.md`
+items 135–136). Always detect real per-item boundaries — no exceptions for "it'll probably be
+fine."
+
+The reliable method:
 
 1. **Connected-component detection**, not pitch division. Chroma-key the sheet's background to a
    distance-from-background mask (`BG ≈ near-black`, see `scipy.ndimage.label`), and crop each
@@ -80,16 +91,42 @@ The reliable method, used for every sprite currently in this library:
    sheet — a global pass fuses unrelated content (banners, borders, neighboring panels) into one
    blob. Window each labeled panel separately.
 3. **When one object's own art fragments** (stonework with dark mortar lines, bare branches, a
-   corner shape with a thin waist), group with a *dilated* copy of the mask first, but still
-   measure and crop from the *real, undilated* pixels within each group. This bridges an object's
-   own internal gaps without also bridging the real gap to its neighbor.
-4. **Alpha, not a flattened background.** Every output PNG is RGBA — background pixels are
+   corner shape with a thin waist, a fence's rail slats, scattered decal dots), group with a
+   *dilated* copy of the mask first, but still measure and crop from the *real, undilated* pixels
+   within each group — this bridges an object's own internal gaps without also bridging the real
+   gap to its neighbor. Don't guess the dilation radius: auto-tune it (try radius 0 upward, stop
+   at the first value that gives both the expected item count *and* sane, mutually consistent
+   segment widths — see point 5, count alone is not enough) rather than picking one fixed radius
+   for the whole sheet.
+4. **When items are genuinely touching with zero real gap** (anti-aliased edges blending directly,
+   or — as with some transition/connector-tile groups — items that are meant to render as one
+   continuous strip), a *raised* on/off threshold on the content mask often separates them cleanly
+   where the default threshold can't. For a group of items with **no real gap at all but a known
+   sub-count** (e.g. 4 sub-tiles inside one named group), detect the group's own outer boundary
+   against its *neighboring groups* (which do have a real gap), then divide evenly *within* that
+   group only — equal-width division is correct there, just scoped to the true span, not the whole
+   row.
+5. **Verify by looking, not just by counting.** A component count matching what the sheet's label
+   implies is not proof of correctness — two merges (or a merge plus a stray noise fragment) can
+   cancel out to the "right" number. Require segment widths to also be sane and mutually
+   consistent, not just a matching count. Check actual crop dimensions for suspicious outliers and
+   spot-check a sample visually before calling a batch done. If the pixel content clearly shows a
+   different item count than the sheet's own labels imply (an unlabeled variant, a duplicated
+   piece), trust the pixels — don't force a merge or a split just to match the label count.
+6. **Alpha, not a flattened background.** Every output PNG is RGBA — background pixels are
    `alpha=0`, sprite content ramps up to full opacity with a short (~30-unit color-distance)
    feathered band so edges don't look hard-cut when composited over other art.
-5. **Verify by looking, not just by counting.** A component count matching what the sheet's label
-   implies is not proof of correctness — two merges can cancel out to the "right" number. Check
-   actual crop dimensions for suspicious outliers (much wider/taller than its neighbors) and
-   spot-check a sample visually before calling a batch done.
+7. **Keep the original, uncut sheet.** Save it to `assets/brand/tileset-catalog/{descriptor}_v1.png`
+   (increment the version suffix if a redo replaces it) — this is standing practice, not something
+   to be asked for each time. It's the only way to re-verify a questionable crop later, or to match
+   the same visual language if more items in that style are needed. See
+   `assets/sprites/TERRAIN_EXTRAS_MANIFEST.md` for the pattern (a per-delivery manifest doc, since
+   this library's plain-sequential filenames don't carry the source labels on their own) and log
+   the delivery in `assets/sprites/DELIVERY_LOG.md`.
+8. **Continuing a series from an earlier delivery** (e.g. a second sheet of ground variants):
+   number onward from the existing sequence rather than starting a new descriptor —
+   `ground_extra_25`, not a fresh `ground_extra_2_1`. Check the target folder's existing max
+   number first.
 
 Full narrative of how this method was arrived at (including the false starts — uniform grid,
-measured-pitch grid, threshold-count auto-tuning) is in `GAME_DESIGN.md` items 97–99.
+measured-pitch grid, threshold-count auto-tuning) is in `GAME_DESIGN.md` items 97–99 and 135–136.
