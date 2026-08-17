@@ -4188,3 +4188,47 @@ long collection grind *and* one legendary payoff at the top of it.
     minor detail category. Scope for this pass was cut-and-file only, per explicit request — no
     renderer wiring yet (that's the natural next step whenever it's wanted). `npx tsc --noEmit` and
     all 45 `jest` tests clean throughout (asset-only changes, no code touched).
+
+136. ✅ **Re-audited item 135's cut against a direct challenge ("make sure you are not using grid
+    cutting") and found it was warranted — re-cut every row with real per-item segmentation**
+    (2026-08-17) — item 135's method was a hybrid, not the README's own connected-component
+    standard: most rows used *equal-width division* of the row into N cells (N taken from reading
+    the sheet's labels), then a real-content tight-bbox crop *within* each assumed cell. That inner
+    crop step hid the problem in a quick look, but it doesn't fix a wrong cell boundary — it only
+    crops to whatever happens to fall inside a window that may not actually contain one whole item.
+
+    Checked by measuring real background gaps against the assumed equal-width boundaries for every
+    row cut in item 135. Result: **10 of 21 rows didn't match** — real gaps drifted increasingly far
+    from the assumed grid lines column over column (worst case, panel IV: item 135 assumed 13
+    equal-width sub-tiles per row; the real content is 4 groups of 3-4 *touching* tiles with actual
+    gaps only between groups, so the equal-13-way split had been cutting some tiles right down the
+    middle and merging slivers into their neighbors). One panel (I) really was a uniform grid and
+    matched almost exactly — but that turned out to be a property of that one source panel, not
+    something safe to assume for the other eight.
+
+    Re-cut all 21 grid-panel rows plus 6 hero sub-panel rows using real per-item detection: column
+    background-profile segmentation, with an auto-tuned dilation radius (search radius 0-19,
+    stop at the first value giving both the expected item count *and* sane, mutually-consistent
+    segment widths — plain count-matching alone was a trap, see below) to bridge an item's own
+    internal gaps (a fence's rail slats, a coral's branches, scattered decal dots) without merging
+    across a real item boundary; a raised on/off threshold where items' anti-aliased edges blend
+    together at the default threshold (several `water_extra`/`paving_extra` rows); and, for panel
+    IV specifically, group-boundary detection (4 real groups per row, auto-tuned `min_gap` per row
+    since the true inter-group gap width itself varies row to row) followed by equal subdivision
+    *within* each group, since within-group tiles turned out to be genuinely touching with zero
+    real background gap — equal-width division was actually correct there, just scoped to the
+    wrong span (the whole row instead of one group).
+
+    Caught one false-positive along the way worth flagging: a naive "does the segment count match
+    my expected label count" check is not sufficient on its own — one row matched 7-for-7 purely by
+    coincidence (one accidental 2-item merge plus one 1px noise fragment cancelling out in the
+    total). Fixed by requiring segment widths to also be sane and mutually consistent, not just the
+    right count. Also found one row where my *expected* count itself was wrong: the sheet's
+    "Fountain Base & Pool" section shows 5 text labels but the real pixel content is 6 distinct
+    pieces (a second curved base-wall piece at a different angle, visually close enough to the
+    first that it read as one item on a quick pass) — kept as 6 real sprites
+    (`props/fountain_piece_1..6`) rather than force a merge to match the label count. Updated
+    `TERRAIN_EXTRAS_MANIFEST.md` with a revision note and the corrected fountain-piece labels.
+    Re-verified every re-cut category visually via contact sheets — no clipped edges, no fragments,
+    no residual label-text bleed. `npx tsc --noEmit` and all 45 `jest` tests clean (asset-only
+    changes).

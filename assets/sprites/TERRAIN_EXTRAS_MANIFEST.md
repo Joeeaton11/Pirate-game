@@ -2,11 +2,23 @@
 
 Source: one 1536×1024 catalog sheet ("Additional Ground/Water/Road/Edges/Cliffs/Vegetation/
 Stairs/Walls (Extra)" + two hero feature sets + hero landmarks + misc overlays), delivered
-2026-08-17. Cut via the connected-component/row-column-profile method described in
-`README.md`'s "Cutting convention" section, then filed by category. Files use the codebase's
-plain-sequential-number convention (`{descriptor}_{n}.png`) rather than baking each specific
-variant name into the filename — this doc is the lookup table from filename back to what it
-actually shows.
+2026-08-17. Files use the codebase's plain-sequential-number convention (`{descriptor}_{n}.png`)
+rather than baking each specific variant name into the filename — this doc is the lookup table
+from filename back to what it actually shows.
+
+**Revision note:** the first pass through this sheet used equal-width division within each row
+(then a real-content tight-bbox crop inside each assumed cell) rather than independently detecting
+each item's real boundary — a shortcut that happened to work for a few rows but silently
+mis-segmented roughly half of them (confirmed by re-checking real background gaps against the
+assumed cell boundaries: several rows showed the assumed-vs-real boundary drifting by 5-10+ px
+column over column). Re-cut everything in this doc using real per-item background-gap detection
+instead: column-profile segmentation with an auto-tuned dilation radius (to bridge an item's own
+internal gaps — a fence's rail slats, a coral's branches — without merging across a real item
+boundary) or a raised on/off threshold (for items whose anti-aliased edges blend together at low
+threshold), verified against sane, consistent segment widths rather than just a matching count.
+One row (`props/fountain_piece_*`) turned out to have 6 real distinct pieces on the sheet, not the
+5 implied by its visible labels — kept all 6 rather than force-merging two into one to match the
+label count. See `GAME_DESIGN.md` item 136 for the full account.
 
 245 sprites cut in this pass. Nothing here is wired into a renderer yet — see `README.md`'s
 folder table for what each folder feeds into once it is wired.
@@ -84,10 +96,12 @@ First entries in this previously-empty folder. 1 Leaves Scatter · 2 Flowers Sca
 
 **`landmarks/fountain_complete_1.png`** — the assembled Neptune Fountain hero illustration.
 
-**`props/fountain_piece_1..5`** — 1 Base Corner · 2 Base Straight · 3 Pool Empty · 4 Pool Water ·
-5 Pool Ripple. (3 small edge/corner trim pieces from the same sheet section were dropped — their
-column boundaries didn't segment cleanly from the sheet's layout and weren't worth the extra
-precision pass; revisit if a genuine need for fountain-edge trim pieces comes up.)
+**`props/fountain_piece_1..6`** — 1 Base Corner · 2 Base Straight · 3 Pool Empty · 4 Pool Water ·
+5 Pool Ripple · 6 Base Corner (Alt Angle). The sheet's "B. Fountain Base & Pool" section only
+labels 5 items, but the real pixel content segments cleanly into 6 distinct pieces — item 6 is a
+second curved base-wall piece at a different angle, visually similar to item 1 but genuinely
+separate art. Kept as its own sprite rather than merged into item 1 to force a match to the
+5-label count.
 
 **`landmarks/fountain_statue_1..5`** — 1 Neptune Statue · 2 Side Trident · 3 Side Conch ·
 4 Side Dolphin · 5 Sea Creature Decor
