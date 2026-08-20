@@ -1,7 +1,10 @@
 """
 Reusable sprite-sheet cutting toolkit — real per-item pixel segmentation, never assumed
 uniform spacing. Built and battle-tested cutting the 2026-08-20 terrain-extras-2 delivery
-(see GAME_DESIGN.md item 141, assets/sprites/TERRAIN_EXTRAS_2_MANIFEST.md).
+(see GAME_DESIGN.md item 141, assets/sprites/TERRAIN_EXTRAS_2_MANIFEST.md) and extended cutting
+the terrain-extras-3 delivery (GAME_DESIGN.md item 144, TERRAIN_EXTRAS_3_MANIFEST.md) — a much
+denser, 32-panel catalog sheet with no per-item captions, which is where `find_panel_dividers`,
+`content_bbox`, and the column/row-span helpers below came from.
 
 Read assets/sprites/README.md's "Cutting convention" section first — this module is the
 concrete implementation of the discipline described there, not a replacement for reading it.
@@ -233,6 +236,81 @@ def verified_pitch_row_boxes(arr, win, n_items, thresh=28, min_size=30):
             best_box = (sx0, 0, sx1, sub.shape[0], 0)  # flagged with area=0 — needs manual re-crop
         boxes.append(best_box)
     return boxes
+
+
+def find_panel_dividers(arr, border_rgb_ranges=None):
+    """For a dense, computer-arranged catalog sheet with no per-item captions (see
+    TERRAIN_EXTRAS_3_MANIFEST.md) — locates panel boundaries automatically by detecting the
+    sheet's own gold/tan border-line color as long horizontal and vertical runs, rather than
+    manually crop-view-adjusting each panel by eye. Returns (row_bands, col_bands_per_row):
+    row_bands is a list of (y0, y1) panel-row bands; col_bands_per_row is a parallel list, each
+    entry a list of (x0, x1) panel column bands within that row.
+
+    Tune border_rgb_ranges per sheet by sampling a pixel known to sit on a border line — a
+    single fixed color range will NOT transfer between sheets with a different border color.
+    Default matches the warm gold/brown border used across the terrain-extras deliveries.
+
+    Uses a strict >90% coverage threshold deliberately: a looser threshold (e.g. >50%) picks up
+    false positives from the sheet's own content (a column of dirt-toned tiles can look like a
+    border color over a partial run) — this was confirmed the hard way on terrain-extras-3's
+    Panel 1, see GAME_DESIGN.md item 144.
+    """
+    r, g, b = arr[..., 0], arr[..., 1], arr[..., 2]
+    if border_rgb_ranges is None:
+        border = (r >= 25) & (r <= 140) & (g >= 12) & (g <= 95) & (b >= 5) & (b <= 50) & (r > g) & (g >= b) & (r - b >= 15)
+    else:
+        (rmin, rmax), (gmin, gmax), (bmin, bmax) = border_rgb_ranges
+        border = (r >= rmin) & (r <= rmax) & (g >= gmin) & (g <= gmax) & (b >= bmin) & (b <= bmax)
+
+    def _bands(active_1d, gap=2):
+        idx = np.where(active_1d)[0]
+        if len(idx) == 0:
+            return []
+        out, cur = [], [idx[0]]
+        for x in idx[1:]:
+            if x - cur[-1] <= gap:
+                cur.append(x)
+            else:
+                out.append((cur[0], cur[-1] + 1))
+                cur = [x]
+        out.append((cur[0], cur[-1] + 1))
+        return out
+
+    h, w = border.shape
+    row_frac = border.mean(axis=1)
+    row_div_bands = _bands(row_frac > 0.9)
+    # row PANELS live between consecutive divider bands (including sheet top/bottom edges)
+    row_bands = []
+    for i in range(len(row_div_bands) - 1):
+        y0 = row_div_bands[i][1]
+        y1 = row_div_bands[i + 1][0]
+        if y1 - y0 > 20:  # skip thin secondary dividers (sub-header rules) picked up between real rows
+            row_bands.append((y0, y1))
+
+    col_bands_per_row = []
+    for (y0, y1) in row_bands:
+        col_frac = border[y0:y1, :].mean(axis=0)
+        col_div_bands = _bands(col_frac > 0.9)
+        cols = []
+        for i in range(len(col_div_bands) - 1):
+            x0 = col_div_bands[i][1]
+            x1 = col_div_bands[i + 1][0]
+            if x1 - x0 > 20:
+                cols.append((x0, x1))
+        col_bands_per_row.append(cols)
+    return row_bands, col_bands_per_row
+
+
+def content_bbox(mask_region):
+    """Tight bounding box over ALL active pixels in a region (union, not largest component).
+    Use this instead of a largest-component search when the real content is naturally fragmented
+    into many small blobs by its own texture (heavily mottled ground, a scattered rock pile) —
+    largest-component would grab only a fraction of the tile in that case. See module docstring
+    and GAME_DESIGN.md item 144 (Panels 11, 18, 28)."""
+    ys, xs = np.where(mask_region)
+    if len(ys) == 0:
+        return None
+    return (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1, int(len(ys)))
 
 
 def draw_debug(arr, win, boxes, out_path):

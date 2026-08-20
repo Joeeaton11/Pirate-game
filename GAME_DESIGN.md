@@ -4421,3 +4421,62 @@ long collection grind *and* one legendary payoff at the top of it.
     intentional design element) — rewriting either would erase real history or edit an unrelated
     concept, not reduce risk. `npx tsc --noEmit` and all 45 `jest` tests clean (doc/tool text
     only, no behavior changed).
+
+144. ✅ **Cut and filed the third terrain-extras delivery — 306 sprites across 32 panels**
+    (2026-08-20) — the first delivery to go through the new pipeline built in item 142
+    (`segment_lib.py` + the four asset-pipeline subagents). Structurally the densest and most
+    varied sheet yet: no per-item numbered captions on the source at all, just a panel title and
+    named categories, and — unlike either prior terrain-extras delivery — the number of real
+    items packed under one category name genuinely varies panel to panel and even category to
+    category within the same panel. Confirmed by zooming into the source before cutting each
+    panel, not inferred from a category count:
+
+    - Some categories are a single item, some are 2 stacked variants, some are a verified 2×2
+      grid of 4 genuinely distinct pieces (confirmed via extreme zoom on Panel 4's "Cobble
+      Streets" LIGHT swatch — a real seam separates 4 different stone arrangements, not one tile
+      shown four times).
+    - Panel 12's four categories aren't uniform with each other (FLOOR/OVERGROWN/ROOTS are 2×2,
+      VINES is 1 row of 4). Panel 13's four tree categories have different column counts each
+      (2/3/3/2) — a single assumed grid across the whole panel would have misaligned every column
+      past the first category. Panel 30 mixes four single-item categories with one 2×4-grid
+      category (PUDDLES, 8 items) in the same panel.
+
+    Solved this with a purpose-built panel divider detector (color-signature match on the sheet's
+    gold border lines, strict >90% row/column coverage threshold to reject panel-content false
+    positives) that located all 32 panels' exact pixel boundaries automatically — far more
+    reliable than the manual crop-view-adjust loop used for the prior two deliveries, and this
+    detector plus the row/category-slicing helpers are now reusable for the next dense catalog-
+    style sheet. Two real bugs surfaced during verification and got fixed before filing, both
+    caught by an automated outlier check (crop dimensions far below a panel's own median) rather
+    than by chance:
+
+    - **Category-label text baked into a few crops** (Panels 13, 21, 28) — the header-padding
+      value tuned against most panels wasn't tall enough for these three (their category labels
+      sit measurably lower before real content starts), so a couple of narrow column slices
+      picked up the label text itself as the "largest connected component." Fixed by re-measuring
+      the true content-start row for each affected panel directly against the source image and
+      re-cutting with a corrected offset.
+    - **Fragment-not-whole-tile crops on two heavily-textured panels** (Panel 18 "Special
+      Surfaces": mud/swamp/mossy stone/lava rock, and Panel 28 "Island Terrain Specials": volcanic
+      rock among them) — "largest connected component" is right when a slice might contain noise
+      to reject, but a densely mottled ground texture is naturally fragmented into many small
+      blobs by its own texture, so "largest single blob" grabbed only a fraction of the tile.
+      Fixed by switching those two panels to a full-content bounding box (union of all content
+      pixels in the slice, the same fix already used for Panel 11's scattered rock-pile scenes)
+      instead of a single-blob search.
+
+    Filed into existing folders, continuing numbering everywhere a category already existed
+    (`ground_extra_38..61`, `trans_extra_79..106`, `cobble_13..29`, `tree_9..24` plus
+    `tree_dead_2..5` — caught and fixed two would-be filename collisions with the prior delivery's
+    `tree_dead_1`/`broken_ground_2` during a pre-flight dry run before any file was actually
+    copied) and starting fresh only for genuinely new categories (`shoreline_*`, `plateau_*`,
+    `desert_*`, `road_intersection_*`, `map_edge_*`, `buildings/floor_tile_*`, plus the first 4
+    real entries in the previously-empty `weather_fx/` folder). Full per-sprite breakdown in the
+    new `TERRAIN_EXTRAS_3_MANIFEST.md`; delivery logged in `DELIVERY_LOG.md` along with fresh
+    "known free wiring opportunities" and a folder-size note flagging `tiles/ground/` (136),
+    `tiles/transitions/` (159), and `nature/vegetation/` (128) as now well past the
+    subfolder-split threshold *within* their own subfolder, though none obviously decompose into
+    distinct sub-groups yet the way `tiles/` itself did — flagged for a future session, not acted
+    on unilaterally. Original sheet saved to
+    `assets/brand/tileset-catalog/terrain_extras_3_sheet_v1.png` per standing practice. `npx tsc
+    --noEmit` and all 45 `jest` tests clean (asset + doc changes only, no source code touched).

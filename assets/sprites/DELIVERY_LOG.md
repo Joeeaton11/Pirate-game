@@ -16,6 +16,7 @@ directory's `README.md`).
 | 2026-08-11 | `assets/brand/tileset-catalog/tortuga_focus_v1.png` | — (see `ART_BRIEF.md`) | — | overlaps master_catalog_v1 | Partial |
 | 2026-08-17 | `assets/brand/tileset-catalog/terrain_extras_sheet_v1.png` | `TERRAIN_EXTRAS_MANIFEST.md` | 245 | `tiles/` (now subfoldered — see below), `nature/` (now subfoldered), `props/`, `decals/`, `water_fx/`, `landmarks/` | **No** — cut and filed only, not yet wired into any renderer |
 | 2026-08-20 | `assets/brand/tileset-catalog/terrain_extras_2_sheet_v1.png` | `TERRAIN_EXTRAS_2_MANIFEST.md` | 145 | `tiles/` (ground, water, paving, elevation, transitions, bridges), `nature/` (trees, vegetation, rocks), `props/`, `decals/`, `water_fx/`, `landmarks/`, `buildings/` (new `plinth_*` materials), `harbour/` (first entries — previously empty) | **No** — cut and filed only, not yet wired into any renderer |
+| 2026-08-20 | `assets/brand/tileset-catalog/terrain_extras_3_sheet_v1.png` | `TERRAIN_EXTRAS_3_MANIFEST.md` | 306 | `tiles/` (ground, paths, paving, transitions, beach, elevation, bridges, water), `nature/` (trees, rocks, vegetation), `props/`, `decals/`, `water_fx/`, `harbour/`, `buildings/` (new `floor_tile_*`), `weather_fx/` (first entries — previously empty) | **No** — cut and filed only, not yet wired into any renderer |
 
 ## Known free wiring opportunities (found while auditing the 2026-08-17 delivery)
 
@@ -47,6 +48,25 @@ Worth acting on whenever wiring work starts, without needing new art:
   folder — raised-foundation edge/corner/fill pieces that could dress the base of existing
   buildings once a renderer supports layering a foundation course under a building sprite.
 
+## Known free wiring opportunities (found while filing the 2026-08-20 terrain-extras-3 delivery)
+
+- **`weather_fx/` went from an empty, unwired folder to 4 real atmosphere sprites**
+  (`fog_patch_1`, `cloud_1`, `mist_1`, `dust_cloud_1`) — README already names it as feeding
+  rain/storm/fog/mist effects, but this is the first delivery with anything to wire there.
+- **This delivery roughly doubles or more several already-large variant pools** —
+  `ground_extra_*` now runs to 61, `trans_extra_*` to 106, `bush_plant_*`/`flowers_*` each grew by
+  24. `worldSprites.ts`'s existing `GRASS_VARIATION_TILES`/`TRANSITION_GRASS_DIRT_ROAD_TILES`-style
+  pools would get meaningfully more varied by pulling from the new numbers without any code
+  change beyond widening the array literal.
+- **Two brand-new tile categories the game has never had:** `desert_*` (5 ground tiles — cracked
+  earth, dry sand, cactus ground, rocky desert, dunes) and island-special tiles
+  (`volcanic_rock_1`, `lava_flow_1`, `coral_ground_1`, `water_fx/geyser_1`) — no existing island in
+  `islands.ts` is currently a desert or volcanic biome, so these are art waiting on a place to use
+  them rather than a gap in an existing scene.
+- **`decals/map_edge_*` (4 items)** are purpose-built for a screen/map-boundary vignette effect
+  that doesn't exist yet in `MapScreen.tsx` — distinct from the ground-overlay decals already
+  wired-for elsewhere in that folder.
+
 ## Folder size note
 
 `tiles/` and `nature/` were both well past this directory's own README-stated subfolder threshold
@@ -56,3 +76,12 @@ Worth acting on whenever wiring work starts, without needing new art:
 affected `require()` paths in `worldSprites.ts` were rewritten in the same pass and verified
 against disk — nothing left pointing at the old flat paths. Filenames themselves are unchanged,
 only the folder segment grew.
+
+The 2026-08-20 terrain-extras-3 delivery pushed several of those subfolders considerably further:
+`tiles/ground/` (136), `tiles/transitions/` (159), and `nature/vegetation/` (128) are now well
+past the original 15-20-file threshold *within their own subfolder*. Not split further yet — the
+same file/require-path-rewrite risk calculus applies as before splitting `tiles/`/`nature/`
+themselves, and none of these categories obviously decompose into distinct sub-groups the way
+`tiles/` did (e.g. `tiles/ground/` mixes plain grass/dirt variants with jungle floor, mud, desert,
+and volcanic tiles that don't yet have enough of any one theme to justify their own folder).
+Flagged here for the next delivery or two to watch, not acted on unilaterally.
