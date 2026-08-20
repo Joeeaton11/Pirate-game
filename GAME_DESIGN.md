@@ -4372,3 +4372,31 @@ long collection grind *and* one legendary payoff at the top of it.
     Nothing wired into a renderer yet — that's still explicitly out of scope until "a ton more
     sheets" (the user's own framing) have landed. `npx tsc --noEmit` and all 45 `jest` tests clean
     (asset + doc changes only, no source code touched).
+
+142. ✅ **Built the reusable cutting tool + four asset-pipeline subagents** (2026-08-20) — prompted
+    by the user asking why the item-141 delivery took so long and proposing dedicated roles for
+    the pipeline. The honest answer to "why so long": no two sheets share a layout so panel/row
+    structure gets rediscovered by eye every time, the cutting tool (`segment_lib.py`) was written
+    *during* item 141 rather than reused, and verification (opening every actual cropped PNG, not
+    trusting bbox counts) is inherently expensive across 145 items — the first two are fixable with
+    tooling, the third is a discipline worth keeping.
+
+    Extracted the item-141 cutting logic into `scripts/asset_cutting/segment_lib.py` — a
+    documented, reusable module (connected-component extraction, auto-escalating dilation, the
+    largest-component-per-slice fix for the caption-text bug, an outlier-detection snippet) so the
+    next delivery starts from working tooling instead of rebuilding it.
+
+    Created four project-specific subagents in `.claude/agents/`:
+    - `asset-qa` — independently verifies a cutting pass before it's treated as filed (catches
+      baked-in text, merges/splits, wrong content, thin/clipped crops).
+    - `asset-artist` — judges art quality and style/scale/palette consistency against what's
+      already in the game, separate from cut correctness.
+    - `asset-librarian` — keeps `README.md`'s folder map, `DELIVERY_LOG.md`, and per-delivery
+      manifests in sync with what's actually on disk; owns naming-continuation and subfolder-split
+      decisions.
+    - `scene-art-director` — plans concrete uses of the library in the actual game world (which
+      sprites go where, what to wire next); planning only, no implementation.
+
+    Cross-linked all four plus the new tool from `assets/sprites/README.md` so they're
+    discoverable from the doc a future session would already be reading. `npx tsc --noEmit` and
+    all 45 `jest` tests clean (new tool/agent files only, no existing source touched).

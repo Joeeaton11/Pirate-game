@@ -135,3 +135,24 @@ The reliable method:
 
 Full narrative of how this method was arrived at (including the false starts — uniform grid,
 measured-pitch grid, threshold-count auto-tuning) is in `GAME_DESIGN.md` items 97–99 and 135–136.
+
+## Reusable cutting tool + review agents
+
+`scripts/asset_cutting/segment_lib.py` is the working, documented implementation of the method
+above — real per-item connected-component extraction, auto-escalating dilation, the caption-text
+trap and its fix, the outlier-detection snippet. Load it fresh for every new sheet rather than
+rebuilding the same logic from scratch (see its own module docstring for the lessons and a quick
+start). It was extracted from the 2026-08-20 delivery specifically so the next one doesn't start
+from zero.
+
+Four project-specific subagents (`.claude/agents/`) cover the rest of the pipeline end to end —
+invoke by name via the Agent tool once a delivery needs more than just cutting:
+
+- **`asset-qa`** — independently verifies a cutting pass is actually correct (no baked-in text,
+  no merges/splits, sane crops) before it's treated as done.
+- **`asset-artist`** — judges art quality and style/scale consistency, separate from cut
+  correctness — is this good art that belongs in the game.
+- **`asset-librarian`** — keeps this README, `DELIVERY_LOG.md`, manifests, and the folder
+  structure itself honest and in sync with what's actually on disk.
+- **`scene-art-director`** — plans concrete uses of the library in the actual game world (which
+  sprites go where, what to wire next) — planning only, not implementation.
