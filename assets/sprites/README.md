@@ -38,13 +38,13 @@ reorg — see `GAME_DESIGN.md`). The naming convention inside each subfolder is 
 
 | Folder | Holds | Wired from |
 |---|---|---|
-| `tiles/` | Ground/terrain, split into subfolders now that the category crossed 250+ files: `ground/` (grass, dirt, sand, mud, puddle, broken/jungle ground), `water/` (sea, water base tiles), `paving/` (cobble, road, wood), `paths/` (dirt/grass-border paths), `transitions/` (edge/corner blends between terrain pairs), `elevation/` (cliffs, ledges, stairs/ramps), `beach/` (beach detail), `bridges/` (rope/wood bridge pieces) | `src/data/worldSprites.ts` |
-| `nature/` | Vegetation & natural scatter, split into subfolders for the same reason: `vegetation/` (bushes, flowers, weeds, vines, mushrooms, logs, stumps), `trees/` (tall/round/palm and other tree variants), `rocks/` (rock/boulder/spire/cave formations) | `src/data/worldSprites.ts` |
+| `tiles/` | Ground/terrain, split into subfolders now that the category crossed 250+ files: `ground/` (grass, dirt, sand, mud, puddle, broken/jungle ground, plus desert, swamp, mossy stone, and volcanic/lava/coral variants added 2026-08-20), `water/` (sea, water base tiles), `paving/` (cobble, road, wood), `paths/` (dirt/grass-border paths, road intersections), `transitions/` (edge/corner blends between terrain pairs), `elevation/` (cliffs, ledges, stairs/ramps, plateaus), `beach/` (beach detail, shorelines, black sand), `bridges/` (rope/wood bridge pieces) | `src/data/worldSprites.ts` |
+| `nature/` | Vegetation & natural scatter, split into subfolders for the same reason: `vegetation/` (bushes, flowers, weeds, vines, mushrooms, logs, stumps), `trees/` (tall/round/palm and other tree variants), `rocks/` (rock/boulder/spire/cave formations, stone patches) | `src/data/worldSprites.ts` |
 | `wildlife/` | Animals: parrots, gulls, dogs, cats, rats, monkeys, crabs, fish, sharks — living creatures, not plant/rock scatter (that's `nature/`) | *(not yet wired)* |
-| `props/` | Placeable set-dressing: crates, barrels, sacks, hay, campfires, signposts, fountains, lampposts, benches, market stalls, flags, furniture, tools, carts | `src/data/worldSprites.ts` |
-| `decals/` | Ground overlays — cracks, stains, footprints, scorch marks. Sits *on top of* a ground tile, not a replacement for one | *(not yet wired)* |
+| `props/` | Placeable set-dressing: crates, barrels, sacks, hay, campfires, signposts, fountains, lampposts, benches, market stalls, flags, furniture, tools, carts, fences/walls, ruin stone blocks/pillars | `src/data/worldSprites.ts` |
+| `decals/` | Ground overlays — cracks, stains, footprints, scorch marks — plus `map_edge_*` screen/map-boundary vignette overlays (a different use than the on-tile decals, but the same "overlay, not a replacement" idea). Sits *on top of* a ground tile, not a replacement for one | *(not yet wired)* |
 | `market/` | Stall goods & displays: fish, fruit, spices, textiles, pottery, awnings — the *contents* of a market stall (the stall structure itself is `props/`) | *(not yet wired)* |
-| `buildings/` | Whole-building icon art + building materials (roofs, walls, windows, doors, chimneys, `plinth_*` raised-foundation pieces) | `src/data/worldSprites.ts` → `buildings.ts` `spriteId` |
+| `buildings/` | Whole-building icon art + building materials (roofs, walls, windows, doors, chimneys, `plinth_*` raised-foundation pieces, `floor_tile_*` interior floor materials added 2026-08-20) | `src/data/worldSprites.ts` → `buildings.ts` `spriteId` |
 | `houses/` | Generic house variants (no per-house identity) | `src/data/worldSprites.ts` |
 | `interiors/` | Building-interior floor tiles, furniture, decor. `interiors/ship/` may split into `deck/`, `captains_cabin/`, `crew_quarters/`, `cargo_hold/`, `gun_deck/` once that art exists | *(not yet wired — `src/data/interiors.ts` uses a procedural fallback)* |
 | `harbour/` | Docks, piers, jetties, quays, cranes, winches, capstans, anchors, gangplanks, ladders — the working harbour, distinct from `world/`'s one-off landmark objects. First entries landed 2026-08-20 (pier modules, mooring posts, cleats, boardwalk, dock ramp) | *(not yet wired)* |
@@ -55,7 +55,7 @@ reorg — see `GAME_DESIGN.md`). The naming convention inside each subfolder is 
 | `ship/` | Ship sprites: sailing/turning/docking frames, wake, sails | `src/data/shipSprites.ts` |
 | `combat/` | Weapons (swords, pistols, muskets, cannons) and combat FX (muzzle flash, slashes, explosions, smoke, hit/defend/status effects) | *(not yet wired)* |
 | `water_fx/` | Animated/overlay water effects: waves, foam, splashes, ripples, wakes, whirlpools, fountains, bubbles — distinct from the static sea *tiles* in `tiles/` | *(not yet wired)* |
-| `weather_fx/` | Rain, storms, lightning, fog, mist, wind-blown leaves/sand | *(not yet wired)* |
+| `weather_fx/` | Rain, storms, lightning, fog, mist, wind-blown leaves/sand. First entries landed 2026-08-20 (`fog_patch_1`, `cloud_1`, `mist_1`, `dust_cloud_1`) | *(not yet wired)* |
 | `treasure/` | The treasure-hunting quest line: chests, coins, gems, maps, map fragments, dig sites, X-marks, clues, legendary items | *(not yet wired)* |
 | `items/` | Everything else inventory-related: cargo goods, consumables, quest items, keys, resources | *(not yet wired)* |
 | `quest_markers/` | Map/world icons for quest state: available, in-progress, discovered, locked | *(not yet wired)* |
