@@ -15,6 +15,7 @@ directory's `README.md`).
 | 2026-08-11 | `assets/brand/tileset-catalog/master_catalog_v1.png` | — (see `ART_BRIEF.md` Part A/C, `GAME_DESIGN.md` items 152–158) | ~30+ | `buildings/`, `world/`, `houses/`, misc | Partial — buildings/houses wired via `spriteId`; some categories still unused |
 | 2026-08-11 | `assets/brand/tileset-catalog/tortuga_focus_v1.png` | — (see `ART_BRIEF.md`) | — | overlaps master_catalog_v1 | Partial |
 | 2026-08-17 | `assets/brand/tileset-catalog/terrain_extras_sheet_v1.png` | `TERRAIN_EXTRAS_MANIFEST.md` | 245 | `tiles/` (now subfoldered — see below), `nature/` (now subfoldered), `props/`, `decals/`, `water_fx/`, `landmarks/` | **No** — cut and filed only, not yet wired into any renderer |
+| 2026-08-20 | `assets/brand/tileset-catalog/terrain_extras_2_sheet_v1.png` | `TERRAIN_EXTRAS_2_MANIFEST.md` | 145 | `tiles/` (ground, water, paving, elevation, transitions, bridges), `nature/` (trees, vegetation, rocks), `props/`, `decals/`, `water_fx/`, `landmarks/`, `buildings/` (new `plinth_*` materials), `harbour/` (first entries — previously empty) | **No** — cut and filed only, not yet wired into any renderer |
 
 ## Known free wiring opportunities (found while auditing the 2026-08-17 delivery)
 
@@ -32,6 +33,19 @@ Worth acting on whenever wiring work starts, without needing new art:
   into that existing pattern and would meaningfully widen it (the game has never had snow/ice
   ground tiles before this delivery; transition tiles have never covered grass↔water or
   cliff↔anything before this delivery).
+
+## Known free wiring opportunities (found while filing the 2026-08-20 delivery)
+
+- **`harbour/` went from an empty, unwired folder to 8 real dock/pier/mooring sprites** — the
+  README already names it as feeding the working-harbour scenes distinct from `world/`'s one-off
+  landmark objects, but nothing has drawn from it yet. This is the first delivery with anything to
+  wire there.
+- **A second waterfall (`waterfall_complete_2`) and a second Neptune Fountain
+  (`fountain_complete_2`)** exist now alongside the first delivery's — either could become a
+  distinct landmark on a different island rather than reusing the same hero art twice.
+- **`buildings/plinth_1..6`** are the first building-material (not whole-building) sprites in that
+  folder — raised-foundation edge/corner/fill pieces that could dress the base of existing
+  buildings once a renderer supports layering a foundation course under a building sprite.
 
 ## Folder size note
 

@@ -44,10 +44,10 @@ reorg — see `GAME_DESIGN.md`). The naming convention inside each subfolder is 
 | `props/` | Placeable set-dressing: crates, barrels, sacks, hay, campfires, signposts, fountains, lampposts, benches, market stalls, flags, furniture, tools, carts | `src/data/worldSprites.ts` |
 | `decals/` | Ground overlays — cracks, stains, footprints, scorch marks. Sits *on top of* a ground tile, not a replacement for one | *(not yet wired)* |
 | `market/` | Stall goods & displays: fish, fruit, spices, textiles, pottery, awnings — the *contents* of a market stall (the stall structure itself is `props/`) | *(not yet wired)* |
-| `buildings/` | Whole-building icon art + building materials (roofs, walls, windows, doors, chimneys) | `src/data/worldSprites.ts` → `buildings.ts` `spriteId` |
+| `buildings/` | Whole-building icon art + building materials (roofs, walls, windows, doors, chimneys, `plinth_*` raised-foundation pieces) | `src/data/worldSprites.ts` → `buildings.ts` `spriteId` |
 | `houses/` | Generic house variants (no per-house identity) | `src/data/worldSprites.ts` |
 | `interiors/` | Building-interior floor tiles, furniture, decor. `interiors/ship/` may split into `deck/`, `captains_cabin/`, `crew_quarters/`, `cargo_hold/`, `gun_deck/` once that art exists | *(not yet wired — `src/data/interiors.ts` uses a procedural fallback)* |
-| `harbour/` | Docks, piers, jetties, quays, cranes, winches, capstans, anchors, gangplanks, ladders — the working harbour, distinct from `world/`'s one-off landmark objects | *(not yet wired)* |
+| `harbour/` | Docks, piers, jetties, quays, cranes, winches, capstans, anchors, gangplanks, ladders — the working harbour, distinct from `world/`'s one-off landmark objects. First entries landed 2026-08-20 (pier modules, mooring posts, cleats, boardwalk, dock ramp) | *(not yet wired)* |
 | `landmarks/` | Named one-of-a-kind sights: statues, lighthouses, waterfalls, temples, graveyards, monuments, giant trees, shipwrecks — matches `src/data/landmarks.ts` entries | *(not yet wired)* |
 | `world/` | Existing one-off world objects (dock/pier kit, Tortuga gate, flags) — kept as-is; new harbour art goes in `harbour/` instead | `src/data/worldSprites.ts` |
 | `characters/` | NPCs beyond Scally: crew, named NPCs, generic townsfolk/pirates/sailors/etc. Use filename prefixes (`crew_01_idle.png`, `generic_sailor_drunk_1.png`) rather than a folder per archetype | *(not yet wired)* |

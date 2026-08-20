@@ -4334,3 +4334,41 @@ long collection grind *and* one legendary payoff at the top of it.
     `DELIVERY_LOG.md`'s folder-size note to record the split as done rather than open. Naming
     convention inside each subfolder is unchanged — plain `{descriptor}_{n}.png` — only the folder
     path grew a subfolder segment, so nothing about how future deliveries get numbered changes.
+
+141. ✅ **Cut and filed the second terrain-extras delivery — 145 sprites across 11 labeled panels**
+    (2026-08-20) — a clean, computer-arranged catalog-style sheet (`terrain_extras_2_sheet_v1.png`),
+    the first delivery to land since the cutting-process and folder-structure future-proofing work
+    in items 139–140. Real per-item extraction throughout: connected-component detection within
+    each row's column slices (not equal-width division blindly trusted — pitch was measured against
+    unambiguous items first, since this sheet's rows genuinely did turn out to be uniform grids,
+    verified rather than assumed). Filed into existing folders, continuing numbering everywhere a
+    category already existed (`ground_extra_25..37`, `stairs_ramp_14..21`, `trans_extra_53..78`,
+    `rock_extra_22..23`, etc.) and starting fresh only for genuinely new categories (`curb_*` and
+    `plinth_*`, plus the first 8 real entries in the previously-empty `harbour/` folder). Full
+    per-sprite breakdown in the new `TERRAIN_EXTRAS_2_MANIFEST.md`; delivery logged in
+    `DELIVERY_LOG.md`; original sheet saved to `assets/brand/tileset-catalog/terrain_extras_2_sheet_v1.png`
+    per standing practice.
+
+    Two real bugs surfaced during verification and got fixed before filing, not after — both
+    caught by actually opening the cropped PNGs rather than trusting bounding-box counts alone
+    (the exact discipline `README.md`'s cutting convention calls for):
+
+    - **Caption text baked into the crop.** The first extraction pass took a column slice's full
+      content span as the sprite, which sometimes included the item's own label text sitting
+      directly below the art (no dilation involved — the two were just both "content" within the
+      same column window). Fixed by taking only the *largest connected component* per column slice
+      instead of the full span — the art blob is reliably much larger than a caption's text
+      fragments, so this cleanly separates them without needing per-item tuning.
+    - **A handful of sparse/thin items still needed hand re-cropping** after that fix — a dead
+      tree's bare branches, hanging vines, a small drainage grate, and a lantern post all had real
+      content that a uniform column split clipped or missed (thin art near a column boundary, or
+      legitimately wider/narrower than its row siblings). Each was individually re-examined against
+      the source sheet at full resolution and re-cropped by hand. Also caught: Panel XI's "corner
+      blends" group was initially miscounted as 2 unique large tiles + a 14-item grid (16 total) —
+      re-inspection showed the first two columns just have busier internal art than the rest, not a
+      different structure; it's a uniform 2×7 grid, 14 items. Corrected before filing (145 total,
+      not 147).
+
+    Nothing wired into a renderer yet — that's still explicitly out of scope until "a ton more
+    sheets" (the user's own framing) have landed. `npx tsc --noEmit` and all 45 `jest` tests clean
+    (asset + doc changes only, no source code touched).
