@@ -34,14 +34,14 @@ label count. See `GAME_DESIGN.md` item 136 for the full account.
 245 sprites cut in this pass. Nothing here is wired into a renderer yet — see `README.md`'s
 folder table for what each folder feeds into once it is wired.
 
-## `tiles/ground_extra_1..24` — Ground Variants (source: Panel I)
+## `tiles/ground/ground_extra_1..24` — Ground Variants (source: Panel I)
 1 Grass Bright · 2 Grass Overgrown · 3 Grass Tall · 4 Grass Sparse · 5 Flowers Wild ·
 6 Mossy Ground · 7 Leaf Litter · 8 Autumn Leaves · 9 Dirt Dark · 10 Dirt Rutted · 11 Dirt Stony ·
 12 Pebbled Ground · 13 Sand Windy · 14 Sand Dune Ridge · 15 Sand Pebbly · 16 Sand Shells ·
 17 Red Dirt Clay · 18 Cracked Earth · 19 Charred Ground · 20 Volcanic Ash · 21 Snow Light ·
 22 Snow Deep · 23 Ice Packed · 24 Ice Cracked
 
-## `tiles/water_extra_1..11` — Water Variants (base tiles) (source: Panel II)
+## `tiles/water/water_extra_1..11` — Water Variants (base tiles) (source: Panel II)
 1 Calm Shallow · 2 Reef Shallow · 3 Clear Water · 4 Tropical Water · 5 Deep Sea Dark ·
 6 Deep Sea Stormy · 7 Rough Sea Variant · 8 Current Slow · 9 Current Fast · 10 Algae Water ·
 11 Murky Shallows
@@ -50,12 +50,12 @@ folder table for what each folder feeds into once it is wired.
 1 Whitecap Animation 1 · 2 Whitecap Animation 2 · 3 Whitecap Animation 3 · 4 Spray Rocks ·
 5 Waterfall Splash · 6 Water Swirl · 7 Water Ripple · 8 Water Shimmer · 9 Ship Wake Straight
 
-## `tiles/paving_extra_1..14` — Road & Paving Variants (source: Panel III)
+## `tiles/paving/paving_extra_1..14` — Road & Paving Variants (source: Panel III)
 1 Road Dirt Wide · 2 Road Rutted · 3 Road Gravel · 4 Road Stone · 5 Brick Pavers ·
 6 Stone Pavers · 7 Herringbone Brick · 8 Mosaic Pavers · 9 White Stone Pavers · 10 Slate Pavers ·
 11 Cobble Round · 12 Cobble Irregular · 13 Muddy Cobbles · 14 Overgrown Cobbles
 
-## `tiles/trans_extra_1..52` — Edges & Transitions (source: Panel IV)
+## `tiles/transitions/trans_extra_1..52` — Edges & Transitions (source: Panel IV)
 Four terrain-pairs per row, each pair cut as Straight/Corner/T-Junction (+ Cross on the last pair
 of each row):
 - **Row 1 (1-13):** Grass→Sand, Grass→Dirt, Grass→Cobble, Grass→Water(+Cross)
@@ -63,19 +63,19 @@ of each row):
 - **Row 3 (27-39):** Cliff→Grass, Cliff→Dirt, Cliff→Sand, Cliff→Water(+Cross)
 - **Row 4 (40-52):** Water→Mangrove, Dirt→Planks, Sand→Planks, Rock→Planks(+Cross)
 
-## `tiles/stairs_ramp_6..13` — Stairs, Ramps & Elevation (source: Panel VII)
+## `tiles/elevation/stairs_ramp_6..13` — Stairs, Ramps & Elevation (source: Panel VII)
 (Continues the existing `stairs_ramp_1..5` series.) 6 Steps Narrow 4-Step · 7 Steps Wide 7-Step ·
 8 Steps Ruined · 9 Steps Broken · 10 Ramp Stone Gentle · 11 Ramp Wood Gentle ·
 12 Ramp Earth Gentle · 13 Ramp Shipyard Gangway
 
-## `nature/rock_extra_1..21` — Cliffs & Rock Formations (source: Panel V)
+## `nature/rocks/rock_extra_1..21` — Cliffs & Rock Formations (source: Panel V)
 1 Cliff Vertical 1 · 2 Cliff Vertical 2 · 3 Cliff Vertical 3 · 4 Cliff Corner ·
 5 Cliff Inner Corner · 6 Cliff Plateau Top · 7 Cliff Slope · 8 Rock Block Large ·
 9 Rock Block Medium · 10 Rock Block Small · 11 Boulder Round Large · 12 Boulder Round Medium ·
 13 Boulder Cluster · 14 Rock Spire Tall · 15 Rock Spire Short · 16 Stalagmite Cluster ·
 17 Cave Entrance · 18 Stalactite Ceiling · 19 Basalt Columns · 20 Rock Debris · 21 Lava Crack
 
-## `nature/vegetation_extra_1..23` — Vegetation & Nature Props (source: Panel VI)
+## `nature/vegetation/vegetation_extra_1..23` — Vegetation & Nature Props (source: Panel VI)
 1 Palm Cluster · 2 Banana Plant · 3 Broadleaf Tree · 4 Jungle Tree · 5 Large Fern ·
 6 Agave Plant · 7 Cactus Cluster · 8 Giant Leaf Plant · 9 Bush Flowering · 10 Bush Red Flowers ·
 11 Bush Yellow Flowers · 12 Bush Blue Flowers · 13 Spiky Plant · 14 Bamboo Cluster · 15 Reed Tall ·

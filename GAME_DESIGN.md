@@ -4300,3 +4300,37 @@ long collection grind *and* one legendary payoff at the top of it.
     folders — a real refactor, not a free action — so it's recorded in `DELIVERY_LOG.md` as an open
     decision rather than done unilaterally. `npx tsc --noEmit` and all 45 `jest` tests clean
     (doc-only changes).
+
+140. ✅ **Split `tiles/` and `nature/` into subfolders** (2026-08-17) — the open decision flagged in
+    item 139, actioned once the user confirmed ("Do it now") rather than left for a future session
+    to trip over. Both folders had grown well past this library's own 15-20-file subfolder
+    threshold, and each held several genuinely distinct sub-groups (ground vs. water vs. paving vs.
+    transitions vs. elevation vs. beach vs. bridges within `tiles/`; vegetation vs. trees vs. rocks
+    within `nature/`) that were getting harder to browse flat.
+
+    First searched the whole codebase for anything referencing `assets/sprites/tiles/` or
+    `assets/sprites/nature/` paths — only one file does, `src/data/worldSprites.ts`, which
+    considerably de-risked the move. Created 8 subfolders under `tiles/`
+    (`ground/water/paving/paths/transitions/elevation/beach/bridges`) and 3 under `nature/`
+    (`vegetation/trees/rocks`), moved all 268 `tiles/` files and all 116 `nature/` files into them
+    with `git mv` (history-preserving), and confirmed both post-move counts matched the pre-move
+    flat-folder counts exactly with zero loose files left behind in either parent folder.
+
+    Rewrote all 227 affected `require()` calls in `worldSprites.ts` via a scripted regex
+    substitution against an explicit filename-prefix → subfolder mapping table (e.g.
+    `tiles/ground_extra_` → `tiles/ground/ground_extra_`, `nature/rock_extra_` →
+    `nature/rocks/rock_extra_`), then verified: no old-style unfoldered `tiles/`/`nature/` paths
+    remained anywhere in the file, and all 276 total `require()` paths in the file resolve to a
+    real file on disk (0 missing). `npx tsc --noEmit` clean, all 45 `jest` tests still pass. Started
+    the dev server and ran a Playwright check (navigate, dismiss onboarding, screenshot, capture
+    console/page/network errors) against the live Tortuga Cove map — zero errors of any kind, and
+    the screenshot confirmed grass/cobblestone/dirt-path tiles, the Scally sprite, minimap,
+    compass, and quest banner all still rendering exactly as before. Zero regressions.
+
+    Updated `assets/sprites/README.md`'s folder map and subfolder-threshold paragraph to describe
+    the new structure, and `assets/sprites/TERRAIN_EXTRAS_MANIFEST.md`'s section headings (which
+    had gone stale the moment the files moved) to point at the real new paths
+    (`tiles/ground/ground_extra_1..24`, `nature/rocks/rock_extra_1..21`, etc.). Also updated
+    `DELIVERY_LOG.md`'s folder-size note to record the split as done rather than open. Naming
+    convention inside each subfolder is unchanged — plain `{descriptor}_{n}.png` — only the folder
+    path grew a subfolder segment, so nothing about how future deliveries get numbered changes.

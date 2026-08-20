@@ -27,14 +27,19 @@ files, and the 29 lip-sync mouth frames are a clearly distinct, always-browsed-a
 `src/data/scallySprites.ts`'s `LIP_SYNC_FRAMES` and `src/data/visemes.ts`). `scally/talk_expressions/`
 is the third, same reasoning: 20 full-body poses cut as one set from "Captain Scally: Talking
 Expressions" (see `TALK_EXPRESSIONS` in `scallySprites.ts`) — same crossed-arms crop/scale as
-`lipsync/`, varying face instead of mouth.
+`lipsync/`, varying face instead of mouth. `tiles/` and `nature/` are the fourth and fifth: both
+grew past 100 flat files across many unrelated sub-groups (ground vs. water vs. paving vs.
+transitions vs. elevation, or vegetation vs. trees vs. rocks) once the 2026-08-17 terrain-extras
+delivery landed, so both were split into the subfolders listed in the folder map below (2026-08-17
+reorg — see `GAME_DESIGN.md`). The naming convention inside each subfolder is unchanged — plain
+`{descriptor}_{n}.png`, no extra prefix — only the folder path grew a subfolder segment.
 
 ## Folder map
 
 | Folder | Holds | Wired from |
 |---|---|---|
-| `tiles/` | Ground/terrain: grass, dirt, sand, paths, cobble, road, jungle floor, beach, sea, cliffs, elevation, stairs/ramps, transition blends, mud/puddle/bridge | `src/data/worldSprites.ts` |
-| `nature/` | Vegetation & natural scatter: trees, bushes, flowers, mushrooms, vines, weeds, rocks, boulders, logs, stumps | `src/data/worldSprites.ts` |
+| `tiles/` | Ground/terrain, split into subfolders now that the category crossed 250+ files: `ground/` (grass, dirt, sand, mud, puddle, broken/jungle ground), `water/` (sea, water base tiles), `paving/` (cobble, road, wood), `paths/` (dirt/grass-border paths), `transitions/` (edge/corner blends between terrain pairs), `elevation/` (cliffs, ledges, stairs/ramps), `beach/` (beach detail), `bridges/` (rope/wood bridge pieces) | `src/data/worldSprites.ts` |
+| `nature/` | Vegetation & natural scatter, split into subfolders for the same reason: `vegetation/` (bushes, flowers, weeds, vines, mushrooms, logs, stumps), `trees/` (tall/round/palm and other tree variants), `rocks/` (rock/boulder/spire/cave formations) | `src/data/worldSprites.ts` |
 | `wildlife/` | Animals: parrots, gulls, dogs, cats, rats, monkeys, crabs, fish, sharks — living creatures, not plant/rock scatter (that's `nature/`) | *(not yet wired)* |
 | `props/` | Placeable set-dressing: crates, barrels, sacks, hay, campfires, signposts, fountains, lampposts, benches, market stalls, flags, furniture, tools, carts | `src/data/worldSprites.ts` |
 | `decals/` | Ground overlays — cracks, stains, footprints, scorch marks. Sits *on top of* a ground tile, not a replacement for one | *(not yet wired)* |

@@ -14,7 +14,7 @@ directory's `README.md`).
 |---|---|---|---|---|---|
 | 2026-08-11 | `assets/brand/tileset-catalog/master_catalog_v1.png` | — (see `ART_BRIEF.md` Part A/C, `GAME_DESIGN.md` items 152–158) | ~30+ | `buildings/`, `world/`, `houses/`, misc | Partial — buildings/houses wired via `spriteId`; some categories still unused |
 | 2026-08-11 | `assets/brand/tileset-catalog/tortuga_focus_v1.png` | — (see `ART_BRIEF.md`) | — | overlaps master_catalog_v1 | Partial |
-| 2026-08-17 | `assets/brand/tileset-catalog/terrain_extras_sheet_v1.png` | `TERRAIN_EXTRAS_MANIFEST.md` | 245 | `tiles/`, `nature/`, `props/`, `decals/`, `water_fx/`, `landmarks/` | **No** — cut and filed only, not yet wired into any renderer |
+| 2026-08-17 | `assets/brand/tileset-catalog/terrain_extras_sheet_v1.png` | `TERRAIN_EXTRAS_MANIFEST.md` | 245 | `tiles/` (now subfoldered — see below), `nature/` (now subfoldered), `props/`, `decals/`, `water_fx/`, `landmarks/` | **No** — cut and filed only, not yet wired into any renderer |
 
 ## Known free wiring opportunities (found while auditing the 2026-08-17 delivery)
 
@@ -35,9 +35,10 @@ Worth acting on whenever wiring work starts, without needing new art:
 
 ## Folder size note
 
-`tiles/` (268 files) and `nature/` (116 files) are both well past this directory's own
-README-stated subfolder threshold (~15-20 files with distinct sub-groups). Not split yet because
-doing so means updating every existing `require()` path already wired into `worldSprites.ts` for
-the pre-existing files in those folders — a real, if mechanical, refactor, not a free action.
-Worth doing before too many more deliveries land on top of an already-large flat folder, but
-flagged here rather than done unilaterally.
+`tiles/` and `nature/` were both well past this directory's own README-stated subfolder threshold
+(~15-20 files with distinct sub-groups) — 268 and 116 flat files respectively. **Split on
+2026-08-17** into `tiles/{ground,water,paving,paths,transitions,elevation,beach,bridges}/` and
+`nature/{vegetation,trees,rocks}/` (see `GAME_DESIGN.md` item 140 for the full account). All 227
+affected `require()` paths in `worldSprites.ts` were rewritten in the same pass and verified
+against disk — nothing left pointing at the old flat paths. Filenames themselves are unchanged,
+only the folder segment grew.
