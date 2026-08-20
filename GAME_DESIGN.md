@@ -4339,9 +4339,9 @@ long collection grind *and* one legendary payoff at the top of it.
     (2026-08-20) — a clean, computer-arranged catalog-style sheet (`terrain_extras_2_sheet_v1.png`),
     the first delivery to land since the cutting-process and folder-structure future-proofing work
     in items 139–140. Real per-item extraction throughout: connected-component detection within
-    each row's column slices (not equal-width division blindly trusted — pitch was measured against
-    unambiguous items first, since this sheet's rows genuinely did turn out to be uniform grids,
-    verified rather than assumed). Filed into existing folders, continuing numbering everywhere a
+    each row's column slices (not equal-width division blindly trusted — spacing was measured
+    against unambiguous items first, since this sheet's rows genuinely did turn out to have
+    constant spacing, verified rather than assumed). Filed into existing folders, continuing numbering everywhere a
     category already existed (`ground_extra_25..37`, `stairs_ramp_14..21`, `trans_extra_53..78`,
     `rock_extra_22..23`, etc.) and starting fresh only for genuinely new categories (`curb_*` and
     `plinth_*`, plus the first 8 real entries in the previously-empty `harbour/` folder). Full
@@ -4364,10 +4364,10 @@ long collection grind *and* one legendary payoff at the top of it.
       content that a uniform column split clipped or missed (thin art near a column boundary, or
       legitimately wider/narrower than its row siblings). Each was individually re-examined against
       the source sheet at full resolution and re-cropped by hand. Also caught: Panel XI's "corner
-      blends" group was initially miscounted as 2 unique large tiles + a 14-item grid (16 total) —
-      re-inspection showed the first two columns just have busier internal art than the rest, not a
-      different structure; it's a uniform 2×7 grid, 14 items. Corrected before filing (145 total,
-      not 147).
+      blends" group was initially miscounted as 2 unique large tiles + a separate 14-item, 2×7
+      layout (16 total) — re-inspection showed the first two columns just have busier internal art
+      than the rest, not a different structure; it's the same 2-row × 7-column layout throughout,
+      14 items. Corrected before filing (145 total, not 147).
 
     Nothing wired into a renderer yet — that's still explicitly out of scope until "a ton more
     sheets" (the user's own framing) have landed. `npx tsc --noEmit` and all 45 `jest` tests clean
@@ -4400,3 +4400,24 @@ long collection grind *and* one legendary payoff at the top of it.
     Cross-linked all four plus the new tool from `assets/sprites/README.md` so they're
     discoverable from the doc a future session would already be reading. `npx tsc --noEmit` and
     all 45 `jest` tests clean (new tool/agent files only, no existing source touched).
+
+143. ✅ **Purged "grid" terminology from the new cutting tool and its docs** (2026-08-20) — direct
+    feedback right after item 142 landed: even a *verified*-spacing equal-slice technique
+    shouldn't be called or named "grid," since the word itself is what invited the blind-grid
+    mistakes fixed in items 98/99/135–137. Renamed `segment_lib.py`'s `row_grid_boxes()` →
+    `verified_pitch_row_boxes()` and reworded its module docstring and inline comments throughout
+    to say "confirmed/constant spacing" instead of "grid," while keeping every actual lesson
+    intact (still requires measuring real gaps first, still falls back to real per-item detection
+    the moment spacing isn't constant). Same pass through `TERRAIN_EXTRAS_2_MANIFEST.md` (Panel
+    XI's G-group description, the cutting-method note, the miscount writeup), item 141/142's own
+    text above, and `.claude/agents/asset-qa.md`'s one incidental "grid the sprites" phrase
+    (meant a contact-sheet layout, unrelated to cutting method, reworded anyway for zero
+    ambiguity).
+
+    Deliberately **not** touched: the pre-existing "do not assume a grid" warning phrasing in
+    `README.md`'s Cutting convention section (that IS the standing prohibition, not a risk of
+    reintroducing one) and every historical `GAME_DESIGN.md` entry describing past grid-cutting
+    mistakes (items 97–99, 135–137) or the town's actual orthogonal street grid (an unrelated,
+    intentional design element) — rewriting either would erase real history or edit an unrelated
+    concept, not reduce risk. `npx tsc --noEmit` and all 45 `jest` tests clean (doc/tool text
+    only, no behavior changed).

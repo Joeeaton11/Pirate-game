@@ -10,7 +10,7 @@ reference sheets a cut pass came from, not meant to be used directly in-game). T
 terrain-extras delivery — a clean, labeled catalog-style sheet (11 roman-numeral panels, each item
 individually numbered and captioned on the sheet itself), distinct in style from the first
 delivery's denser painterly panels but cut with the same discipline: real per-item pixel
-boundaries, never a grid assumption.
+boundaries, never assumed spacing.
 
 Files below use the codebase's plain-sequential-number convention (`{descriptor}_{n}.png`) and
 **continue the existing numbering** for every category that already had entries from the first
@@ -19,11 +19,12 @@ sheet introduced (`curb`, `plinth`, the `harbour/` folder's whole contents, `shr
 `mangrove`, `tree_dead`, `well`, `tide_pool`, `drainage_grate`) start at 1.
 
 **Cutting method note:** this sheet's clean, computer-arranged catalog layout meant most rows
-really were uniform-pitch grids (verified by measuring real background gaps between unambiguous
-items in each row before trusting the pitch — never assumed blind). Real per-item connected-component
-extraction was used within each column slice (largest-blob-per-slice, with a small auto-escalating
-dilation to bridge an item's own internal gaps — sparse branches, thin roots — without bridging into
-neighboring caption text). Two things surfaced during verification that are worth recording:
+really did have constant spacing between items (verified by measuring real background gaps
+between unambiguous items in each row before trusting the spacing — never assumed blind). Real
+per-item connected-component extraction was used within each column slice (largest-blob-per-slice,
+with a small auto-escalating dilation to bridge an item's own internal gaps — sparse branches,
+thin roots — without bridging into neighboring caption text). Two things surfaced during
+verification that are worth recording:
 
 1. **First pass baked caption text into several crops** (the column slice's tallest content
    sometimes included the label text below the art, not just the art itself) — caught by actually
@@ -37,9 +38,9 @@ neighboring caption text). Two things surfaced during verification that are wort
    counting" lesson from the first delivery, applied again — a plausible-looking bounding box is
    not proof of correct content.
 3. **Panel XI's "corner blends" group (G) was initially miscounted as 16 items** (2 "tall anchor"
-   tiles + a 14-item 2-row grid) — re-examination showed the first two columns just have busier
-   art (multiple stone patches in one tile) than the rest, not a different structure. It's a
-   uniform 2×7 grid throughout, 14 items total. Corrected before filing.
+   tiles + a 14-item, 2-row × 7-column layout) — re-examination showed the first two columns just
+   have busier art (multiple stone patches in one tile) than the rest, not a different structure.
+   It's the same 2×7 layout throughout, 14 items total. Corrected before filing.
 
 145 sprites cut in this pass. Nothing here is wired into a renderer yet — see `README.md`'s
 folder table for what each folder feeds into once it is wired.
@@ -156,6 +157,6 @@ not an omission on this end):
 - **A. Grass Edges, B. Sand Edges, C. Dirt/Path Edges, D. Cobble Edges, E. Cliff Top Edges** —
   4 strip tiles each (20 total) → `tiles/transitions/trans_extra_59..78` (continues the
   `trans_extra_*` series, now up through 78 total across both terrain-extras deliveries).
-- **G. Corner Blends & Inner Corners** — a uniform 2-row × 7-column grid, 14 items →
+- **G. Corner Blends & Inner Corners** — laid out 2 rows × 7 columns on the sheet, 14 items →
   `tiles/transitions/trans_corner_20..33` (continues the `trans_corner_1..19` series from the
   first delivery).

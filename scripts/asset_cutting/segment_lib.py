@@ -1,10 +1,13 @@
 """
-Reusable sprite-sheet cutting toolkit — real per-item pixel segmentation, never a grid
-assumption. Built and battle-tested cutting the 2026-08-20 terrain-extras-2 delivery
+Reusable sprite-sheet cutting toolkit — real per-item pixel segmentation, never assumed
+uniform spacing. Built and battle-tested cutting the 2026-08-20 terrain-extras-2 delivery
 (see GAME_DESIGN.md item 141, assets/sprites/TERRAIN_EXTRAS_2_MANIFEST.md).
 
 Read assets/sprites/README.md's "Cutting convention" section first — this module is the
 concrete implementation of the discipline described there, not a replacement for reading it.
+That section's standing rule applies here too: do not assume equal spacing for a row of items —
+confirm it against real pixel gaps first, every time, even when a sheet looks clean and
+computer-arranged.
 
 ## Quick start
 
@@ -15,9 +18,10 @@ concrete implementation of the discipline described there, not a replacement for
     boxes, mask = segment_window(arr, (x0, y0, x1, y1), thresh=28, dilation=0, min_size=800)
     draw_debug(arr, (x0, y0, x1, y1), boxes, 'debug.png')   # ALWAYS view this before trusting it
 
-    # For a single row you've confirmed is a uniform n-column grid (measure real gaps between
-    # a few unambiguous items first — see row_grid_boxes' docstring):
-    boxes = row_grid_boxes(arr, (x0, y0, x1, y1), n_cols=5)
+    # For a single row where you've measured real pixel gaps between a few unambiguous items
+    # and confirmed the spacing is genuinely constant (see verified_pitch_row_boxes' docstring —
+    # do not skip the measurement step just because the sheet looks tidy):
+    boxes = verified_pitch_row_boxes(arr, (x0, y0, x1, y1), n_items=5)
 
     # Crop with alpha + feathered edges:
     img = crop_rgba(arr, window, box, pad=4, feather=14, thresh=28)
@@ -29,34 +33,39 @@ concrete implementation of the discipline described there, not a replacement for
    label count is not proof of correctness — two merges can cancel out, or a slice can grab a
    caption instead of the art. ALWAYS render `draw_debug()` and look, and for finished crops,
    open a sample of the actual output PNGs (not just the debug overlay) before filing.
-2. **`row_grid_boxes` takes the largest CONNECTED COMPONENT per column slice, not the full
-   column content span.** An earlier version took the full span and silently baked caption
-   text below the art into several crops (they're both "content" within the same column
-   window if you don't distinguish blob size). This was the single most common bug found
-   during the 2026-08-20 delivery — check for it specifically.
+2. **`verified_pitch_row_boxes` takes the largest CONNECTED COMPONENT per slice, not the full
+   slice content span.** An earlier version took the full span and silently baked caption
+   text below the art into several crops (they're both "content" within the same slice window
+   if you don't distinguish blob size). This was the single most common bug found during the
+   2026-08-20 delivery — check for it specifically.
 3. **Small escalating dilation (0-3 iterations) bridges an item's own internal gaps** (sparse
    branches, thin roots, rope, fence rails) without bridging into a caption below it. Going
    higher than ~3 risks merging into neighboring content — if an item still won't segment
    cleanly by dilation=3, it needs a manual re-crop (see #5).
-4. **A uniform-pitch grid must be verified, not assumed** — even on a clean catalog-style
-   sheet. `row_grid_boxes` divides a row into N equal slices; before trusting that for a
-   whole row/panel, measure the real pixel gap between a few already-unambiguous items in
-   that row and confirm the pitch actually is constant. It usually is on generated catalog
-   sheets, but confirm rather than guess (see AGENTS.md's no-grid-assumption rule).
+4. **Constant item spacing along a row must be measured and confirmed, never assumed** — even
+   on a clean catalog-style sheet, and even though `verified_pitch_row_boxes` divides a row
+   into N equal-width slices once you've confirmed that's valid. Before calling it for a whole
+   row, measure the real pixel gap between a few already-unambiguous items in that row and
+   confirm the spacing is actually constant. It usually is on generated catalog sheets, but
+   confirm rather than guess (see AGENTS.md's rule against assuming uniform sheet layout) — and
+   when it ISN'T constant (see #5's failure cases, or Panel X's "Ground Debris" item which was
+   legitimately much wider than its row siblings), don't force equal slicing at all — fall back
+   to real per-item connected-component detection across the row's full real span instead.
 5. **Sparse/thin items (bare branches, hanging vines, small props, thin poles) sometimes need
    a manual re-crop anyway.** When a box comes back suspiciously small/thin relative to its
    row siblings (see the outlier-detection snippet below), widen the search window around
    that item's approximate expected position, re-run `segment_window` with a wider window
    and a couple dilation values, and *visually confirm* the result against a zoomed crop of
-   the source before accepting it. Don't force it through the automated grid pass a second
-   time — hand-verify it directly.
+   the source before accepting it. Don't force it through the automated equal-slice pass a
+   second time — hand-verify it directly.
 6. **Exclude panel border lines.** `segment_window`'s `exclude_border` drops components whose
    bbox covers >85% of the window in both dimensions (works for whole-panel windows, but
    disable it — pass `exclude_border=False` — for a single large hero image that legitimately
-   fills most of its window). `row_grid_boxes` instead drops any column with near-full-window-
-   height content (a vertical border line) when computing the row's real content span.
+   fills most of its window). `verified_pitch_row_boxes` instead drops any column with near-
+   full-window-height content (a vertical border line) when computing the row's real content
+   span.
 
-## Outlier-detection snippet (run this after any row_grid_boxes/segment_window pass)
+## Outlier-detection snippet (run this after any verified_pitch_row_boxes/segment_window pass)
 
     import statistics
     ws = [b[2]-b[0] for b in boxes]; hs = [b[3]-b[1] for b in boxes]
@@ -88,7 +97,10 @@ def bg_distance(arr):
 def segment_window(arr, win, thresh=28, dilation=0, min_size=40, row_tol=40,
                     exclude_border=True):
     """win = (x0,y0,x1,y1). Returns (boxes, mask); boxes are (x0,y0,x1,y1,pixel_area) in
-    window-local coords, in reading order (top-to-bottom rows, left-to-right within a row)."""
+    window-local coords, in reading order (top-to-bottom rows, left-to-right within a row).
+    This is the default, safest method — real connected-component detection with no assumption
+    about how many items a row/panel holds or how they're spaced. Prefer this over
+    `verified_pitch_row_boxes` whenever spacing hasn't been separately confirmed constant."""
     y0, y1, x0, x1 = win[1], win[3], win[0], win[2]
     W, H = x1 - x0, y1 - y0
     sub = arr[y0:y1, x0:x1]
@@ -170,14 +182,20 @@ def crop_rgba(arr, win, box, pad=4, feather=14, thresh=28):
     return Image.fromarray(rgba, 'RGBA')
 
 
-def row_grid_boxes(arr, win, n_cols, thresh=28, min_size=30):
-    """win=(x0,y0,x1,y1) spanning ONE row only. Verified-pitch equal subdivision: finds the
-    row's real outer content span (excluding panel border lines), divides into n_cols equal
-    slices, then within each slice takes the LARGEST CONNECTED COMPONENT (with small escalating
-    dilation to bridge an item's own internal gaps) — not a blind slice crop, and not the full
-    column content span (that bug bakes caption text into the crop, see module docstring #2).
+def verified_pitch_row_boxes(arr, win, n_items, thresh=28, min_size=30):
+    """win=(x0,y0,x1,y1) spanning ONE row only. Use ONLY after separately measuring real pixel
+    gaps between a few unambiguous items in this row and confirming the spacing is genuinely
+    constant (module docstring #4) — this function does not verify that for you, it assumes
+    you already did. Finds the row's real outer content span (excluding panel border lines),
+    divides into n_items equal-width slices, then within each slice takes the LARGEST CONNECTED
+    COMPONENT (with small escalating dilation to bridge an item's own internal gaps) — not a
+    blind slice crop, and not the full slice content span (that bug bakes caption text into the
+    crop, see module docstring #2).
 
-    Only use this after confirming the row really is uniform pitch (module docstring #4)."""
+    If spacing turns out NOT to be constant for a row (an item is legitimately much wider or
+    narrower than its siblings), do not use this function for that row — fall back to
+    `segment_window` across the row's real content span and let real per-item boundaries fall
+    out on their own."""
     y0, y1, x0, x1 = win[1], win[3], win[0], win[2]
     sub = arr[y0:y1, x0:x1]
     H = y1 - y0
@@ -189,11 +207,11 @@ def row_grid_boxes(arr, win, n_cols, thresh=28, min_size=30):
     if len(xs) == 0:
         return []
     cx0, cx1 = xs.min(), xs.max() + 1
-    col_w = (cx1 - cx0) / n_cols
+    slice_w = (cx1 - cx0) / n_items
     boxes = []
-    for c in range(n_cols):
-        sx0 = int(cx0 + c * col_w)
-        sx1 = int(cx0 + (c + 1) * col_w)
+    for c in range(n_items):
+        sx0 = int(cx0 + c * slice_w)
+        sx1 = int(cx0 + (c + 1) * slice_w)
         slice_mask = mask[:, sx0:sx1]
         best_box = None
         for dil in range(0, 4):

@@ -36,7 +36,7 @@ verify someone else's (or your own past) cutting work.
 4. Run the outlier-detection snippet from `segment_lib.py`'s docstring (median-relative
    width/height check) across a delivery's boxes if you still have access to the cutting boxes/
    script that produced them; otherwise, visually scan a contact-sheet-style composite (build one
-   with PIL if useful — grid the sprites with filename labels) for anything that looks like it
+   with PIL if useful — tile the sprites into rows with filename labels) for anything that looks like it
    doesn't match its filename.
 5. Spot-check a sample against the source sheet directly — crop the same region from the source
    sheet fresh and compare, don't just trust the delivered PNG's own claim about what it shows.
