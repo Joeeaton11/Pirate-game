@@ -24,19 +24,23 @@ the category label alone:
   4 different stone arrangements, not one tile shown four times (see `GAME_DESIGN.md` item 144).
 - Panel 12's four categories aren't even uniform with each other: FLOOR/OVERGROWN/ROOTS are 2×2,
   but VINES is 1 row of 4 (a hanging vine strand doesn't split into a 2×2 sensibly).
-- Panel 13's four tree categories have *different column counts* (PALMS=2, JUNGLE TREES=3,
-  BROADLEAF=3, DEAD TREES=2) — assuming a uniform grid across the whole panel would have
+- Panel 13's four tree categories have *different column counts* (PALMS=3, JUNGLE TREES=2,
+  BROADLEAF=3, DEAD TREES=3) — assuming a uniform grid across the whole panel would have
   misaligned every column past the first category.
 - Panel 30's PUDDLES category is a 2×4 grid of 8 distinct small puddle shapes sitting next to
   four *single-item* categories (FOG PATCHES, CLOUDS, MIST, DUST CLOUDS) in the same panel.
 
 Every panel's real structure was confirmed by zooming into the source before cutting, not
-inferred from the category count. See `GAME_DESIGN.md` item 144 (initial cut) and item 145
-(independent QA + re-cut) for the full account.
+inferred from the category count. See `GAME_DESIGN.md` item 144 (initial cut), item 145 (first
+independent QA + re-cut), and item 146 (second independent QA + second re-cut) for the full
+account.
 
 **The initial cut pass had real, extensive defects that an automated size-outlier check and a
-debug-overlay glance both missed.** An independent `asset-qa` review, followed by direct
-pixel-level re-measurement of every flagged panel, found:
+debug-overlay glance both missed — and the first re-cut, done to fix those, introduced a
+different class of defect that a second independent QA pass caught.** Two rounds of `asset-qa`
+review, each followed by direct pixel-level re-measurement of every flagged panel, found:
+
+**Round 1:**
 
 1. **Category-label text baked into crops** (Panels 4, 10, 11, 12, 13, 18, 22) — the header-padding
    value used per panel was tuned by eyeballing a subset of panels and wasn't tall enough for
@@ -48,14 +52,7 @@ pixel-level re-measurement of every flagged panel, found:
    between some pairs while having a real gap between others (Panel 12: FLOOR/OVERGROWN/ROOTS
    touch, only ROOTS→VINES has a gap). Fixed by measuring real per-category boundaries via a
    column-activity gap profile instead of dividing panel width by category count.
-3. **Panel 13's real tree-category structure was different from what both the first cut and the
-   first re-cut assumed.** A close ruler-gridded re-measurement of the source found PALMS=2x2=4,
-   JUNGLE TREES=2x2=4 (not 2x3=6 as both earlier passes assumed), BROADLEAF=2x3=6, DEAD
-   TREES=2x3=6 (not 2x2=4 as the first cut assumed) — the true column count differs per category
-   and doesn't match a glance-level read of the sheet. Total item count (20) happened to match
-   the first cut's wrong assumption by coincidence, masking the error until crops were opened
-   individually.
-4. **Panel 22's real structure was undercounted by 4x in the first cut.** STONE BLOCKS, BROKEN
+3. **Panel 22's real structure was undercounted by 4x in the first cut.** STONE BLOCKS, BROKEN
    WALLS, and PILLARS were treated as one single item each; PILLARS is actually 4 freestanding,
    individually-boundaried statues (confirmed by real background gaps between each) and is cut as
    4 separate items. STONE BLOCKS, BROKEN WALLS, and RUINED TILES turned out to be organic
@@ -64,21 +61,57 @@ pixel-level re-measurement of every flagged panel, found:
    consistent, verifiable per-item boundary between them (items are staggered/touching in a
    non-grid arrangement). Rather than ship an unverifiable guessed split, each of those three
    categories is filed as one whole-category crop capturing 100% of its real content losslessly.
-5. **A sort-order bug silently scrambled category assignment during re-verification** (Panel 13
-   specifically) — an early re-cut attempt sorted output crops by absolute row position for
-   readability, which interleaves items across categories whenever different categories have
+4. **A sort-order bug silently scrambled category assignment during re-verification** (Panel 13
+   specifically, round 1) — an early re-cut attempt sorted output crops by absolute row position
+   for readability, which interleaves items across categories whenever different categories have
    different per-row item counts in the same physical rows. The pixel-level cuts were correct;
    the bug was purely in how output was labeled/ordered afterward. Fixed by cutting and naming
-   every item by its explicit category/row/column position, never trusting index order alone.
+   every item by its explicit category/row/column position instead of trusting index order — but
+   this fix itself still shipped two further, distinct bugs that round 1's own re-verification
+   missed (see round 2, below).
 
-**The standing lesson, reinforced hard by this pass:** a debug bounding-box overlay only proves
+**Round 2** (a second independent `asset-qa` pass on round 1's own fixes, requested precisely
+because round 1 had shown the delivery's original review process wasn't catching everything):
+
+5. **Panels 4, 10, and 11's real per-item content was correct, but grouped into the wrong
+   category slots.** These three panels have several categories laid out side-by-side across a
+   shared row (e.g. Panel 4's LIGHT/MEDIUM/DARK/MOSAIC cobble variants are 4 categories × 2
+   columns × 2 rows = 16 tiles total). Round 1's re-cut sliced straight across all columns of row 1
+   first, then all columns of row 2, then filed the 16 crops in that row-major order under
+   category-grouped filenames (assuming slot N was always category N/4) — so e.g. `cobble_15.png`
+   labeled "Light 3" actually held Medium's first row-1 tile, `cobble_17.png` labeled "Medium 1"
+   actually held Dark's, and so on. The individual crops themselves had no defect (clean, no baked
+   text, correct boundaries) — this was purely a labeling/filing bug, exactly the same class as
+   round 1's Panel 13 sort-order bug, just undetected the first time because nobody cross-checked
+   a delivered crop's content against a fresh crop from its *claimed* label position in the
+   source. Fixed by re-deriving the real category→slot mapping from the source and re-permuting
+   the already-correct crops into their real category groups — no re-cutting needed, since the
+   underlying pixel content was fine.
+6. **Panel 13's PALMS category was undercounted (3×2=6 real trees, not 2×2=4) and both PALMS and
+   BROADLEAF were being extracted as trunk/leaf-cluster fragments, not whole trees.** A
+   wider-than-before ruler-gridded zoom of the source found a real third palm column that both
+   the original cut and round 1's re-cut had missed entirely (their combined item count for this
+   category — 4 — simply omitted 2 real trees, rather than mislabeling them). Separately, palm
+   fronds and broadleaf canopy leaves are naturally sparse/non-touching within a single tree's own
+   art (leaflets don't connect to each other or to the trunk at a low activity threshold), so a
+   largest-connected-component-style extraction fragments a single real tree into 10+ disconnected
+   blobs and only grabs one — exactly the sparse-item risk `segment_lib.py`'s docstring lesson #5
+   warns about. Fixed by re-measuring PALMS' real 3-column width directly against the source and
+   re-cutting every PALMS and BROADLEAF item with `content_bbox` (full pixel union within the
+   measured window, not a single largest blob) — the same fix already proven for Panel 11's rock
+   piles and Panel 18's mottled ground textures.
+
+**The standing lesson, reinforced hard by both rounds:** a debug bounding-box overlay only proves
 box *positions* look plausible — it does not reveal baked-in caption text (invisible at overlay
-scale) or wrong-category content. The only reliable check is opening every final saved crop PNG
-directly and looking at it, which is what caught all of the above.
+scale), a category-mislabeled crop (the crop itself looks fine — it's just filed under the wrong
+neighbor's name), or missing columns that never got cut at all. The only reliable checks are (a)
+opening every final saved crop PNG directly and looking at it, and (b) cross-checking what a
+crop's *filename* claims against a fresh crop from that exact claimed position in the source —
+"the crop looks clean" and "the crop is correctly labeled" are two different claims and both
+need independent verification. A second, independent QA pass caught what the first one's own
+re-verification missed; treat "QA once" as insufficient on a sheet this dense.
 
-309 sprites cut in this pass (Panel 13's real DEAD TREES count and Panel 22's real PILLARS count
-both differ from the first cut's assumptions — see their sections below). Nothing here is wired
-into a renderer yet — see `README.md`'s
+311 sprites cut in this pass. Nothing here is wired into a renderer yet — see `README.md`'s
 folder table for what each folder feeds into once it is wired. New descriptors/categories this
 delivery introduced (continuing an existing series everywhere one already existed): `shoreline_*`,
 `plateau_*`, `rock_patch_*`, `swamp_*`, `mossy_stone_*`, `lava_rock_*`, `volcanic_rock_*`,
@@ -86,12 +119,12 @@ delivery introduced (continuing an existing series everywhere one already existe
 `ruin_stone_blocks_*`, `ruin_pillar_*`, `map_edge_*`, `floor_tile_*` (new in `buildings/`), and
 `fog_patch_* / cloud_* / mist_* / dust_cloud_*` — the **first entries** in the previously-empty
 `weather_fx/` folder. `water_fx/geyser_1.png` is also new. Every other item continues an existing
-numbered series (`ground_extra_38..61`, `trans_extra_79..106`, `cobble_13..29`, `tree_9..22` plus
+numbered series (`ground_extra_38..61`, `trans_extra_79..106`, `cobble_13..29`, `tree_9..24` plus
 `tree_dead_2..7`, `ruin_pillar_1..4`, `puddle_3..10`, etc.) — checked against the highest existing
-number in each folder before assigning, per the standing naming-continuation rule. `tree_23.png`
-and `tree_24.png`, filed in the first cut under a miscounted Broadleaf structure, were removed —
-Broadleaf's real 6 items fit in `tree_17..22`, freeing those two numbers rather than leaving
-gap-filled duplicates.
+number in each folder before assigning, per the standing naming-continuation rule. `tree_9..24`'s
+internal category boundaries shifted twice across the two QA rounds (see Panel 13's section
+below for the final, real structure) but the file range itself (`tree_9` through `tree_24`, 16
+files) is unchanged from the very first cut.
 
 ## Panel 1 — Grass & Dirt Variations (source: Panel I), 24 items
 24 ground-tile variations in an 8x3 grid (no individual sheet labels — visually distinct grass/dirt tones and textures).
@@ -283,32 +316,41 @@ FLOOR, OVERGROWN, ROOTS — each a 2x2 set of 4; VINES — 4 individual hanging-
 15. `ground/jungle_ground_27.png` (`assets/sprites/tiles/ground/jungle_ground_27.png`) — Vines 3
 16. `ground/jungle_ground_28.png` (`assets/sprites/tiles/ground/jungle_ground_28.png`) — Vines 4
 
-## Panel 13 — Trees (Variety) (source: Panel III), 20 items
-PALMS (2x2=4), JUNGLE TREES (2x2=4), BROADLEAF (2x3=6), DEAD TREES (2x3=6) — real structure
-confirmed via a ruler-gridded re-measurement of the source after the first cut and first re-cut
-both mis-assumed JUNGLE TREES=6/DEAD TREES=4 (their total happened to match this panel's true
-total of 20, which is what let the error ship undetected the first time).
+## Panel 13 — Trees (Variety) (source: Panel III), 22 items
+PALMS (3x2=6), JUNGLE TREES (2x2=4), BROADLEAF (3x2=6), DEAD TREES (3x2=6) — this is the
+structure's third and final measurement. The first cut had JUNGLE TREES/DEAD TREES backwards
+(6/4 instead of 4/6). The first re-cut fixed that but undercounted PALMS (missed a real 3rd
+column entirely — the source shows 3 palm trees per row, not 2) and extracted both PALMS and
+BROADLEAF as disconnected leaf/trunk fragments rather than whole trees (palm fronds and broadleaf
+canopy leaves don't touch each other or the trunk at a low activity threshold, so a
+largest-connected-component search grabs only one fragment of a tree that's really 10+ separate
+blobs). Fixed by re-measuring PALMS' true 3-column width against a wide ruler-gridded zoom of the
+source and re-cutting PALMS and BROADLEAF with a full-pixel-union bounding box instead of a
+single-largest-blob search. JUNGLE TREES and DEAD TREES were already correct after the first
+re-cut and were left untouched this round.
 
 1. `trees/tree_9.png` (`assets/sprites/nature/trees/tree_9.png`) — Palm 1
 2. `trees/tree_10.png` (`assets/sprites/nature/trees/tree_10.png`) — Palm 2
 3. `trees/tree_11.png` (`assets/sprites/nature/trees/tree_11.png`) — Palm 3
 4. `trees/tree_12.png` (`assets/sprites/nature/trees/tree_12.png`) — Palm 4
-5. `trees/tree_13.png` (`assets/sprites/nature/trees/tree_13.png`) — Jungle Tree 1
-6. `trees/tree_14.png` (`assets/sprites/nature/trees/tree_14.png`) — Jungle Tree 2
-7. `trees/tree_15.png` (`assets/sprites/nature/trees/tree_15.png`) — Jungle Tree 3
-8. `trees/tree_16.png` (`assets/sprites/nature/trees/tree_16.png`) — Jungle Tree 4
-9. `trees/tree_17.png` (`assets/sprites/nature/trees/tree_17.png`) — Broadleaf 1
-10. `trees/tree_18.png` (`assets/sprites/nature/trees/tree_18.png`) — Broadleaf 2
-11. `trees/tree_19.png` (`assets/sprites/nature/trees/tree_19.png`) — Broadleaf 3
-12. `trees/tree_20.png` (`assets/sprites/nature/trees/tree_20.png`) — Broadleaf 4
-13. `trees/tree_21.png` (`assets/sprites/nature/trees/tree_21.png`) — Broadleaf 5
-14. `trees/tree_22.png` (`assets/sprites/nature/trees/tree_22.png`) — Broadleaf 6
-15. `trees/tree_dead_2.png` (`assets/sprites/nature/trees/tree_dead_2.png`) — Dead Tree 1
-16. `trees/tree_dead_3.png` (`assets/sprites/nature/trees/tree_dead_3.png`) — Dead Tree 2
-17. `trees/tree_dead_4.png` (`assets/sprites/nature/trees/tree_dead_4.png`) — Dead Tree 3
-18. `trees/tree_dead_5.png` (`assets/sprites/nature/trees/tree_dead_5.png`) — Dead Tree 4
-19. `trees/tree_dead_6.png` (`assets/sprites/nature/trees/tree_dead_6.png`) — Dead Tree 5
-20. `trees/tree_dead_7.png` (`assets/sprites/nature/trees/tree_dead_7.png`) — Dead Tree 6
+5. `trees/tree_13.png` (`assets/sprites/nature/trees/tree_13.png`) — Palm 5
+6. `trees/tree_14.png` (`assets/sprites/nature/trees/tree_14.png`) — Palm 6
+7. `trees/tree_15.png` (`assets/sprites/nature/trees/tree_15.png`) — Jungle Tree 1
+8. `trees/tree_16.png` (`assets/sprites/nature/trees/tree_16.png`) — Jungle Tree 2
+9. `trees/tree_17.png` (`assets/sprites/nature/trees/tree_17.png`) — Jungle Tree 3
+10. `trees/tree_18.png` (`assets/sprites/nature/trees/tree_18.png`) — Jungle Tree 4
+11. `trees/tree_19.png` (`assets/sprites/nature/trees/tree_19.png`) — Broadleaf 1
+12. `trees/tree_20.png` (`assets/sprites/nature/trees/tree_20.png`) — Broadleaf 2
+13. `trees/tree_21.png` (`assets/sprites/nature/trees/tree_21.png`) — Broadleaf 3
+14. `trees/tree_22.png` (`assets/sprites/nature/trees/tree_22.png`) — Broadleaf 4
+15. `trees/tree_23.png` (`assets/sprites/nature/trees/tree_23.png`) — Broadleaf 5
+16. `trees/tree_24.png` (`assets/sprites/nature/trees/tree_24.png`) — Broadleaf 6
+17. `trees/tree_dead_2.png` (`assets/sprites/nature/trees/tree_dead_2.png`) — Dead Tree 1
+18. `trees/tree_dead_3.png` (`assets/sprites/nature/trees/tree_dead_3.png`) — Dead Tree 2
+19. `trees/tree_dead_4.png` (`assets/sprites/nature/trees/tree_dead_4.png`) — Dead Tree 3
+20. `trees/tree_dead_5.png` (`assets/sprites/nature/trees/tree_dead_5.png`) — Dead Tree 4
+21. `trees/tree_dead_6.png` (`assets/sprites/nature/trees/tree_dead_6.png`) — Dead Tree 5
+22. `trees/tree_dead_7.png` (`assets/sprites/nature/trees/tree_dead_7.png`) — Dead Tree 6
 
 ## Panel 14 — Bushes & Plants (source: Panel IV), 24 items
 24 bush/plant variations in an 8x3 grid.

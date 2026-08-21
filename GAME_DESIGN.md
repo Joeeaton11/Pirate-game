@@ -4423,8 +4423,8 @@ long collection grind *and* one legendary payoff at the top of it.
     only, no behavior changed).
 
 144. ✅ **Cut and filed the third terrain-extras delivery — 306 sprites across 32 panels**
-    (2026-08-20; corrected to 309 items on 2026-08-21, see item 145) — the first delivery to go
-    through the new pipeline built in item 142
+    (2026-08-20; corrected to 309 items on 2026-08-21 per item 145, then to 311 per item 146) —
+    the first delivery to go through the new pipeline built in item 142
     (`segment_lib.py` + the four asset-pipeline subagents). Structurally the densest and most
     varied sheet yet: no per-item numbered captions on the source at all, just a panel title and
     named categories, and — unlike either prior terrain-extras delivery — the number of real
@@ -4537,3 +4537,54 @@ long collection grind *and* one legendary payoff at the top of it.
     `TERRAIN_EXTRAS_3_MANIFEST.md` and `DELIVERY_LOG.md` rewritten to reflect the real structure
     and an honest account of what the first pass got wrong. `npx tsc --noEmit` and all 45 `jest`
     tests clean (asset + doc changes only, no source code touched).
+
+146. ✅ **A second independent QA pass on item 145's own fixes found two more real defects it
+    introduced — fixed and re-filed** (2026-08-21). Requesting a second `asset-qa` review of
+    round 1's re-cut, rather than self-certifying it, was the right call: round 1 had itself
+    shipped defects despite following the "open every crop and look at it" discipline it had just
+    established, proving that discipline alone doesn't catch every failure mode — cross-checking
+    a crop's *claimed* label against a fresh crop from that exact position in the source is a
+    separate, necessary check.
+
+    - **Panels 4, 10, and 11's individual crops were pixel-correct but filed under the wrong
+      category label.** All three panels lay out several categories side by side across a shared
+      row (e.g. Panel 4: LIGHT/MEDIUM/DARK/MOSAIC cobble variants, 4 categories × 2 columns × 2
+      rows = 16 tiles). Round 1's re-cut sliced straight across every column of row 1, then every
+      column of row 2, and filed the resulting 16 crops in that row-major order under
+      category-grouped filenames — assuming slot N was always category ⌈N/4⌉ when it wasn't. So
+      `cobble_15.png` labeled "Light 3" actually held Medium's first row-1 tile, `cobble_17.png`
+      labeled "Medium 1" actually held Dark's, and so on — 12 of Panel 4's 16 files, 12 of Panel
+      10's 16, and 6 of Panel 11's 8 were mislabeled this way. This is the exact same *class* of
+      bug as item 145's Panel 13 sort-order bug — pixel content correct, output labeling wrong —
+      just undetected the first time because round 1 checked "does this crop look like a
+      plausible cobble/cliff/rock texture" rather than "does this crop's content match a fresh
+      crop from its claimed label's real position in the source." Fixed by re-deriving the real
+      category→slot mapping directly against the source and re-permuting the filenames onto the
+      already-correct crops — no re-cutting needed.
+    - **Panel 13's PALMS was undercounted (real structure is 3×2=6, not 2×2=4 as both the
+      original cut and round 1 assumed) and PALMS/BROADLEAF were both being extracted as
+      disconnected leaf/trunk fragments, not whole trees.** A wider ruler-gridded zoom of the
+      source (round 1's zoom window had cut off before the real 3rd palm column started) found
+      the missing column. Separately, palm fronds and broadleaf canopy leaves are naturally
+      sparse — they don't touch each other or the trunk at a low pixel-activity threshold — so a
+      largest-connected-component extraction (the method round 1 used, appropriate for rejecting
+      caption text but wrong for a naturally fragmented tree) grabbed only one leaf cluster or
+      the bare trunk out of 10+ real disconnected pieces per tree. This is exactly the sparse-item
+      risk `scripts/asset_cutting/segment_lib.py`'s docstring lesson #5 warns about, and it slipped
+      past round 1's own visual check because a single leaf-cluster fragment still *looks* like
+      plausible green foliage at thumbnail scale — only comparing it against the source's real,
+      complete tree silhouette revealed it was a fragment. Fixed by re-measuring PALMS' true
+      3-column width and re-cutting every PALMS and BROADLEAF item with a full-pixel-union
+      bounding box (`content_bbox`, not a single largest blob) — the same method already proven
+      for Panel 11's rock piles and Panel 18's mottled ground.
+
+    Net effect: 309 → 311 items (Panel 13's Palms category +2; Panels 4/10/11 unchanged in count,
+    only relabeled). `tree_23.png`/`tree_24.png` — removed in item 145 under the (still-wrong)
+    assumption Broadleaf only needed `tree_9..22` — are back, now correctly holding Broadleaf's
+    5th/6th items; the full `tree_9..24` range from the very first cut turns out to have been the
+    right file count all along, just internally mis-partitioned across categories twice in a row
+    before landing on the real 6/4/6/6 split. `TERRAIN_EXTRAS_3_MANIFEST.md` and `DELIVERY_LOG.md`
+    updated again. `npx tsc --noEmit` and all 45 `jest` tests clean (asset + doc changes only, no
+    source code touched). Given two independent QA rounds were needed to reach a delivery with no
+    further findings, any future dense multi-category catalog sheet cut through this pipeline
+    should budget for at least one QA round as standard, not as an optional afterthought.
