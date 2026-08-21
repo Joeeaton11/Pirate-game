@@ -4629,3 +4629,46 @@ long collection grind *and* one legendary payoff at the top of it.
     like its neighbors" as a substitute for checking each category's own real internal boundaries,
     since Panel 10 shows two categories in the same panel can look alike while only one of them
     actually has the split its layout suggests.
+
+148. ✅ **Cut and filed a new 21-panel "terrain extras 4" reference sheet — 234 sprites, applying
+    every lesson from items 145–147 proactively during cutting itself instead of finding the same
+    defects in a later QA round** (2026-08-21). The user uploaded a new, unrelated master-catalog-v2
+    style sheet (21 panels: ground/grass/path/cobble/road tiles, jungle floor, beach & shore, sea
+    tiles, sea transitions, two transition-type panels, cliffs/rocks, elevation, stairs, trees,
+    bushes & plants, rocks & boulders, decorative details, special tiles, miscellaneous) with no
+    accompanying text; confirmed via `AskUserQuestion` that it should go through the same
+    measure-cut-verify-file pipeline as `terrain_extras_3_sheet_v1.png`.
+
+    Checked for the "whole category, not grid" trap (item 147's Panel 11/10 lesson) on every
+    panel that visually resembled a small grid before cutting it as one, rather than after —
+    correctly identified Panels 18 (Rocks & Boulders), 19 (Decorative Details), 20 (Special Tiles),
+    and 21 (Miscellaneous) as single whole-category composites (2, 6, 5, and 6 items respectively,
+    not the naively-assumed 12/12/7/12) by checking row/column activity profiles for a real
+    near-zero gap before ever cutting a split. Two defects still slipped through the first pass and
+    were caught while building this delivery's own verification contact sheets (not a separate
+    post-hoc QA round):
+
+    - **Panel 21's first-pass column boundaries were shifted by roughly one category width** —
+      `Barrels`/`Sacks` both got crops of the barrels grid, `Campfire`/`Signpost` got sack and
+      campfire+signpost content. A contact sheet alone didn't reveal this (each individual crop
+      still looked like a plausible barrel or sack image); catching it required reading a couple of
+      the individual output files directly and comparing them against a fresh crop of the source
+      region at the label's real x-position. Re-measured the true column-run boundaries via
+      `bg_distance`+run-detection across the full category band and re-cut all 6 items correctly.
+    - **A stray 468×5px border-line sliver in Panel 12** slipped past the standard outlier-area
+      filter (0.4×-median threshold) because two of the panel's real items are themselves narrow.
+      Found by printing every crop's raw pixel dimensions and spotting the one 5px-tall outlier,
+      confirmed against the debug overlay, deleted — Panel 12 is 19 real items, not 20.
+
+    Filed into `assets/sprites/` continuing every matching existing series (`ground_basic_7..12`,
+    `grass_variations_13..24`, `path_dirt_25..36`, `cobble_30..43`, `jungle_ground_29..40`,
+    `trans_grass_dirt_road_21..40`, `trans_corner_34..52`, `cliff_top_edge_12..16`,
+    `elevation_ledge_11..16`, `stairs_ramp_27..31`, `tree_25..29`/`tree_dead_8`,
+    `bush_plant_52..78`, `shoreline_5..18`, and more — see `TERRAIN_EXTRAS_4_MANIFEST.md` for the
+    full per-panel map) plus three brand-new series this sheet's content didn't fit anywhere
+    existing: `props/beach_detail_1..11` (small beach-scatter clutter — shells, starfish,
+    driftwood), `water_fx/wave_1..11` (standalone wave-crest sprites, distinct from the flat
+    `tiles/water` sea tiles), and `tiles/ground/rocky_ground_1..4` (a rock-strewn ground tile).
+    `TERRAIN_EXTRAS_4_MANIFEST.md` and `DELIVERY_LOG.md` written/updated. `npx tsc --noEmit` and
+    all `jest` tests clean (asset + doc changes only, no source code touched). Not yet wired into
+    any renderer.

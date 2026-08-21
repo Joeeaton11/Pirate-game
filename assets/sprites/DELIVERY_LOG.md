@@ -17,6 +17,7 @@ directory's `README.md`).
 | 2026-08-17 | `assets/brand/tileset-catalog/terrain_extras_sheet_v1.png` | `TERRAIN_EXTRAS_MANIFEST.md` | 245 | `tiles/` (now subfoldered — see below), `nature/` (now subfoldered), `props/`, `decals/`, `water_fx/`, `landmarks/` | **No** — cut and filed only, not yet wired into any renderer |
 | 2026-08-20 | `assets/brand/tileset-catalog/terrain_extras_2_sheet_v1.png` | `TERRAIN_EXTRAS_2_MANIFEST.md` | 145 | `tiles/` (ground, water, paving, elevation, transitions, bridges), `nature/` (trees, vegetation, rocks), `props/`, `decals/`, `water_fx/`, `landmarks/`, `buildings/` (new `plinth_*` materials), `harbour/` (first entries — previously empty) | **No** — cut and filed only, not yet wired into any renderer |
 | 2026-08-21 | `assets/brand/tileset-catalog/terrain_extras_3_sheet_v1.png` | `TERRAIN_EXTRAS_3_MANIFEST.md` | 305 | `tiles/` (ground, paths, paving, transitions, beach, elevation, bridges, water), `nature/` (trees, rocks, vegetation), `props/`, `decals/`, `water_fx/`, `harbour/`, `buildings/` (new `floor_tile_*`), `weather_fx/` (first entries — previously empty) | **No** — cut and filed only, not yet wired into any renderer. Re-cut three times on 2026-08-21, each round triggered by an independent `asset-qa` pass finding what the previous round's own re-verification missed: round 1 fixed baked-in caption text, wrong category boundaries, and a miscounted Panel 13/22 structure (306→309 items); round 2 fixed Panels 4/10/11 mislabeled category slots and Panel 13's Palms/Broadleaf undercounting/fragmentation (309→311); round 3 fixed Panel 11 (every category was one whole scene wrongly split into an "A"/"B" pair, 8→4 items), Panel 10 Plateaus (2 whole columns wrongly split into 4, 16→14 for the panel), and Panel 13 Dead Trees (all 6 clipped at the top) (311→305). See `TERRAIN_EXTRAS_3_MANIFEST.md`'s intro and `GAME_DESIGN.md` items 145–147 |
+| 2026-08-21 | `assets/brand/tileset-catalog/terrain_extras_4_sheet_v1.png` | `TERRAIN_EXTRAS_4_MANIFEST.md` | 234 | `tiles/` (ground incl. new `rocky_ground_*`, paths, paving, beach, water, transitions, elevation, bridges), `nature/` (trees, vegetation, rocks), `props/` (new `beach_detail_*`), `water_fx/` (new `wave_*`) | **No** — cut and filed only, not yet wired into any renderer. All defect-catching happened during this delivery's own cutting pass rather than a separate post-hoc QA round: a Panel 21 category-boundary misalignment (Barrels/Sacks/Campfire/Signpost content shifted one category slot from its label) was caught by reading individual crops directly and re-cut correctly; a stray 468×5px border-line artifact in Panel 12 slipped past the outlier-area filter and was found and deleted (19 real items, not 20); three stale pre-fix scratch files for Panels 10/14/16 were found via mtimes and discarded before filing. See `TERRAIN_EXTRAS_4_MANIFEST.md`'s intro for full detail |
 
 ## Known free wiring opportunities (found while auditing the 2026-08-17 delivery)
 
@@ -66,6 +67,20 @@ Worth acting on whenever wiring work starts, without needing new art:
 - **`decals/map_edge_*` (4 items)** are purpose-built for a screen/map-boundary vignette effect
   that doesn't exist yet in `MapScreen.tsx` — distinct from the ground-overlay decals already
   wired-for elsewhere in that folder.
+
+## Known free wiring opportunities (found while filing the 2026-08-21 terrain-extras-4 delivery)
+
+- **`water_fx/wave_1..11`** are the first standalone wave-crest sprites in the library — distinct
+  from the flat `tiles/water/sea_*` surface tiles, these could animate/overlay onto open-water map
+  tiles for a moving-sea effect that doesn't exist yet.
+- **`props/beach_detail_1..11`** (starfish, shells, driftwood, coral fragments, etc.) are
+  purpose-built beach-scatter clutter — no current island scene places small objects directly on its
+  beach tiles the way `decals/`-style scattering does for ground.
+- **`tiles/beach/shoreline_5..18`** roughly quadruples that series (was 4, now 18) and adds a second
+  transition type (`sea_to_rock`, not just `sea_to_sand`) — any coastline currently using only
+  `shoreline_1..4` could get meaningfully more visual variety and a rocky-coast option for free.
+- **`tiles/ground/rocky_ground_1..4`** is a brand-new ground tile type (rock-strewn ground, distinct
+  from both `nature/rocks` standalone objects and the cliff tile series) with no current placement.
 
 ## Folder size note
 
