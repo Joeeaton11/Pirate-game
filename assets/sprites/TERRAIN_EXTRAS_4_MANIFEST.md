@@ -9,15 +9,44 @@ for sparse/organic content, open every final crop directly before filing, check 
 text bleeding into a crop, and verify a category that *looks* like a multi-item grid actually has a
 real pixel gap between its items before treating it as more than one sprite.
 
-**234 sprites filed**, zero re-cut rounds needed post-hoc — the lessons from the terrain-extras-3
-saga (3 QA rounds) were applied proactively during cutting itself this time. Two defects were still
-caught and fixed before filing, both during this delivery's own cutting pass (not by a separate QA
-round): a border-line pixel artifact slipped through the outlier-area filter in Panel 12 (deleted,
-19 real items not 20) and three earlier scratch-file leftovers from a pre-fix cutting attempt were
-found alongside the corrected files for Panels 10/14/16 (stale files deleted before filing, did not
-affect what got filed). Panel 21 (Miscellaneous) needed a full re-measurement after the first attempt
-put wrong content under the Barrels/Sacks/Campfire/Signpost labels — the true column boundaries were
-one full category width off from a plausible-looking guess (see "Notable defects" below).
+**234 sprites filed.** Most of the terrain-extras-3 saga's lessons were applied proactively during
+cutting itself this time — two defects were still caught and fixed before filing, both during this
+delivery's own cutting pass (not by a separate QA round): a border-line pixel artifact slipped
+through the outlier-area filter in Panel 12 (deleted, 19 real items not 20) and three earlier
+scratch-file leftovers from a pre-fix cutting attempt were found alongside the corrected files for
+Panels 10/14/16 (stale files deleted before filing, did not affect what got filed). Panel 21
+(Miscellaneous) needed a full re-measurement after the first attempt put wrong content under the
+Barrels/Sacks/Campfire/Signpost labels — the true column boundaries were one full category width off
+from a plausible-looking guess (see "Notable defects" below).
+
+**One further defect was caught by an independent `asset-qa` pass after filing** (Panel 16's 6 tree
+crops had the panel's bronze divider line baked into their bottom edge, plus a background-color
+halo) — see "Post-filing QA fix" below. Fixed and re-filed the same day; nothing else in the
+delivery was affected.
+
+## Post-filing QA fix: Panel 16 trees had a baked-in border line + halo
+
+An independent `asset-qa` review (run immediately after this delivery's initial commit, per this
+session's standing practice of always requesting at least one independent QA pass) found that all 6
+files from Panel 16 (`nature/trees/tree_25..29`, `tree_dead_8`) had their entire bottom pixel row
+at full opacity in a uniform bronze color — the panel's outer border/divider line, not tree content
+— plus a soft semi-transparent halo along their left/right/top edges from background pixels falling
+inside the alpha feather ramp.
+
+Root cause: Panel 16's true content (grass tuft at each tree's base) ends around row 154 of the
+panel window, followed by a real background gap (rows 155–165), then the panel's own bottom border
+line at rows 166–167 (confirmed via direct row-by-row pixel inspection of the source). The original
+cut's mask window ran to the full panel height without excluding those last two rows, so
+`content_bbox` unioned the border line into every tree's bounding box — pulling each crop's bottom
+edge down through the empty background gap to the border, which is also what produced the halo (the
+enlarged box's now-included background rows fell inside `crop_rgba`'s color-distance feather ramp).
+
+Fixed by re-deriving each tree's real column range via a row/column activity profile restricted to
+rows 44–155 (excluding the border), re-running `content_bbox` within that capped window, and
+re-cutting all 6 trees. Verified: no crop now has a fully-opaque edge row/column, and a direct
+composite over a grass tile shows no border frame or halo. Re-filed over the original 6 files
+(`tree_25.png`, `tree_26.png`, `tree_27.png`, `tree_28.png`, `tree_29.png`, `tree_dead_8.png`) —
+same filenames, no renumbering needed.
 
 ## Notable defects found and fixed during cutting (not a separate QA round)
 

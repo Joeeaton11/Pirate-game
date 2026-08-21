@@ -4672,3 +4672,21 @@ long collection grind *and* one legendary payoff at the top of it.
     `TERRAIN_EXTRAS_4_MANIFEST.md` and `DELIVERY_LOG.md` written/updated. `npx tsc --noEmit` and
     all `jest` tests clean (asset + doc changes only, no source code touched). Not yet wired into
     any renderer.
+
+    An independent `asset-qa` subagent pass, requested right after the initial commit (this
+    session's standing practice, proven worthwhile by items 145–147), found one further real
+    defect this delivery's own verification had missed: **all 6 Panel 16 tree crops had the
+    panel's bronze border/divider line baked into their bottom edge, plus a soft background-color
+    halo along their other edges.** The panel's real tree content ends around row 154 of the panel
+    window; rows 155–165 are real background; the panel's own outer border sits at rows 166–167.
+    The original cut's mask window ran to the panel's full height without excluding those last two
+    rows, so `content_bbox` unioned the border line into every tree's bounding box — which also
+    explains the halo, since the enlarged box's newly-included background rows fell inside
+    `crop_rgba`'s color-distance feather ramp. Root-caused via direct row-by-row pixel inspection
+    of the source (confirmed the border color and row range precisely, not just "looks wrong"),
+    fixed by re-deriving each tree's column range from an activity profile capped at row 155 and
+    re-cutting; verified with a fully-opaque-edge check across all 234 delivered files (only the
+    tree series tripped it, confirming the fix was complete and nothing else needed it) and a
+    direct composite over a grass tile showing no border frame or halo. Re-filed over the same 6
+    filenames (`tree_25.png`…`tree_29.png`, `tree_dead_8.png`) — no renumbering needed.
+    `TERRAIN_EXTRAS_4_MANIFEST.md` and `DELIVERY_LOG.md` updated again same day.
