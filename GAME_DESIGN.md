@@ -4423,8 +4423,8 @@ long collection grind *and* one legendary payoff at the top of it.
     only, no behavior changed).
 
 144. ✅ **Cut and filed the third terrain-extras delivery — 306 sprites across 32 panels**
-    (2026-08-20; corrected to 309 items on 2026-08-21 per item 145, then to 311 per item 146) —
-    the first delivery to go through the new pipeline built in item 142
+    (2026-08-20; corrected to 309 items on 2026-08-21 per item 145, then 311 per item 146, then
+    305 per item 147) — the first delivery to go through the new pipeline built in item 142
     (`segment_lib.py` + the four asset-pipeline subagents). Structurally the densest and most
     varied sheet yet: no per-item numbered captions on the source at all, just a panel title and
     named categories, and — unlike either prior terrain-extras delivery — the number of real
@@ -4585,6 +4585,47 @@ long collection grind *and* one legendary payoff at the top of it.
     right file count all along, just internally mis-partitioned across categories twice in a row
     before landing on the real 6/4/6/6 split. `TERRAIN_EXTRAS_3_MANIFEST.md` and `DELIVERY_LOG.md`
     updated again. `npx tsc --noEmit` and all 45 `jest` tests clean (asset + doc changes only, no
-    source code touched). Given two independent QA rounds were needed to reach a delivery with no
-    further findings, any future dense multi-category catalog sheet cut through this pipeline
-    should budget for at least one QA round as standard, not as an optional afterthought.
+    source code touched). This still wasn't the last round — see item 147.
+
+147. ✅ **A third independent QA pass on item 146's own fixes found three more real defects —
+    fixed and re-filed** (2026-08-21). Requested as a matter of course this time, since both prior
+    rounds had shown a round's own re-verification catches its intended fix but not necessarily
+    everything else in the panels it touched.
+
+    - **Panel 11's four categories (SMALL ROCKS, BOULDERS, ROCK OUTCROPS, STONE PATCHES) were
+      each split into an "A"/"B" pair from the very first cut, and this survived two further
+      rounds of review — every category is really one whole scattered-rock scene.** The bug
+      hid in plain sight because each half, viewed alone, still reads as a plausible small rock
+      cluster; nothing about either half looks broken on its own. Caught by checking for a real
+      near-zero-activity background gap at the claimed split point (there isn't one — row
+      activity never drops close to zero across a category's full real height) and by
+      reconstructing a whole scene from the two halves and confirming it exactly reproduces a
+      fresh crop of the source. Re-filed as 4 whole-scene items instead of 8 (`rock_small_10.png`,
+      `boulder_large_5.png`, `rock_extra_25.png`, `rock_patch_2.png` removed).
+    - **Panel 10's PLATEAUS had the identical bug, scoped to one category in an otherwise-correct
+      panel.** CLIFF TOP, CLIFF SIDES, and LEDGES in the same panel are genuine 2×2 grids with a
+      real row gap between top and bottom — confirmed correct across all three rounds — which is
+      exactly what made PLATEAUS' superficially similar 2×2 layout easy to mistrust in one
+      direction only: nobody had checked whether *its* row split was real. It wasn't — PLATEAUS
+      is 2 whole grass-capped rock columns, and the "top"/"bottom" halves every prior round
+      treated as separate items were the grass cap and bare rock base of the same column.
+      Re-filed as 2 whole-column items instead of 4 (`plateau_3.png`, `plateau_4.png` removed).
+    - **Panel 13's DEAD TREES were still clipped, despite round 2 explicitly re-checking this
+      exact category and reporting it fine.** The bug wasn't in the header padding (that part was
+      correctly measured) — each tree's column slice was simply too narrow, so a tree's tallest
+      branch tips (which fan out sideways rather than growing straight up) fell outside the slice
+      and were excluded from the tight content bounding box, silently shortening the crop by
+      about a third of its real height (~29-37px delivered vs. ~44-50px of real content) even
+      though the vertical (row) range used was correct. Fixed by widening each tree's column
+      slice to its real, wider branch spread and re-cutting all 6.
+
+    Net effect: 311 → 305 items (Panel 11 -4, Panel 10 -2; Panel 13's Dead Trees count unchanged,
+    only re-cut for correct height). `TERRAIN_EXTRAS_3_MANIFEST.md` and `DELIVERY_LOG.md` updated
+    again. `npx tsc --noEmit` and all 45 `jest` tests clean (asset + doc changes only, no source
+    code touched). Three successive independent QA rounds were needed before a pass returned no
+    findings; the standing lesson for any future dense multi-category catalog sheet cut through
+    this pipeline is to keep requesting independent QA rounds until one comes back clean, not to
+    budget a fixed number of rounds and stop — and to distrust "this category looks structurally
+    like its neighbors" as a substitute for checking each category's own real internal boundaries,
+    since Panel 10 shows two categories in the same panel can look alike while only one of them
+    actually has the split its layout suggests.

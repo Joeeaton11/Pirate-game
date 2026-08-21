@@ -32,13 +32,14 @@ the category label alone:
 
 Every panel's real structure was confirmed by zooming into the source before cutting, not
 inferred from the category count. See `GAME_DESIGN.md` item 144 (initial cut), item 145 (first
-independent QA + re-cut), and item 146 (second independent QA + second re-cut) for the full
-account.
+independent QA + re-cut), item 146 (second independent QA + second re-cut), and item 147 (third
+independent QA + third re-cut) for the full account.
 
 **The initial cut pass had real, extensive defects that an automated size-outlier check and a
-debug-overlay glance both missed — and the first re-cut, done to fix those, introduced a
-different class of defect that a second independent QA pass caught.** Two rounds of `asset-qa`
-review, each followed by direct pixel-level re-measurement of every flagged panel, found:
+debug-overlay glance both missed — and each of the first two re-cuts, done to fix the round
+before, introduced its own new class of defect that only the next independent QA pass caught.**
+Three rounds of `asset-qa` review, each followed by direct pixel-level re-measurement of every
+flagged panel, found:
 
 **Round 1:**
 
@@ -101,17 +102,47 @@ because round 1 had shown the delivery's original review process wasn't catching
    measured window, not a single largest blob) — the same fix already proven for Panel 11's rock
    piles and Panel 18's mottled ground textures.
 
-**The standing lesson, reinforced hard by both rounds:** a debug bounding-box overlay only proves
-box *positions* look plausible — it does not reveal baked-in caption text (invisible at overlay
-scale), a category-mislabeled crop (the crop itself looks fine — it's just filed under the wrong
-neighbor's name), or missing columns that never got cut at all. The only reliable checks are (a)
-opening every final saved crop PNG directly and looking at it, and (b) cross-checking what a
-crop's *filename* claims against a fresh crop from that exact claimed position in the source —
-"the crop looks clean" and "the crop is correctly labeled" are two different claims and both
-need independent verification. A second, independent QA pass caught what the first one's own
-re-verification missed; treat "QA once" as insufficient on a sheet this dense.
+**Round 3** (a third independent `asset-qa` pass on round 2's fixes — by this point run as a
+matter of course, since rounds 1 and 2 had each shown the *previous* round's own re-verification
+wasn't sufficient):
 
-311 sprites cut in this pass. Nothing here is wired into a renderer yet — see `README.md`'s
+7. **Panel 11's four categories were each split into an "A"/"B" pair that doesn't really exist —
+   every category is genuinely one whole scattered-rock scene.** This was wrong from the very
+   first cut and survived two further rounds of review because each half-scene, viewed alone,
+   still looks like a plausible small rock cluster — nothing about a single half looks broken.
+   Round 3 caught it by checking for a real background gap at the claimed A/B split point (there
+   is none — row activity never drops near zero across a category's full height) and by
+   reconstructing a whole scene from the two halves and confirming it exactly matches a fresh
+   crop of the source. Re-filed as one whole-scene crop per category (4 items total, not 8).
+8. **Panel 10's PLATEAUS had the same bug, scoped to one category in an otherwise-correct
+   panel.** CLIFF TOP, CLIFF SIDES, and LEDGES in the same panel are genuine 2×2 grids with a real
+   row gap; PLATEAUS looks superficially similar (tall columns, same panel) but is really 2 whole
+   grass-capped rock columns with no internal split — the "top"/"bottom" halves round 1 and round
+   2 both treated as separate items were the grass cap and the bare rock base of the *same*
+   column. Re-filed as 2 whole-column items, not 4.
+9. **Panel 13's DEAD TREES were still clipped, despite round 2 explicitly re-checking this
+   category and finding it fine.** The clipping wasn't at the top of the category window (that was
+   correctly measured) — it was that each tree's column slice was too narrow, so a tree's tallest
+   branch tips (which fan out sideways rather than straight up) fell outside the slice and were
+   excluded from the tight bounding box, silently shortening the crop even though the row range
+   was correct. Delivered heights were ~29-37px against ~44-50px of real content. Fixed by
+   widening each column slice to the tree's real, wider branch spread.
+
+**The standing lesson, reinforced hard by all three rounds:** a debug bounding-box overlay only
+proves box *positions* look plausible — it does not reveal baked-in caption text (invisible at
+overlay scale), a category-mislabeled crop (the crop itself looks fine — it's just filed under
+the wrong neighbor's name), a scene arbitrarily split into two "variants" that are really one
+whole composition (each half still looks like a plausible standalone scene), or a crop clipped by
+a too-narrow slice through the *side* of an item rather than its top. The only reliable checks
+are (a) opening every final saved crop PNG directly and looking at it, (b) cross-checking what a
+crop's *filename* claims against a fresh crop from that exact claimed position in the source, and
+(c) checking for a real, near-zero-activity background gap wherever a category is assumed to
+split into multiple items — a plausible-looking half is not proof a split is real. Three
+successive independent QA passes each caught what the previous round's own re-verification
+missed; on a sheet this dense, budget for QA to run until a pass turns up nothing, not for a
+fixed number of rounds.
+
+305 sprites cut in this pass. Nothing here is wired into a renderer yet — see `README.md`'s
 folder table for what each folder feeds into once it is wired. New descriptors/categories this
 delivery introduced (continuing an existing series everywhere one already existed): `shoreline_*`,
 `plateau_*`, `rock_patch_*`, `swamp_*`, `mossy_stone_*`, `lava_rock_*`, `volcanic_rock_*`,
@@ -264,8 +295,13 @@ DEEP SEA, MID SEA, SHALLOW, CLEAR SHOAL (base tiles, 1 each) + WAVES & FOAM VARI
 11. `water_fx_extra_20.png` (`assets/sprites/water_fx/water_fx_extra_20.png`) — Wave/Foam 7
 12. `water_fx_extra_21.png` (`assets/sprites/water_fx/water_fx_extra_21.png`) — Wave/Foam 8
 
-## Panel 10 — Cliffs & Ledges (source: Panel III), 16 items
-CLIFF TOP, CLIFF SIDES, LEDGES, PLATEAUS — each a 2x2 set of 4 distinct pieces.
+## Panel 10 — Cliffs & Ledges (source: Panel III), 14 items
+CLIFF TOP, CLIFF SIDES, LEDGES — each a genuine 2x2 set of 4 distinct pieces (real row gap
+confirmed). PLATEAUS — 2 whole grass-capped rock columns, not a 2x2 grid: a third round of QA
+found the original 4-way split was cutting each of the 2 real columns in half (grass cap as one
+file, bare rock base as another), with no real background gap between top and bottom to justify
+the split — confirmed by reconstructing a whole column from the two halves and comparing it
+against a fresh crop of the source.
 
 1. `elevation/cliff_top_edge_8.png` (`assets/sprites/tiles/elevation/cliff_top_edge_8.png`) — Cliff Top 1
 2. `elevation/cliff_top_edge_9.png` (`assets/sprites/tiles/elevation/cliff_top_edge_9.png`) — Cliff Top 2
@@ -279,22 +315,21 @@ CLIFF TOP, CLIFF SIDES, LEDGES, PLATEAUS — each a 2x2 set of 4 distinct pieces
 10. `elevation/elevation_ledge_8.png` (`assets/sprites/tiles/elevation/elevation_ledge_8.png`) — Ledges 2
 11. `elevation/elevation_ledge_9.png` (`assets/sprites/tiles/elevation/elevation_ledge_9.png`) — Ledges 3
 12. `elevation/elevation_ledge_10.png` (`assets/sprites/tiles/elevation/elevation_ledge_10.png`) — Ledges 4
-13. `elevation/plateau_1.png` (`assets/sprites/tiles/elevation/plateau_1.png`) — Plateaus 1
-14. `elevation/plateau_2.png` (`assets/sprites/tiles/elevation/plateau_2.png`) — Plateaus 2
-15. `elevation/plateau_3.png` (`assets/sprites/tiles/elevation/plateau_3.png`) — Plateaus 3
-16. `elevation/plateau_4.png` (`assets/sprites/tiles/elevation/plateau_4.png`) — Plateaus 4
+13. `elevation/plateau_1.png` (`assets/sprites/tiles/elevation/plateau_1.png`) — Plateau 1 (whole column)
+14. `elevation/plateau_2.png` (`assets/sprites/tiles/elevation/plateau_2.png`) — Plateau 2 (whole column)
 
-## Panel 11 — Rocks & Stones (source: Panel III), 8 items
-SMALL ROCKS, BOULDERS, ROCK OUTCROPS, STONE PATCHES — 2 scattered-arrangement variants each (organic scenes, not further subdivided).
+## Panel 11 — Rocks & Stones (source: Panel III), 4 items
+SMALL ROCKS, BOULDERS, ROCK OUTCROPS, STONE PATCHES — each is genuinely **one** whole scattered
+rock scene, not two variants. The original delivery split every category into an "A"/"B" pair at
+an arbitrary vertical midpoint with no real background gap to justify it (a row-activity profile
+across each category's full real content height never drops near zero); reconstructing a whole
+scene by stacking the two halves exactly reproduces a fresh crop of the source at that category's
+position. Filed as one whole-scene crop per category instead.
 
-1. `rocks/rock_small_9.png` (`assets/sprites/nature/rocks/rock_small_9.png`) — Small Rocks A
-2. `rocks/rock_small_10.png` (`assets/sprites/nature/rocks/rock_small_10.png`) — Small Rocks B
-3. `rocks/boulder_large_4.png` (`assets/sprites/nature/rocks/boulder_large_4.png`) — Boulders A
-4. `rocks/boulder_large_5.png` (`assets/sprites/nature/rocks/boulder_large_5.png`) — Boulders B
-5. `rocks/rock_extra_24.png` (`assets/sprites/nature/rocks/rock_extra_24.png`) — Rock Outcrops A
-6. `rocks/rock_extra_25.png` (`assets/sprites/nature/rocks/rock_extra_25.png`) — Rock Outcrops B
-7. `rocks/rock_patch_1.png` (`assets/sprites/nature/rocks/rock_patch_1.png`) — Stone Patches A
-8. `rocks/rock_patch_2.png` (`assets/sprites/nature/rocks/rock_patch_2.png`) — Stone Patches B
+1. `rocks/rock_small_9.png` (`assets/sprites/nature/rocks/rock_small_9.png`) — Small Rocks (whole scene)
+2. `rocks/boulder_large_4.png` (`assets/sprites/nature/rocks/boulder_large_4.png`) — Boulders (whole scene)
+3. `rocks/rock_extra_24.png` (`assets/sprites/nature/rocks/rock_extra_24.png`) — Rock Outcrops (whole scene)
+4. `rocks/rock_patch_1.png` (`assets/sprites/nature/rocks/rock_patch_1.png`) — Stone Patches (whole scene)
 
 ## Panel 12 — Jungle/Dense Ground (source: Panel III), 16 items
 FLOOR, OVERGROWN, ROOTS — each a 2x2 set of 4; VINES — 4 individual hanging-vine strands (1 row, not 2x2).
@@ -326,8 +361,12 @@ canopy leaves don't touch each other or the trunk at a low activity threshold, s
 largest-connected-component search grabs only one fragment of a tree that's really 10+ separate
 blobs). Fixed by re-measuring PALMS' true 3-column width against a wide ruler-gridded zoom of the
 source and re-cutting PALMS and BROADLEAF with a full-pixel-union bounding box instead of a
-single-largest-blob search. JUNGLE TREES and DEAD TREES were already correct after the first
-re-cut and were left untouched this round.
+single-largest-blob search. JUNGLE TREES was genuinely correct after the first re-cut. DEAD TREES
+was believed correct at that point too but a third QA round found all 6 crops clipped at the top
+(~29-37px delivered vs. ~44-50px of real content) — the branch-column x-boundaries used were too
+narrow, so a tree's tallest branch tips (which fan out sideways, not straight up) fell outside the
+slice and got excluded from the tight bounding box even though the row range itself was fine.
+Fixed by widening each tree's column slice to its real, wider branch spread.
 
 1. `trees/tree_9.png` (`assets/sprites/nature/trees/tree_9.png`) — Palm 1
 2. `trees/tree_10.png` (`assets/sprites/nature/trees/tree_10.png`) — Palm 2
