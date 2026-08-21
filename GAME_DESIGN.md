@@ -4423,7 +4423,8 @@ long collection grind *and* one legendary payoff at the top of it.
     only, no behavior changed).
 
 144. ✅ **Cut and filed the third terrain-extras delivery — 306 sprites across 32 panels**
-    (2026-08-20) — the first delivery to go through the new pipeline built in item 142
+    (2026-08-20; corrected to 309 items on 2026-08-21, see item 145) — the first delivery to go
+    through the new pipeline built in item 142
     (`segment_lib.py` + the four asset-pipeline subagents). Structurally the densest and most
     varied sheet yet: no per-item numbered captions on the source at all, just a panel title and
     named categories, and — unlike either prior terrain-extras delivery — the number of real
@@ -4480,3 +4481,59 @@ long collection grind *and* one legendary payoff at the top of it.
     on unilaterally. Original sheet saved to
     `assets/brand/tileset-catalog/terrain_extras_3_sheet_v1.png` per standing practice. `npx tsc
     --noEmit` and all 45 `jest` tests clean (asset + doc changes only, no source code touched).
+
+145. ✅ **Independent QA pass on the terrain-extras-3 delivery found real, extensive defects
+    beyond the two item 144 claimed to have caught — re-cut and re-filed all of them** (2026-08-21).
+    Invoking the `asset-qa` subagent against the delivery (before treating it as done, per its own
+    stated purpose) surfaced problems in 8 of the 32 panels that item 144's automated
+    outlier-size check and debug-overlay glance had both missed:
+
+    - **Baked-in category-label text** in Panels 4, 10, 11, 12, 18, and 22 (item 144 had only
+      caught this for Panels 13/21/28) — same root cause as before (insufficient header padding),
+      just not tuned correctly for these panels either. Fixed the same way: re-measure the real
+      content-start row per panel directly against the source, not by reusing one panel's value.
+    - **Wrong equal-width category-boundary assumption** in Panels 12 and 13 — some sub-categories
+      touch with zero real background gap while others have a real gap, and dividing a category's
+      width evenly by item count silently drifts content across the boundary when that's true.
+      Fixed by measuring real per-item boundaries via a column-activity gap profile (and, where
+      even that gap is genuinely absent, by direct visual silhouette comparison) instead of
+      assuming uniform spacing — extending the project's standing "never assume equal
+      spacing" rule to *category* boundaries, not just item boundaries within a row.
+    - **Panel 13's tree-category structure was wrong in both the original cut and the first
+      re-cut attempt.** A ruler-gridded re-measurement of the source found the real structure is
+      PALMS=2×2=4, JUNGLE TREES=2×2=4, BROADLEAF=2×3=6, DEAD TREES=2×3=6 — both earlier passes
+      had JUNGLE TREES and DEAD TREES backwards (assumed 6/4, real 4/6). The category totals
+      happened to sum to the same overall panel total (20) either way, which is exactly why the
+      error survived an aggregate count check — only opening individual crops and comparing them
+      to a ruler-gridded zoom of the source caught it.
+    - **Panel 22 was undercounted 4x** — the original cut treated all 4 category labels (STONE
+      BLOCKS, BROKEN WALLS, PILLARS, RUINED TILES) as single items. PILLARS is really 4
+      freestanding statues with real, individually-confirmed background gaps between each one,
+      now cut and filed as 4 separate `ruin_pillar_*` items. STONE BLOCKS, BROKEN WALLS, and
+      RUINED TILES turned out to be organic rubble/debris compositions — real, visually distinct
+      item silhouettes exist inside each (e.g. a chest-shaped block next to a medallion-topped
+      block) but with no consistent, verifiable per-item pixel boundary between them (items touch
+      and stagger with no real grid). Rather than ship an unverifiable guessed split, each of
+      those three categories is filed as one whole-category crop capturing its full real content
+      losslessly instead of a fragmented, possibly-wrong multi-item cut.
+    - **A sort-order bug scrambled category labeling during the Panel 13 re-verification attempt**
+      (caught and fixed before filing, not shipped) — an intermediate re-cut sorted output crops by
+      absolute row position for readable debug output, which silently interleaves items across
+      categories whenever different categories have different per-row item counts sharing the same
+      physical rows. The underlying pixel-level cuts were correct the whole time; the bug was
+      purely in how the output list was labeled afterward. Fixed by cutting and naming every item
+      by its explicit category/row/column position and re-verifying by name, never trusting index
+      order.
+
+    Net effect on the delivery: 306 → 309 items (Panel 22 +3 net after correcting its structure;
+    Panel 13's total stayed at 20 since its two miscounted categories summed the same either way).
+    `tree_23.png`/`tree_24.png` (filed under Panel 13's wrong structure) were removed since
+    Broadleaf's real 6 items fit in `tree_9..22`; `nature/trees/tree_dead_6.png` and `_7.png` are
+    new. `props/ruin_pillar_2..4.png` are new. Every other affected file kept its original
+    filename/destination — only the pixel content changed. Re-ran the full re-verification
+    discipline that this pass established as non-negotiable: every corrected crop was opened
+    directly with the Read tool and visually confirmed (not just debug-overlay boxes, not just an
+    automated size check, not just re-trusting the fix that was applied) before filing.
+    `TERRAIN_EXTRAS_3_MANIFEST.md` and `DELIVERY_LOG.md` rewritten to reflect the real structure
+    and an honest account of what the first pass got wrong. `npx tsc --noEmit` and all 45 `jest`
+    tests clean (asset + doc changes only, no source code touched).

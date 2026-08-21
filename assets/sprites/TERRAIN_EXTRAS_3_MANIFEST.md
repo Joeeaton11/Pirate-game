@@ -31,24 +31,54 @@ the category label alone:
   four *single-item* categories (FOG PATCHES, CLOUDS, MIST, DUST CLOUDS) in the same panel.
 
 Every panel's real structure was confirmed by zooming into the source before cutting, not
-inferred from the category count. See `GAME_DESIGN.md` item 144 for the full account, including
-two real bugs caught and fixed before filing:
+inferred from the category count. See `GAME_DESIGN.md` item 144 (initial cut) and item 145
+(independent QA + re-cut) for the full account.
 
-1. **Category-label text baked into a handful of crops** (Panels 13, 21, 28) — a header-padding
-   value tuned against most panels wasn't tall enough for these three, so the "largest connected
-   component" search picked up the category name text itself in a couple of narrow slices where
-   the real content hadn't started yet. Caught by an automated outlier check (crop dimensions
-   far below the panel's own median) plus visual confirmation, fixed by re-measuring the true
-   content-start row for each affected panel.
-2. **Fragment-not-whole-tile crops on two heavily-textured panels** (Panel 18 "Special Surfaces"
-   and Panel 28 "Island Terrain Specials") — "largest connected component" is the right method
-   when a category might contain noise/text to reject, but for a densely mottled ground texture
-   (mud, volcanic rock) the *whole tile* is naturally fragmented into many small blobs by its own
-   texture, so "largest single blob" grabbed only a fraction of the tile. Fixed by switching those
-   two panels to a full-content bounding box (union of all content pixels in the slice) instead —
-   the same fix already used for Panel 11's scattered rock-pile scenes.
+**The initial cut pass had real, extensive defects that an automated size-outlier check and a
+debug-overlay glance both missed.** An independent `asset-qa` review, followed by direct
+pixel-level re-measurement of every flagged panel, found:
 
-306 sprites cut in this pass. Nothing here is wired into a renderer yet — see `README.md`'s
+1. **Category-label text baked into crops** (Panels 4, 10, 11, 12, 13, 18, 22) — the header-padding
+   value used per panel was tuned by eyeballing a subset of panels and wasn't tall enough for
+   several others, so extraction picked up category-name text in the crop before the real content
+   started. Fixed by re-measuring the true content-start row for each affected panel directly
+   (zoom + column/row activity profile), not by reusing one panel's padding value everywhere.
+2. **Equal-width category-boundary assumption was wrong for some panels** (Panels 12 and 13) —
+   sub-categories that visually look evenly spaced sometimes touch with zero real background gap
+   between some pairs while having a real gap between others (Panel 12: FLOOR/OVERGROWN/ROOTS
+   touch, only ROOTS→VINES has a gap). Fixed by measuring real per-category boundaries via a
+   column-activity gap profile instead of dividing panel width by category count.
+3. **Panel 13's real tree-category structure was different from what both the first cut and the
+   first re-cut assumed.** A close ruler-gridded re-measurement of the source found PALMS=2x2=4,
+   JUNGLE TREES=2x2=4 (not 2x3=6 as both earlier passes assumed), BROADLEAF=2x3=6, DEAD
+   TREES=2x3=6 (not 2x2=4 as the first cut assumed) — the true column count differs per category
+   and doesn't match a glance-level read of the sheet. Total item count (20) happened to match
+   the first cut's wrong assumption by coincidence, masking the error until crops were opened
+   individually.
+4. **Panel 22's real structure was undercounted by 4x in the first cut.** STONE BLOCKS, BROKEN
+   WALLS, and PILLARS were treated as one single item each; PILLARS is actually 4 freestanding,
+   individually-boundaried statues (confirmed by real background gaps between each) and is cut as
+   4 separate items. STONE BLOCKS, BROKEN WALLS, and RUINED TILES turned out to be organic
+   rubble/debris compositions with no clean internal grid — pixel analysis found real item
+   silhouettes (e.g. a distinct chest-shaped block vs. a medallion-topped block) but no
+   consistent, verifiable per-item boundary between them (items are staggered/touching in a
+   non-grid arrangement). Rather than ship an unverifiable guessed split, each of those three
+   categories is filed as one whole-category crop capturing 100% of its real content losslessly.
+5. **A sort-order bug silently scrambled category assignment during re-verification** (Panel 13
+   specifically) — an early re-cut attempt sorted output crops by absolute row position for
+   readability, which interleaves items across categories whenever different categories have
+   different per-row item counts in the same physical rows. The pixel-level cuts were correct;
+   the bug was purely in how output was labeled/ordered afterward. Fixed by cutting and naming
+   every item by its explicit category/row/column position, never trusting index order alone.
+
+**The standing lesson, reinforced hard by this pass:** a debug bounding-box overlay only proves
+box *positions* look plausible — it does not reveal baked-in caption text (invisible at overlay
+scale) or wrong-category content. The only reliable check is opening every final saved crop PNG
+directly and looking at it, which is what caught all of the above.
+
+309 sprites cut in this pass (Panel 13's real DEAD TREES count and Panel 22's real PILLARS count
+both differ from the first cut's assumptions — see their sections below). Nothing here is wired
+into a renderer yet — see `README.md`'s
 folder table for what each folder feeds into once it is wired. New descriptors/categories this
 delivery introduced (continuing an existing series everywhere one already existed): `shoreline_*`,
 `plateau_*`, `rock_patch_*`, `swamp_*`, `mossy_stone_*`, `lava_rock_*`, `volcanic_rock_*`,
@@ -56,9 +86,12 @@ delivery introduced (continuing an existing series everywhere one already existe
 `ruin_stone_blocks_*`, `ruin_pillar_*`, `map_edge_*`, `floor_tile_*` (new in `buildings/`), and
 `fog_patch_* / cloud_* / mist_* / dust_cloud_*` — the **first entries** in the previously-empty
 `weather_fx/` folder. `water_fx/geyser_1.png` is also new. Every other item continues an existing
-numbered series (`ground_extra_38..61`, `trans_extra_79..106`, `cobble_13..29`, `tree_9..24` plus
-`tree_dead_2..5`, `puddle_3..10`, etc.) — checked against the highest existing number in each
-folder before assigning, per the standing naming-continuation rule.
+numbered series (`ground_extra_38..61`, `trans_extra_79..106`, `cobble_13..29`, `tree_9..22` plus
+`tree_dead_2..7`, `ruin_pillar_1..4`, `puddle_3..10`, etc.) — checked against the highest existing
+number in each folder before assigning, per the standing naming-continuation rule. `tree_23.png`
+and `tree_24.png`, filed in the first cut under a miscounted Broadleaf structure, were removed —
+Broadleaf's real 6 items fit in `tree_17..22`, freeing those two numbers rather than leaving
+gap-filled duplicates.
 
 ## Panel 1 — Grass & Dirt Variations (source: Panel I), 24 items
 24 ground-tile variations in an 8x3 grid (no individual sheet labels — visually distinct grass/dirt tones and textures).
@@ -251,7 +284,10 @@ FLOOR, OVERGROWN, ROOTS — each a 2x2 set of 4; VINES — 4 individual hanging-
 16. `ground/jungle_ground_28.png` (`assets/sprites/tiles/ground/jungle_ground_28.png`) — Vines 4
 
 ## Panel 13 — Trees (Variety) (source: Panel III), 20 items
-PALMS (2x2=4), JUNGLE TREES (2x3=6), BROADLEAF (2x3=6), DEAD TREES (2x2=4) — column count varies per category, verified per-category rather than assumed uniform.
+PALMS (2x2=4), JUNGLE TREES (2x2=4), BROADLEAF (2x3=6), DEAD TREES (2x3=6) — real structure
+confirmed via a ruler-gridded re-measurement of the source after the first cut and first re-cut
+both mis-assumed JUNGLE TREES=6/DEAD TREES=4 (their total happened to match this panel's true
+total of 20, which is what let the error ship undetected the first time).
 
 1. `trees/tree_9.png` (`assets/sprites/nature/trees/tree_9.png`) — Palm 1
 2. `trees/tree_10.png` (`assets/sprites/nature/trees/tree_10.png`) — Palm 2
@@ -261,18 +297,18 @@ PALMS (2x2=4), JUNGLE TREES (2x3=6), BROADLEAF (2x3=6), DEAD TREES (2x2=4) — c
 6. `trees/tree_14.png` (`assets/sprites/nature/trees/tree_14.png`) — Jungle Tree 2
 7. `trees/tree_15.png` (`assets/sprites/nature/trees/tree_15.png`) — Jungle Tree 3
 8. `trees/tree_16.png` (`assets/sprites/nature/trees/tree_16.png`) — Jungle Tree 4
-9. `trees/tree_17.png` (`assets/sprites/nature/trees/tree_17.png`) — Jungle Tree 5
-10. `trees/tree_18.png` (`assets/sprites/nature/trees/tree_18.png`) — Jungle Tree 6
-11. `trees/tree_19.png` (`assets/sprites/nature/trees/tree_19.png`) — Broadleaf 1
-12. `trees/tree_20.png` (`assets/sprites/nature/trees/tree_20.png`) — Broadleaf 2
-13. `trees/tree_21.png` (`assets/sprites/nature/trees/tree_21.png`) — Broadleaf 3
-14. `trees/tree_22.png` (`assets/sprites/nature/trees/tree_22.png`) — Broadleaf 4
-15. `trees/tree_23.png` (`assets/sprites/nature/trees/tree_23.png`) — Broadleaf 5
-16. `trees/tree_24.png` (`assets/sprites/nature/trees/tree_24.png`) — Broadleaf 6
-17. `trees/tree_dead_2.png` (`assets/sprites/nature/trees/tree_dead_2.png`) — Dead Tree 1
-18. `trees/tree_dead_3.png` (`assets/sprites/nature/trees/tree_dead_3.png`) — Dead Tree 2
-19. `trees/tree_dead_4.png` (`assets/sprites/nature/trees/tree_dead_4.png`) — Dead Tree 3
-20. `trees/tree_dead_5.png` (`assets/sprites/nature/trees/tree_dead_5.png`) — Dead Tree 4
+9. `trees/tree_17.png` (`assets/sprites/nature/trees/tree_17.png`) — Broadleaf 1
+10. `trees/tree_18.png` (`assets/sprites/nature/trees/tree_18.png`) — Broadleaf 2
+11. `trees/tree_19.png` (`assets/sprites/nature/trees/tree_19.png`) — Broadleaf 3
+12. `trees/tree_20.png` (`assets/sprites/nature/trees/tree_20.png`) — Broadleaf 4
+13. `trees/tree_21.png` (`assets/sprites/nature/trees/tree_21.png`) — Broadleaf 5
+14. `trees/tree_22.png` (`assets/sprites/nature/trees/tree_22.png`) — Broadleaf 6
+15. `trees/tree_dead_2.png` (`assets/sprites/nature/trees/tree_dead_2.png`) — Dead Tree 1
+16. `trees/tree_dead_3.png` (`assets/sprites/nature/trees/tree_dead_3.png`) — Dead Tree 2
+17. `trees/tree_dead_4.png` (`assets/sprites/nature/trees/tree_dead_4.png`) — Dead Tree 3
+18. `trees/tree_dead_5.png` (`assets/sprites/nature/trees/tree_dead_5.png`) — Dead Tree 4
+19. `trees/tree_dead_6.png` (`assets/sprites/nature/trees/tree_dead_6.png`) — Dead Tree 5
+20. `trees/tree_dead_7.png` (`assets/sprites/nature/trees/tree_dead_7.png`) — Dead Tree 6
 
 ## Panel 14 — Bushes & Plants (source: Panel IV), 24 items
 24 bush/plant variations in an 8x3 grid.
@@ -381,13 +417,22 @@ DRIFTWOOD, SHELLS, PEBBLES, SCATTERED LEAVES, SEAWEED — single item each.
 4. `ground_decal_28.png` (`assets/sprites/decals/ground_decal_28.png`) — Scattered Leaves
 5. `ground_decal_29.png` (`assets/sprites/decals/ground_decal_29.png`) — Seaweed
 
-## Panel 22 — Ruins & Ancient Stone (source: Panel V), 4 items
-STONE BLOCKS, BROKEN WALLS, PILLARS, RUINED TILES — single item each.
+## Panel 22 — Ruins & Ancient Stone (source: Panel V), 7 items
+The first cut treated all 4 category labels as single items (4 total) — wrong. PILLARS is
+actually 4 freestanding, individually-boundaried statues (real background gaps confirmed between
+each one), cut as 4 separate items. STONE BLOCKS, BROKEN WALLS, and RUINED TILES are organic
+rubble/debris compositions with real, visually-distinct item silhouettes inside them but no
+consistent verifiable per-item pixel boundary (items touch/stagger with no clean grid) — each is
+filed as one whole-category crop capturing its full real content rather than an unverifiable
+guessed split.
 
-1. `ruin_stone_blocks_1.png` (`assets/sprites/props/ruin_stone_blocks_1.png`) — Stone Blocks
-2. `fence_wall_extra_20.png` (`assets/sprites/props/fence_wall_extra_20.png`) — Broken Walls
-3. `ruin_pillar_1.png` (`assets/sprites/props/ruin_pillar_1.png`) — Pillars
-4. `ground/broken_ground_3.png` (`assets/sprites/tiles/ground/broken_ground_3.png`) — Ruined Tiles
+1. `ruin_stone_blocks_1.png` (`assets/sprites/props/ruin_stone_blocks_1.png`) — Stone Blocks (whole composition)
+2. `fence_wall_extra_20.png` (`assets/sprites/props/fence_wall_extra_20.png`) — Broken Walls (whole composition)
+3. `ruin_pillar_1.png` (`assets/sprites/props/ruin_pillar_1.png`) — Pillar 1 (squat, medallion top)
+4. `ruin_pillar_2.png` (`assets/sprites/props/ruin_pillar_2.png`) — Pillar 2 (short, broken/angled top)
+5. `ruin_pillar_3.png` (`assets/sprites/props/ruin_pillar_3.png`) — Pillar 3 (tall, medallion top)
+6. `ruin_pillar_4.png` (`assets/sprites/props/ruin_pillar_4.png`) — Pillar 4 (small, decorative finial)
+7. `ground/broken_ground_3.png` (`assets/sprites/tiles/ground/broken_ground_3.png`) — Ruined Tiles (whole composition)
 
 ## Panel 23 — Waterfalls & Rivers (source: Panel VI), 4 items
 WATERFALLS, RIVER TILES, RIVER EDGES, RAPIDS — single item each.
