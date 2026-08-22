@@ -4691,6 +4691,18 @@ long collection grind *and* one legendary payoff at the top of it.
     filenames (`tree_25.png`…`tree_29.png`, `tree_dead_8.png`) — no renumbering needed.
     `TERRAIN_EXTRAS_4_MANIFEST.md` and `DELIVERY_LOG.md` updated again same day.
 
+150. 📌 **Logged, not started: give the rival/navy threat factions their own visible ship**, the
+    same way item 149 gave merchants one. The user is continuing to provide new art sheets, so this
+    is queued rather than acted on immediately. When it's picked up: `MapScreen.tsx`'s
+    `triggerAmbush('rival'|'navy', atPoint)` is the equivalent of `triggerMerchant` — it currently
+    has no visible-ship flash at all (not even the merchant path's kind), so this needs the same
+    `shipFlash`-style state + render as `merchantShipFlash`, not just a new sprite mapping. Boat
+    stock already sitting unused in `assets/sprites/ship/boats/` for this: Pirate Sloop and Heavy
+    Pirate Ship read as rival-appropriate by name; Dinghy/Small Sloop/Merchant Schooner/Flagship
+    remain unmatched to any faction. The 16 damaged/wrecked/burning example variants are also still
+    completely unused — see `DELIVERY_LOG.md`'s "Known free wiring opportunities (2026-08-22)" for
+    the full list of what's cut and filed but not wired.
+
 149. ✅ **Cut, filed, and wired a 10-boat × 8-direction "Scallywags Boat Sprite Library" — 96
     sprites, giving the merchant encounter system its first-ever visible ship** (2026-08-22). The
     user uploaded a new, unrelated reference sheet (10 boat types × 8 compass directions, plus
