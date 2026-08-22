@@ -75,14 +75,11 @@ import {
   RUN_FRAME_COUNT,
   RUN_HEAT_THRESHOLD,
   SCALLY_PORTRAIT,
-  TURN_ANIMATION_MS,
-  TurnFrame,
   VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
   WAVE_ANIMATION_MS,
   runSpriteSource,
   scallySpriteSource,
-  turnFrameFor,
 } from '../data/scallySprites';
 import { MONKEY_IDLE, MONKEY_WINK, MONKEY_WINK_HOLD_MS, MONKEY_WINK_INTERVAL_MS } from '../data/monkeySprites';
 import {
@@ -286,9 +283,6 @@ const DEADZONE = 12; // px of drag before movement starts
 // this needed fixing before a real idle stance was safe to wire in.
 const STOP_DEADZONE = 4;
 const MAX_DRAG = 70; // px of drag for full speed
-// How much one drag axis must lead the other before facingDir commits to it — see the pan gesture's
-// onUpdate for why this exists (prevents facing flicker on a not-perfectly-straight drag).
-const DIRECTION_HYSTERESIS = 1.4;
 const ENCOUNTER_TICK_MS = 1400;
 
 /** Shared circle-vs-circle obstacle collision with axis-separated sliding: if the full move is
@@ -633,19 +627,17 @@ export default function MapScreen({ navigation }: Props) {
   // Side-profile emoji only reads left/right; swap to a front-facing glyph when the drag is mostly
   // vertical so walking toward/away from the camera actually looks different from walking sideways.
   const [facingMode, setFacingMode] = useState<'side' | 'front'>('side');
-  // True 4-directional facing for Captain Scally's sprite art (on land only — the sea token is
-  // still the ship emoji, no ship sprite was cut). Drives which of the 4 sliced walk-cycle frame
-  // sets to show; walkSpriteFrame cycles through that set's 5 frames while isMoving.
-  const [facingDir, setFacingDir] = useState<FacingDirection>('down');
+  // True 8-directional facing for Captain Scally's sprite art (on land only — the sea token is
+  // still the ship emoji, no ship sprite was cut). Bucketed the same way as the Black Pearl's own
+  // `shipHeading` below (headingFromVector on the same drag vector) now that real diagonal walk art
+  // exists — the old 4-cardinal-only hysteresis bucketing and its mid-turn pivot-flash workaround
+  // are gone (see scallySprites.ts). Drives which of the 8 sliced walk-cycle frame sets to show;
+  // walkSpriteFrame cycles through that set's own frame count (6 or 7) while isMoving.
+  const [facingDir, setFacingDir] = useState<FacingDirection>('s');
   const [walkSpriteFrame, setWalkSpriteFrame] = useState(0);
   // The idle breathing loop's own frame counter, cycled by a separate, slower interval than the
   // walk cycle's — see IDLE_SOURCES' doc comment in scallySprites.ts for why this is safe now.
   const [idleSpriteFrame, setIdleSpriteFrame] = useState(0);
-  // A brief mid-pivot pose shown right after facingDir changes, so turning reads as a turn instead
-  // of an instant cut between direction sprites — see turnFrameFor's doc comment for which pivots
-  // have a real cut frame vs. a mirrored stand-in.
-  const [turningFrame, setTurningFrame] = useState<TurnFrame | null>(null);
-  const prevFacingDirRef = useRef<FacingDirection>('down');
   // Overrides the normal walk/idle render with one of Scally's emote poses for a fixed hold time —
   // see the effects below for the three triggers (door greeting, quest/lord win, prolonged idle).
   // Cleared immediately if isMoving flips true while one is showing, so an emote can never freeze a
@@ -694,8 +686,9 @@ export default function MapScreen({ navigation }: Props) {
   // Second beat of the depart sequence — the "Accelerate" pose, held briefly right after the
   // depart flash, once she's clear of the pier and picking up speed.
   const [shipAccelerating, setShipAccelerating] = useState(false);
-  // A brief banked pose (left or right) shown right after shipHeading changes, same idea as
-  // Scally's turningFrame but for all 8 headings — see turnDirectionFor's doc comment.
+  // A brief banked pose (left or right) shown right after shipHeading changes — see
+  // turnDirectionFor's doc comment. Scally's own on-foot equivalent (turningFrame) was removed once
+  // real 8-directional walk art made a pivot-flash workaround unnecessary (see scallySprites.ts).
   const [shipTurnBank, setShipTurnBank] = useState<'left' | 'right' | null>(null);
   const prevShipHeadingRef = useRef<ShipHeading>('s');
   // A wide "Stop/Skid" flash the instant a fight interrupts a sail (see startEncounter) — reads
@@ -847,21 +840,12 @@ export default function MapScreen({ navigation }: Props) {
         setIsMoving(true);
         if (e.translationX !== 0) setFacingRight(e.translationX > 0);
         setFacingMode(Math.abs(e.translationY) > Math.abs(e.translationX) ? 'front' : 'side');
-        // Hysteresis on which axis is "dominant": a drag close to the left/right diagonal has real
-        // per-update wobble on the other axis (a finger doesn't move in a laser-straight line), and
-        // without a margin here that wobble flips facingDir back and forth every update — each flip
-        // fires a turn-frame flash (see the effect below) and swaps in whichever direction's walk art
-        // is momentarily "dominant," interrupting an otherwise-clean left/right stride with random
-        // pivot poses and stretches of the much subtler up/down frames. Requiring the dominant axis
-        // to lead by DIRECTION_HYSTERESIS keeps the facing locked through that wobble.
-        setFacingDir((prevDir) => {
-          const ax = Math.abs(e.translationX);
-          const ay = Math.abs(e.translationY);
-          if (ax > ay * DIRECTION_HYSTERESIS) return e.translationX > 0 ? 'right' : 'left';
-          if (ay > ax * DIRECTION_HYSTERESIS) return e.translationY > 0 ? 'down' : 'up';
-          return prevDir;
-        });
-        setShipHeading(headingFromVector(e.translationX, e.translationY));
+        // Now that real 8-directional walk art exists, Scally's facing buckets off the exact same
+        // drag vector the same way the Black Pearl's shipHeading already does — no more separate
+        // 4-way hysteresis system or its mid-turn pivot-flash workaround (see scallySprites.ts).
+        const dir = headingFromVector(e.translationX, e.translationY);
+        setFacingDir(dir);
+        setShipHeading(dir);
         setDragIntensity(clampedDist / MAX_DRAG);
       } else {
         // Real movement stops here exactly as before, at DEADZONE — no gameplay change. Only the
@@ -1078,11 +1062,14 @@ export default function MapScreen({ navigation }: Props) {
   // down — recomputed here directly from `player` rather than shared, since this effect runs
   // earlier in the component than `currentIsland` is otherwise derived. Only used to dampen the
   // bounce below during a run swap — see RUN_HEAT_THRESHOLD's doc comment in scallySprites.ts for
-  // why the swap needed this instead of the walk cycle's full -6px bounce.
+  // why the swap needed this instead of the walk cycle's full -6px bounce. Still gated on due-east/
+  // due-west only ('w'/'e', the old 'left'/'right') — RUN_SOURCES is a single side-view pose set
+  // with no directional variants, so the other 6 headings (including the 4 new diagonals) keep
+  // using the plain walk cycle instead of running sideways at an angle that doesn't match the pose.
   const isRunning =
     isMoving &&
     !!islandAtPoint(player) &&
-    (facingDir === 'left' || facingDir === 'right') &&
+    (facingDir === 'w' || facingDir === 'e') &&
     heat > RUN_HEAT_THRESHOLD * 100;
 
   // Single-glyph "walk cycle": bob the player emoji up and down in a loop while actively moving,
@@ -1236,19 +1223,6 @@ export default function MapScreen({ navigation }: Props) {
     }, 220);
     return () => clearInterval(id);
   }, [shipApproaching]);
-
-  // Whenever facingDir actually changes, flash the matching mid-pivot turn frame for a beat before
-  // falling back to the new direction's normal walk/idle art.
-  useEffect(() => {
-    const prev = prevFacingDirRef.current;
-    prevFacingDirRef.current = facingDir;
-    if (prev === facingDir) return;
-    const frame = turnFrameFor(prev, facingDir);
-    if (!frame) return;
-    setTurningFrame(frame);
-    const id = setTimeout(() => setTurningFrame(null), TURN_ANIMATION_MS);
-    return () => clearTimeout(id);
-  }, [facingDir]);
 
   // Same idea, for the ship: whenever shipHeading changes, bank left or right for a beat before
   // settling into the new heading's normal sailing sprite.
@@ -2773,7 +2747,7 @@ export default function MapScreen({ navigation }: Props) {
             ]}
           >
             {currentIsland ? (
-              // On land, Captain Scally renders as real sprite art — a true 4-directional walk
+              // On land, Captain Scally renders as real sprite art — a true 8-directional walk
               // cycle instead of the old front/side emoji + mirror trick (kept below for the sea
               // token, since no ship sprite was cut).
               //
@@ -2782,19 +2756,19 @@ export default function MapScreen({ navigation }: Props) {
               // not walking" report — every overlay this render could show got pulled at once.
               // Re-wired individually on 2026-08-15, each behind the fix for whichever specific
               // thing actually caused the hop (see scallySprites.ts's IDLE_SOURCES/run-cycle doc
-              // comments): attack/sword-ready flash takes top priority (a duel interrupt), then a
-              // mid-turn pivot, then any showing emote, then the heat-triggered run cycle, and
-              // otherwise the plain walk/idle cycle. The idle and run branches are the two that
-              // needed a real fix rather than just an `!isMoving` guard — see those comments for
-              // what each one was.
+              // comments): attack/sword-ready flash takes top priority (a duel interrupt), then any
+              // showing emote, then the heat-triggered run cycle, and otherwise the plain walk/idle
+              // cycle. The idle and run branches are the two that needed a real fix rather than
+              // just an `!isMoving` guard — see those comments for what each one was. The mid-turn
+              // pivot flash that used to sit between the attack flash and the emote here was
+              // removed 2026-08-22 once real 8-directional walk art made it redundant (see
+              // scallySprites.ts).
               <Animated.Image
                 source={
                   scallyAttackFlash
                     ? scallyAttackFlash === 'attack'
                       ? POSE_ATTACK
                       : POSE_SWORD_READY
-                    : turningFrame
-                    ? turningFrame.source
                     : emoteOverlay
                     ? emoteOverlay.source
                     : isRunning
@@ -2805,10 +2779,7 @@ export default function MapScreen({ navigation }: Props) {
                 style={[
                   styles.playerSprite,
                   {
-                    transform: [
-                      { translateY: walkBounce },
-                      { scaleX: turningFrame?.mirror ? -1 : 1 },
-                    ],
+                    transform: [{ translateY: walkBounce }],
                   },
                 ]}
               />

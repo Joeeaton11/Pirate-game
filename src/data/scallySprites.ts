@@ -2,40 +2,92 @@
 // (assets/brand/scally_sprite_sheet_source.png, "Scallywags" style guide) into per-frame
 // transparent PNGs under assets/sprites/scally/ — see GAME_DESIGN.md for the art-overhaul note.
 //
-// Walk cycle: 4 directions x 5 frames, cycled while the player is moving.
+// Walk cycle: real 8-directional art (assets/brand/scally_walk_8dir_source.png, "Captain Scally —
+// Walk Animations (8 Directions)"), cut 2026-08-22. Upgraded from the original 4-cardinal-only cut
+// (down/left/right/up, 5 frames each) once diagonal art existed — see GAME_DESIGN.md for the
+// write-up. Directions use the same compass-letter keys as shipSprites.ts's `ShipHeading`
+// (s/se/e/ne/n/nw/w/sw) rather than the old down/left/right/up names, and the source sheet's own
+// per-direction frame counts are genuinely uneven (6 or 7, never a flat 8 despite the sheet's own
+// title) — confirmed by direct pixel measurement, not the sheet's printed frame-number labels,
+// which had gaps. `scallySpriteSource` below already wraps via `frames.length` so the uneven counts
+// need no special-casing.
 
-export type FacingDirection = 'down' | 'left' | 'right' | 'up';
+export type FacingDirection = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
 
-export const WALK_FRAME_COUNT = 5;
+/** Upper bound used to drive MapScreen's shared walk-frame counter; each direction's own array
+ * length is what actually gates the cycle (see scallySpriteSource), so this just needs to be >=
+ * the longest direction (7) for every direction to get full coverage over time. */
+export const WALK_FRAME_COUNT = 7;
 
 const WALK_SOURCES: Record<FacingDirection, any[]> = {
-  down: [
-    require('../../assets/sprites/scally/walk_down_0.png'),
-    require('../../assets/sprites/scally/walk_down_1.png'),
-    require('../../assets/sprites/scally/walk_down_2.png'),
-    require('../../assets/sprites/scally/walk_down_3.png'),
-    require('../../assets/sprites/scally/walk_down_4.png'),
+  s: [
+    require('../../assets/sprites/scally/walk_s_0.png'),
+    require('../../assets/sprites/scally/walk_s_1.png'),
+    require('../../assets/sprites/scally/walk_s_2.png'),
+    require('../../assets/sprites/scally/walk_s_3.png'),
+    require('../../assets/sprites/scally/walk_s_4.png'),
+    require('../../assets/sprites/scally/walk_s_5.png'),
   ],
-  left: [
-    require('../../assets/sprites/scally/walk_left_0.png'),
-    require('../../assets/sprites/scally/walk_left_1.png'),
-    require('../../assets/sprites/scally/walk_left_2.png'),
-    require('../../assets/sprites/scally/walk_left_3.png'),
-    require('../../assets/sprites/scally/walk_left_4.png'),
+  se: [
+    require('../../assets/sprites/scally/walk_se_0.png'),
+    require('../../assets/sprites/scally/walk_se_1.png'),
+    require('../../assets/sprites/scally/walk_se_2.png'),
+    require('../../assets/sprites/scally/walk_se_3.png'),
+    require('../../assets/sprites/scally/walk_se_4.png'),
+    require('../../assets/sprites/scally/walk_se_5.png'),
+    require('../../assets/sprites/scally/walk_se_6.png'),
   ],
-  right: [
-    require('../../assets/sprites/scally/walk_right_0.png'),
-    require('../../assets/sprites/scally/walk_right_1.png'),
-    require('../../assets/sprites/scally/walk_right_2.png'),
-    require('../../assets/sprites/scally/walk_right_3.png'),
-    require('../../assets/sprites/scally/walk_right_4.png'),
+  e: [
+    require('../../assets/sprites/scally/walk_e_0.png'),
+    require('../../assets/sprites/scally/walk_e_1.png'),
+    require('../../assets/sprites/scally/walk_e_2.png'),
+    require('../../assets/sprites/scally/walk_e_3.png'),
+    require('../../assets/sprites/scally/walk_e_4.png'),
+    require('../../assets/sprites/scally/walk_e_5.png'),
   ],
-  up: [
-    require('../../assets/sprites/scally/walk_up_0.png'),
-    require('../../assets/sprites/scally/walk_up_1.png'),
-    require('../../assets/sprites/scally/walk_up_2.png'),
-    require('../../assets/sprites/scally/walk_up_3.png'),
-    require('../../assets/sprites/scally/walk_up_4.png'),
+  ne: [
+    require('../../assets/sprites/scally/walk_ne_0.png'),
+    require('../../assets/sprites/scally/walk_ne_1.png'),
+    require('../../assets/sprites/scally/walk_ne_2.png'),
+    require('../../assets/sprites/scally/walk_ne_3.png'),
+    require('../../assets/sprites/scally/walk_ne_4.png'),
+    require('../../assets/sprites/scally/walk_ne_5.png'),
+    require('../../assets/sprites/scally/walk_ne_6.png'),
+  ],
+  n: [
+    require('../../assets/sprites/scally/walk_n_0.png'),
+    require('../../assets/sprites/scally/walk_n_1.png'),
+    require('../../assets/sprites/scally/walk_n_2.png'),
+    require('../../assets/sprites/scally/walk_n_3.png'),
+    require('../../assets/sprites/scally/walk_n_4.png'),
+    require('../../assets/sprites/scally/walk_n_5.png'),
+  ],
+  nw: [
+    require('../../assets/sprites/scally/walk_nw_0.png'),
+    require('../../assets/sprites/scally/walk_nw_1.png'),
+    require('../../assets/sprites/scally/walk_nw_2.png'),
+    require('../../assets/sprites/scally/walk_nw_3.png'),
+    require('../../assets/sprites/scally/walk_nw_4.png'),
+    require('../../assets/sprites/scally/walk_nw_5.png'),
+    require('../../assets/sprites/scally/walk_nw_6.png'),
+  ],
+  w: [
+    require('../../assets/sprites/scally/walk_w_0.png'),
+    require('../../assets/sprites/scally/walk_w_1.png'),
+    require('../../assets/sprites/scally/walk_w_2.png'),
+    require('../../assets/sprites/scally/walk_w_3.png'),
+    require('../../assets/sprites/scally/walk_w_4.png'),
+    require('../../assets/sprites/scally/walk_w_5.png'),
+    require('../../assets/sprites/scally/walk_w_6.png'),
+  ],
+  sw: [
+    require('../../assets/sprites/scally/walk_sw_0.png'),
+    require('../../assets/sprites/scally/walk_sw_1.png'),
+    require('../../assets/sprites/scally/walk_sw_2.png'),
+    require('../../assets/sprites/scally/walk_sw_3.png'),
+    require('../../assets/sprites/scally/walk_sw_4.png'),
+    require('../../assets/sprites/scally/walk_sw_5.png'),
+    require('../../assets/sprites/scally/walk_sw_6.png'),
   ],
 };
 
@@ -54,37 +106,49 @@ export const IDLE_FRAME_COUNT = 3;
 // between the two doesn't toggle animation state at all. With that hysteresis in place, an
 // `isMoving` flip is a genuine start/stop, and swapping to a real breathing pose on it stopped
 // reading as a hop in testing.
+// Real 3-frame breathing loop only exists for the 4 cardinals — the 8-directional walk sheet
+// didn't include a matching idle set, and the original idle cut (from a different, earlier source
+// sheet) never covered diagonals either. Diagonals fall back to a held single frame — that
+// direction's own first walk frame — rather than forcing a breathing loop that doesn't exist; a
+// static hold reads as "standing still facing that way," which is honest, versus reusing a
+// neighboring cardinal's idle art, which would visibly snap the pose the instant movement stopped.
 const IDLE_SOURCES: Record<FacingDirection, any[]> = {
-  down: [
-    require('../../assets/sprites/scally/idle_down_0.png'),
-    require('../../assets/sprites/scally/idle_down_1.png'),
-    require('../../assets/sprites/scally/idle_down_2.png'),
+  s: [
+    require('../../assets/sprites/scally/idle_s_0.png'),
+    require('../../assets/sprites/scally/idle_s_1.png'),
+    require('../../assets/sprites/scally/idle_s_2.png'),
   ],
-  left: [
-    require('../../assets/sprites/scally/idle_left_0.png'),
-    require('../../assets/sprites/scally/idle_left_1.png'),
-    require('../../assets/sprites/scally/idle_left_2.png'),
+  e: [
+    require('../../assets/sprites/scally/idle_e_0.png'),
+    require('../../assets/sprites/scally/idle_e_1.png'),
+    require('../../assets/sprites/scally/idle_e_2.png'),
   ],
-  right: [
-    require('../../assets/sprites/scally/idle_right_0.png'),
-    require('../../assets/sprites/scally/idle_right_1.png'),
-    require('../../assets/sprites/scally/idle_right_2.png'),
+  n: [
+    require('../../assets/sprites/scally/idle_n_0.png'),
+    require('../../assets/sprites/scally/idle_n_1.png'),
+    require('../../assets/sprites/scally/idle_n_2.png'),
   ],
-  up: [
-    require('../../assets/sprites/scally/idle_up_0.png'),
-    require('../../assets/sprites/scally/idle_up_1.png'),
-    require('../../assets/sprites/scally/idle_up_2.png'),
+  w: [
+    require('../../assets/sprites/scally/idle_w_0.png'),
+    require('../../assets/sprites/scally/idle_w_1.png'),
+    require('../../assets/sprites/scally/idle_w_2.png'),
   ],
+  se: [WALK_SOURCES.se[0]],
+  ne: [WALK_SOURCES.ne[0]],
+  nw: [WALK_SOURCES.nw[0]],
+  sw: [WALK_SOURCES.sw[0]],
 };
 
 /** Bust portrait, cut from the same sheet — now wired into the map header (see MapScreen.tsx). */
 export const SCALLY_PORTRAIT = require('../../assets/sprites/scally/portrait.png');
 
 /** Which frame image to show for a given facing direction/movement state. Moving cycles through
- * all 5 walk frames (`frameIndex`, from MapScreen's walk-cycle interval); idle cycles the slower
- * 3-frame breathing loop instead (`idleFrameIndex`, from MapScreen's own separate, slower interval —
- * see IDLE_SOURCES' doc comment for why this needed `isMoving` debounced before it was safe to
- * wire in). `idleFrameIndex` defaults to 0 (a plain standing pose) for any caller that doesn't
+ * that direction's own walk frames (`frameIndex`, from MapScreen's shared walk-cycle interval —
+ * frame counts are per-direction now, 6 or 7, so this wraps via `frames.length` rather than a
+ * single shared count); idle cycles the slower 3-frame breathing loop for the 4 cardinals, or holds
+ * a single static frame for diagonals (`idleFrameIndex`, from MapScreen's own separate, slower
+ * interval — see IDLE_SOURCES' doc comment for both the debounce history and the diagonal
+ * fallback). `idleFrameIndex` defaults to 0 (a plain standing pose) for any caller that doesn't
  * track it. */
 export function scallySpriteSource(
   direction: FacingDirection,
@@ -100,44 +164,14 @@ export function scallySpriteSource(
   return idleFrames[idleFrameIndex % idleFrames.length];
 }
 
-/** How long to hold a turn frame before settling into the new direction's walk/idle art. */
-export const TURN_ANIMATION_MS = 100;
-
-export interface TurnFrame {
-  source: any;
-  /** Mirror horizontally — used for the one pivot the sheet didn't cut a frame for (see below). */
-  mirror: boolean;
-}
-
-// The sheet's "Turn Frames (8 directions)" panel is a full circular sweep, all 8 genuine poses:
-// down (S) -> down/right (SE) -> up/right-ish (NE) -> up (N) -> up/left-ish (NW) -> down/left (SW)
-// -> back to down. Re-cut 2026-08-13 (all 4 are real art now, straight off the source sheet — the
-// previous cut only found 3 of the 8 and stood the missing SW in with a horizontal mirror of SE;
-// turn_sw.png is a real, distinct frame, not a mirror).
-const TURN_SE: TurnFrame = { source: require('../../assets/sprites/scally/turn_se.png'), mirror: false };
-const TURN_NE: TurnFrame = { source: require('../../assets/sprites/scally/turn_ne.png'), mirror: false };
-const TURN_NW: TurnFrame = { source: require('../../assets/sprites/scally/turn_nw.png'), mirror: false };
-const TURN_SW: TurnFrame = { source: require('../../assets/sprites/scally/turn_sw.png'), mirror: false };
-
-const TURN_FRAME_BY_PAIR: Partial<Record<string, TurnFrame>> = {
-  'down|right': TURN_SE,
-  'right|down': TURN_SE,
-  'right|up': TURN_NE,
-  'up|right': TURN_NE,
-  'up|left': TURN_NW,
-  'left|up': TURN_NW,
-  'left|down': TURN_SW,
-  'down|left': TURN_SW,
-};
-
-/** A brief mid-pivot pose to show while the player's facing direction changes, so a joystick
- * direction change reads as a turn instead of an instant snap. Returns null for a direct 180
- * (down<->up, left<->right) — the sheet's 8 frames cover one continuous half-turn, not a full
- * loop, so those flips fall back to the old instant-snap behavior. */
-export function turnFrameFor(from: FacingDirection, to: FacingDirection): TurnFrame | null {
-  if (from === to) return null;
-  return TURN_FRAME_BY_PAIR[`${from}|${to}`] ?? null;
-}
+// The old `turnFrameFor`/`TurnFrame` mid-pivot system (turn_se/ne/nw/sw.png, a different, earlier
+// source sheet's "Turn Frames" panel) was a workaround for the 4-cardinal-only walk cycle having no
+// real diagonal art — it flashed a single pivot pose while facingDir crossed between two adjacent
+// cardinals. Removed 2026-08-22 now that genuine sustained 8-directional walk art exists (a real
+// diagonal walk cycle makes a momentary pivot flash redundant, and the old pivot poses don't line up
+// with the new art's diagonal stance anyway). turn_se/ne/nw/sw.png were deleted from
+// assets/sprites/scally/ along with the old 4-cardinal walk_down/left/right/up_*.png files they
+// were cut alongside — see GAME_DESIGN.md for the write-up.
 
 // --- Emotes ("Animated Idle / Emotes" panel) ---------------------------------------------------
 // Re-wired 2026-08-15 (see the IDLE_SOURCES note above for the isMoving-debounce fix that made

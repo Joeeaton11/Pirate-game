@@ -4761,3 +4761,61 @@ long collection grind *and* one legendary payoff at the top of it.
     `merchantShipSpriteSource`/`oppositeHeading` added to `shipSprites.ts`; the other 6 boat types
     and all 16 damaged/wrecked/burning variants are cut and filed but not wired to anything yet —
     flagged in `DELIVERY_LOG.md`. `npx tsc --noEmit` and all 45 `jest` tests clean.
+
+151. ✅ **Cut, filed, and wired a real 8-directional walk cycle for Captain Scally, replacing the
+    old 4-cardinal-only one** (2026-08-22). The user uploaded a "Captain Scally — Walk Animations (8
+    Directions)" reference sheet with just "These are the new walking sprites for scallys walk" —
+    understood as an upgrade to the existing walk cycle (which only had down/left/right/up, 5 frames
+    each, from an earlier, different source sheet) rather than a side-by-side addition, since the
+    sheet delivers full sustained walk cycles for every compass direction and there's no sensible
+    reading of "new walking sprites for Scally's walk" that leaves most of them unused. Proceeded
+    without an `AskUserQuestion` this time (unlike item 149's boat library) — the destination was
+    judged unambiguous enough not to need it.
+
+    The sheet has no real alpha channel despite looking like a transparent checkerboard —
+    `Image.open().mode` came back `RGB`, the checkerboard is a baked-in flat near-white pattern.
+    Cut via chroma-key against `(250,250,250)` instead (same category of fix as `shipSprites.ts`'s
+    own no-real-alpha source sheet). The sheet's own printed frame-number labels had gaps in every
+    row (e.g. South showed "1,2,3,4,6,8"), which turned out to accurately describe genuinely uneven
+    real per-direction frame counts (6 or 7, never a flat 8 despite the sheet's own title) —
+    confirmed by direct pixel/column measurement rather than trusting the labels, the same
+    discipline items 145–148 already established. Cut cleanly on the first attempt: all 8
+    per-direction column-run assertions passed immediately, and the systematic edge-opacity scan
+    that caught real defects in both of the prior two deliveries (item 148's tree-panel border-line
+    bug, item 149's boat-library row dividers) came back with zero hits here.
+
+    Filed 53 sprites into `assets/sprites/scally/` under compass-letter keys
+    (`walk_s/se/e/ne/n/nw/w/sw_*.png`, matching `ShipHeading`'s naming) — **replacing**, not
+    supplementing, the old `walk_down/left/right/up_0..4.png` (deleted; this sheet's own
+    South/East/North/West columns are strictly better replacements with more frames and matching
+    style to the new diagonals). The existing 3-frame idle breathing loop was kept and renamed to
+    match (`idle_down/left/right/up` → `idle_s/e/n/w`) — no diagonal idle art exists on this sheet,
+    so `se`/`ne`/`nw`/`sw` idle poses fall back to a held static frame (that direction's own first
+    walk frame) instead of forcing a breathing loop that was never drawn.
+
+    Wired directly into `scallySprites.ts` and `MapScreen.tsx`:
+    - `FacingDirection` expanded from the old 4-value type to the full 8-value compass type,
+      matching `shipSprites.ts`'s `ShipHeading` exactly.
+    - `MapScreen.tsx`'s pan-gesture direction bucketing — previously its own bespoke 4-way
+      `DIRECTION_HYSTERESIS` axis-dominance logic, explicitly written to avoid diagonal flicker in
+      the old 4-direction-only world — was replaced with a direct call to `headingFromVector`, the
+      same function that already buckets the Black Pearl's own `shipHeading` from the identical drag
+      vector in the same handler. The two systems now literally share one bucketing call.
+    - The old `turnFrameFor`/`TurnFrame`/`TURN_FRAME_BY_PAIR` mid-pivot-flash system (a workaround,
+      from a third, still-earlier source sheet, for the 4-cardinal walk cycle having no diagonal art
+      of its own) was removed entirely — real sustained diagonal walk art makes a momentary pivot
+      flash both redundant and visually mismatched with the new art's own diagonal stance. Its
+      `turn_se/ne/nw/sw.png` source files were deleted along with the old cardinal walk files they
+      were cut alongside.
+    - The side-view run cycle (`isRunning`/`RUN_SOURCES`, a single pose set with no directional
+      variants) is now gated on `facingDir === 'w' || facingDir === 'e'` in place of the old
+      `'left'`/`'right'` check — the other 6 headings, including all 4 new diagonals, keep the plain
+      walk cycle rather than sprinting at an angle the pose doesn't depict.
+
+    Verified in a real headless-Chromium run against the dev server (not a unit test): dragged
+    through all 8 compass directions in turn, screenshotting mid-stride and post-release for each —
+    every direction showed visibly distinct, correctly-oriented art (back view due north, front view
+    due south, side views due east/west, correct 3/4 poses on all four diagonals), the 4 cardinal
+    idle poses held their real breathing loop, the 4 diagonal idle poses held their static fallback
+    frame as designed, and 0 console errors were logged throughout. `npx tsc --noEmit` and all 45
+    `jest` tests clean. `SCALLY_WALK_8DIR_MANIFEST.md` and `DELIVERY_LOG.md` written/updated.
