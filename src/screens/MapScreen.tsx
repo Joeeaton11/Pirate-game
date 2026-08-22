@@ -100,6 +100,8 @@ import {
   ShipHeading,
   WAKE_SPRITES,
   headingFromVector,
+  merchantShipSpriteSource,
+  oppositeHeading,
   shipSpriteSource,
   turnBankSource,
   turnDirectionFor,
@@ -699,6 +701,12 @@ export default function MapScreen({ navigation }: Props) {
   // A wide "Stop/Skid" flash the instant a fight interrupts a sail (see startEncounter) — reads
   // as the ship being intercepted rather than an instant cut to the battle screen.
   const [shipStopSkid, setShipStopSkid] = useState(false);
+  // The merchant vessel glimpsed crossing the Black Pearl's path right as triggerMerchant fires —
+  // real 8-directional boat art (see shipSprites.ts's BOAT_DIRECTION_SOURCES) instead of the old
+  // invisible instant-cut-to-battle behavior. Cleared alongside shipStopSkid once the flash ends.
+  const [merchantShipFlash, setMerchantShipFlash] = useState<{ templateId: string; heading: ShipHeading } | null>(
+    null
+  );
   // How far the joystick is pushed (0-1 past the deadzone), used to scale the wake's size —
   // a light nudge trails a small wake, a full push trails the big one.
   const [dragIntensity, setDragIntensity] = useState(0);
@@ -724,6 +732,8 @@ export default function MapScreen({ navigation }: Props) {
   blackPearlCapturedRef.current = blackPearlCaptured;
   const blackPearlBoardedRef = useRef(blackPearlBoarded);
   blackPearlBoardedRef.current = blackPearlBoarded;
+  const shipHeadingRef = useRef(shipHeading);
+  shipHeadingRef.current = shipHeading;
   const blackPearlPositionRef = useRef(blackPearlPosition);
   blackPearlPositionRef.current = blackPearlPosition;
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
@@ -913,6 +923,7 @@ export default function MapScreen({ navigation }: Props) {
       setShipStopSkid(true);
       setTimeout(() => {
         setShipStopSkid(false);
+        setMerchantShipFlash(null);
         fire();
       }, STOP_SKID_ANIMATION_MS);
     } else {
@@ -960,6 +971,12 @@ export default function MapScreen({ navigation }: Props) {
     if (!isAlive) return;
 
     const { templateId, level } = pickWildEncounter(MERCHANT_ENCOUNTER_TABLE);
+    // Show her crossing our path — real boat art instead of the old invisible instant-cut. Only
+    // fires the flash while boarded (matches startEncounter's own stop-skid gate below); on foot
+    // there's no ship on screen for a merchant vessel to cross paths with.
+    if (blackPearlBoardedRef.current) {
+      setMerchantShipFlash({ templateId, heading: oppositeHeading(shipHeadingRef.current) });
+    }
     startEncounter(templateId, level, 'merchant', MERCHANT_TEMPLATES[templateId], atPoint);
   }
 
@@ -2864,6 +2881,33 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
+        {viewport.width > 0 && merchantShipFlash && (() => {
+          const source = merchantShipSpriteSource(merchantShipFlash.templateId, merchantShipFlash.heading);
+          if (!source) return null;
+          // Offset to one side of the Black Pearl rather than dead-center on top of her — reads as
+          // a real second vessel crossing the path rather than a costume swap on the player's own
+          // ship. The offset direction is perpendicular to her heading so it looks plausible for
+          // any facing instead of always popping in from the same screen edge.
+          const headingVec = SHIP_HEADING_VECTOR[shipHeadingRef.current];
+          const perpX = -headingVec.y;
+          const perpY = headingVec.x;
+          const offset = SHIP_SPRITE_SIZE * 1.1;
+          return (
+            <RNImage
+              source={source}
+              resizeMode="contain"
+              style={[
+                styles.shipSprite,
+                styles.merchantShipFlash,
+                {
+                  left: viewport.width / 2 - SHIP_SPRITE_SIZE / 2 + perpX * offset,
+                  top: viewport.height / 2 - SHIP_SPRITE_SIZE / 2 + perpY * offset,
+                },
+              ]}
+            />
+          );
+        })()}
+
         {viewport.width > 0 && (() => {
           const minX = player.x - MINIMAP_RADIUS;
           const minY = player.y - MINIMAP_RADIUS;
@@ -3566,6 +3610,9 @@ const styles = StyleSheet.create({
     width: SHIP_WAKE_SIZE,
     height: SHIP_WAKE_SIZE,
     opacity: 0.85,
+  },
+  merchantShipFlash: {
+    position: 'absolute',
   },
   miniMap: {
     position: 'absolute',

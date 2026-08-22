@@ -112,6 +112,89 @@ export const WAKE_SPRITES = {
   large: require('../../assets/sprites/ship/wake_large.png'),
 };
 
+/** The "Scallywags – Boat Sprite Library" delivery (assets/sprites/ship/boats/, see
+ * BOAT_LIBRARY_MANIFEST.md) — 10 boat types × 8 compass directions, cut from a second, unrelated
+ * reference sheet. Currently only the 4 types matched to a merchant template below are wired up;
+ * the other 6 (dinghy, small_sloop, pirate_sloop, merchant_schooner, heavy_pirate_ship, flagship)
+ * and the damaged/wrecked/burning example variants are filed but not yet used anywhere. */
+type BoatType =
+  | 'fishing_boat'
+  | 'large_merchant_ship'
+  | 'cutter'
+  | 'brigantine';
+
+const BOAT_DIRECTION_SOURCES: Record<BoatType, Record<ShipHeading, any>> = {
+  fishing_boat: {
+    s: require('../../assets/sprites/ship/boats/fishing_boat_s.png'),
+    se: require('../../assets/sprites/ship/boats/fishing_boat_se.png'),
+    e: require('../../assets/sprites/ship/boats/fishing_boat_e.png'),
+    ne: require('../../assets/sprites/ship/boats/fishing_boat_ne.png'),
+    n: require('../../assets/sprites/ship/boats/fishing_boat_n.png'),
+    nw: require('../../assets/sprites/ship/boats/fishing_boat_nw.png'),
+    w: require('../../assets/sprites/ship/boats/fishing_boat_w.png'),
+    sw: require('../../assets/sprites/ship/boats/fishing_boat_sw.png'),
+  },
+  large_merchant_ship: {
+    s: require('../../assets/sprites/ship/boats/large_merchant_ship_s.png'),
+    se: require('../../assets/sprites/ship/boats/large_merchant_ship_se.png'),
+    e: require('../../assets/sprites/ship/boats/large_merchant_ship_e.png'),
+    ne: require('../../assets/sprites/ship/boats/large_merchant_ship_ne.png'),
+    n: require('../../assets/sprites/ship/boats/large_merchant_ship_n.png'),
+    nw: require('../../assets/sprites/ship/boats/large_merchant_ship_nw.png'),
+    w: require('../../assets/sprites/ship/boats/large_merchant_ship_w.png'),
+    sw: require('../../assets/sprites/ship/boats/large_merchant_ship_sw.png'),
+  },
+  cutter: {
+    s: require('../../assets/sprites/ship/boats/cutter_s.png'),
+    se: require('../../assets/sprites/ship/boats/cutter_se.png'),
+    e: require('../../assets/sprites/ship/boats/cutter_e.png'),
+    ne: require('../../assets/sprites/ship/boats/cutter_ne.png'),
+    n: require('../../assets/sprites/ship/boats/cutter_n.png'),
+    nw: require('../../assets/sprites/ship/boats/cutter_nw.png'),
+    w: require('../../assets/sprites/ship/boats/cutter_w.png'),
+    sw: require('../../assets/sprites/ship/boats/cutter_sw.png'),
+  },
+  brigantine: {
+    s: require('../../assets/sprites/ship/boats/brigantine_s.png'),
+    se: require('../../assets/sprites/ship/boats/brigantine_se.png'),
+    e: require('../../assets/sprites/ship/boats/brigantine_e.png'),
+    ne: require('../../assets/sprites/ship/boats/brigantine_ne.png'),
+    n: require('../../assets/sprites/ship/boats/brigantine_n.png'),
+    nw: require('../../assets/sprites/ship/boats/brigantine_nw.png'),
+    w: require('../../assets/sprites/ship/boats/brigantine_w.png'),
+    sw: require('../../assets/sprites/ship/boats/brigantine_sw.png'),
+  },
+};
+
+/** Which boat art each merchant template (src/data/merchants.ts) sails as, chosen for thematic fit
+ * against its cargo: the trawler is literally a fishing boat, the timber galleon is the biggest
+ * hull in the set, the rum runner gets the fast Cutter, and the powder hulk gets the sturdy
+ * two-master Brigantine. */
+const MERCHANT_BOAT_TYPE: Record<string, BoatType> = {
+  fishing_trawler: 'fishing_boat',
+  timber_galleon: 'large_merchant_ship',
+  rum_runner: 'cutter',
+  powder_hulk: 'brigantine',
+};
+
+/** Source for a merchant template's boat art in a given heading, or null for a merchant template
+ * with no boat art wired up (there currently aren't any — every MERCHANT_TEMPLATES entry has a
+ * mapping above — but callers should still treat this as possibly-null since the two lists are
+ * maintained separately). */
+export function merchantShipSpriteSource(templateId: string, heading: ShipHeading) {
+  const boatType = MERCHANT_BOAT_TYPE[templateId];
+  if (!boatType) return null;
+  return BOAT_DIRECTION_SOURCES[boatType][heading];
+}
+
+/** Opposite point of the compass, shortest way round — used to make a merchant ship glimpsed at
+ * the moment of interception read as crossing the player's path rather than mysteriously facing
+ * the same way for no reason. */
+export function oppositeHeading(heading: ShipHeading): ShipHeading {
+  const idx = HEADING_ORDER.indexOf(heading);
+  return HEADING_ORDER[(idx + 4) % 8];
+}
+
 /** How close (world units) to a pier's line, or to any island's coastline, before the approach
  * loop takes over from the normal directional sprite. */
 export const SHIP_APPROACH_RADIUS = 130;

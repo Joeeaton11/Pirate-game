@@ -4690,3 +4690,62 @@ long collection grind *and* one legendary payoff at the top of it.
     direct composite over a grass tile showing no border frame or halo. Re-filed over the same 6
     filenames (`tree_25.png`…`tree_29.png`, `tree_dead_8.png`) — no renumbering needed.
     `TERRAIN_EXTRAS_4_MANIFEST.md` and `DELIVERY_LOG.md` updated again same day.
+
+149. ✅ **Cut, filed, and wired a 10-boat × 8-direction "Scallywags Boat Sprite Library" — 96
+    sprites, giving the merchant encounter system its first-ever visible ship** (2026-08-22). The
+    user uploaded a new, unrelated reference sheet (10 boat types × 8 compass directions, plus
+    example damaged/wrecked/burning variant panels, a size chart, and a colour-palette/art-notes
+    strip) with only "these are some boat sprites... use them when boats are sailing" as
+    accompanying text. Since the game had never had anything but the player's own Black Pearl
+    render as a real sprite before — merchant ships (`src/data/merchants.ts`) were, and had always
+    been, an invisible dice-roll trigger with zero on-screen representation — `AskUserQuestion`
+    confirmed the scope: cut and file the whole library, then wire it specifically into the
+    merchant encounter system rather than stopping at cut-and-file or building a separate ambient
+    sea-traffic feature.
+
+    Measured the sheet's real per-row/per-column boundaries rather than trusting its
+    computer-generated-looking regularity — confirmed genuinely uneven column widths row to row via
+    a "hull-level" content profile (the sail-crowded top of each row wasn't reliable for gap
+    detection, but the hull+wake band was). Two boundary defects were caught and fixed before first
+    filing: Column 8's window bled into the sheet's own "VIEW GUIDE" compass legend panel for the
+    two rows whose y-range overlapped it (fixed by masking the legend's rectangle out of the content
+    mask, rather than guessing a column-8 boundary that would also fit the widest Flagship row); and
+    a thin gold row-divider line bled into many crops' top/bottom edges.
+
+    That divider-line defect took three real attempts to actually close, and the first attempt
+    (committed and filed) still shipped it in 12 of the 80 boats — caught only by an independent
+    edge-opacity scan run *after* filing, the same discipline this session applied proactively for
+    terrain-extras-4's tree panel but initially skipped here. Root cause had three layers: (1) no
+    single fixed-pixel trim value worked for every row — some rows' masts sit close enough to their
+    divider that too small a trim left divider color in the crop, while other rows' masts sit *even
+    closer*, so the trim big enough to fix the first group clipped real mast-tip content in the
+    second; (2) the real fix was a targeted color-signature exclusion (the divider's own gold/bronze
+    RGB profile, zeroed out only near row boundaries) instead of a blind trim; (3) even with that
+    exclusion working, `crop_rgba`'s `pad` parameter was independently re-including the divider by
+    recomputing alpha on the un-excluded padded region around the already-correct tight
+    `content_bbox` — `pad=0` was the piece that actually closed it. Two rows (Small Sloop, Cutter)
+    still needed a small additional trim on top of everything else, accepted as genuine source-art
+    tightness (their masts are close enough to the divider that a couple of anti-aliased fringe
+    pixels don't cleanly match the color-exclusion formula) — same category of call as Row 6's
+    slightly-flat mast finials, and documented as such rather than chased further. Verified this
+    time with a systematic top/bottom-edge opacity scan across all 80 final files (zero remaining
+    false-edge hits) plus a full 10-row contact-sheet re-check, then re-filed over the original 80
+    filenames. `BOAT_LIBRARY_MANIFEST.md` documents the full three-layer root cause for the next
+    time this bug class shows up on a new sheet.
+
+    Wired 4 of the 10 boat types into the merchant encounter system by thematic fit against each
+    template's cargo (`fishing_trawler`→Fishing Boat, `timber_galleon`→Large Merchant Ship,
+    `rum_runner`→Cutter, `powder_hulk`→Brigantine): `triggerMerchant` now shows the matched boat
+    sailing across the Black Pearl's path — offset to one side using a heading perpendicular to the
+    player's own, opposite her facing so it reads as a real second vessel crossing paths rather
+    than a costume swap — for the same `STOP_SKID_ANIMATION_MS` beat the ship's existing
+    intercept-flash already held, before cutting to the encounter. Confirmed in a real headless
+    Chromium run against the dev server (Playwright driving the actual web build, not a unit test):
+    boarded the Black Pearl via the Debug screen's Instant-Capture/Board shortcuts, forced every
+    ambush/encounter dice roll into the merchant bucket via a runtime `Math.random` override (no
+    source files touched), sailed into open sea, and burst-captured screenshots through the
+    triggering tick — one frame caught the flash directly, showing the Black Pearl and a small
+    Fishing Boat both rendered with independent wake ripples, correctly offset from each other.
+    `merchantShipSpriteSource`/`oppositeHeading` added to `shipSprites.ts`; the other 6 boat types
+    and all 16 damaged/wrecked/burning variants are cut and filed but not wired to anything yet —
+    flagged in `DELIVERY_LOG.md`. `npx tsc --noEmit` and all 45 `jest` tests clean.

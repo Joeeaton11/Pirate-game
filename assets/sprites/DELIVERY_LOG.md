@@ -18,6 +18,7 @@ directory's `README.md`).
 | 2026-08-20 | `assets/brand/tileset-catalog/terrain_extras_2_sheet_v1.png` | `TERRAIN_EXTRAS_2_MANIFEST.md` | 145 | `tiles/` (ground, water, paving, elevation, transitions, bridges), `nature/` (trees, vegetation, rocks), `props/`, `decals/`, `water_fx/`, `landmarks/`, `buildings/` (new `plinth_*` materials), `harbour/` (first entries — previously empty) | **No** — cut and filed only, not yet wired into any renderer |
 | 2026-08-21 | `assets/brand/tileset-catalog/terrain_extras_3_sheet_v1.png` | `TERRAIN_EXTRAS_3_MANIFEST.md` | 305 | `tiles/` (ground, paths, paving, transitions, beach, elevation, bridges, water), `nature/` (trees, rocks, vegetation), `props/`, `decals/`, `water_fx/`, `harbour/`, `buildings/` (new `floor_tile_*`), `weather_fx/` (first entries — previously empty) | **No** — cut and filed only, not yet wired into any renderer. Re-cut three times on 2026-08-21, each round triggered by an independent `asset-qa` pass finding what the previous round's own re-verification missed: round 1 fixed baked-in caption text, wrong category boundaries, and a miscounted Panel 13/22 structure (306→309 items); round 2 fixed Panels 4/10/11 mislabeled category slots and Panel 13's Palms/Broadleaf undercounting/fragmentation (309→311); round 3 fixed Panel 11 (every category was one whole scene wrongly split into an "A"/"B" pair, 8→4 items), Panel 10 Plateaus (2 whole columns wrongly split into 4, 16→14 for the panel), and Panel 13 Dead Trees (all 6 clipped at the top) (311→305). See `TERRAIN_EXTRAS_3_MANIFEST.md`'s intro and `GAME_DESIGN.md` items 145–147 |
 | 2026-08-21 | `assets/brand/tileset-catalog/terrain_extras_4_sheet_v1.png` | `TERRAIN_EXTRAS_4_MANIFEST.md` | 234 | `tiles/` (ground incl. new `rocky_ground_*`, paths, paving, beach, water, transitions, elevation, bridges), `nature/` (trees, vegetation, rocks), `props/` (new `beach_detail_*`), `water_fx/` (new `wave_*`) | **No** — cut and filed only, not yet wired into any renderer. Most defect-catching happened during this delivery's own cutting pass: a Panel 21 category-boundary misalignment (Barrels/Sacks/Campfire/Signpost content shifted one category slot from its label) was caught by reading individual crops directly and re-cut correctly; a stray 468×5px border-line artifact in Panel 12 slipped past the outlier-area filter and was found and deleted (19 real items, not 20); three stale pre-fix scratch files for Panels 10/14/16 were found via mtimes and discarded before filing. An independent `asset-qa` pass run right after the initial commit then found one further real defect: all 6 Panel 16 tree crops (`nature/trees/tree_25..29`, `tree_dead_8`) had the panel's bronze border line baked into their bottom edge plus a background halo, from `content_bbox` unioning in the panel's outer border row. Re-measured and re-cut, re-filed over the same 6 filenames same day. See `TERRAIN_EXTRAS_4_MANIFEST.md`'s intro for full detail |
+| 2026-08-22 | `assets/brand/scallywags_boat_sprite_library_v1.png` | `assets/sprites/ship/boats/BOAT_LIBRARY_MANIFEST.md` | 96 | `ship/boats/` (new folder — 10 boat types × 8 directions, 16 damaged/wrecked/burning example variants) | **Partial** — 4 of 10 boat types (`fishing_boat`, `large_merchant_ship`, `cutter`, `brigantine`) wired into the merchant encounter system (`MapScreen.tsx`'s `triggerMerchant`/`merchantShipFlash`, `shipSprites.ts`'s `merchantShipSpriteSource`), confirmed rendering correctly in a real headless-Chromium run. The other 6 types (Dinghy, Small Sloop, Pirate Sloop, Merchant Schooner, Heavy Pirate Ship, Flagship) and all 16 damage-state variants are cut and filed but unused. A row-divider-line bleed bug (same class as the 2026-08-21 terrain-extras-4 Panel 16 fix) first shipped in 12 of the 80 boats — caught by an edge-opacity scan run after initial filing, root-caused to three compounding issues (no single trim value works across all 10 rows; a targeted divider-color exclusion was needed instead; `crop_rgba`'s `pad` was independently re-including the divider even after the exclusion worked), fixed, and re-filed same day. See `BOAT_LIBRARY_MANIFEST.md` and `GAME_DESIGN.md` item 149 |
 
 ## Known free wiring opportunities (found while auditing the 2026-08-17 delivery)
 
@@ -81,6 +82,24 @@ Worth acting on whenever wiring work starts, without needing new art:
   `shoreline_1..4` could get meaningfully more visual variety and a rocky-coast option for free.
 - **`tiles/ground/rocky_ground_1..4`** is a brand-new ground tile type (rock-strewn ground, distinct
   from both `nature/rocks` standalone objects and the cliff tile series) with no current placement.
+
+## Known free wiring opportunities (found while filing the 2026-08-22 boat library delivery)
+
+- **6 of the 10 boat types are cut and filed but completely unused**: Dinghy, Small Sloop, Pirate
+  Sloop, Merchant Schooner, Heavy Pirate Ship, and Flagship. The rival/navy threat factions
+  (`src/data/threats.ts`) currently have no ship art of their own the way merchants now do — Heavy
+  Pirate Ship or Pirate Sloop would be a natural fit for a rival ambush's visible vessel, the same
+  pattern `triggerMerchant`/`merchantShipFlash` in `MapScreen.tsx` already established and could be
+  generalized to `triggerAmbush`.
+- **All 16 damaged/wrecked/burning example variants (`boats/damaged_example_1..6`,
+  `wrecked_example_1..6`, `burning_example_1..4`) are unused.** The wrecked variants in particular
+  are ready-made world-prop material (the sheet's own subtitle says "use as world props or
+  obstacles") — distinct from the existing `tortuga_wreck_*` landmark sprites, these are small
+  enough to scatter as ambient sea/coastline debris rather than a named landmark.
+- **Merchant ship art is currently a single fixed sprite per template** — `merchantShipSpriteSource`
+  always renders the same boat/heading pairing for a given `templateId`; the damaged/burning
+  variants above would be a natural fit for showing the merchant vessel's own state during or after
+  the encounter (e.g. a burning-ship flash on defeat) if that becomes a desired gameplay beat.
 
 ## Folder size note
 
