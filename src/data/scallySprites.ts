@@ -2,22 +2,28 @@
 // (assets/brand/scally_sprite_sheet_source.png, "Scallywags" style guide) into per-frame
 // transparent PNGs under assets/sprites/scally/ — see GAME_DESIGN.md for the art-overhaul note.
 //
-// Walk cycle: real 8-directional art (assets/brand/scally_walk_8dir_source.png, "Captain Scally —
-// Walk Animations (8 Directions)"), cut 2026-08-22. Upgraded from the original 4-cardinal-only cut
-// (down/left/right/up, 5 frames each) once diagonal art existed — see GAME_DESIGN.md for the
-// write-up. Directions use the same compass-letter keys as shipSprites.ts's `ShipHeading`
-// (s/se/e/ne/n/nw/w/sw) rather than the old down/left/right/up names, and the source sheet's own
-// per-direction frame counts are genuinely uneven (6 or 7, never a flat 8 despite the sheet's own
-// title) — confirmed by direct pixel measurement, not the sheet's printed frame-number labels,
-// which had gaps. `scallySpriteSource` below already wraps via `frames.length` so the uneven counts
-// need no special-casing.
+// Walk cycle: real 8-directional art, 3rd-generation source (assets/brand/scally_walk12_source.png,
+// "Captain Scally — Walk Animations (8 Directions)" — 12-frame-per-direction sheet with a genuine
+// alpha channel), cut 2026-08-22. Replaces the 2nd-generation 6/7-frame cut
+// (scally_walk_8dir_source.png) after the user's own hands-on testing caught that cut's real defect:
+// every direction's forward-reaching leg was always the same physical leg — the trailing leg never
+// took its turn leading, so the stride read as a shuffle rather than a walk ("we don't alternate
+// which foot goes forward" / "it's always the furthest foot from us that is first"). Confirmed
+// against the raw source art (not the crop) via per-frame boot-blob tracking before recutting —
+// see GAME_DESIGN.md for the full write-up and the East-direction pixel evidence.
+//
+// This sheet's own printed labels ("1"-"12" per direction) undercounted again — measured 13 real
+// character columns per direction after a compass-name label plaque (its own extra column), with
+// the 13th confirmed a loop-closing duplicate of column 1 (visual + pixel-diff check, both South and
+// East). Cut using columns 1-12 only. All directions now share a flat 12-frame count — the first
+// time this walk cycle hasn't had uneven per-direction frame counts.
 
 export type FacingDirection = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
 
-/** Upper bound used to drive MapScreen's shared walk-frame counter; each direction's own array
- * length is what actually gates the cycle (see scallySpriteSource), so this just needs to be >=
- * the longest direction (7) for every direction to get full coverage over time. */
-export const WALK_FRAME_COUNT = 7;
+/** Every direction now has exactly 12 real frames (see header note) — no more per-direction
+ * variance, so this is both the shared upper bound for MapScreen's walk-frame counter and each
+ * direction's own real length. */
+export const WALK_FRAME_COUNT = 12;
 
 const WALK_SOURCES: Record<FacingDirection, any[]> = {
   s: [
@@ -27,6 +33,12 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/walk_s_3.png'),
     require('../../assets/sprites/scally/walk_s_4.png'),
     require('../../assets/sprites/scally/walk_s_5.png'),
+    require('../../assets/sprites/scally/walk_s_6.png'),
+    require('../../assets/sprites/scally/walk_s_7.png'),
+    require('../../assets/sprites/scally/walk_s_8.png'),
+    require('../../assets/sprites/scally/walk_s_9.png'),
+    require('../../assets/sprites/scally/walk_s_10.png'),
+    require('../../assets/sprites/scally/walk_s_11.png'),
   ],
   se: [
     require('../../assets/sprites/scally/walk_se_0.png'),
@@ -36,6 +48,11 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/walk_se_4.png'),
     require('../../assets/sprites/scally/walk_se_5.png'),
     require('../../assets/sprites/scally/walk_se_6.png'),
+    require('../../assets/sprites/scally/walk_se_7.png'),
+    require('../../assets/sprites/scally/walk_se_8.png'),
+    require('../../assets/sprites/scally/walk_se_9.png'),
+    require('../../assets/sprites/scally/walk_se_10.png'),
+    require('../../assets/sprites/scally/walk_se_11.png'),
   ],
   e: [
     require('../../assets/sprites/scally/walk_e_0.png'),
@@ -44,6 +61,12 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/walk_e_3.png'),
     require('../../assets/sprites/scally/walk_e_4.png'),
     require('../../assets/sprites/scally/walk_e_5.png'),
+    require('../../assets/sprites/scally/walk_e_6.png'),
+    require('../../assets/sprites/scally/walk_e_7.png'),
+    require('../../assets/sprites/scally/walk_e_8.png'),
+    require('../../assets/sprites/scally/walk_e_9.png'),
+    require('../../assets/sprites/scally/walk_e_10.png'),
+    require('../../assets/sprites/scally/walk_e_11.png'),
   ],
   ne: [
     require('../../assets/sprites/scally/walk_ne_0.png'),
@@ -53,6 +76,11 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/walk_ne_4.png'),
     require('../../assets/sprites/scally/walk_ne_5.png'),
     require('../../assets/sprites/scally/walk_ne_6.png'),
+    require('../../assets/sprites/scally/walk_ne_7.png'),
+    require('../../assets/sprites/scally/walk_ne_8.png'),
+    require('../../assets/sprites/scally/walk_ne_9.png'),
+    require('../../assets/sprites/scally/walk_ne_10.png'),
+    require('../../assets/sprites/scally/walk_ne_11.png'),
   ],
   n: [
     require('../../assets/sprites/scally/walk_n_0.png'),
@@ -61,6 +89,12 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/walk_n_3.png'),
     require('../../assets/sprites/scally/walk_n_4.png'),
     require('../../assets/sprites/scally/walk_n_5.png'),
+    require('../../assets/sprites/scally/walk_n_6.png'),
+    require('../../assets/sprites/scally/walk_n_7.png'),
+    require('../../assets/sprites/scally/walk_n_8.png'),
+    require('../../assets/sprites/scally/walk_n_9.png'),
+    require('../../assets/sprites/scally/walk_n_10.png'),
+    require('../../assets/sprites/scally/walk_n_11.png'),
   ],
   nw: [
     require('../../assets/sprites/scally/walk_nw_0.png'),
@@ -70,6 +104,11 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/walk_nw_4.png'),
     require('../../assets/sprites/scally/walk_nw_5.png'),
     require('../../assets/sprites/scally/walk_nw_6.png'),
+    require('../../assets/sprites/scally/walk_nw_7.png'),
+    require('../../assets/sprites/scally/walk_nw_8.png'),
+    require('../../assets/sprites/scally/walk_nw_9.png'),
+    require('../../assets/sprites/scally/walk_nw_10.png'),
+    require('../../assets/sprites/scally/walk_nw_11.png'),
   ],
   w: [
     require('../../assets/sprites/scally/walk_w_0.png'),
@@ -79,6 +118,11 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/walk_w_4.png'),
     require('../../assets/sprites/scally/walk_w_5.png'),
     require('../../assets/sprites/scally/walk_w_6.png'),
+    require('../../assets/sprites/scally/walk_w_7.png'),
+    require('../../assets/sprites/scally/walk_w_8.png'),
+    require('../../assets/sprites/scally/walk_w_9.png'),
+    require('../../assets/sprites/scally/walk_w_10.png'),
+    require('../../assets/sprites/scally/walk_w_11.png'),
   ],
   sw: [
     require('../../assets/sprites/scally/walk_sw_0.png'),
@@ -88,6 +132,11 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/walk_sw_4.png'),
     require('../../assets/sprites/scally/walk_sw_5.png'),
     require('../../assets/sprites/scally/walk_sw_6.png'),
+    require('../../assets/sprites/scally/walk_sw_7.png'),
+    require('../../assets/sprites/scally/walk_sw_8.png'),
+    require('../../assets/sprites/scally/walk_sw_9.png'),
+    require('../../assets/sprites/scally/walk_sw_10.png'),
+    require('../../assets/sprites/scally/walk_sw_11.png'),
   ],
 };
 

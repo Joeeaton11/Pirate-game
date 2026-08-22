@@ -4960,3 +4960,61 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     the static web build and re-published to the `gh-pages` branch (see the "Playable deploy"
     section of this doc for that process) so the live build at
     https://joeeaton11.github.io/Pirate-game/ has the fix.
+
+154. ✅ **Replaced Scally's walk cycle a third time** (2026-08-22) — `scally_walk12_source.png`, a
+    12-frame-per-direction sheet the user hand-specified after item 153's fix (torso stability) still
+    left a deeper problem: item 151/153's art itself never let the trailing leg take a turn leading,
+    so the stride read as a shuffle rather than a walk ("only one leg goes in front of the other" /
+    "it's always the furthest foot from us that is first"). Two follow-up candidate sheets (a 7-frame
+    "v2" and this 12-frame one) were evaluated against the user's own explicit test before either was
+    cut for real: track each frame's boot positions and confirm the *identity* of the leading leg
+    swaps partway through the cycle rather than one leg always occupying the "forward" role. The
+    7-frame sheet failed this test outright (visible near/far occlusion asymmetry, one leg
+    permanently tucked); this 12-frame sheet is the one that got cut and wired, but it does **not**
+    fully pass either — see the East-direction verification note below. It was still filed because it
+    fixes the torso-wobble and even-frame-count issues cleanly and is a clear net improvement, and the
+    user asked to see it running in the actual game rather than judge it from static contact sheets
+    alone.
+
+    Same measurement discipline as every prior delivery — didn't trust the sheet's own printed labels
+    (`1`-`12` per direction). Each direction's row turned out to hold a compass-name label plaque
+    (`"SOUTH ↓"` etc., its own extra column) followed by 13 real character columns, not 12 — the 13th
+    confirmed a loop-closing duplicate of column 1 by direct visual comparison (South and East both
+    checked). Cut using columns 1–12 only, with the same uniform-per-direction-canvas anchoring
+    technique item 153 established (anchor each frame to its own gap-detected slice midpoint, size
+    the canvas to the max extent needed across the direction's 12 frames, crop every frame into that
+    shared canvas). Result: all 96 frames land within 1–2px of their direction's canvas size (vs.
+    item 151's 95–98px unconstrained spread), zero edge-opacity defects on the systematic scan. All 8
+    directions now share a flat 12-frame count — first time this walk cycle hasn't had uneven
+    per-direction counts. Sheet has a genuine alpha channel (no chroma-key guessing needed, unlike
+    every earlier walk/idle sheet this session).
+
+    **Honest verification finding, East direction:** tracked the two boot blobs' x-position across
+    all 12 East frames directly against the source art (not the crop). The back-boot cluster never
+    exceeded x≈36 and the front-boot cluster never dropped below x≈79 (in a ~120px-wide frame) in any
+    of the 12 frames — the two legs approach each other at the passing poses (frames 4/8) but never
+    actually cross paths. One physical leg is locked into "always leading," the other into "always
+    trailing," for the whole cycle — the same root defect as the two prior candidate sheets, just
+    harder to spot by eye here since both boots stay similarly sized (no strong near/far occlusion
+    difference to make it look obviously wrong at a glance). South was spot-checked visually only
+    (facing-camera stepping motion looks like genuine alternating left-right steps) but not put
+    through the same quantitative boot-tracking check the East finding is based on.
+    **Not yet re-verified against a 4th sheet** — reported to the user with the specific fix language
+    to hand ChatGPT next time ("the two legs must actually cross paths at the midpoint of the stride —
+    the leg trailing in frame 1 must be the leading leg by frame 7 of a 12-frame loop, not just swing
+    back and forth around two fixed positions").
+
+    Wiring: `scallySprites.ts`'s `WALK_SOURCES` now holds 12 frames per direction (was 6/7, uneven);
+    `WALK_FRAME_COUNT` raised from 7 to 12. `MapScreen.tsx`'s walk-frame interval was already 110ms
+    (~9fps) from the user's own explicit request earlier in this thread ("a slightly slower,
+    deliberate pirate strut... will probably read better than a rapid little leg blur") — left
+    unchanged, just updated stale comments referencing the old 5/6/7-frame counts. `npx tsc --noEmit`
+    and all 45 `jest` tests clean (art + comment changes only). Verified in a real headless-Chromium
+    run against the dev server: dragged due east, captured a burst of screenshots at the walk
+    interval's own cadence, cropped Scally out of each and confirmed the sprite genuinely advances
+    frame-to-frame with a stable torso position and 0 console errors — same in-game rendering
+    checklist as items 151/153, just not yet re-run against the East-direction leg-alternation defect
+    documented above (that failure only shows up in a frame-by-frame pixel measurement, not a visual
+    render check). `SCALLY_WALK_8DIR_MANIFEST.md` updated. Re-exported the static web build and
+    re-published to `gh-pages` (see "Playable Deploy" section) so
+    https://joeeaton11.github.io/Pirate-game/ has this cut for the user to judge directly.

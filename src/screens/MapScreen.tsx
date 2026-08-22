@@ -634,7 +634,8 @@ export default function MapScreen({ navigation }: Props) {
   // `shipHeading` below (headingFromVector on the same drag vector) now that real diagonal walk art
   // exists — the old 4-cardinal-only hysteresis bucketing and its mid-turn pivot-flash workaround
   // are gone (see scallySprites.ts). Drives which of the 8 sliced walk-cycle frame sets to show;
-  // walkSpriteFrame cycles through that set's own frame count (6 or 7) while isMoving.
+  // walkSpriteFrame cycles through that set's own frame count (a flat 12 for every direction as of
+  // the 3rd-generation walk sheet) while isMoving.
   const [facingDir, setFacingDir] = useState<FacingDirection>('s');
   const [walkSpriteFrame, setWalkSpriteFrame] = useState(0);
   // The idle breathing loop's own frame counter, cycled by a separate, slower interval than the
@@ -1115,8 +1116,12 @@ export default function MapScreen({ navigation }: Props) {
     return () => walkLoopRef.current?.stop();
   }, [isMoving, isRunning, walkBounce]);
 
-  // Cycles Captain Scally's sprite through its 5-frame walk cycle while moving; holds on the
+  // Cycles Captain Scally's sprite through its 12-frame walk cycle while moving; holds on the
   // neutral frame (index 0) the instant movement stops, same beat as the emoji bounce above.
+  // 110ms/frame is ~9fps — the user's own explicit call for Scally's size and stride ("a slightly
+  // slower, deliberate pirate strut... reads better than a rapid little leg blur") rather than the
+  // 10-12fps first suggested; already matched the walk sheet's 2nd/3rd-generation art, unchanged
+  // here.
   useEffect(() => {
     if (!isMoving) {
       setWalkSpriteFrame(0);

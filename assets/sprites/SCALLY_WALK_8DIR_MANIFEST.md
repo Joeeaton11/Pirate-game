@@ -1,5 +1,25 @@
 # Captain Scally — 8-Directional Walk Cycle — Delivery Manifest
 
+**Current art (2026-08-22, 3rd generation):** `assets/brand/scally_walk12_source.png` — 12 real
+frames per direction (after dropping a loop-closing 13th duplicate and a compass-label plaque column
+neither one counted toward the sheet's own "1"-"12" printed labels), genuine alpha channel. Replaced
+the 2nd-generation cut below because that cut's own source art — not the cropping — never let the
+trailing leg take a turn leading, so the walk read as a shuffle. This 3rd sheet fixes torso stability
+and even frame counts but **does not fully fix leg alternation either** — verified directly against
+the source art that East's front/back boot clusters never cross paths across all 12 frames (one leg
+permanently leads, the other permanently trails, just without the strong occlusion asymmetry that
+made the defect obvious in the 2nd-generation cut). See `GAME_DESIGN.md` item 154 for the full
+write-up, the pixel evidence, and the exact ChatGPT prompt language queued for the next attempt.
+Filed anyway at the user's request, to see it running in the actual game rather than judge it from
+static contact sheets. All 8 directions now share a flat 12-frame count (`walk_<dir>_0.png` through
+`walk_<dir>_11.png`) — first time this cycle hasn't had uneven per-direction counts.
+
+The rest of this manifest describes the 2nd-generation cut it replaced, kept for the cutting-pipeline
+history (the uniform-per-direction-canvas anchoring technique it introduced is what the 3rd
+generation's cut reuses).
+
+---
+
 Source: `assets/brand/scally_walk_8dir_source.png` (1536×1024) — "Captain Scally — Walk Animations
 (8 Directions)" reference sheet, uploaded with the message "These are the new walking sprites for
 scallys walk." Understood as an upgrade to the existing on-map walk cycle, which previously only
