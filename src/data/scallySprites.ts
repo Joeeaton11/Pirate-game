@@ -106,17 +106,28 @@ export const IDLE_FRAME_COUNT = 3;
 // between the two doesn't toggle animation state at all. With that hysteresis in place, an
 // `isMoving` flip is a genuine start/stop, and swapping to a real breathing pose on it stopped
 // reading as a hop in testing.
-// Real 3-frame breathing loop only exists for the 4 cardinals — the 8-directional walk sheet
-// didn't include a matching idle set, and the original idle cut (from a different, earlier source
-// sheet) never covered diagonals either. Diagonals fall back to a held single frame — that
-// direction's own first walk frame — rather than forcing a breathing loop that doesn't exist; a
-// static hold reads as "standing still facing that way," which is honest, versus reusing a
-// neighboring cardinal's idle art, which would visibly snap the pose the instant movement stopped.
+// Real breathing loop only exists for the 4 cardinals — the 8-directional walk sheet didn't
+// include a matching idle set, and the original idle cut (from a different, earlier source sheet)
+// never covered diagonals either. Diagonals fall back to a held single frame — that direction's own
+// first walk frame — rather than forcing a breathing loop that doesn't exist; a static hold reads
+// as "standing still facing that way," which is honest, versus reusing a neighboring cardinal's
+// idle art, which would visibly snap the pose the instant movement stopped.
+//
+// South's own breathing loop was upgraded 2026-08-22 from 3 frames (the original cut) to a real
+// 7-frame loop cut from a new "Captain Scally — Idle Animations" reference sheet's own "1. IDLE —
+// BREATHING" panel — a strict art upgrade, same character/pose family, just a longer, smoother
+// cycle. That sheet only drew breathing for the front-facing view, so e/n/w keep their original
+// 3-frame art unchanged rather than sitting at a mismatched frame count with no matching art to
+// upgrade them to.
 const IDLE_SOURCES: Record<FacingDirection, any[]> = {
   s: [
-    require('../../assets/sprites/scally/idle_s_0.png'),
-    require('../../assets/sprites/scally/idle_s_1.png'),
-    require('../../assets/sprites/scally/idle_s_2.png'),
+    require('../../assets/sprites/scally/idle_breathing_0.png'),
+    require('../../assets/sprites/scally/idle_breathing_1.png'),
+    require('../../assets/sprites/scally/idle_breathing_2.png'),
+    require('../../assets/sprites/scally/idle_breathing_3.png'),
+    require('../../assets/sprites/scally/idle_breathing_4.png'),
+    require('../../assets/sprites/scally/idle_breathing_5.png'),
+    require('../../assets/sprites/scally/idle_breathing_6.png'),
   ],
   e: [
     require('../../assets/sprites/scally/idle_e_0.png'),
@@ -145,11 +156,11 @@ export const SCALLY_PORTRAIT = require('../../assets/sprites/scally/portrait.png
 /** Which frame image to show for a given facing direction/movement state. Moving cycles through
  * that direction's own walk frames (`frameIndex`, from MapScreen's shared walk-cycle interval —
  * frame counts are per-direction now, 6 or 7, so this wraps via `frames.length` rather than a
- * single shared count); idle cycles the slower 3-frame breathing loop for the 4 cardinals, or holds
- * a single static frame for diagonals (`idleFrameIndex`, from MapScreen's own separate, slower
- * interval — see IDLE_SOURCES' doc comment for both the debounce history and the diagonal
- * fallback). `idleFrameIndex` defaults to 0 (a plain standing pose) for any caller that doesn't
- * track it. */
+ * single shared count); idle cycles that direction's own breathing loop (7 frames for south, 3 for
+ * the other cardinals) or holds a single static frame for diagonals (`idleFrameIndex`, from
+ * MapScreen's own separate, slower interval — see IDLE_SOURCES' doc comment for the debounce
+ * history and the diagonal fallback). `idleFrameIndex` defaults to 0 (a plain standing pose) for
+ * any caller that doesn't track it. */
 export function scallySpriteSource(
   direction: FacingDirection,
   moving: boolean,
@@ -178,25 +189,155 @@ export function scallySpriteSource(
 // this safe again). Two real narrative triggers (see MapScreen.tsx): VICTORY flashes on a
 // quest/Pirate Lord completion, WAVE flashes when a building's enter-prompt appears (greeting the
 // door). Both are gated on `!isMoving` and drop out immediately if movement resumes while one is
-// showing, so an emote can never freeze a stride the way item 79's first attempt did. The other
-// four don't have an obvious one-to-one story moment each, so they share a single "prolonged
-// idle" pool instead — stand still long enough and Scally cycles through a little flourish rather
-// than holding the same breathing loop forever, the same "idle animation after inactivity" trick
-// old-school RPGs use to keep a stationary character from reading as frozen.
+// showing, so an emote can never freeze a stride the way item 79's first attempt did.
 export const EMOTE_WAVE = require('../../assets/sprites/scally/emote_wave.png');
 export const EMOTE_VICTORY = require('../../assets/sprites/scally/emote_victory.png');
-export const IDLE_FLOURISH_POOL = [
-  require('../../assets/sprites/scally/emote_cheer.png'),
-  require('../../assets/sprites/scally/emote_think.png'),
-  require('../../assets/sprites/scally/emote_laugh.png'),
-  require('../../assets/sprites/scally/emote_sit.png'),
-];
 export const WAVE_ANIMATION_MS = 900;
 export const VICTORY_ANIMATION_MS = 1600;
-/** How long standing still before a flourish pose is eligible to interrupt the normal idle loop. */
+
+// --- Idle flourishes ("Captain Scally — Idle Animations" reference sheet) ----------------------
+// Stand still long enough with no story-moment emote showing and Scally cycles through a little
+// flourish rather than holding the same breathing loop forever — the same "idle animation after
+// inactivity" trick old-school RPGs use to keep a stationary character from reading as frozen.
+//
+// Originally (2026-08-15) this pool held 4 single static frames cut from an earlier "Animated
+// Idle / Emotes" sheet (a cheer fist-pump, a chin-scratch, a laugh, a seated pose). Replaced
+// entirely 2026-08-22 by 9 full multi-frame looping animations cut from a dedicated new reference
+// sheet — the old single-pose set is now a strict downgrade of what's available (the sheet even
+// includes richer versions of 3 of the same ideas: BORED/BOOT KICK vs. the old think pose,
+// SITTING ON BARREL vs. the old sit pose, HAT TIP/GRIN vs. the old cheer pose), so it was removed
+// rather than kept alongside — see GAME_DESIGN.md for the write-up. Each entry is now a real frame
+// array (7 or 8 frames — this sheet's per-animation counts are genuinely uneven, same lesson as
+// every other delivery this session: measured directly off the sheet, not trusted from its own
+// printed frame-number labels, which had gaps) instead of one held image, cycled by MapScreen's
+// own idle-flourish interval at IDLE_FLOURISH_FRAME_MS per frame while showing.
+export interface IdleFlourish {
+  key: string;
+  frames: any[];
+}
+export const IDLE_FLOURISHES: IdleFlourish[] = [
+  {
+    key: 'hat_tip_grin',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_hat_tip_grin_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_hat_tip_grin_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_hat_tip_grin_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_hat_tip_grin_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_hat_tip_grin_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_hat_tip_grin_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_hat_tip_grin_6.png'),
+    ],
+  },
+  {
+    key: 'juggling_coins',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_juggling_coins_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_juggling_coins_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_juggling_coins_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_juggling_coins_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_juggling_coins_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_juggling_coins_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_juggling_coins_6.png'),
+    ],
+  },
+  {
+    key: 'reading_map',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_reading_map_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_reading_map_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_reading_map_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_reading_map_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_reading_map_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_reading_map_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_reading_map_6.png'),
+      require('../../assets/sprites/scally/idle_flourish_reading_map_7.png'),
+    ],
+  },
+  {
+    key: 'sitting_barrel',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_sitting_barrel_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_sitting_barrel_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_sitting_barrel_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_sitting_barrel_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_sitting_barrel_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_sitting_barrel_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_sitting_barrel_6.png'),
+    ],
+  },
+  {
+    key: 'bored_boot_kick',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_bored_boot_kick_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_bored_boot_kick_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_bored_boot_kick_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_bored_boot_kick_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_bored_boot_kick_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_bored_boot_kick_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_bored_boot_kick_6.png'),
+      require('../../assets/sprites/scally/idle_flourish_bored_boot_kick_7.png'),
+    ],
+  },
+  {
+    key: 'scratch_thinking',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_scratch_thinking_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_scratch_thinking_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_scratch_thinking_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_scratch_thinking_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_scratch_thinking_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_scratch_thinking_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_scratch_thinking_6.png'),
+    ],
+  },
+  {
+    key: 'fishing',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_fishing_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_fishing_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_fishing_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_fishing_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_fishing_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_fishing_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_fishing_6.png'),
+      require('../../assets/sprites/scally/idle_flourish_fishing_7.png'),
+    ],
+  },
+  {
+    key: 'stretch_yawn',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_stretch_yawn_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_stretch_yawn_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_stretch_yawn_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_stretch_yawn_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_stretch_yawn_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_stretch_yawn_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_stretch_yawn_6.png'),
+    ],
+  },
+  {
+    key: 'sleeping_snoring',
+    frames: [
+      require('../../assets/sprites/scally/idle_flourish_sleeping_snoring_0.png'),
+      require('../../assets/sprites/scally/idle_flourish_sleeping_snoring_1.png'),
+      require('../../assets/sprites/scally/idle_flourish_sleeping_snoring_2.png'),
+      require('../../assets/sprites/scally/idle_flourish_sleeping_snoring_3.png'),
+      require('../../assets/sprites/scally/idle_flourish_sleeping_snoring_4.png'),
+      require('../../assets/sprites/scally/idle_flourish_sleeping_snoring_5.png'),
+      require('../../assets/sprites/scally/idle_flourish_sleeping_snoring_6.png'),
+    ],
+  },
+];
+/** How long standing still before a flourish is eligible to interrupt the normal idle loop. */
 export const IDLE_FLOURISH_DELAY_MS = 5000;
-/** How long a flourish pose holds once picked. */
-export const IDLE_FLOURISH_HOLD_MS = 2200;
+/** How long a flourish plays once picked, before returning to the ordinary breathing loop. Long
+ * enough for roughly 2 full loops of the longest (8-frame) animation at IDLE_FLOURISH_FRAME_MS —
+ * cut off mid-cycle rather than on a clean loop boundary, same as the walk/run cycles already do
+ * when movement stops, which reads fine since it's a continuous loop either way. */
+export const IDLE_FLOURISH_HOLD_MS = 2400;
+/** Per-frame cadence for a showing idle flourish — slower than the walk cycle's 110ms since these
+ * are unhurried idle vignettes, not active motion. */
+export const IDLE_FLOURISH_FRAME_MS = 150;
 
 // --- Faces / Portraits (small expression icons) -------------------------------------------------
 // Six mood variants. Live on the map header's portrait badge (see MapScreen.tsx), not

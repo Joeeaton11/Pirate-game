@@ -4819,3 +4819,66 @@ long collection grind *and* one legendary payoff at the top of it.
     idle poses held their real breathing loop, the 4 diagonal idle poses held their static fallback
     frame as designed, and 0 console errors were logged throughout. `npx tsc --noEmit` and all 45
     `jest` tests clean. `SCALLY_WALK_8DIR_MANIFEST.md` and `DELIVERY_LOG.md` written/updated.
+
+152. ✅ **Cut, filed, and wired a 10-animation "Captain Scally — Idle Animations" reference sheet —
+    73 sprites, upgrading the south breathing loop and replacing the old single-pose flourish
+    system with real multi-frame animated vignettes** (2026-08-22). The user's message was just "I
+    have some idle animations" — no explicit integration instruction, same terseness as item 151's
+    walk sheet, but the destination was judged unambiguous enough not to need an `AskUserQuestion`:
+    the sheet's 10 panels map cleanly onto the two idle-adjacent systems already in the game
+    (`IDLE_SOURCES`' breathing loop and `IDLE_FLOURISH_POOL`'s "prolonged idle after standing still"
+    mechanism), and there's no other sensible place for "idle animations" to go.
+
+    This sheet turned out to be **auto-laid-out per panel rather than a rigid shared grid** — the
+    single fact behind every real defect found. Each of the 10 panels' title/content/label bands
+    sit at their own tight offset from that panel's own content height, not a shared absolute
+    row-group y-position the way earlier terrain/boat sheets' rows did. Real per-panel frame counts
+    (7 or 8, gapped in the sheet's own printed labels — the same lesson item 151 already applied,
+    reapplied here) needed a hybrid cutting approach: gap-based column detection first (as usual),
+    falling back to an even-pitch split of the panel's total content width when a raised limb, a
+    floating prop, or tight spacing made gap detection merge or over-split frames — 6 of the 10
+    panels cut cleanly with gap detection alone, the other 4 needed the pitch fallback.
+
+    The auto-layout discovery itself came from chasing down two real defects this delivery's own
+    verification caught before filing: **panel title text baked into the top of every frame in 3
+    panels** (Sitting on Barrel, Scratch Head/Thinking, Fishing) from a shared row-group y-window
+    that was a few pixels too high for those particular panels' own title height, and **frame-number
+    labels baked into the bottom of every frame in 1 panel** (Bored/Boot Kick) from assuming it
+    shared its row-group partner's (Sitting on Barrel's) content-bottom boundary, when in fact the
+    two panels' real content-bottom/label-start rows differ by close to 20px. Both fixed by
+    measuring each of the 10 panels' own boundaries independently via direct row-pixel-density
+    profiling (not assumed from a neighboring panel), then re-cut and re-verified. A systematic
+    edge-opacity scan across all 73 final files found only 2 remaining hits, both confirmed correct
+    on inspection (the Fishing rod's line legitimately touching its own tight bounding box edge in
+    2 frames — real content, same call as the boat library's mast-tip edges).
+
+    Filed into `assets/sprites/scally/`: panel 1 (Breathing) → `idle_breathing_0..6.png`, the other
+    9 → `idle_flourish_<name>_N.png`. Wired:
+    - South's idle breathing loop upgraded from the original 3-frame cut to this sheet's real
+      7-frame loop (same pose family — a strict art upgrade). East/north/west keep their original
+      3-frame art unchanged; this sheet only drew breathing for the front-facing view.
+    - The old 4-item `IDLE_FLOURISH_POOL` (single static frames — a fist-pump cheer, a chin-scratch
+      think, a laugh, a seated pose, cut from a third, earlier "Animated Idle / Emotes" sheet) was
+      replaced entirely by `IDLE_FLOURISHES`, 9 full multi-frame animated vignettes. The old pool's
+      source files (`emote_cheer/think/laugh/sit.png`) were deleted — 3 of the 9 new flourishes are
+      direct richer successors of ideas the old pool already had (Bored/Boot Kick, Sitting on
+      Barrel, Hat Tip/Grin), so keeping both would have left the old ones as strictly worse
+      duplicates of the same idea.
+    - `MapScreen.tsx` gained real per-flourish frame cycling (a new interval at
+      `IDLE_FLOURISH_FRAME_MS`, 150ms/frame) where the old system only ever held one static image —
+      the same general pattern the walk cycle's own frame-cycling interval already used, applied to
+      a second animated system. `IDLE_FLOURISH_HOLD_MS` raised from 2200ms to 2400ms so the longest
+      (8-frame) flourish gets roughly two full loops before cutting back to the breathing loop.
+      Render priority: attack/sword-ready flash, then any single-frame emote (door greeting/victory
+      — a real story moment), then the flourish, then the run cycle, then plain walk/idle — emotes
+      sit above the flourish deliberately, so a greeting or a win can always interrupt idle boredom
+      and not the other way around.
+
+    Verified in a real headless-Chromium run against the dev server: standing still long enough
+    triggered a real animated flourish in every run, two separate runs picked two different
+    flourishes at random (Hat Tip/Grin, then Fishing — confirming the random pick works, not just
+    that *a* flourish shows), and a fine-grained capture during one flourish showed genuine
+    frame-by-frame motion (the fishing rod visibly moving, the bobber appearing and disappearing
+    across consecutive 150ms-apart screenshots) before cleanly returning to the plain breathing
+    loop, 0 console errors throughout. `npx tsc --noEmit` and all 45 `jest` tests clean.
+    `SCALLY_IDLE_ANIMATIONS_MANIFEST.md` and `DELIVERY_LOG.md` written/updated.

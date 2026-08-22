@@ -67,9 +67,11 @@ import {
   ICON_EXCLAIM,
   ICON_MAP,
   IDLE_FLOURISH_DELAY_MS,
+  IDLE_FLOURISH_FRAME_MS,
   IDLE_FLOURISH_HOLD_MS,
-  IDLE_FLOURISH_POOL,
+  IDLE_FLOURISHES,
   IDLE_FRAME_COUNT,
+  IdleFlourish,
   POSE_ATTACK,
   POSE_SWORD_READY,
   RUN_FRAME_COUNT,
@@ -638,14 +640,23 @@ export default function MapScreen({ navigation }: Props) {
   // The idle breathing loop's own frame counter, cycled by a separate, slower interval than the
   // walk cycle's — see IDLE_SOURCES' doc comment in scallySprites.ts for why this is safe now.
   const [idleSpriteFrame, setIdleSpriteFrame] = useState(0);
-  // Overrides the normal walk/idle render with one of Scally's emote poses for a fixed hold time —
-  // see the effects below for the three triggers (door greeting, quest/lord win, prolonged idle).
-  // Cleared immediately if isMoving flips true while one is showing, so an emote can never freeze a
-  // stride (the actual bug in item 79's first attempt was elsewhere — see scallySprites.ts — but
-  // this guard costs nothing and removes any risk of repeating it).
+  // Overrides the normal walk/idle render with one of Scally's single-frame emote poses for a fixed
+  // hold time — see the effects below for the two triggers (door greeting, quest/lord win). Cleared
+  // immediately if isMoving flips true while one is showing, so an emote can never freeze a stride
+  // (the actual bug in item 79's first attempt was elsewhere — see scallySprites.ts — but this guard
+  // costs nothing and removes any risk of repeating it).
   const [emoteOverlay, setEmoteOverlay] = useState<{ source: any } | null>(null);
   const emoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The "prolonged idle" flourish — a full multi-frame animated vignette (juggling coins, reading
+  // a map, dozing off, ...), distinct from the single-frame emotes above. Holds which flourish is
+  // showing and its own frame counter, cycled by a dedicated interval at IDLE_FLOURISH_FRAME_MS
+  // while set — see IDLE_FLOURISHES' doc comment in scallySprites.ts for why this replaced the old
+  // single-static-pose pool.
+  const [idleFlourish, setIdleFlourish] = useState<IdleFlourish | null>(null);
+  const [idleFlourishFrame, setIdleFlourishFrame] = useState(0);
   const idleFlourishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idleFlourishHoldTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idleFlourishFrameIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const prevDefeatedLordCountRef = useRef(defeatedLordIds.length);
   const prevCompletedQuestCountRef = useRef(completedQuestIds.length);
   // On-foot equivalent of shipStopSkid — flashes right as a forced (not-boarded) fight triggers.
@@ -1173,8 +1184,8 @@ export default function MapScreen({ navigation }: Props) {
     flashCaptainFace(lordGrew ? FACE_LAUGH : FACE_HAPPY, VICTORY_ANIMATION_MS);
   }, [defeatedLordIds.length, completedQuestIds.length, isMoving]);
 
-  // Idle flourish pool: after standing still for IDLE_FLOURISH_DELAY_MS, cycle a random one of the
-  // four flourish poses for IDLE_FLOURISH_HOLD_MS before returning to the ordinary breathing loop —
+  // Idle flourish: after standing still for IDLE_FLOURISH_DELAY_MS, play a random one of the
+  // animated flourishes for IDLE_FLOURISH_HOLD_MS before returning to the ordinary breathing loop —
   // the "idle animation after inactivity" trick. Cancels cleanly the moment movement resumes.
   useEffect(() => {
     if (isMoving) {
@@ -1185,20 +1196,43 @@ export default function MapScreen({ navigation }: Props) {
       return;
     }
     idleFlourishTimerRef.current = setTimeout(() => {
-      const pick = IDLE_FLOURISH_POOL[Math.floor(Math.random() * IDLE_FLOURISH_POOL.length)];
-      flashEmote(pick, IDLE_FLOURISH_HOLD_MS);
+      const pick = IDLE_FLOURISHES[Math.floor(Math.random() * IDLE_FLOURISHES.length)];
+      setIdleFlourish(pick);
+      setIdleFlourishFrame(0);
+      idleFlourishHoldTimeoutRef.current = setTimeout(() => setIdleFlourish(null), IDLE_FLOURISH_HOLD_MS);
     }, IDLE_FLOURISH_DELAY_MS);
     return () => {
       if (idleFlourishTimerRef.current) clearTimeout(idleFlourishTimerRef.current);
     };
   }, [isMoving]);
 
-  // Drop any showing emote immediately if movement resumes — the actual bug item 79's first attempt
-  // hit (an emote freezing the stride) would have to slip past both this and each trigger's own
-  // `!isMoving` gate above to recur.
+  // Cycles the showing flourish's own frames while it's up; stops (and the render falls back to the
+  // ordinary breathing loop) the instant idleFlourish clears, whether that's the hold timeout above
+  // or movement resuming below.
   useEffect(() => {
-    if (isMoving && emoteOverlay) setEmoteOverlay(null);
-  }, [isMoving, emoteOverlay]);
+    if (!idleFlourish) return;
+    idleFlourishFrameIntervalRef.current = setInterval(() => {
+      setIdleFlourishFrame((f) => (f + 1) % idleFlourish.frames.length);
+    }, IDLE_FLOURISH_FRAME_MS);
+    return () => {
+      if (idleFlourishFrameIntervalRef.current) clearInterval(idleFlourishFrameIntervalRef.current);
+    };
+  }, [idleFlourish]);
+
+  // Drop any showing emote/flourish immediately if movement resumes — the actual bug item 79's
+  // first attempt hit (an emote freezing the stride) would have to slip past both this and each
+  // trigger's own `!isMoving` gate above to recur.
+  useEffect(() => {
+    if (!isMoving) return;
+    if (emoteOverlay) setEmoteOverlay(null);
+    if (idleFlourish) {
+      setIdleFlourish(null);
+      if (idleFlourishHoldTimeoutRef.current) {
+        clearTimeout(idleFlourishHoldTimeoutRef.current);
+        idleFlourishHoldTimeoutRef.current = null;
+      }
+    }
+  }, [isMoving, emoteOverlay, idleFlourish]);
 
   // Captain's idle wink: while heat is completely clear (no badge would otherwise show), Scally
   // occasionally winks for a beat — the same idle-personality mechanism already shipped for Cheeky
@@ -2757,11 +2791,15 @@ export default function MapScreen({ navigation }: Props) {
               // Re-wired individually on 2026-08-15, each behind the fix for whichever specific
               // thing actually caused the hop (see scallySprites.ts's IDLE_SOURCES/run-cycle doc
               // comments): attack/sword-ready flash takes top priority (a duel interrupt), then any
-              // showing emote, then the heat-triggered run cycle, and otherwise the plain walk/idle
-              // cycle. The idle and run branches are the two that needed a real fix rather than
-              // just an `!isMoving` guard — see those comments for what each one was. The mid-turn
-              // pivot flash that used to sit between the attack flash and the emote here was
-              // removed 2026-08-22 once real 8-directional walk art made it redundant (see
+              // showing single-frame emote (door greeting / victory — a real story moment), then the
+              // prolonged-idle flourish (a much longer multi-frame vignette, added 2026-08-22 — see
+              // IDLE_FLOURISHES' doc comment in scallySprites.ts — deliberately below the emotes
+              // since a greeting or a win should always be able to interrupt idle boredom, not the
+              // other way around), then the heat-triggered run cycle, and otherwise the plain
+              // walk/idle cycle. The idle and run branches are the two that needed a real fix rather
+              // than just an `!isMoving` guard — see those comments for what each one was. The
+              // mid-turn pivot flash that used to sit between the attack flash and the emote here
+              // was removed 2026-08-22 once real 8-directional walk art made it redundant (see
               // scallySprites.ts).
               <Animated.Image
                 source={
@@ -2771,6 +2809,8 @@ export default function MapScreen({ navigation }: Props) {
                       : POSE_SWORD_READY
                     : emoteOverlay
                     ? emoteOverlay.source
+                    : idleFlourish
+                    ? idleFlourish.frames[idleFlourishFrame % idleFlourish.frames.length]
                     : isRunning
                     ? runSpriteSource(walkSpriteFrame)
                     : scallySpriteSource(facingDir, isMoving, walkSpriteFrame, idleSpriteFrame)
