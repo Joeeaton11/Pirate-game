@@ -1280,6 +1280,41 @@ long collection grind *and* one legendary payoff at the top of it.
   this flag, so it can be re-tested without a fresh install
 - ⬜ No day/night or weather-specific onboarding beats yet (not needed until those systems exist)
 
+## Playable Deploy (GitHub Pages)
+The live build is at **https://joeeaton11.github.io/Pirate-game/**, served from this repo's
+`gh-pages` branch. There is no CI/automated pipeline for this — every deploy is a manual export +
+publish, repeated each time a session wants to push a new build. The process, reconstructed
+2026-08-22 from the `gh-pages` branch's own commit history (no script or written record existed
+before this):
+
+1. `npx expo export --platform web --output-dir <dir>` — produces a static build (`index.html`,
+   `_expo/static/js/web/*.js`, `assets/`, `favicon.ico`, `metadata.json`).
+2. **The export's asset/script paths are absolute (`/assets/...`, `/_expo/...`), which breaks once
+   served from GitHub Pages' subpath** (`/Pirate-game/`, not the domain root). `EXPO_BASE_URL` does
+   **not** fix this in the installed Expo CLI version — confirmed by testing it directly, output was
+   byte-identical with or without it. The fix has to be a manual text rewrite after export:
+   - In every `_expo/static/js/web/*.js` bundle file: `"/assets/` → `"/Pirate-game/assets/` (the
+     bundle bakes in ~600 absolute asset references for every sprite/font/sfx the app can show —
+     all of them need this, not just the ones visibly used on the first screen).
+   - In `index.html`: `href="/favicon.ico"` → `href="/Pirate-game/favicon.ico"` and
+     `src="/_expo/` → `src="/Pirate-game/_expo/`.
+   - This is exactly what every prior `gh-pages` commit already did (confirmed by diffing an
+     unmodified fresh export against the last working deployed bundle) — not a new fix, just an
+     undocumented repeated one.
+3. A `.nojekyll` file must exist at the published root — GitHub Pages' default Jekyll processing
+   ignores underscore-prefixed directories, which would silently drop `_expo/` entirely without it
+   (an earlier session hit this and left a "Restore .nojekyll" commit on `gh-pages` as the trail).
+4. Publish via a git worktree checked out to `gh-pages` (`git worktree add <dir> gh-pages`), replace
+   its tracked content with the rewritten export (`git rm -rq .` then copy the new files in), commit,
+   push, remove the worktree. Never rewrite `gh-pages`' history — always a new commit on top, so the
+   branch's own log stays a readable deploy history (see its commit messages, all prefixed
+   `Deploy: ...`).
+
+**This session's own network policy could not reach `joeeaton11.github.io` to self-verify a push
+landed** (the outbound proxy allowlist doesn't include it) — pushing the `gh-pages` ref and
+confirming via `git ls-remote` was the only self-check available; the user's own reload of the page
+is the real confirmation. Say so plainly rather than claiming a live check that didn't happen.
+
 ## Testing & QA
 - ✅ **Dev debug panel**: a `__DEV__`-gated Debug screen (🛠 button on the Map, stripped from
   production builds) for fast manual QA without grinding — jump any crew member to a level
@@ -4882,3 +4917,46 @@ long collection grind *and* one legendary payoff at the top of it.
     across consecutive 150ms-apart screenshots) before cleanly returning to the plain breathing
     loop, 0 console errors throughout. `npx tsc --noEmit` and all 45 `jest` tests clean.
     `SCALLY_IDLE_ANIMATIONS_MANIFEST.md` and `DELIVERY_LOG.md` written/updated.
+
+153. ✅ **Fixed a real walk-cycle bug in item 151's 8-directional walk cycle: the torso wobbled
+    left/right every frame, masking the legs' real alternating stride** (2026-08-22). Reported by
+    the user after testing the deployed build themselves: "the walk seems to be off still, only one
+    leg goes in front of the other, and we don't alternate which foot goes forward." This was the
+    first bug this session caught only after the user's own hands-on testing, not by this session's
+    own verification screenshots — worth noting since it's exactly the failure mode automated
+    contact-sheet review is weak at (each frame looked like a plausible walking pose in isolation;
+    the defect only shows up as *motion*, comparing consecutive frames against each other, which a
+    burst of static screenshots doesn't naturally invite scrutinizing that way).
+
+    Root cause, confirmed by inspecting the shipped files directly: item 151's cut tight-cropped
+    every walk frame independently to its own content bounding box (`content_bbox` per frame — the
+    same method every other delivery this session used without issue). For a walk cycle specifically
+    this is wrong, because a stepping pose's legs splay asymmetrically — whichever leg is forward
+    pushes that frame's silhouette wider on one side — so each frame's tight bbox ends up a
+    different width with a different center relative to the character's actual spine
+    (`walk_s_0..5.png` measured 95–98px wide, no two the same). `resizeMode="contain"` then centers
+    each differently-shaped crop independently, which visibly shifts the whole torso side to side
+    frame to frame. That wobble was large enough to read as "the same leg always forward" — the
+    torso sliding toward whichever side had more silhouette canceled out the actual leg-crossing
+    motion in the viewer's perception, rather than producing an obviously-broken image.
+
+    Fix: re-cut every direction from the original source sheet using one shared, uniform canvas per
+    direction instead of an independent tight crop per frame. Each frame's own column slice (from
+    the original gap-detected cut) has a natural, pose-independent anchor — the slice's own
+    midpoint, which sits between one frame's content and the next regardless of that particular
+    pose's silhouette. Re-measured each frame's tight content bbox relative to *that* anchor instead
+    of re-centering on itself, took the max left/right/top/bottom extent needed across all frames of
+    a direction, and cropped every frame into that same fixed per-direction canvas at the same
+    anchor point. Every frame in a direction is now pixel-identical in size (e.g. all 6 south frames
+    are exactly 100×146). Diagonal idle's static fallback (`WALK_SOURCES[dir][0]`) picked up the fix
+    automatically since it just reads the corrected files — no code change needed there.
+
+    Verified by zooming into the feet region of consecutive frames directly against a fixed
+    reference guideline (confirmed genuine alternating stagger on both `s` and `e`, where the first
+    fix attempt had shown a static-looking same-leg-forward silhouette) and by a fresh in-browser
+    capture showing the torso holding a fixed screen position through a full walk burst with 0
+    console errors. `npx tsc --noEmit` and all 45 `jest` tests clean (art-only fix, no source code
+    touched). `SCALLY_WALK_8DIR_MANIFEST.md` updated with the full root-cause writeup. Re-exported
+    the static web build and re-published to the `gh-pages` branch (see the "Playable deploy"
+    section of this doc for that process) so the live build at
+    https://joeeaton11.github.io/Pirate-game/ has the fix.

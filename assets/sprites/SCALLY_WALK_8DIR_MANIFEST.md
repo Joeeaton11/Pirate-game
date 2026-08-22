@@ -12,6 +12,32 @@ a systematic edge-opacity scan across all final files before filing. This delive
 cleanly on the first attempt — no border-line or divider-bleed defects found (unlike the
 terrain-extras-4 tree panel or the boat library's row dividers earlier this session).
 
+**Real bug found after the user tested the deployed build, fixed same day.** The first cut
+tight-cropped every frame independently to its own content bounding box (`content_bbox` per frame,
+matching the pattern every other delivery this session used successfully). For a walk cycle
+specifically this is wrong: a stepping pose's legs splay asymmetrically (more silhouette on
+whichever side the forward leg extends), so each frame's tight bbox has a different width and a
+different center-of-mass relative to the character's actual spine. `resizeMode="contain"` then
+centers each differently-shaped crop independently, which visibly shifts the torso left/right frame
+to frame — a wobble strong enough to mask the real leg-crossing motion entirely, reported by the
+user as "only one leg goes in front of the other, we don't alternate which foot goes forward."
+Confirmed by inspecting the shipped files directly: `walk_s_0..5.png` were 95–98px wide, no two the
+same size.
+
+**Fix:** re-cut every direction using one shared, uniform canvas per direction instead of an
+independent tight crop per frame. For each frame, its own column slice already has a natural center
+(the midpoint of the gap-detected slice the frame was cut from in the source sheet — a stable
+per-frame anchor point that doesn't depend on that particular pose's silhouette). Each frame's tight
+content bbox was measured relative to *that* center rather than re-centered on itself; the per-
+direction canvas width/height was then set to the largest left/right/top/bottom extent needed across
+all frames of that direction, and every frame cropped into that same fixed canvas at the same
+anchor point. Result: every frame in a direction is now pixel-identical in size (e.g. all 6 south
+frames are exactly 100×146), the head/torso stay locked in place, and only the legs/arms actually
+move between frames. Verified by zooming into the feet region of consecutive frames directly (real
+alternating stagger, confirmed on both `s` and `e`) and by an in-browser capture showing the torso
+holding a fixed screen position through a full walk burst. Diagonal idle's static fallback
+(`WALK_SOURCES[dir][0]`) picks up the fix automatically since it just reads the corrected files.
+
 **53 sprites filed** across 8 compass directions:
 
 | Direction | Frames | Filenames |
