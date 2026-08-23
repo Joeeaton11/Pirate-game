@@ -5290,3 +5290,48 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     every single sample across ~90 frame changes landed at the exact same `{x, y, w, h}` in the
     browser, confirming the jump is actually gone on screen, not just in the source files. 0 console
     errors throughout. Re-exported and re-published to `gh-pages`.
+
+    **Missed one: the Fishing flourish itself was still broken** (not caught by the position-
+    consistency checks above, because it isn't a position bug). User reported it directly right
+    after this shipped ("The finding [fishing] idle is still not correct").
+
+161. ✅ **Fixed the Fishing flourish flashing body-less every other frame** (2026-08-23) — a real
+    content bug in how item 160 (and the original item 151 delivery before it) read this specific
+    panel. The sheet's own printed labels say 8 frames, and item 151's original cut, and item 160's
+    re-cut, both trusted that and cut 8 slices. But the sheet **only actually draws 7 distinct
+    character poses** in this row — real connected-component analysis (chroma+darkness mask, no
+    size filter this time, just plain connected-component labeling across the whole row) finds
+    exactly 7 blobs of ~5,000-6,300px each, each one already a complete body+rod+bobber as a single
+    connected shape. The printed "8" column has no body in it at all — it's just the tail end of
+    frame 7's own long rod and bobber, swinging further out than any other frame's (confirmed by
+    directly viewing a tight zoomed crop of that exact region: one character labeled "7", nothing
+    but rod and bobber under the "8" label). Splitting this into 8 even-pitch slices (the fallback
+    item 160 used, since gap detection had merged it into 1 giant run) cut frame 7's body away from
+    part of its own rod/bobber, alternating full-body and rod-only-no-body results across the loop —
+    a real, visible "Scally vanishes" flash every other frame, not a position/size artifact, which
+    is why the position-consistency verification in item 160 didn't catch it (a missing body still
+    reports a perfectly consistent `{x, y, w, h}` for whatever *is* there).
+
+    Fixed by dropping the assumption entirely and using the 7 real connected-component boxes
+    directly as the frame boundaries (each one already spans a full body plus its own complete rod
+    and bobber, so no fallback splitting was needed once the true count was recognized). Deleted
+    `idle_flourish_fishing_7.png` and changed `IDLE_FLOURISHES`'s fishing entry in
+    `scallySprites.ts` from 8 frames to the real 7 — the flourish frame counter already derives its
+    own `.length` per-flourish independently (confirmed sound in item 159's audit), so no other code
+    change was needed.
+
+    Verified two ways: `npx tsc --noEmit` and all 45 `jest` tests clean, zero edge-opacity defects on
+    the 7 re-cut files. And empirically, live against the dev server — temporarily forced the random
+    flourish picker to always choose Fishing (a one-line override, reverted before committing, same
+    disposable-debug-hook discipline as every other empirical check this session) and tracked the
+    actual rendered frame across a full trigger: clean `0,1,2,3,4,5,6` cycling with no missing index,
+    a body present in the screenshot, then a clean return to breathing after
+    `IDLE_FLOURISH_HOLD_MS`. 0 console errors. Re-exported and re-published to `gh-pages`.
+
+    **Lesson for the rest of this delivery**: a printed frame-number label on a reference sheet is a
+    claim about intended frame count, not a guarantee every one of those slots actually has content —
+    this is a different failure mode than the "even-pitch fallback chosen when gap detection merges
+    frames" case documented in the original delivery manifest, and worth checking for specifically
+    (does every candidate slot contain a real character silhouette, not just *some* real pixels) on
+    any future sheet that mixes character content with long/thin appendages like a rod, whip, or
+    rope that can visually bridge into a neighboring slot's territory.

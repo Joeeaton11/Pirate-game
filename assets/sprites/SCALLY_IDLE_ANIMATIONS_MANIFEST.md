@@ -11,7 +11,8 @@ had gaps in every panel — real per-panel frame counts are 7 or 8, never a flat
 needed more correction rounds than most this session — see below — but every defect was caught by
 this delivery's own verification, not a later independent pass.
 
-**73 sprites filed** across 10 animations:
+**72 sprites filed** across 10 animations (was 73 — see the 2026-08-23 fishing correction below,
+which dropped a body-less 8th slot that should never have been counted as a real frame):
 
 | Panel | Frames | Destination |
 |---|---|---|
@@ -22,7 +23,7 @@ this delivery's own verification, not a later independent pass.
 | 5. Sitting on Barrel | 7 | `idle_flourish_sitting_barrel_0..6.png` |
 | 6. Bored/Boot Kick | 8 | `idle_flourish_bored_boot_kick_0..7.png` |
 | 7. Scratch Head/Thinking | 7 | `idle_flourish_scratch_thinking_0..6.png` |
-| 8. Fishing | 8 | `idle_flourish_fishing_0..7.png` |
+| 8. Fishing | **7** (not 8 — see below) | `idle_flourish_fishing_0..6.png` |
 | 9. Stretch/Yawn | 7 | `idle_flourish_stretch_yawn_0..6.png` |
 | 10. Sleeping/Snoring | 7 | `idle_flourish_sleeping_snoring_0..6.png` |
 
@@ -74,6 +75,15 @@ panels (left/right column) share one y-window.
   filenames, same frame counts, no wiring changes. `idle_e/n/w` (a separate, older delivery, see item
   183) had the same defect at smaller scale (2-6px) and got an equivalent post-hoc uniform-canvas
   pass directly on the existing files.
+- **Second real bug, found and fixed 2026-08-23, same day** (see `GAME_DESIGN.md` item 161): Fishing
+  was never actually 8 frames — the sheet's own printed "8" label sits over a slot with no character
+  in it at all, just the tail of frame 7's own long rod/bobber. Both this delivery's original cut and
+  the same-day re-cut above trusted the printed count and split it into 8 slices anyway, which cut
+  frame 7's body away from part of its own rod — Scally flashed body-less every other frame in this
+  one flourish. Fixed by using the 7 real connected-component boxes (body+rod+bobber, already one
+  connected shape per frame) directly instead of assuming 8 and falling back to an even-pitch split.
+  `idle_flourish_fishing_7.png` deleted; `IDLE_FLOURISHES`'s fishing entry in `scallySprites.ts` now
+  declares 7 frames, not 8.
 
 ## Wiring
 

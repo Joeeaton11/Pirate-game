@@ -379,6 +379,9 @@ export const IDLE_FLOURISHES: IdleFlourish[] = [
     ],
   },
   {
+    // Only 7 real frames, not 8 - the source sheet's own printed "8" column has no character in
+    // it at all, just the tail end of frame 6's own long rod/bobber swinging further out (see
+    // GAME_DESIGN.md item 161). Cutting it as an 8th frame produced a body-less flash in the loop.
     key: 'fishing',
     frames: [
       require('../../assets/sprites/scally/idle_flourish_fishing_0.png'),
@@ -388,7 +391,6 @@ export const IDLE_FLOURISHES: IdleFlourish[] = [
       require('../../assets/sprites/scally/idle_flourish_fishing_4.png'),
       require('../../assets/sprites/scally/idle_flourish_fishing_5.png'),
       require('../../assets/sprites/scally/idle_flourish_fishing_6.png'),
-      require('../../assets/sprites/scally/idle_flourish_fishing_7.png'),
     ],
   },
   {
