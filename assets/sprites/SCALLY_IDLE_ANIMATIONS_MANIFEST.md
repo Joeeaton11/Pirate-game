@@ -74,6 +74,11 @@ full write-up. Headline changes:
   to this sheet's real 7-frame loop — a strict same-pose upgrade. The other 3 cardinals (e/n/w) keep
   their original 3-frame idle art unchanged; this sheet only drew breathing for the front-facing
   view, so there's no matching art to upgrade them to.
+  - **Real bug, found and fixed 2026-08-23** (see `GAME_DESIGN.md` item 159): `MapScreen.tsx`'s
+    frame counter was still wrapping at the *old* 3-frame count, so south's upgraded 7-frame loop
+    silently only ever showed its first 3 frames from the day this was wired until the fix — no
+    visible glitch, just a shorter loop than intended. `IDLE_FRAME_COUNT` now exists purely as a
+    wrap bound (21, the LCM of every real idle-frame count in play), not a per-loop frame count.
 - **The other 9 panels replace the old 4-item single-static-frame `IDLE_FLOURISH_POOL`
   entirely** (`emote_cheer/think/laugh/sit.png`, cut from an earlier, different "Animated Idle /
   Emotes" sheet — deleted). Three of the nine are richer direct successors of ideas the old pool

@@ -161,7 +161,21 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
   ],
 };
 
-export const IDLE_FRAME_COUNT = 3;
+// Real bug found 2026-08-23 while re-auditing all the idle animations at the user's request: this
+// used to be 3 and MapScreen wrapped its breathing-loop counter with `% IDLE_FRAME_COUNT` *before*
+// picking a frame from the direction's own array — the exact same "pre-wrap to the wrong number"
+// mistake the run-cycle stutter fix (see MapScreen's walk/bounce-sync effect) caught for the run
+// cycle, just silent here instead of visibly stuttering. Since south's breathing loop has 7 real
+// frames (see IDLE_SOURCES below) but the counter never advanced past 2, south's "upgraded 7-frame
+// breathing loop" was silently only ever showing its first 3 frames — more than half the loop never
+// played, the whole session it's existed. e/n/w's 3-frame loop happened to match `% 3` exactly, so
+// only south was actually broken; the render itself was always correct (it already re-derives
+// `% frames.length` per direction — see MapScreen's player-sprite render), the bug was purely in how
+// far this counter was allowed to advance before that. Fixed by raising it to the LCM of every real
+// idle-frame count this cycle can hit (7 for south, 3 for the cardinals, 1 for the diagonals' static
+// hold) so no direction's modulo is ever truncated again, however many frames a future idle upgrade
+// adds — this is a wrap bound only, not a "the idle loop has N frames" claim.
+export const IDLE_FRAME_COUNT = 21;
 
 // Wired a third time, 2026-08-15 — this time by actually fixing the thing the first two attempts'
 // revert notes said was the real blocker instead of retrying the same swap. `isMoving` used to flip

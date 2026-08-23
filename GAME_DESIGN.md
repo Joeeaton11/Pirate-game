@@ -5192,3 +5192,50 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     1/5/7/11, not evenly every 6 frames) rather than a generic two-contacts-per-loop assumption — a
     possible future refinement, noted but out of scope here since the drift, not the exact shape of
     the curve, was the reported problem. Re-exported and re-published to `gh-pages`.
+
+159. ✅ **Re-audited every idle animation at the user's request ("double check they all work
+    properly") and found one real, silent bug** (2026-08-23) — south's upgraded 7-frame breathing
+    loop (item 151) had, since the day it was cut, only ever actually shown its first 3 frames.
+
+    Same root-cause shape as item 158's run-cycle stutter, just quieter: `idleSpriteFrame`'s own
+    `setInterval` wrapped it with `% IDLE_FRAME_COUNT`, and `IDLE_FRAME_COUNT` was `3` — a leftover
+    from before south's breathing loop was upgraded from 3 frames to 7 (see item 151). So the counter
+    itself never advanced past 2, and by the time the player-sprite render's own (correct)
+    `% frames.length` ran against south's real 7-frame array, it was re-wrapping a value that had
+    already been capped at 0-2 — frames 3-6 of the breathing loop were mathematically unreachable.
+    `e`/`n`/`w`'s 3-frame idle loops happened to exactly match the old `% 3`, so only south was
+    actually broken, and it read as a working (if now-shorter-than-intended) breathing loop rather
+    than an obvious glitch — the render itself was never wrong, which is exactly why this one stayed
+    hidden through every previous verification pass.
+
+    Fixed the same way as the run-cycle bug: raised `IDLE_FRAME_COUNT` from a (wrong) "frame count"
+    to `21`, the LCM of every real idle-frame count this cycle can hit (7 south, 3 cardinals, 1
+    diagonal static hold) — a wrap bound, not a claim about how many frames any one loop has. No
+    other code changes needed; the render's own per-direction `% frames.length` was already correct.
+
+    Audited everything else idle-related while at it, and confirmed no other bugs:
+    - **All frame files present and matching their declared counts** — checked on disk directly
+      rather than trusting the data file: 7 breathing, 3 each for e/n/w, and all 9 flourishes
+      (7,7,8,7,8,7,8,7,7) exactly matching `IDLE_FLOURISHES` in `scallySprites.ts`.
+    - **The idle-flourish frame counter does *not* have the run-cycle's double-wrap bug** — it resets
+      to 0 on every new flourish pick and its cycling interval is recreated fresh per flourish (keyed
+      on the `idleFlourish` object reference), taking that flourish's own real `.length` directly
+      rather than being pre-wrapped against an unrelated constant first.
+    - **Cleanup/cancellation logic is sound** — movement resuming clears both the pending flourish
+      timer and a currently-showing flourish immediately (with its hold timeout cleared too, no leak);
+      nothing here could freeze a stride the way item 79's original bug did.
+    - **One design characteristic, not a bug, worth noting**: a flourish only fires once per
+      "stopped" period (the trigger effect depends only on `[isMoving]`, so it doesn't re-arm itself
+      while already stationary) — standing still for very long stretches shows one flourish, then
+      plain breathing forever until the player moves and stops again. Left as-is since it wasn't
+      reported as broken and may be a deliberate choice (avoids flourishes firing too often).
+
+    Verified two ways, same discipline as the walk-cycle fixes: `npx tsc --noEmit` and all 45 `jest`
+    tests clean, 0 console errors. And empirically, not just by code-reading — temporarily exposed
+    `idleSpriteFrame` on `window` and polled it live: confirmed the raw counter now advances past 2
+    (0,1,2,3,4,5,6,7,8,9,10,... continuously, wrapping only at 21) where it used to hard-stop at 2,
+    which combined with the render's own `% 7` for south means the breathing loop now genuinely
+    visits all 7 real frames. Separately polled the flourish frame counter through a full trigger:
+    confirmed clean 0→6→0 wraparound for a 7-frame flourish and a hold duration matching
+    `IDLE_FLOURISH_HOLD_MS` (2400ms) exactly. Both debug hooks removed once confirmed; neither
+    shipped. Re-exported and re-published to `gh-pages`.

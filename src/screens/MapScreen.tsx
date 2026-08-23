@@ -1154,11 +1154,14 @@ export default function MapScreen({ navigation }: Props) {
     return () => clearInterval(id);
   }, [isMoving, isRunning, walkBounce]);
 
-  // Idle breathing loop — a slow 3-frame standing/shifting-weight cycle, independent of the walk
-  // cycle's own (much faster) interval above. Only runs while genuinely stationary; resets to frame
-  // 0 the moment movement resumes, so a real start always begins from the same standing pose rather
-  // than mid-breath. Safe now that isMoving itself is debounced (STOP_DEADZONE, above) — see
-  // IDLE_SOURCES' doc comment in scallySprites.ts for the history here.
+  // Idle breathing loop — a slow standing/shifting-weight cycle (7 frames for south, 3 for the
+  // other cardinals, a static 1-frame hold for diagonals — see IDLE_SOURCES), independent of the
+  // walk cycle's own (much faster) interval above. Only runs while genuinely stationary; resets to
+  // frame 0 the moment movement resumes, so a real start always begins from the same standing pose
+  // rather than mid-breath. Safe now that isMoving itself is debounced (STOP_DEADZONE, above) — see
+  // IDLE_SOURCES' doc comment in scallySprites.ts for the history here. `IDLE_FRAME_COUNT` is just
+  // this counter's wrap bound (an LCM covering every direction's real frame count, not a frame
+  // count itself) — see its doc comment in scallySprites.ts for a real bug this caught 2026-08-23.
   useEffect(() => {
     if (isMoving) {
       setIdleSpriteFrame(0);
