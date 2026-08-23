@@ -7,9 +7,15 @@ just mirrored) gave a fixed visual anchor to actually check leg alternation agai
 direct pixel comparison: the buckle sits on the front boot in frame 1 and the back boot in frame 7
 (exactly half the 12-frame loop apart) — the legs genuinely swap which one leads, the first sheet in
 this whole saga to pass that test. See `GAME_DESIGN.md` item 155 for the full write-up. Source art
-was ~2.2x the other directions' scale; frames were resized down (Lanczos) to 67×117 to match. The
-other 7 directions are still on the 3rd-generation sheet described below and still carry the
-unresolved defect.
+was ~2.2x the other directions' scale; frames were resized down (Lanczos) to 67×117 to match.
+
+**WEST direction, current art (2026-08-22):** a horizontal mirror of the East fix above — not new
+generated art. `walk_e_0.png`..`walk_e_11.png` flipped straight into `walk_w_0.png`..`walk_w_11.png`.
+Works because it's a pure side-profile view (a flipped valid rightward stride is a valid leftward
+stride) and because the ankle buckle lives on the outside of *both* boots, so the mirror can't put it
+on the wrong foot. See `GAME_DESIGN.md` item 156. `s`/`se`/`ne`/`n`/`nw`/`sw` are still on the
+3rd-generation sheet described below and still carry the unresolved defect — North/South are
+front/back views, not profile, so the mirror trick doesn't carry over to them.
 
 **The other 7 directions' current art (2026-08-22, 3rd generation):**
 `assets/brand/scally_walk12_source.png` — 12 real

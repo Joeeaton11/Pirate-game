@@ -27,8 +27,17 @@
 // halfway point of the 12-frame loop — meaning the two legs actually trade which one leads, the
 // thing three straight prior sheets failed to do. Source art was ~2.2x the scale of the other
 // directions' sheets; resized down (LANCZOS) to match the other directions' ~117px height after
-// cutting. The other 7 directions are still on the 3rd-gen sheet and still have the unresolved
-// defect — see GAME_DESIGN.md item 155 for the full write-up.
+// cutting. See GAME_DESIGN.md item 155 for the full write-up.
+//
+// WEST is a horizontal mirror of that fixed East cycle (2026-08-22), not new generated art — a pure
+// side-profile walk cycle is symmetric under a left-right flip (same reason every 2D game mirrors
+// its side sprites instead of drawing both directions separately), and the buckle detail being on
+// the outside of BOTH boots (rather than one asymmetric "marked" boot) means the mirror doesn't
+// misplace it onto the wrong foot. Confirmed by direct visual check — no artifacts, hair/bandana
+// still trails correctly behind the now-leftward-facing head, leg alternation is preserved exactly
+// since only pixels are flipped, frame order is untouched. `s`/`se`/`ne`/`n`/`nw`/`sw` are still on
+// the 3rd-gen sheet and still have the unresolved leg-alternation defect — see GAME_DESIGN.md item
+// 156 for the mirror write-up and item 155 for the original East fix.
 
 export type FacingDirection = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
 

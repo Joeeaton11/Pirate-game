@@ -5066,3 +5066,31 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     re-published to `gh-pages` so https://joeeaton11.github.io/Pirate-game/ has this East-direction
     fix live. Next step, if the user likes how East reads in motion: regenerate the other 7 directions
     with the same buckle-marker + explicit-leg-role-script prompt approach.
+
+156. ✅ **West direction fixed for free by mirroring item 155's East fix — no new art generated**
+    (2026-08-22). The user asked whether the newly-fixed East cycle could just be flipped for West
+    instead of running a whole separate ChatGPT round. It's a pure side-profile view, so a horizontal
+    flip is the standard trick basically every 2D game uses to get its reverse-facing sprite for
+    free: the gait is symmetric under a left-right mirror (a valid rightward stride flipped is a
+    valid leftward stride, frame-for-frame, no reordering needed), and because item 155's ankle
+    buckle was deliberately put on the *outside of both* boots rather than as an asymmetric
+    single-boot marker, the mirror can't misplace it onto the wrong foot or create a left/right
+    inconsistency.
+
+    Flipped all 12 of the corrected `walk_e_*.png` files (`Image.FLIP_LEFT_RIGHT`) straight into
+    `walk_w_0.png`..`walk_w_11.png`, replacing the old 3rd-generation West art. Checked the result
+    directly for the two things a naive mirror can get wrong — none found: hair/bandana still trails
+    correctly behind the now-leftward-facing head (it's flipped along with everything else in the
+    frame, not left dangling on the wrong side), and the boot buckle still reads as "outside ankle"
+    on both feet rather than jumping to the inside. All 12 frames land at the identical 67×117 (same
+    canvas size as the East cut, since it's the same pixels mirrored), zero edge-opacity defects.
+
+    `npx tsc --noEmit` and all 45 `jest` tests clean (art-only change, `scallySprites.ts` only got a
+    doc-comment update — `WALK_SOURCES.w` already pointed at these exact filenames). Verified in a
+    real headless-Chromium run: dragged due west, confirmed the sprite renders at the correct size
+    and orientation and cycles cleanly with 0 console errors. Re-exported and re-published to
+    `gh-pages`. East and West are now both fixed; `s`/`se`/`ne`/`n`/`nw`/`sw` are still on the
+    3rd-generation sheet with the unresolved leg-alternation defect. North and South are pure
+    front/back views (not profile), so this mirror trick doesn't apply to them the same way — they'll
+    need their own regeneration pass with the buckle-marker + explicit-leg-role-script prompt whenever
+    the user wants to tackle the remaining 6 directions.
