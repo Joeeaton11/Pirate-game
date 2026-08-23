@@ -5385,3 +5385,27 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `worldSprites.ts`, `MapScreen.tsx`, `scenery.ts`, and `landmarks.ts` don't reference any of these
     128 files yet; wiring which sprites go where on which islands is separate follow-on work (the
     `scene-art-director` agent's job specifically).
+
+163. ✅ **Cut a second new sheet — a modular dock/pier kit — into 80 sprites** (2026-08-23), sent
+    immediately after item 162 with no accompanying text, read as a direct continuation of the same
+    "cut the sheet into assets" request. See `assets/sprites/DOCK_PIER_KIT_MANIFEST.md`.
+
+    Same corrupted-alpha defect as item 162's tropical-island sheet, found and fixed the same way
+    (confirmed by sampling a supposedly-empty background patch and finding alpha noise ranging
+    0-250 within it; fixed via 5×5 median-filter denoise + threshold + light opening before cutting).
+    Unlike the tropical-island sheet, every module/post/plank/hardware piece in this one was already
+    naturally isolated by real gaps — connected-component detection needed no fallback splitting and
+    found a clean 80 items on the first pass.
+
+    Compared this sheet's art style directly against the existing `harbour/pier_module_N` /
+    `mooring_post_N` / `dock_ramp_N` series (from the 2026-08-20 harbour delivery) before naming
+    anything — confirmed visibly different linework/palette — and used new, parallel descriptor
+    names (`dock_module`, `dock_module_corner/_junction/_railed/_cargo`, `dock_platform`,
+    `dock_stairs`, `piling`/`piling_roped`/`piling_hook`, `plank`/`plank_bundle`, `crane`,
+    `dock_lantern`, `anchor`, `life_ring`, `rope_span`, `rope_coil`, `bollard`) rather than
+    continuing those series, matching the same reasoning item 162 used for its rocks/vegetation.
+    `cleat` was the one exception — continued its existing single-item series, since a small ring
+    fitting doesn't carry a noticeable style clash the way a whole structure does.
+
+    Ran the edge-opacity defect scan across all 80 cut files before filing: zero hits. **Not yet
+    wired** — cutting and filing only, same as item 162.
