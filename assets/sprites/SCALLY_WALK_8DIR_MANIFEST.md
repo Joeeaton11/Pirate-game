@@ -1,6 +1,18 @@
 # Captain Scally — 8-Directional Walk Cycle — Delivery Manifest
 
-**Current art (2026-08-22, 3rd generation):** `assets/brand/scally_walk12_source.png` — 12 real
+**EAST direction only, current art (2026-08-22, 4th generation):**
+`assets/brand/scally_walk_e_v4_source.png`. Replaces East's 3rd-generation cut after the user's
+design idea (a permanent gold buckle on the outside ankle of both boots — same design on both feet,
+just mirrored) gave a fixed visual anchor to actually check leg alternation against. Verified via
+direct pixel comparison: the buckle sits on the front boot in frame 1 and the back boot in frame 7
+(exactly half the 12-frame loop apart) — the legs genuinely swap which one leads, the first sheet in
+this whole saga to pass that test. See `GAME_DESIGN.md` item 155 for the full write-up. Source art
+was ~2.2x the other directions' scale; frames were resized down (Lanczos) to 67×117 to match. The
+other 7 directions are still on the 3rd-generation sheet described below and still carry the
+unresolved defect.
+
+**The other 7 directions' current art (2026-08-22, 3rd generation):**
+`assets/brand/scally_walk12_source.png` — 12 real
 frames per direction (after dropping a loop-closing 13th duplicate and a compass-label plaque column
 neither one counted toward the sheet's own "1"-"12" printed labels), genuine alpha channel. Replaced
 the 2nd-generation cut below because that cut's own source art — not the cropping — never let the

@@ -17,6 +17,18 @@
 // the 13th confirmed a loop-closing duplicate of column 1 (visual + pixel-diff check, both South and
 // East). Cut using columns 1-12 only. All directions now share a flat 12-frame count — the first
 // time this walk cycle hasn't had uneven per-direction frame counts.
+//
+// EAST direction only, upgraded again 2026-08-22 (4th-generation source,
+// assets/brand/scally_walk_e_v4_source.png) — the 3rd-gen sheet above still failed the same
+// leg-alternation defect on East specifically (see GAME_DESIGN.md item 154). This 4th attempt added
+// a permanent gold ankle-buckle on the OUTSIDE of both boots per the user's own design idea, giving
+// a fixed visual anchor to check whether leg identity actually swaps. Confirmed genuine: the buckle
+// sits on the front (forward) boot in frame 1 and the back (trailing) boot in frame 7 — the exact
+// halfway point of the 12-frame loop — meaning the two legs actually trade which one leads, the
+// thing three straight prior sheets failed to do. Source art was ~2.2x the scale of the other
+// directions' sheets; resized down (LANCZOS) to match the other directions' ~117px height after
+// cutting. The other 7 directions are still on the 3rd-gen sheet and still have the unresolved
+// defect — see GAME_DESIGN.md item 155 for the full write-up.
 
 export type FacingDirection = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
 

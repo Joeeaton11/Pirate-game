@@ -5018,3 +5018,51 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     render check). `SCALLY_WALK_8DIR_MANIFEST.md` updated. Re-exported the static web build and
     re-published to `gh-pages` (see "Playable Deploy" section) so
     https://joeeaton11.github.io/Pirate-game/ has this cut for the user to judge directly.
+
+155. ✅ **East direction's leg-alternation defect finally fixed — 4th-generation source, one
+    direction only** (2026-08-22). After item 154 shipped with the defect still present, the user
+    asked what to actually change rather than retry the same prompt again. Two real insights came out
+    of that conversation, both from the user: (1) since ChatGPT draws each frame independently with
+    no rig/skeleton, a fully symmetric character gives it nothing to track leg identity against
+    frame-to-frame — it was effectively guessing "generic walk pose" each time rather than
+    consciously alternating; (2) giving each boot a permanent outside-ankle detail (a gold buckle,
+    same on both boots, mirrored) would give both the generator and this session's own verification a
+    fixed anchor to check against, without inventing an asymmetric left/right boot backstory. That
+    became the core of the next ChatGPT prompt: an explicit frame-by-frame leg-role script ("leg A
+    forward in frame 1, leg B forward by frame 4, back to leg A by frame 7...") plus a request for
+    ChatGPT to describe back which leg would be forward in each of the 12 frames before rendering.
+
+    The user sent back a new East-only sheet (`assets/brand/scally_walk_e_v4_source.png`) and asked
+    to "add it to the build" directly. Verified the fix genuinely landed before wiring it, same
+    discipline as every other delivery: measured the sheet's real structure first (12 real columns
+    this time, no label plaque, no duplicate 13th frame — the "no baked-in labels, no duplicate
+    closing frame" ask from the prompt was honored), then did a direct pixel comparison of frame 1
+    against frame 7 (the two clearest "one leg planted forward, other leg raised back" poses, exactly
+    six frames — half the loop — apart). The gold buckle sits on the **front** boot in frame 1 and
+    the **back** boot in frame 7. Since both boots carry an identical buckle, that can only mean the
+    two legs actually swapped which one leads at the cycle's midpoint — the specific mechanical
+    failure that sank all three prior sheets (items 151/153's original cut, the unwired "v2" 7-frame
+    candidate, and item 154's 12-frame sheet). This is the first sheet this whole saga that passes
+    that test.
+
+    Cut with the same uniform-per-direction-canvas technique as every walk-cycle delivery since item
+    153 (anchor each frame to its own gap-detected slice midpoint, size the shared canvas to the
+    biggest extent needed across the 12 frames). One new wrinkle: this source sheet was drawn at
+    roughly 2.2x the scale of the other 7 directions' 3rd-generation sheet, so after cutting, all 12
+    frames were resized down (Lanczos resampling) to match the other directions' ~117px standing
+    height — otherwise Scally would visibly grow when facing east and shrink when turning away from
+    it. Zero edge-opacity defects, all 12 output frames land at an identical 67×117.
+
+    **Only the East direction was replaced.** The other 7 directions (`s`/`se`/`ne`/`n`/`nw`/`w`/`sw`)
+    are still on item 154's 3rd-generation sheet and still carry the unresolved leg-alternation
+    defect — this was a single-direction proof sheet, not a full 8-direction redo, and the user said
+    so up front. No `scallySprites.ts` code changes were needed beyond a doc-comment update — the
+    file names (`walk_e_0.png`...`walk_e_11.png`) are unchanged, only their pixel content was
+    replaced, the same pattern as item 153's torso-wobble fix.
+
+    Verified in a real headless-Chromium run: `npx tsc --noEmit` and all 45 `jest` tests clean, no
+    console errors, dragged due east and confirmed the sprite renders at the expected size next to
+    the other directions and cycles cleanly frame-to-frame. Re-exported the static web build and
+    re-published to `gh-pages` so https://joeeaton11.github.io/Pirate-game/ has this East-direction
+    fix live. Next step, if the user likes how East reads in motion: regenerate the other 7 directions
+    with the same buckle-marker + explicit-leg-role-script prompt approach.
