@@ -54,6 +54,7 @@ import {
   PLAYER_EMOJI_LAND_SIDE,
 } from '../data/protagonist';
 import {
+  ALL_SCALLY_MAP_FRAMES,
   ATTACK_FLASH_MS,
   EMOTE_VICTORY,
   EMOTE_WAVE,
@@ -76,12 +77,12 @@ import {
   POSE_SWORD_READY,
   RUN_FRAME_COUNT,
   RUN_HEAT_THRESHOLD,
+  RUN_SOURCES,
   SCALLY_PORTRAIT,
   VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
   WAVE_ANIMATION_MS,
-  runSpriteSource,
-  scallySpriteSource,
+  scallySpriteFrames,
 } from '../data/scallySprites';
 import { MONKEY_IDLE, MONKEY_WINK, MONKEY_WINK_HOLD_MS, MONKEY_WINK_INTERVAL_MS } from '../data/monkeySprites';
 import {
@@ -2785,6 +2786,17 @@ export default function MapScreen({ navigation }: Props) {
               },
             ]}
           >
+            {/* Every direction's walk/idle/run/flourish frame, mounted once for the life of this
+                screen (a sibling of the land/sea branch below, not nested inside it, so boarding
+                or disembarking the ship never unmounts it), invisibly, so the browser has already
+                decoded all of them before the player ever faces (or stands still, or runs, or
+                triggers a flourish in) that direction. 0-size and non-interactive — exists purely
+                to force an early decode. See the "ghosting" fix note below. */}
+            <View style={styles.preloadFrames} pointerEvents="none">
+              {ALL_SCALLY_MAP_FRAMES.map((frameSource, i) => (
+                <RNImage key={i} source={frameSource} style={styles.preloadFrame} />
+              ))}
+            </View>
             {currentIsland ? (
               // On land, Captain Scally renders as real sprite art — a true 8-directional walk
               // cycle instead of the old front/side emoji + mirror trick (kept below for the sea
@@ -2806,28 +2818,60 @@ export default function MapScreen({ navigation }: Props) {
               // mid-turn pivot flash that used to sit between the attack flash and the emote here
               // was removed 2026-08-22 once real 8-directional walk art made it redundant (see
               // scallySprites.ts).
-              <Animated.Image
-                source={
-                  scallyAttackFlash
-                    ? scallyAttackFlash === 'attack'
-                      ? POSE_ATTACK
-                      : POSE_SWORD_READY
-                    : emoteOverlay
-                    ? emoteOverlay.source
-                    : idleFlourish
-                    ? idleFlourish.frames[idleFlourishFrame % idleFlourish.frames.length]
-                    : isRunning
-                    ? runSpriteSource(walkSpriteFrame)
-                    : scallySpriteSource(facingDir, isMoving, walkSpriteFrame, idleSpriteFrame)
-                }
-                resizeMode="contain"
-                style={[
-                  styles.playerSprite,
-                  {
-                    transform: [{ translateY: walkBounce }],
-                  },
-                ]}
-              />
+              //
+              // Rendered as a stack of pre-mounted frames with only one opacity:1 at a time, not a
+              // single <Image> whose `source` gets swapped every tick — fixed 2026-08-23 after the
+              // user reported Scally intermittently vanishing mid-stride ("ghosting... then
+              // stutters back into shot"). Reproduced for real in headless Chromium: swapping one
+              // <Image>'s source on the web forces a fresh decode of the new bitmap each time, and
+              // at a 12-frame ~9fps cycle that decode occasionally missed a paint, showing nothing
+              // for a tick — confirmed independent of the art itself (happened on every direction
+              // tested) and independent of caching (still happened after minutes of warm-up
+              // walking). Toggling `opacity` between already-mounted, already-decoded images is a
+              // GPU-composited operation with no decode step, so there's no window where nothing is
+              // drawn. See scallySprites.ts's `ALL_SCALLY_MAP_FRAMES` for the other half of this fix
+              // (preloading every direction's frames up front so even a fresh direction change never
+              // re-triggers a first-time-decode).
+              (() => {
+                const activePoseFrames = scallyAttackFlash
+                  ? [scallyAttackFlash === 'attack' ? POSE_ATTACK : POSE_SWORD_READY]
+                  : emoteOverlay
+                  ? [emoteOverlay.source]
+                  : idleFlourish
+                  ? idleFlourish.frames
+                  : isRunning
+                  ? RUN_SOURCES
+                  : scallySpriteFrames(facingDir, isMoving);
+                const activeFrameIndex = scallyAttackFlash || emoteOverlay
+                  ? 0
+                  : idleFlourish
+                  ? idleFlourishFrame
+                  : isRunning
+                  ? walkSpriteFrame
+                  : isMoving
+                  ? walkSpriteFrame
+                  : idleSpriteFrame;
+                const activeIndex =
+                  ((activeFrameIndex % activePoseFrames.length) + activePoseFrames.length) %
+                  activePoseFrames.length;
+                return (
+                  <Animated.View
+                    style={[styles.playerSprite, { transform: [{ translateY: walkBounce }] }]}
+                  >
+                    {activePoseFrames.map((frameSource, i) => (
+                      <RNImage
+                        key={i}
+                        source={frameSource}
+                        resizeMode="contain"
+                        style={[
+                          styles.playerSpriteFrame,
+                          { opacity: i === activeIndex ? 1 : 0 },
+                        ]}
+                      />
+                    ))}
+                  </Animated.View>
+                );
+              })()
             ) : (
               // At sea, the Black Pearl herself renders as real sprite art — 8-way directional
               // sailing with a banked pose while turning, a brief "APPROACH DOCK" loop near land,
@@ -3610,6 +3654,27 @@ const styles = StyleSheet.create({
   playerSprite: {
     width: PLAYER_SIZE * 1.5,
     height: PLAYER_SIZE * 1.5,
+  },
+  // Each frame in the active walk/idle/run/flourish set overlays the same box, absolutely
+  // positioned so they all stack exactly on top of each other — only the active one's `opacity`
+  // is 1. See the "ghosting" fix note on the player-sprite render.
+  playerSpriteFrame: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+  },
+  // Invisible, zero-footprint — exists purely so every Scally frame image gets mounted (and thus
+  // decoded by the browser) well before it's ever actually needed. See the "ghosting" fix note.
+  preloadFrames: {
+    width: 0,
+    height: 0,
+    overflow: 'hidden',
+  },
+  preloadFrame: {
+    width: 1,
+    height: 1,
   },
   shipWrap: {
     width: SHIP_SPRITE_SIZE,

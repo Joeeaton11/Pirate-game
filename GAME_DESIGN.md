@@ -5094,3 +5094,50 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     front/back views (not profile), so this mirror trick doesn't apply to them the same way — they'll
     need their own regeneration pass with the buckle-marker + explicit-leg-role-script prompt whenever
     the user wants to tackle the remaining 6 directions.
+
+157. ✅ **Fixed a real bug: Scally intermittently vanishing mid-stride while moving, then popping
+    back** (2026-08-23). Reported by the user as "Scally keeps ghosting a[nd] goes missing when he
+    moves. Then stutters back into shot." — a real, reproducible rendering bug, unrelated to any of
+    the walk-cycle art work above (confirmed it happened identically on South, which hadn't been
+    touched, ruling out the newly-replaced east/west frames as the cause).
+
+    Reproduced for real (not just taken on the user's word) in a headless-Chromium run: captured a
+    screenshot every 40ms during a walk burst and found the entire player marker — sprite AND the
+    ring beneath it, not just the image — completely blank on 2-4 frames out of every 40 sampled.
+    Ruled out "browser hasn't cached this image yet" as the cause with a second test: warmed the
+    cache with 4+ seconds of walking first (well over 3 full 12-frame loops, so every frame image had
+    already been shown and decoded), then re-sampled — the blanks still happened, at different points
+    in the cycle, proving it wasn't a first-load latency issue.
+
+    Root cause: MapScreen rendered Captain Scally as a single `<Image>` and swapped its `source` prop
+    every 110ms to advance the walk/idle/run/flourish cycle. On the web, changing an `<img>`'s `src`
+    forces the browser to decode the new bitmap from scratch even if that exact image was shown
+    seconds ago (the browser doesn't keep a persistent decoded-bitmap cache keyed by src the way this
+    render assumed) — at a ~9fps swap rate that decode can occasionally miss a paint, showing nothing
+    for a tick. This is a known class of bug with animating via `<img>` src-swapping rather than
+    pre-mounted frames; it wasn't specific to Scally's art, the walk cycle, or anything else this
+    session touched — the single-Image-swap pattern itself was the bug, and had been since whichever
+    session first wired the walk cycle this way.
+
+    Fix, in two parts:
+    1. **Stopped swapping a single Image's source.** MapScreen now renders every frame of whichever
+       cycle is currently active (walk, idle breathing, run, or an idle flourish — attack-flash and
+       emote overlays too, trivially, as 1-frame "cycles") as separate, permanently-mounted `<Image>`
+       elements stacked exactly on top of each other, and switches between them by toggling `opacity`
+       (1 for the active frame, 0 for the rest) instead of changing which image is shown. Toggling
+       opacity on an already-decoded, already-painted image is a GPU-composited operation with no
+       decode step, so there's no window where nothing is drawn. Added `scallySpriteFrames()` and
+       exported `RUN_SOURCES` to `scallySprites.ts` so MapScreen can get the raw frame array instead
+       of just a single picked frame.
+    2. **Preloaded every direction's frames up front.** A second, invisible (0×0, `pointerEvents:
+       'none'`) block mounts every walk/idle/run/flourish frame for *all* 8 directions the moment the
+       player marker exists — not nested inside the land/sea branch, so boarding or disembarking the
+       ship never unmounts it — via a new `ALL_SCALLY_MAP_FRAMES` export (a flattened list of every
+       frame image Scally's map sprite can ever show). This means even a fresh direction change never
+       re-triggers the original first-time-decode risk, on top of the opacity-stack fix already
+       covering the steady-state cycling case.
+
+    Verified with the exact same reproduction method that caught the bug: re-ran the 40-shot,
+    40ms-interval capture on a fresh page load for both East and South after the fix — 0 blank frames
+    across 80 total samples, versus a reliable 2-4 blanks per 40 before. `npx tsc --noEmit` and all
+    45 `jest` tests clean. Re-exported and re-published to `gh-pages`.

@@ -225,24 +225,28 @@ export const SCALLY_PORTRAIT = require('../../assets/sprites/scally/portrait.png
 
 /** Which frame image to show for a given facing direction/movement state. Moving cycles through
  * that direction's own walk frames (`frameIndex`, from MapScreen's shared walk-cycle interval —
- * frame counts are per-direction now, 6 or 7, so this wraps via `frames.length` rather than a
- * single shared count); idle cycles that direction's own breathing loop (7 frames for south, 3 for
- * the other cardinals) or holds a single static frame for diagonals (`idleFrameIndex`, from
- * MapScreen's own separate, slower interval — see IDLE_SOURCES' doc comment for the debounce
- * history and the diagonal fallback). `idleFrameIndex` defaults to 0 (a plain standing pose) for
- * any caller that doesn't track it. */
+ * every direction is a flat 12 frames now, see WALK_SOURCES' doc comment); idle cycles that
+ * direction's own breathing loop (7 frames for south, 3 for the other cardinals) or holds a single
+ * static frame for diagonals (`idleFrameIndex`, from MapScreen's own separate, slower interval —
+ * see IDLE_SOURCES' doc comment for the debounce history and the diagonal fallback).
+ * `idleFrameIndex` defaults to 0 (a plain standing pose) for any caller that doesn't track it. */
 export function scallySpriteSource(
   direction: FacingDirection,
   moving: boolean,
   frameIndex: number,
   idleFrameIndex = 0
 ) {
-  if (moving) {
-    const frames = WALK_SOURCES[direction];
-    return frames[frameIndex % frames.length];
-  }
-  const idleFrames = IDLE_SOURCES[direction];
-  return idleFrames[idleFrameIndex % idleFrames.length];
+  const frames = scallySpriteFrames(direction, moving);
+  const index = moving ? frameIndex : idleFrameIndex;
+  return frames[index % frames.length];
+}
+
+/** Same lookup as `scallySpriteSource` but returns the whole frame array instead of picking one —
+ * used by MapScreen to pre-mount every frame of whichever cycle is currently showing (see the
+ * "ghosting" fix note on `MapScreen`'s player-sprite render) rather than swapping a single
+ * `<Image>`'s source every tick. */
+export function scallySpriteFrames(direction: FacingDirection, moving: boolean): any[] {
+  return moving ? WALK_SOURCES[direction] : IDLE_SOURCES[direction];
 }
 
 // The old `turnFrameFor`/`TurnFrame` mid-pivot system (turn_se/ne/nw/sw.png, a different, earlier
@@ -447,7 +451,9 @@ export const FACE_LAUGH = SCALLY_FACES[5];
 // specifically while running, since the run pose's own bigger stride already reads as more motion
 // without the added bounce stacking on top of it.
 export const RUN_FRAME_COUNT = 5;
-const RUN_SOURCES = [
+/** Exported (not just `runSpriteSource`) so MapScreen can pre-mount all 5 run frames at once — see
+ * the "ghosting" fix note on MapScreen's player-sprite render. */
+export const RUN_SOURCES = [
   require('../../assets/sprites/scally/run_0.png'),
   require('../../assets/sprites/scally/run_1.png'),
   require('../../assets/sprites/scally/run_2.png'),
@@ -480,6 +486,33 @@ export const ATTACK_FLASH_MS = 450;
 // (the same reasoning that left ICON_QUESTION and Cheeky's climb/hang/sleep frames unwired below).
 export const POSE_CHEER_FIST = require('../../assets/sprites/scally/cheer_fist.png');
 export const POSE_POINT = require('../../assets/sprites/scally/point.png');
+
+// --- Ghosting fix: full frame preload list --------------------------------------------------------
+// Added 2026-08-23 after the user reported Scally intermittently vanishing mid-stride while moving,
+// then "stuttering back into shot." Reproduced in a real headless-Chromium run (not just reported,
+// confirmed): the whole player marker — sprite AND the ring beneath it — would blink out for a
+// single render on ~2-4 frames out of every 40 sampled during a walk burst, on every direction
+// tested (not just the newly-replaced east/west art), and it kept happening even after 4+ seconds
+// of warm-up walking had already put every one of that direction's frame images on screen — ruling
+// out "browser hasn't fetched this image yet" as the cause. The real cause: MapScreen was rendering
+// ONE `<Image>` and swapping its `source` every 110ms; on the web, swapping an `<img>`'s src forces
+// the browser to decode the new bitmap from scratch, and at a 12-frame, ~9fps cycle that decode can
+// occasionally miss a paint, showing nothing for a tick. Fixed at the render level by mounting every
+// frame of the active cycle as separate, permanently-mounted `<Image>`s stacked in place and only
+// toggling `opacity` between them (an instant, decode-free operation) — see MapScreen's player-sprite
+// render. This list is the second half of that fix: preloading every direction's frames up front
+// (not just the one currently facing) means a fresh direction change never re-triggers the same
+// first-time-decode risk that caused the original bug.
+export const ALL_SCALLY_MAP_FRAMES: any[] = [
+  ...(Object.values(WALK_SOURCES) as any[][]).flat(),
+  ...(Object.values(IDLE_SOURCES) as any[][]).flat(),
+  ...RUN_SOURCES,
+  ...IDLE_FLOURISHES.flatMap((f) => f.frames),
+  EMOTE_WAVE,
+  EMOTE_VICTORY,
+  POSE_ATTACK,
+  POSE_SWORD_READY,
+];
 
 // --- Lip-sync mouth frames ("Captain Scally: Lip Sync & Talking Animations" reference sheet) ----
 // 29 full torso poses (same crossed-arms stance throughout — only the mouth shape changes), cut
