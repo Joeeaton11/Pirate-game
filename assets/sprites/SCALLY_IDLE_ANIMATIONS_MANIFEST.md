@@ -64,6 +64,16 @@ panels (left/right column) share one y-window.
   inspection (the Fishing panel's rod tip/line legitimately touches its own tight bounding box edge
   in 2 of its 8 frames — real content, not a border-line artifact, same call as the boat library's
   mast-tip edge cases).
+- **Real bug, found and fixed 2026-08-23** (see `GAME_DESIGN.md` item 160): despite the above, this
+  delivery's original cut used independent per-frame tight bounding boxes with no shared canvas per
+  animation — measured up to 20-30+ px per-frame size variance in most flourishes. Under
+  `resizeMode="contain"`, differently-sized frames get recentered/rescaled differently on every swap,
+  which read on screen as the idle animations "not staying in the same frame/position." Re-cut all 73
+  files into one shared canvas per animation (breathing, and each of the 9 flourishes), anchored on
+  each frame's own gap-detected column-slice midpoint rather than its own silhouette center — same
+  filenames, same frame counts, no wiring changes. `idle_e/n/w` (a separate, older delivery, see item
+  183) had the same defect at smaller scale (2-6px) and got an equivalent post-hoc uniform-canvas
+  pass directly on the existing files.
 
 ## Wiring
 

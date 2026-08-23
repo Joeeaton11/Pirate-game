@@ -5239,3 +5239,54 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     confirmed clean 0→6→0 wraparound for a 7-frame flourish and a hold duration matching
     `IDLE_FLOURISH_HOLD_MS` (2400ms) exactly. Both debug hooks removed once confirmed; neither
     shipped. Re-exported and re-published to `gh-pages`.
+
+160. ✅ **Fixed idle animations visibly shifting position/size frame-to-frame ("Some of the idles
+    they aren't in the same frame/position")** (2026-08-23) — a real, measured bug across every idle
+    set: breathing and all 9 flourishes (delivered item 151) were each cut with independent
+    per-frame tight bounding boxes, no shared canvas — measuring the files on disk directly (not
+    trusting the manifest) found real per-frame size swings of 20-30+ px in most flourishes (e.g.
+    `idle_flourish_sitting_barrel` ranged from 71×141 to 107×145). Under `resizeMode="contain"`,
+    React Native centers/scales each image independently within its box, so differently-sized
+    source frames get recentered differently on every swap — reads exactly as the reported
+    "not in the same frame/position" jitter. `idle_e/n/w` (item 183's cardinal idles, a separate,
+    earlier delivery) had the same defect at smaller scale (2-6px).
+
+    Fix followed the uniform-per-set-canvas technique established for the walk-cycle torso-wobble
+    fix (item 153): re-measured `assets/brand/scally_idle_animations_source.png` from scratch (chroma
+    + darkness background mask, since this sheet's checkerboard background isn't a flat color — a
+    naive distance-from-white threshold falsely flagged nearly the whole sheet as "content" because
+    the checkerboard's darker square is far enough from pure white to cross a low threshold; fixed by
+    keying on `chroma = max(R,G,B)-min(R,G,B)` and `darkness = 255-max(R,G,B)` instead, both ≈0 for
+    any neutral-gray checkerboard shade), then re-cut every one of the 73 breathing/flourish frames
+    into one shared canvas per animation, anchored on each frame's own gap-detected column-slice
+    midpoint (stable, pose-independent) rather than its own silhouette center. 7 of 10 panels'
+    frame columns came out clean from gap detection; 3 (`bored_boot_kick`, `fishing`,
+    `sleeping_snoring`) had frames close/connected enough (a raised boot, a fishing line, a sprawled
+    sleeping pose) that gap detection merged adjacent frames, so those fell back to an even-pitch
+    split of the panel's measured content span, same fallback rule the original item 151 delivery
+    used. Caught one more real defect while re-measuring `juggling_coins`'s content y-window: the
+    original delivery's boundary sat 1-2px inside the panel's own title text, baking a faint dashed
+    strip into every re-cut frame until caught by inspecting an actual zoomed-in output file (not
+    just a thumbnail contact sheet) and re-measuring the true title/content gap.
+
+    `idle_e/n/w` got the same uniform-canvas treatment as a post-hoc pass directly on the existing
+    on-disk files (no shared source-sheet slice survives for these — they're a separate, older
+    delivery) — each direction's 3 frames padded out to that direction's own shared max canvas,
+    anchored on bbox-center-x + bottom (feet), since these are subtle breathing loops where the pose
+    barely shifts frame to frame.
+
+    All 82 files (73 breathing/flourish + 9 cardinal) filed under their existing filenames — no
+    `scallySprites.ts` or `MapScreen.tsx` changes needed, since frame counts and paths are unchanged.
+    Ran the systematic edge-opacity defect scan (`(edge_alpha > 200).mean() > 0.5` on all 4 borders)
+    across all 82 outputs before filing: zero hits. Built a checkerboard-background contact sheet per
+    animation and visually reviewed every one (all 10 idle-animations-sheet panels plus e/n/w) before
+    filing, not just after — same discipline as every prior delivery this session.
+
+    Verified two ways: `npx tsc --noEmit` and all 45 `jest` tests clean. And empirically, live against
+    the dev server via Playwright — tracked the *actual rendered* bounding box (not just file
+    dimensions) of whichever stacked-opacity sprite frame was currently visible, sampled every 120ms
+    across a full breathing loop, a full randomly-triggered flourish (`juggling_coins`), and all three
+    cardinal directions (dragged the character west/north/east and let it settle into each idle) —
+    every single sample across ~90 frame changes landed at the exact same `{x, y, w, h}` in the
+    browser, confirming the jump is actually gone on screen, not just in the source files. 0 console
+    errors throughout. Re-exported and re-published to `gh-pages`.
