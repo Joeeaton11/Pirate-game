@@ -5335,3 +5335,53 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     (does every candidate slot contain a real character silhouette, not just *some* real pixels) on
     any future sheet that mixes character content with long/thin appendages like a rod, whip, or
     rope that can visually bridge into a neighboring slot's territory.
+
+162. ✅ **Cut a new tropical-island tileset sheet into 127 sprites + 1 background** (2026-08-23),
+    at the user's request ("Cut the sheet into assets for the game scene and environments") — see
+    `assets/sprites/TROPICAL_ISLAND_MANIFEST.md` for the full breakdown.
+
+    **Real defect found before cutting could even start**: the uploaded sheet's own alpha channel
+    was corrupted across the whole image — not just at edges. Sampling supposedly-empty background
+    regions found wild per-pixel noise in both alpha (0-252 within the same small patch) and RGB,
+    and content regions that should read as a flat, fully opaque color instead showed broad blotchy
+    patches of partial transparency. Composited over a light background this read as pink/red/cyan
+    "tint" washes in specific spots (a pink cast over the top-left tiles, a red halo around a crab
+    cluster, cyan near the dock) — but direct pixel sampling confirmed the underlying RGB hue was
+    basically correct in those spots; only alpha was corrupted, almost certainly a lossy re-encode
+    artifact rather than intentional art. Fixed by discarding the file's own alpha channel entirely
+    and re-deriving a clean one: a 5×5 median filter (kills the high-frequency noise while
+    preserving real silhouette edges — verified by comparing the filtered alpha's edge ramp against
+    the raw channel's on a known-clean tree silhouette, identical) thresholded at 128, one 3×3
+    binary-opening pass to clear residual speckle, then connected-component labeling on the result.
+    A tree's trunk-to-crown connectivity was specifically checked and confirmed intact (opening a
+    3×3 structure doesn't erase content that thin) before trusting the pipeline at full scale.
+
+    Real per-item connected-component detection across the whole 1536×1024 sheet (no assumed grid,
+    even for the obviously-grid-shaped left half — confirmed necessary since one nominal "grid
+    cell" turned out to actually hold a multi-piece loose dock-plank cluster, not one tile) found
+    128 real components. Every one visually reviewed via 4 labeled contact-sheet grids before
+    filing, not sampled — this caught that a tree's crown and its own small foot-grass-tuft are two
+    separate connected components (a real small gap in the source art, not a segmentation error;
+    kept separate as tree + `bush` rather than force-merged).
+
+    One whole-scene backdrop — a continuous illustrated shipwreck/shoreline panorama (rocks, a
+    broken hull, a curving surf line, palm trees, and scattered shells, all genuinely touching with
+    no real separating gaps) — was correctly recognized as *not* a tileset and filed uncut to
+    `assets/backgrounds/castaway_shipwreck_cove_1.png` instead, matching the existing
+    backdrop-vs-sprite distinction in `assets/sprites/README.md`. Three smaller fused compositions
+    (a beach umbrella+chair+barrel lounge set, a tent+campfire+crates castaway camp, and a flag
+    planted beside a small chest) were kept as single images rather than force-split, since their
+    pixels are genuinely connected in the source — same "trust the pixels" rule.
+
+    Filed into 15 folders total, giving `wildlife/` and `treasure/` their first-ever entries (both
+    previously empty per `README.md`'s folder map). New descriptor names (`boulder_cluster`,
+    `pebble`, `coral_clump`, `mangrove_stump`) were used instead of continuing this library's
+    existing `rock_small`/`boulder_large`/`mangrove` series, since this sheet's pixel-art style is
+    visibly distinct from the earlier deliveries that established those — mixing two styles under
+    one descriptor name would make future browsing misleading, a deliberate call documented in the
+    manifest. Ran the edge-opacity defect scan across all 128 cut files before filing: zero hits.
+
+    **Not yet wired** — this delivery is cutting + filing only, matching the scope of the request.
+    `worldSprites.ts`, `MapScreen.tsx`, `scenery.ts`, and `landmarks.ts` don't reference any of these
+    128 files yet; wiring which sprites go where on which islands is separate follow-on work (the
+    `scene-art-director` agent's job specifically).
