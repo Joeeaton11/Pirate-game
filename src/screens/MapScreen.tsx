@@ -721,7 +721,9 @@ export default function MapScreen({ navigation }: Props) {
   const shipIdleSway = useRef(new Animated.Value(0)).current;
   const shipIdleLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const walkBounce = useRef(new Animated.Value(0)).current;
-  const walkLoopRef = useRef<Animated.CompositeAnimation | null>(null);
+  // Raw, ever-incrementing (wrapped at 60) walk-cycle tick — see the doc comment on the
+  // walk/bounce-sync effect below for why this needs to be a ref rather than a plain local counter.
+  const walkTickRef = useRef(0);
   const playerRef = useRef(player);
   const lastZoneIdRef = useRef<string | null>('tortuga_cove');
   // GTA-style minimap heading arrow: remembers the last real movement direction so the arrow
@@ -1085,54 +1087,72 @@ export default function MapScreen({ navigation }: Props) {
     (facingDir === 'w' || facingDir === 'e') &&
     heat > RUN_HEAT_THRESHOLD * 100;
 
-  // Single-glyph "walk cycle": bob the player emoji up and down in a loop while actively moving,
-  // settle back to rest the moment movement stops. No spritesheet, so this is the whole animation.
-  // Dampened to a smaller amplitude while running — the run pose's own bigger stride already reads
-  // as more motion, and the full walk-cycle bounce on top of it was what made the run swap read as
-  // a pop rather than a smooth speed-up (see scallySprites.ts's run-cycle comment).
-  useEffect(() => {
-    if (isMoving) {
-      const bounceHeight = isRunning ? -3 : -6;
-      walkLoopRef.current = Animated.loop(
-        Animated.sequence([
-          Animated.timing(walkBounce, {
-            toValue: bounceHeight,
-            duration: 160,
-            easing: Easing.out(Easing.quad),
-            useNativeDriver: true,
-          }),
-          Animated.timing(walkBounce, {
-            toValue: 0,
-            duration: 160,
-            easing: Easing.in(Easing.quad),
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      walkLoopRef.current.start();
-    } else {
-      walkLoopRef.current?.stop();
-      Animated.timing(walkBounce, { toValue: 0, duration: 120, useNativeDriver: true }).start();
-    }
-    return () => walkLoopRef.current?.stop();
-  }, [isMoving, isRunning, walkBounce]);
-
-  // Cycles Captain Scally's sprite through its 12-frame walk cycle while moving; holds on the
-  // neutral frame (index 0) the instant movement stops, same beat as the emoji bounce above.
+  // Cycles Captain Scally's sprite through its 12-frame walk cycle while moving, AND bobs him
+  // vertically, off the exact same 110ms tick — merged into one effect/interval 2026-08-23 after
+  // the user reported the walk reading as "skipping" once the ghosting bug (see the fix note on
+  // MapScreen's player-sprite render) was gone and the underlying motion became visible for the
+  // first time. Root cause: the bounce used to run as its OWN free-running Animated.loop (a fixed
+  // 160ms-up/160ms-down, 320ms cycle) completely independent of the leg-frame interval (110ms ×
+  // 12 frames = 1,320ms per stride loop). Those two periods are close but not locked — four bounce
+  // cycles fit *almost* exactly into one stride loop — so the two drifted in and out of phase
+  // continuously: sometimes the body dipped right as a foot planted (reads as a normal step),
+  // sometimes the dip landed mid-swing while no foot was down (reads as a hop/skip). That slow
+  // "beat" between two near-but-not-quite-matched clocks, not a fixed timing error, is why it read
+  // as inconsistent skipping rather than a clean repeating gait.
+  //
+  // Fixed by deriving the bounce directly from the same frame counter that drives the legs — two
+  // full up/down cycles per WALK_FRAME_COUNT-frame stride loop (a generic "each leg contacts once
+  // per loop" assumption; not tailored per-direction/per-actual-contact-frame, which would need
+  // the kind of frame-by-frame pose analysis the walk-cycle art fixes used — a possible future
+  // refinement, not needed to fix the drift itself). Animating toward that per-tick target with a
+  // duration matched to the tick interval means the two are locked by construction and can never
+  // drift apart again, however long the loop runs.
+  //
   // 110ms/frame is ~9fps — the user's own explicit call for Scally's size and stride ("a slightly
   // slower, deliberate pirate strut... reads better than a rapid little leg blur") rather than the
-  // 10-12fps first suggested; already matched the walk sheet's 2nd/3rd-generation art, unchanged
-  // here.
+  // 10-12fps first suggested; unchanged here, only how the bounce ties to it changed.
+  //
+  // `walkSpriteFrame` is now a raw, ever-incrementing counter (wrapped at 60 = the lowest common
+  // multiple of WALK_FRAME_COUNT (12) and RUN_FRAME_COUNT (5) purely to keep the number small —
+  // wrapping there doesn't change either `% 12` or `% 5` result) rather than pre-wrapped to 0-11.
+  // That fixes a second, smaller bug along the way: the run cycle reused this same counter but
+  // wrapped it `% 12` *before* the player-sprite render re-wrapped it `% 5` for RUN_SOURCES — since
+  // 12 isn't a multiple of 5, that double-wrap produced a visible stutter at the loop seam (frames
+  // 0,1,0,1 back-to-back right as the outer 12-counter rolled over) instead of a clean advancing
+  // 0,1,2,3,4,0,1,2,3,4,... Deriving both the walk and run indices from one un-pre-wrapped counter
+  // (each still takes its own `% frames.length` at the render site — see the player-sprite render)
+  // removes that seam entirely.
   useEffect(() => {
     if (!isMoving) {
+      walkTickRef.current = 0;
       setWalkSpriteFrame(0);
+      Animated.timing(walkBounce, { toValue: 0, duration: 120, useNativeDriver: true }).start();
       return;
     }
+    const bounceAmplitude = isRunning ? -3 : -6;
+    // A ref, not a local variable — this effect re-runs whenever `isRunning` toggles mid-walk (to
+    // pick up the new bounce amplitude), and a local counter would reset to 0 on every one of those
+    // reruns, reintroducing the exact "pops back to frame 0 on a run transition" glitch a previous
+    // fix (see scallySprites.ts's run-cycle comment) deliberately avoided. The ref persists across
+    // reruns so a walk<->run transition always continues from wherever the stride actually was.
     const id = setInterval(() => {
-      setWalkSpriteFrame((f) => (f + 1) % WALK_FRAME_COUNT);
+      walkTickRef.current = (walkTickRef.current + 1) % 60;
+      const tick = walkTickRef.current;
+      setWalkSpriteFrame(tick);
+      const strideFraction = (tick % WALK_FRAME_COUNT) / WALK_FRAME_COUNT;
+      // 1 - cos ranges 0..2, so this ranges 0..bounceAmplitude — 0 (ground contact) at the start of
+      // each half-stride, full amplitude (mid-stride peak) at the midpoint. The *4*Math.PI (two full
+      // cosine periods across the 12-frame loop) is what gives two dips per loop instead of one.
+      const bounceTarget = (bounceAmplitude * (1 - Math.cos(strideFraction * 4 * Math.PI))) / 2;
+      Animated.timing(walkBounce, {
+        toValue: bounceTarget,
+        duration: 110,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      }).start();
     }, 110);
     return () => clearInterval(id);
-  }, [isMoving]);
+  }, [isMoving, isRunning, walkBounce]);
 
   // Idle breathing loop — a slow 3-frame standing/shifting-weight cycle, independent of the walk
   // cycle's own (much faster) interval above. Only runs while genuinely stationary; resets to frame

@@ -5141,3 +5141,54 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     40ms-interval capture on a fresh page load for both East and South after the fix — 0 blank frames
     across 80 total samples, versus a reliable 2-4 blanks per 40 before. `npx tsc --noEmit` and all
     45 `jest` tests clean. Re-exported and re-published to `gh-pages`.
+
+158. ✅ **Fixed the walk cycle reading as "skipping" once the ghosting fix above made the underlying
+    motion actually visible** (2026-08-23). The user's own framing: "It now looks like he is
+    skipping rather than hopping. Which is better." — real progress, not the same bug, but still off.
+
+    Diagnosed by reading the animation timing code rather than trying to eyeball it (screenshot
+    round-trips in this sandbox are too slow — several hundred ms each — to sample a sub-second
+    bounce cycle reliably). Found two independent, un-synchronized clocks driving the same character:
+    the leg-swing frames advanced every 110ms (12 frames = 1,320ms per stride loop), while the
+    vertical body "bounce" ran as its own free-running `Animated.loop` — a fixed 160ms-up/160ms-down,
+    320ms cycle — with zero connection to which leg frame was actually showing. Those two periods are
+    close (four bounce cycles fit *almost* exactly into one stride loop) but not locked, so they
+    drifted in and out of phase continuously: sometimes the body dipped right as a foot planted
+    (reads as a normal step), sometimes the dip landed mid-swing with no foot down (reads as a
+    hop/skip). That slow "beat" between two near-but-not-quite-matched clocks — not a fixed timing
+    error — is exactly the kind of thing that would read as *inconsistent* skipping rather than a
+    clean repeating gait, matching the report.
+
+    Fix: merged the frame-cycling and bounce-driving effects into one, sharing a single
+    `setInterval`. The bounce target is now computed directly from the same tick that advances the
+    leg frame — two full up/down cycles per 12-frame stride loop (contact/0 at tick%12 = 0 and 6,
+    peak at tick%12 = 3 and 9), animated toward that per-tick target with a duration matched to the
+    tick interval. Since both come from the same callback, they can never drift apart again, however
+    long the loop runs — this replaces "happens to be close" with "is the same number."
+
+    Caught and fixed a second bug along the way, while merging: `walkSpriteFrame` used to be
+    pre-wrapped to 0-11 before the run cycle's render-time `% RUN_SOURCES.length` (5) wrapped it a
+    second time — since 12 isn't a multiple of 5, that double-wrap produced a visible stutter at the
+    loop seam (frames 0,1,0,1 back-to-back right as the outer 12-counter rolled over) instead of a
+    clean advancing 0,1,2,3,4,0,1,2,3,4,.... Fixed by making `walkSpriteFrame` a raw counter (wrapped
+    at 60, the LCM of 12 and 5, purely to keep the number small without changing either `% 12` or
+    `% 5` result) that both the walk and run branches derive their own index from independently, with
+    no intermediate wrap. Also had to make the tick counter a `ref` rather than a plain local
+    variable inside the effect — the effect legitimately needs to rerun whenever `isRunning` toggles
+    mid-walk (to pick up the run-cycle's smaller bounce amplitude), and a local counter would have
+    reset to 0 on every one of those reruns, reintroducing the exact "pops to frame 0 on a run
+    transition" glitch a previous session's fix (see `scallySprites.ts`'s run-cycle comment)
+    deliberately avoided.
+
+    Verified two ways: `npx tsc --noEmit` and all 45 `jest` tests clean, 0 console errors in a fresh
+    headless-Chromium walk burst (same repro harness as the ghosting fix, confirming no regression).
+    More importantly, empirically confirmed the actual fix — not just trusted the math — by
+    temporarily exposing the live `Animated.Value` on `window` in a dev build and polling it during a
+    real walk: the sampled bounce trajectory threaded cleanly through every expected waypoint (0 at
+    tick%12 = 0 and 6, -6 at tick%12 = 3 and 9, smoothly interpolating between), always redirecting
+    from wherever it currently was rather than snapping — exactly the intended phase-locked curve.
+    The debug hook was removed once confirmed; it never shipped. Not attempted in this pass: tailoring
+    the bounce curve to each direction's *actual* measured contact frames (which vary — East plants at
+    1/5/7/11, not evenly every 6 frames) rather than a generic two-contacts-per-loop assumption — a
+    possible future refinement, noted but out of scope here since the drift, not the exact shape of
+    the curve, was the reported problem. Re-exported and re-published to `gh-pages`.
