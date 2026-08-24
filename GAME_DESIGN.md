@@ -5409,3 +5409,34 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     Ran the edge-opacity defect scan across all 80 cut files before filing: zero hits. **Not yet
     wired** — cutting and filing only, same as item 162.
+
+164. ✅ **Cut a third new sheet — a market/cargo kit — into 90 sprites** (2026-08-23), sent right
+    after item 163's dock kit, again with no accompanying text, again read as a direct continuation
+    of the same request. See `assets/sprites/MARKET_CARGO_KIT_MANIFEST.md`.
+
+    Same corrupted-alpha defect as the two sheets before it today, confirmed and fixed the same way
+    before cutting anything. Connected-component detection found 90 real items; a handful needed a
+    closer look before trusting them:
+    - A ~30×30px reddish fragment near a tipped barrel was zoomed in on directly rather than
+      assumed to be noise — confirmed to be real content (a small piece of spilled fish/meat), kept
+      and filed as `items/fish_scrap_1` rather than discarded.
+    - Two pairs of touching crates were kept as single composed images each (`market_crate_1`,
+      `market_crate_12`) — genuinely connected pixels in the source, same "trust the pixels" rule
+      as items 162-163.
+
+    Extended item 162/163's style-comparison discipline to every descriptor choice: `market_crate`,
+    `market_barrel`, and `hay_bale` got new descriptor names after directly comparing this sheet's
+    crates/barrels/hay against the pre-existing `crates_N`/`barrels_N`/`hay_N` series (from a much
+    earlier delivery this session) and finding them visibly darker/more weathered — and the
+    existing hay bales are round while this sheet draws square-pressed bales, a real shape
+    difference, not just a palette one. Conversely, `sacks_N`, `market_stall_N`, `torch_N`,
+    `signpost_N` (all pre-existing from earlier deliveries), and `crane_N`/`rope_coil_N`/`anchor_N`
+    (from item 163's dock kit, cut earlier the same day) were all judged close enough in style/
+    simple enough in shape to continue their existing series rather than fork new ones — variety in
+    a crane or a coil of rope reads as intentional, the way a whole tree or building wouldn't.
+
+    Gave `items/` and `combat/` their first-ever entries (both previously empty per
+    `assets/sprites/README.md`'s folder map) — a fish/meat scrap and a wheeled cannon respectively.
+
+    Ran the edge-opacity defect scan across all 90 cut files before filing: zero hits. **Not yet
+    wired** — cutting and filing only, same as items 162-163.
