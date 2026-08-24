@@ -387,3 +387,40 @@ export const SCENE_TORTUGA_RUINS = require('../../assets/backgrounds/tortuga_rui
  * (`tortuga_gaol` in `buildings.ts`), filed as a second angle the same way the market and Cow
  * Island got alts. Source 1023x1537, same center crop as the rest of this batch. */
 export const SCENE_TORTUGA_GAOL_INTERIOR_ALT2 = require('../../assets/backgrounds/tortuga_gaol_interior_2.png');
+
+/** The Salty Parrot, daytime — a third angle of Tortuga's real tavern (`tortuga_tavern` in
+ * `buildings.ts`), this time a bright midday dock/pier shot with the "THE SALTY PARROT" sign
+ * clearly lettered, rather than the brief's night exterior or the earlier alt's alley view. Same
+ * real building as `SCENE_TORTUGA_TAVERN_NIGHT`, filed as a lighting alt. Source 1023x1537,
+ * center-cropped 156px per side to the 0.4626 target. */
+export const SCENE_TORTUGA_TAVERN_DAY = require('../../assets/backgrounds/tortuga_tavern_day_1.png');
+
+/** A second stone fort courtyard — a well, red banners, a covered stairway, distinct enough
+ * composition from `SCENE_FORT_COURTYARD_GENERIC` (cannons/target-board/training-dummy focus) to
+ * file as a second option in that same unassigned generic slot rather than a new one. Source
+ * 852x1846 (0.4616 aspect), close enough to the 0.4626 target to leave uncropped. */
+export const SCENE_FORT_COURTYARD_GENERIC_2 = require('../../assets/backgrounds/fort_courtyard_generic_2.png');
+
+/** A jungle waterfall grotto, exterior approach — a freshwater waterfall pouring into a pool at a
+ * cave mouth, a skull-marked signpost, a jungle path leading up to it. Distinct from
+ * `SCENE_SMUGGLERS_GROTTO` (an interior sea-cave with a boat and open water, no waterfall) — not
+ * the same real location, so filed as its own new unassigned generic scene rather than an alt.
+ * Source 852x1846, close enough to target, left uncropped. */
+export const SCENE_JUNGLE_WATERFALL_GROTTO = require('../../assets/backgrounds/jungle_waterfall_grotto_1.png');
+
+/** A quiet beach cove with a wrecked rowboat, a treasure chest, and a skull flag on a leaning palm
+ * — checked against the brief's still-undelivered scene #27 (`shipwreck_santa_catalina_1`, "a
+ * broken hull half-buried in a shallow reef, timbers jutting from turquoise water") before filing
+ * and found it doesn't match closely enough to claim as that specific scene: this shows an intact
+ * small rowboat resting on dry sand, not a broken hull in a reef. Filed as its own unassigned
+ * generic beach scene rather than asserting the Santa Catalina identity. Exact 853x1844 canvas
+ * match, no crop needed. */
+export const SCENE_SHIPWRECK_COVE_GENERIC = require('../../assets/backgrounds/shipwreck_cove_generic_1.png');
+
+/** The Wandering Deck — a dockside tavern at sunset with its own hand-lettered sign, a castle-topped
+ * headland across the water, barrels and a ship's wheel on the porch. The name doesn't match either
+ * real tavern in `buildings.ts` (The Salty Parrot, The Cracked Hull) — a third, unmatched tavern
+ * name, same situation as Raven's Watch/Skull Cay Outpost. Filed as an unassigned generic scene
+ * under its own in-art name rather than forced onto an existing building. Source 1024x1536,
+ * center-cropped to the 0.4629-equivalent target. */
+export const SCENE_WANDERING_DECK_TAVERN = require('../../assets/backgrounds/wandering_deck_tavern_1.png');

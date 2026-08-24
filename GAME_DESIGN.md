@@ -5727,3 +5727,23 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     All 5 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
     clean.
+
+173. ✅ **Tenth background batch: 5 more images, all new, split between real-location alts and
+    generic fallback** (2026-08-24) — same duplicate/defect/crop discipline as items 169-172 first.
+
+    - **The Salty Parrot, daytime** — a third angle of Tortuga's real tavern, bright midday dock
+      shot with clean signage. Filed as a lighting alt, `tortuga_tavern_day_1.png`.
+    - **A second fort courtyard** (well, red banners, covered stairway) — distinct composition from
+      `SCENE_FORT_COURTYARD_GENERIC`, filed as a second option in that same unassigned slot.
+    - **A jungle waterfall grotto exterior** — a freshwater waterfall/pool at a cave mouth, distinct
+      from `SCENE_SMUGGLERS_GROTTO`'s interior sea-cave framing (no waterfall there). New unassigned
+      generic scene.
+    - **A quiet beach cove with a wrecked rowboat and treasure chest** — checked against the brief's
+      still-open `shipwreck_santa_catalina_1` (a broken hull half-buried in a reef) and found it
+      doesn't match closely enough (this is an intact rowboat on dry sand, not a broken hull in
+      water) — filed as its own generic scene rather than claiming the Santa Catalina identity.
+    - **The Wandering Deck** — a third tavern name with no match in `buildings.ts` (after The Salty
+      Parrot and The Cracked Hull), same situation as Raven's Watch/Skull Cay Outpost. Filed
+      generic under its own in-art name.
+
+    All 5 exported from `src/data/sceneBackgrounds.ts`.
