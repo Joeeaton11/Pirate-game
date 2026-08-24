@@ -5826,3 +5826,52 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     30-item contact sheet before classifying — confirmed clean transparent backgrounds (no vignette
     bleed into rounded corners) on every item, including both split cases. **Not yet wired** —
     cutting and filing only, same as every prior delivery this session.
+
+176. ✅ **Cut a second UI kit sheet into 29 sprites — numbered category headers this time, and a
+    tighter, trickier layout than the first** (2026-08-24), sent with no accompanying text, same
+    standing request. See `assets/sprites/UI_KIT_V2_MANIFEST.md`.
+
+    12 state buttons (normal/pressed/disabled/danger, 3 sizes each), 6 icon-only round buttons
+    (back/close/settings in gold and brown rings), a normal/locked pair of panel-frame sets (wide +
+    2 squares each), a 2-state tab selector, a confirmation modal frame, and Confirm/Cancel buttons.
+
+    Same real (not corrupted) soft-vignette alpha as item 175's UI kit, same fix — RGB gradient
+    strength for item boundaries, the closed/filled mask to clean the final alpha.
+
+    This sheet's own numbered category labels ("1. PRIMARY ACTION BUTTON (Normal)," etc.) sit
+    directly above each group with only a small gap, and text has sharp edges just like real
+    content — a naive top-down crop would have baked the header text into the first item of every
+    group. Checked the actual pixels above three representative groups before assuming any cutoff,
+    and found the sheet uses three different header-row heights (one row for the 4 button-state
+    groups, a more indented row for icon-buttons/tab-selector/modal, and a third for the panel-frame
+    pairs) — a single guessed offset would have clipped some groups and bled text into others.
+    Verified afterward that no header text survived into any of the 29 filed files.
+
+    Three different real-boundary techniques were needed on one sheet: narrow gap scans (same
+    technique as item 175's button column) for the 12 state buttons and 6 round icon buttons; and
+    two genuine "trust the pixels, verify don't guess" calls — the wide-frame-vs-two-squares split
+    in both panel groups (a real ~10px density dip found by reading the raw row-density curve, not
+    assumed), and the confirmation modal's frame-vs-buttons split (a real gap at y 833–836 inside a
+    much larger candidate region that would otherwise have looked like one component).
+
+    Compared the new buttons directly against the first UI kit's `ui_button_{color}_1` series before
+    naming anything: this sheet's buttons show individual wood-plank grain lines and separate dark
+    corner brackets under the rivets (the first kit's are plain flat pills), plus a 3-size ladder
+    the first kit doesn't have — a real style/structure difference, so named by UX state instead of
+    color (`ui_button_normal/pressed/disabled/danger_1..3`, size ascending). `ui_frame_panel_wide_1`/
+    `_square_1..2` and their locked counterparts are new descriptors too, not a continuation of the
+    first kit's single plain `ui_frame_parchment_1` — this delivery's frames come as a matched
+    normal/locked pair sharing a wide+2-square layout, a distinct enough sub-system to name on its
+    own. Flagged two real limitations rather than hiding them: `ui_button_confirm_1`/`_cancel_1` and
+    `ui_tabbar_crew_selected_1`/`_ship_selected_1` have "CONFIRM"/"CANCEL"/"CREW"/"SHIP" permanently
+    painted into the art, so unlike every icon-only or blank asset elsewhere in this library they
+    can't be reused for a different label without a redraw.
+
+    Kept both tab-selector rows as one image each rather than splitting each into two tab halves —
+    the two segments share one continuous wood plank with a rivet at the seam, not two abutting
+    separate buttons, so a split would cut through real art, not a real gap.
+
+    Ran the edge-opacity defect scan across all 29 cut files: zero hits. Built and visually reviewed
+    a full 29-item contact sheet before classifying, confirming correct boundaries on all three
+    fused-detection cases and no leftover header text. **Not yet wired** — cutting and filing only,
+    same as every prior delivery this session.
