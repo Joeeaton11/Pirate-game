@@ -5561,3 +5561,34 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     All 5 new scenes exported from `src/data/sceneBackgrounds.ts` in this pass. `npx tsc --noEmit`
     and all 45 `jest` tests clean.
+
+168. ✅ **Fifth background batch: 5 more images, all genuinely new, no user question needed this time**
+    (2026-08-24) — verified all 5 against every existing background with a pixel-diff check first
+    (none matched), then scanned each for the previous delivery's baked-in-placeholder-box defect
+    (row-variance scan across the bottom 20% of each canvas) — none had it, so nothing to crop.
+
+    - **Black Pearl's captain's quarters** — scene #24 (`black_pearl_captains_quarters_1`): chart
+      table, globe, crossed cutlasses, coat-and-hat display, skull rug, twin windows on the cove.
+      Brief calls for this "at night"; delivery came in bright daytime instead. Filed under the
+      scene anyway since every other identifying detail matches exactly — same call made for scene
+      #1's daytime market against the brief's original dusk piece.
+    - **The Smugglers' Grotto** — scene #28 (`smugglers_grotto_1`): hidden cave, contraband crates,
+      treasure, a lit cave mouth framing the anchored ship. Close match to the brief description.
+      864x1821 source (0.4746 aspect vs 0.4626 target) — similar small mismatch to Iron Jenny's fort,
+      left uncropped.
+    - **A stone fort courtyard** with cannons, a target board, a training dummy, and skull banners —
+      checked against all three still-undelivered Lord lairs (Marietta Graves' flooded ruin, Ezra
+      Vane's whirlpool fortress, Blackbeard's driftwood storm-camp) and matched none of them by
+      description. Not part of the 30-scene brief either. Filed as an unassigned generic fallback
+      (`fort_courtyard_generic_1.png`) under the same standing the user gave for Raven's Watch/Skull
+      Cay Outpost in item 167 — didn't re-ask, since that was an explicit answer to "how do you want
+      unmatched locations handled going forward," not a one-off.
+    - **A castaway beach camp, in two lighting versions** (day + golden hour) — tent/hammock camp,
+      driftwood, a treasure chest, the ship offshore. Distinct from `SCENE_COW_ISLAND_BEACH_CAMP`
+      (that one specifically has grazing cattle per the brief; these don't), and no location
+      signage to identify it. Same generic-fallback treatment, filed as a day/dusk pair
+      (`castaway_camp_beach_1.png`/`_2.png`) the same way the Careening Yard got a dusk/midday pair
+      in the previous delivery.
+
+    All 5 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
+    clean.

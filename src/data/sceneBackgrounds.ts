@@ -181,3 +181,48 @@ export const SCENE_RAVENS_WATCH_LOOKOUT = require('../../assets/backgrounds/rave
  * filing for the same reason. Cropped to 853x1620 (0.5265 aspect); left uncorrected for the same
  * `resizeMode="cover"` reason as above. */
 export const SCENE_SKULL_CAY_OUTPOST = require('../../assets/backgrounds/skull_cay_outpost_1.png');
+
+/** The Black Pearl's captain's quarters — scene #24 from the background brief
+ * (`black_pearl_captains_quarters_1`): a chart table with a compass, quill, and spyglass, a globe,
+ * a four-poster bed, crossed cutlasses and a pirate coat on the wall, a skull-and-crossbones rug,
+ * and twin arched windows looking out on the anchored ship and a cove. The brief calls for this
+ * scene "at night... warm low light through a stern window looking out on dark water" — this
+ * delivery came in as bright daytime instead (blue sky, sunlit cove through the windows). Filed
+ * under the same export anyway since every other identifying detail (chart table, globe, crossed
+ * cutlasses, coat-and-hat display, skull rug) matches the brief's description exactly — the same
+ * "accept a reasonable brief deviation rather than reject the delivery" call made for scene #1's
+ * daytime market contrasting the brief's original dusk piece. Exact 853x1844 canvas match, no crop
+ * needed. */
+export const SCENE_BLACK_PEARL_CAPTAINS_QUARTERS = require('../../assets/backgrounds/black_pearl_captains_quarters_1.png');
+
+/** The Smugglers' Grotto — scene #28 from the background brief (`smugglers_grotto_1`): a hidden sea
+ * cave interior, contraband crates and treasure chests stacked on wet rock, lanterns, a moored
+ * rowboat, and a shaft of daylight through the cave mouth framing the anchored ship outside — matches
+ * the brief's description closely. Source came in at 864x1821 (0.4746 aspect) against the 0.4626
+ * target, a similar small mismatch to Iron Jenny's fort (0.4615) — left uncropped, absorbed by
+ * `resizeMode="cover"`. */
+export const SCENE_SMUGGLERS_GROTTO = require('../../assets/backgrounds/smugglers_grotto_1.png');
+
+/** A stone fort courtyard by day — cannons, a target-practice board, a straw training dummy, gun
+ * racks, and skull-and-crossbones banners on a castle keep. Doesn't match any of the three
+ * still-undelivered Pirate Lord lairs by description (Marietta Graves' flooded/cursed ruin, Ezra
+ * Vane's whirlpool fortress, Blackbeard's driftwood storm-camp — none of which read as a sunlit
+ * stone-castle training yard), and isn't part of the original 30-scene brief. Filed as an
+ * unassigned generic fallback per the same standing the user gave for Raven's Watch/Skull Cay
+ * Outpost in the prior delivery — usable for any conversation set at a fortified training ground
+ * without asserting a specific Lord's identity. Exact 853x1844 canvas match, no crop needed. */
+export const SCENE_FORT_COURTYARD_GENERIC = require('../../assets/backgrounds/fort_courtyard_generic_1.png');
+
+/** A castaway beach camp, daytime — a shaded tent/hammock camp under palms, a driftwood-strewn
+ * beach, a treasure chest, calm turquoise water, and the anchored ship offshore. Distinct from
+ * `SCENE_COW_ISLAND_BEACH_CAMP` (which specifically shows grazing cattle per the brief) — no
+ * cattle here, and no named-location signage to tie it to a specific island. Filed as an unassigned
+ * generic fallback, same standing as the fort courtyard above. Exact 853x1844 canvas match, no crop
+ * needed. */
+export const SCENE_CASTAWAY_CAMP_BEACH_DAY = require('../../assets/backgrounds/castaway_camp_beach_1.png');
+
+/** The same castaway beach camp, golden-hour/dusk version — same tent/driftwood/treasure-chest
+ * composition as the day version above, matching lighting pair the same way the Careening Yard got
+ * a dusk/midday pair in the prior delivery. Same generic-fallback standing. Exact 853x1844 canvas
+ * match, no crop needed. */
+export const SCENE_CASTAWAY_CAMP_BEACH_DUSK = require('../../assets/backgrounds/castaway_camp_beach_2.png');
