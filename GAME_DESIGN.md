@@ -5480,3 +5480,33 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     10-sample spot-check render of filed files across every touched folder, confirming clean art
     with no defects or color-tint artifacts. **Not yet wired** — cutting and filing only, same as
     items 162-164.
+
+166. ✅ **File two single-asset UI variants — a parchment banner and a nameplate board** (2026-08-24),
+    two separate sends later the same day, each with no accompanying text. Unlike items 162-165,
+    neither upload was a sheet with multiple items to detect — each was one complete, self-contained
+    UI background image. See `assets/sprites/UI_PARCHMENT_NAMEPLATE_V2_MANIFEST.md`.
+
+    Different defect from every sprite-sheet delivery this session: both files' alpha channel was
+    fully opaque (255 everywhere) — no real transparency data at all. What renders as a checkerboard
+    "transparent" background was actually baked into the RGB pixels as a faint near-white/near-grey
+    field (sampled ~244-255, saturation under 10) — the same failure class already hit once before
+    in this repo (item 196, "fix chroma-key for baked-in checkerboard"). Fixed by chroma-keying on
+    color instead of the (useless) alpha: any pixel with `max(R,G,B)-min(R,G,B) < 10` and
+    `max(R,G,B) > 215` classified as background, since neither the warm parchment tan nor the dark
+    wood/rivet tones are ever that neutral and that bright together. Cleaned with a light 2×2
+    opening (fg noise only, never closing/filling background) + 3×3 median filter + 0.7-sigma
+    Gaussian feather for anti-aliased edges. Confirmed each image is exactly one connected
+    foreground blob, and that the parchment's two punch-holes and the board's plank/rivet gaps
+    survived as real transparent holes rather than getting silently filled in.
+
+    Compared both cutouts directly against the existing `ui_dialogue_parchment_1.png` and
+    `ui_nameplate_board_1.png` before filing: same design language (banner/board shape, seal and
+    rivet placement) but not pixel-identical to either — a distinct re-generation, not a duplicate
+    upload. Both `_1` files are actively wired into `ConversationBox.tsx` via
+    `src/data/uiSprites.ts`'s `UI_DIALOGUE_PARCHMENT`/`UI_NAMEPLATE_BOARD` exports, so rather than
+    guess at a silent swap on a shipping UI component, filed the new art as `ui_dialogue_parchment_2.png`
+    and `ui_nameplate_board_2.png` alongside the existing files — extending the numbered series the
+    same way every repeated descriptor has been handled all session, rather than overwriting.
+
+    Ran the edge-opacity defect scan on both cut files: zero hits. **Not yet wired** — `_1` of each
+    stays the active production asset; `_2` is filed and available, not referenced anywhere yet.
