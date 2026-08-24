@@ -5624,3 +5624,42 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     All 4 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
     clean.
+
+170. ✅ **Seventh background batch: 5 more images, all new, all needed a center-crop** (2026-08-24) —
+    none matched any existing file by dimensions even before a pixel check (all came in as
+    DALL·E-3-style 1023-1024 × 1536-1537 canvases, none matching the 853×1844 canvas every prior
+    delivery used), so all 5 were genuinely new. Same defect scan as items 168-169 first — all
+    clean, no baked-in placeholder box on any of them.
+
+    All 5 landed at ~0.665 aspect against the 0.4626 target (much wider than the small mismatches
+    absorbed elsewhere in this file) — center-cropped each one (156-157px off each side) rather than
+    leaving them for `resizeMode="cover"` to eat unevenly, verified afterward that nothing essential
+    fell outside the crop on any of them.
+
+    - **A third castaway beach camp** — a campfire ring and a distinct offshore rock formation not
+      in the existing day/dusk pair. Filed as `castaway_camp_beach_3.png`, same generic-fallback
+      standing as the other two.
+    - **An ancient jungle temple ruin, in two companion angles** (near entrance + wide view with a
+      rope bridge) — checked against the game's actual data before defaulting to generic: neither
+      `ile_sainte_marie_shrine` ("Sunken Shrine," sea/drowning-themed, no jungle-temple imagery) nor
+      `tortuga_ruins` ("El Fuerte Viejo," a Spanish/French stone redoubt, not a stepped temple) is a
+      real match. Filed as `jungle_temple_ruins_1.png`/`_2.png`, unassigned generic fallback.
+    - **A hidden treasure cave** — open chest, candlelight, path continuing to a jungle exterior
+      rather than the sea (unlike `SCENE_SMUGGLERS_GROTTO`, which frames a boat and open water).
+      Distinct enough to file separately rather than as a grotto alt — `treasure_cave_generic_1.png`.
+    - **A small jungle outpost/camp** — palisade gate, cooking fire, a building with an unmarked
+      tavern sign and a cross banner, the ship visible through the gate. No identifying signage,
+      checked against the same candidates as Raven's Watch/Skull Cay Outpost and found nothing
+      closer. Filed as `jungle_outpost_camp_1.png`, generic fallback.
+
+    Worth flagging directly rather than just filing quietly: this is now 9 scenes across 4
+    deliveries (items 167, 168, 170) filed as unassigned generic fallback rather than tied to a
+    real place in `islands.ts`/`buildings.ts`/`landmarks.ts` — Raven's Watch, Skull Cay Outpost, the
+    fort courtyard, 3 castaway beach variants, 2 jungle temple angles, the treasure cave, and the
+    jungle outpost. All still usable as conversation backdrops, but if any of them are meant to
+    anchor a real new location rather than stay a floating backdrop, that's data-layer work (a new
+    `buildings.ts`/`landmarks.ts` entry, map placement, quest hooks) — a decision for the user, not
+    something to invent unilaterally while just filing art.
+
+    All 5 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
+    clean.

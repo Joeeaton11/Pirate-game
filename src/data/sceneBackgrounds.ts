@@ -263,3 +263,40 @@ export const SCENE_TORTUGA_TOWN_SQUARE = require('../../assets/backgrounds/tortu
  * same pattern as the Careening Yard's and Iron Jenny's fort's alts. 864x1821 source, same small
  * aspect mismatch as several other scenes, left uncropped. */
 export const SCENE_BLACK_PEARL_CAPTAINS_QUARTERS_ALT2 = require('../../assets/backgrounds/black_pearl_captains_quarters_2.png');
+
+/** A third castaway beach camp variant — a campfire ring, barrels, and a skull flag under palms,
+ * with a distinct offshore rock formation not seen in the day/dusk pair above. Same unassigned
+ * generic-fallback standing as `SCENE_CASTAWAY_CAMP_BEACH_DAY`/`_DUSK`. Source came in at 1024x1536
+ * (0.6667 aspect, DALL·E-3-style canvas) — center-cropped 313px total (156/157 split) to the exact
+ * 0.4629 target, palms/flag/campfire on the left and the boat/rocks on the right both survive
+ * intact. */
+export const SCENE_CASTAWAY_CAMP_BEACH_3 = require('../../assets/backgrounds/castaway_camp_beach_3.png');
+
+/** An ancient jungle temple ruin, near view — a stepped stone temple entrance glimpsed through
+ * dense jungle, a waterfall behind it, a macaw perched by an unmarked signpost, a sword driven into
+ * a boundary stone. No named landmark or building in the game's data matches a jungle temple —
+ * checked `ile_sainte_marie_shrine` ("Sunken Shrine," themed around the sea/drowning, not a jungle
+ * ruin) and `tortuga_ruins` ("El Fuerte Viejo," a Spanish/French stone redoubt, not a stepped
+ * temple) and ruled both out. Filed as an unassigned generic fallback, same standing as the fort
+ * courtyard and castaway camp scenes. Source 1023x1537 (0.6656 aspect) — center-cropped 156px per
+ * side to the 0.4626 target. */
+export const SCENE_JUNGLE_TEMPLE_RUINS_1 = require('../../assets/backgrounds/jungle_temple_ruins_1.png');
+
+/** The same jungle temple, a wider/farther view — the full stepped facade and a rope bridge
+ * crossing to it over a ravine, waterfall to the side. Same temple architecture as ALT1 above, just
+ * a different vantage point — companion angle, same generic-fallback standing. Source 1023x1537,
+ * same crop as ALT1. */
+export const SCENE_JUNGLE_TEMPLE_RUINS_2 = require('../../assets/backgrounds/jungle_temple_ruins_2.png');
+
+/** A hidden treasure cave — an open chest spilling gold, a rolled map, candlelight, with the path
+ * continuing out to a jungle exterior (not the sea, unlike `SCENE_SMUGGLERS_GROTTO`). Distinct
+ * enough from the grotto's sea-cave framing to file separately rather than as an alt. Unassigned
+ * generic fallback. Source 1023x1537, same center crop as the temple scenes above. */
+export const SCENE_TREASURE_CAVE_GENERIC = require('../../assets/backgrounds/treasure_cave_generic_1.png');
+
+/** A small jungle outpost/camp — a palisade gate, a cooking fire, a building with a red cross
+ * banner and an unmarked hanging tavern sign, the ship visible at anchor through the gate. No
+ * identifying signage and no clean match to any named location — checked against the same
+ * candidates as Raven's Watch/Skull Cay Outpost and found nothing closer. Filed as an unassigned
+ * generic fallback. Source 1023x1537, same center crop as the scenes above. */
+export const SCENE_JUNGLE_OUTPOST_CAMP = require('../../assets/backgrounds/jungle_outpost_camp_1.png');
