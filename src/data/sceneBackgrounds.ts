@@ -424,3 +424,89 @@ export const SCENE_SHIPWRECK_COVE_GENERIC = require('../../assets/backgrounds/sh
  * under its own in-art name rather than forced onto an existing building. Source 1024x1536,
  * center-cropped to the 0.4629-equivalent target. */
 export const SCENE_WANDERING_DECK_TAVERN = require('../../assets/backgrounds/wandering_deck_tavern_1.png');
+
+/** The Black Pearl's captain's bedroom — a third interior angle: a skull-and-crossbones headboard
+ * and matching rug, a telescope and writing desk under twin arched windows on the sea, a framed
+ * ship painting. Wood-beam ceiling and paneled walls match the ship's other interiors (unlike the
+ * stone-arched land buildings filed alongside it in this batch), so filed as a third captain's
+ * quarters alt rather than a land building. Exact 853x1844 canvas match, no crop needed. */
+export const SCENE_BLACK_PEARL_CAPTAINS_QUARTERS_ALT3 = require('../../assets/backgrounds/black_pearl_captains_quarters_3.png');
+
+/** The jungle temple ruins, a third angle — a closer view of the stepped stone entrance with a
+ * carved skull idol and the waterfall behind it. Same real structure as
+ * `SCENE_JUNGLE_TEMPLE_RUINS_1`/`_2`, filed as a third companion angle. Exact 853x1844 canvas
+ * match. */
+export const SCENE_JUNGLE_TEMPLE_RUINS_3 = require('../../assets/backgrounds/jungle_temple_ruins_3.png');
+
+/** A third stone fort courtyard — a well, red banners, a covered stairway; distinct composition
+ * from both existing fort-courtyard scenes. Filed as a third option in that unassigned generic
+ * slot. Exact 853x1844 canvas match. */
+export const SCENE_FORT_COURTYARD_GENERIC_3 = require('../../assets/backgrounds/fort_courtyard_generic_3.png');
+
+/** A third jungle pirate camp angle — same tent/lookout/cook-fire camp as
+ * `SCENE_PIRATE_CAMP_JUNGLE_DAY`/`_DUSK`, a different vantage point. Filed as a third angle in that
+ * same unassigned slot. Exact 853x1844 canvas match. */
+export const SCENE_PIRATE_CAMP_JUNGLE_3 = require('../../assets/backgrounds/pirate_camp_jungle_3.png');
+
+/** A fourth generic tavern interior — a bar room with a "Today's Special: GROG" chalkboard, a
+ * skull flag, and a "WANTED — 1000" poster. No real tavern signage. Fourth option in the
+ * `tavern_interior_generic` fallback slot. Exact 853x1844 canvas match. */
+export const SCENE_TAVERN_INTERIOR_GENERIC_4 = require('../../assets/backgrounds/tavern_interior_generic_4.png');
+
+/** A rum cellar — two huge cask barrels lettered "RUM XXX," a skull-branded cask, crates and
+ * bottles, stone steps leading up to daylight and a ship view. No signage ties it to a specific
+ * tavern's storage. New unassigned generic scene. Exact 853x1844 canvas match. */
+export const SCENE_RUM_CELLAR_GENERIC = require('../../assets/backgrounds/rum_cellar_generic_1.png');
+
+/** A rooftop view over Tortuga Cove — red-tile roofs, laundry lines, chimneys, a domed bell tower,
+ * and the harbor full of ships beyond. A sweeping establishing-shot composition rather than a tight
+ * conversation backdrop, and not tied to one specific building, so filed as a new unassigned Tortuga
+ * scene rather than a real landmark. Exact 853x1844 canvas match. */
+export const SCENE_TORTUGA_ROOFTOP_VIEW = require('../../assets/backgrounds/tortuga_rooftop_view_1.png');
+
+/** Chapelle Notre-Dame — Tortuga's real chapel (`tortuga_chapel` in `buildings.ts`, "Brother
+ * Aldric"), interior nave: a roofless ruin reclaimed by vines, stained glass, red cross banners, an
+ * altar framed by a jungle-and-sea view through the collapsed rear wall. Confident real-location
+ * match — the cross banners and altar leave no ambiguity, unlike the jungle-temple/fort-courtyard
+ * scenes filed generic. Exact 853x1844 canvas match. */
+export const SCENE_TORTUGA_CHAPEL_1 = require('../../assets/backgrounds/tortuga_chapel_1.png');
+
+/** Chapelle Notre-Dame, a second angle — the bell tower itself, a cross-embossed bell hanging over
+ * a wide harbor-town view. Same real chapel as `SCENE_TORTUGA_CHAPEL_1` (the cross emblem on the
+ * bell matches the nave's cross banners), filed as a companion angle. Exact 853x1844 canvas match. */
+export const SCENE_TORTUGA_CHAPEL_2 = require('../../assets/backgrounds/tortuga_chapel_2.png');
+
+/** Tortuga's market, a third angle — a cobblestone street lined with fruit/pottery stalls, leading
+ * to a tiered bell-tower gatehouse in the distance. Same real market as
+ * `SCENE_TORTUGA_MARKET_DAY`/`_ALT2`, filed as a third angle. Exact 853x1844 canvas match. */
+export const SCENE_TORTUGA_MARKET_DAY_ALT3 = require('../../assets/backgrounds/tortuga_market_day_3.png');
+
+/** Le Vasseur's Residence — Tortuga's real governor's manor (`tortuga_le_vasseur_residence` in
+ * `buildings.ts`, type `'manor'`, "Governor Le Vasseur"): a grand checkered-marble entrance hall,
+ * gilt-framed portraits, a coat of arms, a chandelier, and an arched balcony overlooking the town
+ * and harbor. The portraits-and-crest detail is a confident enough match to wire as the real manor
+ * rather than file it generic. Exact 853x1844 canvas match. */
+export const SCENE_TORTUGA_GOVERNORS_RESIDENCE = require('../../assets/backgrounds/tortuga_governors_residence_1.png');
+
+/** The Harbourmaster's Office — Tortuga's real building (`tortuga_harbourmaster` in
+ * `buildings.ts`, "Harbourmaster Voss"): a chart/map room with a world map on the wall, a globe, a
+ * ship-traffic table map, and a triple stone-arched window overlooking the busy harbor. The
+ * navigation-instrument focus and the harbor-traffic view (rather than open sea, unlike the Black
+ * Pearl's own windows) fit an office that tracks shipping rather than a ship's own cabin — filed as
+ * the real Harbourmaster's Office rather than a fourth Black Pearl interior. Exact 853x1844 canvas
+ * match. */
+export const SCENE_TORTUGA_HARBOURMASTER_OFFICE = require('../../assets/backgrounds/tortuga_harbourmaster_office_1.png');
+
+/** The Black Pearl's gun deck — a cannon aimed out through an archway at the sea, a skull-and-
+ * crossbones rug matching `SCENE_BLACK_PEARL_CAPTAINS_QUARTERS_ALT2`'s exactly, a stocked
+ * bookshelf, a treasure chest. Same ship, same wood-paneled interior language as the other Black
+ * Pearl scenes — filed as a fourth real Black Pearl interior rather than generic. Exact 853x1844
+ * canvas match. */
+export const SCENE_BLACK_PEARL_GUN_DECK = require('../../assets/backgrounds/black_pearl_gun_deck_1.png');
+
+/** A generic dockside pier, daytime — a wooden pier and boardwalk past a tavern-like building, a
+ * moored rowboat, a lighthouse visible down the coast, the ship sailing past. Fills a similar niche
+ * to the brief's still-undelivered `generic_pier_night_1` (scene #30) but in daylight rather than
+ * at night, so filed as a separate day version rather than claiming that exact scene slot. Exact
+ * 853x1844 canvas match. */
+export const SCENE_GENERIC_PIER_DAY = require('../../assets/backgrounds/generic_pier_day_1.png');

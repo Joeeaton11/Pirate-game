@@ -5747,3 +5747,43 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
       generic under its own in-art name.
 
     All 5 exported from `src/data/sceneBackgrounds.ts`.
+
+174. ✅ **Eleventh background batch: 18 images arrived across 4 rapid-fire sends, deduped down to 14
+    real new scenes** (2026-08-24) — before classifying anything, ran a thumbnail-diff pass across
+    all 18 against each other (not just against the repo): found 4 exact pixel duplicates between
+    the second and third sends (same 4 images resent), leaving 14 genuinely unique new scenes, none
+    matching anything already on disk. All landed on the standard 853x1844 canvas, no crop needed.
+    Same bottom-band defect scan as prior deliveries — several interior scenes flagged a naturally
+    dark floor gradient (not the sharp box-edge defect from item 167), confirmed by inspecting the
+    row-by-row std curve on the most-flagged one and finding a smooth decline, not a cliff.
+
+    Checked every scene against the real game data before defaulting to generic, and it paid off —
+    5 of the 14 landed on confident real-location matches:
+    - **Chapelle Notre-Dame**, Tortuga's real chapel (`tortuga_chapel`, "Brother Aldric") — two
+      angles: the roofless nave with cross banners and an altar (`tortuga_chapel_1.png`), and the
+      bell tower itself, its bell embossed with the same cross motif (`tortuga_chapel_2.png`).
+    - **Le Vasseur's Residence**, Tortuga's real governor's manor (`tortuga_le_vasseur_residence`,
+      type `'manor'`) — a checkered-marble hall, gilt portraits, a coat of arms, confidently matched
+      on the portraits-and-crest detail alone (`tortuga_governors_residence_1.png`).
+    - **The Harbourmaster's Office** (`tortuga_harbourmaster`) — a chart room with a world map,
+      globe, and a ship-traffic table map, framed through a stone triple-arch window overlooking the
+      harbor rather than open sea (unlike the Black Pearl's own windows) — the navigation-instrument
+      focus and harbor-traffic framing read as an office that tracks shipping, not a ship's cabin
+      (`tortuga_harbourmaster_office_1.png`).
+    - **A third and fourth angle of Tortuga's market** (`tortuga_market_day_3.png`) and its own
+      chapel bell tower already covered above.
+
+    Two more Black Pearl interiors, same ship-cabin wood-paneled language as the existing captain's
+    quarters scenes: a private bedroom with a skull-headboard bed and telescope
+    (`black_pearl_captains_quarters_3.png`), and a gun deck with a cannon and a rug matching an
+    existing captain's-quarters rug exactly (`black_pearl_gun_deck_1.png`).
+
+    The remaining 7 had no real-location match and joined existing unassigned generic slots as
+    additional angle options rather than new ones, following the pattern from items 167-173: a third
+    jungle temple angle, a third fort courtyard, a third jungle pirate camp, a fourth generic tavern
+    interior, plus three brand-new generic scenes (a rum cellar, a rooftop view over Tortuga, and a
+    daytime dockside pier — filling a similar niche to the brief's still-undelivered
+    `generic_pier_night_1` but not claiming that exact slot since this one is daylight).
+
+    All 14 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
+    clean.
