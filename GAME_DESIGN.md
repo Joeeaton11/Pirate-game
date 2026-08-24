@@ -5510,3 +5510,54 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     Ran the edge-opacity defect scan on both cut files: zero hits. **Not yet wired** — `_1` of each
     stays the active production asset; `_2` is filed and available, not referenced anywhere yet.
+
+167. ✅ **Background brief batch: 3 duplicate-check rounds (14 images, none new), then 5 genuinely new
+    conversation backgrounds filed and wired** (2026-08-24) — user announced they'd be loading more
+    `CONVERSATION_BACKGROUNDS_BRIEF.md` scenes, then sent four separate batches of images over the
+    same conversation.
+
+    The first three batches (4 + 5 + 5 = 14 images) were checked file-by-file against every PNG
+    already in `assets/backgrounds/` — every single one came back byte-for-byte pixel-identical to
+    an already-wired scene (`harbour_tavern_dusk_1`, `tortuga_market_day_1`, `tortuga_tavern_night_1`
+    [both the garbled-sign reject and the clean-sign pick], `tortuga_gaol_interior_1`,
+    `tortuga_old_landing_dusk_1`, both Cow Island scenes, Redbeard Sully's fort,
+    `tortuga_signal_post_1`, both Roatán scenes + Bellows' fort, New Providence's tavern, and the
+    careening yard). Reported each match back explicitly rather than silently re-filing or silently
+    discarding — turned out to be the same source folder re-sent three times, not new content.
+
+    The fourth batch (5 images) was genuinely new — verified with a mean-pixel-diff check against
+    every existing background before treating any of them as new, not just an eyeball guess:
+    - Two alternate angles of the Careening Yard (dusk + midday), a wider establishing shot with a
+      watchtower/waterfall behind the yard and a parrot on the sign — filed as
+      `roatan_careening_yard_2.png`/`_3.png`, additional alt angles on the existing export slot, the
+      same pattern used for Iron Jenny's fort alt. Surfaced a pre-existing mismatch while filing
+      these: the wired scene is named `SCENE_ROATAN_CAREENING_YARD`, but the real building "The
+      Careening Yard" in `buildings.ts` (`new_providence_careening_yard`) is actually sited on New
+      Providence, not Roatán — a conflict between the original brief and the shipped location data,
+      predating this delivery. Left it as a documented note rather than resolving it unilaterally.
+    - A tavern interior with no identifying signage — filed as `tavern_interior_generic_1.png`, a
+      flexible fallback the same way the brief's own scene #30 (`generic_pier_night_1`, still
+      undelivered) is meant to be one.
+    - Two images of locations with no match anywhere in `islands.ts`/`buildings.ts`/`landmarks.ts`
+      and not part of the original 30-scene brief: "Raven's Watch" (a lookout/hideout compound) and
+      "Skull Cay Outpost" (a cliffside pirate outpost). Both also had a real defect: a dark
+      placeholder UI panel (a drawn box with a beveled border) baked directly into the bottom
+      ~12-15% of the canvas — exactly where the real `ConversationBox` parchment renders in-game —
+      most likely the generator taking the brief's "keep the bottom simple for a dialogue box"
+      instruction too literally and drawing a mock box into the art itself. Confirmed by cropping
+      and zooming both bottoms rather than assumed from a distance; one was a solid opaque fill, the
+      other a semi-transparent overlay you could see the ground texture through.
+
+      Both of these were genuine judgment calls, not something to guess at — asked the user directly
+      via two questions: (1) how to treat locations absent from the game's data model, (2) what to
+      do about the baked-in box. Answers: file both as unassigned generic fallback scenes (not tied
+      to any real island/building), and crop the box off before filing. Located each box's top edge
+      by scanning row-wise pixel variance for the sharp texture-to-flat-fill transition (y=1662/1844
+      for Raven's Watch, y=1627/1844 for Skull Cay) rather than eyeballing a crop line, then cropped
+      a little above that with margin. Both landed wider than the 853x1844 target once shortened
+      (0.5154 and 0.5265 vs 0.4626) — left uncorrected since `resizeMode="cover"` just crops a bit
+      more off the sides in-game, the same tolerance every other off-aspect scene in this file has
+      used. Filed as `ravens_watch_lookout_1.png` and `skull_cay_outpost_1.png`.
+
+    All 5 new scenes exported from `src/data/sceneBackgrounds.ts` in this pass. `npx tsc --noEmit`
+    and all 45 `jest` tests clean.

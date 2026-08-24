@@ -135,3 +135,49 @@ export const SCENE_PORT_ROYAL_FLOODED_STREET = require('../../assets/backgrounds
  * the right — loses a torch-bearing guard on the right edge, keeps the sign, gate, ship, and fort
  * fully intact. */
 export const SCENE_LORD_IRON_JENNY_FORT_ALT = require('../../assets/backgrounds/lord_iron_jenny_fort_2.png');
+
+/** The Careening Yard, alternate angle #2 — sunset, wider establishing shot: a stone watchtower and
+ * waterfall visible on the headland behind the yard, a parrot perched on the "THE CAREENING YARD"
+ * sign, an open-sided workshop under the tiled roof, ships and dock in the foreground. Note on the
+ * underlying place name: `SCENE_ROATAN_CAREENING_YARD` above is exported as Roatán's shipyard (per
+ * `CONVERSATION_BACKGROUNDS_BRIEF.md`'s scene #11), but the real building "The Careening Yard" in
+ * `buildings.ts` (`new_providence_careening_yard`) is actually sited on New Providence, not Roatán —
+ * a pre-existing mismatch between the brief and the shipped location data, not something introduced
+ * by this delivery. Filed as a second alt angle of the same export slot rather than resolving that
+ * conflict unilaterally. Exact 853x1844 canvas match, no crop needed. */
+export const SCENE_ROATAN_CAREENING_YARD_ALT2 = require('../../assets/backgrounds/roatan_careening_yard_2.png');
+
+/** The Careening Yard, alternate angle #3 — bright midday version of the same wider establishing
+ * shot as ALT2 above (same watchtower/waterfall headland, parrot on the sign), just a different time
+ * of day. Same New Providence/Roatán naming note applies. Exact 853x1844 canvas match, no crop
+ * needed. */
+export const SCENE_ROATAN_CAREENING_YARD_ALT3 = require('../../assets/backgrounds/roatan_careening_yard_3.png');
+
+/** Generic tavern interior — not tied to a specific named tavern (no identifying sign, just a
+ * "GOOD ALE GOOD RUM GOOD CREW" chalkboard and a generic WANTED poster), unlike every other tavern
+ * scene in this file which are all exteriors. A flexible fallback for indoor tavern conversations
+ * the same way the brief's still-undelivered `generic_pier_night_1` scene (#30) is meant to be a
+ * fallback for waterfront ones. Exact 853x1844 canvas match, no crop needed. */
+export const SCENE_TAVERN_INTERIOR_GENERIC = require('../../assets/backgrounds/tavern_interior_generic_1.png');
+
+/** Raven's Watch — a lookout/hideout compound (watchtower, dock with a cargo hoist, signposts
+ * reading "LOOKOUT / CANNON DECK / HIDEOUT") that doesn't correspond to any named island, building,
+ * or landmark in `islands.ts`/`buildings.ts`/`landmarks.ts` — not part of the original 30-scene
+ * brief either. Filed as an unassigned generic scene per the user's call, the same way
+ * the tavern interior above is a flexible fallback rather than tied to one real place. Source
+ * came in with a dark placeholder UI panel baked into the bottom ~12% of the canvas (a drawn box
+ * with a beveled border sitting right where the real ConversationBox parchment would render on
+ * top of it) — cropped off before filing rather than left in, so nothing here doubles up with the
+ * actual in-game dialogue box. Cropped to 853x1655 (0.5154 aspect, wider than the 0.4626 target);
+ * left uncorrected since `resizeMode="cover"` just crops a bit more off the sides in-game, same as
+ * every other scene whose source aspect didn't land exactly on target. */
+export const SCENE_RAVENS_WATCH_LOOKOUT = require('../../assets/backgrounds/ravens_watch_lookout_1.png');
+
+/** Skull Cay Outpost — a cliffside pirate outpost (watchtower above a waterfall, a beach house
+ * compound, a dock) with the same status as Raven's Watch above: no matching entry anywhere in the
+ * game's location data, not part of the original brief, filed as an unassigned generic scene per
+ * the user's call. Same defect as Raven's Watch — a dark placeholder UI panel baked into the bottom
+ * of the canvas, this one a semi-transparent overlay rather than a solid fill — cropped off before
+ * filing for the same reason. Cropped to 853x1620 (0.5265 aspect); left uncorrected for the same
+ * `resizeMode="cover"` reason as above. */
+export const SCENE_SKULL_CAY_OUTPOST = require('../../assets/backgrounds/skull_cay_outpost_1.png');
