@@ -5440,3 +5440,43 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     Ran the edge-opacity defect scan across all 90 cut files before filing: zero hits. **Not yet
     wired** — cutting and filing only, same as items 162-163.
+
+165. ✅ **Cut a fourth new sheet — a fortifications kit — into 90 sprites** (2026-08-24), sent the
+    next day with no accompanying text, again read as a direct continuation of the same "cut the
+    sheet into assets" request. See `assets/sprites/FORTIFICATIONS_KIT_MANIFEST.md`.
+
+    A fortifications-and-military scene kit: lighthouses, watchtowers, a fort/castle, fort walls
+    (incl. a rubble/breached variant and a gate), turrets, cannons with muzzle-flash/smoke effects
+    and cannonball piles, palisade sections/posts/gates, spike barriers, sandbags, wood gates, many
+    flags/banners, a gallows/hanging cage/pillory/skeleton set, harbour hardware, ammo crates/
+    barrels/powder kegs, a cannon rammer, a linstock, war hammers, target boards, a brazier, a
+    grave marker, and a torch.
+
+    Same corrupted-alpha defect as the three sheets cut the day before, confirmed and fixed the
+    same way (median-filter denoise + threshold + light opening + Gaussian feather) before cutting
+    anything. Connected-component detection found 90 real items cleanly on the first pass — no
+    fallback splitting, no fused-content merge calls needed this time.
+
+    The key judgment call was on `landmarks/`: before naming the new lighthouse/watchtower/fort/
+    turret/fort-wall descriptors, checked whether any existing series would collide. Found that
+    `buildings/lighthouse.png` already exists as a bare, unnumbered file and is wired for the
+    Tortuga lighthouse landmark (`src/data/landmarks.ts`'s `sprite: { category: 'building', id:
+    'lighthouse' }`) — so the new lighthouse variants were filed to `landmarks/lighthouse_1..2`
+    instead of `buildings/lighthouse_N`, keeping the wired reference untouched and avoiding any
+    naming collision.
+
+    Everywhere this sheet's art matched a series opened earlier the same session, it was continued
+    rather than forked: `combat/cannon` (now `_1` through `_4`), `props/torch` (now `_1` through
+    `_3`), `props/market_crate`/`market_barrel`, `world/flag_skull_pirate`/`flag_naval`, and
+    `harbour/capstan`/`rope_coil`/`anchor`/`chain`/`chain_hook` all extend deliveries from earlier
+    in the session (or the day before) rather than minting new descriptor names — simple hardware
+    and flag shapes where cross-sheet variety reads as intentional. Genuinely new content
+    (cannonball/cannonball_pile/muzzle_flash/smoke_puff/ammo_crate/ammo_barrel/powder_keg/
+    powder_keg_bundle/cannon_rammer/linstock/war_hammer in `combat/`; the palisade/gallows/pillory/
+    banner/target-board/brazier/grave-marker set in `props/`; flag_uk/flag_pennant/flag_stripe/
+    flag_blue in `world/`) got fresh descriptor names since no prior delivery had anything close.
+
+    Ran the edge-opacity defect scan across all 90 cut files before filing: zero hits. Also built a
+    10-sample spot-check render of filed files across every touched folder, confirming clean art
+    with no defects or color-tint artifacts. **Not yet wired** — cutting and filing only, same as
+    items 162-164.
