@@ -5692,3 +5692,38 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     All 5 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
     clean.
+
+172. ✅ **Ninth background batch: 5 more images, all new, all real-location alts this time — none
+    generic** (2026-08-24) — same duplicate/defect/crop discipline as items 169-171 first (all
+    clean, all center-cropped 156-157px per side to the 0.4626 target). Unlike the last few
+    batches, every one of these five had a confident real-location match — no generic fallback
+    needed at all this round.
+
+    - **The Black Pearl's main deck, daytime** — scene #23 from the original brief
+      (`black_pearl_deck_day_1`), a close match: coiled rope, mainmast and rigging, a wind-filled
+      sail, cannons and a treasure chest, another ship over the water.
+    - **The Black Pearl's below-deck hold** — hammocks, shot barrels, a "BEWARE" sign, a
+      skull-marked chest. Not one of the 30 brief scenes, but unambiguously the same ship the player
+      captures and sails — filed as a real Black Pearl interior (`black_pearl_hold_1.png`)
+      alongside the captain's quarters and the deck scene, not generic.
+    - **A second angle of Tortuga's market** — a narrower bunting-strung alley rather than the
+      brief's wide harbor square, but the same real market. Filed as `tortuga_market_day_2.png`.
+    - **El Fuerte Viejo**, Tortuga's real ruins landmark (`tortuga_ruins` in `buildings.ts`) — a
+      grand arched stone ruin, "Spanish stone, French blood" per its own flavor text. Checked
+      against item 170's `jungle_temple_ruins` pair before filing: those show a stepped
+      Mesoamerican pyramid, a completely different architectural language from this European
+      arch-and-column colonial ruin — different enough to confirm this is the real El Fuerte Viejo,
+      not a third temple angle. Confident enough to wire as the real landmark, same call as Basse-
+      Terre Square in item 169. Filed as `tortuga_ruins_1.png`.
+    - **A second angle of The Gaol** — a wider multi-cell corridor rather than
+      `SCENE_TORTUGA_GAOL_INTERIOR`'s single cramped cell, same real building. Filed as
+      `tortuga_gaol_interior_2.png`.
+
+    Worth noting the shift from the last several deliveries: items 167-171 were mostly unassigned
+    generic fallback (9 scenes with no real-location match); this batch found a confident real match
+    for all 5, three of them (market, ruins, gaol) landing on locations that already have their own
+    brief-scene entries or shipped `buildings.ts` data. Checking the actual game data before
+    defaulting to generic — not just eyeballing the picture — is what made the difference.
+
+    All 5 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
+    clean.

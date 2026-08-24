@@ -345,3 +345,45 @@ export const SCENE_PIRATE_CAMP_JUNGLE_DUSK = require('../../assets/backgrounds/p
  * center crop as the other four scenes in this batch (loses a sliver of a cannon barrel on the
  * right edge, otherwise intact). */
 export const SCENE_ROATAN_FORGE_INTERIOR = require('../../assets/backgrounds/roatan_forge_interior_1.png');
+
+/** The Black Pearl's main deck, daytime — scene #23 from the background brief
+ * (`black_pearl_deck_day_1`): coiled rope, the mainmast and rigging rising into a bright sky, a
+ * wind-filled sail, cannons and a treasure chest along the rail, another ship and a rocky coastline
+ * over the water. Matches the brief description closely. Source 1023x1537 (0.6656 aspect),
+ * center-cropped 156px per side to the 0.4626 target, same as the rest of this batch. */
+export const SCENE_BLACK_PEARL_DECK_DAY = require('../../assets/backgrounds/black_pearl_deck_day_1.png');
+
+/** The Black Pearl's below-deck hold — hammocks, powder/shot barrels, stacked crates, a
+ * skull-marked treasure chest, and a hand-lettered "BEWARE" sign on the central mast post. Not one
+ * of the brief's 30 scenes, but unambiguously the same ship the player captures and sails (unlike
+ * the session's generic-fallback scenes, there's no real ambiguity about which vessel this is) —
+ * filed as a genuine Black Pearl interior alongside the captain's quarters and the top-deck scene
+ * above rather than as an unassigned fallback. Source 1023x1537, same center crop as the rest of
+ * this batch. */
+export const SCENE_BLACK_PEARL_HOLD = require('../../assets/backgrounds/black_pearl_hold_1.png');
+
+/** Tortuga's market, a second angle — a narrower market alley strung with bunting flags, a
+ * skull-and-crossbones awning stall, fish/fruit/pottery stalls either side, a bell tower flying a
+ * skull flag in the background. Same real location as `SCENE_TORTUGA_MARKET_DAY` (the brief's
+ * scene #1, a wider harbor-square framing) — filed as a second angle on that scene rather than
+ * generic, the same "same place, different vantage" call made for the Careening Yard's and Cow
+ * Island's alts. Source 1024x1536, center-cropped to the 0.4629-equivalent target. */
+export const SCENE_TORTUGA_MARKET_DAY_ALT2 = require('../../assets/backgrounds/tortuga_market_day_2.png');
+
+/** El Fuerte Viejo — Tortuga's real ruins landmark (`tortuga_ruins` in `buildings.ts`, "Spanish
+ * stone, French blood," run by "The Ruin-Keeper"). A grand ruined stone gateway/cathedral-style
+ * structure with rounded arches and columns, reclaimed by jungle vines, a skull flag planted atop.
+ * Deliberately not filed alongside the earlier `jungle_temple_ruins_1`/`_2` scenes (item 170) —
+ * those show a stepped Mesoamerican-style pyramid, a different architectural language entirely from
+ * this European colonial-ruin arch-and-column style, which fits El Fuerte Viejo's real "Spanish
+ * stone" description far better. Confident enough to wire as the real landmark rather than file it
+ * generic, the same call made for Basse-Terre Square. Source 1023x1537, same center crop as the
+ * rest of this batch. */
+export const SCENE_TORTUGA_RUINS = require('../../assets/backgrounds/tortuga_ruins_1.png');
+
+/** The Gaol, a second angle — a wider cell-block corridor (multiple barred doors, a sunlit
+ * staircase at the far end, a skull banner, a loose skull and manacles on the floor) rather than
+ * `SCENE_TORTUGA_GAOL_INTERIOR`'s single cramped cell. Same real building
+ * (`tortuga_gaol` in `buildings.ts`), filed as a second angle the same way the market and Cow
+ * Island got alts. Source 1023x1537, same center crop as the rest of this batch. */
+export const SCENE_TORTUGA_GAOL_INTERIOR_ALT2 = require('../../assets/backgrounds/tortuga_gaol_interior_2.png');
