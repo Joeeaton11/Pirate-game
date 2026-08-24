@@ -5592,3 +5592,35 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     All 5 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
     clean.
+
+169. ✅ **Sixth background batch: 1 duplicate, 4 new — including a real landmark match found by
+    checking the description text, not just the picture** (2026-08-24) — same duplicate-check and
+    defect-scan discipline as items 167-168 applied first.
+
+    One of the 5 images was an exact pixel duplicate of `smugglers_grotto_1.png` (filed in item
+    168) — reported back rather than re-filed. The other 4 were genuinely new and defect-free
+    (same row-variance bottom-20% scan as item 168, no baked-in placeholder box on any of them):
+
+    - **The High Woods** — scene #29 (`high_woods_jungle_1`): dense jungle path, dappled light, a
+      skull-marked stone, a rocky peak and the sea through a gap in the canopy. Close match to the
+      brief and to the game's existing `tortuga_high_woods` "jungle" encounter-backdrop category.
+    - **A second generic tavern interior** ("TOMMY'S RUM" chalkboard, "NO CREDIT — NO QUARTER"
+      sign, no real tavern name) — filed as `tavern_interior_generic_2.png`, a second option in the
+      same fallback slot as item 168's tavern interior.
+    - **A town square with a central fountain** — checked against the game's actual landmark data
+      before guessing: `tortuga_town_square` (Basse-Terre Square)'s own description reads "a well,
+      a market stall or two," which matches this scene almost exactly (fountain, market stall,
+      tavern building, castle-gate archway), while the only other candidate,
+      `new_providence_republic_square`, has no fountain/well detail in its description at all — a
+      much weaker match. Confident enough to wire as the real landmark rather than file it generic,
+      the same call made for `SCENE_TORTUGA_SIGNAL_POST` in an earlier delivery. Source came in
+      wide (1023x1537, 0.6656 aspect) — center-cropped 156px off each side to the exact 0.4626
+      target, keeping the fountain centered and both flanking buildings intact. Filed as
+      `tortuga_town_square_1.png`.
+    - **A second Black Pearl captain's quarters angle** — different furniture arrangement (writing
+      desk, tripod telescope, red curtains) from item 168's version (which has a bed and a globe),
+      same identity. Filed as `black_pearl_captains_quarters_2.png`, the same alt-angle pattern as
+      the Careening Yard's and Iron Jenny's fort's alts.
+
+    All 4 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
+    clean.

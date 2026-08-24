@@ -226,3 +226,40 @@ export const SCENE_CASTAWAY_CAMP_BEACH_DAY = require('../../assets/backgrounds/c
  * a dusk/midday pair in the prior delivery. Same generic-fallback standing. Exact 853x1844 canvas
  * match, no crop needed. */
 export const SCENE_CASTAWAY_CAMP_BEACH_DUSK = require('../../assets/backgrounds/castaway_camp_beach_2.png');
+
+/** The High Woods — scene #29 from the background brief (`high_woods_jungle_1`): a dense jungle
+ * path under thick canopy, dappled green-gold light, a skull-marked boundary stone, a rocky peak
+ * and the sea visible through a gap in the trees ahead — matches the brief's description closely
+ * and the game's existing "jungle" encounter-backdrop category (`tortuga_high_woods` landmark).
+ * Source came in at 864x1821 (0.4746 aspect vs 0.4626 target), the same small mismatch several
+ * other scenes in this file have absorbed via `resizeMode="cover"` — left uncropped. */
+export const SCENE_HIGH_WOODS_JUNGLE = require('../../assets/backgrounds/high_woods_jungle_1.png');
+
+/** A second generic tavern interior — a rum-and-grog bar room ("TOMMY'S RUM" chalkboard, a
+ * "NO CREDIT — NO QUARTER" sign, a doorway open on the beach and a moored ship). Like the first
+ * generic tavern interior, no signage ties it to a specific named tavern in `buildings.ts` — filed
+ * as a second option in the same unassigned-fallback slot rather than forcing it onto a real
+ * location. Exact-enough 863x1822 canvas match (0.4737 aspect), no crop needed. */
+export const SCENE_TAVERN_INTERIOR_GENERIC_2 = require('../../assets/backgrounds/tavern_interior_generic_2.png');
+
+/** Basse-Terre Square — Tortuga's own town square landmark (`tortuga_town_square` in
+ * `landmarks.ts`), not part of the original 30-scene brief but a strong enough real-location match
+ * to earn wiring anyway, the same call made for `SCENE_TORTUGA_SIGNAL_POST`. The landmark's own
+ * description — "a well, a market stall or two" — matches this scene almost exactly: a central
+ * stone fountain, a market stall under a red awning, a tavern building, and a castle-gate archway
+ * looking out to the sea, all in bright daylight. Ruled out `new_providence_republic_square` as an
+ * alternative reading — that landmark's description is about lawless captains' councils with no
+ * fountain/well detail at all, a much weaker match. Source came in wide at 1023x1537 (0.6656
+ * aspect) — center-cropped to 711x1537 (0.4626, exact target), 156px off each side, keeping the
+ * fountain centered and both flanking buildings intact; only the far foreground crates/anchor prop
+ * on the right edge lost a sliver. */
+export const SCENE_TORTUGA_TOWN_SQUARE = require('../../assets/backgrounds/tortuga_town_square_1.png');
+
+/** The Black Pearl's captain's quarters, alternate angle — a different composition of the same
+ * scene #24 concept: a writing desk with a chart, quill, and lit lantern, a telescope on a tripod,
+ * red curtains framing a window on the anchored ship, crossed cutlasses, and a skull-motif rug —
+ * distinct furniture arrangement from `SCENE_BLACK_PEARL_CAPTAINS_QUARTERS` (that one has a bed and
+ * a globe; this one doesn't), same "captain's cabin" identity. Filed as a second alt angle, the
+ * same pattern as the Careening Yard's and Iron Jenny's fort's alts. 864x1821 source, same small
+ * aspect mismatch as several other scenes, left uncropped. */
+export const SCENE_BLACK_PEARL_CAPTAINS_QUARTERS_ALT2 = require('../../assets/backgrounds/black_pearl_captains_quarters_2.png');
