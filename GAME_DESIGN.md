@@ -5663,3 +5663,32 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     All 5 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
     clean.
+
+171. ✅ **Eighth background batch: 5 more images, all new — and a second brief-vs-shipped-data
+    mismatch found the same way as the Careening Yard's** (2026-08-24) — same duplicate/defect/crop
+    discipline as items 169-170. All 5 came in on the wider DALL·E-3-style canvas, none matched
+    anything on disk by dimensions, all center-cropped 156-157px per side to the 0.4626 target, all
+    clean on the defect scan.
+
+    - **A third generic tavern interior** ("WANTED — DEAD OR ALIVE" poster, a ship's wheel on the
+      wall, no real tavern name) — `tavern_interior_generic_3.png`, third option in that fallback
+      slot.
+    - **A second Cow Island angle** — bright midday grazing flats, cattle, a hut, the ship offshore.
+      Doesn't repeat either existing Cow Island scene's specific lighting/detail but is clearly the
+      same real location (cattle + camp gear), so filed as a second beach-camp alt
+      (`cow_island_beach_camp_2.png`) rather than a new generic slot.
+    - **A jungle pirate camp, day + sunset pair** — an organized tent camp with a lookout platform
+      and a central cook-fire, distinct from both the castaway beach series (loose driftwood lounge,
+      no tents) and item 170's jungle outpost (a walled gate/building scene, not an open camp).
+      Filed as its own generic-fallback pair, `pirate_camp_jungle_1.png`/`_2.png`.
+    - **A blacksmith forge interior** (anvil, sword rack, a cannon mid-repair, live hearth) — checked
+      against the real building data before filing and found a second instance of the same
+      brief-vs-shipped-location mismatch as the Careening Yard (item 170's note): the only actual
+      smithy, "The Anchor & Forge" (`tortuga_smithy`, Forge-Master Kade), is on **Tortuga Cove**, not
+      Roatán, despite the existing `SCENE_ROATAN_FORGE_NIGHT` export's name. Filed this interior
+      under the same `roatan_forge` naming pattern as the existing piece for consistency
+      (`roatan_forge_interior_1.png`), with the same mismatch documented in the code comment rather
+      than quietly renamed.
+
+    All 5 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
+    clean.

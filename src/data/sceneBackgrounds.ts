@@ -300,3 +300,48 @@ export const SCENE_TREASURE_CAVE_GENERIC = require('../../assets/backgrounds/tre
  * candidates as Raven's Watch/Skull Cay Outpost and found nothing closer. Filed as an unassigned
  * generic fallback. Source 1023x1537, same center crop as the scenes above. */
 export const SCENE_JUNGLE_OUTPOST_CAMP = require('../../assets/backgrounds/jungle_outpost_camp_1.png');
+
+/** A third generic tavern interior — a two-story tavern room with a skull-and-crossbones rug, a
+ * "WANTED — DEAD OR ALIVE" poster, a ship's wheel mounted on the wall, and open doors onto a beach.
+ * No signage ties it to a specific named tavern. Filed as a third option in the unassigned
+ * `tavern_interior_generic` fallback slot. Source 1023x1537 (0.6656 aspect), center-cropped 156px
+ * per side to the 0.4626 target, same as the other wide DALL·E-3-canvas deliveries. */
+export const SCENE_TAVERN_INTERIOR_GENERIC_3 = require('../../assets/backgrounds/tavern_interior_generic_3.png');
+
+/** Cow Island, a second alt angle — bright midday grazing flats with cattle, a footpath, a small
+ * thatched hut in the distance, the ship anchored offshore, and a skull flag on a fence post.
+ * Doesn't repeat either existing Cow Island scene's specific lighting/detail (no cook-fire like
+ * `SCENE_COW_ISLAND_BEACH_CAMP`'s overcast morning, no dramatic late-day sky like
+ * `SCENE_COW_ISLAND_MUSTER_FLATS`) but is clearly the same real location — cattle grazing, camp
+ * gear in the foreground, matches the brief's Cow Island description closely enough to file as a
+ * second beach-camp angle rather than invent a third generic slot. Source 1023x1537, same center
+ * crop as the tavern interior above. */
+export const SCENE_COW_ISLAND_BEACH_CAMP_ALT2 = require('../../assets/backgrounds/cow_island_beach_camp_2.png');
+
+/** A jungle pirate camp, daytime — an organized tent camp (not the loose driftwood/hammock lounge
+ * of the castaway beach scenes) with a central cook-fire, a raised lookout platform, a treasure
+ * chest, fish and cloth drying on a line, and the ship visible through a gap in the palms. No
+ * cattle (rules out Cow Island) and no identifying signage. Distinct enough in composition from
+ * both the castaway beach series and `SCENE_JUNGLE_OUTPOST_CAMP` (which is a walled gate/building
+ * scene, not an open tent camp) to start its own generic-fallback pair rather than force it into
+ * an existing slot. Source 1023x1537, same center crop. */
+export const SCENE_PIRATE_CAMP_JUNGLE_DAY = require('../../assets/backgrounds/pirate_camp_jungle_1.png');
+
+/** The same jungle pirate camp, sunset version — identical tent/lookout/cook-fire layout as the day
+ * version above, golden-hour lighting with the sun setting over the water beyond the palisade.
+ * Day/dusk companion pair, same generic-fallback standing. Source 1024x1536, same center crop
+ * approach (0.4629 result). */
+export const SCENE_PIRATE_CAMP_JUNGLE_DUSK = require('../../assets/backgrounds/pirate_camp_jungle_2.png');
+
+/** A blacksmith forge interior — a stone hearth with a live fire, an anvil, a sword rack, and a
+ * cannon barrel under repair, doorway open onto a palm-lined path. Checked against the game's real
+ * data before filing: the only actual smithy building, "The Anchor & Forge" (`tortuga_smithy` in
+ * `buildings.ts`, run by "Forge-Master Kade"), is on **Tortuga Cove** — not Roatán, despite the
+ * existing `SCENE_ROATAN_FORGE_NIGHT` export's name. That's the same brief-vs-shipped-data mismatch
+ * already documented for the Careening Yard (item 170's note) — `roatan_forge_night_1` was named
+ * for the brief's assumed island, not the building's real one. Filed this interior under the same
+ * `roatan_forge` naming pattern as the existing exterior/night piece for consistency rather than
+ * introducing a third naming scheme, with this same caveat repeated here. Source 1023x1537, same
+ * center crop as the other four scenes in this batch (loses a sliver of a cannon barrel on the
+ * right edge, otherwise intact). */
+export const SCENE_ROATAN_FORGE_INTERIOR = require('../../assets/backgrounds/roatan_forge_interior_1.png');
