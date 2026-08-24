@@ -5787,3 +5787,42 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     All 14 exported from `src/data/sceneBackgrounds.ts`. `npx tsc --noEmit` and all 45 `jest` tests
     clean.
+
+175. ✅ **Cut a general-purpose UI kit sheet into 30 sprites — the first defect this session that
+    turned out NOT to be one** (2026-08-24) — sent with no accompanying text, read as the same
+    standing "cut the sheet" request applied to UI chrome instead of world sprites or backgrounds.
+    See `assets/sprites/UI_KIT_MANIFEST.md`.
+
+    Panel frames, a scroll banner, a speech bubble, item-slot sockets, a health bar, checkboxes,
+    coin/heart/gem icons, a scrollbar, and 9 pill buttons (6 plain colors + 3 with arrow glyphs).
+
+    Every other sheet this session had corrupted or fully-opaque-with-baked-background alpha. This
+    one's alpha channel is real and smooth — correctly 0 at the true canvas corners — but carries an
+    intentional soft vignette glow behind the whole grid that stays close to opaque (~250/255) even
+    in the gaps between icons. Confirmed it was a smooth gradient and not the noise defect from
+    earlier sheets by sampling local 10×10 patches at several gap locations and finding near-zero
+    local standard deviation. Since a plain alpha threshold can't tell real icon content from this
+    vignette (both read as nearly opaque), item boundaries were detected from RGB edge/gradient
+    strength (Sobel) instead, and the closed+filled gradient mask was used to zero out alpha outside
+    each item's real silhouette — the fix that keeps a pill button's rounded corners transparent
+    instead of showing a hazy brown square from the vignette behind them.
+
+    Two real fused-detection cases, both resolved by measuring rather than guessing:
+    - The 9 stacked pill buttons initially collapsed into only 6 boxes (three touching pairs merged
+      by the coarser gradient-closing pass). Scanned a narrow vertical alpha profile through the
+      button column and found all 8 real gaps between the 9 buttons — including one only 9px wide
+      that the closing operation had bridged over — then split at each gap's midpoint.
+    - The wood divider bar and the speech bubble below it detected as one tall component; found the
+      real gap between them (y 541–573) the same way.
+
+    Filed all 30 into `assets/sprites/ui/` with new descriptor names (checked against the 4 existing
+    files first — no collisions). Left the folder flat for now despite crossing this library's usual
+    subfolder threshold (36 files, clean frames/buttons/icons/sockets sub-groups) — two of the
+    existing files are actively wired via `src/data/uiSprites.ts`/`bitmapNameplateFont.ts`, and a
+    split means rewriting those require paths, the same risk calculus as the `tiles/`/`nature/`
+    split but flagged as separate follow-on work rather than folded into this delivery.
+
+    Ran the edge-opacity defect scan across all 30 cut files: zero hits. Built and reviewed a full
+    30-item contact sheet before classifying — confirmed clean transparent backgrounds (no vignette
+    bleed into rounded corners) on every item, including both split cases. **Not yet wired** —
+    cutting and filing only, same as every prior delivery this session.
