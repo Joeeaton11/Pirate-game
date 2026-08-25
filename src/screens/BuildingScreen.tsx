@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Image, LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { backgroundForBuilding } from '../data/buildingBackgrounds';
 import { BUILDINGS, BuildingType } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import { AMBIENT_NPCS, BuildingInterior, InteriorFurniture, interiorForBuilding } from '../data/interiors';
@@ -17,24 +18,9 @@ import { useGameStore } from '../store/gameStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Building'>;
 
-const INTERIOR_COLORS: Record<BuildingType, string> = {
-  tavern: '#4a2f1a',
-  beach: '#8a6b3a',
-  manor: '#3a2a4a',
-  college: '#1a3a4a',
-  shrine: '#1a3a35',
-  shop: '#2a3a4a',
-  market: '#2a3a2a',
-  fort: '#3a3530',
-  chapel: '#2a2a3a',
-  warehouse: '#3a301f',
-  customs: '#2a2a20',
-  smithy: '#2a1c18',
-  ruins: '#26301f',
-  gaol: '#26262a',
-  watchtower: '#302a24',
-};
-
+// Base floor tone shown beneath the background Image while it loads, and at the room's edges if the
+// art doesn't perfectly fill the floor-plan aspect ratio. INTERIOR_COLORS (the old full-screen fill)
+// is gone now that both views render real backdrop art — see buildingBackgrounds.ts.
 const FLOOR_COLORS: Record<BuildingType, string> = {
   tavern: '#5c3a20',
   beach: '#a8834a',
@@ -282,6 +268,10 @@ export default function BuildingScreen({ navigation }: Props) {
   }
 
   const buildingId = building.id;
+  // Real backdrop art for this building's interior — a specific documented match where one exists,
+  // else the closest scene for its BuildingType (see buildingBackgrounds.ts). Replaces the flat
+  // INTERIOR_COLORS/FLOOR_COLORS fill both views used before this wiring pass.
+  const backgroundSource = backgroundForBuilding(buildingId, building.type);
   const recruit = building.recruit;
   const template = recruit ? CREW_TEMPLATES[recruit.templateId] : null;
   const alreadyHired = hiredBuildingIds.includes(buildingId);
@@ -338,10 +328,12 @@ export default function BuildingScreen({ navigation }: Props) {
 
   if (showCounter) {
     return (
-      <SafeAreaView
-        style={[styles.safeArea, { backgroundColor: INTERIOR_COLORS[building.type] }]}
-        edges={['top']}
-      >
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <Image source={backgroundSource} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        {/* Dark scrim over the art so the plain header text and any card without its own
+            translucent backing (the item/recruit cards already carry rgba(0,0,0,...) fills of
+            their own and read fine without help) stay legible over a busy background. */}
+        <View style={[StyleSheet.absoluteFill, styles.counterScrim]} />
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <Text style={styles.buildingEmoji}>{building.npcEmoji}</Text>
@@ -584,10 +576,7 @@ export default function BuildingScreen({ navigation }: Props) {
   }
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: INTERIOR_COLORS[building.type] }]}
-      edges={['top']}
-    >
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.roomHeader}>
         <Text style={styles.buildingEmoji}>{building.emoji}</Text>
         <Text style={styles.buildingName}>{building.name}</Text>
@@ -626,6 +615,8 @@ export default function BuildingScreen({ navigation }: Props) {
               },
             ]}
           >
+            <Image source={backgroundSource} style={StyleSheet.absoluteFill} resizeMode="cover" />
+
             {interior.furniture.map((item, i) => renderFurniture(item, i))}
 
             {interior.npcSpots.map((spot) => {
@@ -702,6 +693,10 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
   scrollContent: { paddingBottom: 12 },
+  // Sits between the counter view's background Image and its content. Tuned dark enough that the
+  // plain header text and the dialogue quote (neither has a translucent card of its own) stay
+  // legible over a busy scene, but light enough that the art underneath still reads as art.
+  counterScrim: { backgroundColor: 'rgba(0,0,0,0.32)' },
   header: { alignItems: 'center', paddingTop: 24, paddingBottom: 12 },
   roomHeader: { alignItems: 'center', paddingTop: 12, paddingBottom: 8 },
   buildingEmoji: { fontSize: 40 },
