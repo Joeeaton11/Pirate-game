@@ -5875,3 +5875,70 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     a full 29-item contact sheet before classifying, confirming correct boundaries on all three
     fused-detection cases and no leftover header text. **Not yet wired** — cutting and filing only,
     same as every prior delivery this session.
+
+177. ✅ **Cut two candidate UI kit sheets (124 sprites) into a dedicated `ui_candidates/` area, kept
+    separate from the active `ui/` library** (2026-08-25). The user explicitly said these — and any
+    more they load — "might not be the ones we go with," sent to compare designs before picking one,
+    so they're filed as `assets/sprites/ui_candidates/design_a/` (58 files) and `design_b/` (66
+    files) rather than merged into `ui/`'s naming scheme, which would have collided with the existing
+    `ui_button_normal_1` etc. series from items 175-176 and made "which kit is this from" unanswerable
+    later. See `assets/sprites/UI_KIT_CANDIDATES_MANIFEST.md`.
+
+    Design A: a magenta-background sheet, single wood/metal material per button state, matching
+    items 175-176's general layout (12 state buttons in 3 sizes, 8 icon buttons, panel/locked-panel
+    frame sets, a themed 4-row tab selector, 2 confirm/cancel modals, plus an "Extra Variations" strip
+    of alt-colored buttons/panels/corner brackets). Design B: a dark-navy sheet covering the same
+    UX-state system but with three parallel *material* lines per button/panel (wood plank, brass
+    plate, canvas & rope) and four modal/corner-bracket color variants instead of one — real design
+    alternatives, not just a recolor pass, which is exactly what "a choice of designs" asked for.
+
+    Both sheets have flat (if noisy) single-color backgrounds rather than items 175-176's soft
+    vignette-glow alpha, so this delivery used a different real-boundary technique: per-sheet global
+    background-color distance (sampled from a clean border strip, thresholded a handful of std-devs
+    above the background's own noise floor) instead of local-gradient/Sobel detection. That choice
+    surfaced its own defect worth flagging for future sheets like these: local-median background
+    estimation (the first approach tried) reads a large *uniform-fill* interior — a solid gold
+    button's flat center, not just its edges — as "background-like," since a median window sitting
+    deep inside a flat-colored area returns that same color with near-zero local diff. It silently
+    voided the interior alpha of several solid-fill buttons before the switch to global distance
+    caught it. Also dropped the soft/feathered alpha edge used on 175-176 in favor of a hard binary
+    threshold: with no real background glow to blend into, a feathered edge only left a ring of
+    partial-alpha pixels whose RGB is still literally the source background color — invisible until
+    composited elsewhere, where it reads as a colored fringe (classic non-premultiplied-alpha bleed).
+    Confirmed the fix by sampling the exact pixel at a known edge before/after.
+
+    Both sheets bake their own numbered/lettered group headers directly above their content with a
+    real but narrow gap (matching the "checklist grouping only" rule in `AGENTS.md`) — verified per
+    row via raw density-profile scans rather than one guessed offset, since row-to-row gaps varied
+    (Design A: 3 different header heights across its 9 groups; Design B: the worst case, where "A.
+    WOOD PLANK" sits right above its button, but "B. BRASS PLATE" is baked in *twice* — once for the
+    real brass row, and again, apparently mislabeled, above the canvas/rope row directly below it,
+    with the sheet's actual "C. CANVAS & ROPE" caption oddly trailing *after* that row instead of
+    before it. Read the real content boundary from the raw pixels each time rather than trusting the
+    label text's own claims, and caught two rounds of residual header bleed before all rows cut
+    clean).
+
+    A second real fused-detection problem on Design B: its panel/locked-panel frame groups (3 wide
+    material rows + 1 tall frame in its own column) aren't a uniform grid — the tall frame's column
+    spans the full height of rows 2+3 combined, and the last wide row doesn't extend under it. An
+    automatic grid splitter forced into that shape produced nonsense; fixed by reading the real
+    layout off a gridded pixel overlay and hand-specifying each of the 8 regions, same as items
+    170/174's "trust the pixels" precedent. Design A's tab-selector group (Crew/Ship/skull/anchor,
+    4 rows × inactive+active) split cleanly with a real gap between columns; Design B's tab group (a
+    fused 2-segment Crew|Ship inactive combo beside a single active pill) has no real background gap
+    between them at all in one row — the wood frames physically touch — so `tab_single_active_crew_1`
+    carries a few px of the neighboring combo's edge; flagged rather than hidden, same "shared edge"
+    tradeoff items 175-176 accepted for baked-together decorative elements.
+
+    Both kits' primary-button variants come in a size ladder like item 176's (`_s`/`_l`, or `_s`/`_m`/
+    `_l` where a sheet has 3), and Design B's confirm/cancel and Crew/Ship-tab labels are baked into
+    the art the same way item 176 flagged for its own kit — can't be relabeled without a redraw.
+
+    Ran the edge-opacity defect scan across all 124 cut files (58 + 66): zero hits — confirmed binary
+    alpha (no non-{0,255} values), no near-empty or near-fully-opaque crops. Built and visually
+    reviewed full contact sheets for both kits before filing, catching and re-cutting every group-
+    header bleed and neighbor-bleed case documented above. **Not yet wired, and not merged into the
+    active `ui/` library** — these are alternatives pending the user's choice of which (if either)
+    design to standardize on; per the standing "cut and file only" scope for every unsolicited-sheet
+    delivery this session, no UI kit (v1, v2, or either candidate here) has been wired into a real
+    screen yet.

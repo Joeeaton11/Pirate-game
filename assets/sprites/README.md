@@ -60,6 +60,7 @@ reorg — see `GAME_DESIGN.md`). The naming convention inside each subfolder is 
 | `items/` | Everything else inventory-related: cargo goods, consumables, quest items, keys, resources | *(not yet wired)* |
 | `quest_markers/` | Map/world icons for quest state: available, in-progress, discovered, locked | *(not yet wired)* |
 | `ui/` | HUD icons, buttons, panels, frames, dialogue boxes, portraits-in-UI | `src/data/uiSprites.ts` (parchment banner, name-plate board, skull badge) → `ConversationBox`; the compass-rose icon is cut but not yet wired |
+| `ui_candidates/{design_a,design_b}/` | Alternate full UI-kit designs (buttons/panels/tabs/modals) the user is comparing before picking one — kept separate from `ui/` on purpose so nothing collides with or gets confused for the active kit. See `UI_KIT_CANDIDATES_MANIFEST.md`. Once a design is chosen, expect its files to move into `ui/` proper (renamed to fit that folder's convention) and this subtree to either drop the losing design or be removed entirely | *(not yet wired — pending the user's choice)* |
 | `effects/` | Catch-all for FX that don't fit `combat/`, `water_fx/`, or `weather_fx/` (leave this one empty in practice — prefer the specific category) | *(not yet wired)* |
 
 If something seems to fit two folders, pick the one for what the object *is*, not where it's
