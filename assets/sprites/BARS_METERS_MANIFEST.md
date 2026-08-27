@@ -10,6 +10,10 @@ cooldown indicators) filling a real gap in the library, so it's filed straight i
 Cut 2026-08-27. **Not wired** — cutting and filing only, matching the scope of every prior
 unsolicited-sheet delivery this session.
 
+**Update, same day:** two more bars/meters sheets arrived shortly after this one (`ui_bars_meters_v2.png`,
+`ui_bars_meters_v3.png`). Since they cover the same content as this sheet, they're filed as candidates
+to compare rather than merged in here — see `BARS_METERS_CANDIDATES_MANIFEST.md`.
+
 ## Real defect: same low-contrast alpha issue as `ui_kit_candidate_c.png`
 
 Same dark-navy noisy background as design C (cut in the same delivery, see that manifest's defect

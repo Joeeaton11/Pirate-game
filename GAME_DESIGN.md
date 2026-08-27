@@ -5983,6 +5983,33 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     rather than assuming one cutoff applies across an entire row — the same "trust the pixels" standard
     applied throughout this session, just needed at finer granularity than before.
 
+179. ✅ **Cut two more Bars & Meters candidate sheets (31 + 34 = 65 sprites)** (2026-08-27), sent
+    right after item 178's `ui_bars_meters_v1.png` with a single "😉" and no other text. See the new
+    `assets/sprites/BARS_METERS_CANDIDATES_MANIFEST.md`.
+
+    Unlike v1 (no counterpart, filed straight into `ui/`), these two sheets cover the same ground v1
+    already filled — HP/stat bars, a level bar, a Heat/Wanted meter, cooldown indicators — so they're
+    filed as candidates to compare rather than a continuation, in new `ui_candidates/bars_meters_b/`
+    (31 items) and `ui_candidates/bars_meters_c/` (34 items) folders, same treatment as the design
+    A/B/C button-kit candidates.
+
+    First sheets this entire session to arrive with a **real per-item alpha channel already baked in**
+    at generation time — sampling showed a clean matte (interior ~254/255, background 0, normal
+    anti-aliased edge taper), so none of the background-reconstruction techniques used on every other
+    sheet (color-distance thresholding, edge detection, morphological cleanup) were needed. The cutting
+    task reduced to finding each item's true bounding box in the alpha the source already provided.
+
+    One real defect: connected-component labeling on the alpha found fewer components than real items
+    (27 vs 31 on the "b" sheet, 29 vs 34 on "c") — several items are baked touching their neighbor with
+    literally zero background gap between them, the same situation documented for design B's tab
+    selector in item 177. Five separate fused groups needed splitting: "b"'s 5-row ship's-wheel-cap bar
+    family, and "c"'s icon-capped stat-bar trio (shield/lightning/crossed-swords), wood-plank-track trio
+    (metal/gold-stud/rope corners), and "LVL"-badge pair (12/blue, 28/purple). Fixed by dividing each
+    fused blob's bounding box into N equal-height bands and checking the split against the actual pixel
+    content first (a gridline overlay over each candidate cut) before committing — every one of the 5
+    splits landed exactly on the real seam, confirmed by full-sheet contact sheets and a connected-
+    component debris scan afterward (zero secondary blobs on any of the 65 files).
+
     `assets/sprites/ui/` crosses its own README-stated subfolder-split threshold with this delivery
     (65→104 files, several genuinely distinct new sub-groups). Flagged in `DELIVERY_LOG.md`'s existing
     "Folder size note" rather than split unilaterally — same risk calculus already applied to
