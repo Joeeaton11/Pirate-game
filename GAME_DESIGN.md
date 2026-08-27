@@ -6021,3 +6021,41 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     neighbor-bleed, and header-bleed case documented above before filing. **Not yet wired** — cutting
     and filing only, same as every prior delivery this session. Neither the bars/meters sheet nor any
     of the three UI kit candidates (A/B/C) has been wired into a real screen.
+
+180. ✅ **Cut four more UI candidate sheets — three bars/meters, one widget kit (137 sprites)**
+    (2026-08-27), sent together with no accompanying text. See the updated
+    `assets/sprites/BARS_METERS_CANDIDATES_MANIFEST.md` and `UI_KIT_CANDIDATES_MANIFEST.md` (design D
+    section).
+
+    `ui_bars_meters_v4.png` (40 items), `v5.png` (28 items), and `v6.png` (29 items) join `bars_meters_
+    b`/`bars_meters_c` as three more bars/meters candidates (`bars_meters_d`, `_e`, `_f`).
+    `ui_kit_candidate_d.png` (40 items) is a different content mix — bar frames, banner flags, toggle
+    switches, checkboxes, round icon buttons, and nav icons, plus a few overlapping bar assets — filed
+    as a 4th button-kit-style design candidate (`ui_candidates/design_d/`), joining A/B/C. All four
+    sheets arrived pre-matted with real per-item alpha already baked in, same as v2/v3.
+
+    Same "baked touching, zero gap" fusion pattern recurred on all four sheets — 5 to 8 items per
+    fusion depending on the sheet, split at equal divisions verified against a gridline overlay first.
+    One fusion needed a different approach: v4's left column has 4 skull-banner colored bars stacked
+    directly on top of 4 resource-counter bars (fish/wood/rum/cannonball with baked fraction text),
+    765px tall with zero internal gap anywhere — since the two halves aren't equal height, an even
+    split would have cut into real content, so the actual per-item boundaries were read directly off a
+    finely-gridded overlay instead of assumed.
+
+    A second, more serious defect surfaced on v4-v6: connected-component **bounding boxes** can overlap
+    even when the components themselves don't touch — an irregularly-shaped bar frame's rectangle
+    extends well past its own visible silhouette, and a smaller separate item (a standalone "fill
+    piece" bar sitting just below it) can have its top edge fall inside that rectangle. The first
+    cutting pass cropped by alpha threshold within each item's own padded bounding box, which let a
+    geometrically-overlapping neighbor's pixels leak into the crop (caught on `bar_skull_track` in v5,
+    which picked up a sliver of the standalone red fill bar sitting directly beneath its frame — 7 more
+    files across v5/v6 had the same pattern). Fixed by masking each crop against the actual connected-
+    component label the pixel belongs to, not just an alpha threshold — a geometrically-overlapping
+    neighbor can no longer contribute pixels regardless of bbox overlap. Re-cut all four sheets with the
+    corrected method and reverified: the connected-component debris scan, which had flagged all 8
+    affected files under the old method, came back clean on every one of the 137 files.
+
+    Ran the edge-opacity defect scan across all 137 files: zero hits. Built and visually reviewed a full
+    contact sheet per sheet; confirmed correct content and clean isolation on every item, including all
+    6 split-from-fused items this round. **Not wired** — cutting and filing only, same as every prior
+    delivery this session.

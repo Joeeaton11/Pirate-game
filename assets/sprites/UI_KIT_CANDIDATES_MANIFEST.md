@@ -1,24 +1,26 @@
 # UI Kit Candidates — Delivery Manifest
 
 Sources: `assets/brand/tileset-catalog/ui_kit_candidate_a.png`, `ui_kit_candidate_b.png` (both
-2026-08-25), and `ui_kit_candidate_c.png` (2026-08-27, added in a later delivery) — 1536×1024 each,
-three full UI-kit reference sheets, sent with no accompanying text but explicitly flagged in
-conversation: *"I've got more sheets with more ui on. The ones I've loaded so far might not be the
-ones we go with... so we have a choice of designs and artwork."*
+2026-08-25), `ui_kit_candidate_c.png` (2026-08-27, added in a later delivery), and
+`ui_kit_candidate_d.png` (2026-08-27, added in a third delivery the same day) — 1536×1024 each, four
+full UI-kit reference sheets, sent with no accompanying text but explicitly flagged in conversation:
+*"I've got more sheets with more ui on. The ones I've loaded so far might not be the ones we go
+with... so we have a choice of designs and artwork."*
 
-Filed into a **separate `assets/sprites/ui_candidates/design_a/`, `design_b/`, and `design_c/`
-tree**, not merged into the active `ui/` library — a deliberate choice, not an oversight. All three
-sheets reuse the same 9-group layout as items 175-176's `UI_KIT_MANIFEST.md`/`UI_KIT_V2_MANIFEST.md`
-(primary/pressed/disabled/danger buttons, icon-only round buttons, panel frame, locked panel, tab
-selector, confirmation modal, plus an "Extra Variations" strip), which means naming them with
-`ui/`'s existing `ui_button_normal_1` etc. convention would collide outright. Keeping them in their
-own folders means nothing has to be decided or renamed until the user actually picks a design — at
-that point, expect the winner's files to move into `ui/` (renamed to fit its convention) and the
+Filed into a **separate `assets/sprites/ui_candidates/design_a/`, `design_b/`, `design_c/`, and
+`design_d/` tree**, not merged into the active `ui/` library — a deliberate choice, not an oversight.
+Designs A-C reuse the same 9-group layout as items 175-176's `UI_KIT_MANIFEST.md`/
+`UI_KIT_V2_MANIFEST.md` (primary/pressed/disabled/danger buttons, icon-only round buttons, panel
+frame, locked panel, tab selector, confirmation modal, plus an "Extra Variations" strip), which means
+naming them with `ui/`'s existing `ui_button_normal_1` etc. convention would collide outright.
+Design D is a different content mix (see its own section below) but gets the same folder treatment
+for the same reason — nothing has to be decided or renamed until the user actually picks a design, at
+which point expect the winner's files to move into `ui/` (renamed to fit its convention) and the
 losers to be dropped or kept as archived alternatives.
 
-Cut 2026-08-25 (designs A, B) and 2026-08-27 (design C). **Not wired** — cutting and filing only,
+Cut 2026-08-25 (designs A, B) and 2026-08-27 (designs C, D). **Not wired** — cutting and filing only,
 matching the scope of every prior unsolicited-sheet delivery this session. Neither `ui/`'s existing
-v1/v2 kits nor any of the three candidates here has been wired into a real screen yet.
+v1/v2 kits nor any of the four candidates here has been wired into a real screen yet.
 
 ## Real defect: local-median background estimation voids uniform-fill interiors
 
@@ -244,13 +246,48 @@ row, a pressed-icon reference strip, and label-plate/title-plaque examples not p
   "CANCEL"/"CONFIRM" buttons are permanently painted into the art, same limitation flagged for every
   prior UI kit this session — can't be relabeled without a redraw.
 
+## 40 sprites filed into `assets/sprites/ui_candidates/design_d/`
+
+Unlike A-C, design D isn't a button/panel/tab/modal ladder — it's a broader widget kit: bar frames,
+banner flags, toggle switches, checkboxes, round icon buttons, and nav icons, plus a handful of bar
+assets that overlap with the `bars_meters_*` candidates (see `BARS_METERS_CANDIDATES_MANIFEST.md`).
+Arrived alongside three more bars/meters sheets (`ui_bars_meters_v4/v5/v6.png`) in the same delivery,
+with a real per-item alpha channel already baked in (see that manifest's "genuine first" note) — no
+background reconstruction needed here either.
+
+Two fusions needed splitting, both verified against a gridline overlay first: a 5-row multi-icon stat
+bar family (heart/lightning/crown/potion/skull caps) split at equal fifths, and a 5-flag banner strip
+split at equal fifths, plus a smaller 3-up fusion (wheel/rope/metal frame circles) split at equal
+thirds. Also hit the bounding-box-overlap neighbor-bleed defect documented in
+`BARS_METERS_CANDIDATES_MANIFEST.md` (shared root cause, same delivery, same fix — mask crops against
+the actual connected-component label rather than a rectangular alpha threshold); re-cut and reverified
+clean.
+
+| Category | Count | Files |
+|---|---|---|
+| Bar frame, empty track, 3 styles (wheel/bandana cap, blank compass scroll, anchor cap) | 3 | `bar_frame_{wheel,scroll,anchor}_track` |
+| Blank decorative scroll/banner panel (treasure map, no bar) | 1 | `scroll_map_blank` |
+| XP scroll composite (yellow) + LVL/crown composite (purple) | 2 | `bar_scroll_xp_composite_yellow`, `bar_crown_lvl_composite_purple` |
+| Multi-icon stat bar (heart/lightning/crown/potion/skull caps), split from a 5-row fused blob | 5 | `bar_stat_{heart_red,lightning_blue,crown_yellow,potion_green,skull_purple}` |
+| Segmented boss bar, chain caps + skull medallion (single fused asset) | 1 | `boss_bar_segmented_chainskull` |
+| Combo anchor/wheel bar, split blue+orange fill (single fused asset) | 1 | `bar_combo_anchor_wheel_composite` |
+| Star-rating bar (5-star row, partially filled, single fused asset) | 1 | `star_rating_bar` |
+| Banner flag, icon + color per flag, split from a 5-flag fused strip | 5 | `banner_flag_{swords_red,anchor_blue,crown_green,skull_purple,trophy_orange}` |
+| Decorative frame circle (empty, no bar), 3 border styles, split from a 3-up fused row | 3 | `frame_circle_{wheel_gold,rope,metal_red}` |
+| Toggle switch, on/off × 2 colorways | 4 | `toggle_on_{green,gold}`, `toggle_off_gray_{1,2}` |
+| Checkbox button, 3 states | 3 | `checkbox_{check,x,empty}` |
+| Round icon button (stat/currency icons) | 6 | `icon_button_{heart_red,lightning_blue,coins_gold,potion_green,skull_red,trophy_purple}` |
+| Round nav icon (menu chrome) | 5 | `nav_icon_{menu,settings,speaker,music,home}` |
+
+**40 total.**
+
 ## Verification
 
-Ran the edge-opacity defect scan across all 243 cut files across all three designs (58 + 66 + 119):
-zero hits — confirmed binary alpha only (no values other than 0/255), no near-empty crops, no
-near-fully-opaque crops (which would indicate background bleeding into a "transparent" file). Built
-and visually reviewed full contact sheets for all three designs before filing, catching and re-
-cutting every group-header bleed, neighbor-bleed, and low-contrast-alpha case documented above.
+Ran the edge-opacity defect scan across all 283 cut files across all four designs (58 + 66 + 119 +
+40): zero hits — confirmed binary/near-binary alpha with no near-empty or near-fully-opaque crops
+(which would indicate background bleeding into a "transparent" file). Built and visually reviewed full
+contact sheets for all four designs before filing, catching and re-cutting every group-header bleed,
+neighbor-bleed, low-contrast-alpha, and bounding-box-overlap case documented above.
 
 ## Wiring
 
