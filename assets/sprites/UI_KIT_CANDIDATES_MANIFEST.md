@@ -1,23 +1,24 @@
 # UI Kit Candidates — Delivery Manifest
 
-Sources: `assets/brand/tileset-catalog/ui_kit_candidate_a.png` and `ui_kit_candidate_b.png` (1536×1024
-each) — two more full UI-kit reference sheets, sent with no accompanying text but explicitly flagged
-in conversation: *"I've got more sheets with more ui on. The ones I've loaded so far might not be
-the ones we go with... so we have a choice of designs and artwork."*
+Sources: `assets/brand/tileset-catalog/ui_kit_candidate_a.png`, `ui_kit_candidate_b.png` (both
+2026-08-25), and `ui_kit_candidate_c.png` (2026-08-27, added in a later delivery) — 1536×1024 each,
+three full UI-kit reference sheets, sent with no accompanying text but explicitly flagged in
+conversation: *"I've got more sheets with more ui on. The ones I've loaded so far might not be the
+ones we go with... so we have a choice of designs and artwork."*
 
-Filed into a **separate `assets/sprites/ui_candidates/design_a/` and `design_b/` tree**, not merged
-into the active `ui/` library — a deliberate choice, not an oversight. Both sheets reuse the exact
-same 9-group layout as items 175-176's `UI_KIT_MANIFEST.md`/`UI_KIT_V2_MANIFEST.md` (primary/
-pressed/disabled/danger buttons, icon-only round buttons, panel frame, locked panel, tab selector,
-confirmation modal, plus an "Extra Variations" strip), which means naming them with `ui/`'s existing
-`ui_button_normal_1` etc. convention would collide outright. Keeping them in their own folder means
-nothing has to be decided or renamed until the user actually picks a design — at that point, expect
-the winner's files to move into `ui/` (renamed to fit its convention) and the loser to be dropped or
-kept as an archived alternative.
+Filed into a **separate `assets/sprites/ui_candidates/design_a/`, `design_b/`, and `design_c/`
+tree**, not merged into the active `ui/` library — a deliberate choice, not an oversight. All three
+sheets reuse the same 9-group layout as items 175-176's `UI_KIT_MANIFEST.md`/`UI_KIT_V2_MANIFEST.md`
+(primary/pressed/disabled/danger buttons, icon-only round buttons, panel frame, locked panel, tab
+selector, confirmation modal, plus an "Extra Variations" strip), which means naming them with
+`ui/`'s existing `ui_button_normal_1` etc. convention would collide outright. Keeping them in their
+own folders means nothing has to be decided or renamed until the user actually picks a design — at
+that point, expect the winner's files to move into `ui/` (renamed to fit its convention) and the
+losers to be dropped or kept as archived alternatives.
 
-Cut 2026-08-25. **Not wired** — cutting and filing only, matching the scope of every prior
-unsolicited-sheet delivery this session. Neither `ui/`'s existing v1/v2 kits nor either candidate
-here has been wired into a real screen yet.
+Cut 2026-08-25 (designs A, B) and 2026-08-27 (design C). **Not wired** — cutting and filing only,
+matching the scope of every prior unsolicited-sheet delivery this session. Neither `ui/`'s existing
+v1/v2 kits nor any of the three candidates here has been wired into a real screen yet.
 
 ## Real defect: local-median background estimation voids uniform-fill interiors
 
@@ -167,17 +168,92 @@ panel state, and four modal/corner variants instead of one — a real design alt
   `ui/`'s existing `ui_button_normal_1` series.** They're being kept legitimately separate until the
   user picks one — premature renaming now would just mean renaming again later.
 
+## 119 sprites filed into `assets/sprites/ui_candidates/design_c/`
+
+Dark-navy sheet, third candidate. Denser than A or B: 5 material rows per button state (not 3-4),
+real English labels baked into several elements ("Ship's Crew"/"Crew Quarters" tab pair, not just
+"Crew"/"Ship"), and considerably more reference/extra material — size examples, a second icon-button
+row, a pressed-icon reference strip, and label-plate/title-plaque examples not present on A or B.
+
+| Category | Count | Files |
+|---|---|---|
+| Primary button, normal — 5 materials × 2 sizes | 10 | `primary_button_normal_{wood,gold,parchment,dark,green}_{s,l}` |
+| Primary button, pressed — 5 materials × 2 sizes | 10 | `primary_button_pressed_{wood,gold,parchment,dark,green}_{s,l}` |
+| Primary button, disabled — 5 materials × 2 sizes | 10 | `primary_button_disabled_{wood,gold,parchment,dark,green}_{s,l}` |
+| Danger/attack button, 5 style variants, 1 size each | 5 | `danger_button_1..5` |
+| Icon-only round buttons — back/close, normal | 8 | `icon_back_normal_1..4`, `icon_close_normal_1..4` (4 ring-color rows) |
+| Icon-only round buttons — 1 extra icon per row, pressed | 4 | `icon_extra_pressed_1..4` |
+| Panel/card frame — wide + square, 4 material rows | 8 | `panel_frame_wide_1..4`, `panel_frame_square_1..4` |
+| Locked panel — wide + square, 4 material rows | 8 | `locked_panel_wide_1..4`, `locked_panel_square_1..4` |
+| Tab/segment selector — "Ship's Crew"/"Crew Quarters", 5 color rows | 10 | `tab_inactive_ships_crew_1..5`, `tab_active_crew_quarters_1..5` |
+| Confirmation modal — 4 compact + 1 large ornate | 5 | `modal_small_1..4`, `modal_large` |
+| Extra: primary-button style variations, 2 rows × 5 | 10 | `button_style_1..10` |
+| Extra: panel-frame material variations | 5 | `panel_material_1..5` |
+| Extra: button-corner decorative swatches | 6 | `corner_style_1..6` |
+| Extra: button size reference (short/medium) | 2 | `button_size_short`, `button_size_medium` |
+| Extra: icon-only round buttons, 2nd row set | 10 | `icon_extra_1..10` |
+| Extra: pressed-icon reference strip | 4 | `pressed_icon_example_1..4` |
+| Extra: label-plate / title-plaque examples (for headers) | 4 | `label_plate_1..4` |
+
+**119 total.**
+
+### Real defects found and fixed on design C
+
+- **Dark, low-contrast "pressed"/"disabled" button art defeated the global-distance threshold used
+  for designs A/B.** Those states are deliberately darker/desaturated, which pushed large parts of
+  their own interior fill below the same distance-from-background threshold that worked fine for
+  design C's brighter "normal" buttons — first-pass crops came out as thin slivers (only the
+  brightest rivets/highlights survived), not full buttons. Fixed by lowering the threshold and adding
+  morphological closing + hole-filling to the mask (recovers interior pixels that dip below threshold
+  from local shading without pulling in real background), then re-cutting every item on the sheet
+  with the corrected mask — confirmed via a direct pixel-distance sample showing the "pressed" state's
+  median distance-from-background was ~24, well under the ~45 threshold that separated design A/B's
+  brighter art cleanly.
+- **A second, independent defect after that fix: closing/filling recovered each button's own interior,
+  but several crops — all five `primary_button_normal_*_l` buttons plus two `label_plate_*` — still
+  carried a small disconnected second blob (a neighboring group's rope-tassel or header-text fragment
+  sitting just outside the true item, close enough for the closing operation to nearly bridge them).
+  Fixed generally rather than per-file: for every crop, ran connected-component labeling and dropped
+  any component under 15% of the main component's size as debris; for the handful still over that
+  threshold (the true bleed fragments), re-cropped to the main component's own tight bounding box.
+  Verified with a fresh connected-component pass afterward: zero files retain a secondary blob.
+- **Group-header text baked directly above content, same class of defect as design B**, but with a
+  new wrinkle: on this sheet a single group's header can be positioned differently across its own
+  row (e.g. "EXTRA ICON ROUND BUTTONS" and "MATERIAL PALETTE REFERENCE" each turned out to overlap
+  only some of the columns beneath them, not the full row width) — first-pass boxes using one shared
+  y-boundary for the whole row left two files (`icon_extra_*` row 2, `material_swatch_rope`/`_wood`)
+  with header-text fragments that a same-row sibling using the identical y-boundary didn't have.
+  Fixed by reading the real per-column boundary directly off the pixel density profile rather than
+  assuming one cutoff applies across an entire row.
+- **Two items were undercounted on first read and corrected before cutting**: the "9. CONFIRMATION"
+  group's stacked small modals are 4, not the 5 a first glance at the reference thumbnail suggested;
+  the corner-style swatches used a pixel run-length scan (not eyeballing) that turned out cleanly
+  divisible into groups matching the visible art rather than any assumed count.
+
+### Judgment calls
+
+- **`danger_button_1..5` and `corner_style_1..6` use sequence numbers, not material/color names** —
+  unlike the primary-button rows (which repeat the same 5-material system and can be named by
+  material), these groups' per-row styling didn't map cleanly 1:1 onto that same 5-material set, so
+  numbering avoids asserting a material identity the art doesn't clearly support.
+- **`icon_extra_1..10` and `icon_back/close_normal_1..4` are kept as separate groups**, not merged
+  or renumbered together, since they come from two visibly different sections of the sheet (the
+  main icon-button group vs. the "Extra Icon Round Buttons" strip) with different icon sets — merging
+  their numbering would imply a relationship the source sheet doesn't have.
+- **Baked-in text**: the tab pair's "Ship's Crew"/"Crew Quarters" labels and both modal styles'
+  "CANCEL"/"CONFIRM" buttons are permanently painted into the art, same limitation flagged for every
+  prior UI kit this session — can't be relabeled without a redraw.
+
 ## Verification
 
-Ran the edge-opacity defect scan across all 124 cut files (58 + 66): zero hits — confirmed binary
-alpha only (no values other than 0/255), no near-empty crops, no near-fully-opaque crops (which
-would indicate background bleeding into a "transparent" file). Built and visually reviewed full
-contact sheets for both designs before filing, catching and re-cutting every group-header bleed and
-neighbor-bleed case documented above — including two full re-cut passes on design B's primary-button
-column and its two "Extra Variations" rows before both came back clean.
+Ran the edge-opacity defect scan across all 243 cut files across all three designs (58 + 66 + 119):
+zero hits — confirmed binary alpha only (no values other than 0/255), no near-empty crops, no
+near-fully-opaque crops (which would indicate background bleeding into a "transparent" file). Built
+and visually reviewed full contact sheets for all three designs before filing, catching and re-
+cutting every group-header bleed, neighbor-bleed, and low-contrast-alpha case documented above.
 
 ## Wiring
 
 **Not wired**, and **not merged into the active `ui/` library** — these are alternatives pending the
-user's choice of which design (if either) to standardize on. Cutting and filing only, matching the
+user's choice of which design (if any) to standardize on. Cutting and filing only, matching the
 scope of every prior unsolicited-sheet delivery this session.

@@ -5942,3 +5942,55 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     design to standardize on; per the standing "cut and file only" scope for every unsolicited-sheet
     delivery this session, no UI kit (v1, v2, or either candidate here) has been wired into a real
     screen yet.
+
+178. ✅ **Cut a third UI kit candidate (119 sprites) plus a new "Bars & Meters" sheet (39 sprites) —
+    158 total** (2026-08-27), two sheets sent together with no accompanying text. See
+    `assets/sprites/UI_KIT_CANDIDATES_MANIFEST.md` (design C section) and the new
+    `assets/sprites/BARS_METERS_MANIFEST.md`.
+
+    Design C joins A/B in `assets/sprites/ui_candidates/design_c/` — denser than either earlier
+    candidate (5 material rows per button state instead of 3-4, real baked English labels like
+    "Ship's Crew"/"Crew Quarters", plus reference-only extras — size examples, a second icon-button
+    row, a pressed-icon strip, label-plate/title-plaque examples — neither A nor B included). The
+    Bars & Meters sheet has no candidate counterpart to compare against, so it's new content filed
+    straight into the active `ui/` library: HP bar tracks/fills (3 ornament styles, plus 9 pre-tinted
+    high/mid/low reference examples), a fused XP/level bar in 3 colorways, a fused Heat/Wanted meter
+    in 3 tiers, 9 cooldown indicators (circular/clock/linear × ready/partial/cooldown), and 9 material-
+    palette reference swatches.
+
+    Both sheets share design C's own real defect, not seen on A/B: their "pressed"/"disabled" button
+    art is deliberately darker/lower-contrast, which pushed much of that art's own interior fill below
+    the flat global-distance threshold (45) that cleanly separated A/B's brighter art from their
+    backgrounds — first-pass crops came out as thin slivers, not full buttons (confirmed by direct
+    pixel sampling: the pressed state's own median distance-from-background was ~24, nowhere near the
+    45 threshold). Fixed by lowering the threshold to 18 and adding morphological closing + hole-
+    filling to the alpha mask, recovering real interior pixels that dip below threshold from local
+    shading without pulling in true background, then re-cutting the whole sheet with the corrected
+    mask. A second, independent defect then surfaced on the corrected mask: several crops (all five
+    `primary_button_normal_*_l` buttons, two `label_plate_*`, two `material_swatch_*`) carried a small
+    disconnected fragment of a neighboring group's rope-tassel or header text, close enough for the
+    closing operation to nearly bridge them into the real item. Fixed generally via connected-
+    component analysis across every cut file — drop any component under 15% of the main component's
+    size as debris, re-crop to the main component's own tight bounding box for the handful of larger
+    bleed fragments — rather than hand-tuning each affected box; verified with a fresh connected-
+    component pass afterward showing zero files retain a secondary blob.
+
+    Design C's header-text exclusion had a new wrinkle beyond design B's (item 177): on this sheet a
+    single group's header can overlap only *some* of the columns beneath it, not the full row width
+    (seen on "EXTRA ICON ROUND BUTTONS" and "MATERIAL PALETTE REFERENCE"), so a shared per-row y-
+    boundary that worked for most of a row's items still left header-text fragments in the columns it
+    didn't actually clear. Fixed by reading the real per-column boundary off the pixel density profile
+    rather than assuming one cutoff applies across an entire row — the same "trust the pixels" standard
+    applied throughout this session, just needed at finer granularity than before.
+
+    `assets/sprites/ui/` crosses its own README-stated subfolder-split threshold with this delivery
+    (65→104 files, several genuinely distinct new sub-groups). Flagged in `DELIVERY_LOG.md`'s existing
+    "Folder size note" rather than split unilaterally — same risk calculus already applied to
+    `tiles/ground/` and its siblings: real `require()` paths in `src/data/uiSprites.ts` would need
+    rewriting, and that's follow-on work, not something to fold into an already-large cutting pass.
+
+    Ran the edge-opacity defect scan across all 158 newly cut files: zero hits. Built and visually
+    reviewed full contact sheets for both deliveries, catching and re-cutting every low-contrast-alpha,
+    neighbor-bleed, and header-bleed case documented above before filing. **Not yet wired** — cutting
+    and filing only, same as every prior delivery this session. Neither the bars/meters sheet nor any
+    of the three UI kit candidates (A/B/C) has been wired into a real screen.
