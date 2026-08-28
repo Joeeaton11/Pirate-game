@@ -6088,3 +6088,29 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     contact sheet per sheet. **Not wired** — cutting and filing only, same as every prior delivery this
     session. `ui_candidates/` now holds six button/widget-kit designs (A-F) and five bars/meters
     candidates (b-f) alongside `ui/`'s own v1 content — all still awaiting the user's pick.
+
+182. ✅ **Cut one more UI candidate sheet (42 sprites)** (2026-08-27), sent alone with no accompanying
+    text. See the updated `assets/sprites/UI_KIT_CANDIDATES_MANIFEST.md` (design G section).
+
+    `ui_kit_candidate_h.png` (42 items → `ui_candidates/design_g/`) is another near-complete HUD kit in
+    the spirit of design F, but with real structural differences worth tracking, not just a reskin: the
+    BATTLE/MAP/SHOP buttons are **three separate assets** here (real gaps between them) instead of
+    design F's one fused menu panel, the toggle's "off" state renders red instead of gray, the HP bar
+    has no "+" button (design F's did), and there's only one treasure chest (open, jeweled — no
+    matching closed chest on this sheet). Arrived pre-matted like every sheet since v2.
+
+    One fusion needed splitting — a 2-flag banner pair (crown + an unusual icon) — split at the
+    equal-halves seam, verified against a gridline first. Cut using the connected-component-label
+    masking method, so no bounding-box-overlap bleed risk; confirmed by a clean debris scan.
+
+    Genuine content oddity, not a cutting defect: `icon_button_batball` and `banner_flag_batball_green`
+    show a real cricket-bat-and-ball icon in the slot every other sheet fills with crossed swords —
+    checked at full resolution to rule out a misread before concluding it's actually drawn that way.
+    Cut and filed as-drawn (standard is "cut what's on the sheet"), flagged in the manifest as likely a
+    generation quirk rather than an intentional design choice — the only non-pirate-themed icon
+    anywhere in the library so far.
+
+    Ran the edge-opacity defect scan across all 42 files: zero hits. Built and visually reviewed a full
+    contact sheet. **Not wired** — cutting and filing only, same as every prior delivery this session.
+    `ui_candidates/` now holds seven button/widget-kit designs (A-G) and five bars/meters candidates
+    (b-f) alongside `ui/`'s own v1 content — all still awaiting the user's pick.

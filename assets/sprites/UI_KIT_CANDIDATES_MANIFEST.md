@@ -2,34 +2,34 @@
 
 Sources: `assets/brand/tileset-catalog/ui_kit_candidate_a.png`, `ui_kit_candidate_b.png` (both
 2026-08-25), `ui_kit_candidate_c.png` and `ui_kit_candidate_d.png` (2026-08-27, added in later
-deliveries), and `ui_kit_candidate_f.png`/`ui_kit_candidate_g.png` (2026-08-27, added in a further
-delivery the same day — see the naming note below) — 1536×1024 each, six full UI-kit reference sheets,
-sent with no accompanying text but explicitly flagged in conversation: *"I've got more sheets with
-more ui on. The ones I've loaded so far might not be the ones we go with... so we have a choice of
-designs and artwork."*
+deliveries), `ui_kit_candidate_f.png`/`ui_kit_candidate_g.png` (2026-08-27, added in a further delivery
+the same day), and `ui_kit_candidate_h.png` (2026-08-27, added in a fourth delivery the same day) —
+1536×1024 each, seven full UI-kit reference sheets, sent with no accompanying text but explicitly
+flagged in conversation: *"I've got more sheets with more ui on. The ones I've loaded so far might not
+be the ones we go with... so we have a choice of designs and artwork."*
 
 **Naming note**: a sheet named `ui_kit_candidate_e.png` was uploaded alongside f and g but turned out
 to be a byte-for-byte duplicate of the already-filed `ui_kit_candidate_d.png` (confirmed via a direct
 pixel diff — 100% identical) — not cut again, and not added to the repo a second time. The candidate
 folders continue in letter order regardless (`design_e` comes from `ui_kit_candidate_f.png`, `design_f`
-from `ui_kit_candidate_g.png`), so the design-folder letters and the source-file letters intentionally
-diverge by one from this point on — check this manifest's per-design section for the real source
-filename rather than assuming they match.
+from `ui_kit_candidate_g.png`, `design_g` from `ui_kit_candidate_h.png`), so the design-folder letters
+and the source-file letters intentionally diverge by one from this point on — check this manifest's
+per-design section for the real source filename rather than assuming they match.
 
 Filed into a **separate `assets/sprites/ui_candidates/design_a/`, `design_b/`, `design_c/`, `design_d/`,
-`design_e/`, and `design_f/` tree**, not merged into the active `ui/` library — a deliberate choice, not
-an oversight. Designs A-C reuse the same 9-group layout as items 175-176's `UI_KIT_MANIFEST.md`/
-`UI_KIT_V2_MANIFEST.md` (primary/pressed/disabled/danger buttons, icon-only round buttons, panel
-frame, locked panel, tab selector, confirmation modal, plus an "Extra Variations" strip), which means
-naming them with `ui/`'s existing `ui_button_normal_1` etc. convention would collide outright.
-Designs D-F are a different content mix (see their own sections below) but get the same folder
-treatment for the same reason — nothing has to be decided or renamed until the user actually picks a
-design, at which point expect the winner's files to move into `ui/` (renamed to fit its convention)
-and the losers to be dropped or kept as archived alternatives.
+`design_e/`, `design_f/`, and `design_g/` tree**, not merged into the active `ui/` library — a deliberate
+choice, not an oversight. Designs A-C reuse the same 9-group layout as items 175-176's
+`UI_KIT_MANIFEST.md`/`UI_KIT_V2_MANIFEST.md` (primary/pressed/disabled/danger buttons, icon-only round
+buttons, panel frame, locked panel, tab selector, confirmation modal, plus an "Extra Variations" strip),
+which means naming them with `ui/`'s existing `ui_button_normal_1` etc. convention would collide
+outright. Designs D-G are a different content mix (see their own sections below) but get the same
+folder treatment for the same reason — nothing has to be decided or renamed until the user actually
+picks a design, at which point expect the winner's files to move into `ui/` (renamed to fit its
+convention) and the losers to be dropped or kept as archived alternatives.
 
-Cut 2026-08-25 (designs A, B) and 2026-08-27 (designs C, D, E, F). **Not wired** — cutting and filing
+Cut 2026-08-25 (designs A, B) and 2026-08-27 (designs C, D, E, F, G). **Not wired** — cutting and filing
 only, matching the scope of every prior unsolicited-sheet delivery this session. Neither `ui/`'s existing
-v1/v2 kits nor any of the six candidates here has been wired into a real screen yet.
+v1/v2 kits nor any of the seven candidates here has been wired into a real screen yet.
 
 ## Real defect: local-median background estimation voids uniform-fill interiors
 
@@ -374,15 +374,61 @@ against the manual visual catalog (also 51) before cutting a single file.
   range from 35×22px to 49×53px and each is a different loose coin or gem fragment scattered near the
   open chest in the source art, not a deliberate 5-tier sequence like the medal/badge rows.
 
+## 42 sprites filed into `assets/sprites/ui_candidates/design_g/`
+
+Source: `ui_kit_candidate_h.png`. Another near-complete HUD kit in the spirit of design F, but with
+real structural differences worth knowing about, not just a reskin: the BATTLE/MAP/SHOP buttons are
+**three separate button assets** here (real gaps between them) rather than design F's one fused
+`menu_panel_battle_map_shop`, the toggle's "off" state renders **red** instead of gray, the HP heart
+bar has no "+" button (design F's did), and there's only one treasure chest (open, jeweled — no
+matching closed chest on this sheet).
+
+Arrived pre-matted like every sheet since v2. One fusion needed splitting (a 2-flag banner pair, crown
++ an unusual "bat and ball" icon — see Judgment calls), verified against a gridline overlay first, same
+as every prior fused case. Cut using the connected-component-label masking method (no bbox-overlap
+bleed risk).
+
+| Category | Count | Files |
+|---|---|---|
+| LVL/XP/HP bar composite (crown-cap LVL, scroll-cap XP, heart-cap HP — no "+" button on HP here) | 3 | `bar_crown_lvl_composite_yellow`, `bar_scroll_xp_composite_blue`, `bar_heart_composite_red` |
+| Resource bar with "+" button and baked value (coins/gems) | 2 | `resource_bar_{coins,gem}_composite_plus` |
+| Blank decorative map scroll (compass medallion cap) | 1 | `scroll_map_compass_blank` |
+| Action button, baked text, each its own asset (not fused into one panel) | 4 | `button_{play_composite_large,battle_composite,map_composite,shop_composite}` |
+| Toggle switch, on (green) / off (**red**, not gray) | 2 | `toggle_{on_green,off_red}` |
+| Banner flag (full-size), split from a 2-flag fused pair | 4 | `banner_flag_{skull_black,anchor_blue,crown_red,batball_green}` |
+| Nav arrow icon (chip background) | 2 | `nav_arrow_{left_orange,right_blue}` |
+| Round nav icon (menu chrome) | 5 | `nav_icon_{home,settings,menu,speaker,music}` |
+| Treasure chest, open with jewels (no matching closed chest on this sheet) | 1 | `treasure_chest_open_jeweled` |
+| Round icon button (stat/currency icons, including the "bat and ball" oddity) | 6 | `icon_button_{heart_red,lightning_blue,coins_gold,gem_blue,potion_green,batball}` |
+| Small pennant banner | 6 | `pennant_{skull,swords,wheel,crown,trophy,map}` |
+| Heart HP icon, 3 states | 3 | `heart_{full,half,empty}` |
+| Loose treasure piece (scattered coin/gem props) | 3 | `loose_treasure_piece_1..3` |
+
+**42 total.**
+
+## Judgment calls (design G)
+
+- **`icon_button_batball` and `banner_flag_batball_green` show a genuinely unusual cricket-bat-and-
+  ball icon** in place of the crossed-swords motif every other sheet uses in this slot — checked
+  directly at full resolution to rule out a misread (it's not stylized swords, it's a wooden bat and a
+  red ball). Cut and filed as-drawn since the standard is "cut what's on the sheet," but flagged since
+  it's the only non-pirate-themed icon anywhere in the library and is likely a generation quirk rather
+  than an intentional design choice.
+- **The BATTLE/MAP/SHOP buttons being separate assets here (vs. design F's single fused panel) is a
+  real, useful difference**, not a cutting inconsistency — worth keeping in mind if design F and G both
+  stay in the running, since G's version is the more flexible one for an actual menu screen (each
+  button can be positioned/reused independently).
+
 ## Verification
 
-Ran the edge-opacity defect scan across all 372 cut files across all six designs (58 + 66 + 119 + 40 +
-38 + 51): zero hits — confirmed binary/near-binary alpha with no near-empty or near-fully-opaque crops
-(which would indicate background bleeding into a "transparent" file). Ran the connected-component
+Ran the edge-opacity defect scan across all 414 cut files across all seven designs (58 + 66 + 119 + 40
++ 38 + 51 + 42): zero hits — confirmed binary/near-binary alpha with no near-empty or near-fully-opaque
+crops (which would indicate background bleeding into a "transparent" file). Ran the connected-component
 debris scan (catches both the disconnected-fragment defect class and the bounding-box-overlap defect
-documented in `BARS_METERS_CANDIDATES_MANIFEST.md`): zero hits on designs E and F. Built and visually
-reviewed full contact sheets for all six designs before filing, catching and re-cutting every group-
-header bleed, neighbor-bleed, low-contrast-alpha, and bounding-box-overlap case documented above.
+documented in `BARS_METERS_CANDIDATES_MANIFEST.md`): zero hits on designs E, F, and G. Built and
+visually reviewed full contact sheets for all seven designs before filing, catching and re-cutting
+every group-header bleed, neighbor-bleed, low-contrast-alpha, and bounding-box-overlap case documented
+above.
 
 ## Wiring
 
