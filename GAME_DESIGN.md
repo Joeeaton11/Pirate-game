@@ -6059,3 +6059,32 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     contact sheet per sheet; confirmed correct content and clean isolation on every item, including all
     6 split-from-fused items this round. **Not wired** — cutting and filing only, same as every prior
     delivery this session.
+
+181. ✅ **Cut two more UI candidate sheets — 89 sprites — plus caught an exact duplicate upload**
+    (2026-08-27), sent with "Continue from where you left off" (twice) and "Let's go". See the updated
+    `assets/sprites/UI_KIT_CANDIDATES_MANIFEST.md` (design E, F sections).
+
+    Three sheets arrived; one (`ui_kit_candidate_e.png`) turned out to be a **byte-for-byte duplicate**
+    of the already-filed `ui_kit_candidate_d.png` — caught via a direct pixel diff before cutting
+    anything (100% identical pixels, zero mean difference), so it was not re-cut or re-added to the
+    repo. The other two are genuinely new: `ui_kit_candidate_f.png` (38 items → `ui_candidates/
+    design_e/`) is a reskin of design D's widget-kit content — same categories, different dressing
+    (a lantern-hung wheel bar frame, a ship-silhouette map scroll, a black pirate-flag panel, a
+    hibiscus/parrot decorative frame). `ui_kit_candidate_g.png` (51 items → `ui_candidates/design_f/`)
+    is the richest single sheet this session — a near-complete game HUD kit (resource bars with "+"
+    buttons, a full baked-text BATTLE/MAP/SHOP menu panel that's the largest fused asset cut all
+    session, PLAY/FIGHT/CONTINUE text buttons, two treasure chests, medals, potions, pennants, and 5
+    tiny loose treasure-piece props) — and the first sheet in the whole `design_*`/`bars_meters_*`
+    series with **zero fused items**: all 51 raw connected components matched the manual visual catalog
+    1:1, confirmed before cutting a single file.
+
+    Design E needed 4 fusion splits (three equal-halves pairs, one equal-sevenths icon-button row),
+    each verified against a gridline overlay first, same technique as every prior fused-item case this
+    session. Both sheets arrived pre-matted (real alpha baked in) and were cut using the connected-
+    component-label masking method from item 180's fix, so no bounding-box-overlap bleed occurred on
+    either — confirmed by a clean connected-component debris scan across all 89 files.
+
+    Ran the edge-opacity defect scan across all 89 files: zero hits. Built and visually reviewed a full
+    contact sheet per sheet. **Not wired** — cutting and filing only, same as every prior delivery this
+    session. `ui_candidates/` now holds six button/widget-kit designs (A-F) and five bars/meters
+    candidates (b-f) alongside `ui/`'s own v1 content — all still awaiting the user's pick.
