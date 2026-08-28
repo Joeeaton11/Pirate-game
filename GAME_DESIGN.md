@@ -6114,3 +6114,30 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     contact sheet. **Not wired** — cutting and filing only, same as every prior delivery this session.
     `ui_candidates/` now holds seven button/widget-kit designs (A-G) and five bars/meters candidates
     (b-f) alongside `ui/`'s own v1 content — all still awaiting the user's pick.
+
+183. ✅ **Cut three more UI candidate sheets — 112 sprites — a new content category** (2026-08-27),
+    sent together with no accompanying text (followed up with "Continue from where you left off" ×2
+    and "Wake up"). See the updated `assets/sprites/UI_KIT_CANDIDATES_MANIFEST.md` (design H, I, J
+    sections).
+
+    `ui_kit_candidate_i.png`/`j.png`/`k.png` (39 + 37 + 36 items → `ui_candidates/design_h/`,
+    `design_i/`, `design_j/`) introduce a genuinely new category for this manifest: **screen-navigation
+    kits** — top status bars with coin/gem/heart counters and "+" buttons, 5-tab navigation bars, big
+    illustrated menu category cards (World Map/Battle/Shop/Teams/Achievements/Settings), banner-label
+    and banner-action buttons, round nav/icon buttons, and pill-shaped state buttons — rather than
+    another button ladder (A-C) or widget grab-bag (D-G). All three arrived pre-matted like every sheet
+    since v2.
+
+    Designs H and I had zero fusions — both sheets' raw connected-component counts (39, 37) matched
+    the manual visual catalog 1:1, confirmed before cutting. Design J had one 3-item fusion: a REWARDS
+    banner baked directly on top of a right-arrow icon and a close/X icon, all touching with zero
+    background gap across a 193px-tall blob (checked the row-density profile first — genuinely no gap
+    existed to find automatically). Split by reading the real boundaries off a finely-gridded pixel
+    overlay: the banner/icon-row seam, then the arrow/X seam within that row — both confirmed clean on
+    the contact sheet afterward.
+
+    Ran the edge-opacity defect scan across all 112 files: zero hits. Ran the connected-component
+    debris scan: zero hits, including on all 3 split-from-fused items. Built and visually reviewed a
+    full contact sheet per sheet. **Not wired** — cutting and filing only, same as every prior delivery
+    this session. `ui_candidates/` now holds ten button/widget/navigation-kit designs (A-J) and five
+    bars/meters candidates (b-f) alongside `ui/`'s own v1 content — all still awaiting the user's pick.

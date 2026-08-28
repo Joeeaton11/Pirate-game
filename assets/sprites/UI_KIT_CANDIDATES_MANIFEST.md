@@ -3,8 +3,9 @@
 Sources: `assets/brand/tileset-catalog/ui_kit_candidate_a.png`, `ui_kit_candidate_b.png` (both
 2026-08-25), `ui_kit_candidate_c.png` and `ui_kit_candidate_d.png` (2026-08-27, added in later
 deliveries), `ui_kit_candidate_f.png`/`ui_kit_candidate_g.png` (2026-08-27, added in a further delivery
-the same day), and `ui_kit_candidate_h.png` (2026-08-27, added in a fourth delivery the same day) —
-1536×1024 each, seven full UI-kit reference sheets, sent with no accompanying text but explicitly
+the same day), `ui_kit_candidate_h.png` (2026-08-27, added in a fourth delivery the same day), and
+`ui_kit_candidate_i.png`/`j.png`/`k.png` (2026-08-27, added in a fifth delivery the same day) —
+1536×1024 each, ten full UI-kit reference sheets, sent with no accompanying text but explicitly
 flagged in conversation: *"I've got more sheets with more ui on. The ones I've loaded so far might not
 be the ones we go with... so we have a choice of designs and artwork."*
 
@@ -12,24 +13,31 @@ be the ones we go with... so we have a choice of designs and artwork."*
 to be a byte-for-byte duplicate of the already-filed `ui_kit_candidate_d.png` (confirmed via a direct
 pixel diff — 100% identical) — not cut again, and not added to the repo a second time. The candidate
 folders continue in letter order regardless (`design_e` comes from `ui_kit_candidate_f.png`, `design_f`
-from `ui_kit_candidate_g.png`, `design_g` from `ui_kit_candidate_h.png`), so the design-folder letters
-and the source-file letters intentionally diverge by one from this point on — check this manifest's
-per-design section for the real source filename rather than assuming they match.
+from `ui_kit_candidate_g.png`, `design_g` from `ui_kit_candidate_h.png`, `design_h`/`design_i`/`design_j`
+from `ui_kit_candidate_i.png`/`j.png`/`k.png`), so the design-folder letters and the source-file letters
+intentionally diverge by one from this point on — check this manifest's per-design section for the real
+source filename rather than assuming they match.
 
 Filed into a **separate `assets/sprites/ui_candidates/design_a/`, `design_b/`, `design_c/`, `design_d/`,
-`design_e/`, `design_f/`, and `design_g/` tree**, not merged into the active `ui/` library — a deliberate
-choice, not an oversight. Designs A-C reuse the same 9-group layout as items 175-176's
-`UI_KIT_MANIFEST.md`/`UI_KIT_V2_MANIFEST.md` (primary/pressed/disabled/danger buttons, icon-only round
-buttons, panel frame, locked panel, tab selector, confirmation modal, plus an "Extra Variations" strip),
-which means naming them with `ui/`'s existing `ui_button_normal_1` etc. convention would collide
-outright. Designs D-G are a different content mix (see their own sections below) but get the same
-folder treatment for the same reason — nothing has to be decided or renamed until the user actually
-picks a design, at which point expect the winner's files to move into `ui/` (renamed to fit its
-convention) and the losers to be dropped or kept as archived alternatives.
+`design_e/`, `design_f/`, `design_g/`, `design_h/`, `design_i/`, and `design_j/` tree**, not merged into
+the active `ui/` library — a deliberate choice, not an oversight. Designs A-C reuse the same 9-group
+layout as items 175-176's `UI_KIT_MANIFEST.md`/`UI_KIT_V2_MANIFEST.md` (primary/pressed/disabled/danger
+buttons, icon-only round buttons, panel frame, locked panel, tab selector, confirmation modal, plus an
+"Extra Variations" strip), which means naming them with `ui/`'s existing `ui_button_normal_1` etc.
+convention would collide outright. Designs D-J are each a different content mix (see their own sections
+below) but get the same folder treatment for the same reason — nothing has to be decided or renamed
+until the user actually picks a design, at which point expect the winner's files to move into `ui/`
+(renamed to fit its convention) and the losers to be dropped or kept as archived alternatives.
 
-Cut 2026-08-25 (designs A, B) and 2026-08-27 (designs C, D, E, F, G). **Not wired** — cutting and filing
+Designs H, I, and J are a genuinely new category within this manifest: a **screen-navigation kit**
+(top status bars with resource counters and "+" buttons, 5-tab navigation bars, big menu category
+cards, banner-label buttons, banner action buttons, round nav/icon buttons, and pill-shaped state
+buttons) rather than the primary/pressed/disabled button ladders A-C use or the widget-grab-bag mix
+D-G use — see their sections below for the full breakdown.
+
+Cut 2026-08-25 (designs A, B) and 2026-08-27 (designs C through J). **Not wired** — cutting and filing
 only, matching the scope of every prior unsolicited-sheet delivery this session. Neither `ui/`'s existing
-v1/v2 kits nor any of the seven candidates here has been wired into a real screen yet.
+v1/v2 kits nor any of the ten candidates here has been wired into a real screen yet.
 
 ## Real defect: local-median background estimation voids uniform-fill interiors
 
@@ -419,16 +427,98 @@ bleed risk).
   stay in the running, since G's version is the more flexible one for an actual menu screen (each
   button can be positioned/reused independently).
 
+## 39 sprites filed into `assets/sprites/ui_candidates/design_h/` (from `ui_kit_candidate_i.png`)
+
+The first of a new content category for this manifest: a **screen-navigation kit** — status bars,
+5-tab navigation bars, category menu cards, and every supporting button/pill needed to build a real
+game menu screen, rather than another primary/pressed/disabled button ladder. Arrived pre-matted like
+every sheet since v2. No fusions — all 39 raw connected components were real, distinct items 1:1,
+cut using the connected-component-label masking method.
+
+| Category | Count | Files |
+|---|---|---|
+| Top status bar (portrait/wheel/anchor/skull cap, coin/gem/heart counters with "+" buttons) | 4 | `topbar_{pirateface,wheel,anchor,skullhat}_...` |
+| 5-tab navigation bar (Map/Battle/Shop/Teams/Settings), 2 styles | 2 | `tabbar_wood_5tab_map_active`, `tabbar_scroll_5tab_flat` |
+| Menu category card, image + banner label baked together | 6 | `menucard_{world_map,battle,shop,teams,achievements,settings}` |
+| Banner-label button, category name only (no image) | 6 | `banner_label_{world_map,battle,shop,teams,achievements,settings}` |
+| Banner action button, baked text | 6 | `banner_action_{next_match,victory,defeat,loading,rewards,profile}` |
+| Round nav "hamburger" menu icon, 4 border styles | 4 | `nav_icon_menu_{gold,wheel,metal,bronze}` |
+| "BACK" button, 2 styles | 2 | `button_back_{wood,scroll}` |
+| Round left-arrow icon, 3 styles | 3 | `nav_arrow_left_{bronze,blue_circle,anchor_blue}` |
+| Round close/X icon, 2 styles | 2 | `nav_icon_close_{red_circle,square_metal}` |
+| Pill-shaped state button | 4 | `pill_{active,completed,locked,claim}` |
+
+**39 total.**
+
+## 37 sprites filed into `assets/sprites/ui_candidates/design_i/` (from `ui_kit_candidate_j.png`)
+
+A reskin of design H's navigation-kit content — same categories, different dressing (a black
+pirate-flag top bar, a blank parchment-scroll nav icon, green checkmark icons in place of some of
+design H's close/arrow set). Arrived pre-matted; no fusions, all 37 components real and distinct.
+
+| Category | Count | Files |
+|---|---|---|
+| Top status bar, 2 styles (portrait cap, black pirate-flag) | 2 | `topbar_{pirateface_coin_heart,blackflag_coin_gem_heart_gear}` |
+| 5-tab navigation bar, 2 styles | 2 | `tabbar_{wood_anchor_5tab_map_active,scroll_5tab_flat}` |
+| Menu category card | 6 | `menucard_{world_map,battle,shop,teams,achievements,settings}` |
+| Banner-label button | 6 | `banner_label_{world_map,battle,shop,teams,achievements,settings}` |
+| Banner action button, baked text | 6 | `banner_action_{next_match,victory,defeat,loading,rewards,profile}` |
+| Round nav icon (menu/grid/wheel/blank-scroll) | 4 | `nav_icon_{menu,grid,wheel,scroll_blank}` |
+| "BACK" button, 2 styles | 2 | `button_back_{wood,scroll}` |
+| Round left-arrow icon, 2 styles | 2 | `nav_arrow_left_{blue_circle,bronze_circle}` |
+| Round close/X and checkmark icons | 3 | `nav_icon_close_red_circle`, `nav_icon_check_green_{circle,square}` |
+| Pill-shaped state button | 4 | `pill_{active,completed,locked,claim}` |
+
+**37 total.**
+
+## 36 sprites filed into `assets/sprites/ui_candidates/design_j/` (from `ui_kit_candidate_k.png`)
+
+A third navigation-kit variant — bell/mail notification icons instead of design H/I's grid/close
+duplicates, a single "BACK" button (not two styles), and only one close icon. Arrived pre-matted.
+
+One 3-item fusion found and split: a REWARDS banner baked directly on top of a right-arrow icon and a
+close/X icon, all touching with zero background gap, spanning a full 193px-tall blob. No row-density
+gap existed to find (checked and confirmed zero low-density rows), so the real boundaries were read
+off a finely-gridded pixel overlay: the banner/icon-row seam at local y=95, then the arrow/X seam at
+local x=120 within the icon row. Both cuts confirmed clean on the contact sheet — no bleed between the
+banner and either icon.
+
+| Category | Count | Files |
+|---|---|---|
+| Top status bar, 2 styles | 2 | `topbar_{pirateface_coin_heart,scroll_coin_gem_heart_palm}` |
+| 5-tab navigation bar, 2 styles | 2 | `tabbar_{wood_wheel_5tab_map_active_skullflag,scroll_5tab_flat}` |
+| Menu category card | 6 | `menucard_{world_map,battle,shop,teams,achievements,settings}` |
+| Banner-label button | 6 | `banner_label_{world_map,battle,shop,teams,achievements,settings}` |
+| Banner action button, baked text (rewards banner split from the 3-item fusion above) | 5 | `banner_action_{next_match,victory,defeat,loading,profile,rewards}` |
+| Round nav icon (menu/grid/bell/mail) | 4 | `nav_icon_{menu,grid,bell,mail}` |
+| "BACK" button | 1 | `button_back_wood` |
+| Round left/right-arrow icon (right-arrow split from the fusion above) | 2 | `nav_arrow_{left_bronze,right_gold}` |
+| Round close/X and checkmark icons (one close icon split from the fusion above) | 3 | `nav_icon_close_red_circle`, `nav_icon_close_red_circle_2`, `nav_icon_check_green_circle` |
+| Pill-shaped state button | 4 | `pill_{active,completed,locked,claim}` |
+
+**36 total.**
+
+## Judgment calls (designs H, I, J)
+
+- **`menucard_*` and `banner_label_*` cover the same 6 categories with overlapping purpose** — the
+  menucard is a full illustrated card (image + baked banner), the banner_label is just the banner on
+  its own. Likely meant as two different UI moments (a big category-select screen vs. a compact list
+  row), not duplicates; kept both.
+- **design_j has fewer icon variants than H/I** (one BACK button instead of two, one close icon
+  instead of two) — this is the sheet's own content, not an incomplete cut; confirmed nothing was
+  missed by cross-checking the raw component count (34) against the manual visual catalog before
+  extraction.
+
 ## Verification
 
-Ran the edge-opacity defect scan across all 414 cut files across all seven designs (58 + 66 + 119 + 40
-+ 38 + 51 + 42): zero hits — confirmed binary/near-binary alpha with no near-empty or near-fully-opaque
-crops (which would indicate background bleeding into a "transparent" file). Ran the connected-component
-debris scan (catches both the disconnected-fragment defect class and the bounding-box-overlap defect
-documented in `BARS_METERS_CANDIDATES_MANIFEST.md`): zero hits on designs E, F, and G. Built and
-visually reviewed full contact sheets for all seven designs before filing, catching and re-cutting
-every group-header bleed, neighbor-bleed, low-contrast-alpha, and bounding-box-overlap case documented
-above.
+Ran the edge-opacity defect scan across all 526 cut files across all ten designs (58 + 66 + 119 + 40 +
+38 + 51 + 42 + 39 + 37 + 36): zero hits — confirmed binary/near-binary alpha with no near-empty or
+near-fully-opaque crops (which would indicate background bleeding into a "transparent" file). Ran the
+connected-component debris scan (catches both the disconnected-fragment defect class and the
+bounding-box-overlap defect documented in `BARS_METERS_CANDIDATES_MANIFEST.md`): zero hits on designs
+E through J. Built and visually reviewed full contact sheets for all ten designs before filing,
+catching and re-cutting every group-header bleed, neighbor-bleed, low-contrast-alpha, and
+bounding-box-overlap case documented above.
 
 ## Wiring
 
