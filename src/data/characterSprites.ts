@@ -58,6 +58,7 @@ export const BLACKFIN_PORTRAIT_CROP_FRACTION = 1;
 export const LORD_PORTRAITS = {
   lord_cow_island: require('../../assets/sprites/characters/redbeard_sully_portrait_1.png'),
   lord_new_providence: require('../../assets/sprites/characters/iron_jenny_portrait_1.png'),
+  lord_roatan: require('../../assets/sprites/characters/captain_bellows_portrait_1.png'),
 };
 
 /** Aspect ratio per lord portrait — see ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO's doc comment; same
@@ -65,6 +66,7 @@ export const LORD_PORTRAITS = {
 export const LORD_PORTRAIT_ASPECT_RATIOS: Record<string, number> = {
   lord_cow_island: 1404 / 990,
   lord_new_providence: 1454 / 940,
+  lord_roatan: 1306 / 1080,
 };
 
 /** Crop fraction per lord portrait — see ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION's doc comment: no
@@ -72,4 +74,5 @@ export const LORD_PORTRAIT_ASPECT_RATIOS: Record<string, number> = {
 export const LORD_PORTRAIT_CROP_FRACTIONS: Record<string, number> = {
   lord_cow_island: 1,
   lord_new_providence: 1,
+  lord_roatan: 1,
 };

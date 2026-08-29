@@ -6516,3 +6516,25 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     points: Grace/Blackfin/Sully/Jenny all now show full-body with no leg/boot cutoff, and Sully/Jenny's
     Challenge/Leave buttons still sit clean above their boxes despite the taller portraits. Zero
     console errors.
+
+195. ✅ **Captain Bellows (Pirate Lord #3) — first-attempt accept** (2026-08-30). Brief asked for a
+    disciplined dockyard gunner rather than a swashbuckler or self-styled king — practical over
+    flashy, iron-grey/charcoal/brass palette, a linstock or cannon-crew gear instead of a blade. First
+    render delivered all of it: powder-cartridge bandolier, scorched leather apron, an eyepatch and
+    soot-smudged face (nice unscripted touch selling "close to explosions for a living"), a lit
+    slow-match staff, and cannonballs on a chain instead of jewelry or a sword — accepted without a
+    redo.
+
+    Wiring was the same zero-screen-code-change pattern Iron Jenny confirmed: three new entries in
+    `characterSprites.ts` (`LORD_PORTRAITS`, aspect ratio, crop fraction) against the existing
+    `PirateLordScreen.tsx` branch. `portraitCropFraction: 1` from the start (no belt-line tuning
+    needed) since item 194 turned NPC cropping off entirely earlier the same day — first Lord to skip
+    that step altogether rather than being tuned and then reverted.
+
+    Solid flat dark-navy backdrop, same cutting technique as Grace/Blackfin/Sully (tight ~7-unit
+    border-connected flood fill), clean at every threshold tried — no shadow-collision issues.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut: renders full-body, facing screen-left, Leave button sitting clean
+    above the box (Sully not yet defeated in this session, so his locked-dialogue line shows
+    correctly). Zero console errors.
