@@ -6247,3 +6247,57 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     real headless-Chromium session at Tortuga Cove's actual spawn point (the same dirt-path bends shown
     in the flagged screenshot): zero console errors, and the path bends now render as flat square joins
     instead of rounded blobs.
+
+187. ✅ **First real NPC portrait: Admiral Grace, wired into `GraceScreen.tsx`** (2026-08-29). Follow-up
+    to item 185's audit, which flagged every crew/lord/threat as emoji-only — the user picked Grace as
+    the first character to generate real art for and sent two candidate renders (an original swashbuckler
+    captain, and an older, scarred, grey-haired officer). Picked the officer for Grace: weathered and
+    authoritative rather than swashbuckling fits "the Crown" far better than a pirate-captain grin and a
+    drawn cutlass. The swashbuckler render is being kept on the back burner for a future Pirate Lord or
+    recurring character — not discarded, not yet assigned a slot.
+
+    Sorting the un-picked render into "future Pirate Lord" also surfaced a real, independent problem
+    while checking `pirateLords.ts`'s available slots: Lord #6 is literally named `Blackbeard`, flavor
+    text "The real Edward Teach, still holding the inlet where history says he fell" — exactly the
+    real-historical-figure identity the user explicitly said to avoid, already sitting in the code before
+    that instruction was ever given. Flagged to the user; they've deferred the rename to whenever that
+    Lord's own art/turn comes up, not blocking anything now.
+
+    First delivery this session sent as a single pasted/attached character render rather than a sheet —
+    genuinely different failure mode from every prior delivery: the image didn't reach disk on the first
+    attempt (a paste and a file attachment look identical in the chat transcript, but only the attachment
+    actually lands as a readable file this session's tools can reach) — caught by checking
+    `/root/.claude/uploads/` for a new file before touching any image tooling, found none, and said so
+    rather than guessing; the user re-sent it as an attachment and it read cleanly the second time.
+
+    Cutting it hit a real defect distinct from anything in the sheet-cutting deliveries above: a solid
+    dark-navy backdrop sitting close enough to Grace's own dark-navy coat shading that a flat
+    global-color-distance threshold (30 units, the tolerance that had worked fine elsewhere) ate real
+    fabric shadow — moth-hole gaps scattered across the coat, not a clean silhouette. Fixed with a much
+    tighter tolerance (~7 units) combined with a border-connected-component flood fill: only pixels
+    actually reachable from outside the figure through near-exact background matches get cleared, so a
+    coat shadow that merely resembles the backdrop color but isn't part of the same contiguous region
+    stays opaque regardless of how dark it is. Verified by re-checking known trouble spots (the sleeve/
+    underarm shadow, the coat's trailing edge) at full zoom for stray transparency — none found.
+
+    Mirrored horizontally per direct request — she's meant to face screen-left, opposite Scally, ahead of
+    the still-pending swap from `GraceScreen`'s current "stacked dialogue cards" layout to
+    `ConversationBox`'s two-sided tap-through one (Scally left/facing right, NPCs right/facing left,
+    matching the reference mockup `ConversationBox.tsx` was originally built against). That swap is a
+    real UX change — one line at a time with tap-to-advance, vs. every line visible at once — and
+    `GraceScreen`'s own code comment already documents the stacked-card layout as a deliberate choice,
+    not an oversight, so it wasn't done unprompted this pass; only the emoji-to-real-portrait swap
+    within the existing layout shipped now.
+
+    Added `src/data/characterSprites.ts` (this roster's counterpart to `scallySprites.ts`) exporting
+    `ADMIRAL_GRACE_PORTRAIT`. `GraceScreen.tsx`'s header now shows a head-and-shoulders bust crop (top
+    35% of the full-body source, landing just below the collar/epaulettes) using the same "full source
+    image behind an `overflow:hidden` slot" technique `ConversationBox` already uses for Scally, rather
+    than a second pre-cropped file or `resizeMode="cover"` (which would center-crop and cut into her
+    face on this aspect ratio). `GRACE_EMOJI` itself is untouched and still used for her map marker in
+    `MapScreen.tsx` — out of scope for this pass.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Live in-app verification (navigating to New
+    Providence and triggering her actual dialogue stage) was skipped as disproportionate to a header-
+    icon change — confirmed instead via a direct render of the exact crop region the component uses,
+    matching what shipped pixel-for-pixel, plus the standard file-exists + clean-typecheck/test check.
