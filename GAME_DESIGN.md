@@ -6301,3 +6301,36 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     Providence and triggering her actual dialogue stage) was skipped as disproportionate to a header-
     icon change — confirmed instead via a direct render of the exact crop region the component uses,
     matching what shipped pixel-for-pixel, plus the standard file-exists + clean-typecheck/test check.
+
+188. ✅ **`GraceScreen.tsx` swapped over to the real `ConversationBox`** (2026-08-29). Direct follow-up
+    to item 187, same session: "do the same as we did for Scally and cut her image at the same point
+    and position her the same... just on the other side of the screen so it looks like they're talking
+    to each other." `ConversationBox` had been sitting built-but-unused since its own original
+    construction (previewable only from the Debug screen) specifically because nothing had real NPC
+    portrait art to put in it — Grace is the first thing that ever unblocked it.
+
+    "Same crop, same position, mirrored side" turned out to need no new cropping math at all —
+    `ConversationBox`'s `PORTRAIT_WIDTH`/`PORTRAIT_FULL_HEIGHT`/`PORTRAIT_CROP_FRACTION` are fixed
+    constants inside the shared component, not something each screen re-tunes per character, so simply
+    passing `ADMIRAL_GRACE_PORTRAIT` through the existing `portraitSource` prop with `side="right"`
+    already produces the exact same crop treatment Scally's own screens get. Removed the previous
+    delivery's bespoke `portraitBust` head-crop entirely — it was a stopgap for the old stacked-card
+    layout, now replaced outright.
+
+    `GraceStage.dialogue` is Grace's own lines only (no authored Scally response text in the data
+    model), so this only ever shows her single side of the box — Scally isn't shown at all here,
+    matching the existing silent-protagonist pattern used everywhere else in the game, not a new
+    limitation introduced by this swap. Replaced the old "every line visible, one Continue button"
+    layout with real per-line state (`lineIndex`) and `onAdvance` — tap fast-forwards a still-revealing
+    line, tap again advances to the next, and advancing past the last line completes the stage and
+    backs out of the screen exactly like the old `handleContinue` did. Updated `GraceStage.dialogue`'s
+    own doc comment in `grace.ts`, which had explicitly documented the old stacked/non-paginated
+    behavior as deliberate — now stale, so corrected rather than left to mislead the next reader.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live this time (the actual dialogue
+    screen, not just a crop-region render): `npx expo start --web` in headless Chromium, through the
+    Debug screen's existing `handleJumpToGrace` shortcut (no in-app navigation/drag needed) straight to
+    her New Providence stage — confirmed Grace's portrait renders bottom-right facing left exactly as
+    intended, the nameplate/parchment/typewriter reveal all work unchanged from the Debug-preview
+    version, and repeated tap-to-advance correctly cycles all three of her lines and would exit the
+    screen after the last one. Zero console errors throughout.
