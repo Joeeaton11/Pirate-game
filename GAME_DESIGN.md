@@ -6141,3 +6141,40 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     full contact sheet per sheet. **Not wired** — cutting and filing only, same as every prior delivery
     this session. `ui_candidates/` now holds ten button/widget/navigation-kit designs (A-J) and five
     bars/meters candidates (b-f) alongside `ui/`'s own v1 content — all still awaiting the user's pick.
+
+184. ✅ **Cut the final batch of unsolicited sheets — 32 item-icon candidates, a new category and a
+    new art style** (2026-08-29), sent with *"These are the last three sheets I have for now."* See the
+    new `assets/sprites/ITEM_ICON_CANDIDATES_MANIFEST.md`.
+
+    `item_icons_pixelart.png`/`item_icons_set_b.png`/`item_icons_set_c.png` (10 + 11 + 11 items →
+    `item_icon_candidates/{pixelart,set_b,set_c}/`) are a new content category entirely: general item/
+    prop icons rather than UI chrome — fish/logs/rum/coins (matching the game's existing resource
+    types), a backpack, a compass, a scroll (blank-sealed, "Royal Pardon," or an illustrated treasure
+    map depending on the set), a circular map-viewport frame, a cursor, and treasure chests. Overlaps
+    the already-populated `items/`/`treasure/` folders, so filed as candidates to compare rather than
+    merged in, same precedent as every UI-kit and bars/meters candidate this session.
+
+    `pixelart` is also a **genuine style fork** — chunky retro pixel-art, distinctly different from the
+    painterly look used for every other asset shipped this session (Scally, terrain, buildings, all ten
+    UI-kit designs). Flagged clearly in the manifest: picking this direction would mean adopting
+    pixel-art as the game's visual language, not just picking a different icon set.
+
+    Real defect, unique to this delivery: the pixel-art sheet arrived as a **fully opaque RGB image**
+    with an extremely subtle white-on-white checkerboard baked into the pixels (two near-identical
+    off-white tones ~40px apart) rather than a real alpha channel. A first pass (binary threshold +
+    border flood-fill) correctly cleared the checkerboard itself but left speckle noise across every
+    icon's soft drop-shadow, where semi-transparent shadow pixels blend toward the checkerboard and a
+    hard yes/no cutoff couldn't decide many of them consistently. Fixed with a **graduated (non-binary)
+    alpha** — scaled by each pixel's distance from white rather than thresholded — plus connected-
+    component debris cleanup (drop anything under 200px; the real icons are all far larger). Verified
+    against a colored preview background: zero speckle, naturally fading shadows, clean isolation on
+    all 10 items. `set_b`/`set_c` arrived pre-matted with real alpha and had zero fusions (raw
+    component counts of 11 matched the manual visual catalog on both).
+
+    Ran the edge-opacity defect scan across all 32 files: zero hits (specifically checked the pixel-art
+    set's graduated shadows aren't mistaken for a defect — confirmed each is a real gradient, not a
+    flat near-threshold value). Ran the connected-component debris scan: zero hits. Built and visually
+    reviewed a full contact sheet per set. **Not wired** — cutting and filing only, same as every prior
+    delivery this session. This closes out the unsolicited-sheet-delivery phase for now per the user's
+    own note; `assets/sprites/` currently holds ten button/widget/nav-kit UI designs, five bars/meters
+    candidates, and three item-icon candidate sets, none wired, all awaiting review.
