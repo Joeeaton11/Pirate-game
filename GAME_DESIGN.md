@@ -6215,3 +6215,35 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     Verified live: `npx expo start --web`, loaded in a real headless-Chromium session, zero console
     errors, confirmed all 8 new `require()` paths resolve to real files on disk (Metro would have hard-
     failed the build on a bad path, and it didn't). See `assets/sprites/README.md`'s `landmarks/` row.
+
+186. ✅ **Fixed rounded/circular street junction patches — every path bend and crossing now reads as a
+    flat square tile** (2026-08-29). Direct feedback on a live mobile screenshot of `joeeaton11.
+    github.io`: several bends/intersections on Tortuga Cove's dirt paths were circled, with "remove
+    them all and let the path take the shape of the sprite... it will be square as the environment is
+    grid shaped."
+
+    Root cause was `STREET_JUNCTIONS` in `streets.ts` — precomputed once at module load from every
+    point 2+ street segments share an endpoint, meant to patch the real gap `strokeLinecap="square"`
+    leaves at a right-angle elbow (a square cap only extends a stroke past its own endpoint along its
+    own direction, so an elbow's outer corner is never covered by either line). `MapScreen.tsx` was
+    covering that gap with an SVG `<Circle>` — which worked as a patch but put a round blob on top of
+    an otherwise all-square street network at every single bend and crossing, exactly what got circled
+    in the screenshot. (Item 185's landmark work and this bug are unrelated — this junction-patch code
+    predates this session; item 185 only happened to be the prior entry.)
+
+    Every entry in `STREETS` (`streets.ts`) is grid-snapped and axis-aligned — a pure horizontal or
+    vertical run, never diagonal — so a junction patch never needs to be round to "fit" an angled
+    joint; a plain square sits flush against the square-capped tiles on every side regardless of which
+    two directions meet there. Swapped the `<Circle>` for a `<Rect>` (same `cobblePattern`/`dirtPattern`
+    fill, same footprint size — 24 for a `'main'` junction, 18 for `'path'`, just square instead of a
+    circle of that diameter) centered on the same precomputed point. Left two other `Circle`-based
+    things untouched since they aren't the bug that was flagged: the house/building garden-yard tints
+    (a deliberate round patch of grass color, not a street-surface texture) and the small corner
+    minimap's own street rendering (a separate, deliberately stylized round-cap rendering at a much
+    smaller scale — round forest-canopy blobs and round island borders there too — not the main
+    gameplay view the screenshot was taken from).
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via `npx expo start --web` in a
+    real headless-Chromium session at Tortuga Cove's actual spawn point (the same dirt-path bends shown
+    in the flagged screenshot): zero console errors, and the path bends now render as flat square joins
+    instead of rounded blobs.

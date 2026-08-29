@@ -2200,16 +2200,27 @@ export default function MapScreen({ navigation }: Props) {
                   bug direct feedback flagged looking at the street network as a whole. Drawn after
                   every STREETS line so each patch sits on top and covers the gap; STREET_JUNCTIONS
                   is precomputed once at module load (see streets.ts) from every shared endpoint,
-                  not just the style-mismatched ones, since a same-style elbow has the identical gap. */}
+                  not just the style-mismatched ones, since a same-style elbow has the identical gap.
+                  A `<Circle>` patch here reads as a round blob sitting on top of the otherwise-square
+                  street tiles at every bend/crossing — direct feedback circled these exact spots on a
+                  live screenshot ("remove them all and let the path take the shape of the sprite...
+                  it will be square as the environment is grid shaped"). Every STREETS segment is
+                  axis-aligned (grid-snapped, always a pure horizontal or vertical run — see
+                  streets.ts), so a plain square `<Rect>` covers the same corner gap with flat edges
+                  that continue the square-linecap tiles cleanly instead of rounding them off. */}
               {SHOW_STREETS &&
                 STREET_JUNCTIONS.map((junction, i) => {
                 const islandPos = ISLANDS[junction.islandId].position;
+                const size = junction.style === 'main' ? 24 : 18;
+                const cx = islandPos.x + junction.point.x;
+                const cy = islandPos.y + junction.point.y;
                 return (
-                  <Circle
+                  <Rect
                     key={`junction-${i}`}
-                    cx={islandPos.x + junction.point.x}
-                    cy={islandPos.y + junction.point.y}
-                    r={junction.style === 'main' ? 12 : 9}
+                    x={cx - size / 2}
+                    y={cy - size / 2}
+                    width={size}
+                    height={size}
                     fill={junction.style === 'main' ? 'url(#cobblePattern)' : 'url(#dirtPattern)'}
                   />
                 );
