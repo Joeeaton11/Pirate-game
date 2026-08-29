@@ -6462,3 +6462,34 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     entry points in one pass (Scally's own preview, Grace, Blackfin, Sully): Scally unchanged (uses
     every default), the other three now all crop at the belt matching his framing, and Sully's
     Duel/Leave buttons no longer overlap his nameplate. Zero console errors across all four.
+
+193. ✅ **Iron Jenny (Pirate Lord #2) — first-attempt accept, and the architecture from items 191/192
+    paid off immediately** (2026-08-30). Brief asked for a musket specialist read as precise/composed
+    rather than brawling ("never missed a shot, never lost a duel"), a self-crowned "Queen" look built
+    from earned reputation rather than birthright, and a palette distinct from the other three. First
+    render nailed all three — real jeweled crown, musket in hand instead of a blade, teal/gold/crimson
+    palette that doesn't collide with anyone else's — accepted without a redo.
+
+    Wiring this one required zero screen-code changes at all — `PirateLordScreen.tsx`'s `LORD_PORTRAITS`
+    -keyed branch (item 191) and the per-character `portraitAspectRatio`/`portraitCropFraction` props
+    (item 192) were built generically enough that a second Lord is just three new map entries in
+    `characterSprites.ts`, exactly the payoff that architecture was for.
+
+    First delivery this session to arrive pre-matted with real alpha already baked in — a dark radial-
+    vignette RGB backdrop (near-black corners glowing warmer toward the center, not a flat color), but
+    the alpha channel itself was already 0 at every true background pixel and ~254 across her whole
+    silhouette. No background-removal reconstruction needed (the flood-fill technique items 187/189
+    built for Grace/Blackfin/Sully's flat-backdrop renders doesn't even apply here) — just a bbox trim
+    computed directly off the real alpha channel. `PIL.Image.getbbox()` itself misbehaved on this file
+    (returned the full canvas rather than the true content bounds) — computed the bbox manually from
+    the alpha mask via numpy instead of trusting it.
+
+    Needed her own tuned crop fraction (0.55, vs. Sully/Grace/Blackfin's shared 0.60): her tall feather
+    plume eats more of her own canvas height than their crown/hat does, so the same fraction that hits
+    the belt on the other three landed higher up her torso — confirmed by the same direct render-
+    preview comparison method item 192 established, not a formula.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut: renders correctly (facing screen-left, belt-level crop matching the
+    other three, Sully's locked-dialogue line showing correctly since he hasn't been defeated in this
+    session, Leave button sitting clean above the box). Zero console errors.
