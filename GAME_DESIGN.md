@@ -6178,3 +6178,40 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     delivery this session. This closes out the unsolicited-sheet-delivery phase for now per the user's
     own note; `assets/sprites/` currently holds ten button/widget/nav-kit UI designs, five bars/meters
     candidates, and three item-icon candidate sets, none wired, all awaiting review.
+
+185. ✅ **Audited the whole library for gaps, then wired 8 of `landmarks/`'s already-cut-but-unused
+    files** (2026-08-29). Prompted by the user asking "how are we looking with the art assets" — a
+    full audit found the single biggest miss is character art: every crew archetype (12), Pirate Lord
+    state (12), and threat template (6) still renders as a raw emoji in `CrewScreen`/`EncounterScreen`
+    despite 3,400+ files elsewhere in the library, plus two named recurring story characters (Admiral
+    Grace, Captain Blackfin) with the same gap. Handed the user a 32-image asset list (one generation
+    per image, per `AGENTS.md`'s standing rule) so they can start producing that art in parallel while
+    wiring continues here. Secondary gaps noted: only 26 of 55 buildings have a `spriteId`, `interiors/`
+    is fully procedural (0 files), `items.ts`/`treasures.ts` are all-emoji, and `market/`/`characters/`/
+    `effects/`/`quest_markers/` are empty folders.
+
+    Started on the "cut but not wired, no design decision needed" bucket (as opposed to the ten UI-kit
+    and five bars/meters candidate sets, which need the user's pick first). `landmarks.ts` had only 3
+    of 16 entries with real art (fountain/lighthouse/cave_arch, all reusing existing building/nature/
+    prop sprites) — the other 13 fell back to `landmark.emoji`, despite `landmarks/` already holding 40
+    cut, unused files from the 2026-08-17 terrain-extras delivery. Matched 8 of those 13 by content
+    against the `hero_landmark_*`/`castaway_camp_1`/`shipwreck_debris_1`/`fountain_complete_2` art
+    (High Woods → a rooted ancient tree; Old Landing ruins → a ruined gate structure; Forgotten Graves
+    → a carved stone skull; both shipwrecks → two distinct wreck images; Blackwood's Hollow → a
+    tent-and-campfire camp; Suzette's Still → a stone-ringed fire pit; Republic Square → a second,
+    distinct fountain design for New Providence's own plaza) and found a 9th already-wired match for
+    The Marked Palm (`NATURE_SPRITES.tree_palm`, unused by any landmark until now).
+
+    Added a new `LANDMARK_SPRITES` export to `worldSprites.ts`, extended `Landmark['sprite']`'s
+    category union to include `'landmark'`, and extended `MapScreen.tsx`'s landmark-rendering switch
+    to resolve it — same pattern the existing building/nature/prop landmark sprites already used, just
+    one more source map. 4 of the 16 landmarks (Harbor Pier, La Ringot Fields, Contrebandiers' Cove,
+    Turtle Cove) still have no matching art anywhere in the folder and keep their emoji.
+
+    This was a fresh container for the session (the local checkout had fallen 6 commits behind the
+    already-pushed remote state from earlier work — a stale clone, not lost work; fast-forwarded to
+    sync before starting), so `npm install` and a Python `Pillow`/`scipy` install were needed before
+    `npx tsc --noEmit`/`npx jest` would run at all; both passed clean once dependencies were in place.
+    Verified live: `npx expo start --web`, loaded in a real headless-Chromium session, zero console
+    errors, confirmed all 8 new `require()` paths resolve to real files on disk (Metro would have hard-
+    failed the build on a bad path, and it didn't). See `assets/sprites/README.md`'s `landmarks/` row.

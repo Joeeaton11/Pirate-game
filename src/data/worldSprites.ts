@@ -131,6 +131,22 @@ export const PROP_SPRITES = {
 };
 export type PropSpriteId = keyof typeof PROP_SPRITES;
 
+/** One-off `landmarks/` art (2026-08-29 wiring pass) matched by hand against `landmarks.ts`
+ * entries that had never gotten past the emoji fallback — the `hero_landmark_*` sheet was cut
+ * back on 2026-08-17 (terrain-extras delivery) but never actually wired to anything until now.
+ * Matched by content, not by filename order (the hero_landmark_N numbers carry no meaning). */
+export const LANDMARK_SPRITES = {
+  high_woods_tree: require('../../assets/sprites/landmarks/hero_landmark_11.png'),
+  old_landing_ruins: require('../../assets/sprites/landmarks/hero_landmark_12.png'),
+  forgotten_graves_skull: require('../../assets/sprites/landmarks/hero_landmark_6.png'),
+  wreck_santa_catalina: require('../../assets/sprites/landmarks/shipwreck_debris_1.png'),
+  wreck_bonne_esperance: require('../../assets/sprites/landmarks/hero_landmark_5.png'),
+  blackwoods_hollow_camp: require('../../assets/sprites/landmarks/castaway_camp_1.png'),
+  suzettes_still_fire: require('../../assets/sprites/landmarks/hero_landmark_9.png'),
+  republic_square_fountain: require('../../assets/sprites/landmarks/fountain_complete_2.png'),
+};
+export type LandmarkSpriteId = keyof typeof LANDMARK_SPRITES;
+
 /** Terrain & Town Kit master sheet (2026-08-15, re-cut 2026-08-15) — a purpose-generated
  * 1536x1024 catalog of ground/road/water/vegetation/prop tiles, requested via TERRAIN_BRIEF.md.
  *

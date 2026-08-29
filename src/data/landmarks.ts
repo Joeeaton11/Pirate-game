@@ -8,9 +8,9 @@ export interface Landmark {
   name: string;
   emoji: string;
   description: string;
-  // Real map art (2026-08-13 art pass), for the handful of landmarks with a genuine match in
-  // worldSprites.ts — everything else keeps rendering its emoji marker as before.
-  sprite?: { category: 'building' | 'nature' | 'prop'; id: string };
+  // Real map art (2026-08-13 art pass, extended 2026-08-29), for the handful of landmarks with a
+  // genuine match in worldSprites.ts — everything else keeps rendering its emoji marker as before.
+  sprite?: { category: 'building' | 'nature' | 'prop' | 'landmark'; id: string };
 }
 
 export const LANDMARKS: Landmark[] = [
@@ -64,6 +64,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🌲',
     description:
       "The real buccaneers took their name from the boucan — a wooden frame for smoking wild boar and cattle over a slow fire — and this ridge is where the smoke still used to rise, before the harbor town grew big enough to feed itself another way.",
+    sprite: { category: 'landmark', id: 'high_woods_tree' },
   },
   {
     id: 'tortuga_old_landing',
@@ -73,6 +74,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🔥',
     description:
       "The first French settlement here wasn't at the harbor — it was here, until the Spanish burned it out in 1635, and again in 1638. What's left is scorched foundations and a lesson nobody who stayed ever forgot.",
+    sprite: { category: 'landmark', id: 'old_landing_ruins' },
   },
   {
     id: 'tortuga_forgotten_graves',
@@ -82,6 +84,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '⚰️',
     description:
       "No names, no dates — just a few dozen mounds gone soft with moss, from whichever raid or fever thinned the settlement that year. Someone still leaves rum bottles here. Nobody's ever seen who.",
+    sprite: { category: 'landmark', id: 'forgotten_graves_skull' },
   },
   {
     // Blueprint Sheet 4 wild card, 2026-08-13: a broken hull on the reef off the west cape, near
@@ -93,6 +96,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🚢',
     description:
       "Her manifest never turned up, and the reef that broke her back still hasn't given up whatever was in the hold. Local wisdom says salvage what you can before the tide — or a rival crew — beats you to it.",
+    sprite: { category: 'landmark', id: 'wreck_santa_catalina' },
   },
   {
     // Blueprint Sheet 4 wild card, 2026-08-13: a second wreck, north of Fort de Rocher, framed as
@@ -104,6 +108,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '💥',
     description:
       "Sunk trying to slip past Fort de Rocher's guns under cover of night — the cannonball holes in what's left of the hull tell the rest. Nobody in Basse-Terre remembers what she was carrying, or won't say.",
+    sprite: { category: 'landmark', id: 'wreck_bonne_esperance' },
   },
   {
     // Blueprint Sheet 4 wild card, 2026-08-13: a rogue pirate camp deep in Bois Sombre, the second
@@ -115,6 +120,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🏕️',
     description:
       "A ragged campsite hidden in Bois Sombre, flying no colors anyone recognizes. Blackwood's crew answers to no lord — pirate or governor — and skims every cart that strays too close to the treeline.",
+    sprite: { category: 'landmark', id: 'blackwoods_hollow_camp' },
   },
   {
     // Blueprint Sheet 4 wild card, 2026-08-13: a hidden still in the High Woods, relocated once
@@ -126,6 +132,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🥃',
     description:
       "Copper pot, coiled tube, and two barrels tucked deep enough in the High Woods that the excise man's never once found it. Suzette's rum never sees a customs stamp, and everyone in town prefers it that way.",
+    sprite: { category: 'landmark', id: 'suzettes_still_fire' },
   },
   {
     // Blueprint Sheet 4 wild card, 2026-08-13: a rumored buried-treasure site on the south coast,
@@ -137,6 +144,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🌴',
     description:
       "A lone leaning palm with an X scratched into the bark, said to mark where a dead man's coat once pointed. Half of Basse-Terre has dug near it at one time or another. Nobody's found anything yet — officially.",
+    sprite: { category: 'nature', id: 'tree_palm' },
   },
   {
     // Blueprint Sheet 4 wild card, 2026-08-13: a hidden sea cave on the southwest coast, relocated
@@ -180,6 +188,7 @@ export const LANDMARKS: Landmark[] = [
     emoji: '🏴‍☠️',
     description:
       "No governor, no crown, no court — just captains hashing out plunder shares by shouted vote. The closest thing this town has to a town hall.",
+    sprite: { category: 'landmark', id: 'republic_square_fountain' },
   },
 ];
 

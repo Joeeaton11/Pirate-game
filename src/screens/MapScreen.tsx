@@ -110,6 +110,7 @@ import {
   BUILDING_SPRITES,
   GROUND_TILES,
   HOUSE_SPRITES,
+  LANDMARK_SPRITES,
   NATURE_SPRITES,
   PROP_SPRITES,
   WORLD_SPRITES,
@@ -2455,6 +2456,8 @@ export default function MapScreen({ navigation }: Props) {
                     ? BUILDING_SPRITES
                     : landmark.sprite.category === 'nature'
                     ? NATURE_SPRITES
+                    : landmark.sprite.category === 'landmark'
+                    ? LANDMARK_SPRITES
                     : PROP_SPRITES;
                 const source = (sourceMap as Record<string, ImageSourcePropType>)[landmark.sprite.id];
                 const size = BUILDING_SIZE * 1.6;
