@@ -52,6 +52,19 @@ export interface ConversationBoxProps {
    * getTalkFrame returns (e.g. Scally's closed-mouth LIP_SYNC_FRAMES.consonant_bmp) so resting
    * between lines doesn't pop to a different scale/crop. */
   portraitSource: ImageSourcePropType;
+  /** The source art's own native height/width ratio (e.g. a 791x1452 PNG is 1452/791 ≈ 1.836).
+   * Defaults to Scally's own lipsync frames' ratio (251/129) for backward compatibility, but every
+   * other character's source render comes from a different generation and is NOT that same ratio —
+   * passing the real one is what keeps sizing/crop consistent across characters (see the long
+   * comment above PORTRAIT_WIDTH for why this matters and what breaks if it's left at the default
+   * for a different-shaped source image). */
+  portraitAspectRatio?: number;
+  /** How far down the portrait (as a fraction of its own full rendered height) the crop cuts off.
+   * Defaults to Scally's own tuned value (0.85), but that's tuned to HIS body proportions specifically
+   * — a different character's own head:torso:leg ratio means the same fraction lands at a different
+   * point on their body (see the long comment above PORTRAIT_WIDTH). Pass the value tuned for this
+   * specific portrait, not the default, for any character other than Scally. */
+  portraitCropFraction?: number;
   /** Called with the full line and the index of the character that was just revealed; return the
    * portrait frame that matches it (a mouth-shape lookup, typically). Called on every reveal tick
    * while the line is mid-typewriter; portraitSource shows before typing starts and once it ends. */
@@ -168,27 +181,40 @@ function EmberWord({ text }: { text: string }) {
 // the full standing figure (boots and all) — the mockup's shot is a tight torso close-up, cut off
 // by the frame, not a small complete mini-figure floating above the paper. Achieved by rendering
 // the portrait at its real full-body height (so head/torso stay correctly proportioned, not
-// squashed) inside a shorter, `overflow: 'hidden'` slot that clips the legs off. Aspect ratio read
-// off the real lip-sync frames (129x251 native); crop fraction tuned up from an initial 0.66 (cut
-// right at the belt) to 0.85 per user feedback ("move the cut off lower so can see more of him") —
-// now shows the coat's full flare and upper legs, cutting just above the boot tops. That crop slot
-// sits flush with the parchment's own bottom edge (see portraitSlot below) so the leg cutoff lands
-// right at the bottom of the paper rather than floating above it, per later feedback.
+// squashed) inside a shorter, `overflow: 'hidden'` slot that clips the legs off. Crop fraction tuned
+// up from an initial 0.66 (cut right at the belt) to 0.85 per user feedback ("move the cut off lower
+// so can see more of him") — now shows the coat's full flare and upper legs, cutting just above the
+// boot tops, for SCALLY SPECIFICALLY. That crop slot sits flush with the parchment's own bottom edge
+// (see portraitSlot below) so the leg cutoff lands right at the bottom of the paper rather than
+// floating above it, per later feedback.
+//
+// This is all fixed geometry EXCEPT two things that vary per character, not just Scally's own shape:
+//
+// 1. Aspect ratio — Scally's own lipsync frames are 129x251; Grace/Blackfin/Sully's renders are each
+//    a different shape entirely. 2026-08-29 fix: `PORTRAIT_FULL_HEIGHT` used to hardcode Scally's own
+//    251/129 ratio for every character, so a narrower/stubbier source (e.g. Sully at 990x1404, aspect
+//    1.42 vs Scally's 1.95) rendered smaller than the box under resizeMode="contain" (real
+//    letterboxing, not a crop) instead of filling it. Fixed by taking the aspect ratio as a prop
+//    (`portraitAspectRatio`).
+//
+// 2. Crop fraction — even with (1) fixed, 0.85 is tuned to Scally's OWN body proportions (a stocky
+//    chibi kid, big head/torso, short legs relative to his own height), not a universal "waist-up"
+//    fraction. Rendering Grace/Blackfin/Sully's actual files at 0.85 showed their full boots with
+//    slack to spare below — a real proportions difference (their own head:torso:leg ratio differs
+//    from Scally's, not a bug in how the crop math works), confirmed by directly comparing render
+//    previews of each at several candidate fractions against Scally's own "ends right at the belt,
+//    no legs" framing. 0.60 was the closest match for all three (2026-08-30) — this can't be derived
+//    from the aspect ratio or any other property already known about the image; it's a genuine
+//    per-character visual tuning, same as Scally's own 0.66->0.85 history above, so it's a second
+//    required prop (`portraitCropFraction`) rather than a constant.
+export const SCALLY_PORTRAIT_ASPECT_RATIO = 251 / 129;
+export const SCALLY_PORTRAIT_CROP_FRACTION = 0.85;
 const PORTRAIT_WIDTH = 175;
-const PORTRAIT_FULL_HEIGHT = Math.round(PORTRAIT_WIDTH * (251 / 129));
-const PORTRAIT_CROP_FRACTION = 0.85;
-const PORTRAIT_HEIGHT = Math.round(PORTRAIT_FULL_HEIGHT * PORTRAIT_CROP_FRACTION);
 const PARCHMENT_HEIGHT = 240;
 // Lifts the whole box (parchment, portrait, name-plate together — they're all positioned relative
 // to `wrapper`, not the screen) clear of the very bottom edge, per user feedback (raised again from
 // an initial 20 — "move the box and him higher again").
 const WRAPPER_BOTTOM_OFFSET = 40;
-
-/** Total screen-bottom space this component's `wrapper` occupies (its own height plus the bottom
- * offset) — exported so a screen that shows this box alongside other content (e.g. `PirateLordScreen`
- * putting a Challenge/Leave choice above it) can reserve exactly that much room instead of guessing a
- * magic number that'll silently drift out of sync if this file's own layout constants ever change. */
-export const CONVERSATION_BOX_RESERVED_HEIGHT = WRAPPER_BOTTOM_OFFSET + Math.max(PARCHMENT_HEIGHT, PORTRAIT_HEIGHT);
 
 // Name-plate: sized to its own content (icon + bitmap-font name) rather than a fixed width, since
 // speaker names vary in length and the real board art has to stretch to fit whatever comes out —
@@ -199,16 +225,50 @@ const NAMEPLATE_ICON_SIZE = 24;
 const NAMEPLATE_ICON_GAP = 8; // between the skull icon and the first letter
 const NAMEPLATE_GLYPH_HEIGHT = 22;
 const NAMEPLATE_STRADDLE = 16; // how far the plate's bottom edge sinks below the parchment's top edge
+// How far the name-plate's own TOP edge sits above `wrapper`'s bottom edge — always the same,
+// regardless of the portrait, since the plate is positioned relative to the parchment, not the
+// portrait (see the nameplate style's `bottom: PARCHMENT_HEIGHT - NAMEPLATE_STRADDLE`, `wrapper`-
+// relative). Needed below because a short enough portrait (a low aspect ratio and/or a small crop
+// fraction, e.g. Sully's) can make `wrapper` itself shorter than this, letting the plate poke up
+// above content a caller placed just above the box — the exact overlap this constant's `Math.max`
+// use prevents.
+const NAMEPLATE_TOP_FROM_WRAPPER_BOTTOM = PARCHMENT_HEIGHT - NAMEPLATE_STRADDLE + NAMEPLATE_HEIGHT;
+
+function portraitDimensions(aspectRatio: number, cropFraction: number) {
+  const fullHeight = Math.round(PORTRAIT_WIDTH * aspectRatio);
+  const height = Math.round(fullHeight * cropFraction);
+  return { fullHeight, height };
+}
+
+/** Total screen-bottom space this component's `wrapper` (and the name-plate that pokes up above it)
+ * occupies — exported so a screen that shows this box alongside other content (e.g. `PirateLordScreen`
+ * putting a Challenge/Leave choice above it) can reserve exactly that much room instead of guessing a
+ * magic number that'll silently drift out of sync if this file's own layout constants (or the
+ * character's own portrait shape) ever change. Pass the same `portraitAspectRatio`/
+ * `portraitCropFraction` given to the `ConversationBox` itself. */
+export function conversationBoxReservedHeight(
+  aspectRatio: number = SCALLY_PORTRAIT_ASPECT_RATIO,
+  cropFraction: number = SCALLY_PORTRAIT_CROP_FRACTION
+): number {
+  const { height } = portraitDimensions(aspectRatio, cropFraction);
+  return WRAPPER_BOTTOM_OFFSET + Math.max(PARCHMENT_HEIGHT, height, NAMEPLATE_TOP_FROM_WRAPPER_BOTTOM);
+}
 
 export default function ConversationBox({
   speakerName,
   text,
   portraitSource,
+  portraitAspectRatio = SCALLY_PORTRAIT_ASPECT_RATIO,
+  portraitCropFraction = SCALLY_PORTRAIT_CROP_FRACTION,
   getTalkFrame,
   side = 'left',
   onAdvance,
   typingSpeedMs = DEFAULT_TYPING_SPEED_MS,
 }: ConversationBoxProps) {
+  const { fullHeight: portraitFullHeight, height: portraitHeight } = portraitDimensions(
+    portraitAspectRatio,
+    portraitCropFraction
+  );
   const [revealedCount, setRevealedCount] = useState(0);
   const fullyRevealed = revealedCount >= text.length;
 
@@ -308,12 +368,19 @@ export default function ConversationBox({
   const activeSpan = useMemo(() => activeWordSpan(text, revealedCount), [text, revealedCount]);
 
   return (
-    <Pressable style={styles.wrapper} onPress={handlePress}>
-      <View style={[styles.portraitSlot, { [sideProp]: 0 } as const]}>
+    <Pressable
+      style={[styles.wrapper, { height: Math.max(PARCHMENT_HEIGHT, portraitHeight) }]}
+      onPress={handlePress}
+    >
+      <View style={[styles.portraitSlot, { height: portraitHeight, [sideProp]: 0 } as const]}>
         {/* overflow:'hidden' on the same view as the shadow clips the shadow too on iOS/Android —
             the crop and the shadow live on separate nested views so both work. */}
         <View style={styles.portraitCrop}>
-          <Image source={portrait} style={styles.portraitImg} resizeMode="contain" />
+          <Image
+            source={portrait}
+            style={[styles.portraitImg, { height: portraitFullHeight }]}
+            resizeMode="contain"
+          />
         </View>
       </View>
 
@@ -395,8 +462,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: WRAPPER_BOTTOM_OFFSET,
     // Portrait and parchment now share the same bottom (0) — see portraitSlot below — so the
-    // taller of the two (the portrait) is what sets the wrapper's overall height.
-    height: Math.max(PARCHMENT_HEIGHT, PORTRAIT_HEIGHT),
+    // taller of the two (the portrait) is what sets the wrapper's overall height. Actual height is
+    // set per-render (depends on the portrait's own aspect ratio) — see the inline style override
+    // where this is used.
   },
   portraitSlot: {
     position: 'absolute',
@@ -404,7 +472,7 @@ const styles = StyleSheet.create({
     // per user feedback.
     bottom: 12,
     width: PORTRAIT_WIDTH,
-    height: PORTRAIT_HEIGHT, // the cropped (waist-up) height
+    // height (the cropped, waist-up height) is set per-render — see the inline style override.
     zIndex: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
@@ -422,7 +490,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     width: '100%',
-    height: PORTRAIT_FULL_HEIGHT, // full body at correct proportions; portraitCrop clips the legs
+    // height (full body at correct proportions; portraitCrop clips the legs) is set per-render,
+    // since it depends on this particular portrait's own aspect ratio — see the inline override.
   },
   parchment: {
     position: 'absolute',

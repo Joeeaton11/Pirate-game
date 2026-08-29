@@ -6418,3 +6418,47 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `handleJumpToFort` shortcut on both Sully (portrait path — renders correctly, Challenge/Leave sit
     clean above the box with no overlap) and Iron Jenny (fallback path — confirmed byte-for-byte
     unchanged from before this commit). Zero console errors on either.
+
+192. ✅ **Fixed inconsistent portrait sizing/crop across NPCs — two real bugs, not one** (2026-08-30).
+    Direct follow-up: "remember the sizing, positioning and cut off point of the characters and the
+    text box — amend them so they sit the same as Scally." Comparing all four side by side (Scally's
+    own Debug preview, Grace, Blackfin, Sully) found the crop landing at a visibly different point on
+    each character instead of matching Scally's — worth digging into properly rather than nudging one
+    number, since it'll recur on every future character otherwise.
+
+    **Bug 1 — sizing.** `PORTRAIT_FULL_HEIGHT` in `ConversationBox.tsx` hardcoded Scally's own lipsync
+    frames' aspect ratio (129x251) as a shared module-level constant, applied to every character
+    regardless of their own source render's actual shape. Grace (791x1452), Blackfin (847x1391), and
+    Sully (990x1404) are each a different aspect ratio from Scally's and from each other — under
+    `resizeMode="contain"`, a mismatched aspect ratio doesn't stretch (no squish), it letterboxes,
+    rendering the character smaller than the box instead of filling it, at a size that varies per
+    character. Fixed by adding a `portraitAspectRatio` prop, read off each actual cut file's real
+    pixel dimensions (not guessed) and stored next to each portrait in `characterSprites.ts`.
+
+    **Bug 2 — cut-off point, a genuinely separate issue from bug 1.** Even after fixing sizing, direct
+    render-preview comparisons (cropping each character's real file at Scally's own 0.85 fraction and
+    viewing them side by side) showed Grace/Blackfin/Sully's full boots with slack to spare below,
+    while Scally's crop ends right at his belt with no legs visible at all — a real difference in each
+    character's own head:torso:leg proportions within their canvas (chibi-adult figures vs. Scally's
+    stockier chibi-kid proportions), not something derivable from the aspect ratio or anything else
+    already known about the file. Tuned by generating each character's crop at several candidate
+    fractions (0.55/0.60/0.65/0.70) and comparing to Scally's own framing directly — 0.60 matched all
+    three. Added a second prop, `portraitCropFraction`, alongside the aspect ratio; both default to
+    Scally's own tuned values for backward compatibility (his Debug-screen preview needed zero
+    changes).
+
+    **Bug 3, found while fixing the above — a real button/nameplate overlap on Sully's screen.**
+    `conversationBoxReservedHeight()` (added for `PirateLordScreen` in the previous commit) only
+    reserved space up to the box's own top edge (`max(parchment height, portrait height)`), but the
+    name-plate straddles ABOVE the parchment's top edge by design (`NAMEPLATE_STRADDLE`) — whenever a
+    portrait is short enough that the box's own height stays at the fixed 240px parchment floor (true
+    for all three new crop fractions), the name-plate pokes up further than that reserved space
+    accounts for, so Sully's Duel/Leave buttons visibly overlapped his own nameplate. Fixed by adding
+    the name-plate's fixed top-from-wrapper-bottom offset into the same `Math.max` — this value doesn't
+    depend on the portrait at all (the plate is positioned relative to the parchment, not the
+    portrait), so it's a plain added floor, not a new parameter.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via all four Debug-screen
+    entry points in one pass (Scally's own preview, Grace, Blackfin, Sully): Scally unchanged (uses
+    every default), the other three now all crop at the belt matching his framing, and Sully's
+    Duel/Leave buttons no longer overlap his nameplate. Zero console errors across all four.

@@ -25,6 +25,27 @@
 export const ADMIRAL_GRACE_PORTRAIT = require('../../assets/sprites/characters/admiral_grace_portrait_1.png');
 export const BLACKFIN_PORTRAIT = require('../../assets/sprites/characters/blackfin_portrait_1.png');
 
+/** Each portrait's own native height/width ratio, hand-read off the actual cut PNG (`file`/PIL, not
+ * guessed) — every character's source render comes from a separate generation and is NOT the same
+ * shape as Scally's own 129x251 lipsync frames (`ConversationBox`'s default), so this has to be
+ * passed explicitly as `portraitAspectRatio` or the box sizes/crops that character inconsistently
+ * with Scally (2026-08-30 fix — see `ConversationBox.tsx`'s own long comment on this for the full
+ * story of what broke without it). Recompute and update this if a portrait file is ever re-cut at a
+ * different crop/canvas size. */
+export const ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO = 1452 / 791;
+export const BLACKFIN_PORTRAIT_ASPECT_RATIO = 1391 / 847;
+
+/** How far down each portrait its ConversationBox crop should cut off — NOT derivable from the
+ * aspect ratio above or anything else already known about the file: it's a genuine per-character
+ * visual tuning, the same kind of thing Scally's own 0.85 (`SCALLY_PORTRAIT_CROP_FRACTION`) is, just
+ * for a different body. Rendering each of these three at Scally's default 0.85 showed their full
+ * boots with slack to spare below — their own head:torso:leg proportions differ from his — so each
+ * was tuned by directly comparing render previews at several candidate fractions against Scally's own
+ * "ends right at the belt, no legs visible" framing; 0.60 matched for all three (2026-08-30). Retune
+ * (by the same visual-comparison method, not a formula) if a portrait is ever re-cut. */
+export const ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION = 0.6;
+export const BLACKFIN_PORTRAIT_CROP_FRACTION = 0.6;
+
 /** Pirate Lord portraits, keyed by `PirateLord.id` — partial coverage like `LANDMARK_SPRITES`
  * (worldSprites.ts): `PirateLordScreen` checks this map and falls back to the old emoji-header
  * rendering for any lord not yet in it, same "partial map + fallback" shape used everywhere else in
@@ -32,4 +53,16 @@ export const BLACKFIN_PORTRAIT = require('../../assets/sprites/characters/blackf
  * Lord #1 — first boss fight, so first in line for real art). */
 export const LORD_PORTRAITS = {
   lord_cow_island: require('../../assets/sprites/characters/redbeard_sully_portrait_1.png'),
+};
+
+/** Aspect ratio per lord portrait — see ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO's doc comment; same
+ * "read off the actual file" rule applies to every entry added here. */
+export const LORD_PORTRAIT_ASPECT_RATIOS: Record<string, number> = {
+  lord_cow_island: 1404 / 990,
+};
+
+/** Crop fraction per lord portrait — see ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION's doc comment; same
+ * per-character visual-tuning rule applies to every entry added here. */
+export const LORD_PORTRAIT_CROP_FRACTIONS: Record<string, number> = {
+  lord_cow_island: 0.6,
 };

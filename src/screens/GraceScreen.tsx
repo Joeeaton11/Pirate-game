@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ConversationBox from '../components/ConversationBox';
-import { ADMIRAL_GRACE_PORTRAIT } from '../data/characterSprites';
+import {
+  ADMIRAL_GRACE_PORTRAIT,
+  ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO,
+  ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION,
+} from '../data/characterSprites';
 import { GRACE_NAME, graceStageFor } from '../data/grace';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
@@ -67,6 +71,8 @@ export default function GraceScreen({ navigation }: Props) {
         speakerName={GRACE_NAME}
         text={stage.dialogue[lineIndex]}
         portraitSource={ADMIRAL_GRACE_PORTRAIT}
+        portraitAspectRatio={ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO}
+        portraitCropFraction={ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION}
         side="right"
         onAdvance={handleAdvance}
       />

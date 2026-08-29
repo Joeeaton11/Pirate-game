@@ -4,7 +4,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ConversationBox from '../components/ConversationBox';
 import { BLACKFIN_NAME, BLACKFIN_TEMPLATE, blackfinStageFor } from '../data/blackfin';
-import { BLACKFIN_PORTRAIT } from '../data/characterSprites';
+import {
+  BLACKFIN_PORTRAIT,
+  BLACKFIN_PORTRAIT_ASPECT_RATIO,
+  BLACKFIN_PORTRAIT_CROP_FRACTION,
+} from '../data/characterSprites';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 import { maxHpFor } from '../utils/battle';
@@ -96,6 +100,8 @@ export default function BlackfinScreen({ navigation }: Props) {
           speakerName={BLACKFIN_NAME}
           text={lines[lineIndex]}
           portraitSource={BLACKFIN_PORTRAIT}
+          portraitAspectRatio={BLACKFIN_PORTRAIT_ASPECT_RATIO}
+          portraitCropFraction={BLACKFIN_PORTRAIT_CROP_FRACTION}
           side="right"
           onAdvance={handleAdvance}
         />

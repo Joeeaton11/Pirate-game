@@ -2,8 +2,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ConversationBox, { CONVERSATION_BOX_RESERVED_HEIGHT } from '../components/ConversationBox';
-import { LORD_PORTRAITS } from '../data/characterSprites';
+import ConversationBox, { conversationBoxReservedHeight } from '../components/ConversationBox';
+import {
+  LORD_PORTRAIT_ASPECT_RATIOS,
+  LORD_PORTRAIT_CROP_FRACTIONS,
+  LORD_PORTRAITS,
+} from '../data/characterSprites';
 import { isLordUnlocked, PIRATE_LORDS } from '../data/pirateLords';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
@@ -40,6 +44,8 @@ export default function PirateLordScreen({ navigation }: Props) {
   // ConversationBox treatment, same "partial map, two render paths" shape MapScreen already uses
   // for landmarks/buildings with a spriteId.
   const portrait = (LORD_PORTRAITS as Record<string, ImageSourcePropType>)[lord.id];
+  const portraitAspectRatio = LORD_PORTRAIT_ASPECT_RATIOS[lord.id];
+  const portraitCropFraction = LORD_PORTRAIT_CROP_FRACTIONS[lord.id];
   const line = isDefeated ? lord.defeatDialogue : isUnlocked ? lord.introDialogue : lord.lockedDialogue;
 
   function handleChallenge() {
@@ -71,7 +77,14 @@ export default function PirateLordScreen({ navigation }: Props) {
   }
 
   const actions = (
-    <View style={[styles.actions, portrait ? { paddingBottom: CONVERSATION_BOX_RESERVED_HEIGHT } : null]}>
+    <View
+      style={[
+        styles.actions,
+        portrait
+          ? { paddingBottom: conversationBoxReservedHeight(portraitAspectRatio, portraitCropFraction) }
+          : null,
+      ]}
+    >
       {!isDefeated && isUnlocked && (
         <Pressable style={styles.challengeButton} onPress={handleChallenge}>
           <Text style={styles.challengeButtonText}>Challenge Lv.{lord.level} {lord.name}</Text>
@@ -98,7 +111,14 @@ export default function PirateLordScreen({ navigation }: Props) {
 
         {actions}
 
-        <ConversationBox speakerName={lord.name} text={line} portraitSource={portrait} side="right" />
+        <ConversationBox
+          speakerName={lord.name}
+          text={line}
+          portraitSource={portrait}
+          portraitAspectRatio={portraitAspectRatio}
+          portraitCropFraction={portraitCropFraction}
+          side="right"
+        />
       </SafeAreaView>
     );
   }
