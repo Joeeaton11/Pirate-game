@@ -6493,3 +6493,26 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `handleJumpToFort` shortcut: renders correctly (facing screen-left, belt-level crop matching the
     other three, Sully's locked-dialogue line showing correctly since he hasn't been defeated in this
     session, Leave button sitting clean above the box). Zero console errors.
+
+194. ✅ **Reversed the NPC crop entirely — show the whole character, no cut-off at all** (2026-08-30).
+    Direct follow-up, same day as items 192/193's belt-line crop tuning: "don't crop any of the NPCs
+    yet, just leave them as a whole character." Scoped to NPCs specifically — Scally is unaffected,
+    still his own tuned 0.85 default.
+
+    Set `portraitCropFraction` to `1` (full height, no crop) for every wired NPC — Grace, Blackfin,
+    Sully, Iron Jenny — in `characterSprites.ts`. No `ConversationBox.tsx` or screen changes needed at
+    all: the per-character crop-fraction system built in item 192 already supported this as a plain
+    value change, exactly the kind of thing that architecture was for. `conversationBoxReservedHeight`
+    (also from item 192) picks up the new, taller portrait heights automatically, so `PirateLordScreen`
+    's Challenge/Leave buttons still don't overlap Sully's or Jenny's boxes with zero code touched.
+
+    Also caught mid-conversation: the user was judging "sizing and position" against the live
+    `joeeaton11.github.io` site, which had never been redeployed since the path-fix commit — none of
+    items 187-193's work (Grace, Blackfin, reorientation, crop tuning, Sully, Jenny) had reached the
+    live site yet. Flagged rather than guessed at further changes; deploying is still pending a
+    decision on when to batch it in.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via all four Debug-screen entry
+    points: Grace/Blackfin/Sully/Jenny all now show full-body with no leg/boot cutoff, and Sully/Jenny's
+    Challenge/Leave buttons still sit clean above their boxes despite the taller portraits. Zero
+    console errors.

@@ -39,16 +39,16 @@ export const BLACKFIN_PORTRAIT = require('../../assets/sprites/characters/blackf
 export const ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO = 1452 / 791;
 export const BLACKFIN_PORTRAIT_ASPECT_RATIO = 1391 / 847;
 
-/** How far down each portrait its ConversationBox crop should cut off — NOT derivable from the
- * aspect ratio above or anything else already known about the file: it's a genuine per-character
- * visual tuning, the same kind of thing Scally's own 0.85 (`SCALLY_PORTRAIT_CROP_FRACTION`) is, just
- * for a different body. Rendering each of these three at Scally's default 0.85 showed their full
- * boots with slack to spare below — their own head:torso:leg proportions differ from his — so each
- * was tuned by directly comparing render previews at several candidate fractions against Scally's own
- * "ends right at the belt, no legs visible" framing; 0.60 matched for all three (2026-08-30). Retune
- * (by the same visual-comparison method, not a formula) if a portrait is ever re-cut. */
-export const ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION = 0.6;
-export const BLACKFIN_PORTRAIT_CROP_FRACTION = 0.6;
+/** How far down each portrait its ConversationBox crop should cut off, as a fraction of the
+ * portrait's own full rendered height. 2026-08-30: briefly tuned per-character (0.55-0.60) to land
+ * at "the belt, no legs visible" matching Scally's own 0.85 framing — direct follow-up feedback
+ * reversed that same day: don't crop any NPC at all, show the whole character. 1 (no crop) for every
+ * NPC now; Scally himself is unaffected (still his own tuned 0.85 default) since this was scoped to
+ * NPCs specifically. If NPC cropping is ever reintroduced, the per-character tuning method (compare
+ * render previews at several candidate fractions against a reference) is what worked before — see
+ * git history on this file for the 0.55-0.60 values that were here. */
+export const ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION = 1;
+export const BLACKFIN_PORTRAIT_CROP_FRACTION = 1;
 
 /** Pirate Lord portraits, keyed by `PirateLord.id` — partial coverage like `LANDMARK_SPRITES`
  * (worldSprites.ts): `PirateLordScreen` checks this map and falls back to the old emoji-header
@@ -67,12 +67,9 @@ export const LORD_PORTRAIT_ASPECT_RATIOS: Record<string, number> = {
   lord_new_providence: 1454 / 940,
 };
 
-/** Crop fraction per lord portrait — see ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION's doc comment; same
- * per-character visual-tuning rule applies to every entry added here. Jenny's tall feather plume
- * eats more of her own canvas height than Sully's crown does, so she needed a lower fraction (0.55)
- * to land at the same "belt line, no legs" framing the others hit at 0.60 — exactly the kind of
- * per-character variation that comment warns can't be derived from a formula. */
+/** Crop fraction per lord portrait — see ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION's doc comment: no
+ * cropping for any NPC, 1 for every entry here. */
 export const LORD_PORTRAIT_CROP_FRACTIONS: Record<string, number> = {
-  lord_cow_island: 0.6,
-  lord_new_providence: 0.55,
+  lord_cow_island: 1,
+  lord_new_providence: 1,
 };
