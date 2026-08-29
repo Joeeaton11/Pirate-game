@@ -46,7 +46,9 @@ export interface BlackfinStage {
   islandId: string;
   offset: { x: number; y: number }; // relative to island center, in world units
   title: string;
-  /** Shown as a stacked mini-script, one card per line — not tap-through paginated. */
+  /** Shown one line at a time via ConversationBox, tap-to-advance (2026-08-29 — previously a
+   * stacked mini-script with every line visible at once; swapped once Blackfin had real portrait
+   * art to put in the box). */
   dialogue: string[];
   /** Whether this stage offers an optional duel (Act II onward) or is dialogue-only (Act I). */
   fightable: boolean;

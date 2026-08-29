@@ -6334,3 +6334,36 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     intended, the nameplate/parchment/typewriter reveal all work unchanged from the Debug-preview
     version, and repeated tap-to-advance correctly cycles all three of her lines and would exit the
     screen after the last one. Zero console errors throughout.
+
+189. ✅ **Captain Blackfin's portrait, on the 3rd attempt — and a style/likeness catch that also hit
+    item 187's Grace art** (2026-08-29). Asked for a Blackfin brief matched to his actual data
+    (`blackfin.ts`: blade specialist, always exactly one step ahead, cocky-but-likable, "the Rival"
+    not a villain) — described him leaner/faster-reading than a typical captain, a fin-shaped dark
+    coat collar nodding at his name without literally being a shark, and a distinct palette so he
+    doesn't read as a Scally recolor.
+
+    First render sent back rejected: painterly-realistic adult proportions/shading, nothing like
+    Scally's chibi/cel-shaded style — and worse, it visibly reused Jack Sparrow's specific design
+    signifiers (dreadlocks-with-beads, skull-and-bandana tricorn, kohl-lined eyes), not just "generic
+    pirate," a real character-likeness problem independent of the style mismatch. Comparing it against
+    Grace's already-shipped portrait (item 187) while writing that feedback found the same style
+    mismatch sitting there too, unnoticed until put side by side — flagged as a standing question (not
+    resolved this pass): does Grace get redone once the correct style is locked down, or stay the one
+    exception? Second render fixed both problems (original face, correct chibi/cel-shaded proportions)
+    but kept Scally's own signature red sash/accent; third recolored it to purple and was accepted.
+
+    Cut and mirrored the same way as Grace (tight ~7-unit border-connected-component flood fill against
+    the same solid dark-navy backdrop) — this render had no shadow/backdrop color collision, clean at
+    every threshold tried, unlike Grace's coat. Added `BLACKFIN_PORTRAIT` to `characterSprites.ts`.
+
+    `BlackfinScreen.tsx` got the same `ConversationBox` swap as `GraceScreen.tsx` (item 188), with one
+    real difference: Blackfin's screen shows dialogue *then* either a Duel/Not Today choice or a plain
+    Continue, where Grace's just exits — added a `dialogueDone` boundary so tap-through ends by
+    revealing the action row (computed exactly as before: `isWon && stage.victoryLine` swaps in his
+    single victory line) instead of immediately backing out of the screen. `BLACKFIN_EMOJI` is
+    untouched, still used for his map marker.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToBlackfin` shortcut straight to the fightable New Providence stage: portrait renders
+    bottom-right facing left, tap-through correctly cycles both lines, and the Duel Lv.8/Not Today
+    buttons correctly appear once dialogue finishes. Zero console errors.
