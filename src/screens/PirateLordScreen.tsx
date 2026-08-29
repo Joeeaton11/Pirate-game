@@ -1,7 +1,9 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ConversationBox, { CONVERSATION_BOX_RESERVED_HEIGHT } from '../components/ConversationBox';
+import { LORD_PORTRAITS } from '../data/characterSprites';
 import { isLordUnlocked, PIRATE_LORDS } from '../data/pirateLords';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
@@ -33,6 +35,12 @@ export default function PirateLordScreen({ navigation }: Props) {
 
   const isDefeated = defeatedLordIds.includes(lord.id);
   const isUnlocked = isLordUnlocked(lord, defeatedLordIds, completedQuestIds);
+  // Partial coverage — see characterSprites.ts's doc comment on LORD_PORTRAITS. Lords without real
+  // art yet keep the original emoji-header layout entirely; only a lord with a portrait gets the
+  // ConversationBox treatment, same "partial map, two render paths" shape MapScreen already uses
+  // for landmarks/buildings with a spriteId.
+  const portrait = (LORD_PORTRAITS as Record<string, ImageSourcePropType>)[lord.id];
+  const line = isDefeated ? lord.defeatDialogue : isUnlocked ? lord.introDialogue : lord.lockedDialogue;
 
   function handleChallenge() {
     if (!lord) return;
@@ -62,6 +70,39 @@ export default function PirateLordScreen({ navigation }: Props) {
     navigation.goBack();
   }
 
+  const actions = (
+    <View style={[styles.actions, portrait ? { paddingBottom: CONVERSATION_BOX_RESERVED_HEIGHT } : null]}>
+      {!isDefeated && isUnlocked && (
+        <Pressable style={styles.challengeButton} onPress={handleChallenge}>
+          <Text style={styles.challengeButtonText}>Challenge Lv.{lord.level} {lord.name}</Text>
+        </Pressable>
+      )}
+      <Pressable style={styles.leaveButton} onPress={handleLeave}>
+        <Text style={styles.leaveButtonText}>Leave</Text>
+      </Pressable>
+    </View>
+  );
+
+  if (portrait) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.header}>
+          <Text style={styles.lordTitle}>{lord.title}</Text>
+        </View>
+
+        {isDefeated && (
+          <View style={styles.badgeBanner}>
+            <Text style={styles.badgeBannerText}>🎖️ {lord.badgeName} earned</Text>
+          </View>
+        )}
+
+        {actions}
+
+        <ConversationBox speakerName={lord.name} text={line} portraitSource={portrait} side="right" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
@@ -71,13 +112,7 @@ export default function PirateLordScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.dialogueCard}>
-        {isDefeated ? (
-          <Text style={styles.dialogue}>"{lord.defeatDialogue}"</Text>
-        ) : isUnlocked ? (
-          <Text style={styles.dialogue}>"{lord.introDialogue}"</Text>
-        ) : (
-          <Text style={styles.dialogue}>"{lord.lockedDialogue}"</Text>
-        )}
+        <Text style={styles.dialogue}>"{line}"</Text>
       </View>
 
       {isDefeated && (
@@ -86,16 +121,7 @@ export default function PirateLordScreen({ navigation }: Props) {
         </View>
       )}
 
-      <View style={styles.actions}>
-        {!isDefeated && isUnlocked && (
-          <Pressable style={styles.challengeButton} onPress={handleChallenge}>
-            <Text style={styles.challengeButtonText}>Challenge Lv.{lord.level} {lord.name}</Text>
-          </Pressable>
-        )}
-        <Pressable style={styles.leaveButton} onPress={handleLeave}>
-          <Text style={styles.leaveButtonText}>Leave</Text>
-        </Pressable>
-      </View>
+      {actions}
     </SafeAreaView>
   );
 }

@@ -184,6 +184,12 @@ const PARCHMENT_HEIGHT = 240;
 // an initial 20 — "move the box and him higher again").
 const WRAPPER_BOTTOM_OFFSET = 40;
 
+/** Total screen-bottom space this component's `wrapper` occupies (its own height plus the bottom
+ * offset) — exported so a screen that shows this box alongside other content (e.g. `PirateLordScreen`
+ * putting a Challenge/Leave choice above it) can reserve exactly that much room instead of guessing a
+ * magic number that'll silently drift out of sync if this file's own layout constants ever change. */
+export const CONVERSATION_BOX_RESERVED_HEIGHT = WRAPPER_BOTTOM_OFFSET + Math.max(PARCHMENT_HEIGHT, PORTRAIT_HEIGHT);
+
 // Name-plate: sized to its own content (icon + bitmap-font name) rather than a fixed width, since
 // speaker names vary in length and the real board art has to stretch to fit whatever comes out —
 // same "no ImageBackground, explicit width/height" fix as the parchment (see parchmentImg below).

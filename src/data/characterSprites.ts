@@ -24,3 +24,12 @@
  * ever gets written down as an actual style guide, log it there too, not just here). */
 export const ADMIRAL_GRACE_PORTRAIT = require('../../assets/sprites/characters/admiral_grace_portrait_1.png');
 export const BLACKFIN_PORTRAIT = require('../../assets/sprites/characters/blackfin_portrait_1.png');
+
+/** Pirate Lord portraits, keyed by `PirateLord.id` — partial coverage like `LANDMARK_SPRITES`
+ * (worldSprites.ts): `PirateLordScreen` checks this map and falls back to the old emoji-header
+ * rendering for any lord not yet in it, same "partial map + fallback" shape used everywhere else in
+ * this library rather than requiring every entry up front. Starts with Redbeard Sully (2026-08-29,
+ * Lord #1 — first boss fight, so first in line for real art). */
+export const LORD_PORTRAITS = {
+  lord_cow_island: require('../../assets/sprites/characters/redbeard_sully_portrait_1.png'),
+};

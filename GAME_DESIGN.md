@@ -6378,8 +6378,7 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     both backdrops clean at every threshold tried, no shadow-collision issues this time either) with
     no flip step, replacing both files in place. Grace's new render also reads noticeably closer to
     Scally's actual chibi proportions than her original (bigger head-to-body ratio, simpler shading)
-    — not confirmed as a deliberate style fix by the user, but narrows the style-mismatch question
-    item 189 left open; still worth confirming explicitly before calling it resolved.
+    — confirmed by the user as deliberate, closing item 189's open style-mismatch question.
 
     Updated `characterSprites.ts`'s doc comment, which had documented the mirror step as the standing
     approach — corrected so it doesn't mislead whoever wires the next character in.
@@ -6387,3 +6386,35 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via both Debug-screen shortcuts:
     Grace and Blackfin both render bottom-right, facing screen-left, matching the pre-flip convention
     with zero code changes needed beyond swapping the two asset files. Zero console errors.
+
+191. ✅ **Redbeard Sully (Pirate Lord #1) gets a real portrait — first Lord, first attempt accepted**
+    (2026-08-29). Picked Sully specifically because he's the first boss fight in the story, so his
+    design sets the tone the other five Lords get judged against, and he's narratively the most urgent
+    since players reach him earliest. Brief asked for someone bulkier/cruder than Blackfin (wins by
+    weight and menace, not skill), a mock "self-declared king" look built from looted trophies rather
+    than real nobility, and — since "Redbeard" is literal — his beard/hair as the one unmissable
+    identifying color, in a palette (brown/dark-green/weathered-leather) that doesn't collide with
+    Scally's red, Blackfin's purple, or Grace's navy.
+
+    First render sent already correctly oriented (screen-left-facing) and in the now-locked chibi
+    style, confirming both fixes from items 189/190 generalize to a brand new character rather than
+    only working when re-sending an existing one — accepted without a redo, no style/likeness issues
+    to flag this time.
+
+    `PirateLordScreen.tsx` needed a real branch, not just a straight swap like Grace/Blackfin got:
+    only 1 of 6 Lords has art so far, and the other 5 need to keep working exactly as before. Added
+    `LORD_PORTRAITS` (a partial `Record<lordId, source>`, same "partial map + fallback" shape
+    `LANDMARK_SPRITES` already uses) to `characterSprites.ts`, and split the screen into two full
+    render paths keyed on whether `LORD_PORTRAITS[lord.id]` exists: a lord with a portrait gets the
+    real `ConversationBox`; every other lord keeps the original emoji-header/dialogue-card JSX,
+    completely untouched. Also exported a new `CONVERSATION_BOX_RESERVED_HEIGHT` constant from
+    `ConversationBox.tsx` (bottom offset + max(parchment height, portrait height) — the exact space its
+    absolutely-positioned `wrapper` occupies) so `PirateLordScreen`'s Challenge/Leave buttons — which
+    sit *above* the box here, unlike Grace/Blackfin where nothing else shares the bottom of the screen
+    — can reserve precisely that much room instead of a guessed margin that would silently drift out of
+    sync if the box's own layout ever changes.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut on both Sully (portrait path — renders correctly, Challenge/Leave sit
+    clean above the box with no overlap) and Iron Jenny (fallback path — confirmed byte-for-byte
+    unchanged from before this commit). Zero console errors on either.
