@@ -6538,3 +6538,24 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `handleJumpToFort` shortcut: renders full-body, facing screen-left, Leave button sitting clean
     above the box (Sully not yet defeated in this session, so his locked-dialogue line shows
     correctly). Zero console errors.
+
+196. ✅ **Marietta Graves (Pirate Lord #4) — first-attempt accept, a real tonal shift** (2026-08-30).
+    Brief called for a supernatural departure from the first three grounded human Lords — a drowned
+    Victorian-mourning-widow ghost captain, curse-only moveset, cold spectral palette. First render
+    delivered it precisely: pale blue-white skin, glowing cyan eyes, waterlogged tattered mourning
+    gown, kelp worked into her hair, skull/bone hat ornaments, and two small ghost-wisp motifs
+    floating beside her baked right into the render's own alpha — accepted without a redo.
+
+    Second delivery this session (after Iron Jenny) to arrive pre-matted with real alpha already
+    baked in, same bbox-trim-only technique, no reconstruction needed. Both floating ghost wisps sit
+    clear of her own silhouette in the alpha, so they came through the crop cleanly as part of her
+    aura rather than reading as debris — kept deliberately, not trimmed off. First Lord whose design
+    holds no weapon at all in either hand, matching her curse-only moveset (`krakens_grip`/
+    `ghostly_wail`) — every prior Lord held something (blade, musket, linstock).
+
+    Wiring was the now-routine zero-screen-code-change pattern: three new entries in
+    `characterSprites.ts` against the existing `PirateLordScreen.tsx` branch.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut: renders full-body with the ghost wisps intact, facing screen-left,
+    Leave button sitting clean above the box. Zero console errors.
