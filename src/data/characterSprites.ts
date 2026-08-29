@@ -9,9 +9,12 @@
  * navy/near-black clothing that sits close enough to a dark flat backdrop that a loose global
  * threshold eats real fabric shading; the border-connected flood fill only ever clears pixels
  * actually reachable from outside the figure, so a shadow fold that merely resembles the backdrop
- * color but isn't part of the same contiguous region stays opaque). Both portraits are mirrored
- * horizontally from their source renders so every NPC faces screen-left in ConversationBox's
- * side="right" slot, opposite Scally's own screen-right-facing portrait.
+ * color but isn't part of the same contiguous region stays opaque). No mirroring is applied to
+ * either file: the very first Grace/Blackfin renders needed a horizontal flip to face screen-left
+ * for ConversationBox's side="right" slot, but the user now generates every character pre-oriented
+ * the right way round (2026-08-29 follow-up — both files here were re-cut from re-sent, already-
+ * correctly-facing renders), so the source PNG's own orientation is exactly what ships. Don't
+ * reintroduce a flip step for future characters unless a source render actually comes in backwards.
  *
  * Blackfin's first source render (not kept) visibly reused Jack Sparrow's specific design
  * signifiers (dreadlocks-and-beads, skull-and-bandana tricorn, kohl-lined eyes) and a painterly-

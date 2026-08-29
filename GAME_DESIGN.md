@@ -6367,3 +6367,23 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `handleJumpToBlackfin` shortcut straight to the fightable New Providence stage: portrait renders
     bottom-right facing left, tap-through correctly cycles both lines, and the Duel Lv.8/Not Today
     buttons correctly appear once dialogue finishes. Zero console errors.
+
+190. ✅ **Dropped the mirror step — both portraits re-cut from re-sent, pre-oriented renders**
+    (2026-08-29). Direct follow-up, same day: the user started prompting the art generator to face
+    characters screen-left directly, specifically so the mirror step items 187/189 introduced isn't
+    needed going forward, and sent fresh renders of both Grace and Blackfin to prove it out — asked
+    for Blackfin specifically to go back to his un-mirrored orientation now that the source is correct.
+
+    Re-cut both from scratch (same tight ~7-unit border-connected-flood-fill technique as before —
+    both backdrops clean at every threshold tried, no shadow-collision issues this time either) with
+    no flip step, replacing both files in place. Grace's new render also reads noticeably closer to
+    Scally's actual chibi proportions than her original (bigger head-to-body ratio, simpler shading)
+    — not confirmed as a deliberate style fix by the user, but narrows the style-mismatch question
+    item 189 left open; still worth confirming explicitly before calling it resolved.
+
+    Updated `characterSprites.ts`'s doc comment, which had documented the mirror step as the standing
+    approach — corrected so it doesn't mislead whoever wires the next character in.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via both Debug-screen shortcuts:
+    Grace and Blackfin both render bottom-right, facing screen-left, matching the pre-flip convention
+    with zero code changes needed beyond swapping the two asset files. Zero console errors.
