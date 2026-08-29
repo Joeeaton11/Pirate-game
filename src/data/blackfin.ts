@@ -80,7 +80,7 @@ export const BLACKFIN_STAGES: BlackfinStage[] = [
     offset: { x: 180, y: -280 },
     title: 'Already Here',
     dialogue: [
-      "Ha! Look who finally made it. Sully folded quick, didn't he? Let's see if you're worth the reputation.",
+      "Ha! Look who finally made it. Bones folded quick, didn't he? Let's see if you're worth the reputation.",
       "New Providence already knows my name. Care to make sure it remembers yours too?",
     ],
     fightable: true,
@@ -122,14 +122,14 @@ export const BLACKFIN_STAGES: BlackfinStage[] = [
     offset: { x: 200, y: -50 },
     title: 'One for the Road',
     dialogue: [
-      "Vane's whirlpool nearly finished me. Doesn't care whose name is louder.",
+      "Maelstrom's whirlpool nearly finished me. Doesn't care whose name is louder.",
       "I'm not going to pretend I'll catch you now. Five Lords down and you're still standing — that's not luck anymore.",
       "One for the road, if you're willing? Not for the race. Just to see how far you've actually come.",
     ],
     fightable: true,
     level: 17,
     backdrop: 'beach',
-    victoryLine: "...Heh. Good. Go remind Vane's ghosts what a real captain looks like — I'll be watching from somewhere safe.",
+    victoryLine: "...Heh. Good. Go remind Maelstrom's ghosts what a real captain looks like — I'll be watching from somewhere safe.",
   },
 ];
 

@@ -6559,3 +6559,46 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
     `handleJumpToFort` shortcut: renders full-body with the ghost wisps intact, facing screen-left,
     Leave button sitting clean above the box. Zero console errors.
+
+197. ✅ **Renamed two more real-historical-figure echoes: "Redbeard Sully" → Grizzle Bones, "Ezra
+    Vane" → Finn Maelstrom** (2026-08-30). Asking whether Marietta Graves was safe (she is — fully
+    original) prompted a check of the other Lord names against the same bar, surfacing two the
+    original naming pass missed: "Redbeard" is the direct English translation of Barbarossa
+    (Hayreddin Barbarossa's real historical epithet), and "Vane" is Charles Vane's actual surname — a
+    real, well-known Golden Age pirate, ironically tied to Nassau/New Providence in real history,
+    which in this game is a *different* Lord's (Iron Jenny's) location. Both real problems, less
+    direct than the still-queued "Blackbeard" case (an epithet pattern and a bare surname, not a full
+    identity match) but real enough to fix now rather than wait.
+
+    First two rounds of proposed names were rejected — first for being too "generic fantasy RPG boss"
+    in construction (`Cormac Gallowking`, `Thorne Maelstrom` as a surname-only pairing, etc.), second
+    for the same reason after loosening the constraint that either name's first/last half had to
+    survive. Third round asked directly what "on-brand" means here rather than guessing again: short,
+    snappy first+last names, cartoon/kids'-book-memorable — the same bar `Scally`/`Grace`/`Blackfin`
+    already clear, restated more explicitly as a first+last format. Landed on **Grizzle Bones**
+    (Cow Island — "Bones" ties to his actual skull-trophy design) and **Finn Maelstrom** (Île
+    Sainte-Marie — short nautical first name, surname evokes his whirlpool power without being
+    literal). Character **art is unchanged for both** — this is a pure data/text rename.
+
+    Updated every place that actually names them: `pirateLords.ts` (both `name`/`template.name`
+    fields), Iron Jenny's `lockedDialogue` ("Sully's marque" → "Bones's marque" — she's gated behind
+    him), and Blackfin's own dialogue lines that reference each by name informally ("Sully folded
+    quick" → "Bones folded quick"; "Vane's whirlpool" → "Maelstrom's whirlpool"; "Vane's ghosts" →
+    "Maelstrom's ghosts"). Also renamed the exported `SCENE_LORD_REDBEARD_SULLY_FORT` constant to
+    `SCENE_LORD_GRIZZLE_BONES_FORT` (and its Debug-screen button label, "BG: Redbeard's fort" →
+    "BG: Bones's fort") for consistency with `SCENE_LORD_CAPTAIN_BELLOWS_FORT`/
+    `SCENE_LORD_IRON_JENNY_FORT`'s existing naming pattern — left the underlying asset *filename*
+    (`lord_redbeard_sully_fort_1.png`) untouched, since nothing in the art itself shows his name and a
+    `git mv` carries real risk for zero visible benefit. Historical prose comments (delivery-log
+    entries, this doc's own past dated items, `ConversationBox.tsx`'s cutting-technique history) were
+    deliberately left referring to the old names — they're a record of what was true at the time, not
+    live identity fields, same treatment the pending Blackbeard flag already gets.
+
+    Also surfaced, not acted on: `buildings.ts` has an unrelated minor NPC, `npcName: 'Sergeant Vane'`
+    — same surname collision, but a throwaway building-flavor character, not a returning story Lord.
+    Flagged to the user; no action taken pending their call.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen: both
+    renamed Lords show correctly (Bones's real portrait unchanged, Maelstrom still on his emoji
+    fallback since no art exists for him yet), and both of Blackfin's updated dialogue lines render
+    correctly. Zero console errors.

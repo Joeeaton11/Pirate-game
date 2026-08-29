@@ -26,9 +26,9 @@ import {
   SCENE_COW_ISLAND_BEACH_CAMP,
   SCENE_COW_ISLAND_MUSTER_FLATS,
   SCENE_LORD_CAPTAIN_BELLOWS_FORT,
+  SCENE_LORD_GRIZZLE_BONES_FORT,
   SCENE_LORD_IRON_JENNY_FORT,
   SCENE_LORD_IRON_JENNY_FORT_ALT,
-  SCENE_LORD_REDBEARD_SULLY_FORT,
   SCENE_NEW_PROVIDENCE_HARBOR,
   SCENE_NEW_PROVIDENCE_TAVERN,
   SCENE_PORT_ROYAL_FLOODED_STREET,
@@ -534,8 +534,8 @@ export default function DebugScreen({ navigation }: Props) {
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_COW_ISLAND_MUSTER_FLATS)}>
             <Text style={styles.buttonText}>BG: Cow Island flats</Text>
           </Pressable>
-          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_LORD_REDBEARD_SULLY_FORT)}>
-            <Text style={styles.buttonText}>BG: Redbeard's fort</Text>
+          <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_LORD_GRIZZLE_BONES_FORT)}>
+            <Text style={styles.buttonText}>BG: Bones's fort</Text>
           </Pressable>
           <Pressable style={styles.button} onPress={() => setConversationDemoBg(SCENE_NEW_PROVIDENCE_HARBOR)}>
             <Text style={styles.buttonText}>BG: New Providence harbor</Text>

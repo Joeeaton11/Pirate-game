@@ -56,12 +56,15 @@ export const SCENE_COW_ISLAND_BEACH_CAMP = require('../../assets/backgrounds/cow
  * flag and supply crates in the foreground. Exact 853x1844 canvas match. */
 export const SCENE_COW_ISLAND_MUSTER_FLATS = require('../../assets/backgrounds/cow_island_muster_flats_1.png');
 
-/** Redbeard Sully's fort — scene #7, the first Pirate Lord lair (`lord_redbeard_sully_fort_1`): a
- * rough palisade-and-timber stronghold, skull-and-crossbones banners, a stone keep behind the gate,
- * appropriately entry-level (not yet the grandest fort in the run, matching Sully being the first
- * lord fought). Exact 853x1844 canvas match, no text, no crop needed. Completes Cow Island's
- * three-scene set (beach camp, muster flats, this one). */
-export const SCENE_LORD_REDBEARD_SULLY_FORT = require('../../assets/backgrounds/lord_redbeard_sully_fort_1.png');
+/** Grizzle Bones's fort — scene #7, the first Pirate Lord lair: a rough palisade-and-timber
+ * stronghold, skull-and-crossbones banners, a stone keep behind the gate, appropriately entry-level
+ * (not yet the grandest fort in the run, matching Bones being the first lord fought). Exact 853x1844
+ * canvas match, no text, no crop needed. Completes Cow Island's three-scene set (beach camp, muster
+ * flats, this one). The underlying filename still says "redbeard_sully" — that was this lord's name
+ * when the asset was cut (2026-08-24), before the 2026-08-30 rename (real-historical-figure concern —
+ * "Redbeard" echoes Barbarossa's actual epithet). Left as-is rather than a `git mv`, since nothing
+ * about the art itself shows his name; only the exported constant was renamed to match. */
+export const SCENE_LORD_GRIZZLE_BONES_FORT = require('../../assets/backgrounds/lord_redbeard_sully_fort_1.png');
 
 /** New Providence's Harbor Trading Post — scene #8 (`new_providence_harbor_1`): a crowded
  * pirate-republic waterfront at midday, a tall ship at the dock, market stalls, a gallows-lantern
@@ -205,8 +208,8 @@ export const SCENE_SMUGGLERS_GROTTO = require('../../assets/backgrounds/smuggler
 
 /** A stone fort courtyard by day — cannons, a target-practice board, a straw training dummy, gun
  * racks, and skull-and-crossbones banners on a castle keep. Doesn't match any of the three
- * still-undelivered Pirate Lord lairs by description (Marietta Graves' flooded/cursed ruin, Ezra
- * Vane's whirlpool fortress, Blackbeard's driftwood storm-camp — none of which read as a sunlit
+ * still-undelivered Pirate Lord lairs by description (Marietta Graves' flooded/cursed ruin, Finn
+ * Maelstrom's whirlpool fortress, Blackbeard's driftwood storm-camp — none of which read as a sunlit
  * stone-castle training yard), and isn't part of the original 30-scene brief. Filed as an
  * unassigned generic fallback per the same standing the user gave for Raven's Watch/Skull Cay
  * Outpost in the prior delivery — usable for any conversation set at a fortified training ground

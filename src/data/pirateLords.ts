@@ -23,7 +23,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     id: 'lord_cow_island',
     islandId: 'cow_island',
     order: 1,
-    name: 'Redbeard Sully',
+    name: 'Grizzle Bones',
     title: 'the Reaver of Cow Island',
     emoji: '🏴‍☠️',
     buildingOffset: { x: 0, y: -240 },
@@ -36,7 +36,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     lockedDialogue: "Come back when you've actually done something worth my time.",
     template: {
       id: 'lord_cow_island',
-      name: 'Redbeard Sully',
+      name: 'Grizzle Bones',
       specialty: 'blade',
       emoji: '🏴‍☠️',
       rarity: 'legendary',
@@ -62,7 +62,7 @@ export const PIRATE_LORDS: PirateLord[] = [
       "A muster marque, is it? Cute. Let's see if you can shoot as well as you can talk.",
     defeatDialogue:
       "Straight shooting. You've got my marque and my respect — rare, both of them.",
-    lockedDialogue: "Sully's marque or nothing, sailor. Go earn it.",
+    lockedDialogue: "Bones's marque or nothing, sailor. Go earn it.",
     template: {
       id: 'lord_new_providence',
       name: 'Iron Jenny',
@@ -139,7 +139,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     id: 'lord_ile_sainte_marie',
     islandId: 'ile_sainte_marie',
     order: 5,
-    name: 'Ezra Vane',
+    name: 'Finn Maelstrom',
     title: 'the Last Free Captain',
     emoji: '🌀',
     buildingOffset: { x: 0, y: 260 },
@@ -152,7 +152,7 @@ export const PIRATE_LORDS: PirateLord[] = [
     lockedDialogue: "Four marques or the whirlpool takes you. Those are the only two options.",
     template: {
       id: 'lord_ile_sainte_marie',
-      name: 'Ezra Vane',
+      name: 'Finn Maelstrom',
       specialty: 'curse',
       emoji: '🌀',
       rarity: 'legendary',
