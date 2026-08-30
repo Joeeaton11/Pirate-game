@@ -69,7 +69,7 @@ export const LORD_PORTRAITS = {
 /** Aspect ratio per lord portrait — see ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO's doc comment; same
  * "read off the actual file" rule applies to every entry added here. */
 export const LORD_PORTRAIT_ASPECT_RATIOS: Record<string, number> = {
-  lord_cow_island: 1404 / 990,
+  lord_cow_island: 1110 / 907,
   lord_new_providence: 1454 / 940,
   lord_roatan: 1306 / 1080,
   lord_port_royal: 1395 / 966,

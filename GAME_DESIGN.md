@@ -6692,3 +6692,51 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     facing screen-left, Leave button sitting clean above the box. Zero console errors. **All 6 Pirate
     Lords now have real, original art — the roster item 185's audit flagged as the single biggest gap
     is fully closed for this tier of character.**
+
+201. ⬜ **Style audit: the Pirate Lord roster doesn't actually match Scally's art style — flagged, not
+    yet resolved** (2026-08-30). Direct question right after the roster completed: "do the new bosses
+    fit the art styling of the game... considering Scally is a lot younger looking and more cartoony?"
+    Built a real side-by-side (all 6 Lords + Scally, resized to a common height) rather than answering
+    from memory — the honest verdict is no, not fully. Two separate real differences, not just Scally
+    reading younger:
+
+    - **Proportions**: Scally is true chibi (head close to half his total height); all 6 Lords are
+      drawn at ordinary adult proportions (head ~15-18% of height) — a materially different ratio, not
+      just "he's older so he's taller."
+    - **Rendering technique**: Scally is flat-color cel-shading, thick uniform outlines, no gradients,
+      no surface texture. Every Lord uses soft painterly gradient shading, individually-rendered beard/
+      hair strands, wrinkles, weathered-material texture, metallic highlight rendering — genuinely
+      different technique, not just "more detail because they're villains."
+
+    Root cause, named plainly: this drifted in gradually, not in one jump. The fix that corrected
+    Grace/Blackfin's genuinely-broken *first* attempts (items 189/190 — wrong proportions, painterly
+    style, Jack Sparrow likeness) moved them into good, internally-consistent painterly art — but every
+    Lord *since* got checked against that established Lord-roster precedent rather than freshly against
+    Scally's actual flat-chibi look each time, so the gap from Scally never actually closed, it just
+    stopped being visible delivery-to-delivery.
+
+    Presented two honest paths rather than picking one unprompted: keep it as a deliberate two-tier
+    style (chibi player/crew vs. painterly "boss portrait" villains, a real convention some games use
+    on purpose), or redo all 6 Lords to genuinely match Scally's chibi proportions/shading for true
+    one-style brand consistency. **Not yet decided** — the user's immediate follow-up was a Grizzle
+    Bones replacement render (item 202) rather than an answer to this question; the style-direction
+    decision itself is still open and should be resolved before more Lords/crew/threats art gets
+    generated, since every character produced under the current style makes a later full-roster
+    restyle more expensive.
+
+202. ✅ **Grizzle Bones' portrait replaced with a new render — same style, not a restyle** (2026-08-30).
+    User's follow-up to item 201's style audit was a new Bones image, sent without comment. Compared it
+    directly against Scally and the outgoing portrait before touching anything: it's the same painterly,
+    adult-proportioned technique as before — not an attempt to close the chibi gap item 201 raised, more
+    a re-roll of the same design. Confirmed with the user before assuming intent ("replace Bones, I'm
+    sending you new character art") — a straight swap, item 201's actual style question stays open.
+
+    Same cutting technique as the original (flat dark-navy backdrop, RGB with no alpha, tight
+    ~7-unit border-connected flood fill), clean at every threshold tried. Overwrote
+    `redbeard_sully_portrait_1.png` in place. New file's aspect ratio differs from the old one (1404/990
+    → 1110/907, a stubbier canvas) — updated in `characterSprites.ts`; no other code changes needed,
+    same payoff the partial-map architecture has delivered on every Lord swap/addition since item 191.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut: new art renders correctly, facing screen-left, sizing consistent with
+    the rest of the roster, Challenge/Leave buttons unaffected. Zero console errors.
