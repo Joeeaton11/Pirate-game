@@ -62,6 +62,7 @@ export const LORD_PORTRAITS = {
   lord_new_providence: require('../../assets/sprites/characters/iron_jenny_portrait_1.png'),
   lord_roatan: require('../../assets/sprites/characters/captain_bellows_portrait_1.png'),
   lord_port_royal: require('../../assets/sprites/characters/marietta_graves_portrait_1.png'),
+  lord_ile_sainte_marie: require('../../assets/sprites/characters/finn_maelstrom_portrait_1.png'),
 };
 
 /** Aspect ratio per lord portrait — see ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO's doc comment; same
@@ -71,6 +72,7 @@ export const LORD_PORTRAIT_ASPECT_RATIOS: Record<string, number> = {
   lord_new_providence: 1454 / 940,
   lord_roatan: 1306 / 1080,
   lord_port_royal: 1395 / 966,
+  lord_ile_sainte_marie: 1229 / 1041,
 };
 
 /** Crop fraction per lord portrait — see ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION's doc comment: no
@@ -80,4 +82,5 @@ export const LORD_PORTRAIT_CROP_FRACTIONS: Record<string, number> = {
   lord_new_providence: 1,
   lord_roatan: 1,
   lord_port_royal: 1,
+  lord_ile_sainte_marie: 1,
 };

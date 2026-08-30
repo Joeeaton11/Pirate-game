@@ -6602,3 +6602,26 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     renamed Lords show correctly (Bones's real portrait unchanged, Maelstrom still on his emoji
     fallback since no art exists for him yet), and both of Blackfin's updated dialogue lines render
     correctly. Zero console errors.
+
+198. ✅ **Finn Maelstrom (Pirate Lord #5) — first-attempt accept** (2026-08-30). Sent right after item
+    197's rename, labeled "Grizzle bones" in the chat message — but the design itself is unmistakably
+    the Île Sainte-Marie whirlpool captain from the earlier brief (spiral-topped cane, deep navy/teal
+    palette, weathered grey-bearded ancient-mariner presence, sea-glass pendant), nothing like Bones's
+    brute-king look at all. Confirmed with the user which character it was actually for before cutting
+    or wiring anything, rather than guessing and potentially filing it under the wrong Lord — correct
+    guess, confirmed as Maelstrom.
+
+    Brief asked for elemental authority over swagger — spiral/whirlpool motifs worked into the design
+    without being literal, deep-sea coloring, a weapon that reads as "commands the sea" rather than a
+    standard blade. First render delivered all of it precisely, right down to the spiral cane handle
+    — accepted without a redo.
+
+    Third delivery this session to arrive pre-matted with real alpha already baked in (alpha 0 at
+    every true corner), same bbox-trim-only technique as Iron Jenny and Marietta Graves, no
+    reconstruction needed. Same zero-screen-code-change wiring: three new entries in
+    `characterSprites.ts` against the existing `PirateLordScreen.tsx` branch.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut: renders full-body, facing screen-left, Leave button sitting clean
+    above the box. Zero console errors. 5 of 6 Pirate Lords now have real art — only the current
+    "Blackbeard" slot (still queued for its own rename) remains.
