@@ -6769,3 +6769,29 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `handleJumpToFort` shortcut: new chibi Jenny renders correctly, facing screen-left, no overlap, no
     residual background patches. Zero console errors. Still open: whether the remaining 4 Lords
     (Bellows, Marietta, Finn, Grimtide) and the just-replaced Bones get the same chibi treatment.
+
+204. ✅ **Grizzle Bones, third render — accepted as painterly, not chibi (a deliberate choice, not a
+    miscommunication)** (2026-08-30). Same image the user had sent right after item 202's re-roll —
+    confirmed byte-identical via hash before doing anything else — sent again with "is this ok for
+    bones? same style. if so, use this version." Direct comparison against Scally and the new chibi
+    Jenny (item 203) confirmed what the hash already implied: this is the same painterly, adult-
+    proportioned render as before, not a chibi restyle. Flagged that plainly before wiring anything,
+    same standing rule as every prior "confirm intent, don't assume" moment this session — the user
+    confirmed explicitly, so this is wired as a deliberate choice for Bones specifically, not an
+    accident.
+
+    Cutting was clean, no repeat of Jenny's enclosed-pocket problem: only two tiny (<150px) internal
+    gaps, invisible at any real display size — same flat-navy-backdrop border flood fill, threshold 7,
+    no defect-driven technique change needed this time. Overwrote `redbeard_sully_portrait_1.png`
+    again, updated the aspect ratio in `characterSprites.ts` for the (again slightly different) canvas
+    shape.
+
+    **Net result, stated plainly**: the roster now has a real, acknowledged split — Jenny is chibi,
+    every other Lord (Bones included) is painterly. This isn't a bug to fix quietly; it's the actual
+    current state of a decision still in progress, and it should be called out again before any more
+    Lord art gets touched, so it doesn't get mistaken for "resolved" by a future session just because
+    item 203 announced the chibi direction.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut: renders correctly, facing screen-left, no overlap. Zero console
+    errors.
