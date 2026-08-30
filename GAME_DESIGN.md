@@ -6740,3 +6740,32 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
     `handleJumpToFort` shortcut: new art renders correctly, facing screen-left, sizing consistent with
     the rest of the roster, Challenge/Leave buttons unaffected. Zero console errors.
+
+203. ✅ **Iron Jenny's portrait replaced — this one actually answers item 201's style question**
+    (2026-08-30). Where the Bones replacement (item 202) was a same-style re-roll, this Jenny render is
+    a genuine restyle: true chibi proportions (head close to half her total height, same ratio as
+    Scally), flat cel-shading, thick clean outlines, minimal surface texture — confirmed with a direct
+    3-way resized comparison (Scally / outgoing Jenny / new Jenny) before wiring anything, not assumed
+    from a glance. This is the first concrete signal of which of item 201's two paths the user is
+    taking: redo the roster to match Scally, not keep a deliberate two-tier style.
+
+    Cutting hit a real, new-shaped defect: two large background pockets (behind the hat's feather
+    plume, ~17,500px; near the boots, ~13,500px) were enclosed by her own silhouette/musket and never
+    touched the canvas border, so the usual border-connected flood fill (the technique built for Grace's
+    coat, where a *global* threshold ate real fabric shadow) correctly left them opaque by its own logic
+    but wrong by eye — checkerboard-solid navy patches sitting inside the character. Fixed by switching
+    to the full background-color mask regardless of border connectivity, safe here specifically because
+    her coat is teal, nowhere near background-navy in color (unlike Grace's coat, the reason the
+    border-restriction existed at all). A second, smaller defect — a soft drop-shadow strip under her
+    boots, a slightly different shade of navy than the flat backdrop — needed its own fix: loosening the
+    threshold globally speckled real holes into the teal coat (tried and rejected), so it's cleared with
+    a spatially-limited looser threshold in a narrow band well below any garment content instead.
+
+    Same zero-screen-code wiring as every prior Lord swap: overwrote `iron_jenny_portrait_1.png` in
+    place, updated her aspect ratio in `characterSprites.ts` for the new file's different canvas shape
+    (1454/940 → 1151/992).
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut: new chibi Jenny renders correctly, facing screen-left, no overlap, no
+    residual background patches. Zero console errors. Still open: whether the remaining 4 Lords
+    (Bellows, Marietta, Finn, Grimtide) and the just-replaced Bones get the same chibi treatment.
