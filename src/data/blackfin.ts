@@ -18,8 +18,8 @@ import { BattleBackdrop } from '../utils/battleBackdrop';
 // backdrop for the eerie ruins. Built 2026-08-11: the Île Sainte-Marie appearance (Act V.B) — his
 // last pre-finale beat, where "the tone shifts from race to respect without him winning" (per the
 // design): still fightable and he still loses, but the dialogue/victoryLine read as warmth and a
-// send-off rather than another crack in his pride. Act VI (the Ocracoke finale, found humbled by
-// Blackbeard) is still unbuilt.
+// send-off rather than another crack in his pride. Act VI (the Skull's End finale, found humbled by
+// Grimtide) is still unbuilt.
 
 export const BLACKFIN_NAME = 'Captain Blackfin';
 export const BLACKFIN_EMOJI = '🦈';

@@ -6625,3 +6625,47 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `handleJumpToFort` shortcut: renders full-body, facing screen-left, Leave button sitting clean
     above the box. Zero console errors. 5 of 6 Pirate Lords now have real art — only the current
     "Blackbeard" slot (still queued for its own rename) remains.
+
+199. ✅ **"Blackbeard" → Silas Grimtide — the deepest real-history tie in the game, fully resolved**
+    (2026-08-30). This was never just a name. The whole Lord #6 finale was built around the real
+    historical Edward Teach: his home island was literally `ocracoke_inlet`, display name "Ocracoke
+    Inlet" — the actual place the real Blackbeard died in 1718 — with his own intro line spelling it
+    out ("this inlet's where I'm meant to die... history says") and flavor text stating "The real
+    Edward Teach" outright. A legendary treasure ("Blackbeard's Lost Hoard") and its final chart
+    fragment ("Chart Fragment: Ocracoke Inlet") were named after the same place. Renaming just the
+    character would have fixed the smallest part of this.
+
+    Full package, all invented fresh: **Silas Grimtide**, title **"the Last Legend"** — a living
+    legend who's supposedly died at least once already, nobody agrees how, only that he's still here
+    (keeps the "presumed-dead legend, is the story even true" narrative hook the original had, with
+    nothing tying it to a real person or a real death). His home island is now **Skull's End**
+    (`skulls_end`) — same "edge of the known world, final frontier" weight as "Ocracoke Inlet" without
+    being an actual historical death site. Renamed everything that actually said the old names:
+
+    - `pirateLords.ts`: id/name/title/badgeName/introDialogue/flavor (defeat/locked dialogue didn't
+      reference the old identity, left untouched)
+    - `islands.ts`: island id/name/description, plus the `OCRACOKE_SHAPE` constant → `SKULLS_END_SHAPE`
+    - `treasures.ts`: the hoard (`blackbeards_hoard` → `grimtides_hoard`, "Blackbeard's Lost Hoard" →
+      "Grimtide's Lost Hoard") and its final fragment (`fragment_ocracoke` → `fragment_skulls_end`,
+      "Chart Fragment: Ocracoke Inlet" → "Chart Fragment: Skull's End"), `HOARD_TREASURE_ID`,
+      `TREASURE_FRAGMENT_IDS`, and the fragment's map site entry
+    - `sideQuests.ts`: the Pirate Council quest's `islandId`
+    - `MapScreen.tsx`: the hoard-assembly check and its toast text
+    - `QuestScreen.tsx`: the "all Lords defeated" completion banner, which named him directly
+    - `gameStore.test.ts`: the hoard-assembly test's fragment/hoard id assertions
+    - `DebugScreen.tsx`: a demo dialogue line ("Blackbeard's men were here...")
+    - `blackfin.ts`/`grace.ts`/`GraceScreen.tsx`: forward-looking story-design comments naming "the
+      Ocracoke finale" as the still-unbuilt Act VI beat — updated since these describe future work,
+      unlike a dated journal entry recording a past decision
+
+    Left alone deliberately: this doc's own past dated entries, `DELIVERY_LOG.md`, and other prose
+    comments that recorded what was *true at the time* (e.g. `gameStore.test.ts`'s file-header comment
+    quotes item 67 verbatim) — same standing rule items 197/198 already established, not revisionist
+    history. Also confirmed via a full-repo grep that no building/house/street data exists yet for this
+    island (least-developed of the six, nothing else needed updating there).
+
+    `npx tsc --noEmit` and `npx jest` (45/45, including the updated hoard-assembly test) both pass.
+    Verified live via the Debug screen: the Lord screen shows "Silas Grimtide — the Last Legend"
+    correctly (still on emoji fallback, no art requested yet), and the Pirate Council side quest
+    still renders correctly on the renamed island. Zero console errors. Every Pirate Lord in the
+    roster is now an original character — no real-world names left anywhere in the cast.

@@ -95,7 +95,7 @@ export default function QuestScreen({ navigation }: Props) {
       {allDefeated && (
         <View style={styles.completeBanner}>
           <Text style={styles.completeBannerText}>
-            Blackbeard himself has fallen. Every marque is yours — you are the terror of these
+            Grimtide himself has fallen. Every marque is yours — you are the legend of these
             waters now.
           </Text>
         </View>

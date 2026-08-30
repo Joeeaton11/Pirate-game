@@ -87,9 +87,9 @@ export const TREASURES: Record<string, TreasureItem> = {
     flavor: 'The whirlpool is marked with a single word: "don\'t."',
     foundHint: 'Buried in dry sand just above the tideline.',
   },
-  fragment_ocracoke: {
-    id: 'fragment_ocracoke',
-    name: 'Chart Fragment: Ocracoke Inlet',
+  fragment_skulls_end: {
+    id: 'fragment_skulls_end',
+    name: "Chart Fragment: Skull's End",
     emoji: '🗺️',
     rarity: 'rare',
     method: 'exploration',
@@ -98,13 +98,13 @@ export const TREASURES: Record<string, TreasureItem> = {
   },
 
   // --- The legendary capstone (GAME_DESIGN.md 6.D) ---
-  blackbeards_hoard: {
-    id: 'blackbeards_hoard',
-    name: "Blackbeard's Lost Hoard",
+  grimtides_hoard: {
+    id: 'grimtides_hoard',
+    name: "Grimtide's Lost Hoard",
     emoji: '👑',
     rarity: 'legendary',
     method: 'assembled',
-    flavor: 'History says it was never found. History was wrong.',
+    flavor: 'Legend says it was never found. Legend was wrong.',
     foundHint: 'Assembled from all seven chart fragments — the map led true.',
   },
 
@@ -205,10 +205,10 @@ export const TREASURE_FRAGMENT_IDS = [
   'fragment_roatan',
   'fragment_port_royal',
   'fragment_ile_sainte_marie',
-  'fragment_ocracoke',
+  'fragment_skulls_end',
 ];
 
-export const HOARD_TREASURE_ID = 'blackbeards_hoard';
+export const HOARD_TREASURE_ID = 'grimtides_hoard';
 
 export function rarityColor(rarity: TreasureRarity): string {
   switch (rarity) {
@@ -241,7 +241,7 @@ export const TREASURE_SITES: TreasureSite[] = [
   { id: 'site_fragment_roatan', islandId: 'roatan', offset: { x: 300, y: -200 }, treasureId: 'fragment_roatan' },
   { id: 'site_fragment_port_royal', islandId: 'port_royal', offset: { x: 300, y: 250 }, treasureId: 'fragment_port_royal' },
   { id: 'site_fragment_ile_sainte_marie', islandId: 'ile_sainte_marie', offset: { x: -150, y: 250 }, treasureId: 'fragment_ile_sainte_marie' },
-  { id: 'site_fragment_ocracoke', islandId: 'ocracoke_inlet', offset: { x: 200, y: -150 }, treasureId: 'fragment_ocracoke' },
+  { id: 'site_fragment_skulls_end', islandId: 'skulls_end', offset: { x: 200, y: -150 }, treasureId: 'fragment_skulls_end' },
 
   {
     id: 'site_buried_doubloons',

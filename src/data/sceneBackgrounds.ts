@@ -209,8 +209,8 @@ export const SCENE_SMUGGLERS_GROTTO = require('../../assets/backgrounds/smuggler
 /** A stone fort courtyard by day — cannons, a target-practice board, a straw training dummy, gun
  * racks, and skull-and-crossbones banners on a castle keep. Doesn't match any of the three
  * still-undelivered Pirate Lord lairs by description (Marietta Graves' flooded/cursed ruin, Finn
- * Maelstrom's whirlpool fortress, Blackbeard's driftwood storm-camp — none of which read as a sunlit
- * stone-castle training yard), and isn't part of the original 30-scene brief. Filed as an
+ * Maelstrom's whirlpool fortress, Silas Grimtide's driftwood storm-camp — none of which read as a
+ * sunlit stone-castle training yard), and isn't part of the original 30-scene brief. Filed as an
  * unassigned generic fallback per the same standing the user gave for Raven's Watch/Skull Cay
  * Outpost in the prior delivery — usable for any conversation set at a fortified training ground
  * without asserting a specific Lord's identity. Exact 853x1844 canvas match, no crop needed. */

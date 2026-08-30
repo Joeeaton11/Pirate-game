@@ -59,7 +59,7 @@ const HEAT_VALUES = [0, 30, 60, 90];
 // that handoff.
 const DEMO_SCRIPT: { text: string; restExpression: TalkExpressionKey }[] = [
   {
-    text: "Blackbeard's men were here. I can smell 'em.\n\n...Actually, that might be Cheeky.",
+    text: "Grimtide's men were here. I can smell 'em.\n\n...Actually, that might be Cheeky.",
     restExpression: 'curious',
   },
   {

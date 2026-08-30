@@ -2,7 +2,7 @@
 // A recurring named character, same "sequence of stages" shape as Captain Blackfin
 // (src/data/blackfin.ts) — one data entry per Act appearance, no new engineering per beat once the
 // pattern is proven. Unlike Blackfin, none of her stages are fightable yet: per 2.A.3/2.A.4 her
-// escalation is the Pardon beat and the Ocracoke finale, both later Acts, so every stage built so
+// escalation is the Pardon beat and the Skull's End finale, both later Acts, so every stage built so
 // far is dialogue-only — she's "not yet a direct confrontation" (3, Act II.B).
 //
 // Built 2026-08-11: only the New Providence introduction (Act II.B) is populated. Introduced here

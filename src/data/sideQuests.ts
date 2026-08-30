@@ -193,7 +193,7 @@ export const SIDE_QUESTS: SideQuest[] = [
   {
     id: 'quest_pirate_council',
     type: 'escort',
-    islandId: 'ocracoke_inlet',
+    islandId: 'skulls_end',
     offset: { x: 200, y: 160 },
     title: 'The Pirate Council',
     npcName: 'The Council Herald',

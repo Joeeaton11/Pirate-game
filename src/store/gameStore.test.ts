@@ -378,11 +378,11 @@ describe('Treasure Codex', () => {
       'fragment_ile_sainte_marie',
     ];
     fragments.forEach((id) => useGameStore.getState().debugAddTreasure(id));
-    expect(useGameStore.getState().foundTreasureIds).not.toContain('blackbeards_hoard');
+    expect(useGameStore.getState().foundTreasureIds).not.toContain('grimtides_hoard');
 
-    useGameStore.getState().debugAddTreasure('fragment_ocracoke');
-    expect(useGameStore.getState().foundTreasureIds).toContain('fragment_ocracoke');
-    expect(useGameStore.getState().foundTreasureIds).toContain('blackbeards_hoard');
+    useGameStore.getState().debugAddTreasure('fragment_skulls_end');
+    expect(useGameStore.getState().foundTreasureIds).toContain('fragment_skulls_end');
+    expect(useGameStore.getState().foundTreasureIds).toContain('grimtides_hoard');
   });
 
   it('debugAddTreasure is idempotent', () => {

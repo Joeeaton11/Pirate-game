@@ -16,7 +16,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Grace'>;
 
 // A dedicated dialogue-only screen for Admiral Grace's recurring story beats — same shape as
 // BlackfinScreen's dialogue-only path, minus the duel branch: per 2.A.3/2.A.4 her escalation is the
-// (still-unbuilt) Pardon beat and the Ocracoke finale, not a fight, so nothing here needs to
+// (still-unbuilt) Pardon beat and the Skull's End finale, not a fight, so nothing here needs to
 // support one yet.
 //
 // 2026-08-29: swapped from a stacked "every line visible at once" card list over to the shared

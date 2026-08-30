@@ -54,9 +54,9 @@ export const BLACKFIN_PORTRAIT_CROP_FRACTION = 1;
  * (worldSprites.ts): `PirateLordScreen` checks this map and falls back to the old emoji-header
  * rendering for any lord not yet in it, same "partial map + fallback" shape used everywhere else in
  * this library rather than requiring every entry up front. Starts with Grizzle Bones (2026-08-29,
- * Lord #1 — first boss fight, so first in line for real art; named "Redbeard Sully" at the time,
- * renamed 2026-08-30 for the same real-historical-figure reason "Blackbeard" is queued for a rename
- * — see `pirateLords.ts`). */
+ * Lord #1 — first boss fight, so first in line for real art; named "Redbeard Sully" at the time).
+ * Lord #6 ("Blackbeard" — the real-historical-figure case that started this whole naming audit) is
+ * now Silas Grimtide, but has no portrait yet — see `pirateLords.ts`. */
 export const LORD_PORTRAITS = {
   lord_cow_island: require('../../assets/sprites/characters/redbeard_sully_portrait_1.png'),
   lord_new_providence: require('../../assets/sprites/characters/iron_jenny_portrait_1.png'),

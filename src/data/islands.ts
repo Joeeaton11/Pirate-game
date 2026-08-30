@@ -78,8 +78,11 @@ const ILE_SAINTE_MARIE_SHAPE = polygon([
   [44, -418], [118, -362], [170, -294], [206, -228], [224, -162], [238, -106], [254, -54],
 ]);
 
-/** Ocracoke: a thin, curved Outer Banks barrier island, elongated east-west. */
-const OCRACOKE_SHAPE = polygon([
+/** Skull's End: a thin, curved barrier island, elongated east-west — the final frontier of these
+ * seas. (Shape/constant name predate the 2026-08-30 rename — this island was "Ocracoke Inlet" until
+ * then, a real historical place directly tied to the real Blackbeard's death; renamed alongside the
+ * Lord who lives here for the same reason.) */
+const SKULLS_END_SHAPE = polygon([
   [380, 0], [360, 76], [326, 144], [272, 198], [212, 236], [150, 260], [82, 254], [24, 234],
   [-24, 230], [-80, 244], [-140, 242], [-204, 226], [-266, 192], [-320, 142], [-362, 76], [-390, 0],
   [-366, -78], [-328, -146], [-272, -198], [-206, -228], [-140, -242], [-88, -274], [-30, -294],
@@ -173,14 +176,14 @@ export const ISLANDS: Record<string, Island> = {
       { templateId: 'kraken_bound_captain', weight: 1, minLevel: 14, maxLevel: 18 },
     ],
   },
-  ocracoke_inlet: {
-    id: 'ocracoke_inlet',
-    name: 'Ocracoke Inlet',
+  skulls_end: {
+    id: 'skulls_end',
+    name: "Skull's End",
     emoji: '💀',
     description:
-      "Shallow, treacherous waters — the real site of Blackbeard's last stand. The endgame of these seas.",
+      "Shallow, treacherous waters — where Silas Grimtide made his last stand, or so the legend goes. The endgame of these seas.",
     position: { x: 3000, y: 500 },
-    shape: OCRACOKE_SHAPE,
+    shape: SKULLS_END_SHAPE,
     encounterChance: 0.14,
     encounterTable: [
       { templateId: 'cursed_bosun', weight: 2, minLevel: 15, maxLevel: 20 },

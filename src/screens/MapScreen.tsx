@@ -1692,11 +1692,11 @@ export default function MapScreen({ navigation }: Props) {
             // (see withHoardCheck in gameStore.ts) — this is just a second, delayed toast so both
             // reveals are readable instead of one overwriting the other.
             const hoardJustAssembled =
-              result.treasureId !== 'blackbeards_hoard' &&
-              useGameStore.getState().foundTreasureIds.includes('blackbeards_hoard');
+              result.treasureId !== 'grimtides_hoard' &&
+              useGameStore.getState().foundTreasureIds.includes('grimtides_hoard');
             if (hoardJustAssembled) {
               setTimeout(() => {
-                showResourceToast("👑 All 7 fragments found — Blackbeard's Lost Hoard assembles itself!", 5500);
+                showResourceToast("👑 All 7 fragments found — Grimtide's Lost Hoard assembles itself!", 5500);
               }, 1200);
             }
           }
