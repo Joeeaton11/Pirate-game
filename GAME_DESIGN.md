@@ -6669,3 +6669,26 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     correctly (still on emoji fallback, no art requested yet), and the Pirate Council side quest
     still renders correctly on the renamed island. Zero console errors. Every Pirate Lord in the
     roster is now an original character — no real-world names left anywhere in the cast.
+
+200. ✅ **Silas Grimtide (Pirate Lord #6) — first-attempt accept, the Pirate Lord roster is complete**
+    (2026-08-30). Brief asked for a clear step up in gravitas from the other five — older, more
+    battle-worn, blade+curse hybrid moveset made visible (a real cutlass with dark supernatural energy
+    on it, not a full ghost like Marietta), and a black/bone-white base with one blood-crimson accent —
+    the one high-contrast monochrome-plus-accent palette nobody else in the roster had claimed. First
+    render delivered exactly that: a bloodied cutlass edge, crimson curse-mist curling off his off-hand,
+    skull motifs worked into the coat/hat without tipping into horror, still the same locked chibi
+    style — accepted without a redo.
+
+    Fourth delivery this session to arrive pre-matted with real alpha, and the first with a genuinely
+    soft-edged effect (the translucent mist) rather than a flat-colored prop — came through the bbox
+    trim cleanly since the source alpha itself already had a real gradient at the mist's edges, no
+    extra graduated-alpha work needed the way earlier deliveries with baked-in shadow effects required.
+
+    Same zero-screen-code-change wiring as every Lord since item 191: three new entries in
+    `characterSprites.ts` against the existing `PirateLordScreen.tsx` branch.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
+    `handleJumpToFort` shortcut: renders full-body with the curse-mist and bloodied blade intact,
+    facing screen-left, Leave button sitting clean above the box. Zero console errors. **All 6 Pirate
+    Lords now have real, original art — the roster item 185's audit flagged as the single biggest gap
+    is fully closed for this tier of character.**

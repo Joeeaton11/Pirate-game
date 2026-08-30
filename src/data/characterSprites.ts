@@ -56,13 +56,14 @@ export const BLACKFIN_PORTRAIT_CROP_FRACTION = 1;
  * this library rather than requiring every entry up front. Starts with Grizzle Bones (2026-08-29,
  * Lord #1 — first boss fight, so first in line for real art; named "Redbeard Sully" at the time).
  * Lord #6 ("Blackbeard" — the real-historical-figure case that started this whole naming audit) is
- * now Silas Grimtide, but has no portrait yet — see `pirateLords.ts`. */
+ * now Silas Grimtide, and completes the roster — every Pirate Lord has real art as of 2026-08-30. */
 export const LORD_PORTRAITS = {
   lord_cow_island: require('../../assets/sprites/characters/redbeard_sully_portrait_1.png'),
   lord_new_providence: require('../../assets/sprites/characters/iron_jenny_portrait_1.png'),
   lord_roatan: require('../../assets/sprites/characters/captain_bellows_portrait_1.png'),
   lord_port_royal: require('../../assets/sprites/characters/marietta_graves_portrait_1.png'),
   lord_ile_sainte_marie: require('../../assets/sprites/characters/finn_maelstrom_portrait_1.png'),
+  lord_skulls_end: require('../../assets/sprites/characters/silas_grimtide_portrait_1.png'),
 };
 
 /** Aspect ratio per lord portrait — see ADMIRAL_GRACE_PORTRAIT_ASPECT_RATIO's doc comment; same
@@ -73,6 +74,7 @@ export const LORD_PORTRAIT_ASPECT_RATIOS: Record<string, number> = {
   lord_roatan: 1306 / 1080,
   lord_port_royal: 1395 / 966,
   lord_ile_sainte_marie: 1229 / 1041,
+  lord_skulls_end: 1145 / 991,
 };
 
 /** Crop fraction per lord portrait — see ADMIRAL_GRACE_PORTRAIT_CROP_FRACTION's doc comment: no
@@ -83,4 +85,5 @@ export const LORD_PORTRAIT_CROP_FRACTIONS: Record<string, number> = {
   lord_roatan: 1,
   lord_port_royal: 1,
   lord_ile_sainte_marie: 1,
+  lord_skulls_end: 1,
 };
