@@ -6849,3 +6849,60 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     taken this pass) — the logic mirrors the already-proven player-movement tick pattern exactly, but a
     live look at tortuga_tavern (3 ambient NPCs, several nearby stools/chairs) is worth doing next
     session before calling this fully confirmed.
+
+206. ✅ **Interiors: real collision against solid furniture — the "invisible outline" trick, wired
+    ahead of any backdrop art** (2026-08-31). The user proposed skipping bespoke furniture sprites
+    entirely: paint each room's furniture straight into its backdrop art, and fake the interactivity
+    with invisible collision shapes positioned over where the art shows a table/barrel/counter, rather
+    than rendering separate sprite objects on top. This is exactly the technique `MapScreen.tsx`
+    already uses outdoors — `slideAroundObstacles()` gives buildings/houses invisible circular keep-out
+    zones while the visible sprite is just the painted building art — so this is that same proven
+    pattern applied indoors, not a new approach.
+
+    Added `slideAroundFurniture()`, a local generalization of `slideAroundObstacles` that takes a
+    per-obstacle radius (outdoor buildings are all roughly the same size so one shared radius sufficed;
+    furniture pieces aren't). Same circle-vs-circle-with-axis-sliding behavior: a blocked move retries
+    X-only then Y-only before giving up, so the player slides along a table's edge instead of
+    hard-stopping or clipping through it.
+
+    Obstacles are built by a `furnitureObstacles` useMemo reading `interior.furniture` directly — the
+    exact x/y (and width/height, for a counter) already authored for the current placeholder-box
+    rendering, reused as-is with zero interiors.ts changes. `table`/`barrel` get a single circle sized
+    to `renderFurniture()`'s own placeholder dimensions (26px/12px) plus a player clearance radius
+    (`PLAYER_FURNITURE_CLEARANCE`, half the player token's size, so it stops a believable half-step
+    short rather than toe-to-toe); `shelf` and `counter` are wider than they are tall, so each gets 2+
+    circles chained along its width instead of one point-radius at its center, so the whole span blocks
+    rather than just its middle. `chair`/`stool`/`rug`/`prop`/`door` are deliberately left solid-free —
+    chairs are small, sat in by NPCs, and often clustered tight around a table, so blocking on them
+    would make walking up to a seated NPC fiddly for no real gain; door obviously can't block the exit.
+
+    Applied in the same movement tick as everything else in this room (player drag-move, ambient NPC
+    wander from item 205): the player's raw clamped target now runs through `slideAroundFurniture`
+    against `furnitureObstacles` before being committed. Deliberately NOT applied to ambient NPC
+    wandering in this pass — NPCs beeline straight to a fixed waypoint (their own spot or a nearby
+    seat), and slide-collision only prevents penetration, it doesn't reroute around an obstacle
+    directly in a fixed path the way it does for continuous player input — an NPC could get stuck
+    sliding along the very table it's trying to walk past. Real avoidance for that would need actual
+    pathfinding, not just this same trick; left as a known follow-up, not silently skipped.
+
+    Rendering is completely untouched — `renderFurniture()` still draws the same placeholder colored
+    boxes it always has. That's the point of doing this now, ahead of any backdrop art: the collision
+    layer is a pure data/logic addition that works identically whichever furniture rendering is on
+    screen, so swapping in a painted backdrop later (with these same shapes now genuinely invisible
+    instead of camouflaged as colored boxes) needs zero further logic changes — only new art and,
+    per-room, nudging the existing x/y numbers to match wherever the backdrop artist actually painted
+    each piece (AI image generation won't hit exact pixel coordinates, so a short calibration pass per
+    room is expected, not a sign anything's broken).
+
+    Verified computationally rather than just by eye: a throwaway test (written, run, and deleted —
+    never committed) recomputed every authored room's obstacle set and confirmed no `entryPosition`
+    across all 20 floor plans spawns the player inside a new collision zone, which would have soft-
+    locked movement on room entry. All 20 passed clean with zero adjustment needed.
+
+    Also newly true and worth calling out: rooms had *no* furniture collision at all before this —
+    every table, barrel, and counter in every interior was walk-through. This isn't just prep for
+    smoke-and-mirrors backdrops; it's a real, immediately-live gameplay fix on its own.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Not yet visually verified live (no screenshot
+    this pass) — worth a real walkthrough of a furniture-dense room (tortuga_tavern, 3 tables + a
+    counter + 3 barrels) next session to confirm the sliding feels right, not just that it compiles.

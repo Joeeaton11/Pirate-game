@@ -79,6 +79,43 @@ interface AmbientWanderState {
   waitUntil: number;
 }
 
+// Clearance added to every solid furniture piece's own footprint so the player stops a believable
+// half-body-width short of it, not toe-to-toe.
+const PLAYER_FURNITURE_CLEARANCE = PLAYER_SIZE / 2;
+// Chairs/stools are deliberately NOT solid — they're small, often clustered tight around a table,
+// and NPCs sit in them, so blocking on them would make navigating up to a seated NPC fiddly for no
+// real benefit. Doors and decorative floor items (rug/prop) obviously can't block either. Table,
+// barrel, shelf, and counter are the pieces actually worth bumping into.
+
+interface FurnitureObstacle {
+  x: number;
+  y: number;
+  radius: number; // already includes the player's own clearance
+}
+
+/** Same circle-vs-circle collision-with-sliding trick MapScreen.tsx uses for outdoor
+ * buildings/houses (slideAroundObstacles), generalized to per-obstacle radii since furniture
+ * pieces aren't all the same size the way outdoor buildings are. If the full move is blocked,
+ * retry the X-only and Y-only projections before giving up, so the player slides along a table's
+ * edge instead of hard-stopping or clipping through it. This is the "invisible outline" half of
+ * painted-backdrop furniture: a table/barrel/shelf/counter blocks movement at roughly its real
+ * footprint whether it's a placeholder box today or painted straight into a backdrop later —
+ * nothing here depends on how (or whether) the piece is actually rendered. */
+function slideAroundFurniture(
+  current: { x: number; y: number },
+  raw: { x: number; y: number },
+  obstacles: FurnitureObstacle[]
+): { x: number; y: number } {
+  const blocked = (pos: { x: number; y: number }) =>
+    obstacles.some((o) => Math.hypot(pos.x - o.x, pos.y - o.y) < o.radius);
+  if (!blocked(raw)) return raw;
+  const slideX = { x: raw.x, y: current.y };
+  if (!blocked(slideX)) return slideX;
+  const slideY = { x: current.x, y: raw.y };
+  if (!blocked(slideY)) return slideY;
+  return current;
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -215,6 +252,50 @@ export default function BuildingScreen({ navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interior?.buildingId]);
 
+  // Invisible collision geometry for solid furniture, built straight from the same x/y (and
+  // width/height, for a counter) already authored for rendering — no new data needed. Radii below
+  // match renderFurniture()'s own placeholder dimensions so today's colored-box art and tomorrow's
+  // painted backdrop both collide the same way regardless of what's actually drawn on screen.
+  const furnitureObstacles = React.useMemo(() => {
+    const obstacles: FurnitureObstacle[] = [];
+    if (!interior) return obstacles;
+    for (const item of interior.furniture) {
+      switch (item.type) {
+        case 'table':
+          obstacles.push({ x: item.x, y: item.y, radius: 26 + PLAYER_FURNITURE_CLEARANCE });
+          break;
+        case 'barrel':
+          obstacles.push({ x: item.x, y: item.y, radius: 12 + PLAYER_FURNITURE_CLEARANCE });
+          break;
+        case 'shelf': {
+          // Rendered as a 60x20 rect — two circles spaced along its width so the whole span
+          // blocks, not just a point at its center.
+          const radius = 14 + PLAYER_FURNITURE_CLEARANCE;
+          obstacles.push({ x: item.x - 15, y: item.y, radius });
+          obstacles.push({ x: item.x + 15, y: item.y, radius });
+          break;
+        }
+        case 'counter': {
+          const width = item.width ?? 120;
+          const height = item.height ?? 24;
+          const radius = height / 2 + PLAYER_FURNITURE_CLEARANCE;
+          // Chain circles along its length so the counter blocks edge-to-edge instead of just at
+          // its center — the same circle-obstacle model MapScreen already uses, extended to a
+          // piece with real length.
+          const step = Math.max(radius, 20);
+          for (let cx = item.x - width / 2 + step / 2; cx <= item.x + width / 2; cx += step) {
+            obstacles.push({ x: cx, y: item.y, radius });
+          }
+          break;
+        }
+        default:
+          break; // chair/stool/rug/prop/door stay walk-through
+      }
+    }
+    return obstacles;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interior?.buildingId]);
+
   const ambientWanderRef = useRef<Map<string, AmbientWanderState>>(new Map());
   const [ambientPositions, setAmbientPositions] = useState<
     Record<string, { x: number; y: number; seated: boolean }>
@@ -268,9 +349,13 @@ export default function BuildingScreen({ navigation }: Props) {
       const dt = TICK_MS / 1000;
       const direction = directionRef.current;
       if (direction) {
-        const nextX = clamp(roomPlayerRef.current.x + direction.x * ROOM_SPEED * dt, 0, interior.width);
-        const nextY = clamp(roomPlayerRef.current.y + direction.y * ROOM_SPEED * dt, 0, interior.height);
-        roomPlayerRef.current = { x: nextX, y: nextY };
+        const rawX = clamp(roomPlayerRef.current.x + direction.x * ROOM_SPEED * dt, 0, interior.width);
+        const rawY = clamp(roomPlayerRef.current.y + direction.y * ROOM_SPEED * dt, 0, interior.height);
+        roomPlayerRef.current = slideAroundFurniture(
+          roomPlayerRef.current,
+          { x: rawX, y: rawY },
+          furnitureObstacles
+        );
         setRoomPlayer(roomPlayerRef.current);
       }
 
@@ -329,7 +414,7 @@ export default function BuildingScreen({ navigation }: Props) {
       setNearbyNpcId(nearest);
     }, TICK_MS);
     return () => clearInterval(iv);
-  }, [interior, showCounter, ambientWaypoints]);
+  }, [interior, showCounter, ambientWaypoints, furnitureObstacles]);
 
   const panGesture = Gesture.Pan()
     .minDistance(0)
