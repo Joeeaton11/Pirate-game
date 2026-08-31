@@ -6943,3 +6943,51 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `npx tsc --noEmit` and `npx jest` (45/45) both pass. Not yet visually verified live — worth
     confirming next session in a furniture-dense room (tortuga_tavern) that walking behind a table
     reads correctly, alongside the still-open item 206 verification.
+
+208. ✅ **Interiors live-tested for the first time this session (tortuga_tavern) — found and fixed a
+    real room-camera edge-clamp bug in the process** (2026-08-31). Asked to "build it so I can test
+    it," so items 205–207 got their first actual look outside a typecheck: `expo start --web`, driven
+    headlessly with Playwright (Chromium at `/opt/pw-browsers/chromium`, no `chromium-cli` available
+    in this environment so a small throwaway driver script did the job — written, run, and deleted,
+    never committed) through the real UI — dismiss first-run onboarding, tap the dev-only 🛠 debug
+    button, jump into a building. Also added a permanent, reusable **"Jump to Building Interior"**
+    section to `DebugScreen.tsx` (all `BUILDINGS`, reusing the existing `handleJumpToShop` handler
+    verbatim) since no shortcut existed to reach an arbitrary building's room directly — genuinely
+    useful beyond this one test, not a throwaway.
+
+    First screenshot immediately showed something wrong: the tavern's room only filled about 60% of
+    its own viewport, with a flat, contentless gap between the visible floor and the "Leave Building"
+    footer — not a rendering glitch in the new furniture/NPC work, but the room CAMERA. Traced via
+    direct DOM measurement (computed `transform: matrix(...)`, actual pixel rects) to the interior
+    camera's center-on-player transform (added in an earlier session, "same camera math as the
+    outdoor map's own world transform") having no edge clamping. The centering formula itself is
+    correct — algebraically verified it renders the player at the exact viewport center for any
+    position — but with no clamp, standing near a wall centers the camera on a point close to that
+    wall too, and the camera shows blank space past the room's own bounds because nothing tells it
+    there's nothing there. `tortuga_tavern`'s `entryPosition` (180, 310) sits only 30 units from the
+    room's bottom edge (340), so this wasn't a rare corner case — it's what the very first frame after
+    walking in looks like. The outdoor map likely has the same theoretical gap, just never visible in
+    practice since the world dwarfs its own viewport in every direction; interior floor plans are only
+    modestly bigger than the zoomed viewport, so this needed fixing here specifically.
+
+    Fixed with `clampCameraAxis()`: computes the camera's own focus position (clamped to keep the
+    room's zoomed bounds covering the viewport) separately from the player's real, unclamped position
+    — the player token still renders exactly where they actually are; only what the camera centers on
+    is constrained. Falls back to dead-centering the room when the floor plan is smaller than the
+    camera's own view window (would otherwise invert the clamp range). Two new `cameraX`/`cameraY`
+    values feed the existing transform math in place of `roomPlayer.x`/`.y`, nothing else about the
+    formula changed.
+
+    With that fixed, re-ran the same walkthrough and got clean confirmation of every piece built this
+    session: the room fills the full viewport correctly on entry; dragging toward the tavern's central
+    table produced only a small amount of visible pan before movement stalled — consistent with
+    collision blocking against that table's clearance radius almost immediately, not a failure to
+    register input (the held drag direction, if actually unblocked, would have panned across the whole
+    340-unit-tall room in well under the ~2s hold used); a background ambient NPC visibly relocated
+    from its starting position onto a nearby stool between screenshots, confirming the item 205
+    wander-to-seat behavior is live, not just compiling. Quest-patron NPCs (the exclaim-marked patron)
+    and the building's own NPC stayed exactly where authored throughout, as they should.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Screenshots from this pass were sent directly
+    to the user rather than filed here — this entry documents the bug found and fixed, not the
+    generated art (none was; still all placeholder/emoji, per items 205–207).

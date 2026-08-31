@@ -120,6 +120,22 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+/** Keeps the room camera from showing past the floor plan's own edges. The center-on-player
+ * transform below (same formula as MapScreen's outdoor world transform) always renders the
+ * player at the exact center of the viewport, which is correct everywhere in open space — but
+ * with no clamp, standing near a wall centers the camera on a point close to that wall too,
+ * and the camera happily shows blank space beyond the room's bounds because the transform has
+ * no notion of "there's nothing past here." interior floor plans are only modestly bigger than
+ * the zoomed viewport (unlike the outdoor world, which dwarfs its own viewport), and doors sit
+ * right at a room's edge, so this isn't a rare corner case — it's what the very first frame
+ * after walking in looks like. Returns the position the CAMERA should center on; the player's
+ * own token still renders at their real, unclamped position. */
+function clampCameraAxis(playerPos: number, extent: number, viewportExtent: number, zoom: number) {
+  const halfView = viewportExtent / (2 * zoom);
+  if (extent <= halfView * 2) return extent / 2; // room smaller than the camera's view window — just center it
+  return clamp(playerPos, halfView, extent - halfView);
+}
+
 function renderFurniture(item: InteriorFurniture, key: number) {
   switch (item.type) {
     case 'counter': {
@@ -844,6 +860,9 @@ export default function BuildingScreen({ navigation }: Props) {
   // which is the more forgiving default for an exact tie.
   depthSortedEntities.sort((a, b) => a.y - b.y);
 
+  const cameraX = clampCameraAxis(roomPlayer.x, interior.width, roomViewport.width, INTERIOR_ZOOM);
+  const cameraY = clampCameraAxis(roomPlayer.y, interior.height, roomViewport.height, INTERIOR_ZOOM);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.roomHeader}>
@@ -871,13 +890,13 @@ export default function BuildingScreen({ navigation }: Props) {
                     translateX:
                       roomViewport.width / 2 -
                       interior.width / 2 +
-                      INTERIOR_ZOOM * (interior.width / 2 - roomPlayer.x),
+                      INTERIOR_ZOOM * (interior.width / 2 - cameraX),
                   },
                   {
                     translateY:
                       roomViewport.height / 2 -
                       interior.height / 2 +
-                      INTERIOR_ZOOM * (interior.height / 2 - roomPlayer.y),
+                      INTERIOR_ZOOM * (interior.height / 2 - cameraY),
                   },
                   { scale: INTERIOR_ZOOM },
                 ],

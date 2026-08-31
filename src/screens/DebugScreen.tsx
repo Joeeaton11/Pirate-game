@@ -371,6 +371,15 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
         </View>
 
+        <Text style={styles.sectionHeading}>Jump to Building Interior</Text>
+        <View style={styles.row}>
+          {BUILDINGS.map((b) => (
+            <Pressable key={b.id} style={styles.button} onPress={() => handleJumpToShop(b.id)}>
+              <Text style={styles.buttonText}>{b.name}</Text>
+            </Pressable>
+          ))}
+        </View>
+
         <Text style={styles.sectionHeading}>Jump to Themed Shop</Text>
         <View style={styles.row}>
           {BUILDINGS.filter((b) => b.stealResourceId).map((b) => (
