@@ -6906,3 +6906,40 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `npx tsc --noEmit` and `npx jest` (45/45) both pass. Not yet visually verified live (no screenshot
     this pass) — worth a real walkthrough of a furniture-dense room (tortuga_tavern, 3 tables + a
     counter + 3 barrels) next session to confirm the sliding feels right, not just that it compiles.
+
+207. ✅ **Interiors: y-depth sorting — the player and NPCs can now render behind furniture, not
+    always on top of it** (2026-08-31). Direct follow-up to item 206: asked whether the angled
+    painterly perspective from the reference mockups was a hard requirement or the flat top-down
+    default was fine, the user was unambiguous — "The angled painterly perspective is a must." That
+    look needs real depth ordering: someone standing further back in a room has to draw behind a
+    counter or table the player is stood in front of, and the old render order (all furniture, then
+    all NPCs, then the player, always in that fixed stacking order) made the player and every NPC
+    permanently render on top of every piece of furniture regardless of position — fine for flat
+    top-down, wrong for an angled scene where a table or bar counter is meant to have real height.
+
+    Replaced the three separate `.map()` passes (furniture, npcSpots, player) with one combined,
+    y-sorted render list built once per render, right before the room's JSX. Flat/wall-set decor with
+    no depth of its own — `rug` (lies on the floor), `door` and `prop` (set into or against the wall:
+    window, fireplace, dartboard, cat, plant) — stays a separate `backgroundFurnitureNodes` array,
+    always drawn first, never sorted against anyone. Everything else with real height —
+    `table`/`chair`/`stool`/`barrel`/`shelf`/`counter`, every NPC token (using each ambient NPC's live
+    wandered position from item 205, not just its authored spot), and the player — goes into
+    `depthSortedEntities`, sorted ascending by y and rendered in that order, so a lower y (further back
+    in the room) draws first and gets covered by anything nearer the camera. Ties keep the order
+    pushed (furniture, then NPCs, then player) via `Array.prototype.sort`'s ES2019+ stability
+    guarantee (Hermes included) — the more forgiving default for an exact-y coincidence.
+
+    Known, accepted simplification: sorting uses each entity's center y, not a separate "base/feet"
+    anchor the way a more elaborate y-sort would — fine at this sprite scale (everything's a small
+    icon, not a tall multi-row sprite), and consistent with every position already stored as a single
+    x/y point throughout `interiors.ts`. Also unchanged: which furniture types are solid for
+    collision (item 206) — that's an orthogonal concern (blocking movement vs. draw order) and this
+    pass didn't touch it.
+
+    Zero data model changes again — reads the same `interior.furniture`/`npcSpots` x/y interiors.ts
+    already has. Rendering itself (`renderFurniture`, NPC token markup, the player token) is otherwise
+    identical to before; only *when* each piece draws relative to the others changed.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Not yet visually verified live — worth
+    confirming next session in a furniture-dense room (tortuga_tavern) that walking behind a table
+    reads correctly, alongside the still-open item 206 verification.

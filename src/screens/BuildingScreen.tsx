@@ -773,6 +773,77 @@ export default function BuildingScreen({ navigation }: Props) {
     );
   }
 
+  // The angled painterly perspective the backdrop art is heading toward needs real depth, not
+  // "player always on top": someone standing further back in a room has to render behind a
+  // counter or table the player is stood in front of, and vice versa. Flat/wall-set decor (a rug
+  // on the floor, a door or window/fireplace prop set into the wall) has no depth of its own and
+  // always stays beneath everything; every piece of furniture with real height, every NPC, and
+  // the player are collected here and drawn back-to-front by y position instead.
+  const backgroundFurnitureNodes: React.ReactNode[] = [];
+  const depthSortedEntities: { key: string; y: number; node: React.ReactNode }[] = [];
+
+  interior.furniture.forEach((item, i) => {
+    if (item.type === 'rug' || item.type === 'door' || item.type === 'prop') {
+      backgroundFurnitureNodes.push(
+        <React.Fragment key={`bg-${i}`}>{renderFurniture(item, i)}</React.Fragment>
+      );
+    } else {
+      depthSortedEntities.push({ key: `furniture-${i}`, y: item.y, node: renderFurniture(item, i) });
+    }
+  });
+
+  interior.npcSpots.forEach((spot) => {
+    const isMain = spot.id === 'main';
+    const patronQuest = !isMain ? patronQuests.find((q) => q.id === spot.id) : undefined;
+    const ambient = !isMain && !patronQuest ? AMBIENT_NPCS[spot.id] : undefined;
+    const emoji = isMain ? building.npcEmoji : patronQuest?.npcEmoji ?? ambient?.emoji ?? '👤';
+    const hasOpenQuest = !!patronQuest && !completedQuestIds.includes(patronQuest.id);
+    // Ambient NPCs report their live wandered position; everyone else stays pinned to their
+    // authored floor-plan spot.
+    const live = ambient ? ambientPositions[spot.id] : undefined;
+    const x = live?.x ?? spot.x;
+    const y = live?.y ?? spot.y;
+    const seated = live?.seated ?? false;
+    depthSortedEntities.push({
+      key: spot.id,
+      y,
+      node: (
+        <View
+          style={[
+            styles.npcToken,
+            { left: x - NPC_SIZE / 2, top: y - NPC_SIZE / 2 },
+            seated && styles.npcTokenSeated,
+          ]}
+        >
+          {hasOpenQuest && (
+            <Image source={ICON_EXCLAIM} resizeMode="contain" style={styles.questIndicator} />
+          )}
+          <Text style={styles.npcTokenEmoji}>{emoji}</Text>
+        </View>
+      ),
+    });
+  });
+
+  depthSortedEntities.push({
+    key: 'player',
+    y: roomPlayer.y,
+    node: (
+      <View
+        style={[
+          styles.roomPlayer,
+          { left: roomPlayer.x - PLAYER_SIZE / 2, top: roomPlayer.y - PLAYER_SIZE / 2 },
+        ]}
+      >
+        <Text style={styles.roomPlayerEmoji}>🧍</Text>
+      </View>
+    ),
+  });
+
+  // Array.prototype.sort is stable since ES2019 (Hermes included), so entities pushed with equal
+  // y keep the fixed order they were pushed in above — furniture, then NPCs, then the player —
+  // which is the more forgiving default for an exact tie.
+  depthSortedEntities.sort((a, b) => a.y - b.y);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.roomHeader}>
@@ -815,45 +886,11 @@ export default function BuildingScreen({ navigation }: Props) {
           >
             <Image source={backgroundSource} style={StyleSheet.absoluteFill} resizeMode="cover" />
 
-            {interior.furniture.map((item, i) => renderFurniture(item, i))}
+            {backgroundFurnitureNodes}
 
-            {interior.npcSpots.map((spot) => {
-              const isMain = spot.id === 'main';
-              const patronQuest = !isMain ? patronQuests.find((q) => q.id === spot.id) : undefined;
-              const ambient = !isMain && !patronQuest ? AMBIENT_NPCS[spot.id] : undefined;
-              const emoji = isMain ? building.npcEmoji : patronQuest?.npcEmoji ?? ambient?.emoji ?? '👤';
-              const hasOpenQuest = !!patronQuest && !completedQuestIds.includes(patronQuest.id);
-              // Ambient NPCs report their live wandered position; everyone else stays pinned to
-              // their authored floor-plan spot.
-              const live = ambient ? ambientPositions[spot.id] : undefined;
-              const x = live?.x ?? spot.x;
-              const y = live?.y ?? spot.y;
-              const seated = live?.seated ?? false;
-              return (
-                <View
-                  key={spot.id}
-                  style={[
-                    styles.npcToken,
-                    { left: x - NPC_SIZE / 2, top: y - NPC_SIZE / 2 },
-                    seated && styles.npcTokenSeated,
-                  ]}
-                >
-                  {hasOpenQuest && (
-                    <Image source={ICON_EXCLAIM} resizeMode="contain" style={styles.questIndicator} />
-                  )}
-                  <Text style={styles.npcTokenEmoji}>{emoji}</Text>
-                </View>
-              );
-            })}
-
-            <View
-              style={[
-                styles.roomPlayer,
-                { left: roomPlayer.x - PLAYER_SIZE / 2, top: roomPlayer.y - PLAYER_SIZE / 2 },
-              ]}
-            >
-              <Text style={styles.roomPlayerEmoji}>🧍</Text>
-            </View>
+            {depthSortedEntities.map((entity) => (
+              <React.Fragment key={entity.key}>{entity.node}</React.Fragment>
+            ))}
           </View>
           )}
 
