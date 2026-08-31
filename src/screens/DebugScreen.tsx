@@ -371,6 +371,16 @@ export default function DebugScreen({ navigation }: Props) {
           </Pressable>
         </View>
 
+        <Text style={styles.sectionHeading}>Sandbox</Text>
+        <View style={styles.row}>
+          <Pressable
+            style={styles.button}
+            onPress={() => navigation.navigate('InteriorContactTest')}
+          >
+            <Text style={styles.buttonText}>🧪 Backdrop Contact-Point Tester</Text>
+          </Pressable>
+        </View>
+
         <Text style={styles.sectionHeading}>Jump to Building Interior</Text>
         <View style={styles.row}>
           {BUILDINGS.map((b) => (

@@ -15,6 +15,7 @@ import PirateLordScreen from './src/screens/PirateLordScreen';
 import QuestScreen from './src/screens/QuestScreen';
 import CrewLogScreen from './src/screens/CrewLogScreen';
 import DebugScreen from './src/screens/DebugScreen';
+import InteriorContactTestScreen from './src/screens/InteriorContactTestScreen';
 import SideQuestScreen from './src/screens/SideQuestScreen';
 import RescueScreen from './src/screens/RescueScreen';
 import TreasureCodexScreen from './src/screens/TreasureCodexScreen';
@@ -61,6 +62,9 @@ export default function App() {
             <Stack.Screen name="Blackfin" component={BlackfinScreen} />
             <Stack.Screen name="Grace" component={GraceScreen} />
             {__DEV__ && <Stack.Screen name="Debug" component={DebugScreen} />}
+            {__DEV__ && (
+              <Stack.Screen name="InteriorContactTest" component={InteriorContactTestScreen} />
+            )}
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

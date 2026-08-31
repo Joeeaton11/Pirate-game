@@ -13,4 +13,5 @@ export type RootStackParamList = {
   TreasureCodex: undefined;
   Blackfin: undefined;
   Grace: undefined;
+  InteriorContactTest: undefined;
 };

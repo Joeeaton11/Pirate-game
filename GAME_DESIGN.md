@@ -6991,3 +6991,62 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `npx tsc --noEmit` and `npx jest` (45/45) both pass. Screenshots from this pass were sent directly
     to the user rather than filed here — this entry documents the bug found and fixed, not the
     generated art (none was; still all placeholder/emoji, per items 205–207).
+
+209. ✅ **Standalone backdrop/contact-point tester, built against the user's own "Jolly Roger"
+    reference mockup** (2026-08-31). Clarified first: the painted scene in item 208's screenshots
+    wasn't real interior art at all — it's `buildingBackgrounds.ts`'s reuse of the *conversation*
+    background library (dialogue-scene art) as a stand-in, called out explicitly in that file's own
+    header comment. The user then shared a genuine target reference — a fully painted, isometric
+    "The Jolly Roger" tavern mockup with every piece of furniture (bar, tables, stools, stairs/wheel,
+    barrels) baked directly into one image — confirmed real backdrops are coming in this style, and
+    asked for the invisible contact points for *this specific scene* as a testable sample, separate
+    from real gameplay.
+
+    Built entirely standalone rather than through `BUILDINGS`/`interiors.ts`/`BuildingScreen` — a new
+    `InteriorContactTestScreen.tsx` + `interiorContactTest.ts` data file, reachable only from a new
+    "🧪 Backdrop Contact-Point Tester" button under a new "Sandbox" section on the dev-only Debug
+    screen, and only registered in `App.tsx` behind the same `__DEV__` gate as `Debug` itself. Zero
+    risk to real building/quest data, trivially removable later, and doesn't require inventing a fake
+    building/island entry (which would have meant reasoning about whether a stray test building could
+    leak into real map rendering, garden-offset precomputation, etc. — sidestepped entirely).
+
+    The reference image (1254×1254) was copied into `assets/sprites/interiors/test_jolly_roger_tavern.png`
+    — the first file that folder has ever held. `TEST_OBSTACLES` in `interiorContactTest.ts` is this
+    session's best-effort eyeballed read of the art: 5 chained circles along the bar counter (same
+    "chain circles along a wide fixture" trick as `BuildingScreen`'s counter obstacles), 4 bar stools,
+    6 round tables (one per seating cluster visible in the mockup), 3 barrels, and a 3-circle chain
+    along the left-wall fixture (labeled "Staircase" in code — on closer inspection during testing this
+    is actually a ship's-wheel wall decoration, not stairs; harmless mislabel, noted rather than quietly
+    fixed since it doesn't affect the shape's function). Explicitly documented as a starting point, not
+    a calibrated final layout.
+
+    The tester itself: the full backdrop always shows (no camera-follow/zoom — the whole room fits one
+    screen, deliberately simpler than `BuildingScreen`'s system since there's nothing to scroll to),
+    drag-to-walk using the same joystick/`Gesture.Pan` pattern, and the same circle-vs-circle
+    slide-collision trick used outdoors (`MapScreen`) and indoors (`BuildingScreen`) — a third small
+    local copy, consistent with the existing convention of each screen owning its own rather than
+    sharing one. A "Show/Hide Contact Points" toggle overlays translucent, color-coded circles
+    (bar/table/stool/barrel/wall, with a legend) directly on the art so alignment can be checked by eye
+    and toggled off to see the final invisible-collision look; a "Reset Position" button returns to
+    roughly where Captain Scally stands in the reference art itself.
+
+    Live-tested the same way as item 208 (headless Playwright walkthrough) and found a second real
+    bug on the first pass: the backdrop rendered zoomed into its own top-left corner, filling barely
+    more than a quarter of the room. Root cause, confirmed by inspecting the live DOM: the image's
+    registered intrinsic size (1254×1254, no `@2x`/`@3x` density variant) is larger than the room box
+    on typical screens, and `StyleSheet.absoluteFill` — which only implies sizing via
+    `top/left/right/bottom: 0` — lost to that explicit intrinsic size under CSS's over-constrained-box
+    rule, rendering the `<img>` at full native resolution and leaving the room's own `overflow:hidden`
+    to clip it down to a zoomed top-left crop instead of the whole scene. Fixed by giving the Image an
+    explicit `{ width: roomSize, height: roomSize }` instead of relying on `absoluteFill`, removing the
+    ambiguity outright. (Whether `BuildingScreen`'s production backdrops are exposed to the same root
+    cause wasn't re-checked here — they visually rendered correctly in item 208's screenshots, so nothing
+    forced the question, but the mechanism is worth keeping in mind if a future backdrop asset ever
+    shows the same symptom.) A second, false alarm during the same pass — the player appeared not to
+    move at all in a before/after screenshot pair — turned out to be a misreading of a genuinely small
+    on-screen shift, not a real bug; confirmed by measuring the player's actual DOM position across the
+    same drag (204px → 130px → 74.6px, a real ~130px leftward walk that halted in a way consistent with
+    hitting the left-wall obstacle chain).
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Screenshots sent directly to the user, not
+    filed here.
