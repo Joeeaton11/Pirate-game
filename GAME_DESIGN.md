@@ -6795,3 +6795,57 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live via the Debug screen's
     `handleJumpToFort` shortcut: renders correctly, facing screen-left, no overlap. Zero console
     errors.
+
+205. ✅ **Interiors: ambient NPCs actually wander and sit now, not just stand pinned to a spot**
+    (2026-08-31). Grew out of the interiors-art planning discussion — after proposing a three-layer
+    approach (painted backdrop / furniture sprites / NPC icons) for the eventual real art pass, the
+    user pushed further: "We could have real NPCs moving around, sitting, interacting with. So the
+    background comes alive." That's a behavior gap the existing pure-emoji placeholder system already
+    had regardless of what art eventually lands on top of it, and it needed no new art at all to fix —
+    so it's done now rather than queued behind the user's uploads.
+
+    `BuildingScreen.tsx` already ran a `setInterval` tick (`TICK_MS`) driving player movement and a
+    nearest-NPC proximity check off `interior.npcSpots`' static x/y. That tick is now also home to a
+    small per-room wander state machine, scoped deliberately to *ambient* NPCs only (`npcSpots` entries
+    that aren't `'main'` and aren't a hosted patron-quest id — i.e. `AMBIENT_NPCS` entries, pure flavor,
+    no quest attached). Quest patrons and each building's own shopkeeper/NPC are left completely alone,
+    still pinned to their authored spot — the player and the quest logic both need to find them exactly
+    where the floor plan says, always.
+
+    For each ambient NPC, a `useMemo` (`ambientWaypoints`, keyed on `interior.buildingId`) builds a
+    waypoint list from existing data with zero interiors.ts changes: the NPC's own registered `npcSpots`
+    position (a "standing" waypoint) plus every `chair`/`stool` in that room's `furniture` within
+    `AMBIENT_SEAT_RADIUS` (110px) of it (a tavern sailor circulates around the bar he's stood near, not
+    across the whole room to a table on the far side). A `Map<string, AmbientWanderState>` ref
+    (`ambientWanderRef`), reseeded whenever the waypoint set changes, tracks each NPC's live x/y, a
+    `'paused' | 'walking'` phase, whether they're currently seated, and a stagger-randomized
+    `waitUntil`. Each tick: a paused NPC past its `waitUntil` picks a random waypoint from its list and
+    starts walking (`AMBIENT_WANDER_SPEED`, 40 world-units/s — noticeably slower than the player's own
+    112.5, a leisurely amble not a sprint); a walking NPC steps toward its target and, on arrival, pauses
+    again with a long linger (6–15s) if it just sat, or a short one (2–5s) if it just reached a standing
+    spot. The nearest-NPC proximity scan was updated to read each ambient NPC's *live* wandered position
+    (falling back to the static `npcSpots` x/y for everyone else) so walking up to a sailor who's since
+    wandered off his marked spot still works correctly.
+
+    Rendering: the `npcSpots.map` in the room view now sources an ambient NPC's `left`/`top` from
+    `ambientPositions` state (updated from the ref once per tick, only when something actually moved —
+    same "skip the setState if nothing changed" discipline the player-movement branch already used) and
+    applies a small `npcTokenSeated` transform (`translateY(5)`, `scale(0.9)`) when seated — a cheap
+    "settled onto the seat" visual cue with the *existing* emoji, since no dedicated seated pose/sprite
+    exists yet. That's a deliberate stopgap: once the real chibi world-NPC art lands, this same seated
+    flag is already there to drive a proper seated sprite/pose swap with no further data-model changes.
+
+    No changes to `interiors.ts` at all — this reads the existing `furniture`/`npcSpots` data as-is, so
+    every one of the ~20 authored floor plans gets ambient wandering for free, proportional to however
+    many chairs/stools happen to sit near each ambient NPC's spot (a room with no nearby seating just
+    gets a small idle amble around the NPC's own position instead of teleporting nowhere). Two known,
+    accepted simplifications for this first pass: multiple ambient NPCs in the same room can pick the
+    same seat and briefly overlap (rooms only ever have 1–3 ambient NPCs today, so this reads as minor
+    rather than broken), and there's still no interaction "with" objects beyond sitting (the user's
+    "interacting with" phrase) — this covers movement and sitting only, not e.g. an NPC actually using a
+    counter or shelf.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Not yet visually verified live (no screenshot
+    taken this pass) — the logic mirrors the already-proven player-movement tick pattern exactly, but a
+    live look at tortuga_tavern (3 ambient NPCs, several nearby stools/chairs) is worth doing next
+    session before calling this fully confirmed.

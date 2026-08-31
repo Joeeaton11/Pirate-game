@@ -55,6 +55,29 @@ const DEADZONE = 10;
 const MAX_DRAG = 55;
 const TICK_MS = 33;
 const INTERACT_RADIUS = 38;
+// Ambient (quest-less) NPCs amble at a fraction of the player's pace — a leisurely wander, not a
+// race across the room. Quest patrons and the building's own NPC never move: the player (and the
+// game's own proximity/interact logic) always needs to find them exactly where the floor plan says.
+const AMBIENT_WANDER_SPEED = 40; // world units per second
+// How far from an ambient NPC's registered spot a chair/stool counts as "their" seat. Keeps a
+// tavern sailor circulating around the bar he's stood at rather than wandering across the whole
+// room to sit at a table on the far side.
+const AMBIENT_SEAT_RADIUS = 110;
+
+interface AmbientWaypoint {
+  x: number;
+  y: number;
+  seat: boolean;
+}
+
+interface AmbientWanderState {
+  x: number;
+  y: number;
+  phase: 'paused' | 'walking';
+  seated: boolean;
+  target: AmbientWaypoint;
+  waitUntil: number;
+}
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -170,6 +193,52 @@ export default function BuildingScreen({ navigation }: Props) {
   const roomPlayerRef = useRef(roomPlayer);
   roomPlayerRef.current = roomPlayer;
   const directionRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Which npcSpots are ambient (no quest, not the building's own NPC) and where each is allowed to
+  // wander: its own registered spot, plus any chair/stool within AMBIENT_SEAT_RADIUS of it. Quest
+  // patrons and 'main' are deliberately left out — they always stay exactly where the floor plan
+  // and quest logic expect them.
+  const ambientWaypoints = React.useMemo(() => {
+    const map: Record<string, AmbientWaypoint[]> = {};
+    if (!interior) return map;
+    const seats = interior.furniture.filter((f) => f.type === 'chair' || f.type === 'stool');
+    for (const spot of interior.npcSpots) {
+      if (spot.id === 'main') continue;
+      if (patronQuests.some((q) => q.id === spot.id)) continue;
+      if (!AMBIENT_NPCS[spot.id]) continue;
+      const nearbySeats = seats
+        .filter((s) => Math.hypot(s.x - spot.x, s.y - spot.y) <= AMBIENT_SEAT_RADIUS)
+        .map((s) => ({ x: s.x, y: s.y, seat: true }));
+      map[spot.id] = [{ x: spot.x, y: spot.y, seat: false }, ...nearbySeats];
+    }
+    return map;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interior?.buildingId]);
+
+  const ambientWanderRef = useRef<Map<string, AmbientWanderState>>(new Map());
+  const [ambientPositions, setAmbientPositions] = useState<
+    Record<string, { x: number; y: number; seated: boolean }>
+  >({});
+
+  useEffect(() => {
+    const map = new Map<string, AmbientWanderState>();
+    const initial: Record<string, { x: number; y: number; seated: boolean }> = {};
+    for (const [id, waypoints] of Object.entries(ambientWaypoints)) {
+      const home = waypoints[0];
+      map.set(id, {
+        x: home.x,
+        y: home.y,
+        phase: 'paused',
+        seated: false,
+        target: home,
+        // Stagger the first move so a room's ambient NPCs don't all set off in lockstep.
+        waitUntil: Date.now() + 1000 + Math.random() * 4000,
+      });
+      initial[id] = { x: home.x, y: home.y, seated: false };
+    }
+    ambientWanderRef.current = map;
+    setAmbientPositions(initial);
+  }, [ambientWaypoints]);
   const [dragKnob, setDragKnob] = useState<{ x: number; y: number } | null>(null);
   const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number } | null>(null);
   const [roomViewport, setRoomViewport] = useState({ width: 0, height: 0 });
@@ -196,18 +265,62 @@ export default function BuildingScreen({ navigation }: Props) {
   useEffect(() => {
     if (!interior || showCounter) return;
     const iv = setInterval(() => {
+      const dt = TICK_MS / 1000;
       const direction = directionRef.current;
       if (direction) {
-        const dt = TICK_MS / 1000;
         const nextX = clamp(roomPlayerRef.current.x + direction.x * ROOM_SPEED * dt, 0, interior.width);
         const nextY = clamp(roomPlayerRef.current.y + direction.y * ROOM_SPEED * dt, 0, interior.height);
         roomPlayerRef.current = { x: nextX, y: nextY };
         setRoomPlayer(roomPlayerRef.current);
       }
+
+      // Ambient NPCs amble between their home spot and any nearby seating: sit for a while,
+      // stand, wander to another chair (or back to their spot), repeat. This is what makes a
+      // room feel lived-in rather than a static backdrop with icons pinned to it.
+      const now = Date.now();
+      let ambientMoved = false;
+      for (const [id, waypoints] of Object.entries(ambientWaypoints)) {
+        const state = ambientWanderRef.current.get(id);
+        if (!state) continue;
+        if (state.phase === 'paused') {
+          if (now >= state.waitUntil) {
+            state.target = waypoints[Math.floor(Math.random() * waypoints.length)];
+            state.phase = 'walking';
+          }
+          continue;
+        }
+        const dx = state.target.x - state.x;
+        const dy = state.target.y - state.y;
+        const dist = Math.hypot(dx, dy);
+        const step = AMBIENT_WANDER_SPEED * dt;
+        if (dist <= step) {
+          state.x = state.target.x;
+          state.y = state.target.y;
+          state.phase = 'paused';
+          state.seated = state.target.seat;
+          // Seated NPCs linger much longer than ones just pausing mid-room.
+          state.waitUntil = now + (state.seated ? 6000 + Math.random() * 9000 : 2000 + Math.random() * 4000);
+        } else {
+          state.x += (dx / dist) * step;
+          state.y += (dy / dist) * step;
+        }
+        ambientMoved = true;
+      }
+      if (ambientMoved) {
+        const next: Record<string, { x: number; y: number; seated: boolean }> = {};
+        ambientWanderRef.current.forEach((s, wid) => {
+          next[wid] = { x: s.x, y: s.y, seated: s.seated };
+        });
+        setAmbientPositions(next);
+      }
+
       let nearest: string | null = null;
       let nearestDist = INTERACT_RADIUS;
       for (const spot of interior.npcSpots) {
-        const d = Math.hypot(roomPlayerRef.current.x - spot.x, roomPlayerRef.current.y - spot.y);
+        const live = ambientWanderRef.current.get(spot.id);
+        const px = live ? live.x : spot.x;
+        const py = live ? live.y : spot.y;
+        const d = Math.hypot(roomPlayerRef.current.x - px, roomPlayerRef.current.y - py);
         if (d <= nearestDist) {
           nearest = spot.id;
           nearestDist = d;
@@ -216,7 +329,7 @@ export default function BuildingScreen({ navigation }: Props) {
       setNearbyNpcId(nearest);
     }, TICK_MS);
     return () => clearInterval(iv);
-  }, [interior, showCounter]);
+  }, [interior, showCounter, ambientWaypoints]);
 
   const panGesture = Gesture.Pan()
     .minDistance(0)
@@ -625,12 +738,19 @@ export default function BuildingScreen({ navigation }: Props) {
               const ambient = !isMain && !patronQuest ? AMBIENT_NPCS[spot.id] : undefined;
               const emoji = isMain ? building.npcEmoji : patronQuest?.npcEmoji ?? ambient?.emoji ?? '👤';
               const hasOpenQuest = !!patronQuest && !completedQuestIds.includes(patronQuest.id);
+              // Ambient NPCs report their live wandered position; everyone else stays pinned to
+              // their authored floor-plan spot.
+              const live = ambient ? ambientPositions[spot.id] : undefined;
+              const x = live?.x ?? spot.x;
+              const y = live?.y ?? spot.y;
+              const seated = live?.seated ?? false;
               return (
                 <View
                   key={spot.id}
                   style={[
                     styles.npcToken,
-                    { left: spot.x - NPC_SIZE / 2, top: spot.y - NPC_SIZE / 2 },
+                    { left: x - NPC_SIZE / 2, top: y - NPC_SIZE / 2 },
+                    seated && styles.npcTokenSeated,
                   ]}
                 >
                   {hasOpenQuest && (
@@ -781,6 +901,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   npcTokenEmoji: { fontSize: 28 },
+  // Small settle-down cue for a seated ambient NPC — no dedicated seated sprite exists yet, so a
+  // slight drop and shrink is what reads as "sitting" until real seated art replaces the emoji.
+  npcTokenSeated: { transform: [{ translateY: 5 }, { scale: 0.9 }] },
   questIndicator: {
     position: 'absolute',
     top: -16,
