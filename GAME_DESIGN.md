@@ -7050,3 +7050,40 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
 
     `npx tsc --noEmit` and `npx jest` (45/45) both pass. Screenshots sent directly to the user, not
     filed here.
+
+210. ✅ **`SHOW_BUILDINGS` flipped back on as labeled placeholder boxes — the outdoor map's own
+    layer-rebuild plan, second layer** (2026-09-10). Direct request after the outdoor-art strategy
+    discussion stalled on whole-island/chunk image generation (see the long back-and-forth earlier
+    this session): "Build that map. To scale and size, I want to be able to walk around it. Rather
+    than adding the sprites of the buildings, just put highlighted boxes with a name in the box of
+    the building, make the boxes the correct size and positioning the would be. Add the paths and
+    roads though from the assets sprites." The second half was already done — `SHOW_STREETS` had
+    been flipped on with real tile-pattern sprites (`cobblePattern`/`dirtPattern`/`pierModulePattern`,
+    backing `GROUND_TILES.cobble`/`.dirt` and `WORLD_SPRITES.pierModule`) as the *first* layer of the
+    same standing "rebuild in layers" plan started with `SHOW_STREETS` above; nothing new was needed
+    there, just confirmed live.
+
+    For buildings: `BUILDINGS.map()`'s render block (previously emoji/sprite art, or nothing when
+    absent, with the box styling explicitly stripped to transparent) now always renders a labeled
+    box — same `size`/`pos` math as before (untouched, so real per-building footprint/position is
+    unchanged), reusing the existing `styles.building` box look plus a new `buildingBoxPlaceholder`
+    (brighter parchment-gold fill/border, since the box IS the building right now, not a highlight
+    ring around real art) and `buildingBoxLabel` (small bold centered text, wraps up to 4 lines) for
+    the building's real `name`. `SHOW_BUILDINGS` itself flipped `false → true`; every other `SHOW_*`
+    flag (`SHOW_HOUSES`/`SHOW_SCENERY`/`SHOW_LANDMARKS`/`SHOW_STREET_NPCS`/`SHOW_MAP_MARKERS`) was
+    deliberately left alone at `false` — only the two layers actually asked for are on. Quest-open
+    indicator badges and the emoji/sprite-art branches were dropped from this block entirely rather
+    than kept dormant, since none of it applies while boxes stand in for art; trivial to reintroduce
+    alongside real building art later.
+
+    Zero data/collision/gameplay changes — same `buildingWorldPosition`/`ENTER_RADIUS` logic as
+    always, confirmed live rather than assumed.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Live-tested with `expo start --web` +
+    headless Playwright (dismiss onboarding, drag-walk, screenshot): the town is genuinely walkable
+    now, streets/piers already show real cobble/dirt/wood texture, building boxes render at their
+    real size and position with legible wrapped names (confirmed on long names like "The Turtle
+    Kraal"), and walking up to a labeled box still produces the real "Enter [Building]?" prompt —
+    confirmed against The Customs House. Boxes are dense/overlapping in a few spots (e.g. the
+    tavern-district cluster) — that's the real authored layout, not a rendering bug; screenshots sent
+    directly to the user, not filed here.

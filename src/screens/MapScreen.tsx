@@ -235,13 +235,18 @@ const BUILDING_COLLISION_RADIUS = 15;
 // toggle — the offset math, collision radii, and precomputed *_GARDEN_OFFSETS below are all still
 // intact and cost nothing when off, so flipping this back to `true` is the entire un-revert.
 const SHOW_GARDENS = false;
-// Disabled 2026-08-14 per direct feedback: the building sprites are cut/placed badly enough
-// (wrong scale, wrong offsets relative to the street grid) that they need a real re-pass, and
-// they were making it hard to judge the street/road layout on its own. Same pattern as
-// SHOW_GARDENS above — a pure render-time toggle, nothing about building data, collision, or
-// walk-up "Enter?" prompts changed, so buildings are still fully functional, just invisible until
-// this flips back to `true` once the art/placement pass is redone.
-const SHOW_BUILDINGS = false;
+// Was disabled 2026-08-14 per direct feedback: the building sprites were cut/placed badly enough
+// (wrong scale, wrong offsets relative to the street grid) to need a real re-pass, and they were
+// making it hard to judge the street/road layout on its own.
+//
+// Flipped back on 2026-09-10, second layer of the "rebuild in layers" plan started with
+// SHOW_STREETS above — but per direct request, not with the old (broken) sprite art: "Rather than
+// adding the sprites of the buildings, just put highlighted boxes with a name in the box of the
+// building, make the boxes the correct size and positioning the would be." So this now renders
+// every building's real footprint/position as a labeled placeholder box (see
+// `buildingBoxPlaceholder`/`buildingBoxLabel` styles) instead of art — same pure render-time
+// pattern as ever, nothing about building data, collision, or walk-up "Enter?" prompts changed.
+const SHOW_BUILDINGS = true;
 // Disabled 2026-08-14, same request as SHOW_BUILDINGS above but taken further: "remove everything
 // that isn't the ground" — so the street/road network itself, houses, decorative scenery/props,
 // landmarks, ambient street NPCs, and every interactive map marker (quests, resource/salvage/
@@ -2411,10 +2416,6 @@ export default function MapScreen({ navigation }: Props) {
               BUILDINGS.map((building) => {
               const islandPos = ISLANDS[building.islandId].position;
               const pos = buildingWorldPosition(building, islandPos);
-              const hasOpenChallenge = SIDE_QUESTS.some(
-                (q) => q.hostedByBuildingId === building.id && !completedQuestIds.includes(q.id)
-              );
-              const isBuildingShaped = BUILDING_SHAPED_EMOJI.has(building.emoji);
               // Real building art (Tortuga Cove only so far — see worldSprites.ts) reads better
               // with more room than the emoji marker's tight little box, so it gets a bigger one,
               // still centered on the same world position the emoji/badge box uses.
@@ -2424,35 +2425,21 @@ export default function MapScreen({ navigation }: Props) {
                   key={building.id}
                   style={[
                     styles.building,
+                    // Layer-rebuild scaffolding (see SHOW_* comments above): no sprite/emoji art
+                    // yet — just the real footprint and position as a highlighted, labeled box, so
+                    // the town plan is walkable and legible while the art pipeline catches up.
+                    styles.buildingBoxPlaceholder,
                     {
                       width: size,
                       height: size,
                       left: pos.x - size / 2,
                       top: pos.y - size / 2,
                     },
-                    // No boxed/highlighted background — buildings render as plain art or emoji on
-                    // the map now. Enterability is signaled some other way (still to be decided),
-                    // not by a badge around every building.
-                    { backgroundColor: 'transparent', borderWidth: 0 },
                   ]}
                 >
-                  {hasOpenChallenge && (
-                    <RNImage source={ICON_EXCLAIM} resizeMode="contain" style={styles.buildingQuestIndicator} />
-                  )}
-                  {building.spriteId ? (
-                    <RNImage
-                      source={BUILDING_SPRITES[building.spriteId]}
-                      resizeMode="contain"
-                      style={{ width: size, height: size }}
-                    />
-                  ) : isBuildingShaped ? (
-                    <Text style={styles.buildingEmoji}>{building.emoji}</Text>
-                  ) : (
-                    <>
-                      <Text style={styles.buildingHouseBase}>🏠</Text>
-                      <Text style={styles.buildingTypeBadge}>{building.emoji}</Text>
-                    </>
-                  )}
+                  <Text style={styles.buildingBoxLabel} numberOfLines={4}>
+                    {building.name}
+                  </Text>
                 </View>
               );
             })}
@@ -3458,6 +3445,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#f4e9cd',
+  },
+  // Layer-rebuild placeholder (see SHOW_* comments above): a brighter, more legible box than the
+  // default `building` look, since right now the box IS the building — there's no art on top of
+  // it yet to carry the read. Real size/position come from the same size/pos math the eventual
+  // art will use, so this is a true 1:1 stand-in, not a schematic approximation.
+  buildingBoxPlaceholder: {
+    backgroundColor: 'rgba(212, 163, 23, 0.55)',
+    borderWidth: 2,
+    borderColor: '#fff3d6',
+    paddingHorizontal: 3,
+  },
+  buildingBoxLabel: {
+    fontSize: 4.6,
+    lineHeight: 5.6,
+    fontWeight: '700',
+    color: '#1a1006',
+    textAlign: 'center',
   },
   // Buildings whose type emoji isn't already shaped like a structure (tavern's mugs, fishmonger's
   // fish, smithy's hammer, ...) get a plain house as a base instead, with the real type emoji
