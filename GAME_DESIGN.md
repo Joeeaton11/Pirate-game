@@ -7087,3 +7087,48 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     confirmed against The Customs House. Boxes are dense/overlapping in a few spots (e.g. the
     tavern-district cluster) — that's the real authored layout, not a rendering bug; screenshots sent
     directly to the user, not filed here.
+
+211. ✅ **Box overlap traced to the placeholder-box SIZE, not the real layout — fixed, plus a real
+    RN Web `numberOfLines`/`max-width` bug found while fixing it** (2026-09-11). Direct follow-up:
+    "Make sure nothing overlaps and the building and roads/paths work together... Make sure
+    everything is to scale and is positioned how it should be. The positions and roads should all
+    be coded" — alongside a ChatGPT "Composite Planning Blueprint" reference image whose own
+    planning-summary numbers (45 buildings, 111 houses, 15 landmarks, 424 scenery points, 7 piers,
+    4 offshore ships) now match the live data exactly, confirming it was built from the real
+    source-of-truth export rather than invented — but the zone/district overlays on it stay exactly
+    what they've always been (an approximate art-direction guide the user already said they're happy
+    to treat as such), not new coded data; nothing here promotes them into `src/data`.
+
+    Checked programmatically rather than assumed: extracted real `BUILDINGS`/`HOUSES` positions via
+    the same TS-transpile-and-require technique used all session, and ran pairwise distance checks.
+    Against the REAL gameplay collision radii (`BUILDING_COLLISION_RADIUS`/`HOUSE_COLLISION_RADIUS`,
+    15/12) there were zero overlaps anywhere — the actual layout was never broken, confirming the
+    streets.ts item-74 history's own claim. The visible overlap in item 210's screenshots was purely
+    the placeholder box's SIZE: it reused `BUILDING_SIZE * 1.7` (74.8) for sprite buildings and
+    `BUILDING_SIZE` (44) for the rest — both calibrated years ago for showing bigger ART, not a bare
+    label — and the tightest real building-to-building gap in the whole data set is 33.9 units (4
+    diagonal-neighbor pairs, e.g. The Ropewalk/Shipwright's Slip), so any uniform box ≥34 was
+    guaranteed to overlap somewhere. New `BUILDING_LABEL_SIZE` constant
+    (`BUILDING_COLLISION_RADIUS * 2` = 30 — the building's own real walkable footprint, not an
+    arbitrary number) replaces both the old sizes for every building; re-ran the same pairwise check
+    at size 30 against all 45 Tortuga + 3 New Providence buildings and confirmed zero overlaps.
+
+    Shrinking the box then exposed a second, genuinely separate bug while fixing the name label to
+    still wrap sensibly at that smaller size: giving the `<Text>` a wider `width` than its own parent
+    box (so a long name isn't forced to fit the tiny 30-unit footprint) had no effect and names were
+    still wrapping mid-word ("Warehou/se") far narrower than even the box itself. Root cause, found
+    by inspecting the live DOM/computed styles directly: RN Web's `numberOfLines` implementation
+    (needed for the `-webkit-line-clamp` CSS trick) forces `max-width: 100%` onto the Text element,
+    and that percentage resolves against the PARENT's content-box width — after subtracting the
+    parent's own padding and border under `box-sizing: border-box`, that's 30 − 2×3(padding) −
+    2×2(border) = 20px, not the label's own explicit 44px `width`, and `max-width` always wins over
+    `width` in CSS. Fixed by dropping `numberOfLines` from the label entirely (a building name is a
+    few words; uncapped natural wrapping is fine, no truncation risk) — re-measured the live DOM
+    afterward and confirmed the label's real rendered width is exactly the intended 44px (220px
+    on-screen at ZOOM=5), independent of the smaller 30px box it's centered over.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Re-verified live the same way as item 210,
+    specifically re-visiting the exact cluster that overlapped before (Harbourmaster's Office / The
+    Salt Works / The Ship's Provisioner) — now cleanly separated, clean word-wrapping, roads/quay
+    texture unchanged, and "Enter Harbourmaster's Office?" still fires correctly on walk-up.
+    Screenshots sent directly to the user, not filed here.

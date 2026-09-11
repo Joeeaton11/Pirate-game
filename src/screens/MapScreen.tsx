@@ -227,6 +227,16 @@ const HOUSE_COLLISION_RADIUS = 12;
 // would physically block the player before they ever got close enough to trigger the "Enter?"
 // prompt at all, since that prompt only fires within ENTER_RADIUS of the building's center.
 const BUILDING_COLLISION_RADIUS = 15;
+// Placeholder-box label size for SHOW_BUILDINGS (see that flag's comment) — deliberately NOT the
+// old BUILDING_SIZE*1.7 "make room for real art" bump, since there's no art to make room for right
+// now, just a name. Set to BUILDING_COLLISION_RADIUS*2 — the building's own real, already-tuned
+// walkable footprint — rather than the bigger BUILDING_SIZE (44): checked programmatically against
+// every real Tortuga building position, the tightest building-to-building gap in the actual data
+// is 33.9 units (4 pairs of close neighbors, e.g. The Ropewalk/Shipwright's Slip), so a uniform
+// 44-wide box (let alone the old 74.8 art-sized one) visually overlapped those pairs even though
+// nothing about the real layout is broken — this is the largest uniform box that can render every
+// building's true position without any two boxes overlapping.
+const BUILDING_LABEL_SIZE = BUILDING_COLLISION_RADIUS * 2;
 // Visual "fenced yard" patches, drawn behind the house/building sprite — sized a little past
 // their respective collision radii so the tinted grass reads as the reason you can't cut through,
 // not just an invisible wall.
@@ -2416,10 +2426,9 @@ export default function MapScreen({ navigation }: Props) {
               BUILDINGS.map((building) => {
               const islandPos = ISLANDS[building.islandId].position;
               const pos = buildingWorldPosition(building, islandPos);
-              // Real building art (Tortuga Cove only so far — see worldSprites.ts) reads better
-              // with more room than the emoji marker's tight little box, so it gets a bigger one,
-              // still centered on the same world position the emoji/badge box uses.
-              const size = building.spriteId ? BUILDING_SIZE * 1.7 : BUILDING_SIZE;
+              // Uniform BUILDING_LABEL_SIZE for every building regardless of spriteId — see that
+              // constant's own comment for why (no art-sized bump; this is the real footprint).
+              const size = BUILDING_LABEL_SIZE;
               return (
                 <View
                   key={building.id}
@@ -2437,7 +2446,17 @@ export default function MapScreen({ navigation }: Props) {
                     },
                   ]}
                 >
-                  <Text style={styles.buildingBoxLabel} numberOfLines={4}>
+                  {/* The label deliberately wraps at a wider width than the box itself
+                      (BUILDING_SIZE, not the smaller true-footprint BUILDING_LABEL_SIZE) — the
+                      box's own job is marking the real, overlap-free footprint, not containing
+                      text; centered flex alignment on the parent lets a wider name overflow the
+                      box symmetrically instead of breaking mid-word to force-fit it. */}
+                  {/* No numberOfLines here deliberately: RN Web's line-clamp implementation for
+                      it forces max-width:100% relative to the PARENT's (small) content box,
+                      which stomped the wider `width` below and wrapped names far narrower than
+                      intended, mid-word. A name is at most a few words — natural, uncapped
+                      wrapping is fine. */}
+                  <Text style={[styles.buildingBoxLabel, { width: BUILDING_SIZE }]}>
                     {building.name}
                   </Text>
                 </View>
