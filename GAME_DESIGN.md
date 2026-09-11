@@ -7132,3 +7132,54 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     Salt Works / The Ship's Provisioner) — now cleanly separated, clean word-wrapping, roads/quay
     texture unchanged, and "Enter Harbourmaster's Office?" still fires correctly on walk-up.
     Screenshots sent directly to the user, not filed here.
+
+212. ✅ **Streets/paths rebuilt on real placed tile sprites instead of a `<Pattern>`-stroke —
+    junction "bigger sprite"/blob concern eliminated by construction** (2026-09-11). Direct
+    follow-up: "redo the roads and paths. Using the sprites we have in the ui. I don't want any
+    junction bigger sprites or round blobs... I don't want buildings to overlap or intersect or
+    interfere with the roads/paths. Also change the buildings to the correct footprint size" — the
+    footprint-size part was item 211, still intact (`BUILDING_LABEL_SIZE`, unchanged this pass).
+
+    The old STREETS/STREET_JUNCTIONS rendering (a single repeating cobble/dirt tile stretched down
+    a variable-width `<Line>` via SVG `<Pattern>`, plus a separately-sized `<Rect>` patch at every
+    junction to cover the corner gap that approach left — see items further up this file for that
+    history) is replaced with individually placed square sprites from the real, already-cut tile
+    pools (`COBBLE_TILES`/`PATH_DIRT_TILES` in worldSprites.ts — 12 variants each, cut for
+    TERRAIN_BRIEF.md but never wired to anything until now). New `STREET_TILE_SIZE` constant (24)
+    matches Tortuga's own layout grid exactly — checked programmatically that every real STREETS
+    endpoint and segment length is a multiple of 24 — so tiles land on whole grid cells with no
+    partial tile at any segment end. `streetTilePositions()` walks each segment's own direction
+    vector in ~24-unit steps (works for axis-aligned segments and the handful of New Providence's
+    older diagonal ones alike, rotating each tile via `transform="rotate(...)"` to follow the
+    segment's angle rather than assuming horizontal/vertical). `tileVariantIndex()` is a
+    deterministic hash on each tile's world position, not `Math.random()`, so the same grid cell
+    always renders the same variant across re-renders instead of flickering.
+
+    Deliberately uniform tile size for BOTH 'main' and 'path' styles (previously 20/14 stroke width
+    plus 24/18 junction size) — the two are told apart by texture (cobble vs dirt art) only, not by
+    width anymore. This directly resolves the "junction bigger sprites" complaint by construction,
+    not by tuning: every tile everywhere — a straight run, a corner, a crossing — is the exact same
+    size, so there is no separate "junction shape" left to be bigger or rounder than the rest; a
+    junction is simply wherever two segments' own same-size tiles happen to meet. `COBBLE_TILES`'s
+    own doc comment explicitly says this pool is a flat, not-shape-keyed set meant to be scattered
+    (not a straight/corner/T/cross autotile set) — confirmed the art genuinely isn't cut to support
+    picking "the junction piece," so no such logic was invented. Kept the `STREET_JUNCTIONS`
+    render pass too, as a harmless belt-and-suspenders extra tile exactly on each real shared
+    endpoint (same uniform size, not a special one) in case a future segment ever doesn't land
+    exactly on the shared grid point — but the mechanism that made the old version necessary (a
+    width mismatch between differently-sized tiles) no longer exists.
+
+    Building-vs-road interference: re-confirmed nothing changed here structurally — buildings still
+    render after (on top of) streets in z-order, and a building's real position still legitimately
+    coincides with its own street's endpoint in many cases (by design, per streets.ts's own history:
+    "buildings fronting directly onto their street is the intended look, not a bug"). That's
+    unrelated to and unaffected by this rendering swap.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Live-tested with `expo start --web` +
+    headless Playwright across several real Tortuga street clusters (including the tavern-district
+    crossing and the customs-house/watchtower corner): cobblestone and dirt-path tiles read as a
+    continuous, seamless network with clean square corners and crossings, no oversized or rounded
+    junction patch anywhere, and building boxes from items 210/211 still sit cleanly on it with zero
+    overlap. New Providence's few diagonal streets weren't visually re-checked live this pass (minor
+    stub island, not the session's focus) — the rotation math was verified by hand instead.
+    Screenshots sent directly to the user, not filed here.

@@ -108,10 +108,12 @@ import {
 } from '../data/shipSprites';
 import {
   BUILDING_SPRITES,
+  COBBLE_TILES,
   GROUND_TILES,
   HOUSE_SPRITES,
   LANDMARK_SPRITES,
   NATURE_SPRITES,
+  PATH_DIRT_TILES,
   PROP_SPRITES,
   WORLD_SPRITES,
 } from '../data/worldSprites';
@@ -204,6 +206,46 @@ const TREE_ROCK_SPRITE: Partial<Record<string, keyof typeof NATURE_SPRITES>> = {
 function natureSpriteFor(emoji: string, index: number): keyof typeof NATURE_SPRITES | null {
   if (emoji === '🌿') return index % 2 === 0 ? 'bush_plain' : 'bush_flower';
   return TREE_ROCK_SPRITE[emoji] ?? null;
+}
+// Real tile art for streets/paths (2026-09-11 rework) — individually placed square sprites from
+// COBBLE_TILES/PATH_DIRT_TILES (see worldSprites.ts) instead of the old single-tile SVG <Pattern>
+// stroke. 24 matches Tortuga's own layout grid exactly (every real STREETS endpoint/length is a
+// multiple of 24 — checked programmatically), so a tile is placed at every grid cell a street
+// actually occupies with no partial tiles at segment ends. Deliberately uniform for 'main' AND
+// 'path' alike: the two are told apart by texture (cobble vs dirt art) only, not by width — direct
+// feedback ("no junction bigger sprites") ruled out the old approach of a wider stroke for 'main'
+// plus an even-bigger separate junction patch to cover the gap that mismatch left. Since every
+// tile here is the same size everywhere (a straight run, a corner, a crossing — all just cells on
+// the same grid), there's no separate "junction shape" to be bigger or rounder than the rest; a
+// junction is simply wherever two segments' own tiles happen to meet.
+const STREET_TILE_SIZE = 24;
+// Deterministic pseudo-random pick (classic GLSL-style hash) so the same grid cell always renders
+// the same tile variant across re-renders — real Math.random() would flicker between frames.
+function tileVariantIndex(x: number, y: number, poolSize: number): number {
+  const h = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+  const frac = h - Math.floor(h);
+  return Math.floor(frac * poolSize) % poolSize;
+}
+// Places one tile center at every ~STREET_TILE_SIZE step from `from` to `to`, inclusive of both
+// endpoints — works for axis-aligned segments (all of Tortuga's) and diagonal ones alike (a few of
+// New Providence's older, pre-rebuild streets), since it walks the segment's own direction vector
+// rather than assuming a horizontal/vertical run.
+function streetTilePositions(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  tileSize: number
+): { x: number; y: number }[] {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const length = Math.hypot(dx, dy);
+  if (length === 0) return [{ x: from.x, y: from.y }];
+  const steps = Math.max(1, Math.round(length / tileSize));
+  const points: { x: number; y: number }[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    points.push({ x: from.x + dx * t, y: from.y + dy * t });
+  }
+  return points;
 }
 // Slowed from 260 — full sea speed made sailing feel uncontrollable, especially threading the
 // harbor mouth/piers right after boarding the Black Pearl.
@@ -2154,89 +2196,69 @@ export default function MapScreen({ navigation }: Props) {
                   );
                 })}
 
+              {/* Roads/paths rework (2026-09-11), per direct feedback: "redo the roads and paths.
+                  Using the sprites we have... I don't want any junction bigger sprites or round
+                  blobs." Replaces the old single-tile SVG <Pattern>-stroke technique (one repeating
+                  cobble/dirt texture stretched down a variable-width `<Line>`, plus a separately-
+                  sized `<Rect>` patch to paper over the corner gap that approach left) with real,
+                  individually placed tile sprites from the actual pool of cut tile art
+                  (COBBLE_TILES/PATH_DIRT_TILES — see worldSprites.ts; TERRAIN_BRIEF.md's own doc
+                  comment on that pool says explicitly it's a flat, not-shape-keyed set meant to be
+                  scattered, not autotiled, so this picks a deterministic-but-varied tile per grid
+                  cell rather than inventing a corner/junction/straight distinction the art was
+                  never cut to support). Every tile — straight run, corner, or crossing — is the
+                  same STREET_TILE_SIZE square, so there is no separate "junction shape" to look
+                  bigger or rounder than the rest; see STREET_TILE_SIZE's own comment for why 24
+                  and why uniform across both styles. */}
               {SHOW_STREETS &&
-                STREETS.map((street, i) => {
+                STREETS.map((street, si) => {
                 const islandPos = ISLANDS[street.islandId].position;
-                const x1 = islandPos.x + street.from.x;
-                const y1 = islandPos.y + street.from.y;
-                const x2 = islandPos.x + street.to.x;
-                const y2 = islandPos.y + street.to.y;
-                // 'main' streets render as a single clean paved stroke, real cobblestone texture
-                // now on every island (previously Tortuga-only while the tile art was still being
-                // cut in — see the item below documenting this pass). 'path' is real dirt texture
-                // too, narrower than a paved street so it still reads as the rougher route.
-                //
-                // 'path' used to be a dashed stroke (strokeDasharray) with a round linecap — SVG
-                // rounds *every* dash segment's end under a round linecap, not just the line's true
-                // start/end, so a dashed path rendered as a chain of little pill/capsule shapes
-                // rather than one continuous track (worse once the dashes were pattern-filled
-                // instead of flat-colored, per direct feedback: "why are the paths rounded at the
-                // end"). Dropped the dash entirely so 'path' is one continuous stroke like 'main' —
-                // but a round linecap still rounded off the two genuine endpoints of every segment,
-                // which reads as a stubby rounded-off tile rather than a flat one wherever a street
-                // network ends or two segments meet at an angle. Switched both to
-                // strokeLinecap="square" per direct follow-up ("I don't want rounded paths...
-                // change this so it's a full tile") — square extends the stroke a half-width past
-                // the endpoint with flat corners, so a segment's end reads as a complete rectangular
-                // paving tile instead of being rounded off.
-                if (street.style === 'main') {
-                  return (
-                    <Line
-                      key={i}
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
-                      stroke="url(#cobblePattern)"
-                      strokeWidth={20}
-                      strokeLinecap="square"
-                    />
-                  );
-                }
-                return (
-                  <Line
-                    key={i}
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
-                    stroke="url(#dirtPattern)"
-                    strokeWidth={14}
-                    strokeLinecap="square"
+                const from = { x: islandPos.x + street.from.x, y: islandPos.y + street.from.y };
+                const to = { x: islandPos.x + street.to.x, y: islandPos.y + street.to.y };
+                const pool = street.style === 'main' ? COBBLE_TILES : PATH_DIRT_TILES;
+                const angleDeg = (Math.atan2(to.y - from.y, to.x - from.x) * 180) / Math.PI;
+                return streetTilePositions(from, to, STREET_TILE_SIZE).map((p, ti) => (
+                  <SvgImage
+                    key={`street-${si}-${ti}`}
+                    href={pool[tileVariantIndex(p.x, p.y, pool.length)]}
+                    x={p.x - STREET_TILE_SIZE / 2}
+                    y={p.y - STREET_TILE_SIZE / 2}
+                    width={STREET_TILE_SIZE}
+                    height={STREET_TILE_SIZE}
+                    preserveAspectRatio="xMidYMid slice"
+                    // Rotates the tile to follow the segment's own direction — a no-op for
+                    // Tortuga's axis-aligned grid (always a multiple of 90°) and what keeps a
+                    // handful of New Providence's older, pre-rebuild diagonal streets from reading
+                    // as a "staircase" of unrotated squares.
+                    transform={`rotate(${angleDeg} ${p.x} ${p.y})`}
                   />
-                );
+                ));
               })}
 
-              {/* Junction patches — a real seam two independent `<Line>` strokes always leave at
-                  every point 2+ street segments meet: `strokeLinecap="square"` only extends a
-                  stroke past its own endpoint along its own direction, so a plain right-angle elbow
-                  never gets its outer corner covered, and where a narrower 'path' crosses a wider
-                  'main' the mismatch leaves bare grass showing through at the corners — the exact
-                  bug direct feedback flagged looking at the street network as a whole. Drawn after
-                  every STREETS line so each patch sits on top and covers the gap; STREET_JUNCTIONS
-                  is precomputed once at module load (see streets.ts) from every shared endpoint,
-                  not just the style-mismatched ones, since a same-style elbow has the identical gap.
-                  A `<Circle>` patch here reads as a round blob sitting on top of the otherwise-square
-                  street tiles at every bend/crossing — direct feedback circled these exact spots on a
-                  live screenshot ("remove them all and let the path take the shape of the sprite...
-                  it will be square as the environment is grid shaped"). Every STREETS segment is
-                  axis-aligned (grid-snapped, always a pure horizontal or vertical run — see
-                  streets.ts), so a plain square `<Rect>` covers the same corner gap with flat edges
-                  that continue the square-linecap tiles cleanly instead of rounding them off. */}
+              {/* Belt-and-suspenders corner coverage: since every tile above is a full square
+                  centered exactly on its own grid point (not a thin directional stroke), two
+                  segments sharing an endpoint already both place a same-size tile there and the
+                  corner is covered without any of this — but STREET_JUNCTIONS (every real shared
+                  endpoint, precomputed once in streets.ts) still gets one explicit same-size tile
+                  on top, in case a future segment ever doesn't land exactly on the shared grid
+                  point. Uniform STREET_TILE_SIZE here too — the old version's whole reason to
+                  exist (patching a width mismatch between a wider 'main' stroke and a narrower
+                  'path' one) no longer applies now that both styles share one tile size. */}
               {SHOW_STREETS &&
                 STREET_JUNCTIONS.map((junction, i) => {
                 const islandPos = ISLANDS[junction.islandId].position;
-                const size = junction.style === 'main' ? 24 : 18;
                 const cx = islandPos.x + junction.point.x;
                 const cy = islandPos.y + junction.point.y;
+                const pool = junction.style === 'main' ? COBBLE_TILES : PATH_DIRT_TILES;
                 return (
-                  <Rect
+                  <SvgImage
                     key={`junction-${i}`}
-                    x={cx - size / 2}
-                    y={cy - size / 2}
-                    width={size}
-                    height={size}
-                    fill={junction.style === 'main' ? 'url(#cobblePattern)' : 'url(#dirtPattern)'}
+                    href={pool[tileVariantIndex(cx, cy, pool.length)]}
+                    x={cx - STREET_TILE_SIZE / 2}
+                    y={cy - STREET_TILE_SIZE / 2}
+                    width={STREET_TILE_SIZE}
+                    height={STREET_TILE_SIZE}
+                    preserveAspectRatio="xMidYMid slice"
                   />
                 );
               })}
