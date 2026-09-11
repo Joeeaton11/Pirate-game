@@ -14,27 +14,27 @@ export interface Prop {
 
 export const PROPS: Prop[] = [
   // Basse-Terre Square — market stall + lampposts flanking the fountain landmark itself.
-  { islandId: 'tortuga_cove', offset: { x: -14, y: -128 }, spriteId: 'market_stall' },
-  { islandId: 'tortuga_cove', offset: { x: 42, y: -132 }, spriteId: 'lamppost' },
-  { islandId: 'tortuga_cove', offset: { x: -2, y: -100 }, spriteId: 'lamppost' },
+  { islandId: 'tortuga_cove', offset: { x: -22, y: -205 }, spriteId: 'market_stall' },
+  { islandId: 'tortuga_cove', offset: { x: 67, y: -211 }, spriteId: 'lamppost' },
+  { islandId: 'tortuga_cove', offset: { x: -3, y: -160 }, spriteId: 'lamppost' },
 
   // Benches outside the two busiest hero buildings on the quay.
-  { islandId: 'tortuga_cove', offset: { x: 92, y: -78 }, spriteId: 'bench' }, // near The Salty Parrot
-  { islandId: 'tortuga_cove', offset: { x: 163, y: -88 }, spriteId: 'bench' }, // near Harbor Trading Post
+  { islandId: 'tortuga_cove', offset: { x: 147, y: -125 }, spriteId: 'bench' }, // near The Salty Parrot
+  { islandId: 'tortuga_cove', offset: { x: 261, y: -141 }, spriteId: 'bench' }, // near Harbor Trading Post
 
   // Barrels stacked by the warehouse district.
-  { islandId: 'tortuga_cove', offset: { x: -175, y: -160 }, spriteId: 'barrel' }, // Smugglers' Warehouse
-  { islandId: 'tortuga_cove', offset: { x: -238, y: -20 }, spriteId: 'barrel' }, // Tobacco Warehouse
-  { islandId: 'tortuga_cove', offset: { x: 175, y: 22 }, spriteId: 'barrel' }, // Timber Yard
+  { islandId: 'tortuga_cove', offset: { x: -280, y: -256 }, spriteId: 'barrel' }, // Smugglers' Warehouse
+  { islandId: 'tortuga_cove', offset: { x: -381, y: -32 }, spriteId: 'barrel' }, // Tobacco Warehouse
+  { islandId: 'tortuga_cove', offset: { x: 280, y: 35 }, spriteId: 'barrel' }, // Timber Yard
 
   // Crates by the trading/provisioning buildings.
-  { islandId: 'tortuga_cove', offset: { x: 158, y: -112 }, spriteId: 'crate' }, // Harbor Trading Post
-  { islandId: 'tortuga_cove', offset: { x: -48, y: 14 }, spriteId: 'crate' }, // The Ship's Provisioner
-  { islandId: 'tortuga_cove', offset: { x: 175, y: -138 }, spriteId: 'crate' }, // Dockworkers' Bunkhouse
+  { islandId: 'tortuga_cove', offset: { x: 253, y: -179 }, spriteId: 'crate' }, // Harbor Trading Post
+  { islandId: 'tortuga_cove', offset: { x: -77, y: 22 }, spriteId: 'crate' }, // The Ship's Provisioner
+  { islandId: 'tortuga_cove', offset: { x: 280, y: -221 }, spriteId: 'crate' }, // Dockworkers' Bunkhouse
 
   // Pirate colors flying over the two buildings that answer to no crown.
-  { islandId: 'tortuga_cove', offset: { x: 250, y: -305 }, spriteId: 'flag_skull', fontSize: 26 }, // Fort de Rocher
-  { islandId: 'tortuga_cove', offset: { x: -22, y: -22 }, spriteId: 'flag_skull', fontSize: 20 }, // Le Vasseur's Residence
+  { islandId: 'tortuga_cove', offset: { x: 400, y: -488 }, spriteId: 'flag_skull', fontSize: 26 }, // Fort de Rocher
+  { islandId: 'tortuga_cove', offset: { x: -35, y: -35 }, spriteId: 'flag_skull', fontSize: 20 }, // Le Vasseur's Residence
 ];
 
 export function propsForIsland(islandId: string): Prop[] {

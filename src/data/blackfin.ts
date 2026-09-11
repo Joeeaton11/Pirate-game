@@ -65,7 +65,7 @@ export const BLACKFIN_STAGES: BlackfinStage[] = [
   {
     id: 'blackfin_tortuga_intro',
     islandId: 'tortuga_cove',
-    offset: { x: 170, y: -255 },
+    offset: { x: 272, y: -408 },
     title: 'A Familiar Face at the Docks',
     dialogue: [
       "Well, well. A new face crawling out of Tortuga's gutters, looking to be somebody.",

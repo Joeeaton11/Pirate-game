@@ -2,7 +2,7 @@ import { EncounterSlot, Island } from '../types';
 import { PIERS, QUAYS } from './harbor';
 
 export const WORLD_WIDTH = 3600;
-export const WORLD_HEIGHT = 5200;
+export const WORLD_HEIGHT = 5600;
 
 /** Converts a compact [x,y][] literal into the {x,y}[] shape Island.shape expects. */
 function polygon(points: [number, number][]): { x: number; y: number }[] {
@@ -30,12 +30,12 @@ function polygon(points: [number, number][]): { x: number; y: number }[] {
  * building, house, street, and harbor fixture) was rebuilt from scratch around the new bay — see
  * buildings.ts, houses.ts, streets.ts, landmarks.ts, harbor.ts. */
 const TORTUGA_SHAPE = polygon([
-  [568, 0], [532, 114], [476, 214], [408, 298], [330, 364], [240, 414], [144, 442], [46, 448],
-  [-46, 448], [-144, 442], [-244, 422], [-350, 388], [-402, 294], [-392, 176], [-470, 100], [-594, 0],
-  [-462, -98], [-322, -144], [-306, -222], [-268, -296], [-210, -364],
+  [909, 0], [851, 182], [762, 342], [653, 477], [528, 582], [384, 662], [230, 707], [74, 717],
+  [-74, 717], [-230, 707], [-390, 675], [-560, 621], [-643, 470], [-627, 282], [-752, 160], [-950, 0],
+  [-739, -157], [-515, -230], [-490, -355], [-429, -474], [-336, -582],
   // The horseshoe bay (west headland -> east headland), replacing the old peninsula tip.
-  [-200, -400], [-150, -320], [-90, -260], [-10, -220], [70, -215], [150, -240], [210, -290], [260, -360],
-  [354, -256], [380, -170], [450, -98],
+  [-320, -640], [-240, -512], [-144, -416], [-16, -352], [112, -344], [240, -384], [336, -464], [416, -576],
+  [566, -410], [608, -272], [720, -157],
 ]);
 
 /** Île-à-Vache: ~13km x 3.2km, tapers from wider hills in the west to a swampy east end. */

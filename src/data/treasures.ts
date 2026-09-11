@@ -235,7 +235,7 @@ export interface TreasureSite {
 }
 
 export const TREASURE_SITES: TreasureSite[] = [
-  { id: 'site_fragment_tortuga', islandId: 'tortuga_cove', offset: { x: -350, y: 350 }, treasureId: 'fragment_tortuga' },
+  { id: 'site_fragment_tortuga', islandId: 'tortuga_cove', offset: { x: -560, y: 560 }, treasureId: 'fragment_tortuga' },
   { id: 'site_fragment_cow_island', islandId: 'cow_island', offset: { x: 150, y: -200 }, treasureId: 'fragment_cow_island' },
   { id: 'site_fragment_new_providence', islandId: 'new_providence', offset: { x: 250, y: 200 }, treasureId: 'fragment_new_providence' },
   { id: 'site_fragment_roatan', islandId: 'roatan', offset: { x: 300, y: -200 }, treasureId: 'fragment_roatan' },
@@ -246,12 +246,12 @@ export const TREASURE_SITES: TreasureSite[] = [
   {
     id: 'site_buried_doubloons',
     islandId: 'tortuga_cove',
-    offset: { x: -350, y: 50 },
+    offset: { x: -560, y: 80 },
     treasureId: 'buried_doubloons',
     requiresItemId: 'treasure_map',
   },
 
-  { id: 'site_rusty_compass', islandId: 'tortuga_cove', offset: { x: -400, y: -150 }, treasureId: 'rusty_compass' },
+  { id: 'site_rusty_compass', islandId: 'tortuga_cove', offset: { x: -640, y: -240 }, treasureId: 'rusty_compass' },
   { id: 'site_tarnished_spyglass', islandId: 'cow_island', offset: { x: -200, y: -100 }, treasureId: 'tarnished_spyglass' },
   { id: 'site_barnacled_bell', islandId: 'new_providence', offset: { x: -150, y: 100 }, treasureId: 'barnacled_bell' },
   { id: 'site_chipped_cutlass_hilt', islandId: 'roatan', offset: { x: 150, y: 150 }, treasureId: 'chipped_cutlass_hilt' },

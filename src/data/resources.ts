@@ -33,7 +33,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
     islandId: 'tortuga_cove',
     // Full-town rebuild 2026-08-07 (item 52): the old spot is now open water inside the new
     // horseshoe bay — moved to the docks-and-careening quarter on the west shore.
-    offset: { x: -87, y: -250 },
+    offset: { x: -139, y: -400 },
     resourceId: 'fish',
     name: 'Fishing Dock',
     minYield: 2,
@@ -43,7 +43,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_tortuga_timber_1',
     islandId: 'tortuga_cove',
-    offset: { x: 520, y: 20 },
+    offset: { x: 832, y: 32 },
     resourceId: 'timber',
     name: 'High Woods Stand',
     minYield: 2,
@@ -53,7 +53,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_tortuga_timber_2',
     islandId: 'tortuga_cove',
-    offset: { x: 410, y: 100 },
+    offset: { x: 656, y: 160 },
     resourceId: 'timber',
     name: 'Boucan Ridge Stand',
     minYield: 2,

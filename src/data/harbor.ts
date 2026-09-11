@@ -46,19 +46,19 @@ export interface PierSegment {
 export const PIERS: PierSegment[] = [
   // Four piers off the quay, spread around the bay — the docks-and-careening quarter (west),
   // the harbor's administrative core, the tavern district, and the east side by the chapel.
-  { islandId: 'tortuga_cove', from: { x: -146, y: -311 }, to: { x: -146, y: -440 } },
-  { islandId: 'tortuga_cove', from: { x: -9, y: -210 }, to: { x: -9, y: -389 } },
-  { islandId: 'tortuga_cove', from: { x: 68, y: -205 }, to: { x: 68, y: -342 } },
-  { islandId: 'tortuga_cove', from: { x: 205, y: -281 }, to: { x: 205, y: -439 } },
+  { islandId: 'tortuga_cove', from: { x: -234, y: -498 }, to: { x: -234, y: -704 } },
+  { islandId: 'tortuga_cove', from: { x: -14, y: -336 }, to: { x: -14, y: -622 } },
+  { islandId: 'tortuga_cove', from: { x: 109, y: -328 }, to: { x: 109, y: -547 } },
+  { islandId: 'tortuga_cove', from: { x: 328, y: -450 }, to: { x: 328, y: -702 } },
   // T-head on the west pier (docks-and-careening quarter): the spur above ends at (-146,-440),
   // and this pier turns a full corner in both directions there — a real "wraps around" jetty,
   // not just a longer straight run. Both arms are pure horizontal, meeting the vertical spur at a
   // right angle.
-  { islandId: 'tortuga_cove', from: { x: -146, y: -440 }, to: { x: -206, y: -440 } },
-  { islandId: 'tortuga_cove', from: { x: -146, y: -440 }, to: { x: -86, y: -440 } },
+  { islandId: 'tortuga_cove', from: { x: -234, y: -704 }, to: { x: -330, y: -704 } },
+  { islandId: 'tortuga_cove', from: { x: -234, y: -704 }, to: { x: -138, y: -704 } },
   // L-head on the east pier (by the chapel): the spur above ends at (205,-439); this one bends
   // just one way, away from the harbor's other piers, so it doesn't crowd pier 2's tip.
-  { islandId: 'tortuga_cove', from: { x: 205, y: -439 }, to: { x: 265, y: -439 } },
+  { islandId: 'tortuga_cove', from: { x: 328, y: -702 }, to: { x: 424, y: -702 } },
 ];
 
 /** A built stone quay along the natural curve of the new horseshoe bay's coastline — rendered
@@ -66,21 +66,21 @@ export const PIERS: PierSegment[] = [
  * embankment ships pull alongside, not a walkway reaching out to sea. Sits a few world units
  * inland of the true coastline so it always draws on solid ground. */
 export const QUAYS: PierSegment[] = [
-  { islandId: 'tortuga_cove', from: { x: -196, y: -391 }, to: { x: -146, y: -311 } },
-  { islandId: 'tortuga_cove', from: { x: -146, y: -311 }, to: { x: -87, y: -250 } },
-  { islandId: 'tortuga_cove', from: { x: -87, y: -250 }, to: { x: -9, y: -210 } },
-  { islandId: 'tortuga_cove', from: { x: -9, y: -210 }, to: { x: 68, y: -205 } },
-  { islandId: 'tortuga_cove', from: { x: 68, y: -205 }, to: { x: 146, y: -231 } },
-  { islandId: 'tortuga_cove', from: { x: 146, y: -231 }, to: { x: 205, y: -281 } },
-  { islandId: 'tortuga_cove', from: { x: 205, y: -281 }, to: { x: 255, y: -351 } },
+  { islandId: 'tortuga_cove', from: { x: -314, y: -626 }, to: { x: -234, y: -498 } },
+  { islandId: 'tortuga_cove', from: { x: -234, y: -498 }, to: { x: -139, y: -400 } },
+  { islandId: 'tortuga_cove', from: { x: -139, y: -400 }, to: { x: -14, y: -336 } },
+  { islandId: 'tortuga_cove', from: { x: -14, y: -336 }, to: { x: 109, y: -328 } },
+  { islandId: 'tortuga_cove', from: { x: 109, y: -328 }, to: { x: 234, y: -370 } },
+  { islandId: 'tortuga_cove', from: { x: 234, y: -370 }, to: { x: 328, y: -450 } },
+  { islandId: 'tortuga_cove', from: { x: 328, y: -450 }, to: { x: 408, y: -562 } },
 ];
 
 /** An offshore breakwater arm sheltering the harbor basin, strung between the bay's two
  * headlands — pure backdrop, same "never touches the land polygon" rule as everything else here,
  * just further out to sea than the pier tips. */
 export const BREAKWATER: PierSegment[] = [
-  { islandId: 'tortuga_cove', from: { x: -237, y: -482 }, to: { x: 40, y: -388 } },
-  { islandId: 'tortuga_cove', from: { x: 40, y: -388 }, to: { x: 305, y: -438 } },
+  { islandId: 'tortuga_cove', from: { x: -379, y: -771 }, to: { x: 64, y: -621 } },
+  { islandId: 'tortuga_cove', from: { x: 64, y: -621 }, to: { x: 488, y: -701 } },
 ];
 
 export interface HarborBoat {
@@ -94,22 +94,22 @@ export interface HarborBoat {
 /** Small boats moored right at or along the piers and quay themselves — one per pier tip.
  * First 4 offsets moved 2026-08-14 to match PIERS' new straightened (due-vertical) tips. */
 export const DOCKED_BOATS: HarborBoat[] = [
-  { islandId: 'tortuga_cove', offset: { x: -146, y: -440 }, emoji: '⛵', fontSize: 26, rotationDeg: -15 },
-  { islandId: 'tortuga_cove', offset: { x: -9, y: -389 }, emoji: '🛶', fontSize: 20, rotationDeg: 20 },
-  { islandId: 'tortuga_cove', offset: { x: 68, y: -342 }, emoji: '🚣', fontSize: 20, rotationDeg: -25 },
-  { islandId: 'tortuga_cove', offset: { x: 205, y: -439 }, emoji: '⛵', fontSize: 26, rotationDeg: 10 },
+  { islandId: 'tortuga_cove', offset: { x: -234, y: -704 }, emoji: '⛵', fontSize: 26, rotationDeg: -15 },
+  { islandId: 'tortuga_cove', offset: { x: -14, y: -622 }, emoji: '🛶', fontSize: 20, rotationDeg: 20 },
+  { islandId: 'tortuga_cove', offset: { x: 109, y: -547 }, emoji: '🚣', fontSize: 20, rotationDeg: -25 },
+  { islandId: 'tortuga_cove', offset: { x: 328, y: -702 }, emoji: '⛵', fontSize: 26, rotationDeg: 10 },
   // Rowboats tied up directly against the quay wall, not off a pier tip.
-  { islandId: 'tortuga_cove', offset: { x: -87, y: -280 }, emoji: '🚣', fontSize: 18, rotationDeg: 5 },
-  { islandId: 'tortuga_cove', offset: { x: 146, y: -261 }, emoji: '🛶', fontSize: 18, rotationDeg: -10 },
+  { islandId: 'tortuga_cove', offset: { x: -139, y: -448 }, emoji: '🚣', fontSize: 18, rotationDeg: 5 },
+  { islandId: 'tortuga_cove', offset: { x: 234, y: -418 }, emoji: '🛶', fontSize: 18, rotationDeg: -10 },
 ];
 
 /** Larger ships anchored further out, well clear of the piers — the harbor's real deep-water
  * traffic, purely a backdrop, roughly following the sheltering breakwater arc. */
 export const OFFSHORE_SHIPS: HarborBoat[] = [
-  { islandId: 'tortuga_cove', offset: { x: -144, y: -531 }, emoji: '🚢', fontSize: 32, rotationDeg: 10 },
-  { islandId: 'tortuga_cove', offset: { x: -24, y: -524 }, emoji: '🛳️', fontSize: 34, rotationDeg: -12 },
-  { islandId: 'tortuga_cove', offset: { x: 97, y: -515 }, emoji: '⛴️', fontSize: 30, rotationDeg: 18 },
-  { islandId: 'tortuga_cove', offset: { x: 217, y: -503 }, emoji: '🚢', fontSize: 28, rotationDeg: -8 },
+  { islandId: 'tortuga_cove', offset: { x: -230, y: -850 }, emoji: '🚢', fontSize: 32, rotationDeg: 10 },
+  { islandId: 'tortuga_cove', offset: { x: -38, y: -838 }, emoji: '🛳️', fontSize: 34, rotationDeg: -12 },
+  { islandId: 'tortuga_cove', offset: { x: 155, y: -824 }, emoji: '⛴️', fontSize: 30, rotationDeg: 18 },
+  { islandId: 'tortuga_cove', offset: { x: 347, y: -805 }, emoji: '🚢', fontSize: 28, rotationDeg: -8 },
 ];
 
 export function piersForIsland(islandId: string): PierSegment[] {

@@ -7183,3 +7183,69 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     overlap. New Providence's few diagonal streets weren't visually re-checked live this pass (minor
     stub island, not the session's focus) — the rotation math was verified by hand instead.
     Screenshots sent directly to the user, not filed here.
+
+213. ✅ **Tortuga's real layout stretched 1.6x — "the island is way too small," confirmed and fixed
+    with real numbers, not a redraw** (2026-09-11). Follow-up to a standalone walkable HTML export
+    built earlier this session (a scale-accurate mirror of the live `SHOW_STREETS`/`SHOW_BUILDINGS`
+    render, extracted straight from real data) that the user used to judge scale directly rather
+    than trust a description of it. First quantified the complaint before touching anything:
+    Tortuga's real bounding box was 1162×848 world units — ~26s to walk straight across at the real
+    `ON_PATH_SPEED` (45u/s) — and, checked against every other island, already the *biggest* of the
+    7, so this was never a Tortuga-specific bug, it's the whole game's coordinate scale.
+
+    Asked the user for direction given growing it for real means touching nearly every position in
+    the game, not a quick tweak: chose "stretch the existing layout" (multiply every real position,
+    same 45 buildings/205 streets/111 houses) over authoring new content to fill more space. Asked
+    a follow-up for how much bigger and got pushed back on ("You should have worked this out") —
+    fair: the game's own parameters (walking speed, building/collision sizes, sailing speed, every
+    other island's position) are enough to derive a real target without guessing, so that's what
+    the actual number came from instead of asking again.
+
+    Computed the true geometric ceiling for growing Tortuga *in place* (not moving any other
+    island): using each shape's support function along the line to every neighbor (not just an
+    axis-aligned bounding box), the tightest real constraints turned out to be the **world's own
+    south edge** (`WORLD_HEIGHT` — max safe scale ~1.43x before Tortuga's own harbor content, which
+    reaches further than the coastline polygon itself, would poke past it) and, just behind that,
+    **New Providence** and **Cow Island** (~1.72x/1.82x before the coastlines would touch, computed
+    from real per-island shape data, not a guessed buffer). Bumped `WORLD_HEIGHT` 5200 → 5600 first
+    (checked every usage — player movement clamp and the world `<Svg>`/camera-transform size, both
+    purely relative to the constant, nothing hardcodes the old value) since that's a free, zero-risk
+    ~130-unit buffer, then picked **1.6x** — comfortably inside every real constraint (verified
+    programmatically post-change: every neighbor gap is positive, everything sits inside the new
+    world bounds, zero building-building overlaps at the real 30-unit box size, same as items
+    210-212) without shaving the target down to a nervous minimum.
+
+    Applied uniformly via a script (TypeScript-compiler-API-based, not regex) that finds every
+    object literal with `islandId: 'tortuga_cove'` and scales its `offset`/`from`/`to`/`anchor`
+    sub-object's real x/y — never touching sizes, radii, speeds, or anything not itself a *position*
+    (`BUILDING_LABEL_SIZE`, every collision radius, `STREET_TILE_SIZE`, `ENTER_RADIUS`, NPC speeds
+    all stay exactly as they were, per the user's own chosen approach: spread the same town across
+    more room, don't resize what's already there). Ran across `buildings.ts`, `houses.ts`,
+    `landmarks.ts`, `streets.ts`, `harbor.ts` (piers/quays/breakwater/boats), `props.ts`,
+    `resources.ts`, `scenery.ts` (424 points), `sideQuests.ts`, `rescue.ts`, `blackfin.ts`,
+    `streetNpcs.ts` (its own `anchor` field, not `offset`), and `treasures.ts` — 2,290 individual
+    numbers scaled across every real Tortuga entry in the game, confirmed by the script's own
+    per-file counts (45 buildings, 111 houses, 205 streets, 424 scenery, etc. — matching the real
+    counts exactly). `TORTUGA_SHAPE`'s polygon and `BLACK_PEARL_START_OFFSET`/`WORLD_HEIGHT` (both a
+    different shape than the generic `{islandId, offset}` pattern) were scaled by hand as two
+    explicit special cases — verified `BLACK_PEARL_START_OFFSET`'s ~19-unit gap past the west pier
+    tip scaled proportionally along with the tip itself, so the ship still docks in the same real
+    spot relative to the jetty, not just "somewhere scaled."
+
+    `STREET_JUNCTIONS` needed no separate edit — it's derived from `STREETS` at module load
+    (`streetJunctions()`), so scaling the segments alone re-derives correct junctions automatically.
+    One expected, harmless side effect: 1.6x isn't a clean multiple of `STREET_TILE_SIZE` (24), so
+    scaled street lengths are no longer exact multiples of 24 the way the original grid was — the
+    tile-marching renderer from item 212 was already built to tolerate this (it evenly spaces
+    `round(length/24)` tiles rather than requiring an exact multiple, the same tolerance New
+    Providence's older non-grid streets already relied on), confirmed by re-checking tile seams at
+    both a wide overview and an extreme close-up zoom in the walkthrough tool — no visible gap or
+    misalignment anywhere.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Re-extracted and republished the same
+    walkable HTML export with the new data (same URL) so the user can judge the actual new scale
+    firsthand rather than take a description of it — new footprint 1859×1357 (was 1162×848), ~41s to
+    walk straight across (was ~26s). Left as an explicit, named follow-up rather than done silently:
+    getting meaningfully past this 1.6x ceiling in place is not possible without also moving New
+    Providence/Cow Island or redesigning more of the 7-island overworld map — a distinctly bigger,
+    separate task, not attempted here.

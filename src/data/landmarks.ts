@@ -19,7 +19,7 @@ export const LANDMARKS: Landmark[] = [
     // quay, near the harbor's administrative core (Harbourmaster's Office, Customs House).
     id: 'tortuga_town_square',
     islandId: 'tortuga_cove',
-    offset: { x: 24, y: -72 },
+    offset: { x: 38, y: -115 },
     name: 'Basse-Terre Square',
     emoji: '⛲',
     description:
@@ -31,7 +31,7 @@ export const LANDMARKS: Landmark[] = [
     // between the tavern district and the harbor's administrative core.
     id: 'tortuga_harbor_pier',
     islandId: 'tortuga_cove',
-    offset: { x: 68, y: -205 },
+    offset: { x: 109, y: -328 },
     name: 'The Harbor Pier',
     emoji: '⚓',
     description: 'A weathered wooden pier where every manner of sloop, brigantine, and stolen merchantman ties up.',
@@ -41,7 +41,7 @@ export const LANDMARKS: Landmark[] = [
     // harbor's mouth, opposite Fort de Rocher on the east headland.
     id: 'tortuga_lighthouse',
     islandId: 'tortuga_cove',
-    offset: { x: -192, y: -336 },
+    offset: { x: -307, y: -538 },
     name: 'The Lighthouse',
     emoji: '🗼',
     description: "Lit every night without fail — the one soul in Tortuga everyone agrees is worth paying, raid or no raid.",
@@ -50,7 +50,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_la_ringot_fields',
     islandId: 'tortuga_cove',
-    offset: { x: 288, y: 216 },
+    offset: { x: 461, y: 346 },
     name: 'La Ringot Fields',
     emoji: '🌾',
     description:
@@ -59,7 +59,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_high_woods',
     islandId: 'tortuga_cove',
-    offset: { x: 436, y: -40 },
+    offset: { x: 698, y: -64 },
     name: 'The High Woods',
     emoji: '🌲',
     description:
@@ -69,7 +69,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_old_landing',
     islandId: 'tortuga_cove',
-    offset: { x: -70, y: 416 },
+    offset: { x: -112, y: 666 },
     name: 'Ruins of the Old Landing',
     emoji: '🔥',
     description:
@@ -79,7 +79,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'tortuga_forgotten_graves',
     islandId: 'tortuga_cove',
-    offset: { x: 120, y: 410 },
+    offset: { x: 192, y: 656 },
     name: 'The Forgotten Graves',
     emoji: '⚰️',
     description:
@@ -91,7 +91,7 @@ export const LANDMARKS: Landmark[] = [
     // El Fuerte Viejo and West Point Beach. Purely invented — not tied to any real event.
     id: 'tortuga_wreck_santa_catalina',
     islandId: 'tortuga_cove',
-    offset: { x: -430, y: 235 },
+    offset: { x: -688, y: 376 },
     name: 'Wreck of the Santa Catalina',
     emoji: '🚢',
     description:
@@ -103,7 +103,7 @@ export const LANDMARKS: Landmark[] = [
     // a ship that tried to run the fort's guns and lost. Purely invented.
     id: 'tortuga_wreck_bonne_esperance',
     islandId: 'tortuga_cove',
-    offset: { x: 450, y: -350 },
+    offset: { x: 720, y: -560 },
     name: 'Wreck of the Bonne Espérance',
     emoji: '💥',
     description:
@@ -115,7 +115,7 @@ export const LANDMARKS: Landmark[] = [
     // forest added the same session. Purely invented.
     id: 'tortuga_blackwoods_hollow',
     islandId: 'tortuga_cove',
-    offset: { x: -30, y: 180 },
+    offset: { x: -48, y: 288 },
     name: "Blackwood's Hollow",
     emoji: '🏕️',
     description:
@@ -127,7 +127,7 @@ export const LANDMARKS: Landmark[] = [
     // from an earlier spot that sat almost on the coastline. Purely invented.
     id: 'tortuga_suzettes_still',
     islandId: 'tortuga_cove',
-    offset: { x: 400, y: 50 },
+    offset: { x: 640, y: 80 },
     name: "Old Suzette's Still",
     emoji: '🥃',
     description:
@@ -139,7 +139,7 @@ export const LANDMARKS: Landmark[] = [
     // near The Smugglers' Grotto. Purely invented.
     id: 'tortuga_marked_palm',
     islandId: 'tortuga_cove',
-    offset: { x: -320, y: 355 },
+    offset: { x: -512, y: 568 },
     name: 'The Marked Palm',
     emoji: '🌴',
     description:
@@ -151,7 +151,7 @@ export const LANDMARKS: Landmark[] = [
     // once from an earlier spot that overlapped El Fuerte Viejo. Purely invented.
     id: 'tortuga_smugglers_grotto',
     islandId: 'tortuga_cove',
-    offset: { x: -395, y: 300 },
+    offset: { x: -632, y: 480 },
     name: "The Smugglers' Grotto",
     emoji: '🕳️',
     description:
@@ -163,7 +163,7 @@ export const LANDMARKS: Landmark[] = [
     // — an artistic addition to the coastline, not part of the traced polygon.
     id: 'tortuga_contrebandiers_cove',
     islandId: 'tortuga_cove',
-    offset: { x: -555, y: -30 },
+    offset: { x: -888, y: -48 },
     name: "Contrebandiers' Cove",
     emoji: '🌊',
     description:
@@ -174,7 +174,7 @@ export const LANDMARKS: Landmark[] = [
     // Palm and the Abandoned Quarter — named for Tortuga's own turtle-trade namesake.
     id: 'tortuga_turtle_cove',
     islandId: 'tortuga_cove',
-    offset: { x: -195, y: 415 },
+    offset: { x: -312, y: 664 },
     name: 'Turtle Cove',
     emoji: '🐢',
     description:
