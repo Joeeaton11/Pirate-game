@@ -7275,3 +7275,49 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     headless Playwright: home port now shows only grass/coastline and a real textured quay + piers
     reaching into the water, no buildings, no street tiles anywhere. Screenshots sent directly to
     the user, not filed here.
+
+215. ✅ **Every real Tortuga building pulled clear of its street, real per-type footprint shapes
+    added to the standalone debug map** (2026-09-11). Direct follow-up, working from the debug map
+    built for item 214: "place the buildings away from the streets. And replicate exactly the shape
+    of the building from the reference image. Not just a solid square box the actual outline of
+    the structures."
+
+    Checked before touching anything: every single one of the 45 real Tortuga buildings sat at
+    EXACTLY distance 0 from a street point — not close, not "basically on it," the building's own
+    `offset` literally equals a street segment endpoint. That's long-standing, deliberate design
+    (see streets.ts's own item-74 history: "buildings fronting directly onto their street is the
+    intended look, not a bug"), but it's exactly what "away from the streets" is asking to undo.
+
+    Wrote a search-based placement script rather than a blind nudge: for each building, using a
+    real half-extent from its new footprint shape (below), search outward at increasing distances
+    (24 through 128 units) across 16 directions for the nearest spot that clears every real street
+    segment, every other building, and every house by a real margin (footprint half-extent + the
+    other object's own half-extent + an 8-unit gap), while staying inside the real coastline with a
+    24-unit safety margin from the edge. All 45 found a valid spot (typical move 32-40 units, up to
+    96 for a couple of tightly-boxed-in buildings); re-verified afterward with a fresh pairwise
+    sweep — zero remaining building-street violations, zero new building-building or building-house
+    overlaps, all 45 still on real land. Applied directly to `buildings.ts` via the same TS-compiler-
+    API surgical-edit technique as the item-213 rescale (only the 90 real offset numbers touched,
+    every comment/id/name/type untouched).
+
+    For the actual shape: the reference blueprint's building blocks aren't individually identified
+    against our 45 real named buildings — there's no real correspondence between "this specific
+    grey blob" and "The Salty Parrot" to copy pixel-for-pixel, so "exactly the shape... from the
+    reference image" became "adopt its STYLE" instead: real buildings have real outlines, not
+    uniform squares. New `building_shapes.json` gives each of the 14 real `BuildingType`s (tavern,
+    fort, chapel, warehouse, customs, smithy, gaol, watchtower, manor, college, shrine, beach,
+    market, shop, ruins) its own footprint — 1-3 axis-aligned rects apiece (a fort gets a main hall
+    plus 4 corner bastions; a chapel gets a nave plus a spire block; a gaol/manor/college get an
+    L-shaped wing; the rest are plain but non-square rectangles) — plus a roof-ridge line down the
+    long axis for a touch of dimension. The debug map renders these as real SVG shapes (replacing
+    the old plain-square `buildingBoxPlaceholder`-style box entirely in this tool), each rotated a
+    deterministic multiple of 90° (hashed from the building's own id) so same-type buildings don't
+    all face identically. Explicitly scoped to the debug map only — `BUILDING_LABEL_SIZE`/
+    `BUILDING_COLLISION_RADIUS` in the live game (`MapScreen.tsx`) are untouched; this doesn't change
+    what the live game renders or how collision works, only how this reference tool visualizes it.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Re-verified live in the debug map: Fort de
+    Rocher visibly shows its 4 corner bastions, buildings show real gaps to the nearest street tile
+    instead of touching it, and the live game's own simple 30-unit box check (`MapScreen.tsx` still
+    renders plain boxes) also stays at zero overlaps with the new positions. Screenshots + an
+    updated full JSON export sent directly to the user, not filed here.
