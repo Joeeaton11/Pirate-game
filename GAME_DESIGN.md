@@ -7249,3 +7249,29 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     getting meaningfully past this 1.6x ceiling in place is not possible without also moving New
     Providence/Cow Island or redesigning more of the 7-island overworld map — a distinctly bigger,
     separate task, not attempted here.
+
+214. ✅ **Buildings and roads pulled back off again, `SHOW_DOCK` split out on its own — checking the
+    island's shape and the dock in isolation before judging anything else** (2026-09-11). Direct
+    follow-up to item 213: "I want the island the correct size and dimensions first... Remove all
+    buildings and roads for now. Just build out the island and the dock to the correct dimensions
+    and scale." `SHOW_BUILDINGS` back to `false` (labeled boxes and all, same as real art before it
+    — buildings are just off, not swapped for something else) and `SHOW_STREETS` back to `false` —
+    but the dock needed to stay visible, and until now `PIERS`/`QUAYS`/`BREAKWATER` were bundled
+    into that same `SHOW_STREETS` flag as "roads AND the dock" together (see item 212's own comment
+    on it), so turning streets off would have taken the dock down with them. Split them into their
+    own new `SHOW_DOCK` flag (`true`) so the harbor structure can stay up on its own — same real
+    tile-pattern texture as before (cobble quay/breakwater, the pier module for piers), nothing
+    about the harbor's own data or rendering touched, purely which flag gates it. `SHOW_STREETS`
+    itself now covers only the plain road/path network and its junction patches, ready to flip back
+    on by itself later without dragging the dock along with it again.
+
+    Deliberately did not re-derive or second-guess the 1.6x scale from item 213 while doing this —
+    the whole point of clearing buildings/roads away is to let the island's own coastline and the
+    dock's own proportions be judged without anything else competing for attention; changing the
+    number again before that judgment happens would just be guessing twice. The island shape and
+    every harbor fixture are exactly as item 213 left them.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified live with `expo start --web` +
+    headless Playwright: home port now shows only grass/coastline and a real textured quay + piers
+    reaching into the water, no buildings, no street tiles anywhere. Screenshots sent directly to
+    the user, not filed here.

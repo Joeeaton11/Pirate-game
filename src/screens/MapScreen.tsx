@@ -289,16 +289,11 @@ const BUILDING_LABEL_SIZE = BUILDING_COLLISION_RADIUS * 2;
 const SHOW_GARDENS = false;
 // Was disabled 2026-08-14 per direct feedback: the building sprites were cut/placed badly enough
 // (wrong scale, wrong offsets relative to the street grid) to need a real re-pass, and they were
-// making it hard to judge the street/road layout on its own.
-//
-// Flipped back on 2026-09-10, second layer of the "rebuild in layers" plan started with
-// SHOW_STREETS above — but per direct request, not with the old (broken) sprite art: "Rather than
-// adding the sprites of the buildings, just put highlighted boxes with a name in the box of the
-// building, make the boxes the correct size and positioning the would be." So this now renders
-// every building's real footprint/position as a labeled placeholder box (see
-// `buildingBoxPlaceholder`/`buildingBoxLabel` styles) instead of art — same pure render-time
-// pattern as ever, nothing about building data, collision, or walk-up "Enter?" prompts changed.
-const SHOW_BUILDINGS = true;
+// making it hard to judge the street/road layout on its own. Briefly flipped back on 2026-09-10 as
+// labeled placeholder boxes (item 210), then off again below — "I want the island the correct
+// size and dimensions first... Remove all buildings and roads for now" — so buildings, real art or
+// placeholder boxes alike, are off again while the island shape/dock get checked in isolation.
+const SHOW_BUILDINGS = false;
 // Disabled 2026-08-14, same request as SHOW_BUILDINGS above but taken further: "remove everything
 // that isn't the ground" — so the street/road network itself, houses, decorative scenery/props,
 // landmarks, ambient street NPCs, and every interactive map marker (quests, resource/salvage/
@@ -308,12 +303,19 @@ const SHOW_BUILDINGS = true;
 // intent is to rebuild this up in layers (ground now, then streets/roads per the standing request,
 // then everything else) by flipping these back on one at a time rather than all at once.
 //
-// SHOW_STREETS flipped back on 2026-08-14, first layer of that rebuild: "add only the roads and
-// paths. Skin them using the sprites and tiles" — every one of STREETS/PIERS/QUAYS/BREAKWATER now
-// renders with a real tile-pattern stroke (cobble for paved streets/quay/breakwater, sand standing
-// in for dirt 'path' tracks, wood for piers) instead of the old flat stroke colors — see the
-// GAME_DESIGN.md entry for this pass for the exact per-category mapping.
-const SHOW_STREETS = true; // STREETS, PIERS, QUAYS, BREAKWATER
+// SHOW_STREETS flipped back on 2026-08-14 as one flag covering STREETS/PIERS/QUAYS/BREAKWATER
+// together (roads AND the dock), then off again 2026-09-11 alongside SHOW_BUILDINGS above — but
+// per that same request, the DOCK specifically should stay visible while roads and buildings come
+// off ("build out the island and the dock to the correct dimensions and scale"), so PIERS/QUAYS/
+// BREAKWATER were split out into their own `SHOW_DOCK` flag below rather than staying bundled in
+// here. SHOW_STREETS itself now covers only the plain road/path network + its junction patches.
+const SHOW_STREETS = false;
+// Split out of SHOW_STREETS above 2026-09-11 so the harbor/dock structure — piers, the stone quay,
+// the breakwater — can stay visible on its own while roads and buildings are off, per direct
+// request to nail down "the island and the dock" first, in isolation. Same real tile-pattern
+// texture as before (cobble for the quay/breakwater, the pier module for piers), nothing about the
+// harbor's own data or rendering changed, just which flag gates it.
+const SHOW_DOCK = true; // PIERS, QUAYS, BREAKWATER
 const SHOW_HOUSES = false;
 const SHOW_SCENERY = false; // SCENERY (trees/rocks), PROPS, decorative DOCKED_BOATS/OFFSHORE_SHIPS
 const SHOW_LANDMARKS = false;
@@ -2263,7 +2265,7 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
 
-              {SHOW_STREETS &&
+              {SHOW_DOCK &&
                 PIERS.map((pier, i) => {
                 const islandPos = ISLANDS[pier.islandId].position;
                 const x1 = islandPos.x + pier.from.x;
@@ -2301,7 +2303,7 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
 
-              {SHOW_STREETS &&
+              {SHOW_DOCK &&
                 QUAYS.map((quay, i) => {
                 const islandPos = ISLANDS[quay.islandId].position;
                 const x1 = islandPos.x + quay.from.x;
@@ -2320,7 +2322,7 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
 
-              {SHOW_STREETS &&
+              {SHOW_DOCK &&
                 BREAKWATER.map((arm, i) => {
                 const islandPos = ISLANDS[arm.islandId].position;
                 const x1 = islandPos.x + arm.from.x;
