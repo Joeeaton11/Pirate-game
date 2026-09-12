@@ -7321,3 +7321,61 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     instead of touching it, and the live game's own simple 30-unit box check (`MapScreen.tsx` still
     renders plain boxes) also stays at zero overlaps with the new positions. Screenshots + an
     updated full JSON export sent directly to the user, not filed here.
+
+216. ✅ **Tortuga's coastline replaced with a real digital trace of the reference blueprint's own
+    outline** (2026-09-12). Direct follow-up to item 215: after re-sharing the reference blueprint,
+    "It's not the island I want. It's not even the same shape! I want an exact digital replica of
+    this island with the buildings in the correct place." Two prior turns this session had already
+    checked orientation and zone density against the same complaint and ruled both out; this time
+    the actual polygon itself — `TORTUGA_SHAPE` in `islands.ts` — was never anything more than an
+    organic hand-authored blob. It was never traced from the image at all.
+
+    Built a real image-processing pipeline (`scikit-image` + `scipy.ndimage` + PIL/numpy) against
+    the blueprint file directly: classify land vs. water per-pixel (`water = (b > r+15) & (b > 90)`),
+    fill enclosed holes, then run a morphological opening (`disk(9)`) before connected-component
+    labeling — without it, the piers and breakwater bridge across the harbor mouth and weld the
+    open bay shut as "land." Picked the largest component, dilated it back out to restore the true
+    coastline (the opening alone shaves the edges down), padded the mask 6px on every side before
+    contour tracing so the crop's own artificial border never gets treated as coastline (an earlier
+    pass without the pad produced a spurious straight chord slicing across the harbor — the mask
+    was touching the crop edge), then simplified the traced contour with Douglas-Peucker
+    (`approximate_polygon`) down to 42 points. Confirmed the image's row-increases-downward axis
+    needs no flip against the game's own +Y-is-south convention (the traced harbor bay landed at
+    negative Y, matching every existing harbor fixture in `harbor.ts`). Scaled the traced pixel
+    shape into world units to fit the same footprint the item-213 rescale had already verified safe,
+    and replaced `TORTUGA_SHAPE` outright.
+
+    Did attempt to also pull individual building positions straight from the image's own building
+    icons, the other half of "buildings in the correct place" — sampled pixel colors inside a dense
+    building cluster and found no clean, distinguishable "building grey" the way the legend's own
+    icon swatch has; real building blocks in the packed town-core art are a scattershot of warm
+    tans and browns indistinguishable from roofing/street color by threshold alone. Concluded
+    per-building blob extraction isn't reliably achievable from this image and didn't force it —
+    the 45 real buildings keep the positions item 215 already gave them (correct at the zone/
+    district level, not pixel-matched to specific unlabeled blobs in the picture).
+
+    Swapping the polygon meant checking every real entity that used to sit safely inside the old
+    shape still does against the new one: only 1 of 45 buildings ("The Sailmaker's Loft") and 7 of
+    111 houses fell outside, all nudged back in by the smallest amount that clears the new edge
+    with margin (real fix, via the same TS-compiler-API surgical-edit technique used all session).
+    Of 15 landmarks, 7 landed outside the new coastline; measured actual distance for each rather
+    than fixing on sight — 6 were 27.5-48.4 units out, an "offshore/coastal" range consistent with
+    how several of them were already documented (Contrebandiers' Cove and The Marked Palm both
+    already noted in `landmarks.ts` as deliberate artistic additions "not part of the traced
+    polygon"), so left alone. Only "Wreck of the Bonne Espérance" was a real outlier at 192.4 units
+    out to sea and got moved to ~45 units offshore, same direction, matching how the other wrecks
+    already sit just off the coast rather than far out in open water. The 28 street endpoints that
+    landed outside (max 48.3 units) were left untouched on the same precedent `streets.ts` already
+    documents for New Providence's own fractionally-outside endpoints: decorative only, an accepted
+    quirk, not something every shape change should chase down.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Re-verified live in the debug map at full
+    zoom-out: the traced silhouette now visibly matches the blueprint's own outline — the harbor
+    bay notch, the wide west headland, the long east arm out to High Woods' point, and the southern
+    tail down through Graveyard Fields to Ruins/Old Landing all read correctly against the source
+    image. Did not re-run the live `expo start --web` game screen for this pass — the debug map
+    draws the exact same `TORTUGA_SHAPE` polygon from the same `islands.ts`, so it's the same
+    verification; every building/street/house render flag is still off from item 214 regardless.
+    Street-network re-tracing (skeletonizing the road color out of the image) was not attempted —
+    a much harder, riskier extraction than a single coastline contour, and not something to start
+    without the user confirming this coastline pass actually solved the complaint first.

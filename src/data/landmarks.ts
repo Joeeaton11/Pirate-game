@@ -103,7 +103,9 @@ export const LANDMARKS: Landmark[] = [
     // a ship that tried to run the fort's guns and lost. Purely invented.
     id: 'tortuga_wreck_bonne_esperance',
     islandId: 'tortuga_cove',
-    offset: { x: 720, y: -560 },
+    // Nudged 2026-09-12 to sit just offshore of the new traced coastline (islands.ts) rather than
+    // ~190 units out to sea — same real-world direction from the coast, just closer to it.
+    offset: { x: 591, y: -490 },
     name: 'Wreck of the Bonne Espérance',
     emoji: '💥',
     description:

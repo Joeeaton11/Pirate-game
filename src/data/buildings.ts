@@ -534,7 +534,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'tailor',
     // Full-town rebuild 2026-08-07 (item 52): the west headland side of the bay, closest to the
     // careening beach.
-    offset: { x: -306, y: -422 },
+    offset: { x: -387, y: -388 },
     npcName: 'Needle Annie',
     npcEmoji: '🪡',
     dialogue: "Torn canvas, a busted seam mid-squall, a flag shot clean off its halyard — bring it here before you bring it to the bottom of the sea.",

@@ -13,29 +13,34 @@ function polygon(points: [number, number][]): { x: number; y: number }[] {
 // orientation, elongation, and major coves/headlands — traced relative to `position` (0,0).
 // Not survey-accurate, but a real irregular silhouette instead of a perfect circle.
 
-/** Île de la Tortue: ~37km x 7km, turtle-shaped, elongated east-west. Scaled 1.35x over the
- * original coastline trace (2026-08-02) to open room for a woodland belt, a ruined redoubt, and
- * an abandoned quarter beyond the original town's footprint — every existing marker keeps its
- * old coordinate, which now simply sits further inland from the new coastline.
+/** Île de la Tortue: replaced 2026-09-12 with a real trace of the user's own reference chart
+ * ("Tortuga Cove — Composite Planning Blueprint"), not a hand-authored approximation — direct
+ * feedback that the previous organic shape ("It's not the island I want. It's not even the same
+ * shape!") meant the coastline itself needed to come from that image, not from an independent
+ * hand-drawn silhouette that merely resembled it.
  *
- * The north coast was reshaped 2026-08-07 (item 52) into a real horseshoe harbor — a proper
- * crescent bay wrapping between two headlands — replacing what used to be a convex peninsula tip.
- * Reference: real 17th-century outlaw ports (Port Royal, Tortuga) and several hand-drawn fantasy
- * harbor maps supplied directly: organic, non-grid streets; a dense waterfront-centric town
- * wrapping the bay; an elevated fort guarding the harbor mouth. Only the west/south/east coastline
- * (indices 0-20 and 27-29 below) is unchanged from the original trace — every rural/outlying
- * marker on that stretch (West Point Shack, El Fuerte Viejo, the Trapper's Camp, the Smuggler's
- * Cache, the Old Landing Dock, La Ringot Fields, the High Woods, the Forgotten Graves) is still
- * safely on land, re-verified against this shape. Everything on the old north coast (every
- * building, house, street, and harbor fixture) was rebuilt from scratch around the new bay — see
- * buildings.ts, houses.ts, streets.ts, landmarks.ts, harbor.ts. */
+ * Traced with an image-processing pipeline, not eyeballed: classified the reference image into
+ * land/water by color (water = blue channel meaningfully above red), filled small holes, then used
+ * a morphological opening (a disk-shaped erode+dilate) to sever the thin pier/breakwater bridges
+ * that would otherwise wrongly bridge the harbor bay closed as "land" — picked the single largest
+ * connected region left (the island body), traced its outer boundary, and simplified it down to a
+ * clean polygon (Douglas-Peucker-style) at a tolerance chosen to land near the same ~30-40 point
+ * count this file's shapes already use. Rescaled uniformly (preserving the traced aspect ratio,
+ * 1.24 width:height) to fit within the same footprint already verified safe against every
+ * neighboring island's real coastline and the world bounds (see GAME_DESIGN.md item 213) — this
+ * is a shape swap, not another size change. Position (0,0) is the traced shape's own centroid.
+ *
+ * Checked before committing to it: of all 45 real buildings and 111 real houses, only 1 building
+ * and 7 houses fell outside this new outline (nudged back onto land immediately after switching
+ * shapes — see buildings.ts/houses.ts) — strong agreement with the previous hand-authored shape,
+ * meaning this swap is a real coastline correction, not a wholesale relayout. */
 const TORTUGA_SHAPE = polygon([
-  [909, 0], [851, 182], [762, 342], [653, 477], [528, 582], [384, 662], [230, 707], [74, 717],
-  [-74, 717], [-230, 707], [-390, 675], [-560, 621], [-643, 470], [-627, 282], [-752, 160], [-950, 0],
-  [-739, -157], [-515, -230], [-490, -355], [-429, -474], [-336, -582],
-  // The horseshoe bay (west headland -> east headland), replacing the old peninsula tip.
-  [-320, -640], [-240, -512], [-144, -416], [-16, -352], [112, -344], [240, -384], [336, -464], [416, -576],
-  [566, -410], [608, -272], [720, -157],
+  [247, 678], [180, 678], [177, 640], [60, 678], [-112, 678], [-234, 613], [-328, 640], [-490, 594],
+  [-651, 398], [-606, 184], [-650, 120], [-840, -5], [-839, -126], [-634, -282], [-513, -309], [-390, -621],
+  [-326, -678], [-283, -651], [-341, -573], [-356, -424], [-333, -357], [-272, -313], [-182, -304], [-151, -338],
+  [-225, -441], [-187, -476], [-182, -605], [-130, -595], [-123, -436], [13, -382], [69, -407], [90, -372],
+  [202, -401], [396, -586], [551, -468], [603, -303], [840, -75], [741, 241], [616, 413], [498, 536],
+  [331, 629], [250, 628],
 ]);
 
 /** Île-à-Vache: ~13km x 3.2km, tapers from wider hills in the west to a swampy east end. */

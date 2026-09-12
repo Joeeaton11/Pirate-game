@@ -27,7 +27,7 @@ export interface House {
 export const HOUSES: House[] = [
   // Dense organic house scatter wrapping the horseshoe bay, west headland to east headland —
   // Poisson-disc-style sampling rather than row-lined streets (95 houses).
-  { islandId: 'tortuga_cove', offset: { x: -269, y: -346 } },
+  { islandId: 'tortuga_cove', offset: { x: -302, y: -296 } },
   { islandId: 'tortuga_cove', offset: { x: 230, y: -307 } },
   { islandId: 'tortuga_cove', offset: { x: -77, y: -307 } },
   { islandId: 'tortuga_cove', offset: { x: -230, y: -77 } },
@@ -40,11 +40,11 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: -230, y: -115 } },
   { islandId: 'tortuga_cove', offset: { x: -269, y: -115 } },
   { islandId: 'tortuga_cove', offset: { x: 576, y: -307 } },
-  { islandId: 'tortuga_cove', offset: { x: -307, y: -384 } },
+  { islandId: 'tortuga_cove', offset: { x: -366, y: -360 } },
   { islandId: 'tortuga_cove', offset: { x: -77, y: -38 } },
   { islandId: 'tortuga_cove', offset: { x: 154, y: -269 } },
   { islandId: 'tortuga_cove', offset: { x: -38, y: -307 } },
-  { islandId: 'tortuga_cove', offset: { x: -230, y: -422 } },
+  { islandId: 'tortuga_cove', offset: { x: -179, y: -432 } },
   { islandId: 'tortuga_cove', offset: { x: 192, y: -38 } },
   { islandId: 'tortuga_cove', offset: { x: 230, y: -77 } },
   { islandId: 'tortuga_cove', offset: { x: -154, y: -77 } },
@@ -56,7 +56,7 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: 538, y: -192 } },
   { islandId: 'tortuga_cove', offset: { x: 115, y: -269 } },
   { islandId: 'tortuga_cove', offset: { x: -154, y: -269 } },
-  { islandId: 'tortuga_cove', offset: { x: -269, y: -461 } },
+  { islandId: 'tortuga_cove', offset: { x: -175, y: -442 } },
   { islandId: 'tortuga_cove', offset: { x: 346, y: -422 } },
   { islandId: 'tortuga_cove', offset: { x: 384, y: -154 } },
   { islandId: 'tortuga_cove', offset: { x: -384, y: -230 } },
@@ -81,7 +81,7 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: -77, y: -192 } },
   { islandId: 'tortuga_cove', offset: { x: 384, y: -307 } },
   { islandId: 'tortuga_cove', offset: { x: 230, y: -346 } },
-  { islandId: 'tortuga_cove', offset: { x: -230, y: -461 } },
+  { islandId: 'tortuga_cove', offset: { x: -178, y: -440 } },
   { islandId: 'tortuga_cove', offset: { x: -461, y: -346 } },
   { islandId: 'tortuga_cove', offset: { x: 614, y: -230 } },
   { islandId: 'tortuga_cove', offset: { x: -346, y: -115 } },
@@ -96,7 +96,7 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: -346, y: -154 } },
   { islandId: 'tortuga_cove', offset: { x: -77, y: -115 } },
   { islandId: 'tortuga_cove', offset: { x: -77, y: -154 } },
-  { islandId: 'tortuga_cove', offset: { x: -230, y: -384 } },
+  { islandId: 'tortuga_cove', offset: { x: -173, y: -422 } },
   { islandId: 'tortuga_cove', offset: { x: 307, y: -269 } },
   { islandId: 'tortuga_cove', offset: { x: 154, y: -346 } },
   { islandId: 'tortuga_cove', offset: { x: 346, y: -77 } },
@@ -131,7 +131,7 @@ export const HOUSES: House[] = [
   { islandId: 'tortuga_cove', offset: { x: 384, y: 576 } }, // near the Old Landing Dock
   { islandId: 'tortuga_cove', offset: { x: 538, y: 346 } }, // near La Ringot Fields
   { islandId: 'tortuga_cove', offset: { x: 768, y: -77 } }, // near the High Woods
-  { islandId: 'tortuga_cove', offset: { x: -192, y: 653 } }, // near the Forgotten Graves
+  { islandId: 'tortuga_cove', offset: { x: -183, y: 606 } }, // near the Forgotten Graves
 
   // Detached Row ("add everything" pass, 2026-08-13): nine houses evenly spaced along a straight
   // street south of the packed harbor core, per Blueprint Sheet 3 — a later, tidier addition to
