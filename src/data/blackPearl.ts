@@ -13,7 +13,7 @@ export const BLACK_PEARL_ISLAND_ID = 'tortuga_cove';
 // islands.ts's PIER_WALK_RADIUS), so walking to the end of the jetty is enough to board her.
 // Moved 2026-08-14 to match PIERS[0]'s new straightened (due-vertical) tip — same ~19-unit
 // extension past the tip, now purely north instead of along the old diagonal.
-export const BLACK_PEARL_START_OFFSET = { x: -234, y: -734 };
+export const BLACK_PEARL_START_OFFSET = { x: -168, y: -528 };
 export const BLACK_PEARL_EMOJI = '🚢';
 export const BLACK_PEARL_FLAG_EMOJI = '🏴‍☠️';
 

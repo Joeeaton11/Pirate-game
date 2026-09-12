@@ -14,33 +14,44 @@ function polygon(points: [number, number][]): { x: number; y: number }[] {
 // Not survey-accurate, but a real irregular silhouette instead of a perfect circle.
 
 /** Île de la Tortue: replaced 2026-09-12 with a real trace of the user's own reference chart
- * ("Tortuga Cove — Composite Planning Blueprint"), not a hand-authored approximation — direct
- * feedback that the previous organic shape ("It's not the island I want. It's not even the same
- * shape!") meant the coastline itself needed to come from that image, not from an independent
- * hand-drawn silhouette that merely resembled it.
+ * ("Tortuga Cove — Composite Planning Blueprint"), not a hand-authored approximation, then
+ * RE-SCALED 2026-09-12 (same day, direct follow-up) once the chart turned out to carry its own
+ * authoritative world-unit scale that the first trace had missed.
  *
  * Traced with an image-processing pipeline, not eyeballed: classified the reference image into
  * land/water by color (water = blue channel meaningfully above red), filled small holes, then used
  * a morphological opening (a disk-shaped erode+dilate) to sever the thin pier/breakwater bridges
- * that would otherwise wrongly bridge the harbor bay closed as "land" — picked the single largest
- * connected region left (the island body), traced its outer boundary, and simplified it down to a
- * clean polygon (Douglas-Peucker-style) at a tolerance chosen to land near the same ~30-40 point
- * count this file's shapes already use. Rescaled uniformly (preserving the traced aspect ratio,
- * 1.24 width:height) to fit within the same footprint already verified safe against every
- * neighboring island's real coastline and the world bounds (see GAME_DESIGN.md item 213) — this
- * is a shape swap, not another size change. Position (0,0) is the traced shape's own centroid.
+ * that would otherwise wrongly bridge the harbor bay closed as "land", and explicitly masked out
+ * the Old Dock pier icon at the south tip (a real dock structure, not coastline, that the same
+ * warm color threshold otherwise fuses onto the shore) — picked the single largest connected
+ * region left, traced its outer boundary, and simplified it down to a clean polygon
+ * (Douglas-Peucker-style, ~40-50 points).
  *
- * Checked before committing to it: of all 45 real buildings and 111 real houses, only 1 building
- * and 7 houses fell outside this new outline (nudged back onto land immediately after switching
- * shapes — see buildings.ts/houses.ts) — strong agreement with the previous hand-authored shape,
- * meaning this swap is a real coastline correction, not a wholesale relayout. */
+ * The scale: a later reference sheet the user shared for one chunk ("F05 — Anchor & Forge") is
+ * headed `GRID: 12 x 10 | CELL: 97 x 93 WORLD UNITS` — the same A-L / 01-10 grid the master
+ * blueprint's own corner key already labels its columns/rows with. That ties the blueprint
+ * directly to this file's own coordinate system: measuring the master image's column/row label
+ * spacing (83.55px/column, 80.17px/row — their ratio matches the stated 97:93 cell aspect to
+ * within 0.1%, confirming the reading) gives a real px-to-world-unit conversion, independent of
+ * any "does this look about right" guess. Re-measuring the traced coastline through that
+ * conversion gave a real island size of ~1170 x ~1008 world units — the first trace above
+ * (scaled instead to fit a previously-verified-safe footprint, see the item-213 history this
+ * comment used to hold) had come out 1680 x 1356, i.e. 44%/35% too big on x/y. Every other real
+ * Tortuga-relative coordinate in the game (buildings, houses, landmarks, streets/junctions,
+ * harbor piers/quays/breakwater/boats, props, scenery, resources, Blackfin/rescue/side-quest/
+ * street-NPC/treasure locations) was rescaled by the same factor (0.7199, the average of the
+ * measured x/y correction) so the whole town shrinks together rather than this shape alone —
+ * building/house/NPC footprint SIZES themselves (BUILDING_LABEL_SIZE etc., MapScreen.tsx) were
+ * deliberately left untouched, since the user's own read was "the size of these buildings feels
+ * good" — only their spacing needed to close up to match the correctly-sized island. See
+ * GAME_DESIGN.md item 217. Position (0,0) is the traced shape's own bounding-box center. */
 const TORTUGA_SHAPE = polygon([
-  [247, 678], [180, 678], [177, 640], [60, 678], [-112, 678], [-234, 613], [-328, 640], [-490, 594],
-  [-651, 398], [-606, 184], [-650, 120], [-840, -5], [-839, -126], [-634, -282], [-513, -309], [-390, -621],
-  [-326, -678], [-283, -651], [-341, -573], [-356, -424], [-333, -357], [-272, -313], [-182, -304], [-151, -338],
-  [-225, -441], [-187, -476], [-182, -605], [-130, -595], [-123, -436], [13, -382], [69, -407], [90, -372],
-  [202, -401], [396, -586], [551, -468], [603, -303], [840, -75], [741, 241], [616, 413], [498, 536],
-  [331, 629], [250, 628],
+  [24, 504], [-53, 491], [-166, 431], [-218, 450], [-345, 411], [-449, 285], [-425, 117], [-456, 70],
+  [-585, -27], [-585, -79], [-558, -120], [-434, -216], [-348, -241], [-330, -320], [-279, -379], [-270, -452],
+  [-211, -504], [-199, -486], [-241, -434], [-249, -321], [-168, -228], [-107, -234], [-85, -258], [-140, -334],
+  [-107, -360], [-129, -428], [-100, -459], [-76, -442], [-73, -323], [31, -298], [62, -311], [91, -280],
+  [190, -311], [216, -372], [239, -368], [262, -410], [315, -432], [413, -353], [453, -225], [585, -111],
+  [585, 93], [559, 165], [414, 347], [300, 414], [286, 394], [118, 394], [117, 463], [59, 473],
 ]);
 
 /** Île-à-Vache: ~13km x 3.2km, tapers from wider hills in the west to a swampy east end. */

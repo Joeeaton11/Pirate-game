@@ -7379,3 +7379,67 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     Street-network re-tracing (skeletonizing the road color out of the image) was not attempted —
     a much harder, riskier extraction than a single coastline contour, and not something to start
     without the user confirming this coastline pass actually solved the complaint first.
+
+217. ✅ **Found the blueprint's own real scale and re-sized the entire real town to match it**
+    (2026-09-12). Direct same-day follow-up to item 216: "I'm sure at some [point] we agreed how
+    big the island was going to be... using these images as a reference, determin[e] how big the
+    island will be." The user shared a later reference sheet for one chunk, "F05 — Anchor & Forge,"
+    headed `GRID: 12 x 10 | CELL: 97 x 93 WORLD UNITS` — the same A-L / 01-10 grid the master
+    blueprint's own corner key already prints its column/row labels against. That's a real,
+    load-bearing fact this file had never used: the blueprint has its own explicit conversion
+    from image space into THIS game's own world-unit coordinate system.
+
+    Measured it directly rather than trusting the label alone: found the pixel centers of the
+    master image's own "A".."L" and "01".."10" glyphs (dark-ink threshold on the parchment
+    background, clustered), giving 83.55px/column and 80.17px/row. Their ratio (1.042) matches the
+    stated 97:93 cell aspect (1.043) to within 0.1% — strong independent confirmation this is the
+    right reading, not a coincidence of two unrelated numbers. That gives a real px→world-unit
+    factor (~1.16 units/px, both axes) with no guessing involved.
+
+    Re-traced the coastline through that conversion (same image-processing approach as item 216,
+    plus one more fix: the Old Dock pier icon at the south tip kept fusing onto the coastline by
+    color, same as the north piers already handled — masked it out explicitly before contouring,
+    which also caught a real clipping bug in item 216's own crop box that had cut the southern
+    peninsula off short). Measuring the real island through the confirmed scale gave ~1170 x ~1008
+    world units — item 216's shape, scaled instead to "fit a previously-verified-safe footprint,"
+    had come out 1680 x 1356: 44%/35% too big on x/y. The island was never wrong in silhouette
+    (item 216 fixed that); it was wrong in absolute size, and now there's a real number to check
+    it against instead of a feeling.
+
+    Rescaling the shape alone would have left every building/street/house exactly where it was —
+    scattered across an island now a third smaller, most of them stranded in open water. Every
+    other real Tortuga-relative coordinate in the game got rescaled by the same factor (0.7199,
+    the average of the measured x/y correction): `buildings.ts`, `houses.ts`, `landmarks.ts`,
+    `streets.ts`/junctions, `harbor.ts` (piers/quays/breakwater/boats), `props.ts`, `scenery.ts`,
+    `resources.ts`, `blackfin.ts`, `rescue.ts`, `sideQuests.ts`, `streetNpcs.ts`, `treasures.ts`,
+    and `blackPearl.ts`'s start offset (2208 coordinate values total) — done with a generic
+    TS-compiler-API script that finds every object literal carrying an `islandId: 'tortuga_cove'`
+    sibling anywhere in the file and rescales just the `x`/`y` (or `x1`/`y1`/`x2`/`y2`) numbers
+    inside it, leaving every other island's entries in the same shared files untouched. Building/
+    house/NPC footprint SIZES were deliberately left alone (`BUILDING_LABEL_SIZE` etc. in
+    MapScreen.tsx weren't touched) — direct feedback this same turn was "the size of these
+    buildings feels good" — only their spacing needed to close up to fit the correctly-sized
+    island, not the buildings themselves.
+
+    Shrinking positions while keeping footprints fixed-size predictably created new problems a
+    pure rescale can't: 6 building-building/building-house pairs and 13 house-house pairs that
+    used to have enough clearance no longer did, and 18 entities (2 buildings, 7 houses, 9
+    landmarks) that used to sit safely inside the coastline now fell outside a shape 30-40%
+    smaller. Fixed with an iterative pairwise-repulsion solver (push overlapping pairs apart along
+    their connecting line, re-clamp anything pushed outside the coastline back onto land, repeat to
+    convergence) for the buildings/houses, and a smaller directed nudge (move outside landmarks
+    back toward the nearest edge point, stopping at a reasonable "just offshore" distance rather
+    than forcing them fully inland) for the 4 landmarks that came out worst (Wreck of the Santa
+    Catalina, The Smugglers' Grotto, Contrebandiers' Cove, Turtle Cove — all previously-documented
+    intentionally-coastal features); the other 5 landmarks were already inside the same
+    2.5-23.3-unit range this project already treats as an accepted "just offshore" quirk (see item
+    216's own precedent), so left alone. Also caught and fixed 2 quay endpoints that fell outside
+    by the same shrink.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Re-verified from scratch after every fix:
+    zero building-building, building-house, and house-house violations across all 156 movable
+    entities; zero quay/pier placement errors; the 9 remaining outside-the-polygon landmarks all
+    within the same tolerance range the project already accepts elsewhere. Re-verified live in the
+    debug map: the whole town now reads as a tighter, denser settlement inside a visibly smaller
+    coastline, with the same building spacing/readability as before the rescale — screenshots sent
+    directly to the user, not filed here.
