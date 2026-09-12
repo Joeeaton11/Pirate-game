@@ -59,6 +59,21 @@ export const PIERS: PierSegment[] = [
   // L-head on the east pier (by the chapel): the spur above ends at (205,-439); this one bends
   // just one way, away from the harbor's other piers, so it doesn't crowd pier 2's tip.
   { islandId: 'tortuga_cove', from: { x: 236, y: -505 }, to: { x: 305, y: -505 } },
+  // Missed docks, added 2026-09-12 (GAME_DESIGN.md item 218) — direct feedback: "you've missed
+  // the north and south docks." Two real structures the reference blueprint shows that the
+  // original Shapely rebuild never picked up: a long boardwalk climbing the west headland up
+  // toward the Lighthouse (distinct from pier 1 — it starts on the headland's own coastal path,
+  // not the quay, and reaches a good deal further north), and the "Old Dock / Old Landing"
+  // jetty at the island's south tip, which had no pier/quay data at all before this, only the
+  // one building marker. Both traced the same way as the coastline itself: isolate the
+  // structure's own warm-wood pixels against the water, follow its centerline out from shore.
+  { islandId: 'tortuga_cove', from: { x: -283, y: -321 }, to: { x: -255, y: -425 } },
+  { islandId: 'tortuga_cove', from: { x: -255, y: -425 }, to: { x: -209, y: -512 } },
+  // Old Dock / Old Landing: a bent jetty reaching south off the ruins, with its own short
+  // crossbar near the tip (same "wraps around" convention as the T/L-heads above).
+  { islandId: 'tortuga_cove', from: { x: 147, y: 402 }, to: { x: 179, y: 454 } },
+  { islandId: 'tortuga_cove', from: { x: 179, y: 454 }, to: { x: 165, y: 509 } },
+  { islandId: 'tortuga_cove', from: { x: 179, y: 454 }, to: { x: 208, y: 472 } },
 ];
 
 /** A built stone quay along the natural curve of the new horseshoe bay's coastline — rendered
@@ -101,6 +116,10 @@ export const DOCKED_BOATS: HarborBoat[] = [
   // Rowboats tied up directly against the quay wall, not off a pier tip.
   { islandId: 'tortuga_cove', offset: { x: -100, y: -323 }, emoji: '🚣', fontSize: 18, rotationDeg: 5 },
   { islandId: 'tortuga_cove', offset: { x: 168, y: -301 }, emoji: '🛶', fontSize: 18, rotationDeg: -10 },
+  // One at each of the two "missed docks" added 2026-09-12 (item 218) — same convention as the
+  // original four, a boat at the tip.
+  { islandId: 'tortuga_cove', offset: { x: -209, y: -512 }, emoji: '🛶', fontSize: 20, rotationDeg: -30 },
+  { islandId: 'tortuga_cove', offset: { x: 165, y: 509 }, emoji: '🚣', fontSize: 18, rotationDeg: 15 },
 ];
 
 /** Larger ships anchored further out, well clear of the piers — the harbor's real deep-water

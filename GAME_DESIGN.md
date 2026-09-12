@@ -7443,3 +7443,49 @@ is the real confirmation. Say so plainly rather than claiming a live check that 
     debug map: the whole town now reads as a tighter, denser settlement inside a visibly smaller
     coastline, with the same building spacing/readability as before the rescale — screenshots sent
     directly to the user, not filed here.
+
+218. ✅ **Debug map gained a real reference-image overlay layer; two missed dock structures added
+    to `harbor.ts`** (2026-09-12). Two direct follow-ups the same day. First: "you've used the
+    wrong island map" — checked whether a stale cached copy of the reference blueprint had been
+    used (diffed file hashes across every resend this session); found no structural difference,
+    just ordinary recompression noise, so the actual problem was that every previous check had
+    been a description ("distance outside: 23u") instead of something the user could see for
+    themselves. Fixed properly: added a toggleable "Reference Overlay" layer to the debug map that
+    places the real blueprint image at its own true position and size in world-unit space, using
+    the exact same grid-derived px-to-world conversion item 217 established — not a rough guess,
+    the same math already verified against the F05 chunk sheet. Also produced a static version for
+    direct proof: every real coordinate (coastline, buildings, houses, landmarks, streets) plotted
+    straight onto the actual blueprint image via the inverse of that same conversion, sent to the
+    user directly. The coastline traced in item 217 sits on the blueprint's own coastline the whole
+    way round; building/house markers land in their correct real districts.
+
+    Also attempted, at the same request ("redo the roads/streets in our own style"), a real
+    color-threshold trace of the street network the same way the coastline was traced. It failed
+    honestly: unlike the land/water split (a strong, consistent color gap), street-brown,
+    building-outline-brown, and forest-texture-brown are all close enough in this art style that
+    the mask picks up building edges and vegetation stipple along with actual roads — visibly
+    unusable, not a borderline call. Did not force a bad vectorization into real game data; left
+    `STREETS` as-is (still real game data, still running through the correct real zones per the
+    overlay check) and reported the failure plainly instead of guessing again.
+
+    Second follow-up: "you've missed the north and south docks." True on both counts — checked
+    against the reference and found two real dock structures with zero or wrong data: a boardwalk
+    climbing the west headland up to the Lighthouse (a distinct structure from `PIERS[0]`, starting
+    on the headland's own coastal path rather than the quay and reaching further north than any
+    existing pier), and the "Old Dock / Old Landing" jetty at the south tip, which had never had
+    any `PIERS`/`QUAYS` data at all — only the one building marker, no actual dock structure. Both
+    traced the same way as the coastline itself where the color separation allowed it (isolating
+    each structure's own warm-wood pixels against the surrounding water, following the centerline
+    out from shore) — this worked here because, unlike the street network, each pier sits alone
+    against a clean water background with nothing else nearby to contaminate the mask. Added both
+    to `harbor.ts` `PIERS` (5 new segments across the two structures, following the existing T-
+    head/L-head "bend where the real jetty bends" convention) plus a docked boat at each new tip.
+
+    `npx tsc --noEmit` and `npx jest` (45/45) both pass. Verified every new point: pier tips fall
+    outside `TORTUGA_SHAPE` (correct — a pier reaches into open water, same invariant as the
+    original four), attachment points sit at or within ~8 units of the coastline (the Old Dock
+    attachment falls in a small notch left by item 217's own pier-masking step during tracing — an
+    accepted, tiny, already-precedented tolerance, not a new problem). Re-verified live in the
+    debug map with the new Reference Overlay layer on: both new pier shapes visibly track the
+    blueprint's own jetties at the headland and the south tip. Screenshots sent directly to the
+    user, not filed here.
