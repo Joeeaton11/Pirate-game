@@ -94,7 +94,13 @@ import {
   WAVE_ANIMATION_MS,
   scallySpriteFrames,
 } from '../data/scallySprites';
-import { MONKEY_IDLE, MONKEY_WINK, MONKEY_WINK_HOLD_MS, MONKEY_WINK_INTERVAL_MS } from '../data/monkeySprites';
+import {
+  CHEEKY_WALK_FRAMES,
+  MONKEY_IDLE,
+  MONKEY_WINK,
+  MONKEY_WINK_HOLD_MS,
+  MONKEY_WINK_INTERVAL_MS,
+} from '../data/monkeySprites';
 import {
   ACCELERATE_ANIMATION_MS,
   DEPART_ANIMATION_MS,
@@ -178,6 +184,13 @@ const ZOOM = 5;
 // giving the player a genuinely small native footprint before the same ZOOM is applied to it.
 const PLAYER_SIZE = 12 * ZOOM;
 const BUILDING_SIZE = 44;
+// Cheeky follows Captain Scally on foot. Story-wise he's aboard the guarded Black Pearl until it's
+// captured (see showMonkeyOnDeck); CHEEKY_ALWAYS_FOLLOW skips that gate so he can be play-tested
+// from the start. Set it back to false once the follow behaviour is signed off.
+const CHEEKY_ALWAYS_FOLLOW = true;
+const CHEEKY_SIZE = 8; // world units (Scally is 12)
+const CHEEKY_TRAIL = 11; // world units of path Cheeky stays behind Scally
+const CHEEKY_MAX_CRUMBS = 120;
 // The Black Pearl under sail reads as a ship, not a person, so she gets a footprint closer to the
 // docked marker's (BUILDING_SIZE * 1.8) than to Captain Scally's own on-foot sprite.
 const SHIP_SPRITE_SIZE = 80;
@@ -782,7 +795,44 @@ export default function MapScreen({ navigation }: Props) {
   // Cheeky blinks every so often while perched on the docked, unboarded Black Pearl (see the ship
   // marker render below) — see monkeySprites.ts for why he lives there instead of trailing on foot.
   const [monkeyWinking, setMonkeyWinking] = useState(false);
-  const showMonkeyOnDeck = !blackPearlBoarded && !blackPearlCaptured;
+  const showMonkeyOnDeck = !blackPearlBoarded && !blackPearlCaptured && !CHEEKY_ALWAYS_FOLLOW;
+  const cheekyFollowing = !blackPearlBoarded && (blackPearlCaptured || CHEEKY_ALWAYS_FOLLOW);
+  // Breadcrumb trail of Scally's recent positions; Cheeky sits CHEEKY_TRAIL units back along it,
+  // so he follows the actual route walked (round corners, along streets) instead of cutting across.
+  const cheekyCrumbsRef = useRef<{ x: number; y: number }[]>([]);
+  const cheekyPrevRef = useRef<{ x: number; y: number } | null>(null);
+  const cheeky = (() => {
+    const crumbs = cheekyCrumbsRef.current;
+    const last = crumbs[crumbs.length - 1];
+    const jump = last ? Math.hypot(player.x - last.x, player.y - last.y) : Infinity;
+    if (jump > 40) {
+      // Fresh start or a teleport (building exit, fast travel): drop him just behind Scally.
+      cheekyCrumbsRef.current = [{ x: player.x - 8, y: player.y + 1 }, { x: player.x, y: player.y }];
+    } else if (jump > 0.5) {
+      crumbs.push({ x: player.x, y: player.y });
+      if (crumbs.length > CHEEKY_MAX_CRUMBS) crumbs.shift();
+    }
+    const trail = cheekyCrumbsRef.current;
+    let remaining = CHEEKY_TRAIL;
+    let pos = trail[trail.length - 1];
+    for (let i = trail.length - 1; i > 0; i--) {
+      const a = trail[i];
+      const b = trail[i - 1];
+      const seg = Math.hypot(a.x - b.x, a.y - b.y);
+      if (seg >= remaining) {
+        const t = remaining / seg;
+        pos = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+        remaining = 0;
+        break;
+      }
+      remaining -= seg;
+      pos = b;
+    }
+    const prev = cheekyPrevRef.current;
+    const facingLeft = prev && Math.abs(pos.x - prev.x) > 0.05 ? pos.x < prev.x : player.x < pos.x;
+    cheekyPrevRef.current = pos;
+    return { ...pos, facingLeft };
+  })();
   useEffect(() => {
     if (!showMonkeyOnDeck) return;
     const id = setInterval(() => {
@@ -2906,6 +2956,43 @@ export default function MapScreen({ navigation }: Props) {
                     style={styles.monkeyOnDeck}
                   />
                 )}
+              </View>
+            )}
+
+            {cheekyFollowing && (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: cheeky.x - CHEEKY_SIZE / 2,
+                  // Feet on the same ground line as Scally's (his box is centred on the player).
+                  top: cheeky.y + PLAYER_SIZE / ZOOM / 2 - CHEEKY_SIZE,
+                  width: CHEEKY_SIZE,
+                  height: CHEEKY_SIZE,
+                  transform: cheeky.facingLeft ? [{ scaleX: -1 }] : undefined,
+                }}
+              >
+                {/* Same opacity-toggle trick as Scally's own frames (see the "ghosting" note on the
+                    player sprite): every frame stays mounted and decoded, only one is visible. */}
+                {[...CHEEKY_WALK_FRAMES, monkeyWinking ? MONKEY_WINK : MONKEY_IDLE].map((src, i) => (
+                  <RNImage
+                    key={`cheeky-${i}`}
+                    source={src}
+                    resizeMode="contain"
+                    style={{
+                      position: 'absolute',
+                      width: CHEEKY_SIZE,
+                      height: CHEEKY_SIZE,
+                      opacity: isMoving
+                        ? i === walkSpriteFrame % CHEEKY_WALK_FRAMES.length
+                          ? 1
+                          : 0
+                        : i === CHEEKY_WALK_FRAMES.length
+                        ? 1
+                        : 0,
+                    }}
+                  />
+                ))}
               </View>
             )}
           </View>

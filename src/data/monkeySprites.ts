@@ -20,3 +20,17 @@ export const MONKEY_SLEEP = require('../../assets/sprites/scally/monkey_sleep.pn
  * the wink holds. */
 export const MONKEY_WINK_INTERVAL_MS = 4000;
 export const MONKEY_WINK_HOLD_MS = 220;
+
+/** Cheeky's on-foot walk cycle (Tortuga art pass v2, 2026-11-14): an 8-frame hop built from the
+ * existing `monkey_walk.png` pose (bounce + slight lean + landing squash), not new generated art,
+ * so it stays exactly on-model. Faces east; mirror for west. Used when Cheeky follows Scally. */
+export const CHEEKY_WALK_FRAMES = [
+  require('../../assets/sprites/scally/cheeky_walk_0.png'),
+  require('../../assets/sprites/scally/cheeky_walk_1.png'),
+  require('../../assets/sprites/scally/cheeky_walk_2.png'),
+  require('../../assets/sprites/scally/cheeky_walk_3.png'),
+  require('../../assets/sprites/scally/cheeky_walk_4.png'),
+  require('../../assets/sprites/scally/cheeky_walk_5.png'),
+  require('../../assets/sprites/scally/cheeky_walk_6.png'),
+  require('../../assets/sprites/scally/cheeky_walk_7.png'),
+];
