@@ -81,13 +81,23 @@ export const PIERS: PierSegment[] = [
  * embankment ships pull alongside, not a walkway reaching out to sea. Sits a few world units
  * inland of the true coastline so it always draws on solid ground. */
 export const QUAYS: PierSegment[] = [
-  { islandId: 'tortuga_cove', from: { x: -230, y: -454 }, to: { x: -136, y: -330 } },
-  { islandId: 'tortuga_cove', from: { x: -136, y: -330 }, to: { x: -100, y: -288 } },
-  { islandId: 'tortuga_cove', from: { x: -100, y: -288 }, to: { x: -10, y: -242 } },
-  { islandId: 'tortuga_cove', from: { x: -10, y: -242 }, to: { x: 78, y: -236 } },
-  { islandId: 'tortuga_cove', from: { x: 78, y: -236 }, to: { x: 168, y: -266 } },
-  { islandId: 'tortuga_cove', from: { x: 168, y: -266 }, to: { x: 236, y: -324 } },
-  { islandId: 'tortuga_cove', from: { x: 236, y: -324 }, to: { x: 294, y: -405 } },
+  // Tortuga Cove art pass v2 (2026-11-14): quay walls retraced to match the painted backdrop
+  // (tortugaV2.ts) — 10 world units inland of the coastline through the harbour mouth.
+  { islandId: 'tortuga_cove', from: { x: -246, y: -435.5 }, to: { x: -253.5, y: -319.5 } },
+  { islandId: 'tortuga_cove', from: { x: -253.5, y: -319.5 }, to: { x: -170.5, y: -223.5 } },
+  { islandId: 'tortuga_cove', from: { x: -170.5, y: -223.5 }, to: { x: -105.5, y: -229.5 } },
+  { islandId: 'tortuga_cove', from: { x: -105.5, y: -229.5 }, to: { x: -80.5, y: -259.5 } },
+  { islandId: 'tortuga_cove', from: { x: -80.5, y: -259.5 }, to: { x: -135, y: -335 } },
+  { islandId: 'tortuga_cove', from: { x: -135, y: -335 }, to: { x: -102, y: -359.5 } },
+  { islandId: 'tortuga_cove', from: { x: -102, y: -359.5 }, to: { x: -124, y: -427.5 } },
+  { islandId: 'tortuga_cove', from: { x: -124, y: -427.5 }, to: { x: -98.5, y: -454 } },
+  { islandId: 'tortuga_cove', from: { x: -98.5, y: -454 }, to: { x: -81, y: -441 } },
+  { islandId: 'tortuga_cove', from: { x: -81, y: -441 }, to: { x: -77, y: -320 } },
+  { islandId: 'tortuga_cove', from: { x: -77, y: -320 }, to: { x: 30.5, y: -293 } },
+  { islandId: 'tortuga_cove', from: { x: 30.5, y: -293 }, to: { x: 60.5, y: -306 } },
+  { islandId: 'tortuga_cove', from: { x: 60.5, y: -306 }, to: { x: 91, y: -275 } },
+  { islandId: 'tortuga_cove', from: { x: 91, y: -275 }, to: { x: 193, y: -307 } },
+  { islandId: 'tortuga_cove', from: { x: 193, y: -307 }, to: { x: 265, y: -406 } },
 ];
 
 /** An offshore breakwater arm sheltering the harbor basin, strung between the bay's two

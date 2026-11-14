@@ -837,6 +837,176 @@ export const BUILDINGS: Building[] = [
     npcEmoji: '🧓🏾',
     dialogue: "Older than the Signal Post, and half-fallen besides — but I still climb it most evenings, out of habit more than duty.",
   },
+  {
+    id: 'tortuga_overflow_warehouse',
+    islandId: 'tortuga_cove',
+    name: "Overflow Warehouse",
+    type: 'warehouse',
+    emoji: '📦',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: 119.0, y: -70.0 },
+    npcName: "Quartermaster Dobbs",
+    npcEmoji: '🧔‍♂️',
+    dialogue: "Whatever the main warehouse can't fit ends up here. Got cargo? I'll take it off your hands.",
+    buysResources: true,
+  },
+  {
+    id: 'tortuga_shipyard',
+    islandId: 'tortuga_cove',
+    name: "The Shipyard",
+    type: 'warehouse',
+    emoji: '⚓',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: 286.0, y: -401.0 },
+    npcName: "Master Shipwright Annick",
+    npcEmoji: '👷‍♀️',
+    dialogue: "Every hull in this harbour has passed through my slip at least once. Yours could use some love.",
+    sellsUpgrades: true,
+  },
+  {
+    id: 'tortuga_crews_lodge',
+    islandId: 'tortuga_cove',
+    name: "Crew's Lodge",
+    type: 'manor',
+    emoji: '🛏️',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: -47.5, y: -0.5 },
+    npcName: "Bosun Hale",
+    npcEmoji: '🧑‍✈️',
+    dialogue: "Sailors between ships bunk here. Find the right one and they'll follow you anywhere.",
+    recruit: { templateId: 'deckhand_swordsman', level: 3, cost: 30 },
+  },
+  {
+    id: 'tortuga_brine_barrel',
+    islandId: 'tortuga_cove',
+    name: "The Brine Barrel",
+    type: 'tavern',
+    emoji: '🛢️',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: -6.5, y: 25.5 },
+    npcName: "Barrel-Keep Maude",
+    npcEmoji: '👩‍🦰',
+    dialogue: "Yes, the whole front room is a barrel. No, you can't roll it home.",
+    recruit: { templateId: 'tavern_brawler', level: 4, cost: 45 },
+    itemsForSale: ['rum_ration', 'ships_biscuit'],
+  },
+  {
+    id: 'tortuga_cockpit',
+    islandId: 'tortuga_cove',
+    name: "The Cockpit",
+    type: 'tavern',
+    emoji: '🐓',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: -47.5, y: 22.0 },
+    npcName: "Red Rooster Jack",
+    npcEmoji: '🤠',
+    dialogue: "Loudest room in Tortuga. If you can hear yourself think, it's a slow night.",
+    recruit: { templateId: 'musketeer_marksman', level: 5, cost: 55 },
+  },
+  {
+    id: 'tortuga_wayside_tavern',
+    islandId: 'tortuga_cove',
+    name: "The Wayside Tavern",
+    type: 'tavern',
+    emoji: '🏕️',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: -215.0, y: 389.0 },
+    npcName: "Old Ma Penhallow",
+    npcEmoji: '👵',
+    dialogue: "Long road from the harbour, isn't it? Sit. Eat. The stew's mostly fish.",
+    itemsForSale: ['captains_draught', 'ships_biscuit'],
+  },
+  {
+    id: 'tortuga_quayside_trading_post',
+    islandId: 'tortuga_cove',
+    name: "Quayside Trading Post",
+    type: 'shop',
+    emoji: '🧺',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: -9.5, y: -24.0 },
+    npcName: "Trader Esmé",
+    npcEmoji: '🧕',
+    dialogue: "Spices from the east, silks from the south, and no questions about either.",
+    itemsForSale: ['rum_ration', 'treasure_map'],
+    buysResources: true,
+  },
+  {
+    id: 'tortuga_rope_and_tackle',
+    islandId: 'tortuga_cove',
+    name: "Rope & Tackle Shop",
+    type: 'shop',
+    emoji: '🪢',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: -70.0, y: -42.0 },
+    npcName: "Rigger Tobias",
+    npcEmoji: '🧑‍🔧',
+    dialogue: "A ship's only as good as her rigging. Lucky for you, mine's the best.",
+    itemsForSale: ['grapeshot_charge', 'ships_biscuit'],
+  },
+  {
+    id: 'tortuga_crossroads_shop',
+    islandId: 'tortuga_cove',
+    name: "The Crossroads Shop",
+    type: 'shop',
+    emoji: '🪧',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: -315.0, y: 372.5 },
+    npcName: "Widow Calloway",
+    npcEmoji: '👩‍🦳',
+    dialogue: "Every road on the south shore passes my door. Most travellers leave with a map.",
+    itemsForSale: ['treasure_map', 'rum_ration'],
+  },
+  {
+    id: 'tortuga_net_loft',
+    islandId: 'tortuga_cove',
+    name: "The Net Loft",
+    type: 'shop',
+    emoji: '🥅',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: -46.0, y: -126.5 },
+    npcName: "Netmaker Coralie",
+    npcEmoji: '👩',
+    dialogue: "Bring me your catch and I'll give you a fair price. Bring me a torn net and I'll fix it for free.",
+    buysResources: true,
+  },
+  {
+    id: 'tortuga_powder_and_shot',
+    islandId: 'tortuga_cove',
+    name: "Powder & Shot Merchant",
+    type: 'market',
+    emoji: '💥',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: 39.5, y: -153.5 },
+    npcName: "Powder Pete",
+    npcEmoji: '🧑‍🚒',
+    dialogue: "Keep your lantern outside, friend. Everything in here goes bang.",
+    recruit: { templateId: 'powder_monkey', level: 3, cost: 25 },
+    itemsForSale: ['grapeshot_charge'],
+  },
+  {
+    id: 'tortuga_menagerie',
+    islandId: 'tortuga_cove',
+    name: "The Menagerie",
+    type: 'market',
+    emoji: '🦜',
+    // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
+    // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
+    offset: { x: 99.5, y: -92.0 },
+    npcName: "Señora Plume",
+    npcEmoji: '💃',
+    dialogue: "Every captain needs a parrot. Well — every captain who wants to look like one.",
+  },
 ];
 
 export function buildingsForIsland(islandId: string): Building[] {
