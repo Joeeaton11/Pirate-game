@@ -33,16 +33,9 @@ import {
   BLACK_PEARL_FLAG_EMOJI,
 } from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
-import {
-  TORTUGA_TOWN_COBBLE,
-  TORTUGA_TOWN_DISTRICT,
-  TORTUGA_TOWN_REPLACED,
-  TORTUGA_TOWN_PAVING,
-  TORTUGA_TOWN_PROPS,
-  TORTUGA_TOWN_ROWS,
-  TORTUGA_TOWN_SPRITES,
-  TORTUGA_TOWN_TILE,
-} from '../data/tortugaTown';
+import { buildTownScene, renderSceneSprite } from '../town/townScene';
+import { TORTUGA_TOWN_ASSETS } from '../town/tortugaTownAssets';
+import { TORTUGA_TOWN_LAYOUT } from '../town/tortugaTownLayout';
 import { CREW_TEMPLATES } from '../data/crew';
 import {
   ISLAND_LIST,
@@ -339,37 +332,19 @@ const SHOW_TORTUGA_V2 = true;
  * (bottom edge), so nearer things overlap farther ones correctly. Static — built once. Sprites are
  * bottom-anchored on their footprint's bottom edge and drawn slightly wider than the footprint
  * (eaves/props overhang), matching how the art pass render was composed. */
-/** Town-core rebuild (2026-11-14): inside TORTUGA_TOWN_DISTRICT the old single painted buildings,
- * houses and street props give way to pixel-art terraces (see tortugaTown.ts). Only the square's
- * fountain and its palms survive from the old prop set. */
+/** Town centre (2026-11-14): data-driven scene from src/town/ (layout + asset registry). Inside the
+ * layout's clear rects the old v2 buildings, houses and props are hidden; every building the new
+ * town places is hidden from its old v2 spot too. */
+const TOWN_SCENE = buildTownScene(TORTUGA_TOWN_LAYOUT, TORTUGA_TOWN_ASSETS, ISLANDS.tortuga_cove.position);
 const inTownDistrict = (x: number, y: number) =>
-  x > TORTUGA_TOWN_DISTRICT.l && x < TORTUGA_TOWN_DISTRICT.r && y > TORTUGA_TOWN_DISTRICT.t && y < TORTUGA_TOWN_DISTRICT.b;
+  TOWN_SCENE.clear.some((r) => x > r.l && x < r.r && y > r.t && y < r.b);
 const keepOldStructure = (s: { buildingId: string | null; x: number; y: number }) =>
-  !(s.buildingId && TORTUGA_TOWN_REPLACED.has(s.buildingId)) && !inTownDistrict(s.x, s.y);
+  !(s.buildingId && TOWN_SCENE.buildingIds.has(s.buildingId)) && !inTownDistrict(s.x, s.y);
 const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict(p.x, p.y);
-const TOWN_DOORS = TORTUGA_TOWN_ROWS.flatMap((r) => r.doors);
+/** Door points (absolute world coords). */
+const TOWN_DOORS = TOWN_SCENE.doors;
 const TOWN_DOOR_RADIUS = 9;
-
-/** Tiled pixel-art cobbles over the whole town district (static, built once). */
-const TORTUGA_TOWN_GROUND = (() => {
-  const o = ISLANDS.tortuga_cove.position;
-  const t = TORTUGA_TOWN_TILE;
-  const tiles: React.ReactElement[] = [];
-  TORTUGA_TOWN_PAVING.forEach((d, i) => {
-    for (let y = d.t; y < d.b; y += t) {
-      for (let x = d.l; x < d.r; x += t) {
-        const w = Math.min(t, d.r - x);
-        const h = Math.min(t, d.b - y);
-        tiles.push(
-          <View key={`tc-${i}-${x}-${y}`} style={{ position: 'absolute', left: o.x + x, top: o.y + y, width: w + 0.3, height: h + 0.3, overflow: 'hidden' }}>
-            <RNImage source={TORTUGA_TOWN_COBBLE} resizeMode="stretch" style={{ width: t + 0.3, height: t + 0.3 }} />
-          </View>
-        );
-      }
-    }
-  });
-  return tiles;
-})();
+const TORTUGA_TOWN_GROUND = TOWN_SCENE.ground;
 
 /** Solid rectangles (world coords) for every Tortuga v2 building and house, covering the whole
  * drawn sprite (footprint plus roof). The player token always renders on top of the sprite layer,
@@ -388,13 +363,12 @@ const TORTUGA_V2_SOLID_RECTS = (() => {
     const w = s.w * 1.12;
     add(s.x, s.y + s.h / 2, w, w * (TORTUGA_V2_ASPECT[s.key] ?? 1));
   });
-  TORTUGA_TOWN_ROWS.forEach((r) => add(r.cx, r.bottom, r.w, r.h));
   TORTUGA_V2_HOUSES.forEach((h) => {
     if (inTownDistrict(h.x, h.y)) return;
     const w = h.w * 1.02;
     add(h.x, h.y + h.h / 2, w, w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1));
   });
-  return rects;
+  return rects.concat(TOWN_SCENE.solids);
 })();
 
 function slideAroundRects(
@@ -417,44 +391,37 @@ function slideAroundRects(
 
 const TORTUGA_V2_SPRITE_LAYER = (() => {
   const origin = ISLANDS.tortuga_cove.position;
-  type Item = { key: string; source: ImageSourcePropType; x: number; bottom: number; w: number; h: number; flip?: boolean };
-  const items: Item[] = [];
+  // Everything in absolute world coords, depth-sorted by ground line.
+  const items: { z: number; el: React.ReactElement }[] = [];
+  const img = (key: string, source: ImageSourcePropType, x: number, bottom: number, w: number, h: number, flip?: boolean) =>
+    items.push({
+      z: origin.y + bottom,
+      el: (
+        <RNImage
+          key={key}
+          source={source}
+          resizeMode="stretch"
+          style={{ position: 'absolute', left: origin.x + x - w / 2, top: origin.y + bottom - h, width: w, height: h, transform: flip ? [{ scaleX: -1 }] : undefined }}
+        />
+      ),
+    });
   TORTUGA_V2_STRUCTURES.forEach((s) => {
     if (!keepOldStructure(s)) return;
     const w = s.w * 1.12;
-    items.push({ key: `t2b-${s.key}`, source: TORTUGA_V2_BUILDING_SPRITES[s.key], x: s.x, bottom: s.y + s.h / 2, w, h: w * (TORTUGA_V2_ASPECT[s.key] ?? 1) });
+    img(`t2b-${s.key}`, TORTUGA_V2_BUILDING_SPRITES[s.key], s.x, s.y + s.h / 2, w, w * (TORTUGA_V2_ASPECT[s.key] ?? 1));
   });
   TORTUGA_V2_HOUSES.forEach((h, i) => {
     if (inTownDistrict(h.x, h.y)) return;
     const w = h.w * 1.02;
-    items.push({ key: `t2h-${i}`, source: TORTUGA_V2_HOUSE_SPRITES[h.variant], x: h.x, bottom: h.y + h.h / 2, w, h: w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1), flip: h.flip });
-  });
-  TORTUGA_TOWN_PROPS.forEach((p, i) => {
-    items.push({ key: `townp-${i}`, source: TORTUGA_V2_PROP_SPRITES[p.id], x: p.x, bottom: p.bottom, w: p.w, h: p.w * (TORTUGA_V2_ASPECT[`prop:${p.id}`] ?? 1) });
-  });
-  TORTUGA_TOWN_ROWS.forEach((r) => {
-    items.push({ key: `town-${r.key}`, source: TORTUGA_TOWN_SPRITES[r.key], x: r.cx, bottom: r.bottom, w: r.w, h: r.h });
+    img(`t2h-${i}`, TORTUGA_V2_HOUSE_SPRITES[h.variant], h.x, h.y + h.h / 2, w, w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1), h.flip);
   });
   TORTUGA_V2_PROPS.forEach((p, i) => {
     if (!keepOldProp(p)) return;
-    items.push({ key: `t2p-${i}`, source: TORTUGA_V2_PROP_SPRITES[p.id], x: p.x, bottom: p.y, w: p.w, h: p.w * (TORTUGA_V2_ASPECT[`prop:${p.id}`] ?? 1) });
+    img(`t2p-${i}`, TORTUGA_V2_PROP_SPRITES[p.id], p.x, p.y, p.w, p.w * (TORTUGA_V2_ASPECT[`prop:${p.id}`] ?? 1));
   });
-  items.sort((a, b) => a.bottom - b.bottom);
-  return items.map((it) => (
-    <RNImage
-      key={it.key}
-      source={it.source}
-      resizeMode="stretch"
-      style={{
-        position: 'absolute',
-        left: origin.x + it.x - it.w / 2,
-        top: origin.y + it.bottom - it.h,
-        width: it.w,
-        height: it.h,
-        transform: it.flip ? [{ scaleX: -1 }] : undefined,
-      }}
-    />
-  ));
+  TOWN_SCENE.sprites.forEach((sp) => items.push({ z: sp.z, el: renderSceneSprite(sp) }));
+  items.sort((a, b) => a.z - b.z);
+  return items.map((it) => it.el);
 })();
 // Disabled 2026-08-14, same request as SHOW_BUILDINGS above but taken further: "remove everything
 // that isn't the ground" — so the street/road network itself, houses, decorative scenery/props,
@@ -1828,10 +1795,9 @@ export default function MapScreen({ navigation }: Props) {
         if (!nearbyBuilding && SHOW_TORTUGA_V2 && nextIsland.id === 'tortuga_cove') {
           // Town-core terraces: nearest door within reach (doors sit ~28 units apart, so the
           // nearest-door rule picks the facade Scally is actually standing in front of).
-          const o = nextIsland.position;
           let best: { id: string; d: number } | null = null;
           for (const door of TOWN_DOORS) {
-            const d = Math.hypot(nextPosition.x - (o.x + door.x), nextPosition.y - (o.y + door.y));
+            const d = Math.hypot(nextPosition.x - door.x, nextPosition.y - door.y);
             if (d <= TOWN_DOOR_RADIUS && (!best || d < best.d)) best = { id: door.id, d };
           }
           if (best) nearbyBuilding = BUILDINGS.find((b) => b.id === best!.id);
