@@ -37,6 +37,8 @@ import {
   TORTUGA_TOWN_COBBLE,
   TORTUGA_TOWN_DISTRICT,
   TORTUGA_TOWN_REPLACED,
+  TORTUGA_TOWN_PAVING,
+  TORTUGA_TOWN_PROPS,
   TORTUGA_TOWN_ROWS,
   TORTUGA_TOWN_SPRITES,
   TORTUGA_TOWN_TILE,
@@ -344,29 +346,28 @@ const inTownDistrict = (x: number, y: number) =>
   x > TORTUGA_TOWN_DISTRICT.l && x < TORTUGA_TOWN_DISTRICT.r && y > TORTUGA_TOWN_DISTRICT.t && y < TORTUGA_TOWN_DISTRICT.b;
 const keepOldStructure = (s: { buildingId: string | null; x: number; y: number }) =>
   !(s.buildingId && TORTUGA_TOWN_REPLACED.has(s.buildingId)) && !inTownDistrict(s.x, s.y);
-const keepOldProp = (p: { id: string; x: number; y: number }) =>
-  !inTownDistrict(p.x, p.y) || ((p.id === 'fountain' || p.id.startsWith('palm')) && Math.abs(p.x) < 50 && p.y > -150 && p.y < -50);
+const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict(p.x, p.y);
 const TOWN_DOORS = TORTUGA_TOWN_ROWS.flatMap((r) => r.doors);
 const TOWN_DOOR_RADIUS = 9;
 
 /** Tiled pixel-art cobbles over the whole town district (static, built once). */
 const TORTUGA_TOWN_GROUND = (() => {
   const o = ISLANDS.tortuga_cove.position;
-  const d = TORTUGA_TOWN_DISTRICT;
   const t = TORTUGA_TOWN_TILE;
   const tiles: React.ReactElement[] = [];
-  for (let y = d.t; y < d.b; y += t) {
-    for (let x = d.l; x < d.r; x += t) {
-      tiles.push(
-        <RNImage
-          key={`tc-${x}-${y}`}
-          source={TORTUGA_TOWN_COBBLE}
-          resizeMode="stretch"
-          style={{ position: 'absolute', left: o.x + x, top: o.y + y, width: Math.min(t, d.r - x) + 0.3, height: Math.min(t, d.b - y) + 0.3 }}
-        />
-      );
+  TORTUGA_TOWN_PAVING.forEach((d, i) => {
+    for (let y = d.t; y < d.b; y += t) {
+      for (let x = d.l; x < d.r; x += t) {
+        const w = Math.min(t, d.r - x);
+        const h = Math.min(t, d.b - y);
+        tiles.push(
+          <View key={`tc-${i}-${x}-${y}`} style={{ position: 'absolute', left: o.x + x, top: o.y + y, width: w + 0.3, height: h + 0.3, overflow: 'hidden' }}>
+            <RNImage source={TORTUGA_TOWN_COBBLE} resizeMode="stretch" style={{ width: t + 0.3, height: t + 0.3 }} />
+          </View>
+        );
+      }
     }
-  }
+  });
   return tiles;
 })();
 
@@ -427,6 +428,9 @@ const TORTUGA_V2_SPRITE_LAYER = (() => {
     if (inTownDistrict(h.x, h.y)) return;
     const w = h.w * 1.02;
     items.push({ key: `t2h-${i}`, source: TORTUGA_V2_HOUSE_SPRITES[h.variant], x: h.x, bottom: h.y + h.h / 2, w, h: w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1), flip: h.flip });
+  });
+  TORTUGA_TOWN_PROPS.forEach((p, i) => {
+    items.push({ key: `townp-${i}`, source: TORTUGA_V2_PROP_SPRITES[p.id], x: p.x, bottom: p.bottom, w: p.w, h: p.w * (TORTUGA_V2_ASPECT[`prop:${p.id}`] ?? 1) });
   });
   TORTUGA_TOWN_ROWS.forEach((r) => {
     items.push({ key: `town-${r.key}`, source: TORTUGA_TOWN_SPRITES[r.key], x: r.cx, bottom: r.bottom, w: r.w, h: r.h });
