@@ -9,3 +9,8 @@ Chosen by Joe: **Current look + Option B (Cheeky on the shoulder).**
   - On the overworld map, Cheeky walks behind Scally (`CHEEKY_*` in MapScreen.tsx).
 - **Rejected options:** A (plume + coin), C (teal sea coat) and D (compass + hair tuft). C may come back as an unlockable outfit.
 - `character_sheet_options.png` is the comparison sheet the decision was made from.
+
+## Dialogue portraits with Cheeky
+These are `face_cheeky_0..4.png` (256×256). They use the same expression order as `face_0..4`: grin, smirk, determined, laughing, shocked.
+After the Black Pearl is captured, use these instead of `face_N`.
+`face_cheeky_5` (content, eyes closed) has not been made yet. Until it exists, fall back to `face_5`.
