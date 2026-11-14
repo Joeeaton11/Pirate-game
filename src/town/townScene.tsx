@@ -101,8 +101,10 @@ export function buildTownScene(
       sprites.push({ key: `ts${i}-${j}`, source: s.src, x: ox + c, bottom: oy + t.b + t.height + 1, w: sw, h: Math.max(h, sw * s.aspect * 0.9), z: oy + t.b + t.height });
     });
     // Side edges of a terrace are cliffs too: block them, a thin shadow line marks them.
-    solids.push({ l: ox + t.l - 2, r: ox + t.l, t: oy + t.t, b: oy + t.b + t.height });
-    solids.push({ l: ox + t.r, r: ox + t.r + 2, t: oy + t.t, b: oy + t.b + t.height });
+    if (t.sides !== false) {
+      solids.push({ l: ox + t.l - 2, r: ox + t.l, t: oy + t.t, b: oy + t.b + t.height });
+      solids.push({ l: ox + t.r, r: ox + t.r + 2, t: oy + t.t, b: oy + t.b + t.height });
+    }
   });
 
   layout.strips.forEach((s, i) => {

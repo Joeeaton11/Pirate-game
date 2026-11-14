@@ -71,6 +71,9 @@ export interface Terrace extends Rect {
   /** Centres of stone steps cut into the south wall. */
   steps: number[];
   stepWidth?: number;
+  /** Block the east/west edges too (a free-standing plateau). Set false when lanes run onto the
+   * terrace from the sides at the same level. Default true. */
+  sides?: boolean;
 }
 
 /** A straight run of a tiling strip asset (fence, low wall) along y, from x1 to x2. */
