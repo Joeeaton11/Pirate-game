@@ -5,19 +5,19 @@ import { ImageSourcePropType } from 'react-native';
 export interface TownDoor { id: string; x: number; y: number }
 export interface TownRow { key: string; cx: number; bottom: number; w: number; h: number; doors: TownDoor[] }
 /** Cobbled town district, drawn as a tiled pixel-art ground over the painted backdrop. */
-export const TORTUGA_TOWN_DISTRICT = { l: -165, r: 210, t: -200, b: 22 };
+export const TORTUGA_TOWN_DISTRICT = { l: -165, r: 222, t: -218, b: 30 };
 export const TORTUGA_TOWN_TILE = 14;
 export const TORTUGA_TOWN_COBBLE: ImageSourcePropType = require('../../assets/sprites/tortuga_town/cobble.png');
 export const TORTUGA_TOWN_ROWS: TownRow[] = [
-  {"key": "square_north", "cx": 0, "bottom": -130, "w": 88, "h": 41.47, "doors": [{"id": "tortuga_customs", "x": -33.0, "y": -128}, {"id": "tortuga_tavern", "x": -11.0, "y": -128}, {"id": "tortuga_bakery", "x": 11.0, "y": -128}, {"id": "tortuga_shop", "x": 33.0, "y": -128}]},
-  {"key": "harbour_market", "cx": -104, "bottom": -130, "w": 88, "h": 43.8, "doors": [{"id": "tortuga_chandlery", "x": -137.0, "y": -128}, {"id": "tortuga_fishmonger", "x": -115.0, "y": -128}, {"id": "tortuga_turtle_kraal", "x": -93.0, "y": -128}, {"id": "tortuga_powder_and_shot", "x": -71.0, "y": -128}]},
-  {"key": "harbour_offices", "cx": 104, "bottom": -130, "w": 88, "h": 44.21, "doors": [{"id": "tortuga_harbourmaster", "x": 71.0, "y": -128}, {"id": "tortuga_fishermens_guildhall", "x": 93.0, "y": -128}, {"id": "tortuga_quayside_trading_post", "x": 115.0, "y": -128}, {"id": "tortuga_ships_provisioner", "x": 137.0, "y": -128}]},
-  {"key": "riggers_row", "cx": -104, "bottom": -65, "w": 88, "h": 39.08, "doors": [{"id": "tortuga_sailmakers_loft", "x": -137.0, "y": -63}, {"id": "tortuga_net_loft", "x": -115.0, "y": -63}, {"id": "tortuga_coopers_yard", "x": -93.0, "y": -63}, {"id": "tortuga_rope_and_tackle", "x": -71.0, "y": -63}]},
-  {"key": "grog_row", "cx": 104, "bottom": -65, "w": 88, "h": 44.87, "doors": [{"id": "tortuga_brine_barrel", "x": 71.0, "y": -63}, {"id": "tortuga_cockpit", "x": 93.0, "y": -63}, {"id": "tortuga_boarding_house", "x": 115.0, "y": -63}, {"id": "tortuga_crews_lodge", "x": 137.0, "y": -63}]},
-  {"key": "craft_row", "cx": -104, "bottom": 0, "w": 88, "h": 34.8, "doors": [{"id": "tortuga_smithy", "x": -137.0, "y": 2}, {"id": "tortuga_careening_shed", "x": -115.0, "y": 2}, {"id": "tortuga_timber_yard", "x": -93.0, "y": 2}, {"id": "tortuga_distillery", "x": -71.0, "y": 2}]},
-  {"key": "warehouse_row", "cx": 0, "bottom": 0, "w": 88, "h": 40.63, "doors": [{"id": "tortuga_warehouse", "x": -33.0, "y": 2}, {"id": "tortuga_dockworkers_bunkhouse", "x": -11.0, "y": 2}, {"id": "tortuga_overflow_warehouse", "x": 11.0, "y": 2}, {"id": "tortuga_salt_works", "x": 33.0, "y": 2}]},
-  {"key": "tannery_row", "cx": 93, "bottom": 0, "w": 66, "h": 34.02, "doors": [{"id": "tortuga_tannery", "x": 71.0, "y": 2}, {"id": "tortuga_menagerie", "x": 93.0, "y": 2}, {"id": "tortuga_sextons_house", "x": 115.0, "y": 2}]},
-  {"key": "chapel", "cx": 186, "bottom": -65, "w": 34, "h": 42.24, "doors": [{"id": "tortuga_chapel", "x": 186, "y": -63}]},
+  {"key": "square_north", "cx": 0, "bottom": -150, "w": 88, "h": 60.19, "doors": [{"id": "tortuga_customs", "x": -33.0, "y": -148}, {"id": "tortuga_tavern", "x": -11.0, "y": -148}, {"id": "tortuga_bakery", "x": 11.0, "y": -148}, {"id": "tortuga_shop", "x": 33.0, "y": -148}]},
+  {"key": "harbour_market", "cx": -104, "bottom": -150, "w": 88, "h": 60.19, "doors": [{"id": "tortuga_chandlery", "x": -137.0, "y": -148}, {"id": "tortuga_fishmonger", "x": -115.0, "y": -148}, {"id": "tortuga_turtle_kraal", "x": -93.0, "y": -148}, {"id": "tortuga_powder_and_shot", "x": -71.0, "y": -148}]},
+  {"key": "harbour_offices", "cx": 104, "bottom": -150, "w": 88, "h": 60.19, "doors": [{"id": "tortuga_harbourmaster", "x": 71.0, "y": -148}, {"id": "tortuga_fishermens_guildhall", "x": 93.0, "y": -148}, {"id": "tortuga_quayside_trading_post", "x": 115.0, "y": -148}, {"id": "tortuga_ships_provisioner", "x": 137.0, "y": -148}]},
+  {"key": "riggers_row", "cx": -104, "bottom": -70, "w": 88, "h": 60.0, "doors": [{"id": "tortuga_sailmakers_loft", "x": -137.0, "y": -68}, {"id": "tortuga_net_loft", "x": -115.0, "y": -68}, {"id": "tortuga_coopers_yard", "x": -93.0, "y": -68}, {"id": "tortuga_rope_and_tackle", "x": -71.0, "y": -68}]},
+  {"key": "grog_row", "cx": 104, "bottom": -70, "w": 88, "h": 61.81, "doors": [{"id": "tortuga_brine_barrel", "x": 71.0, "y": -68}, {"id": "tortuga_cockpit", "x": 93.0, "y": -68}, {"id": "tortuga_boarding_house", "x": 115.0, "y": -68}, {"id": "tortuga_crews_lodge", "x": 137.0, "y": -68}]},
+  {"key": "craft_row", "cx": -104, "bottom": 10, "w": 88, "h": 59.78, "doors": [{"id": "tortuga_smithy", "x": -137.0, "y": 12}, {"id": "tortuga_careening_shed", "x": -115.0, "y": 12}, {"id": "tortuga_timber_yard", "x": -93.0, "y": 12}, {"id": "tortuga_distillery", "x": -71.0, "y": 12}]},
+  {"key": "warehouse_row", "cx": 0, "bottom": 10, "w": 88, "h": 60.19, "doors": [{"id": "tortuga_warehouse", "x": -33.0, "y": 12}, {"id": "tortuga_dockworkers_bunkhouse", "x": -11.0, "y": 12}, {"id": "tortuga_overflow_warehouse", "x": 11.0, "y": 12}, {"id": "tortuga_salt_works", "x": 33.0, "y": 12}]},
+  {"key": "tannery_row", "cx": 104, "bottom": 10, "w": 88, "h": 59.99, "doors": [{"id": "tortuga_tannery", "x": 71.0, "y": 12}, {"id": "tortuga_menagerie", "x": 93.0, "y": 12}, {"id": "tortuga_sextons_house", "x": 115.0, "y": 12}]},
+  {"key": "chapel", "cx": 190, "bottom": -70, "w": 50, "h": 49.06, "doors": [{"id": "tortuga_chapel", "x": 190, "y": -68}]},
 ];
 export const TORTUGA_TOWN_SPRITES: Record<string, ImageSourcePropType> = {
   square_north: require('../../assets/sprites/tortuga_town/square_north.png'),

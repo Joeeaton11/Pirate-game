@@ -345,7 +345,7 @@ const inTownDistrict = (x: number, y: number) =>
 const keepOldStructure = (s: { buildingId: string | null; x: number; y: number }) =>
   !(s.buildingId && TORTUGA_TOWN_REPLACED.has(s.buildingId)) && !inTownDistrict(s.x, s.y);
 const keepOldProp = (p: { id: string; x: number; y: number }) =>
-  !inTownDistrict(p.x, p.y) || ((p.id === 'fountain' || p.id.startsWith('palm')) && Math.abs(p.x) < 50 && p.y > -130 && p.y < -46);
+  !inTownDistrict(p.x, p.y) || ((p.id === 'fountain' || p.id.startsWith('palm')) && Math.abs(p.x) < 50 && p.y > -150 && p.y < -50);
 const TOWN_DOORS = TORTUGA_TOWN_ROWS.flatMap((r) => r.doors);
 const TOWN_DOOR_RADIUS = 9;
 
