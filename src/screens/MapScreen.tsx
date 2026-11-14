@@ -74,6 +74,7 @@ import {
   FACE_LAUGH,
   FACE_NEUTRAL,
   FACE_WINK,
+  captainPortrait,
   FacingDirection,
   ICON_EXCLAIM,
   ICON_MAP,
@@ -2094,8 +2095,10 @@ export default function MapScreen({ navigation }: Props) {
   // face set: it reflects state MapScreen actually has, rather than reaching for an expression with
   // no story behind it. `captainFaceOverride` (occasional idle wink, or a happy/laugh flash on a
   // real win — see the effects above) takes priority over the plain heat tier while it's set.
-  const captainFace =
-    captainFaceOverride ?? (heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : FACE_NEUTRAL);
+  const captainFace = captainPortrait(
+    captainFaceOverride ?? (heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : FACE_NEUTRAL),
+    blackPearlCaptured || CHEEKY_ALWAYS_FOLLOW,
+  );
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
