@@ -45,6 +45,16 @@ import {
   islandAtPoint,
 } from '../data/islands';
 import { HOUSES, houseWorldPosition, housesForIsland } from '../data/houses';
+import {
+  TORTUGA_V2_ASPECT,
+  TORTUGA_V2_BACKDROP,
+  TORTUGA_V2_BUILDING_SPRITES,
+  TORTUGA_V2_HOUSES,
+  TORTUGA_V2_HOUSE_SPRITES,
+  TORTUGA_V2_PROPS,
+  TORTUGA_V2_PROP_SPRITES,
+  TORTUGA_V2_STRUCTURES,
+} from '../data/tortugaV2';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
 import { PROPS, propWorldPosition } from '../data/props';
 import { SCENERY, sceneryWorldPosition } from '../data/scenery';
@@ -294,6 +304,47 @@ const SHOW_GARDENS = false;
 // size and dimensions first... Remove all buildings and roads for now" — so buildings, real art or
 // placeholder boxes alike, are off again while the island shape/dock get checked in isolation.
 const SHOW_BUILDINGS = false;
+// Tortuga Cove art pass v2 (2026-11-14): painted terrain backdrop + front-facing, street-facing
+// building/house/prop sprites from src/data/tortugaV2.ts. Independent of the SHOW_* scaffolding
+// layers above, so it can be flipped off on its own to compare against the old layer rebuild.
+const SHOW_TORTUGA_V2 = true;
+
+/** Every Tortuga v2 sprite (buildings, houses, street props) as one list sorted by its ground line
+ * (bottom edge), so nearer things overlap farther ones correctly. Static — built once. Sprites are
+ * bottom-anchored on their footprint's bottom edge and drawn slightly wider than the footprint
+ * (eaves/props overhang), matching how the art pass render was composed. */
+const TORTUGA_V2_SPRITE_LAYER = (() => {
+  const origin = ISLANDS.tortuga_cove.position;
+  type Item = { key: string; source: ImageSourcePropType; x: number; bottom: number; w: number; h: number; flip?: boolean };
+  const items: Item[] = [];
+  TORTUGA_V2_STRUCTURES.forEach((s) => {
+    const w = s.w * 1.12;
+    items.push({ key: `t2b-${s.key}`, source: TORTUGA_V2_BUILDING_SPRITES[s.key], x: s.x, bottom: s.y + s.h / 2, w, h: w * (TORTUGA_V2_ASPECT[s.key] ?? 1) });
+  });
+  TORTUGA_V2_HOUSES.forEach((h, i) => {
+    const w = h.w * 1.02;
+    items.push({ key: `t2h-${i}`, source: TORTUGA_V2_HOUSE_SPRITES[h.variant], x: h.x, bottom: h.y + h.h / 2, w, h: w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1), flip: h.flip });
+  });
+  TORTUGA_V2_PROPS.forEach((p, i) => {
+    items.push({ key: `t2p-${i}`, source: TORTUGA_V2_PROP_SPRITES[p.id], x: p.x, bottom: p.y, w: p.w, h: p.w * (TORTUGA_V2_ASPECT[`prop:${p.id}`] ?? 1) });
+  });
+  items.sort((a, b) => a.bottom - b.bottom);
+  return items.map((it) => (
+    <RNImage
+      key={it.key}
+      source={it.source}
+      resizeMode="stretch"
+      style={{
+        position: 'absolute',
+        left: origin.x + it.x - it.w / 2,
+        top: origin.y + it.bottom - it.h,
+        width: it.w,
+        height: it.h,
+        transform: it.flip ? [{ scaleX: -1 }] : undefined,
+      }}
+    />
+  ));
+})();
 // Disabled 2026-08-14, same request as SHOW_BUILDINGS above but taken further: "remove everything
 // that isn't the ground" — so the street/road network itself, houses, decorative scenery/props,
 // landmarks, ambient street NPCs, and every interactive map marker (quests, resource/salvage/
@@ -2157,6 +2208,17 @@ export default function MapScreen({ navigation }: Props) {
                 />
               ))}
 
+              {SHOW_TORTUGA_V2 && (
+                <SvgImage
+                  href={TORTUGA_V2_BACKDROP.source}
+                  x={ISLANDS.tortuga_cove.position.x + TORTUGA_V2_BACKDROP.x}
+                  y={ISLANDS.tortuga_cove.position.y + TORTUGA_V2_BACKDROP.y}
+                  width={TORTUGA_V2_BACKDROP.width}
+                  height={TORTUGA_V2_BACKDROP.height}
+                  preserveAspectRatio="none"
+                />
+              )}
+
               {/* Garden/yard patches, centered on each entity's precomputed HOUSE/BUILDING_GARDEN_
                   OFFSETS rather than its actual position — nudged away from any real path so the
                   yard never geometrically overlaps a street/pier/quay (the house's own icon can
@@ -2486,6 +2548,12 @@ export default function MapScreen({ navigation }: Props) {
                 </View>
               );
             })}
+
+            {SHOW_TORTUGA_V2 && (
+              <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+                {TORTUGA_V2_SPRITE_LAYER}
+              </View>
+            )}
 
             {SHOW_LANDMARKS &&
               LANDMARKS.map((landmark) => {
