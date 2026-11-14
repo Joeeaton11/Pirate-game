@@ -177,20 +177,22 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 // Pokémon-style close camera: the world renders at ZOOM x its native scale (buildings, houses,
 // streets, everything inside the `world` container), while the player token — rendered as a
 // separate fixed element always centered on screen — is sized to match by hand below.
-const ZOOM = 5;
+const ZOOM = 7;
 // In real Pokémon a character is ~1 tile and a building is ~5-7 tiles — the character is small
 // next to structures. PLAYER_SIZE previously scaled at the same native size as a building (40 vs
 // 44), which is why zooming alone never got there: zoom scales everything in lockstep, so a
 // player already sized like a building stayed sized like a building at any zoom level. Fixed by
 // giving the player a genuinely small native footprint before the same ZOOM is applied to it.
-const PLAYER_SIZE = 12 * ZOOM;
+// 2026-11-14: player shrunk 12 -> 8.5 native while ZOOM went 5 -> 7, so Scally stays ~60px on
+// screen but buildings/props render 1.4x larger around him (doors now taller than he is).
+const PLAYER_SIZE = 8.5 * ZOOM;
 const BUILDING_SIZE = 44;
 // Cheeky follows Captain Scally on foot. Story-wise he's aboard the guarded Black Pearl until it's
 // captured (see showMonkeyOnDeck); CHEEKY_ALWAYS_FOLLOW skips that gate so he can be play-tested
 // from the start. Set it back to false once the follow behaviour is signed off.
 const CHEEKY_ALWAYS_FOLLOW = true;
-const CHEEKY_SIZE = 8; // world units (Scally is 12)
-const CHEEKY_TRAIL = 11; // world units of path Cheeky stays behind Scally
+const CHEEKY_SIZE = 5.7; // world units (Scally is 8.5)
+const CHEEKY_TRAIL = 8; // world units of path Cheeky stays behind Scally
 const CHEEKY_MAX_CRUMBS = 120;
 // The Black Pearl under sail reads as a ship, not a person, so she gets a footprint closer to the
 // docked marker's (BUILDING_SIZE * 1.8) than to Captain Scally's own on-foot sprite.
@@ -327,6 +329,48 @@ const SHOW_TORTUGA_V2 = true;
  * (bottom edge), so nearer things overlap farther ones correctly. Static — built once. Sprites are
  * bottom-anchored on their footprint's bottom edge and drawn slightly wider than the footprint
  * (eaves/props overhang), matching how the art pass render was composed. */
+/** Solid rectangles (world coords) for every Tortuga v2 building and house, covering the whole
+ * drawn sprite (footprint plus roof). The player token always renders on top of the sprite layer,
+ * so letting him walk "behind" a roof would draw him standing on it — the full sprite is solid
+ * instead. Doors sit on each sprite's bottom edge, well inside ENTER_RADIUS of the building centre. */
+const TORTUGA_V2_SOLID_RECTS = (() => {
+  const o = ISLANDS.tortuga_cove.position;
+  const rects: { l: number; r: number; t: number; b: number }[] = [];
+  const add = (x: number, bottom: number, w: number, h: number) =>
+    rects.push({ l: o.x + x - w / 2 + 1, r: o.x + x + w / 2 - 1, t: o.y + bottom - h + 2, b: o.y + bottom });
+  // These four have doors boxed in by a neighbouring sprite or set too far from their entry point,
+  // so they stay walk-through until the layout is adjusted.
+  const notSolid = new Set(['tortuga_fort', 'tortuga_vendue_house', 'tortuga_coopers_yard', 'tortuga_smithy']);
+  TORTUGA_V2_STRUCTURES.forEach((s) => {
+    if (notSolid.has(s.key)) return;
+    const w = s.w * 1.12;
+    add(s.x, s.y + s.h / 2, w, w * (TORTUGA_V2_ASPECT[s.key] ?? 1));
+  });
+  TORTUGA_V2_HOUSES.forEach((h) => {
+    const w = h.w * 1.02;
+    add(h.x, h.y + h.h / 2, w, w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1));
+  });
+  return rects;
+})();
+
+function slideAroundRects(
+  current: { x: number; y: number },
+  raw: { x: number; y: number },
+  rects: { l: number; r: number; t: number; b: number }[],
+  pad: number
+): { x: number; y: number } {
+  const blocked = (p: { x: number; y: number }) =>
+    rects.some((q) => p.x > q.l - pad && p.x < q.r + pad && p.y > q.t - pad && p.y < q.b + pad);
+  if (!blocked(raw)) return raw;
+  // Already inside one (e.g. an old save spawned there): let the player walk out freely.
+  if (blocked(current)) return raw;
+  const slideX = { x: raw.x, y: current.y };
+  if (!blocked(slideX)) return slideX;
+  const slideY = { x: current.x, y: raw.y };
+  if (!blocked(slideY)) return slideY;
+  return current;
+}
+
 const TORTUGA_V2_SPRITE_LAYER = (() => {
   const origin = ISLANDS.tortuga_cove.position;
   type Item = { key: string; source: ImageSourcePropType; x: number; bottom: number; w: number; h: number; flip?: boolean };
@@ -1619,6 +1663,9 @@ export default function MapScreen({ navigation }: Props) {
         buildingObstacles,
         BUILDING_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
       );
+      if (SHOW_TORTUGA_V2 && currentIsland?.id === 'tortuga_cove') {
+        nextPosition = slideAroundRects(playerRef.current, nextPosition, TORTUGA_V2_SOLID_RECTS, 1.5);
+      }
 
       const nextIsland = islandAtPoint(nextPosition);
 
