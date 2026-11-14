@@ -49,6 +49,8 @@ export interface PlacedProp {
   w?: number;
   flip?: boolean;
   solid?: boolean;
+  /** Nudge the depth-sort line (e.g. a lamp on a kerb that should draw over the street). */
+  z?: number;
 }
 
 export interface Rect { l: number; r: number; t: number; b: number }
@@ -101,6 +103,8 @@ export interface TownLayout {
   props: PlacedProp[];
   strips: StripRun[];
   greenery: Greenery[];
+  /** Invisible walls: harbour edges, pier rails, anywhere the player shouldn't walk. */
+  blocks: Rect[];
   /** Where a new game starts on this island (inside the town). */
   spawn: { x: number; y: number };
 }

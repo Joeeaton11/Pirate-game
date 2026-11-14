@@ -214,8 +214,8 @@ export const ISLAND_LIST = Object.values(ISLANDS);
 // Tortuga Cove art pass v2 (2026-11-14): the island centre now falls inside The Tannery's
 // footprint, so spawn on the open north side of the new town square instead.
 export const START_POSITION = {
-  x: ISLANDS.tortuga_cove.position.x + 53,
-  y: ISLANDS.tortuga_cove.position.y - 136,
+  x: ISLANDS.tortuga_cove.position.x + 30,
+  y: ISLANDS.tortuga_cove.position.y - 108,
 };
 
 /** Wild encounters rolled while sailing open water, away from any island. */

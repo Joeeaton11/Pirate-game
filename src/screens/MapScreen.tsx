@@ -33,7 +33,8 @@ import {
   BLACK_PEARL_FLAG_EMOJI,
 } from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
-import { buildTownScene, renderSceneSprite } from '../town/townScene';
+import { buildTownScene } from '../town/townScene';
+import { renderGroundTile, renderSceneSprite } from '../town/townRender';
 import { TORTUGA_TOWN_ASSETS } from '../town/tortugaTownAssets';
 import { TORTUGA_TOWN_LAYOUT } from '../town/tortugaTownLayout';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -344,7 +345,7 @@ const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict
 /** Door points (absolute world coords). */
 const TOWN_DOORS = TOWN_SCENE.doors;
 const TOWN_DOOR_RADIUS = 9;
-const TORTUGA_TOWN_GROUND = TOWN_SCENE.ground;
+const TORTUGA_TOWN_GROUND = TOWN_SCENE.ground.map(renderGroundTile);
 
 /** Solid rectangles (world coords) for every Tortuga v2 building and house, covering the whole
  * drawn sprite (footprint plus roof). The player token always renders on top of the sprite layer,
@@ -370,6 +371,23 @@ const TORTUGA_V2_SOLID_RECTS = (() => {
   });
   return rects.concat(TOWN_SCENE.solids);
 })();
+
+/** Playtest helper (web only): `?at=x,y` starts Scally at that spot, in Tortuga-relative world
+ * units (the same coordinates as src/town/tortugaTownLayout.ts) — handy for checking one corner of
+ * the town without walking there. Ignored anywhere else. */
+function devStartPosition(): { x: number; y: number } {
+  try {
+    const q = typeof window !== 'undefined' && window.location ? new URLSearchParams(window.location.search).get('at') : null;
+    const m = q?.match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/);
+    if (m) {
+      const o = ISLANDS.tortuga_cove.position;
+      return { x: o.x + Number(m[1]), y: o.y + Number(m[2]) };
+    }
+  } catch {
+    // not a browser
+  }
+  return START_POSITION;
+}
 
 function slideAroundRects(
   current: { x: number; y: number },
@@ -758,7 +776,7 @@ function clamp(value: number, min: number, max: number) {
 export default function MapScreen({ navigation }: Props) {
   const isFocused = useIsFocused();
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
-  const [player, setPlayer] = useState(START_POSITION);
+  const [player, setPlayer] = useState(devStartPosition);
   const [dragKnob, setDragKnob] = useState<{ x: number; y: number } | null>(null);
   const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number } | null>(null);
   const [zoneLabel, setZoneLabel] = useState('Tortuga Cove');
@@ -2459,6 +2477,7 @@ export default function MapScreen({ navigation }: Props) {
 
               {SHOW_DOCK &&
                 PIERS.map((pier, i) => {
+                if (pier.townDrawn && SHOW_TORTUGA_V2) return null;
                 const islandPos = ISLANDS[pier.islandId].position;
                 const x1 = islandPos.x + pier.from.x;
                 const y1 = islandPos.y + pier.from.y;
@@ -2497,6 +2516,7 @@ export default function MapScreen({ navigation }: Props) {
 
               {SHOW_DOCK &&
                 QUAYS.map((quay, i) => {
+                if (quay.townDrawn && SHOW_TORTUGA_V2) return null;
                 const islandPos = ISLANDS[quay.islandId].position;
                 const x1 = islandPos.x + quay.from.x;
                 const y1 = islandPos.y + quay.from.y;
