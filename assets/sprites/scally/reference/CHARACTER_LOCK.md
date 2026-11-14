@@ -13,4 +13,4 @@ Chosen by Joe: **Current look + Option B (Cheeky on the shoulder).**
 ## Dialogue portraits with Cheeky
 These are `face_cheeky_0..4.png` (256×256). They use the same expression order as `face_0..4`: grin, smirk, determined, laughing, shocked.
 After the Black Pearl is captured, use these instead of `face_N`.
-`face_cheeky_5` (content, eyes closed) has not been made yet. Until it exists, fall back to `face_5`.
+`face_cheeky_5` is a victory cheer, shown when a rival lord is defeated.

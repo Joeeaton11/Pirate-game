@@ -461,20 +461,20 @@ export const FACE_LAUGH = SCALLY_FACES[5];
 // --- Faces with Cheeky on the shoulder (locked design, see scally/reference/CHARACTER_LOCK.md) ---
 // Once Cheeky has joined (Black Pearl captured), the header badge swaps each solo face for its
 // "with Cheeky" twin. Mapped by mood, not by file index: the cheeky set was generated as
-// grin / smirk / determined / laughing / shocked. LAUGH reuses the laughing tile until a dedicated
-// sixth portrait is generated.
+// grin / smirk / determined / laughing / shocked / victory cheer (LAUGH = defeating a rival lord).
 const CHEEKY_FACE_GRIN = require('../../assets/sprites/scally/face_cheeky_0.png');
 const CHEEKY_FACE_SMIRK = require('../../assets/sprites/scally/face_cheeky_1.png');
 const CHEEKY_FACE_DETERMINED = require('../../assets/sprites/scally/face_cheeky_2.png');
 const CHEEKY_FACE_LAUGHING = require('../../assets/sprites/scally/face_cheeky_3.png');
 const CHEEKY_FACE_SHOCKED = require('../../assets/sprites/scally/face_cheeky_4.png');
+const CHEEKY_FACE_CHEER = require('../../assets/sprites/scally/face_cheeky_5.png');
 const WITH_CHEEKY = new Map<number, number>([
   [FACE_NEUTRAL, CHEEKY_FACE_GRIN],
   [FACE_DETERMINED, CHEEKY_FACE_DETERMINED],
   [FACE_HURT, CHEEKY_FACE_SHOCKED],
   [FACE_WINK, CHEEKY_FACE_SMIRK],
   [FACE_HAPPY, CHEEKY_FACE_LAUGHING],
-  [FACE_LAUGH, CHEEKY_FACE_LAUGHING],
+  [FACE_LAUGH, CHEEKY_FACE_CHEER],
 ]);
 /** The captain's portrait, swapped for the Cheeky-on-shoulder version once Cheeky is with him. */
 export function captainPortrait(face: number, cheekyWithHim: boolean): number {
