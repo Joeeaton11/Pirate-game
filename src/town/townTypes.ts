@@ -93,6 +93,10 @@ export interface Greenery extends Rect {
   solid?: boolean;
 }
 
+/** A flat image laid on the ground (baked ground chunks, pier decks): drawn above the tiled
+ * ground and below every sprite. l/t/w/h in world units. */
+export interface BakedChunk { src: ImageSourcePropType; l: number; t: number; w: number; h: number }
+
 export interface TownLayout {
   islandId: string;
   /** Old island content (v2 houses/props/single buildings) inside these rects is hidden. */
@@ -103,6 +107,8 @@ export interface TownLayout {
   props: PlacedProp[];
   strips: StripRun[];
   greenery: Greenery[];
+  /** Painted ground images over the tiles (see src/town/ground + tools/town/bake_ground.py). */
+  decals?: BakedChunk[];
   /** Invisible walls: harbour edges, pier rails, anywhere the player shouldn't walk. */
   blocks: Rect[];
   /** Where a new game starts on this island (inside the town). */

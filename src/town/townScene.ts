@@ -34,10 +34,13 @@ export interface SceneSprite {
   clipFrac?: number;
 }
 
+export interface SceneDecal { key: string; source: ImageSourcePropType; left: number; top: number; w: number; h: number }
+
 export interface SceneDoor { id: string; x: number; y: number }
 
 export interface TownScene {
   ground: GroundTile[];
+  decals: SceneDecal[];
   sprites: SceneSprite[];
   solids: Rect[];
   doors: SceneDoor[];
@@ -95,6 +98,8 @@ export function buildTownScene(
     tileArea(`g${i}`, g, g.tile, g.size ?? A(g.tile).w);
     if (g.kerb) stripRun(`k${i}`, 'kerb', g.l, g.r, g.b + 1.6, 1.8);
   });
+
+  const decals: SceneDecal[] = (layout.decals ?? []).map((d, i) => ({ key: `d${i}`, source: d.src, left: ox + d.l, top: oy + d.t, w: d.w, h: d.h }));
 
   layout.terraces.forEach((t, i) => {
     tileArea(`t${i}`, t, t.tile, t.size ?? A(t.tile).w);
@@ -179,6 +184,7 @@ export function buildTownScene(
   sprites.sort((a, b) => a.z - b.z);
   return {
     ground,
+    decals,
     sprites,
     solids,
     doors,

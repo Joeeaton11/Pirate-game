@@ -17,7 +17,8 @@
  *   ═══════════════════════ Rope Walk ════════════ Gallows Lane runs on south out of town
  */
 import { PIERS } from '../data/harbor';
-import { GroundArea, PlacedProp, Rect, TownLayout } from './townTypes';
+import { BakedChunk, PlacedProp, Rect, TownLayout } from './townTypes';
+import { TORTUGAHARBOUR_BLOCKS, TORTUGAHARBOUR_CHUNKS, TORTUGAHARBOUR_STRIPS } from './ground/tortugaHarbour.generated';
 
 // Ground lines (door thresholds) of each band of buildings.
 const WHARF = -312; // north (water) edge of the plank wharf
@@ -31,35 +32,33 @@ const E = 258; // east edge
 // ── Piers: art + rails generated from the walkable pier lines in src/data/harbor.ts ──
 const PIER_HALF = 10; // drawn deck half-width (the walkable line is a little wider; rails stop you)
 const townPiers = PIERS.filter((p) => p.islandId === 'tortuga_cove' && p.townDrawn);
-const pierGround: GroundArea[] = [];
 const pierProps: PlacedProp[] = [];
 const pierBlocks: Rect[] = [];
+const pierDecks: BakedChunk[] = [];
+const DECK_V = require('../../assets/sprites/tortuga_town/style2/edge_pierdeck.png');
+const DECK_H = require('../../assets/sprites/tortuga_town/style2/edge_pierdeck_h.png');
+const DECK_LEN = PIER_HALF * 2 * 1.8776; // one deck section's length at the pier's width
 townPiers.forEach((p) => {
   const vertical = p.from.x === p.to.x;
   if (vertical) {
     const x = p.from.x;
-    const lo = Math.min(p.from.y, p.to.y);
+    const lo = Math.min(p.from.y, p.to.y) - PIER_HALF;
     const hi = Math.max(p.from.y, p.to.y);
-    pierGround.push({ l: x - PIER_HALF, r: x + PIER_HALF, t: lo - PIER_HALF, b: hi, tile: 'planks' });
-    for (let y = lo + 12; y <= hi - 6; y += 12) {
-      pierProps.push({ asset: 'piling_3', x: x - PIER_HALF + 1, y: y + 4, solid: false });
-      pierProps.push({ asset: 'piling_3', x: x + PIER_HALF - 1, y: y + 4, solid: false });
-    }
+    // deck sections laid from the shore end outwards (the last one may overhang the tip slightly)
+    for (let y = hi; y > lo + 2; y -= DECK_LEN) pierDecks.push({ src: DECK_V, l: x - PIER_HALF, t: y - DECK_LEN, w: PIER_HALF * 2, h: DECK_LEN });
     // rails along both sides, below the head
-    pierBlocks.push({ l: x - PIER_HALF - 6, r: x - PIER_HALF + 0.5, t: lo + PIER_HALF, b: hi });
-    pierBlocks.push({ l: x + PIER_HALF - 0.5, r: x + PIER_HALF + 6, t: lo + PIER_HALF, b: hi });
+    pierBlocks.push({ l: x - PIER_HALF - 6, r: x - PIER_HALF + 1, t: lo + PIER_HALF * 2, b: hi });
+    pierBlocks.push({ l: x + PIER_HALF - 1, r: x + PIER_HALF + 6, t: lo + PIER_HALF * 2, b: hi });
   } else {
     const y = p.from.y;
+    const spurX = p.from.x;
     const lo = Math.min(p.from.x, p.to.x);
     const hi = Math.max(p.from.x, p.to.x);
-    pierGround.push({ l: lo - (lo < p.from.x ? 0 : PIER_HALF), r: hi + (hi > p.from.x ? 0 : PIER_HALF), t: y - PIER_HALF, b: y + PIER_HALF, tile: 'planks' });
-    for (let x = lo + 4; x <= hi - 2; x += 12) {
-      pierProps.push({ asset: 'piling_roped_2', x, y: y + PIER_HALF + 3, solid: false });
-    }
-    // rail along the south side of the head (the north side and the ends open onto the water)
-    const spurX = p.from.x;
-    if (lo < spurX) pierBlocks.push({ l: lo, r: spurX - PIER_HALF + 0.5, t: y + PIER_HALF - 0.5, b: y + PIER_HALF + 6 });
-    if (hi > spurX) pierBlocks.push({ l: spurX + PIER_HALF - 0.5, r: hi, t: y + PIER_HALF - 0.5, b: y + PIER_HALF + 6 });
+    const goingLeft = lo < spurX;
+    if (goingLeft) for (let x = spurX - PIER_HALF; x > lo - 2; x -= DECK_LEN) pierDecks.push({ src: DECK_H, l: x - DECK_LEN, t: y - PIER_HALF, w: DECK_LEN, h: PIER_HALF * 2 });
+    else for (let x = spurX + PIER_HALF; x < hi + 2; x += DECK_LEN) pierDecks.push({ src: DECK_H, l: x, t: y - PIER_HALF, w: DECK_LEN, h: PIER_HALF * 2 });
+    if (goingLeft) pierBlocks.push({ l: lo, r: spurX - PIER_HALF + 1, t: y + PIER_HALF - 1, b: y + PIER_HALF + 6 });
+    else pierBlocks.push({ l: spurX + PIER_HALF - 1, r: hi, t: y + PIER_HALF - 1, b: y + PIER_HALF + 6 });
   }
 });
 // Quay edge: solid all along the wharf's water side except where a pier leaves it.
@@ -82,7 +81,7 @@ const bollardRow = (x1: number, x2: number, y: number) => {
     bollards.push({ asset: 'bollard_1', x, y });
   }
 };
-bollardRow(-62, 190, WHARF + 4);
+bollardRow(126, 190, WHARF + 4);
 bollardRow(204, E, -368);
 
 export const TORTUGA_TOWN_LAYOUT: TownLayout = {
@@ -94,10 +93,9 @@ export const TORTUGA_TOWN_LAYOUT: TownLayout = {
     { l: W - 20, r: E, t: -240, b: ROPE + 12, tile: 'earth', size: 18 },
     { l: -92, r: E, t: QUAY - 26, b: -240, tile: 'earth', size: 18 },
     // ── harbour ──
-    { l: -92, r: 196, t: WHARF, b: -278, tile: 'planks' }, // plank wharf over the water's edge
+    { l: 120, r: 196, t: WHARF, b: -278, tile: 'planks' }, // plank wharf (west of x 120 is painted: ground/tortugaHarbour.json)
     { l: 196, r: E, t: -372, b: -278, tile: 'planks' }, // fish quay (out to the waterline)
     { l: -92, r: E, t: -278, b: QUAY - 26, tile: 'cobble' }, // stone apron behind the wharf
-    ...pierGround,
     // dock gates: lanes from the wharf through the waterfront row to Quay Street
     { l: -20, r: 0, t: QUAY - 26, b: QUAY, tile: 'cobble' },
     { l: 62, r: 90, t: QUAY - 26, b: QUAY, tile: 'cobble' },
@@ -119,12 +117,9 @@ export const TORTUGA_TOWN_LAYOUT: TownLayout = {
     // gardens
     { l: -30, r: -6, t: SQ + 11, b: BACK - 2, tile: 'grass', size: 16 },
     { l: 178, r: E, t: BACK + 12, b: ROPE - 2, tile: 'grass', size: 16 },
-    { l: W - 20, r: -92, t: -240, b: QUAY - 2, tile: 'grass', size: 16 },
-  ],
+      ],
 
   terraces: [
-    // Gun Point: raised battery on the headland, steps down onto the wharf.
-    { l: -94, r: -70, t: -350, b: WHARF - 8, height: 8, tile: 'cobble', steps: [-82], stepWidth: 10 },
     // Market square sits up a level: retaining wall + two flights down to the lower market.
     { l: -6, r: 112, t: SQ, b: -86, height: 8, tile: 'cobble', steps: [14, 92], sides: false },
     // Chapel hill.
@@ -182,7 +177,7 @@ export const TORTUGA_TOWN_LAYOUT: TownLayout = {
     // ── Ships moored in the harbour (on the water, not solid) ──
     { asset: 'brigantine_w', x: 30, y: -342 },
     { asset: 'pirate_sloop_e', x: -44, y: -352 },
-    { asset: 'merchant_schooner_w', x: 106, y: -330 },
+    { asset: 'merchant_schooner_w', x: 152, y: -326 },
     { asset: 'dinghy_e', x: 4, y: -416, z: 20 },
     { asset: 'dinghy_w', x: 60, y: -378 },
     { asset: 'fishing_boat_w', x: 212, y: -400 },
@@ -198,42 +193,50 @@ export const TORTUGA_TOWN_LAYOUT: TownLayout = {
     { asset: 'crate_banded_1', x: 108, y: -350 },
     { asset: 'fish_basket_1', x: 246, y: -438 },
 
-    // ── Gun Point ──
-    { asset: 'watchtower_2', x: -88, y: -336 },
-    { asset: 'flag_skull_black', x: -74, y: -344 },
-    { asset: 'cannon', x: -77, y: -324, w: 11 },
-    { asset: 'cannonball_pile_1', x: -90, y: -322, w: 4 },
-    { asset: 'telescope_tripod_1', x: -74, y: -334, w: 5 },
+    // ── Gun Point (painted headland; wall + steps from the ground bake) ──
+    { asset: 's2_stairs', x: -80, y: -317 },
+    { asset: 'watchtower_2', x: -88, y: -338 },
+    { asset: 'flag_skull_black', x: -70, y: -344 },
+    { asset: 'cannon', x: -76, y: -332, w: 11 },
+    { asset: 'telescope_tripod_1', x: -92, y: -330, w: 5 },
+    { asset: 's2_palms', x: -94, y: -296 },
+    { asset: 's2_palms', x: -104, y: -214, flip: true },
 
-    // ── The wharf ──
-    { asset: 'crane_2', x: -54, y: -282 },
-    { asset: 'market_crate_3', x: -40, y: -280 },
-    { asset: 'market_barrel_8', x: -68, y: -280 },
-    { asset: 'barrel_1', x: -62, y: -276 },
-    { asset: 'anchor_3', x: -28, y: -268, w: 8 },
-    { asset: 'capstan_2', x: 10, y: -284 },
-    { asset: 'rope_coil_2', x: 16, y: -278 },
-    { asset: 'cannonball_pile_1', x: 30, y: -282 },
-    { asset: 'market_crate_4', x: 44, y: -278 },
-    { asset: 'sacks_8', x: 54, y: -276 },
-    { asset: 'sacks_10', x: 58, y: -282 },
-    { asset: 'crane_4', x: 104, y: -282 },
-    { asset: 'market_crate_11', x: 120, y: -276 },
-    { asset: 'crate_banded_1', x: 128, y: -284 },
-    { asset: 'market_barrel_5', x: 134, y: -276 },
-    { asset: 'barrel_spilled_1', x: 146, y: -280 },
-    { asset: 'plank_bundle_2', x: 158, y: -276, w: 5 },
-    { asset: 'capstan_3', x: 170, y: -286 },
-    { asset: 'anchor_2', x: 184, y: -268, w: 8 },
-    { asset: 'dock_lamp_1', x: -22, y: -264 },
-    { asset: 'dock_lamp_1', x: 94, y: -264 },
-    { asset: 'life_ring_2', x: 2, y: -264 },
-    { asset: 'banner_anchor_1', x: 58, y: -264 },
-    { asset: 'market_crate_4', x: 8, y: -244 },
-    { asset: 'market_barrel_8', x: 54, y: -246 },
-    { asset: 'sacks_9', x: 60, y: -242 },
-    { asset: 'crates', x: 172, y: -246, w: 8 },
-    { asset: 'hay_bale_1', x: -84, y: -244 },
+    // ── The wharf (new matched art) ──
+    { asset: 's2_crane', x: -40, y: -294 },
+    { asset: 's2_crates', x: -28, y: -292, w: 12 },
+    { asset: 's2_barrels', x: 16, y: -294, w: 11 },
+    { asset: 's2_bollard', x: -30, y: -313, w: 5.5 },
+    { asset: 's2_bollard', x: 8, y: -313, w: 5.5 },
+    { asset: 's2_bollard', x: 40, y: -313, w: 5.5 },
+    { asset: 's2_bollard', x: 100, y: -313, w: 5.5 },
+    { asset: 's2_crates', x: 52, y: -292, w: 11, flip: true },
+    { asset: 's2_barrels', x: 62, y: -298, w: 9 },
+    { asset: 's2_crane', x: 104, y: -294, flip: true },
+    { asset: 's2_barrels', x: 116, y: -292, w: 9 },
+    { asset: 's2_palms', x: -54, y: -268 },
+    { asset: 's2_palms', x: 44, y: -270, flip: true },
+    { asset: 's2_crates', x: -2, y: -240, w: 7 },
+    { asset: 's2_barrels', x: 86, y: -236, w: 6 },
+    { asset: 'dock_lamp_1', x: -20, y: -290 },
+    { asset: 'dock_lamp_1', x: 90, y: -290 },
+    // the quay apron: market life between the wharf and the waterfront row
+    { asset: 'fish_stall', x: -38, y: -272, w: 14 },
+    { asset: 'net_rack', x: 28, y: -276, w: 11 },
+    { asset: 'market_stall', x: 98, y: -272, w: 14, flip: true },
+    { asset: 'cart', x: 62, y: -272, w: 12 },
+    { asset: 'sacks', x: -64, y: -276, w: 6 },
+    { asset: 'lamp', x: -20, y: -228 },
+    { asset: 'lamp', x: 66, y: -228 },
+    { asset: 'lamp', x: -20, y: -266 },
+    { asset: 'lamp', x: 88, y: -266 },
+    { asset: 'cannon', x: -86, y: -284, w: 10, flip: true },
+    { asset: 's2_crates', x: -102, y: -246, w: 9 },
+    // east of the painted harbour
+    { asset: 'market_crate_11', x: 136, y: -280 },
+    { asset: 'barrel_spilled_1', x: 150, y: -282 },
+    { asset: 'capstan_3', x: 170, y: -288 },
+    { asset: 'anchor_2', x: 184, y: -270, w: 8 },
     // fish quay
     { asset: 'fish_rack_1', x: 212, y: -340 },
     { asset: 'fish_rack_2', x: 252, y: -350 },
@@ -254,8 +257,6 @@ export const TORTUGA_TOWN_LAYOUT: TownLayout = {
     { asset: 'market_barrel_5', x: 168, y: QUAY - 1 },
     { asset: 'sacks_9', x: 96, y: QUAY - 1 },
     { asset: 'crates', x: 252, y: QUAY - 1, w: 7 },
-    { asset: 'boulder_cluster_1', x: -118, y: -242, w: 16 },
-    { asset: 'boulder_cluster_2', x: -102, y: -234, w: 12 },
     // alleys: clutter against the walls (leaves a walkable gap)
     { asset: 'barrel_1', x: -14, y: QUAY + 20, w: 3.5 },
     { asset: 'sacks_8', x: 70, y: QUAY + 24, w: 3.5 },
@@ -316,10 +317,15 @@ export const TORTUGA_TOWN_LAYOUT: TownLayout = {
     { asset: 'hay_bale_1', x: 240, y: ROPE - 2, w: 6 },
   ],
 
-  strips: [],
+  strips: [...TORTUGAHARBOUR_STRIPS],
 
   // Planted yards and gardens: one line per patch (change the seed to reshuffle the plants).
   greenery: [
+    // painted harbour: shrubs on the grass patches behind the wharf
+    { l: -56, r: -22, t: -260, b: -248, seed: 31, spacing: 7, kinds: ['bush', 'bush', 'plant_bed'], solid: true },
+    { l: 18, r: 62, t: -258, b: -246, seed: 32, spacing: 7, kinds: ['bush', 'bush', 's2_palms'] },
+    { l: 96, r: 118, t: -260, b: -248, seed: 33, spacing: 7, kinds: ['bush', 'bush'] },
+    { l: -112, r: -98, t: -236, b: -214, seed: 34, spacing: 7, kinds: ['bush', 's2_palms'] },
     // back yards behind the square row (between Quay Street and the roofs)
     { l: W - 18, r: -18, t: QUAY + 14, b: SQ - 44, seed: 21, spacing: 8 },
     { l: -4, r: 62, t: QUAY + 14, b: SQ - 46, seed: 22, spacing: 8 },
@@ -335,16 +341,16 @@ export const TORTUGA_TOWN_LAYOUT: TownLayout = {
     { l: 206, r: E, t: ROPE - 40, b: ROPE - 4, seed: 8, spacing: 8 },
     { l: 102, r: 116, t: BACK + 14, b: -16, seed: 9, spacing: 7 },
     { l: 148, r: 162, t: BACK + 14, b: -20, seed: 10, spacing: 7 },
-    { l: W - 18, r: -94, t: -238, b: QUAY - 4, seed: 11, spacing: 9 }, // headland scrub by the inlet
   ],
+
+  decals: [...TORTUGAHARBOUR_CHUNKS, ...pierDecks],
 
   blocks: [
     ...pierBlocks,
-    ...edge(-70, 196, WHARF), // wharf edge (Gun Point's own wall + steps close the west end)
+    ...edge(120, 196, WHARF), // wharf edge east of the painted harbour
+    ...TORTUGAHARBOUR_BLOCKS, // painted harbour: shoreline, wharf edge, Gun Point walls
     ...edge(196, E, -372), // fish-quay edge
     { l: 190, r: 196, t: -372, b: WHARF + 1 }, // step in the quay line
-    { l: -98, r: -92, t: WHARF, b: -240 }, // inlet edge west of the wharf
-    { l: W - 20, r: -92, t: -246, b: -240 }, // inlet shore
   ],
 
   spawn: { x: 30, y: -108 },

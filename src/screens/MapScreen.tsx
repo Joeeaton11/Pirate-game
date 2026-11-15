@@ -34,7 +34,7 @@ import {
 } from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
-import { renderGroundTile, renderSceneSprite } from '../town/townRender';
+import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
 import { TORTUGA_TOWN_ASSETS } from '../town/tortugaTownAssets';
 import { TORTUGA_TOWN_LAYOUT } from '../town/tortugaTownLayout';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -345,7 +345,7 @@ const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict
 /** Door points (absolute world coords). */
 const TOWN_DOORS = TOWN_SCENE.doors;
 const TOWN_DOOR_RADIUS = 9;
-const TORTUGA_TOWN_GROUND = TOWN_SCENE.ground.map(renderGroundTile);
+const TORTUGA_TOWN_GROUND = [...TOWN_SCENE.ground.map(renderGroundTile), ...TOWN_SCENE.decals.map(renderDecal)];
 
 /** Solid rectangles (world coords) for every Tortuga v2 building and house, covering the whole
  * drawn sprite (footprint plus roof). The player token always renders on top of the sprite layer,

@@ -162,4 +162,13 @@ export const TORTUGA_TOWN_ASSETS: Record<string, TownAsset> = {
   watchtower_2: { src: require('../../assets/sprites/tortuga_town/v3/lib/watchtower_2.png'), kind: 'prop', aspect: 2.1346, w: 12, solid: { inset: 0.38, up: 0.06 } },
   wheelbarrow_1: { src: require('../../assets/sprites/tortuga_town/v3/lib/wheelbarrow_1.png'), kind: 'prop', aspect: 0.6116, w: 10, solid: { inset: 0.1, up: 0.45 } },
   planks: { src: require('../../assets/sprites/tortuga_town/v3/planks.png'), kind: 'tile', aspect: 1, w: 12 },
+
+  // ── Matched set (style 2, generated 2026-11-15 from the master harbour image) ──
+  s2_stairs: { src: require('../../assets/sprites/tortuga_town/style2/edge_stairs.png'), kind: 'prop', aspect: 1.0791, w: 12, solid: false },
+  s2_crane: { src: require('../../assets/sprites/tortuga_town/style2/prop_crane.png'), kind: 'prop', aspect: 1.2866, w: 15, solid: { inset: 0.3, up: 0.18 } },
+  s2_crates: { src: require('../../assets/sprites/tortuga_town/style2/prop_crates.png'), kind: 'prop', aspect: 0.9711, w: 9, solid: { inset: 0.1, up: 0.45 } },
+  s2_barrels: { src: require('../../assets/sprites/tortuga_town/style2/prop_barrels.png'), kind: 'prop', aspect: 0.7641, w: 9, solid: { inset: 0.1, up: 0.5 } },
+  s2_bollard: { src: require('../../assets/sprites/tortuga_town/style2/prop_bollard.png'), kind: 'prop', aspect: 0.9733, w: 4.5, solid: false },
+  s2_palms: { src: require('../../assets/sprites/tortuga_town/style2/prop_palms.png'), kind: 'prop', aspect: 1.0842, w: 20, solid: { inset: 0.35, up: 0.12 } },
+  edge_retaining: { src: require('../../assets/sprites/tortuga_town/style2/edge_retaining.png'), kind: 'strip', aspect: 0.2654, w: 30 },
 };

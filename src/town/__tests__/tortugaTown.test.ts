@@ -54,7 +54,7 @@ describe('Tortuga town layout', () => {
       'long pier head': [-30, -392],
       'customs pier head': [110, -356],
       'fish pier head': [262, -444],
-      'gun point': [-82, -332],
+      'gun point': [-80, -338],
       square: [53, -126],
       'lower market': [53, -56],
       'chapel door': [132, -10],

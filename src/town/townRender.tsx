@@ -1,7 +1,7 @@
 /** Draws TownScene data (townScene.ts) as React Native views. */
 import React from 'react';
 import { Image as RNImage, View } from 'react-native';
-import type { GroundTile, SceneSprite } from './townScene';
+import type { GroundTile, SceneDecal, SceneSprite } from './townScene';
 
 /** One ground cell: clipped so partial tiles at an area's edge never stretch. */
 export function renderGroundTile(g: GroundTile) {
@@ -32,4 +32,9 @@ export function renderSceneSprite(s: SceneSprite) {
       style={{ position: 'absolute', left, top, width: s.w + (s.clipFrac !== undefined ? 0.2 : 0), height: s.h, transform: s.flip ? [{ scaleX: -1 }] : undefined }}
     />
   );
+}
+
+/** A flat ground image (baked ground chunk, pier deck). */
+export function renderDecal(d: SceneDecal) {
+  return <RNImage key={d.key} source={d.source} resizeMode="stretch" style={{ position: 'absolute', left: d.left, top: d.top, width: d.w + 0.15, height: d.h + 0.15 }} />;
 }
