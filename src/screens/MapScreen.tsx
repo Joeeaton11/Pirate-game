@@ -3202,6 +3202,7 @@ export default function MapScreen({ navigation }: Props) {
                   <Animated.View
                     style={[styles.playerSprite, { transform: [{ translateY: walkBounce }] }]}
                   >
+                    <View pointerEvents="none" style={styles.playerShadow} />
                     {activePoseFrames.map((frameSource, i) => (
                       <RNImage
                         key={i}
@@ -4017,6 +4018,16 @@ const styles = StyleSheet.create({
   playerSprite: {
     width: PLAYER_SIZE * 1.5 * 1.15,
     height: PLAYER_SIZE * 1.5 * 1.15,
+  },
+  // Soft ground shadow under his boots (feet sit 4px above the bottom of the 128px v2 canvas).
+  playerShadow: {
+    position: 'absolute',
+    left: PLAYER_SIZE * 1.725 * 0.5 - PLAYER_SIZE * 1.725 * 0.21,
+    top: PLAYER_SIZE * 1.725 * (124 / 128) - PLAYER_SIZE * 1.725 * 0.045,
+    width: PLAYER_SIZE * 1.725 * 0.42,
+    height: PLAYER_SIZE * 1.725 * 0.09,
+    borderRadius: PLAYER_SIZE,
+    backgroundColor: 'rgba(30, 18, 8, 0.45)',
   },
   // Each frame in the active walk/idle/run/flourish set overlays the same box, absolutely
   // positioned so they all stack exactly on top of each other — only the active one's `opacity`
