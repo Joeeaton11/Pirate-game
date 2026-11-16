@@ -561,6 +561,18 @@ export const RUN_SOURCES_BY_DIR: Record<FacingDirection, any[]> = {
     require('../../assets/sprites/scally/v2/run_sw_7.png'),
   ],
 };
+/** Mirror of the south run — used when Scally last faced left, so running down the screen leans
+ * the way he was heading instead of always towards the right. */
+export const RUN_S_MIRRORED: any[] = [
+  require('../../assets/sprites/scally/v2/run_sm_0.png'),
+  require('../../assets/sprites/scally/v2/run_sm_1.png'),
+  require('../../assets/sprites/scally/v2/run_sm_2.png'),
+  require('../../assets/sprites/scally/v2/run_sm_3.png'),
+  require('../../assets/sprites/scally/v2/run_sm_4.png'),
+  require('../../assets/sprites/scally/v2/run_sm_5.png'),
+  require('../../assets/sprites/scally/v2/run_sm_6.png'),
+  require('../../assets/sprites/scally/v2/run_sm_7.png'),
+];
 /** Kept for older callers: the east run. */
 export const RUN_SOURCES = RUN_SOURCES_BY_DIR.e;
 export function runSpriteSource(frameIndex: number, direction: FacingDirection = 'e') {
@@ -657,6 +669,7 @@ export const ALL_SCALLY_MAP_FRAMES: any[] = [
   ...(Object.values(WALK_SOURCES) as any[][]).flat(),
   ...(Object.values(IDLE_SOURCES) as any[][]).flat(),
   ...(Object.values(RUN_SOURCES_BY_DIR) as any[][]).flat(),
+  ...RUN_S_MIRRORED,
   ...WAVE_FRAMES,
   ...CELEBRATE_FRAMES,
   ...ATTACK_FRAMES,

@@ -93,6 +93,7 @@ import {
   RUN_FRAME_COUNT,
   RUN_HEAT_THRESHOLD,
   RUN_SOURCES_BY_DIR,
+  RUN_S_MIRRORED,
   ANIM_FRAME_MS,
   WAVE_FRAMES,
   CELEBRATE_FRAMES,
@@ -105,6 +106,11 @@ import {
 } from '../data/scallySprites';
 import {
   CHEEKY_WALK_FRAMES,
+  CHEEKY_HOP,
+  CHEEKY_IDLE,
+  CHEEKY_CELEBRATE,
+  SCALLY_CHEEKY_CLIMB,
+  CHEEKY_V2_ALL,
   MONKEY_IDLE,
   MONKEY_WINK,
   MONKEY_WINK_HOLD_MS,
@@ -199,7 +205,9 @@ const BUILDING_SIZE = 44;
 // captured (see showMonkeyOnDeck); CHEEKY_ALWAYS_FOLLOW skips that gate so he can be play-tested
 // from the start. Set it back to false once the follow behaviour is signed off.
 const CHEEKY_ALWAYS_FOLLOW = true;
-const CHEEKY_SIZE = 5.7; // world units (Scally is 8.5)
+/** How long Scally stands still before Cheeky climbs onto his shoulder. */
+const SHOULDER_CLIMB_DELAY_MS = 6000;
+const CHEEKY_SIZE = 9.5; // world units (Scally is ~12 tall in his v2 frames)
 const CHEEKY_TRAIL = 8; // world units of path Cheeky stays behind Scally
 const CHEEKY_MAX_CRUMBS = 120;
 // The Black Pearl under sail reads as a ship, not a person, so she gets a footprint closer to the
@@ -900,6 +908,17 @@ export default function MapScreen({ navigation }: Props) {
   // so he follows the actual route walked (round corners, along streets) instead of cutting across.
   const cheekyCrumbsRef = useRef<{ x: number; y: number }[]>([]);
   const cheekyPrevRef = useRef<{ x: number; y: number } | null>(null);
+  const cheekyDirRef = useRef<'e' | 'w' | 's' | 'n'>('e');
+  // Cheeky's own slow clock for his sitting idle loop.
+  const [cheekyTick, setCheekyTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setCheekyTick((t) => (t + 1) % 1200), 300);
+    return () => clearInterval(id);
+  }, []);
+  // After Scally has stood still a while, Cheeky scampers up onto his shoulder and rides there
+  // until Scally moves again ('climbing' plays SCALLY_CHEEKY_CLIMB, 'riding' holds its last frame).
+  const [shoulder, setShoulder] = useState<null | 'climbing' | 'riding'>(null);
+  const [climbFrame, setClimbFrame] = useState(0);
   const cheeky = (() => {
     const crumbs = cheekyCrumbsRef.current;
     const last = crumbs[crumbs.length - 1];
@@ -929,8 +948,15 @@ export default function MapScreen({ navigation }: Props) {
     }
     const prev = cheekyPrevRef.current;
     const facingLeft = prev && Math.abs(pos.x - prev.x) > 0.05 ? pos.x < prev.x : player.x < pos.x;
+    if (prev) {
+      const dx = pos.x - prev.x;
+      const dy = pos.y - prev.y;
+      if (Math.hypot(dx, dy) > 0.05) {
+        cheekyDirRef.current = Math.abs(dy) > Math.abs(dx) * 1.3 ? (dy > 0 ? 's' : 'n') : dx < 0 ? 'w' : 'e';
+      }
+    }
     cheekyPrevRef.current = pos;
-    return { ...pos, facingLeft };
+    return { ...pos, facingLeft, dir: cheekyDirRef.current };
   })();
   useEffect(() => {
     if (!showMonkeyOnDeck) return;
@@ -1439,6 +1465,33 @@ export default function MapScreen({ navigation }: Props) {
     const id = setInterval(() => setEmoteFrame((f) => Math.min(f + 1, emoteOverlay.frames.length - 1)), ANIM_FRAME_MS);
     return () => clearInterval(id);
   }, [emoteOverlay]);
+
+  useEffect(() => {
+    if (isMoving || !cheekyFollowing || emoteOverlay) {
+      setShoulder(null);
+      return;
+    }
+    const start = setTimeout(() => {
+      setFacingDir('s');
+      setClimbFrame(0);
+      setShoulder('climbing');
+    }, SHOULDER_CLIMB_DELAY_MS);
+    return () => clearTimeout(start);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMoving, cheekyFollowing, emoteOverlay]);
+  useEffect(() => {
+    if (shoulder !== 'climbing') return;
+    const id = setInterval(() => {
+      setClimbFrame((f) => {
+        if (f + 1 >= SCALLY_CHEEKY_CLIMB.length - 1) {
+          setShoulder('riding');
+          return SCALLY_CHEEKY_CLIMB.length - 1;
+        }
+        return f + 1;
+      });
+    }, 130);
+    return () => clearInterval(id);
+  }, [shoulder]);
 
   function flashCaptainFace(source: any, holdMs: number) {
     if (captainFaceOverrideTimeoutRef.current) clearTimeout(captainFaceOverrideTimeoutRef.current);
@@ -3079,7 +3132,7 @@ export default function MapScreen({ navigation }: Props) {
               </View>
             )}
 
-            {cheekyFollowing && (
+            {cheekyFollowing && !shoulder && (
               <View
                 pointerEvents="none"
                 style={{
@@ -3089,30 +3142,36 @@ export default function MapScreen({ navigation }: Props) {
                   top: cheeky.y + PLAYER_SIZE / ZOOM / 2 - CHEEKY_SIZE,
                   width: CHEEKY_SIZE,
                   height: CHEEKY_SIZE,
-                  transform: cheeky.facingLeft ? [{ scaleX: -1 }] : undefined,
                 }}
               >
                 {/* Same opacity-toggle trick as Scally's own frames (see the "ghosting" note on the
                     player sprite): every frame stays mounted and decoded, only one is visible. */}
-                {[...CHEEKY_WALK_FRAMES, monkeyWinking ? MONKEY_WINK : MONKEY_IDLE].map((src, i) => (
-                  <RNImage
-                    key={`cheeky-${i}`}
-                    source={src}
-                    resizeMode="contain"
-                    style={{
-                      position: 'absolute',
-                      width: CHEEKY_SIZE,
-                      height: CHEEKY_SIZE,
-                      opacity: isMoving
-                        ? i === walkSpriteFrame % CHEEKY_WALK_FRAMES.length
-                          ? 1
-                          : 0
-                        : i === CHEEKY_WALK_FRAMES.length
-                        ? 1
-                        : 0,
-                    }}
-                  />
-                ))}
+                {(() => {
+                  const celebrating = emoteOverlay?.frames === CELEBRATE_FRAMES;
+                  const active = celebrating
+                    ? CHEEKY_CELEBRATE
+                    : isMoving
+                    ? CHEEKY_HOP[cheeky.dir]
+                    : CHEEKY_IDLE;
+                  const idx = celebrating
+                    ? Math.min(Math.round((emoteFrame * CHEEKY_CELEBRATE.length) / CELEBRATE_FRAMES.length), CHEEKY_CELEBRATE.length - 1)
+                    : isMoving
+                    ? walkSpriteFrame % active.length
+                    : cheekyTick % active.length;
+                  return CHEEKY_V2_ALL.slice(0, 8 * 4 + CHEEKY_IDLE.length + CHEEKY_CELEBRATE.length).map((src, i) => (
+                    <RNImage
+                      key={`cheeky-${i}`}
+                      source={src}
+                      resizeMode="contain"
+                      style={{
+                        position: 'absolute',
+                        width: CHEEKY_SIZE,
+                        height: CHEEKY_SIZE,
+                        opacity: src === active[idx] ? 1 : 0,
+                      }}
+                    />
+                  ));
+                })()}
               </View>
             )}
           </View>
@@ -3135,7 +3194,7 @@ export default function MapScreen({ navigation }: Props) {
                 triggers a flourish in) that direction. 0-size and non-interactive — exists purely
                 to force an early decode. See the "ghosting" fix note below. */}
             <View style={styles.preloadFrames} pointerEvents="none">
-              {ALL_SCALLY_MAP_FRAMES.map((frameSource, i) => (
+              {[...ALL_SCALLY_MAP_FRAMES, ...CHEEKY_V2_ALL].map((frameSource, i) => (
                 <RNImage key={i} source={frameSource} style={styles.preloadFrame} />
               ))}
             </View>
@@ -3175,16 +3234,24 @@ export default function MapScreen({ navigation }: Props) {
               // (preloading every direction's frames up front so even a fresh direction change never
               // re-triggers a first-time-decode).
               (() => {
-                const activePoseFrames = scallyAttackFlash
+                const activePoseFrames = shoulder
+                  ? SCALLY_CHEEKY_CLIMB
+                  : scallyAttackFlash
                   ? [scallyAttackFlash === 'attack' ? POSE_ATTACK : POSE_SWORD_READY]
                   : emoteOverlay
                   ? emoteOverlay.frames
                   : idleFlourish
                   ? idleFlourish.frames
                   : isRunning
-                  ? RUN_SOURCES_BY_DIR[facingDir]
+                  ? facingDir === 's' && !facingRight
+                    ? RUN_S_MIRRORED
+                    : RUN_SOURCES_BY_DIR[facingDir]
                   : scallySpriteFrames(facingDir, isMoving);
-                const activeFrameIndex = scallyAttackFlash
+                const activeFrameIndex = shoulder
+                  ? shoulder === 'riding'
+                    ? SCALLY_CHEEKY_CLIMB.length - 1
+                    : climbFrame
+                  : scallyAttackFlash
                   ? 0
                   : emoteOverlay
                   ? emoteFrame
