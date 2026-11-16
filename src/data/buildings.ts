@@ -63,7 +63,7 @@ export const BUILDINGS: Building[] = [
     // Full-town rebuild 2026-08-07 (item 52): every Tortuga building repositioned around the new
     // horseshoe bay (see islands.ts). This one sits in the tavern district, right by the busiest
     // stretch of the quay.
-    offset: { x: 23.7, y: -130.5 },
+    offset: { x: 24, y: -132 },
     npcName: 'Old Tom',
     npcEmoji: '🧔',
     dialogue: "Buy a round and I'll sign on, no questions asked.",
@@ -77,7 +77,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🏪',
     spriteId: 'trading_co',
     // Full-town rebuild 2026-08-07 (item 52): tavern-district neighbor to the Salty Parrot.
-    offset: { x: 100.4, y: -130.5 },
+    offset: { x: 53, y: -132 },
     npcName: 'Merchant Wren',
     npcEmoji: '🧑‍💼',
     dialogue: "I know a sharpshooter looking for steady work, if you've got the coin.",
@@ -189,7 +189,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'fishmonger',
     // Full-town rebuild 2026-08-07 (item 52): the east side of the bay, past the chapel, near
     // the working docks.
-    offset: { x: 195, y: -206.5 },
+    offset: { x: 194.8, y: -205.5 },
     npcName: 'Old Dinah',
     npcEmoji: '🧓',
     dialogue: "Freshest catch on the wharf. Buy it fair, or don't let me catch you taking it.",
@@ -270,7 +270,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'chapel',
     // Full-town rebuild 2026-08-07 (item 52): east side of the bay, between the tavern district
     // and Fort de Rocher's headland.
-    offset: { x: 127.2, y: -8.5 },
+    offset: { x: 121.9, y: -7.2 },
     npcName: 'Brother Aldric',
     npcEmoji: '🙏',
     dialogue: "Even outlaws want forgiveness sometimes. I keep the door open and ask no questions about the cargo.",
@@ -286,7 +286,7 @@ export const BUILDINGS: Building[] = [
     // Full-town rebuild 2026-08-07 (item 52): tucked in a nook on the west side of the bay,
     // behind the Cooper's Yard and Sailmaker's Loft — contraband storage, out of sight of the
     // main quay.
-    offset: { x: 68, y: 19.5 },
+    offset: { x: 67.7, y: 20.9 },
     npcName: 'Big Pella',
     npcEmoji: '🧔‍♂️',
     dialogue: "Crates in, crates out, no manifest ever matches. You look like you can keep your mouth shut — that's worth good coin here.",
@@ -312,7 +312,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🏛️',
     // Full-town rebuild 2026-08-07 (item 52): right by the Harbourmaster's Office at the
     // sheltered bottom of the bay, the harbor's administrative core.
-    offset: { x: 128, y: -206.5 },
+    offset: { x: 127.5, y: -205.5 },
     npcName: 'Inspector Hale',
     npcEmoji: '🎩',
     dialogue:
@@ -361,7 +361,7 @@ export const BUILDINGS: Building[] = [
     name: "The Baker's Oven",
     type: 'shop',
     emoji: '🍞',
-    offset: { x: 80.7, y: -130.5 },
+    offset: { x: 79.2, y: -132 },
     npcName: 'Baker Solange',
     npcEmoji: '🧑🏽‍🍳',
     dialogue: "Bread at dawn, before the tavern crowd's even awake. Half the town lines up for it anyway — the other half sends a cabin boy so they don't have to.",
@@ -390,7 +390,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'blacksmith',
     // Full-town rebuild 2026-08-07 (item 52): west side of the bay, between the Chandlery and
     // the Harbourmaster's Office — metalwork close to the working docks.
-    offset: { x: -93.6, y: -58.5 },
+    offset: { x: -93.8, y: -58 },
     npcName: 'Forge-Master Kade',
     npcEmoji: '🔨',
     dialogue: "Cutlasses, grapeshot, ship fittings — if it's metal and it's broken, I can fix it or melt it down and start again.",
@@ -472,7 +472,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'dock_office',
     // Full-town rebuild 2026-08-07 (item 52): the sheltered bottom of the bay, right on the
     // quay — the harbor's administrative heart.
-    offset: { x: 44.4, y: -206.5 },
+    offset: { x: 44.8, y: -205.5 },
     npcName: 'Harbourmaster Voss',
     npcEmoji: '🎖️',
     dialogue: "Every hull that ties up on this dock answers to me first — the Customs House gets its cut after. Been running this waterfront since before some of you had teeth.",
@@ -486,7 +486,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🕯️',
     spriteId: 'shipyard',
     // Full-town rebuild 2026-08-07 (item 52): west side of the bay, past the Warehouse.
-    offset: { x: 133, y: -130.5 },
+    offset: { x: 167.7, y: -131 },
     npcName: 'Fenwick',
     npcEmoji: '🪢',
     dialogue: "Rope, tar, sailcloth, spare rigging — if it keeps a ship's canvas from tearing loose in a storm, I stock it. My apprentice here's quick with a splice, if you're hiring.",
@@ -500,7 +500,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🛏️',
     spriteId: 'inn',
     // Full-town rebuild 2026-08-07 (item 52): tavern-district side, east of Harbor Trading Post.
-    offset: { x: -22.7, y: 15.5 },
+    offset: { x: 93.8, y: -132 },
     npcName: 'Cutter Doyle',
     npcEmoji: '🧢',
     dialogue: "Six of us to a room and the walls still leak, but the pay's honest and the rum's cheap. Card games run past midnight if you fancy losing your coin the easy way.",
@@ -519,7 +519,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'market',
     // Full-town rebuild 2026-08-07 (item 52): west side of the bay, the docks-and-careening
     // quarter, next to the Sailmaker's Loft.
-    offset: { x: -73.3, y: 19.5 },
+    offset: { x: -60.4, y: 17.8 },
     npcName: 'Old Merriweather',
     npcEmoji: '🔨',
     dialogue: "Every cask of salt pork, rum, and fresh water on this waterfront passed through my hands first. Been hooping barrels since before the Chandlery had a roof.",
@@ -534,7 +534,7 @@ export const BUILDINGS: Building[] = [
     spriteId: 'tailor',
     // Full-town rebuild 2026-08-07 (item 52): the west headland side of the bay, closest to the
     // careening beach.
-    offset: { x: -117.3, y: 19.5 },
+    offset: { x: -115.6, y: 17.8 },
     npcName: 'Needle Annie',
     npcEmoji: '🪡',
     dialogue: "Torn canvas, a busted seam mid-squall, a flag shot clean off its halyard — bring it here before you bring it to the bottom of the sea.",
@@ -697,7 +697,7 @@ export const BUILDINGS: Building[] = [
     type: 'smithy',
     emoji: '🛶',
     spriteId: 'shipyard',
-    offset: { x: -58.7, y: -62.5 },
+    offset: { x: -137, y: -152.5 },
     npcName: 'Bosun Katell',
     npcEmoji: '👷🏻‍♀️',
     dialogue: "Tip her on her side, scrape the weed and the worm off the hull, patch what's rotten — same trick that's kept this whole harbor's fleet afloat.",
@@ -709,7 +709,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Tannery',
     type: 'warehouse',
     emoji: '🥾',
-    offset: { x: 230, y: -61.5 },
+    offset: { x: 270, y: -58 },
     npcName: 'Tanner Osric',
     npcEmoji: '🧑🏼‍🏭',
     dialogue: "You can smell this place before you see it, and I've long since stopped apologizing for that. Every belt and boot sole in town starts here.",
@@ -720,7 +720,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Distillery',
     type: 'shop',
     emoji: '🥃',
-    offset: { x: 136.5, y: -58.5 },
+    offset: { x: 137.5, y: -57 },
     npcName: 'Distiller Rosalind',
     npcEmoji: '🧑🏻‍🔬',
     dialogue: "Licensed, taxed, and above-board — unlike a certain still I hear tell of out in the High Woods. Mine's just better rum, is all.",
@@ -746,7 +746,7 @@ export const BUILDINGS: Building[] = [
     type: 'shop',
     emoji: '🧺',
     spriteId: 'trading_co',
-    offset: { x: -33, y: -206.5 },
+    offset: { x: -38.5, y: -205.5 },
     npcName: 'Provisioner Idelle',
     npcEmoji: '🧑🏾‍💼',
     dialogue: "Salt pork, hard biscuit, a cask of water that won't turn green by the second week — I stock a voyage, not a shopping list.",
@@ -758,7 +758,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Salt Works',
     type: 'warehouse',
     emoji: '🧂',
-    offset: { x: 17, y: 15.5 },
+    offset: { x: 235.4, y: -132 },
     npcName: 'Salter Benoit',
     npcEmoji: '🧑🏼‍🔧',
     dialogue: "Evaporate the seawater, rake the pans, cure the catch before it turns — dull work, but a harbor full of fishermen would starve without it.",
@@ -771,7 +771,7 @@ export const BUILDINGS: Building[] = [
     type: 'tavern',
     emoji: '🛏️',
     spriteId: 'inn',
-    offset: { x: 171.7, y: -132.5 },
+    offset: { x: -35.4, y: -134 },
     npcName: 'Landlady Fenn',
     npcEmoji: '🧑🏽‍🦱',
     dialogue: "A bed, a lock on the door, and I don't ask why you're paying in coin that still smells of powder smoke. Rules of the house — settle up before you sail.",
@@ -783,7 +783,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Turtle Kraal',
     type: 'market',
     emoji: '🐢',
-    offset: { x: 222.7, y: -130.5 },
+    offset: { x: 217.7, y: -132 },
     npcName: 'Kraal-Keeper Junot',
     npcEmoji: '🧑🏿‍🌾',
     dialogue: "Live pens, penned right off the shallows — the same trade the Dutch named this whole island for. We just never stopped doing it.",
@@ -795,7 +795,7 @@ export const BUILDINGS: Building[] = [
     name: 'The Timber Yard',
     type: 'warehouse',
     emoji: '🪵',
-    offset: { x: -38.7, y: -62.5 },
+    offset: { x: 10.4, y: 17.8 },
     npcName: 'Yardmaster Colm',
     npcEmoji: '🧑🏻‍🌾',
     dialogue: "Every plank that patches a hull in this harbor came through my yard first. Good wood's worth more than the gold it gets traded for, some seasons.",
@@ -807,7 +807,7 @@ export const BUILDINGS: Building[] = [
     name: "The Sexton's House",
     type: 'chapel',
     emoji: '⛏️',
-    offset: { x: 249.8, y: -61.5 },
+    offset: { x: 231, y: -57 },
     npcName: 'Sexton Marcelline',
     npcEmoji: '🧑🏽‍🦳',
     dialogue: "I dig the graves, ring the bell for Chapelle Notre-Dame, and keep the churchyard tidier than most of this town deserves.",
@@ -819,7 +819,7 @@ export const BUILDINGS: Building[] = [
     type: 'market',
     emoji: '🎣',
     spriteId: 'fishmonger',
-    offset: { x: -72.7, y: -206.5 },
+    offset: { x: -73, y: -205.5 },
     npcName: 'Guildmaster Perrin',
     npcEmoji: '🧑🏻‍🦲',
     dialogue: "Every hook and net crew on this coast pays dues here, one way or another. Cross the Guild and you'll find your usual waters strangely empty of fish.",
@@ -845,7 +845,7 @@ export const BUILDINGS: Building[] = [
     emoji: '📦',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: -2.7, y: 15.5 },
+    offset: { x: -58.3, y: -59 },
     npcName: "Quartermaster Dobbs",
     npcEmoji: '🧔‍♂️',
     dialogue: "Whatever the main warehouse can't fit ends up here. Got cargo? I'll take it off your hands.",
@@ -873,7 +873,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🛏️',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: -28.7, y: -133.5 },
+    offset: { x: -52, y: -134 },
     npcName: "Bosun Hale",
     npcEmoji: '🧑‍✈️',
     dialogue: "Sailors between ships bunk here. Find the right one and they'll follow you anywhere.",
@@ -887,7 +887,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🛢️',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: -110.4, y: -130.5 },
+    offset: { x: -110.4, y: -130 },
     npcName: "Barrel-Keep Maude",
     npcEmoji: '👩‍🦰',
     dialogue: "Yes, the whole front room is a barrel. No, you can't roll it home.",
@@ -902,7 +902,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🐓',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: -68.7, y: -133.5 },
+    offset: { x: -68.8, y: -134 },
     npcName: "Red Rooster Jack",
     npcEmoji: '🤠',
     dialogue: "Loudest room in Tortuga. If you can hear yourself think, it's a slow night.",
@@ -930,7 +930,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🧺',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: -52.7, y: -206.5 },
+    offset: { x: -55, y: -205.5 },
     npcName: "Trader Esmé",
     npcEmoji: '🧕',
     dialogue: "Spices from the east, silks from the south, and no questions about either.",
@@ -945,7 +945,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🪢',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: -53.5, y: 19.5 },
+    offset: { x: 193.8, y: -131 },
     npcName: "Rigger Tobias",
     npcEmoji: '🧑‍🔧',
     dialogue: "A ship's only as good as her rigging. Lucky for you, mine's the best.",
@@ -973,7 +973,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🥅',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: -93.3, y: 19.5 },
+    offset: { x: 133.3, y: -130 },
     npcName: "Netmaker Coralie",
     npcEmoji: '👩',
     dialogue: "Bring me your catch and I'll give you a fair price. Bring me a torn net and I'll fix it for free.",
@@ -987,7 +987,7 @@ export const BUILDINGS: Building[] = [
     emoji: '💥',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: 242.4, y: -130.5 },
+    offset: { x: 15.6, y: -205.5 },
     npcName: "Powder Pete",
     npcEmoji: '🧑‍🚒',
     dialogue: "Keep your lantern outside, friend. Everything in here goes bang.",
@@ -1002,7 +1002,7 @@ export const BUILDINGS: Building[] = [
     emoji: '🦜',
     // Added in the Tortuga Cove art pass v2 (2026-11-14) — one of the survey's 12 proposed
     // buildings, now enterable. Art: TORTUGA_V2_BUILDING_SPRITES (tortugaV2.ts).
-    offset: { x: 190.2, y: -58.5 },
+    offset: { x: 193.8, y: -56 },
     npcName: "Señora Plume",
     npcEmoji: '💃',
     dialogue: "Every captain needs a parrot. Well — every captain who wants to look like one.",

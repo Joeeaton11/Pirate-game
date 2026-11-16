@@ -51,17 +51,16 @@ describe('Tortuga town layout', () => {
 
   it('can reach the piers, the square, the lower market and the hills', () => {
     const spots: Record<string, [number, number]> = {
-      'long pier head': [-30, -392],
-      'customs pier head': [110, -356],
-      'fish pier head': [262, -444],
-      'gun point': [-80, -338],
-      'raised quay': [30, -276],
-      wharf: [60, -300],
-      square: [53, -126],
-      'lower market': [53, -56],
-      'chapel door': [132, -10],
-      'gallows lane exit': [171, 50],
-      'tar lane west end': [-145, -130],
+      'long pier head': [-30, -394],
+      'customs pier head': [112, -380],
+      'fish pier head': [262, -443],
+      'gun point': [-83, -330],
+      wharf: [60, -302],
+      'fish quay': [240, -320],
+      square: [30, -100],
+      'lower market': [30, -70],
+      'chapel door': [122, -10],
+      'south lane': [171, 25],
     };
     const missing = Object.entries(spots).filter(([, [x, y]]) => !near(x, y)).map(([k]) => k);
     expect(missing).toEqual([]);

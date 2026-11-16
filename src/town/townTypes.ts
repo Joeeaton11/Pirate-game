@@ -111,6 +111,8 @@ export interface TownLayout {
   decals?: BakedChunk[];
   /** Invisible walls: harbour edges, pier rails, anywhere the player shouldn't walk. */
   blocks: Rect[];
+  /** Doors drawn into a painted picture (no building sprite): id from src/data/buildings.ts. */
+  doors?: { id: string; x: number; y: number }[];
   /** Where a new game starts on this island (inside the town). */
   spawn: { x: number; y: number };
 }

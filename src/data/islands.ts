@@ -215,7 +215,7 @@ export const ISLAND_LIST = Object.values(ISLANDS);
 // footprint, so spawn on the open north side of the new town square instead.
 export const START_POSITION = {
   x: ISLANDS.tortuga_cove.position.x + 30,
-  y: ISLANDS.tortuga_cove.position.y - 108,
+  y: ISLANDS.tortuga_cove.position.y - 100,
 };
 
 /** Wild encounters rolled while sailing open water, away from any island. */

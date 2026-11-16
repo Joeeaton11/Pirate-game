@@ -55,19 +55,18 @@ export const PIERS: PierSegment[] = [
   // right angle.
   { islandId: 'tortuga_cove', from: { x: -168, y: -507 }, to: { x: -238, y: -507 } },
   { islandId: 'tortuga_cove', from: { x: -168, y: -507 }, to: { x: -99, y: -507 } },
-  // Town harbour piers (2026-11-14 town-centre rebuild): walkable boardwalks drawn by the town
-  // scene (src/town/tortugaTownLayout.ts builds its pier art from these same segments, so the
-  // walkable line and the planks can never drift apart). Walk off a pier's open end to set sail.
+  // Town harbour piers (2026-11-14 town-centre rebuild): walkable boardwalks painted into the town
+  // picture (src/town/tortugaTownLayout.ts); these lines trace the painted planks: Long Pier
+  // (T-head), Customs Pier (L-head) and the Fish Pier.
   // Long Pier (T-head) off the main quay:
-  { islandId: 'tortuga_cove', from: { x: -10, y: -292 }, to: { x: -10, y: -392 }, townDrawn: true },
-  { islandId: 'tortuga_cove', from: { x: -10, y: -392 }, to: { x: -48, y: -392 }, townDrawn: true },
-  { islandId: 'tortuga_cove', from: { x: -10, y: -392 }, to: { x: 28, y: -392 }, townDrawn: true },
-  // Customs Pier (L-head east):
-  { islandId: 'tortuga_cove', from: { x: 78, y: -292 }, to: { x: 78, y: -356 }, townDrawn: true },
-  { islandId: 'tortuga_cove', from: { x: 78, y: -356 }, to: { x: 122, y: -356 }, townDrawn: true },
-  // Fish Pier off the fish quay (L-head east):
-  { islandId: 'tortuga_cove', from: { x: 236, y: -372 }, to: { x: 236, y: -444 }, townDrawn: true },
-  { islandId: 'tortuga_cove', from: { x: 236, y: -444 }, to: { x: 276, y: -444 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: -10.5, y: -290 }, to: { x: -10.5, y: -394 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: -10.5, y: -394 }, to: { x: -50, y: -394 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: -10.5, y: -394 }, to: { x: 29, y: -394 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: 77, y: -290 }, to: { x: 77, y: -355 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: 77, y: -355 }, to: { x: 118, y: -355 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: 112, y: -355 }, to: { x: 112, y: -386 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: 235.5, y: -374 }, to: { x: 235.5, y: -443 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: 235.5, y: -443 }, to: { x: 277, y: -443 }, townDrawn: true },
   // Missed docks, added 2026-09-12 (GAME_DESIGN.md item 218) — direct feedback: "you've missed
   // the north and south docks." Two real structures the reference blueprint shows that the
   // original Shapely rebuild never picked up: a long boardwalk climbing the west headland up
@@ -91,14 +90,15 @@ export const PIERS: PierSegment[] = [
  * inland of the true coastline so it always draws on solid ground. */
 export const QUAYS: PierSegment[] = [
   // Town wharf (2026-11-14): keeps the whole plank wharf walkable where the coast dips inland.
-  { islandId: 'tortuga_cove', from: { x: -73, y: -298 }, to: { x: 196, y: -298 }, townDrawn: true },
-  { islandId: 'tortuga_cove', from: { x: 196, y: -340 }, to: { x: 258, y: -340 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: -55, y: -303 }, to: { x: 121, y: -303 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: 121, y: -293 }, to: { x: 258, y: -293 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: 227, y: -325 }, to: { x: 258, y: -325 }, townDrawn: true },
+  { islandId: 'tortuga_cove', from: { x: 200, y: -362 }, to: { x: 258, y: -362 }, townDrawn: true },
   // Tortuga Cove art pass v2 (2026-11-14): quay walls retraced to match the painted backdrop
   // (tortugaV2.ts) — 10 world units inland of the coastline through the harbour mouth.
   { islandId: 'tortuga_cove', from: { x: -246, y: -435.5 }, to: { x: -253.5, y: -319.5 } },
   { islandId: 'tortuga_cove', from: { x: -253.5, y: -319.5 }, to: { x: -170.5, y: -223.5 } },
   { islandId: 'tortuga_cove', from: { x: -170.5, y: -223.5 }, to: { x: -105.5, y: -229.5 } },
-  { islandId: 'tortuga_cove', from: { x: -105.5, y: -229.5 }, to: { x: -80.5, y: -259.5 }, townDrawn: true },
   { islandId: 'tortuga_cove', from: { x: -80.5, y: -259.5 }, to: { x: -135, y: -335 }, townDrawn: true },
   { islandId: 'tortuga_cove', from: { x: -135, y: -335 }, to: { x: -102, y: -359.5 } },
   { islandId: 'tortuga_cove', from: { x: -102, y: -359.5 }, to: { x: -124, y: -427.5 } },

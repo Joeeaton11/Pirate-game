@@ -149,6 +149,11 @@ export function buildTownScene(
     }
   });
 
+  (layout.doors ?? []).forEach((d) => {
+    doors.push({ id: d.id, x: ox + d.x, y: oy + d.y });
+    buildingIds.add(d.id);
+  });
+
   // Planted patches become ordinary props (non-solid individually; the patch rect is solid).
   const DEFAULT_KINDS = ['bush', 'bush', 'bush', 'palm_tall', 'palm_tall', 'plant_bed'];
   const SIZE: Record<string, [number, number]> = { bush: [6.5, 9], palm_tall: [12, 17], plant_bed: [8, 10.5] };
