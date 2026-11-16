@@ -92,7 +92,11 @@ import {
   POSE_SWORD_READY,
   RUN_FRAME_COUNT,
   RUN_HEAT_THRESHOLD,
-  RUN_SOURCES,
+  RUN_SOURCES_BY_DIR,
+  ANIM_FRAME_MS,
+  WAVE_FRAMES,
+  CELEBRATE_FRAMES,
+  ATTACK_FRAMES,
   SCALLY_PORTRAIT,
   VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
@@ -328,6 +332,7 @@ const SHOW_BUILDINGS = false;
 // building/house/prop sprites from src/data/tortugaV2.ts. Independent of the SHOW_* scaffolding
 // layers above, so it can be flipped off on its own to compare against the old layer rebuild.
 const SHOW_TORTUGA_V2 = true;
+const SHOW_OLD_IDLE_FLOURISHES = false;
 
 /** Every Tortuga v2 sprite (buildings, houses, street props) as one list sorted by its ground line
  * (bottom edge), so nearer things overlap farther ones correctly. Static — built once. Sprites are
@@ -854,7 +859,8 @@ export default function MapScreen({ navigation }: Props) {
   // immediately if isMoving flips true while one is showing, so an emote can never freeze a stride
   // (the actual bug in item 79's first attempt was elsewhere — see scallySprites.ts — but this guard
   // costs nothing and removes any risk of repeating it).
-  const [emoteOverlay, setEmoteOverlay] = useState<{ source: any } | null>(null);
+  const [emoteOverlay, setEmoteOverlay] = useState<{ frames: any[] } | null>(null);
+  const [emoteFrame, setEmoteFrame] = useState(0);
   const emoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // The "prolonged idle" flourish — a full multi-frame animated vignette (juggling coins, reading
   // a map, dozing off, ...), distinct from the single-frame emotes above. Holds which flourish is
@@ -1174,15 +1180,12 @@ export default function MapScreen({ navigation }: Props) {
       // attack then sword-ready for a beat each before cutting to the battle screen, instead of an
       // instant cut. Also clears any showing emote outright — a duel starting is a harder interrupt
       // than ordinary movement, so it doesn't wait for the emote's own hold timer to finish.
-      setEmoteOverlay(null);
-      setScallyAttackFlash('attack');
+      setScallyAttackFlash(null);
+      flashEmote(ATTACK_FRAMES, 0);
       setTimeout(() => {
-        setScallyAttackFlash('sword_ready');
-        setTimeout(() => {
-          setScallyAttackFlash(null);
-          fire();
-        }, ATTACK_FLASH_MS);
-      }, ATTACK_FLASH_MS);
+        setEmoteOverlay(null);
+        fire();
+      }, ATTACK_FRAMES.length * ANIM_FRAME_MS + 150);
     }
   }
 
@@ -1328,8 +1331,7 @@ export default function MapScreen({ navigation }: Props) {
   const isRunning =
     isMoving &&
     !!islandAtPoint(player) &&
-    (facingDir === 'w' || facingDir === 'e') &&
-    heat > RUN_HEAT_THRESHOLD * 100;
+    heat > RUN_HEAT_THRESHOLD * 100; // v2 has a run cycle for all 8 directions
 
   // Cycles Captain Scally's sprite through its 12-frame walk cycle while moving, AND bobs him
   // vertically, off the exact same 110ms tick — merged into one effect/interval 2026-08-23 after
@@ -1373,14 +1375,14 @@ export default function MapScreen({ navigation }: Props) {
       Animated.timing(walkBounce, { toValue: 0, duration: 120, useNativeDriver: true }).start();
       return;
     }
-    const bounceAmplitude = isRunning ? -3 : -6;
+    const bounceAmplitude = isRunning ? -1 : -2; // v2 frames carry their own body bob
     // A ref, not a local variable — this effect re-runs whenever `isRunning` toggles mid-walk (to
     // pick up the new bounce amplitude), and a local counter would reset to 0 on every one of those
     // reruns, reintroducing the exact "pops back to frame 0 on a run transition" glitch a previous
     // fix (see scallySprites.ts's run-cycle comment) deliberately avoided. The ref persists across
     // reruns so a walk<->run transition always continues from wherever the stride actually was.
     const id = setInterval(() => {
-      walkTickRef.current = (walkTickRef.current + 1) % 60;
+      walkTickRef.current = (walkTickRef.current + 1) % 120; // multiple of every cycle length (8)
       const tick = walkTickRef.current;
       setWalkSpriteFrame(tick);
       const strideFraction = (tick % WALK_FRAME_COUNT) / WALK_FRAME_COUNT;
@@ -1417,11 +1419,19 @@ export default function MapScreen({ navigation }: Props) {
     return () => clearInterval(id);
   }, [isMoving]);
 
-  function flashEmote(source: any, holdMs: number) {
+  /** Plays a one-shot animation once through (a single image just holds for holdMs). */
+  function flashEmote(frames: any[], holdMs: number) {
     if (emoteTimeoutRef.current) clearTimeout(emoteTimeoutRef.current);
-    setEmoteOverlay({ source });
-    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), holdMs);
+    setEmoteOverlay({ frames });
+    setEmoteFrame(0);
+    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), Math.max(holdMs, frames.length * ANIM_FRAME_MS + 250));
   }
+
+  useEffect(() => {
+    if (!emoteOverlay || emoteOverlay.frames.length < 2) return;
+    const id = setInterval(() => setEmoteFrame((f) => Math.min(f + 1, emoteOverlay.frames.length - 1)), ANIM_FRAME_MS);
+    return () => clearInterval(id);
+  }, [emoteOverlay]);
 
   function flashCaptainFace(source: any, holdMs: number) {
     if (captainFaceOverrideTimeoutRef.current) clearTimeout(captainFaceOverrideTimeoutRef.current);
@@ -1434,7 +1444,7 @@ export default function MapScreen({ navigation }: Props) {
   // building shouldn't interrupt the stride to wave at it.
   useEffect(() => {
     if (nearbyBuildingPrompt && !isMoving) {
-      flashEmote(EMOTE_WAVE, WAVE_ANIMATION_MS);
+      flashEmote(WAVE_FRAMES, WAVE_ANIMATION_MS);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once per prompt appearing, not
     // once per render while it's showing.
@@ -1453,7 +1463,7 @@ export default function MapScreen({ navigation }: Props) {
     prevDefeatedLordCountRef.current = defeatedLordIds.length;
     prevCompletedQuestCountRef.current = completedQuestIds.length;
     if (!grew) return;
-    if (!isMoving) flashEmote(EMOTE_VICTORY, VICTORY_ANIMATION_MS);
+    if (!isMoving) flashEmote(CELEBRATE_FRAMES, VICTORY_ANIMATION_MS);
     flashCaptainFace(lordGrew ? FACE_LAUGH : FACE_HAPPY, VICTORY_ANIMATION_MS);
   }, [defeatedLordIds.length, completedQuestIds.length, isMoving]);
 
@@ -1468,6 +1478,8 @@ export default function MapScreen({ navigation }: Props) {
       }
       return;
     }
+    // Old-style flourish art doesn't match the v2 sprites (2026-11-16) — off until redone in v2.
+    if (!SHOW_OLD_IDLE_FLOURISHES) return;
     idleFlourishTimerRef.current = setTimeout(() => {
       const pick = IDLE_FLOURISHES[Math.floor(Math.random() * IDLE_FLOURISHES.length)];
       setIdleFlourish(pick);
@@ -3159,14 +3171,16 @@ export default function MapScreen({ navigation }: Props) {
                 const activePoseFrames = scallyAttackFlash
                   ? [scallyAttackFlash === 'attack' ? POSE_ATTACK : POSE_SWORD_READY]
                   : emoteOverlay
-                  ? [emoteOverlay.source]
+                  ? emoteOverlay.frames
                   : idleFlourish
                   ? idleFlourish.frames
                   : isRunning
-                  ? RUN_SOURCES
+                  ? RUN_SOURCES_BY_DIR[facingDir]
                   : scallySpriteFrames(facingDir, isMoving);
-                const activeFrameIndex = scallyAttackFlash || emoteOverlay
+                const activeFrameIndex = scallyAttackFlash
                   ? 0
+                  : emoteOverlay
+                  ? emoteFrame
                   : idleFlourish
                   ? idleFlourishFrame
                   : isRunning
@@ -3991,9 +4005,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // v2 frames are a 112x128 canvas with the standing figure 108px tall; sized so he stands the
+  // same height as before (the old frames filled ~97% of theirs).
   playerSprite: {
-    width: PLAYER_SIZE * 1.5,
-    height: PLAYER_SIZE * 1.5,
+    width: PLAYER_SIZE * 1.5 * 1.15,
+    height: PLAYER_SIZE * 1.5 * 1.15,
   },
   // Each frame in the active walk/idle/run/flourish set overlays the same box, absolutely
   // positioned so they all stack exactly on top of each other — only the active one's `opacity`
