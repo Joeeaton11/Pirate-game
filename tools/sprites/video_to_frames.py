@@ -60,6 +60,8 @@ def main():
     ap.add_argument('--base', type=int, default=4, help='px from canvas bottom to the feet')
     ap.add_argument('--end', type=float, default=None, help='one-shots: stop at this many seconds')
     ap.add_argument('--loop', action='store_true')
+    ap.add_argument('--mirror-half', action='store_true', help='front/back: second step = mirrored first step')
+    ap.add_argument('--front', action='store_true', help='front/back view: choose the most symmetric loop')
     ap.add_argument('--start', type=float, default=0.25, help='seconds of lead-in to skip')
     ap.add_argument('--min-cycle', type=float, default=0.6)
     ap.add_argument('--max-cycle', type=float, default=1.6)
@@ -72,13 +74,33 @@ def main():
     rgba = [key_green(f) for f in rgb]
     small = [np.array(Image.fromarray(f[..., 3]).resize((96, 72))) > 128 for f in rgba]
     s0 = int(a.start * fps)
-    if a.loop:
+    if a.loop and a.front:
+        # front/back views: pick the loop whose frames are most left-right symmetric (no twisting)
+        sym = [np.abs(m.astype(float) - m[:, ::-1].astype(float)).mean() for m in small]
+        best = None
+        for st in range(s0, len(small) - int(a.max_cycle * fps) - 1):
+            L = find_loop(small, st, int(a.min_cycle * fps), int(a.max_cycle * fps))
+            close = np.abs(small[st + L].astype(float) - small[st].astype(float)).mean()
+            score = float(np.mean(sym[st:st + L])) + close * 2
+            if best is None or score < best[0]:
+                best = (score, st, L)
+        _, s0, L = best
+        print(f'front loop: start {s0/fps:.2f}s len {L/fps:.2f}s')
+    if a.loop and not a.front:
         L = find_loop(small, s0, int(a.min_cycle * fps), int(a.max_cycle * fps))
+    if a.loop:
         seq = rgba[s0:s0 + L]
     else:
         seq = rgba[s0: int(a.end * fps) if a.end else None]
-    idx = np.linspace(0, len(seq), a.frames, endpoint=False).astype(int)
-    picks = [seq[i] for i in idx]
+    if a.mirror_half:
+        # Front/back walks are left-right symmetric half a cycle apart: take one step (half the
+        # loop) and play it again mirrored for the other foot. Cancels any body twist on average.
+        half = seq[: max(2, len(seq) // 2)]
+        idx = np.linspace(0, len(half), a.frames // 2, endpoint=False).astype(int)
+        picks = [half[i] for i in idx] + [half[i][:, ::-1].copy() for i in idx]
+    else:
+        idx = np.linspace(0, len(seq), a.frames, endpoint=False).astype(int)
+        picks = [seq[i] for i in idx]
     # Shared canvas for EVERY animation: the character's standing height (first frame of the clip,
     # which is always the locked pose) maps to --stand px, feet sit on one baseline, torso x is
     # locked to the cycle median. Same canvas size for all clips, so swapping animation never
