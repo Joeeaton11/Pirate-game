@@ -284,6 +284,9 @@ function streetTilePositions(
 // Slowed from 260 — full sea speed made sailing feel uncontrollable, especially threading the
 // harbor mouth/piers right after boarding the Black Pearl.
 const SEA_SPEED = 150; // world units per second
+/** Stride length per animation frame (world units) — 8 frames make one full two-step cycle. */
+const WALK_UNITS_PER_FRAME = 3.6;
+const RUN_UNITS_PER_FRAME = 4.4;
 const ON_PATH_SPEED = 45; // world units per second — walking an actual street/path
 // Cutting across open grass/scenery instead of following a street reads as harder going, and
 // nudges players toward the authored street network instead of beelining through decor.
@@ -1375,28 +1378,23 @@ export default function MapScreen({ navigation }: Props) {
       Animated.timing(walkBounce, { toValue: 0, duration: 120, useNativeDriver: true }).start();
       return;
     }
-    const bounceAmplitude = isRunning ? -1 : -2; // v2 frames carry their own body bob
-    // A ref, not a local variable — this effect re-runs whenever `isRunning` toggles mid-walk (to
-    // pick up the new bounce amplitude), and a local counter would reset to 0 on every one of those
-    // reruns, reintroducing the exact "pops back to frame 0 on a run transition" glitch a previous
-    // fix (see scallySprites.ts's run-cycle comment) deliberately avoided. The ref persists across
-    // reruns so a walk<->run transition always continues from wherever the stride actually was.
+    // v2 (2026-11-16): the frames carry their own body bob, and the stride is tied to how far
+    // Scally actually travels — one frame per STRIDE_UNITS_PER_FRAME world units — so his feet keep
+    // pace with the ground at any drag speed, and stop (no moonwalking) when he's blocked by a wall.
+    walkBounce.setValue(0);
+    const perFrame = isRunning ? RUN_UNITS_PER_FRAME : WALK_UNITS_PER_FRAME;
+    let last = { ...playerRef.current };
+    let acc = 0;
     const id = setInterval(() => {
-      walkTickRef.current = (walkTickRef.current + 1) % 120; // multiple of every cycle length (8)
-      const tick = walkTickRef.current;
-      setWalkSpriteFrame(tick);
-      const strideFraction = (tick % WALK_FRAME_COUNT) / WALK_FRAME_COUNT;
-      // 1 - cos ranges 0..2, so this ranges 0..bounceAmplitude — 0 (ground contact) at the start of
-      // each half-stride, full amplitude (mid-stride peak) at the midpoint. The *4*Math.PI (two full
-      // cosine periods across the 12-frame loop) is what gives two dips per loop instead of one.
-      const bounceTarget = (bounceAmplitude * (1 - Math.cos(strideFraction * 4 * Math.PI))) / 2;
-      Animated.timing(walkBounce, {
-        toValue: bounceTarget,
-        duration: 110,
-        easing: Easing.inOut(Easing.quad),
-        useNativeDriver: true,
-      }).start();
-    }, 110);
+      const p = playerRef.current;
+      acc += Math.hypot(p.x - last.x, p.y - last.y);
+      last = { ...p };
+      if (acc < perFrame) return;
+      const steps = Math.min(2, Math.floor(acc / perFrame));
+      acc -= steps * perFrame;
+      walkTickRef.current = (walkTickRef.current + steps) % 120;
+      setWalkSpriteFrame(walkTickRef.current);
+    }, 33);
     return () => clearInterval(id);
   }, [isMoving, isRunning, walkBounce]);
 
