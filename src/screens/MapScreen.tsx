@@ -285,8 +285,15 @@ function streetTilePositions(
 // harbor mouth/piers right after boarding the Black Pearl.
 const SEA_SPEED = 150; // world units per second
 /** Stride length per animation frame (world units) — 8 frames make one full two-step cycle. */
-const WALK_UNITS_PER_FRAME = 3.6;
-const RUN_UNITS_PER_FRAME = 4.4;
+// Measured from the frames: in walk_e a planted boot travels ~10 sprite px per frame, and one sprite
+// px is ~0.115 world units (128px canvas drawn 14.7 units tall) — so ~1.2 units/frame keeps the
+// planted foot still on the ground. Slightly longer here so he doesn't look like he's pedalling.
+const WALK_UNITS_PER_FRAME = 1.5;
+const RUN_UNITS_PER_FRAME = 2.3;
+/** Never step faster than this (ms per frame), so a fast drag can't blur his legs. */
+const MIN_STRIDE_FRAME_MS = 55;
+/** Drag past this fraction of the joystick and Scally runs instead of walks. */
+const RUN_DRAG_THRESHOLD = 0.62;
 const ON_PATH_SPEED = 45; // world units per second — walking an actual street/path
 // Cutting across open grass/scenery instead of following a street reads as harder going, and
 // nudges players toward the authored street network instead of beelining through decor.
@@ -1334,7 +1341,7 @@ export default function MapScreen({ navigation }: Props) {
   const isRunning =
     isMoving &&
     !!islandAtPoint(player) &&
-    heat > RUN_HEAT_THRESHOLD * 100; // v2 has a run cycle for all 8 directions
+    (heat > RUN_HEAT_THRESHOLD * 100 || dragIntensity > RUN_DRAG_THRESHOLD); // big drag = run
 
   // Cycles Captain Scally's sprite through its 12-frame walk cycle while moving, AND bobs him
   // vertically, off the exact same 110ms tick — merged into one effect/interval 2026-08-23 after
@@ -1385,14 +1392,16 @@ export default function MapScreen({ navigation }: Props) {
     const perFrame = isRunning ? RUN_UNITS_PER_FRAME : WALK_UNITS_PER_FRAME;
     let last = { ...playerRef.current };
     let acc = 0;
+    let lastStep = 0;
     const id = setInterval(() => {
       const p = playerRef.current;
       acc += Math.hypot(p.x - last.x, p.y - last.y);
       last = { ...p };
-      if (acc < perFrame) return;
-      const steps = Math.min(2, Math.floor(acc / perFrame));
-      acc -= steps * perFrame;
-      walkTickRef.current = (walkTickRef.current + steps) % 120;
+      const now = Date.now();
+      if (acc < perFrame || now - lastStep < MIN_STRIDE_FRAME_MS) return;
+      acc = Math.min(acc - perFrame, perFrame); // don't bank a backlog of steps
+      lastStep = now;
+      walkTickRef.current = (walkTickRef.current + 1) % 120;
       setWalkSpriteFrame(walkTickRef.current);
     }, 33);
     return () => clearInterval(id);
