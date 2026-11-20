@@ -9,7 +9,8 @@ import { CREW_TEMPLATES } from '../data/crew';
 import { AMBIENT_NPCS, BuildingInterior, InteriorFurniture, interiorForBuilding } from '../data/interiors';
 import { CRAFTING_RECIPES, ITEMS } from '../data/items';
 import { RESOURCE_LIST, RESOURCES } from '../data/resources';
-import { ICON_EXCLAIM, ICON_SPEECH } from '../data/scallySprites';
+import { FacingDirection, ICON_EXCLAIM, ICON_SPEECH, scallySpriteSource } from '../data/scallySprites';
+import { CHEEKY_HOP, CHEEKY_IDLE } from '../data/monkeySprites';
 import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { SIDE_QUESTS } from '../data/sideQuests';
 import { TREASURES } from '../data/treasures';
@@ -116,6 +117,23 @@ function slideAroundFurniture(
   const slideY = { x: current.x, y: raw.y };
   if (!blocked(slideY)) return slideY;
   return current;
+}
+
+/** Scally and Cheeky in rooms, in room units (a painted room is 360 across; its door ~45 wide). */
+const ROOM_SCALLY_W = 40;
+const ROOM_SCALLY_H = ROOM_SCALLY_W * (128 / 112);
+const ROOM_CHEEKY = 22;
+/** Room units walked per walk frame (keeps the stride matched to his speed, like outdoors). */
+const ROOM_UNITS_PER_FRAME = 4.2;
+/** Leaving by the door: once he has walked this far from where he came in, stepping back onto the
+ * door (or a painted room's exit zone) takes him outside. */
+const DOOR_ARM_DISTANCE = 26;
+const DOOR_EXIT_RADIUS = 14;
+
+function facingFromVector(x: number, y: number): FacingDirection {
+  const a = (Math.atan2(y, x) * 180) / Math.PI; // 0 = east, 90 = south (screen y grows down)
+  const dirs: FacingDirection[] = ['e', 'se', 's', 'sw', 'w', 'nw', 'n', 'ne'];
+  return dirs[(Math.round(a / 45) + 8) % 8];
 }
 
 /** How close Scally's feet may get to a painted wall, in room units. */
@@ -251,6 +269,19 @@ export default function BuildingScreen({ navigation }: Props) {
   // The room's name shows as a short banner on the way in instead of a permanent header, so the
   // whole screen below the status bar is room.
   const insets = useSafeAreaInsets();
+  // Scally's walk/idle animation in the room, and Cheeky trotting at his heels.
+  const [roomAnim, setRoomAnim] = useState<{ dir: FacingDirection; moving: boolean; frame: number; idle: number }>(
+    { dir: 'n', moving: false, frame: 0, idle: 0 }
+  );
+  const strideRef = useRef(0);
+  const cheekyRef = useRef<{ x: number; y: number } | null>(null);
+  const [roomCheeky, setRoomCheeky] = useState<{ x: number; y: number } | null>(null);
+  const doorArmedRef = useRef(false);
+  const leavingRef = useRef(false);
+  useEffect(() => {
+    const t = setInterval(() => setRoomAnim((a) => (a.moving ? a : { ...a, idle: a.idle + 1 })), 160);
+    return () => clearInterval(t);
+  }, []);
   const [showRoomName, setShowRoomName] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setShowRoomName(false), 2500);
@@ -378,6 +409,8 @@ export default function BuildingScreen({ navigation }: Props) {
       const dt = TICK_MS / 1000;
       const direction = directionRef.current;
       if (direction) {
+        const prevX = roomPlayerRef.current.x;
+        const prevY = roomPlayerRef.current.y;
         const rawX = clamp(roomPlayerRef.current.x + direction.x * ROOM_SPEED * dt, 0, interior.width);
         const rawY = clamp(roomPlayerRef.current.y + direction.y * ROOM_SPEED * dt, 0, interior.height);
         roomPlayerRef.current = slideAroundFurniture(
@@ -386,7 +419,46 @@ export default function BuildingScreen({ navigation }: Props) {
           furnitureObstacles,
           interior.walls
         );
+        const moved = Math.hypot(roomPlayerRef.current.x - prevX, roomPlayerRef.current.y - prevY);
+        strideRef.current += moved;
+        const dir = facingFromVector(direction.x, direction.y);
+        const frame = Math.floor(strideRef.current / ROOM_UNITS_PER_FRAME);
+        setRoomAnim((a) => (a.moving && a.dir === dir && a.frame === frame ? a : { ...a, dir, moving: moved > 0.01, frame }));
         setRoomPlayer(roomPlayerRef.current);
+
+        // Leave by walking back out of the door.
+        const entry = interior.entryPosition;
+        const p = roomPlayerRef.current;
+        if (!doorArmedRef.current && Math.hypot(p.x - entry.x, p.y - entry.y) > DOOR_ARM_DISTANCE) {
+          doorArmedRef.current = true;
+        }
+        const door = interior.furniture.find((f) => f.type === 'door');
+        const atExit = interior.exitZone
+          ? p.x > interior.exitZone.l && p.x < interior.exitZone.r && p.y > interior.exitZone.t && p.y < interior.exitZone.b
+          : !!door && Math.hypot(p.x - door.x, p.y - door.y) < DOOR_EXIT_RADIUS;
+        if (doorArmedRef.current && atExit && direction.y > 0.3 && !leavingRef.current) {
+          leavingRef.current = true;
+          handleLeaveBuilding();
+        }
+      } else {
+        setRoomAnim((a) => (a.moving ? { ...a, moving: false } : a));
+      }
+
+      // Cheeky follows a little behind and to the side.
+      {
+        const p = roomPlayerRef.current;
+        const c = cheekyRef.current ?? { x: p.x - 16, y: p.y + 2 };
+        const tx = p.x - 15;
+        const ty = p.y + 3;
+        const d = Math.hypot(tx - c.x, ty - c.y);
+        if (d > 1) {
+          const k = Math.min(1, (dt * ROOM_SPEED * 1.05) / d);
+          cheekyRef.current = { x: c.x + (tx - c.x) * k, y: c.y + (ty - c.y) * k };
+          setRoomCheeky(cheekyRef.current);
+        } else if (!cheekyRef.current) {
+          cheekyRef.current = c;
+          setRoomCheeky(c);
+        }
       }
 
       // Ambient NPCs amble between their home spot and any nearby seating: sit for a while,
@@ -855,18 +927,46 @@ export default function BuildingScreen({ navigation }: Props) {
     });
   });
 
+  if (roomCheeky) {
+    const hopDir: 'e' | 'w' | 's' | 'n' =
+      roomAnim.dir === 'n' ? 'n' : roomAnim.dir === 's' ? 's' : roomAnim.dir.includes('w') ? 'w' : roomAnim.dir.includes('e') ? 'e' : 's';
+    const cheekySrc = roomAnim.moving
+      ? CHEEKY_HOP[hopDir][roomAnim.frame % CHEEKY_HOP[hopDir].length]
+      : CHEEKY_IDLE[roomAnim.idle % CHEEKY_IDLE.length];
+    depthSortedEntities.push({
+      key: 'cheeky',
+      y: roomCheeky.y,
+      node: (
+        <Image
+          source={cheekySrc}
+          resizeMode="contain"
+          style={{
+            position: 'absolute',
+            left: roomCheeky.x - ROOM_CHEEKY / 2,
+            top: roomCheeky.y - ROOM_CHEEKY * 0.9,
+            width: ROOM_CHEEKY,
+            height: ROOM_CHEEKY,
+          }}
+        />
+      ),
+    });
+  }
+
   depthSortedEntities.push({
     key: 'player',
     y: roomPlayer.y,
     node: (
-      <View
-        style={[
-          styles.roomPlayer,
-          { left: roomPlayer.x - PLAYER_SIZE / 2, top: roomPlayer.y - PLAYER_SIZE / 2 },
-        ]}
-      >
-        <Text style={styles.roomPlayerEmoji}>🧍</Text>
-      </View>
+      <Image
+        source={scallySpriteSource(roomAnim.dir, roomAnim.moving, roomAnim.frame, roomAnim.idle)}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          left: roomPlayer.x - ROOM_SCALLY_W / 2,
+          top: roomPlayer.y - ROOM_SCALLY_H * 0.92,
+          width: ROOM_SCALLY_W,
+          height: ROOM_SCALLY_H,
+        }}
+      />
     ),
   });
 

@@ -73,6 +73,9 @@ export interface BuildingInterior {
   /** Solid areas of a painted room (walls, the staircase, the fireplace, the bar's back), in room
    * units. Only used with a backdrop. */
   walls?: { l: number; r: number; t: number; b: number }[];
+  /** Painted rooms: walking into this area (heading down, out of the door) leaves the building.
+   * Rooms without one use their 'door' furniture's position instead. */
+  exitZone?: { l: number; r: number; t: number; b: number };
 }
 
 /** Hand-authored floor plans. Buildings without an entry here get a generic room via
@@ -87,6 +90,7 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
     height: 360,
     entryPosition: { x: 180, y: 262 },
     backdrop: require('../../assets/sprites/interiors/tavern_salty_parrot.jpg'),
+    exitZone: { l: 150, r: 210, t: 280, b: 300 },
     walls: [
       { l: 0, r: 360, t: 0, b: 84 }, // back wall
       { l: 0, r: 22, t: 0, b: 360 }, // left wall
