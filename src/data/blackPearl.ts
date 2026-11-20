@@ -13,7 +13,11 @@ export const BLACK_PEARL_ISLAND_ID = 'tortuga_cove';
 // islands.ts's PIER_WALK_RADIUS), so walking to the end of the jetty is enough to board her.
 // Moved 2026-08-14 to match PIERS[0]'s new straightened (due-vertical) tip — same ~19-unit
 // extension past the tip, now purely north instead of along the old diagonal.
-export const BLACK_PEARL_START_OFFSET = { x: -168, y: -528 };
+// Moved 2026-11-20 to the painted Long Pier's T-head (harbor.ts, townDrawn) — the old west pier
+// sits outside the painted town in the low-detail island art.
+export const BLACK_PEARL_START_OFFSET = { x: -10, y: -422 };
+/** Pre-2026-11-20 mooring, kept so saves that still hold it can be moved to the new one. */
+export const BLACK_PEARL_OLD_START_OFFSET = { x: -168, y: -528 };
 export const BLACK_PEARL_EMOJI = '🚢';
 export const BLACK_PEARL_FLAG_EMOJI = '🏴‍☠️';
 

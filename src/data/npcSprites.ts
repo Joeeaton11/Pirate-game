@@ -95,3 +95,23 @@ export const NPC_SPRITES: Record<string, NpcSprite> = {
     sitAspect: 0.529,
   },
 };
+
+// Painted rooms beyond the tavern (2026-11-20) reuse the tavern cast: keepers, then townsfolk.
+// (Old Tom's 'pour' pose belongs behind his own bar, so the smith gets him without it.)
+const alias = (to: string, from: string, drop: (keyof NpcSprite)[] = []) => {
+  const base = { ...NPC_SPRITES[from] };
+  drop.forEach((k) => delete base[k]);
+  NPC_SPRITES[to] = base;
+};
+alias('tortuga_shop:main', 'tortuga_amb_cook');
+alias('tortuga_smithy:main', 'tortuga_tavern:main', ['pour', 'pourAspect']);
+alias('tortuga_harbourmaster:main', 'patron_tortuga_rival', ['sit', 'sitAspect']);
+alias('tortuga_chandlery:main', 'tortuga_amb_sailor');
+alias('patron_tortuga_smithy', 'patron_tortuga_drunk', ['sit', 'sitAspect', 'sitSide', 'sitSideAspect']);
+alias('tortuga_amb_browser', 'tortuga_amb_lass');
+alias('tortuga_amb_deckhand', 'tortuga_amb_sailor');
+alias('tortuga_amb_apprentice', 'tortuga_amb_cook');
+alias('tortuga_amb_clerk', 'tortuga_amb_lass');
+alias('tortuga_amb_captain', 'tortuga_amb_sailor');
+alias('tortuga_amb_galley', 'tortuga_amb_cook');
+alias('tortuga_amb_sailmaker', 'tortuga_amb_lass');

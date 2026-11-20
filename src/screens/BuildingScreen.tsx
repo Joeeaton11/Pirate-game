@@ -9,7 +9,8 @@ import { CREW_TEMPLATES } from '../data/crew';
 import { AMBIENT_NPCS, BuildingInterior, InteriorFurniture, interiorForBuilding } from '../data/interiors';
 import { CRAFTING_RECIPES, ITEMS } from '../data/items';
 import { RESOURCE_LIST, RESOURCES } from '../data/resources';
-import { FacingDirection, ICON_EXCLAIM, ICON_SPEECH, scallySpriteSource } from '../data/scallySprites';
+import { SFX, useAmbientLoop, useFootsteps } from '../audio/ambience';
+import { FacingDirection, ICON_EXCLAIM, ICON_SPEECH, scallySpriteSource, WAVE_FRAMES } from '../data/scallySprites';
 import { CHEEKY_HOP, CHEEKY_IDLE } from '../data/monkeySprites';
 import { NPC_SPRITES } from '../data/npcSprites';
 import { ROOM_KIT } from '../data/roomKit';
@@ -58,6 +59,12 @@ const DEADZONE = 10;
 const MAX_DRAG = 55;
 const TICK_MS = 33;
 const INTERACT_RADIUS = 38;
+/** How close Scally must be to a room hotspot to look at it. */
+const HOTSPOT_RADIUS = 34;
+const WAVE_FRAME_MS = 140; // in step with the room's 140 ms flicker re-render
+/** Rooms open this much closer in, then ease out over ENTRY_ZOOM_MS. */
+const ENTRY_ZOOM_BOOST = 0.3;
+const ENTRY_ZOOM_MS = 650;
 // Ambient (quest-less) NPCs amble at a fraction of the player's pace — a leisurely wander, not a
 // race across the room. Quest patrons and the building's own NPC never move: the player (and the
 // game's own proximity/interact logic) always needs to find them exactly where the floor plan says.
@@ -132,6 +139,13 @@ const CHATTER: Record<string, string[]> = {
   tortuga_amb_sailor: ['Fair winds, lad.', 'Sea\'s choppy today.', 'Seen a kraken once.'],
   tortuga_amb_cook: ['Stew\'s nearly ready!', 'Don\'t ask what\'s in it.', 'Hungry, captain?'],
   tortuga_amb_lass: ['Buy me a drink?', 'Nice hat, captain.', 'Ooh, a monkey!'],
+  tortuga_amb_browser: ['Daylight robbery, this.', 'Ooh, ribbons!', 'Is that monkey for sale?'],
+  tortuga_amb_deckhand: ['Just a needle, I said.', 'Mind the crates.', 'Bargain, that.'],
+  tortuga_amb_apprentice: ['Hot! Hot! Hot!', 'Mind the sparks!', 'Fetch the tongs!'],
+  tortuga_amb_clerk: ['Sign here. And here.', 'Fees are due.', 'Next!'],
+  tortuga_amb_captain: ['Lost to pirates, again.', 'Where\'s my berth?', 'Bloody tides.'],
+  tortuga_amb_galley: ['Rope for the cat...', 'Got any lemons?', 'Smells like tar in here.'],
+  tortuga_amb_sailmaker: ['Lovely canvas.', 'Tear it, buy it.', 'Needle and palm, lad.'],
 };
 
 /** Scally and Cheeky in rooms, in room units (a painted room is 360 across; its door ~45 wide). */
@@ -271,6 +285,12 @@ export default function BuildingScreen({ navigation }: Props) {
   const [showCounter, setShowCounter] = useState(false);
   const [nearbyNpcId, setNearbyNpcId] = useState<string | null>(null);
   const [ambientMessage, setAmbientMessage] = useState<string | null>(null);
+  // A painted-room hotspot (poster, map, fire...) Scally is standing by, when no one's in reach.
+  const [nearbyHotspot, setNearbyHotspot] = useState<number | null>(null);
+  // Scally waves hello when he starts talking to someone; holds the wave's start time.
+  const [waveStart, setWaveStart] = useState<number | null>(null);
+  // Short zoom-in as the room opens (1 = settled).
+  const [entryT, setEntryT] = useState(0);
   const ambientMessageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const building = BUILDINGS.find((b) => b.id === currentBuildingId);
@@ -301,10 +321,25 @@ export default function BuildingScreen({ navigation }: Props) {
   const [chatter, setChatter] = useState<{ id: string; text: string; until: number } | null>(null);
   const chatterRef = useRef<{ id: string; text: string; until: number } | null>(null);
   const lastChatRef = useRef<Record<string, number>>({});
+  // Room sound: plank footsteps, the tavern's crowd, and a crackling hearth/forge where there is one.
+  const roomId = interior?.buildingId ?? '';
+  const hasFire = roomId === 'tortuga_tavern' || roomId === 'tortuga_smithy';
+  useFootsteps(roomAnim.moving && !showCounter, 'wood', 280, 0.4);
+  useAmbientLoop(SFX.murmur, roomId === 'tortuga_tavern' && !showCounter ? 0.35 : roomId === 'tortuga_tavern' ? 0.15 : 0);
+  useAmbientLoop(SFX.fire, hasFire ? (showCounter ? 0.12 : 0.3) : 0);
   // Re-render a few times a second for candle flicker and the bobbing parrot.
   const [flickerT, setFlickerT] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setFlickerT(Date.now()), 140);
+    return () => clearInterval(t);
+  }, []);
+  useEffect(() => {
+    const start = Date.now();
+    const t = setInterval(() => {
+      const k = Math.min(1, (Date.now() - start) / ENTRY_ZOOM_MS);
+      setEntryT(k);
+      if (k >= 1) clearInterval(t);
+    }, 30);
     return () => clearInterval(t);
   }, []);
   const idleSinceRef = useRef(Date.now());
@@ -643,6 +678,18 @@ export default function BuildingScreen({ navigation }: Props) {
         }
       }
       setNearbyNpcId(nearest);
+      let spot: number | null = null;
+      if (!nearest && interior.hotspots) {
+        let best = HOTSPOT_RADIUS;
+        interior.hotspots.forEach((h, i) => {
+          const d = Math.hypot(roomPlayerRef.current.x - h.x, roomPlayerRef.current.y - h.y);
+          if (d <= (h.r ?? best) && d <= best) {
+            spot = i;
+            best = d;
+          }
+        });
+      }
+      setNearbyHotspot(spot);
     }, TICK_MS);
     return () => clearInterval(iv);
   }, [interior, showCounter, ambientWaypoints, furnitureObstacles]);
@@ -732,6 +779,7 @@ export default function BuildingScreen({ navigation }: Props) {
 
   function handleTalk() {
     if (!nearbyNpcId) return;
+    setWaveStart(Date.now());
     if (nearbyNpcId === 'main') {
       setShowCounter(true);
       return;
@@ -1188,12 +1236,14 @@ export default function BuildingScreen({ navigation }: Props) {
     });
   }
 
+  const waveFrame = waveStart !== null ? Math.floor((Date.now() - waveStart) / WAVE_FRAME_MS) : -1;
+  const waving = waveFrame >= 0 && waveFrame < WAVE_FRAMES.length && !roomAnim.moving;
   depthSortedEntities.push({
     key: 'player',
     y: roomPlayer.y,
     node: (
       <Image
-        source={scallySpriteSource(roomAnim.dir, roomAnim.moving, roomAnim.frame, roomAnim.idle)}
+        source={waving ? WAVE_FRAMES[waveFrame] : scallySpriteSource(roomAnim.dir, roomAnim.moving, roomAnim.frame, roomAnim.idle)}
         resizeMode="contain"
         style={{
           position: 'absolute',
@@ -1213,11 +1263,10 @@ export default function BuildingScreen({ navigation }: Props) {
 
   // Zoom in at least INTERIOR_ZOOM, and further if needed so the room always fills the screen
   // (no empty bands above and below a short room on a tall phone).
-  const roomZoom = Math.max(
-    INTERIOR_ZOOM,
-    roomViewport.width / interior.width,
-    roomViewport.height / interior.height
-  );
+  const entryEase = 1 - Math.pow(1 - entryT, 3);
+  const roomZoom =
+    Math.max(INTERIOR_ZOOM, roomViewport.width / interior.width, roomViewport.height / interior.height) *
+    (1 + ENTRY_ZOOM_BOOST * (1 - entryEase));
   const cameraX = clampCameraAxis(roomPlayer.x, interior.width, roomViewport.width, roomZoom);
   const cameraY = clampCameraAxis(roomPlayer.y, interior.height, roomViewport.height, roomZoom);
 
@@ -1330,6 +1379,15 @@ export default function BuildingScreen({ navigation }: Props) {
         <View style={[styles.ambientToast, styles.roomOverlayBottom, { bottom: insets.bottom + 24 }]}>
           <Text style={styles.ambientToastText}>{ambientMessage}</Text>
         </View>
+      )}
+
+      {!nearbyNpcId && nearbyHotspot !== null && interior.hotspots?.[nearbyHotspot] && !ambientMessage && (
+        <Pressable
+          style={[styles.talkButton, styles.roomOverlayBottom, { bottom: insets.bottom + 24 }]}
+          onPress={() => showAmbientMessage(interior.hotspots![nearbyHotspot].text)}
+        >
+          <Text style={styles.talkButtonText}>🔍 Look at the {interior.hotspots[nearbyHotspot].label}</Text>
+        </Pressable>
       )}
 
       {nearbyNpcId && !ambientMessage && (

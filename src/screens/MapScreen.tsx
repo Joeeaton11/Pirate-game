@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -34,6 +34,9 @@ import {
 } from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
+import { TownLife } from '../town/TownLife';
+import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
+import { DayNight } from '../town/DayNight';
 import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
 import { TORTUGA_TOWN_ASSETS } from '../town/tortugaTownAssets';
 import { TORTUGA_TOWN_LAYOUT } from '../town/tortugaTownLayout';
@@ -369,6 +372,31 @@ const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict
 const TOWN_DOORS = TOWN_SCENE.doors;
 const TOWN_DOOR_RADIUS = 9;
 const TORTUGA_TOWN_GROUND = [...TOWN_SCENE.ground.map(renderGroundTile), ...TOWN_SCENE.decals.map(renderDecal)];
+// The painted town's outer band (EDGE units) is drawn from alpha-feathered strips instead of the
+// hard-edged JPG chunks, so the painting melts into the island art around it rather than ending
+// on a straight seam. Chunks are clipped to the inner rect; strips cover the band.
+const TORTUGA_TOWN_FEATHERED = (() => {
+  const EDGE = 67 / 4.8;
+  const ds = TOWN_SCENE.decals;
+  if (!ds.length) return TORTUGA_TOWN_GROUND;
+  const L = Math.min(...ds.map((d) => d.left));
+  const T = Math.min(...ds.map((d) => d.top));
+  const R = L + 450;
+  const B = T + 2336 / 4.8;
+  const strip = (key: string, src: ImageSourcePropType, left: number, top: number, w: number, h: number) => (
+    <RNImage key={key} source={src} resizeMode="stretch" style={{ position: 'absolute', left, top, width: w, height: h }} />
+  );
+  return [
+    ...TOWN_SCENE.ground.map(renderGroundTile),
+    <View key="town-clip" style={{ position: 'absolute', left: L + EDGE, top: T + EDGE, width: R - L - 2 * EDGE, height: B - T - 2 * EDGE, overflow: 'hidden' }}>
+      {ds.map((d) => renderDecal({ ...d, left: d.left - L - EDGE, top: d.top - T - EDGE }))}
+    </View>,
+    strip('edge-t', require('../../assets/sprites/tortuga_town/life/edge_top.png'), L, T, R - L, EDGE),
+    strip('edge-b', require('../../assets/sprites/tortuga_town/life/edge_bottom.png'), L, B - EDGE, R - L, EDGE),
+    strip('edge-l', require('../../assets/sprites/tortuga_town/life/edge_left.png'), L, T + EDGE, EDGE, B - T - 2 * EDGE),
+    strip('edge-r', require('../../assets/sprites/tortuga_town/life/edge_right.png'), R - EDGE, T + EDGE, EDGE, B - T - 2 * EDGE),
+  ];
+})();
 
 /** Solid rectangles (world coords) for every Tortuga v2 building and house, covering the whole
  * drawn sprite (footprint plus roof). The player token always renders on top of the sprite layer,
@@ -791,6 +819,8 @@ function initNpcSim(npc: StreetNpc): NpcSimState {
   };
 }
 const TICK_MS = 33;
+/** Share of the player-camera gap closed each tick (~0.3 s to settle). */
+const CAMERA_EASE = 0.16;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -800,6 +830,10 @@ export default function MapScreen({ navigation }: Props) {
   const isFocused = useIsFocused();
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [player, setPlayer] = useState(devStartPosition);
+  // Camera eases after the player instead of being nailed to them; Scally's screen position is
+  // offset by the gap, so he leads slightly into a walk and the view catches up when he stops.
+  const [cam, setCam] = useState(player);
+  const camRef = useRef(player);
   const [dragKnob, setDragKnob] = useState<{ x: number; y: number } | null>(null);
   const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number } | null>(null);
   const [zoneLabel, setZoneLabel] = useState('Tortuga Cove');
@@ -1028,6 +1062,13 @@ export default function MapScreen({ navigation }: Props) {
   blackPearlBoardedRef.current = blackPearlBoarded;
   const shipHeadingRef = useRef(shipHeading);
   shipHeadingRef.current = shipHeading;
+  const mooredShip = useMemo(
+    () =>
+      blackPearlBoarded
+        ? null
+        : { x: blackPearlPosition.x, y: blackPearlPosition.y, size: SHIP_SPRITE_SIZE / ZOOM, source: shipSpriteSource('e') },
+    [blackPearlBoarded, blackPearlPosition.x, blackPearlPosition.y]
+  );
   const blackPearlPositionRef = useRef(blackPearlPosition);
   blackPearlPositionRef.current = blackPearlPosition;
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
@@ -1364,6 +1405,22 @@ export default function MapScreen({ navigation }: Props) {
   // due-west only ('w'/'e', the old 'left'/'right') — RUN_SOURCES is a single side-view pose set
   // with no directional variants, so the other 6 headings (including the 4 new diagonals) keep
   // using the plain walk cycle instead of running sideways at an angle that doesn't match the pose.
+  // Ambient sound: footsteps (planks on piers, cobbles elsewhere), the harbour's surf and gulls
+  // swelling as Scally nears the water, and the open sea while sailing.
+  const tortugaOrigin = ISLANDS.tortuga_cove.position;
+  const relX = player.x - tortugaOrigin.x;
+  const relY = player.y - tortugaOrigin.y;
+  const inTortugaTown = relX > -170 && relX < 320 && relY > -470 && relY < 50;
+  const harbourVolume = blackPearlBoarded
+    ? 0.45
+    : inTortugaTown
+    ? 0.08 + 0.5 * Math.max(0, Math.min(1, (-200 - relY) / 140))
+    : 0.12;
+  useAmbientLoop(SFX.harbour, harbourVolume);
+  useRandomCalls(SFX.gull, harbourVolume > 0.25, 6, 14, 0.35);
+  const onPlanks = distanceToNearestPier(player) < 4 || (inTortugaTown && relY < -290);
+  useFootsteps(isMoving && !blackPearlBoarded, onPlanks ? 'wood' : 'cobble', 290, 0.45);
+
   const isRunning =
     isMoving &&
     !!islandAtPoint(player) &&
@@ -1719,9 +1776,22 @@ export default function MapScreen({ navigation }: Props) {
       }
     }
 
+    const easeCamera = () => {
+      const c = camRef.current;
+      const p = playerRef.current;
+      const gap = Math.hypot(p.x - c.x, p.y - c.y);
+      if (gap < 0.02) return;
+      // Snap on teleports (doors, landfall, dev jumps) instead of sliding across the map.
+      const next = gap > 40 ? p : { x: c.x + (p.x - c.x) * CAMERA_EASE, y: c.y + (p.y - c.y) * CAMERA_EASE };
+      camRef.current = next;
+      setCam(next);
+    };
     const interval = setInterval(() => {
       const direction = directionRef.current;
-      if (!direction) return;
+      if (!direction) {
+        easeCamera();
+        return;
+      }
 
       const currentIsland = islandAtPoint(playerRef.current);
       const speed = currentIsland
@@ -1786,6 +1856,7 @@ export default function MapScreen({ navigation }: Props) {
 
       playerRef.current = nextPosition;
       setPlayer(nextPosition);
+      easeCamera();
 
       // Swap to the "APPROACH DOCK" loop once she's closing in on land, still under sail — only
       // meaningful while boarded and still at sea (nextIsland null); once ashore the docked marker
@@ -2336,11 +2407,11 @@ export default function MapScreen({ navigation }: Props) {
                 transform: [
                   {
                     translateX:
-                      viewport.width / 2 - WORLD_WIDTH / 2 + ZOOM * (WORLD_WIDTH / 2 - player.x),
+                      viewport.width / 2 - WORLD_WIDTH / 2 + ZOOM * (WORLD_WIDTH / 2 - cam.x),
                   },
                   {
                     translateY:
-                      viewport.height / 2 - WORLD_HEIGHT / 2 + ZOOM * (WORLD_HEIGHT / 2 - player.y),
+                      viewport.height / 2 - WORLD_HEIGHT / 2 + ZOOM * (WORLD_HEIGHT / 2 - cam.y),
                   },
                   { scale: ZOOM },
                 ],
@@ -2773,10 +2844,13 @@ export default function MapScreen({ navigation }: Props) {
 
             {SHOW_TORTUGA_V2 && (
               <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-                {TORTUGA_TOWN_GROUND}
+                {TORTUGA_TOWN_FEATHERED}
                 {TORTUGA_V2_SPRITE_LAYER}
               </View>
             )}
+            {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
+                the same sailing sprite and size the player gets once aboard. */}
+            <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} />
 
             {SHOW_LANDMARKS &&
               LANDMARKS.map((landmark) => {
@@ -3182,8 +3256,8 @@ export default function MapScreen({ navigation }: Props) {
             style={[
               styles.player,
               {
-                left: viewport.width / 2 - PLAYER_SIZE / 2,
-                top: viewport.height / 2 - PLAYER_SIZE / 2,
+                left: viewport.width / 2 - PLAYER_SIZE / 2 + (player.x - cam.x) * ZOOM,
+                top: viewport.height / 2 - PLAYER_SIZE / 2 + (player.y - cam.y) * ZOOM,
               },
             ]}
           >
@@ -3351,6 +3425,10 @@ export default function MapScreen({ navigation }: Props) {
               })()
             )}
           </View>
+        )}
+
+        {viewport.width > 0 && (
+          <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} />
         )}
 
         {viewport.width > 0 && merchantShipFlash && (() => {

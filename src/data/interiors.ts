@@ -65,7 +65,60 @@ export const AMBIENT_NPCS: Record<string, AmbientNpc> = {
     emoji: '👩',
     flavor: "You look like you've got stories. Buy me a drink and let's hear one.",
   },
+  // Townsfolk for the painted rooms (2026-11-20), drawn with the tavern locals' sprites.
+  tortuga_amb_browser: {
+    id: 'tortuga_amb_browser',
+    name: 'A Browsing Shopper',
+    emoji: '👩',
+    flavor: "Twelve doubloons for a lantern? I'll wait till he's drunk and ask again.",
+  },
+  tortuga_amb_deckhand: {
+    id: 'tortuga_amb_deckhand',
+    name: 'A Thrifty Deckhand',
+    emoji: '🧔',
+    flavor: 'Only came in for a needle. Leaving with a parrot cage, somehow.',
+  },
+  tortuga_amb_apprentice: {
+    id: 'tortuga_amb_apprentice',
+    name: 'The Forge Apprentice',
+    emoji: '👨‍🍳',
+    flavor: "Kade says I'll make smith in ten years. If I keep my eyebrows.",
+  },
+  tortuga_amb_clerk: {
+    id: 'tortuga_amb_clerk',
+    name: 'A Harbour Clerk',
+    emoji: '👩',
+    flavor: 'Mooring fees are due on arrival. And on departure. And on Tuesdays.',
+  },
+  tortuga_amb_captain: {
+    id: 'tortuga_amb_captain',
+    name: 'A Merchant Captain',
+    emoji: '🧔',
+    flavor: "Third time this month I've filed for 'lost to pirates'. Present company excepted.",
+  },
+  tortuga_amb_galley: {
+    id: 'tortuga_amb_galley',
+    name: 'A Galley Cook',
+    emoji: '👨‍🍳',
+    flavor: 'Need rope for the hammocks. And the cat. Long story.',
+  },
+  tortuga_amb_sailmaker: {
+    id: 'tortuga_amb_sailmaker',
+    name: 'A Sailmaker',
+    emoji: '👩',
+    flavor: "Canvas this good won't last. Neither will the sailor who tears it.",
+  },
 };
+
+/** Something in a painted room Scally can look at: a one-line description, no quest. */
+export interface RoomHotspot {
+  x: number;
+  y: number;
+  label: string;
+  text: string;
+  /** Reach, room units (default 34). */
+  r?: number;
+}
 
 export interface BuildingInterior {
   buildingId: string;
@@ -73,6 +126,7 @@ export interface BuildingInterior {
   height: number;
   entryPosition: { x: number; y: number };
   furniture: InteriorFurniture[];
+  hotspots?: RoomHotspot[];
   npcSpots: InteriorNpcSpot[];
   /** A painted room (one picture covering width x height). When set, the furniture list is
    * invisible collision/seating data only — the picture already shows every table and barrel. */
@@ -156,6 +210,12 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { kit: 'barrel', x: 340, y: 256 },
       { kit: 'barrel', x: 22, y: 250 },
       { kit: 'crates', x: 30, y: 272 },
+    ],
+    hotspots: [
+      { x: 38, y: 228, label: 'wanted poster', text: "WANTED: Scar-Faced Odom, for crimes against the King's rum. He's sitting right over there." },
+      { x: 272, y: 100, label: 'sea chart', text: 'A chart of the Windward Isles — someone has circled Skull Rock in red.' },
+      { x: 304, y: 178, label: 'fireplace', text: 'The fire crackles. Something that might once have been a boot is smouldering in the grate.' },
+      { x: 60, y: 104, label: "ship's wheel", text: "The Salty Parrot's old wheel. Tom swears it steered him through a hurricane." },
     ],
     lights: [
       { x: 66, y: 106, r: 14 },
@@ -324,15 +384,23 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { kit: 'barrel', x: 290, y: 244 },
       { kit: 'barrel', x: 305, y: 230 },
       { kit: 'crates', x: 100, y: 248 },
+      { kit: 'crates', x: 286, y: 150 },
     ],
     furniture: [
       { type: 'barrel', x: 290, y: 236 },
       { type: 'barrel', x: 305, y: 222 },
       { type: 'barrel', x: 100, y: 238 },
+      { type: 'barrel', x: 286, y: 140 },
+    ],
+    hotspots: [
+      { x: 150, y: 132, label: 'tool rack', text: 'Hammers, tongs and a sword with your name engraved on it. Wait — that says "Scully".' },
+      { x: 126, y: 168, label: 'quench trough', text: 'The quench trough hisses and steams. Do not drink.' },
+      { x: 262, y: 138, label: 'forge', text: 'The forge roars, hot enough to bend an anchor. Cheeky keeps a respectful distance.', r: 26 },
     ],
     npcSpots: [
-      { id: 'main', x: 225, y: 152 },
+      { id: 'main', x: 228, y: 156 },
       { id: 'patron_tortuga_smithy', x: 140, y: 200 },
+      { id: 'tortuga_amb_apprentice', x: 262, y: 206 },
     ],
   },
   // Painted room (2026-11-20): Harbor Trading Post, kit-furnished.
@@ -359,6 +427,9 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { kit: 'barrel', x: 300, y: 246 },
       { kit: 'barrel', x: 318, y: 232 },
       { kit: 'crates', x: 62, y: 248 },
+      { kit: 'barrel', x: 104, y: 126 },
+      { kit: 'crates', x: 252, y: 128 },
+      { kit: 'stool', x: 222, y: 176 },
     ],
     furniture: [
       { type: 'table', x: 180, y: 152 },
@@ -366,9 +437,17 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { type: 'barrel', x: 300, y: 116 },
       { type: 'barrel', x: 306, y: 236 },
       { type: 'barrel', x: 62, y: 238 },
+      { type: 'barrel', x: 104, y: 116 },
+      { type: 'barrel', x: 252, y: 118 },
+    ],
+    hotspots: [
+      { x: 268, y: 108, label: 'painted chart', text: "A painted chart of the Windward Passage. 'Price on request' — which means 'a lot'." },
+      { x: 58, y: 160, label: 'fishing nets', text: 'Fishing nets, mended twice and sold as new.' },
     ],
     npcSpots: [
-      { id: 'main', x: 180, y: 104 },
+      { id: 'main', x: 180, y: 106 },
+      { id: 'tortuga_amb_browser', x: 112, y: 196 },
+      { id: 'tortuga_amb_deckhand', x: 262, y: 206 },
     ],
   },
   cow_island_camp: {
@@ -657,18 +736,25 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { l: 318, r: 360, t: 98, b: 180 },
     ],
     props: [
-      { kit: 'chair_front', x: 180, y: 140 },
       { kit: 'table', x: 180, y: 166 },
       { kit: 'crates', x: 300, y: 248 },
       { kit: 'barrel', x: 312, y: 150 },
+      { kit: 'crates', x: 62, y: 250 },
     ],
     furniture: [
       { type: 'table', x: 180, y: 154 },
       { type: 'barrel', x: 300, y: 238 },
       { type: 'barrel', x: 312, y: 142 },
+      { type: 'barrel', x: 62, y: 240 },
+    ],
+    hotspots: [
+      { x: 230, y: 104, label: 'window', text: 'Masts crowd the harbour like a winter forest.', r: 26 },
+      { x: 288, y: 116, label: 'wanted poster', text: 'WANTED: Captain Odessa Kane, aboard the Black Pearl. Last seen moored off the Long Pier.' },
     ],
     npcSpots: [
-      { id: 'main', x: 150, y: 120 },
+      { id: 'main', x: 180, y: 112 },
+      { id: 'tortuga_amb_clerk', x: 270, y: 176 },
+      { id: 'tortuga_amb_captain', x: 110, y: 214 },
     ],
   },
   // Painted room (2026-11-20): The Chandlery — rope, tackle and sailcloth.
@@ -696,6 +782,7 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { kit: 'crates', x: 284, y: 248 },
       { kit: 'crates', x: 78, y: 250 },
       { kit: 'crates', x: 240, y: 130 },
+      { kit: 'stool', x: 128, y: 176 },
     ],
     furniture: [
       { type: 'barrel', x: 82, y: 120 },
@@ -705,8 +792,14 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { type: 'barrel', x: 78, y: 240 },
       { type: 'barrel', x: 240, y: 120 },
     ],
+    hotspots: [
+      { x: 296, y: 210, label: 'anchors', text: "Anchors for every hull, from rowboat to man-o'-war." },
+      { x: 66, y: 214, label: 'rope coils', text: 'Rope by the fathom. Tarred, so mind your hands.' },
+    ],
     npcSpots: [
-      { id: 'main', x: 180, y: 104 },
+      { id: 'main', x: 180, y: 106 },
+      { id: 'tortuga_amb_galley', x: 116, y: 204 },
+      { id: 'tortuga_amb_sailmaker', x: 252, y: 198 },
     ],
   },
   tortuga_dockworkers_bunkhouse: {
