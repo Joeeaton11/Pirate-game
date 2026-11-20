@@ -16,6 +16,9 @@ export interface NpcSprite {
    * bigger to draw it so the figure matches the standing sprite's height. */
   walkAspect?: number;
   walkScale?: number;
+  /** Sitting on a stool, facing the viewer (used at tables). */
+  sit?: ImageSourcePropType;
+  sitAspect?: number;
 }
 
 export const NPC_SPRITES: Record<string, NpcSprite> = {
@@ -36,35 +39,47 @@ export const NPC_SPRITES: Record<string, NpcSprite> = {
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    sit: require('../../assets/sprites/characters/npcs/sit/wobbly_pete_sit.png'),
+    sitAspect: 0.625,
   },
   'patron_tortuga_rival': { src: require('../../assets/sprites/characters/npcs/scar_faced_odom.png'), aspect: 0.523,
     walk: [require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walk_0.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walk_1.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walk_2.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walk_3.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walk_4.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walk_5.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walk_6.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walk_7.png')],
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/scar_faced_odom_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    sit: require('../../assets/sprites/characters/npcs/sit/scar_faced_odom_sit.png'),
+    sitAspect: 0.558,
   },
   'patron_tortuga_mystic': { src: require('../../assets/sprites/characters/npcs/mother_yew.png'), aspect: 0.500,
     walk: [require('../../assets/sprites/characters/npcs/walk/mother_yew_walk_0.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walk_1.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walk_2.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walk_3.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walk_4.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walk_5.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walk_6.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walk_7.png')],
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/mother_yew_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/mother_yew_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    sit: require('../../assets/sprites/characters/npcs/sit/mother_yew_sit.png'),
+    sitAspect: 0.548,
   },
   'tortuga_amb_sailor': { src: require('../../assets/sprites/characters/npcs/sailor.png'), aspect: 0.523,
     walk: [require('../../assets/sprites/characters/npcs/walk/sailor_walk_0.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walk_1.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walk_2.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walk_3.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walk_4.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walk_5.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walk_6.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walk_7.png')],
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/sailor_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/sailor_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    sit: require('../../assets/sprites/characters/npcs/sit/sailor_sit.png'),
+    sitAspect: 0.538,
   },
   'tortuga_amb_cook': { src: require('../../assets/sprites/characters/npcs/cook.png'), aspect: 0.625,
     walk: [require('../../assets/sprites/characters/npcs/walk/cook_walk_0.png'), require('../../assets/sprites/characters/npcs/walk/cook_walk_1.png'), require('../../assets/sprites/characters/npcs/walk/cook_walk_2.png'), require('../../assets/sprites/characters/npcs/walk/cook_walk_3.png'), require('../../assets/sprites/characters/npcs/walk/cook_walk_4.png'), require('../../assets/sprites/characters/npcs/walk/cook_walk_5.png'), require('../../assets/sprites/characters/npcs/walk/cook_walk_6.png'), require('../../assets/sprites/characters/npcs/walk/cook_walk_7.png')],
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/cook_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/cook_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/cook_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/cook_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/cook_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/cook_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/cook_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/cook_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    sit: require('../../assets/sprites/characters/npcs/sit/cook_sit.png'),
+    sitAspect: 0.625,
   },
   'tortuga_amb_lass': { src: require('../../assets/sprites/characters/npcs/lass.png'), aspect: 0.438,
     walk: [require('../../assets/sprites/characters/npcs/walk/lass_walk_0.png'), require('../../assets/sprites/characters/npcs/walk/lass_walk_1.png'), require('../../assets/sprites/characters/npcs/walk/lass_walk_2.png'), require('../../assets/sprites/characters/npcs/walk/lass_walk_3.png'), require('../../assets/sprites/characters/npcs/walk/lass_walk_4.png'), require('../../assets/sprites/characters/npcs/walk/lass_walk_5.png'), require('../../assets/sprites/characters/npcs/walk/lass_walk_6.png'), require('../../assets/sprites/characters/npcs/walk/lass_walk_7.png')],
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/lass_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    sit: require('../../assets/sprites/characters/npcs/sit/lass_sit.png'),
+    sitAspect: 0.529,
   },
 };

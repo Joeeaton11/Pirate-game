@@ -931,9 +931,14 @@ export default function BuildingScreen({ navigation }: Props) {
       const walking = !!sprite.walk && wander?.phase === 'walking';
       const goingLeft = walking && wander!.target.x < wander!.x;
       const frames = walking ? (goingLeft ? sprite.walkLeft! : sprite.walk!) : null;
-      const src = frames ? frames[Math.floor(Date.now() / NPC_WALK_FRAME_MS) % frames.length] : sprite.src;
-      const h = ROOM_SCALLY_H * 0.95 * (frames ? sprite.walkScale ?? 1 : 1);
-      const w = h * (frames ? sprite.walkAspect ?? sprite.aspect : sprite.aspect);
+      const sitting = !walking && !!sprite.sit && (spot.seated || seated);
+      const src = frames
+        ? frames[Math.floor(Date.now() / NPC_WALK_FRAME_MS) % frames.length]
+        : sitting
+        ? sprite.sit!
+        : sprite.src;
+      const h = ROOM_SCALLY_H * 0.95 * (frames ? sprite.walkScale ?? 1 : sitting ? 0.8 : 1);
+      const w = h * (frames ? sprite.walkAspect ?? sprite.aspect : sitting ? sprite.sitAspect ?? sprite.aspect : sprite.aspect);
       depthSortedEntities.push({
         key: spot.id,
         y,
