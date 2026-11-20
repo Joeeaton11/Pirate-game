@@ -35,7 +35,7 @@ import {
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
 import { TownLife } from '../town/TownLife';
-import { BlueprintLayer } from '../blueprint/BlueprintLayer';
+import { BlueprintLayer, PLAN_PAPER, PlanWorld } from '../blueprint/BlueprintLayer';
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
 import { DayNight } from '../town/DayNight';
@@ -438,11 +438,12 @@ const BLUEPRINT_SOLID_RECTS = (() => {
 const BLUEPRINT_DOORS = TOWN_DOORS.concat(
   BP_DOORS.map((d) => ({ id: d.id, x: ISLANDS.tortuga_cove.position.x + d.x, y: ISLANDS.tortuga_cove.position.y + d.y }))
 );
+/** The map shows the architect's plan by default (art is parked for now); `?art=1` on web shows art. */
 function startInPlanMode() {
   try {
-    return typeof window !== 'undefined' && !!window.location && /[?&]plan=1/.test(window.location.search);
+    return !(typeof window !== 'undefined' && !!window.location && /[?&]art=1/.test(window.location.search));
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -2426,6 +2427,7 @@ export default function MapScreen({ navigation }: Props) {
           <View
             style={[
               styles.world,
+              planMode && { backgroundColor: PLAN_PAPER },
               {
                 width: WORLD_WIDTH,
                 height: WORLD_HEIGHT,
@@ -2449,6 +2451,8 @@ export default function MapScreen({ navigation }: Props) {
               },
             ]}
           >
+            {planMode && <PlanWorld />}
+            {!planMode && (
             <Svg
               width={WORLD_WIDTH}
               height={WORLD_HEIGHT}
@@ -2726,6 +2730,7 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
             </Svg>
+            )}
 
             {SHOW_HOUSES &&
               HOUSES.map((house, i) => {
