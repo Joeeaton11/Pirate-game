@@ -8,5 +8,7 @@ PAL = {
     'b_civic': '#b4a7cc', 'b_shop': '#e3aa5c', 'b_tavern': '#db744f', 'b_warehouse': '#ab8f6b', 'b_market': '#e3c45c',
     'b_home': '#cc916f', 'b_fort': '#8f8f8f', 'b_manor': '#bb82b3', 'b_ruin': '#8c8272', 'b_landmark': '#f2efe6',
     'b_shed': '#a98b66', 'b_town': '#c97b5c',
-    't_jungle': '#2a5a29', 't_tree': '#2f6b2d', 't_palm': '#5f9a35', 't_rock': '#7d776b',
+    'swamp': '#5d7d55', 'palms': '#a3c46e', 'sugarcane': '#b4c95a', 'reef': '#c78f86', 'bridge': '#8a5a32',
+    'poi_treasure': '#f2c230', 'poi_resource': '#55c8e8', 'poi_quest': '#e8432e', 'poi_landmark': '#f2c230',
+    't_mangrove': '#34503a', 't_jungle': '#2a5a29', 't_tree': '#2f6b2d', 't_palm': '#5f9a35', 't_rock': '#7d776b',
 }

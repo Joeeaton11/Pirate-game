@@ -13,9 +13,13 @@ ZONES = [
                 (408, 150), (392, 60), (382, -40)]),
     # Western scrub between Cayonne and the coast.
     ('forest', [(-560, -110), (-470, -190), (-420, -205), (-440, -150), (-470, -80), (-520, -70)]),
-    ('forest', [(-470, 60), (-420, 40), (-400, 150), (-430, 220), (-470, 240), (-470, 150)]),
-    # La Ringot Fields (tilled strips).
-    ('fields', [(266, 196), (360, 196), (360, 294), (266, 294)]),
+    # Coconut palm grove on the south-west shore.
+    ('palms', [(-450, 116), (-396, 108), (-352, 136), (-346, 200), (-378, 228), (-450, 222)]),
+    # Mangrove swamp round Contrebandiers' Cove (wet, walkable, slow-looking).
+    ('swamp', [(-600, -100), (-548, -118), (-506, -96), (-500, -48), (-520, -4), (-575, 0), (-600, -30)]),
+    # La Ringot Fields (tilled strips) and the wild sugarcane by the river.
+    ('fields', [(250, 196), (330, 196), (330, 294), (250, 294)]),
+    ('sugarcane', [(336, 178), (398, 178), (384, 226), (364, 270), (356, 300), (336, 300)]),
     # Rocky ground: the lighthouse headland, the grotto cliffs, the fort's crag.
     ('rock', [(-272, -470), (-245, -505), (-205, -500), (-222, -440), (-246, -410), (-274, -420)]),
     ('rock', [(-470, 300), (-430, 300), (-405, 340), (-440, 370), (-472, 340)]),
@@ -26,9 +30,17 @@ ZONES = [
     ('garden', [(436, 4), (498, 4), (498, 62), (436, 62)]),
 ]
 
-# Open water inland.
+# Offshore features (drawn on the sea, not walkable).
+SEA_ZONES = [
+    ('reef', [(456, -330), (500, -340), (540, -318), (546, -282), (520, -258), (478, -262), (458, -292)]),
+]
+
+# Open water inland. Roads that cross a river get a bridge automatically.
 LAGOON = {'c': (440, 118), 'r': 30}
-RIVER = {'pts': [(424, 144), (400, 196), (372, 256), (350, 326), (334, 398)], 'w': 10}
+RIVERS = [
+    {'name': 'Ringot River', 'pts': [(424, 144), (400, 196), (372, 256), (350, 326), (334, 398)], 'w': 10},
+    {'name': 'Cayonne Brook', 'pts': [(-162, 46), (-240, 60), (-292, 100), (-360, 106), (-420, 94), (-454, 84)], 'w': 8},
+]
 
 # ---- Roads: (name, kind, width, points). 'main' = cart road, 'lane' = village street, 'path' = track.
 ROADS = [
@@ -37,7 +49,11 @@ ROADS = [
     ("Smugglers' Track", 'path', 4, [(-500, -36), (-548, -46)]),
     ('Lighthouse Path', 'path', 5, [(-150, -222), (-190, -246), (-250, -300), (-266, -370), (-254, -440), (-228, -462)]),
     ('Cayonne North Lane', 'lane', 6, [(-330, -60), (-330, -162)]),
-    ('Cayonne South Lane', 'lane', 6, [(-330, -10), (-330, 86)]),
+    ('Cayonne South Lane', 'lane', 6, [(-330, -10), (-330, 128)]),
+    ('West Coast Path', 'path', 4, [(-432, -28), (-418, 40), (-404, 110), (-398, 200), (-404, 270), (-410, 324)]),
+    ('Hollow Trail', 'path', 4, [(-34, 270), (60, 262), (150, 224), (232, 160)]),
+    ('Ringot Bridge Track', 'path', 4, [(330, 250), (420, 236), (470, 196), (494, 140)]),
+    ('Rocher Row', 'lane', 6, [(366, -262), (410, -262)]),
     ('East Road', 'main', 8, [(300, -150), (362, -140), (420, -96), (452, -20), (466, 4)]),
     ('Fort Road', 'main', 7, [(362, -140), (366, -230), (364, -326)]),
     ('Shipyard Lane', 'lane', 6, [(420, -96), (444, -138), (444, -176)]),
@@ -60,6 +76,7 @@ PLAZAS = [
     ('Cayonne Square', -362, -300, -60, -10),
     ('Crossroads Green', -256, -216, 348, 376),
     ('Fort Yard', 346, 382, -336, -324),
+    ('Rocher Green', 380, 404, -250, -230),
 ]
 
 # ---- Buildings: (id or None, label, kind, cx, cy, w, h, door side N/S/E/W or None)
@@ -117,6 +134,17 @@ BUILDINGS = [
     (None, 'Cottage', 'home', -122, 356, 18, 16, 'N'),
     (None, 'Cottage', 'home', 62, 60, 18, 16, 'W'),
     (None, 'Cottage', 'home', 18, 74, 18, 16, 'E'),
+    # Homes: Rocher Row, the residential quarter on the fort road north-east of the harbour.
+    (None, 'Cottage', 'home', 344, -196, 18, 16, 'E'),
+    (None, 'Cottage', 'home', 344, -226, 18, 16, 'E'),
+    (None, 'Cottage', 'home', 344, -256, 18, 16, 'E'),
+    (None, 'Cottage', 'home', 344, -286, 18, 16, 'E'),
+    (None, 'Cottage', 'home', 388, -200, 18, 16, 'W'),
+    (None, 'Cottage', 'home', 388, -280, 18, 16, 'S'),
+    (None, 'Cottage', 'home', 416, -244, 18, 16, 'W'),
+    # Fishing huts at Turtle Cove.
+    (None, 'Fishing Hut', 'shed', -196, 422, 16, 12, 'W'),
+    (None, 'Fishing Hut', 'shed', -226, 434, 16, 12, 'E'),
     # Homes: east road.
     (None, 'Cottage', 'home', 340, -120, 18, 16, 'N'),
     (None, 'Cottage', 'home', 396, -136, 18, 16, 'S'),
@@ -130,7 +158,7 @@ BUILDINGS = [
 PROPS = [
     ('signpost', 48, 96), ('signpost', -32, 296), ('signpost', 370, -134), ('signpost', 428, -90),
     ('signpost', -214, 354), ('signpost', -322, 374), ('signpost', -50, 386), ('signpost', -156, -70),
-    ('well', -331, -34), ('well', -236, 362), ('well', 300, 210),
+    ('well', -331, -34), ('well', -236, 362), ('well', 322, 186), ('well', 392, -240),
     ('crates', -386, -6), ('barrels', -386, 6), ('crates', -322, 40), ('barrels', -368, 32),
     ('crates', 458, -186), ('barrels', 458, -174), ('crates', 494, -150), ('barrels', 316, 318),
     ('crates', -52, 482), ('barrels', -140, 420),
@@ -139,7 +167,7 @@ PROPS = [
     ('lamp', 346, -324), ('lamp', 382, -324), ('cannon', 338, -352), ('cannon', 390, -352),
     ('grave', 66, 436), ('grave', 78, 436), ('grave', 90, 436), ('grave', 102, 436),
     ('grave', 66, 450), ('grave', 78, 450), ('grave', 90, 450), ('grave', 102, 450),
-    ('boat', -232, 450), ('boat', -24, 490), ('fence', 266, 245), ('fence', 360, 245),
+    ('boat', -232, 450), ('boat', -24, 490), ('signpost', 334, 246), ('signpost', -404, 110), ('signpost', -24, 214),
     ('cave', -416, 318), ('wreck', -452, 290), ('marked_palm', -354, 394), ('campfire', -2, 228),
     ('still', 486, 128),
 ]
@@ -151,7 +179,27 @@ LABELS = [
     (480, -60, 'THE HIGH WOODS', 'district'), (313, 270, 'LA RINGOT FIELDS', 'district'),
     (-236, 320, 'CROSSROADS', 'district'), (-240, -420, 'LIGHTHOUSE HEAD', 'district'),
     (366, -382, 'FORT DE ROCHER', 'district'), (-540, -70, "CONTREBANDIERS' COVE", 'place'),
-    (-226, 456, 'Turtle Cove', 'place'), (-70, 470, 'Old Landing', 'place'), (85, 422, 'Forgotten Graves', 'place'),
-    (-470, 278, 'Wreck of the Santa Catalina', 'place'), (-408, 308, "Smugglers' Grotto", 'place'),
+    (-226, 470, 'Turtle Cove', 'place'), (-548, -60, 'Mangrove Swamp', 'place'), (500, -296, 'Coral Reef Shoal', 'place'),
+    (-398, 168, 'Coconut Palm Grove', 'place'), (366, 196, 'Wild Sugarcane', 'place'), (392, -272, 'ROCHER ROW', 'district'),
+    (-300, 118, 'Cayonne Brook', 'place'), (-70, 470, 'Old Landing', 'place'), (85, 422, 'Forgotten Graves', 'place'),
+    (-430, 270, 'Wreck of the Santa Catalina', 'place'), (-408, 308, "Smugglers' Grotto", 'place'),
     (-352, 408, 'The Marked Palm', 'place'), (440, 118, 'Lagoon', 'place'), (500, 140, "Old Suzette's Still", 'place'),
+]
+
+# ---- Points of interest: the game's own Tortuga sites (treasure, resources, quest stages) plus
+# the named landmarks. (kind, id, x, y). Builder moves any that land in the sea, in water or on a
+# building to the nearest open ground and reports it.
+POIS = [
+    ('treasure', 'site_fragment_tortuga', -403, 403), ('treasure', 'site_buried_doubloons', -403, 76),
+    ('treasure', 'site_rusty_compass', -461, -173),
+    ('resource', 'node_tortuga_fish', -100, -288), ('resource', 'node_tortuga_timber_1', 599, 23),
+    ('resource', 'node_tortuga_timber_2', 472, 115),
+    ('quest', 'quest_bounty_board', 0, -55), ('quest', 'tortuga_locked_ward', 55, -55),
+    ('quest', 'blackfin_tortuga_intro', 196, -294),
+    ('landmark', 'Wreck of the Santa Catalina', -452, 290), ("landmark", "Smugglers' Grotto", -416, 318),
+    ('landmark', 'The Marked Palm', -354, 394), ('landmark', 'Turtle Cove', -214, 446),
+    ('landmark', 'Ruins of the Old Landing', -60, 470), ('landmark', 'The Forgotten Graves', 84, 440),
+    ('landmark', "Blackwood's Hollow", -12, 236), ('landmark', "Old Suzette's Still", 496, 132),
+    ('landmark', 'The High Woods', 520, -40), ('landmark', 'La Ringot Fields', 290, 230),
+    ('landmark', 'The Lighthouse', -224, -486), ("landmark", "Contrebandiers' Cove", -560, -50),
 ]

@@ -25,8 +25,10 @@ plaza_geoms = [box(l, t, r, b) for _, l, r, t, b in P.PLAZAS]
 ways = unary_union(road_geoms + plaza_geoms)
 bldg_geoms = [box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2) for _, _, _, cx, cy, w, h, _ in P.BUILDINGS]
 lagoon = Point(P.LAGOON['c']).buffer(P.LAGOON['r'])
-river = LineString(P.RIVER['pts']).buffer(P.RIVER['w'] / 2)
-water = unary_union([lagoon, river]).difference(ways)
+rivers = unary_union([LineString(r['pts']).buffer(r['w'] / 2) for r in P.RIVERS])
+bridges = unary_union(road_geoms).intersection(rivers.buffer(1.5))
+water = unary_union([lagoon, rivers]).difference(ways)
+sea_zones = [(t, Polygon(p).buffer(0).difference(coast)) for t, p in P.SEA_ZONES]
 zone_geoms = [(t, Polygon(p).buffer(0).intersection(coast).difference(town_box)) for t, p in P.ZONES]
 beach = coast.difference(coast.buffer(-14)).difference(town_box)
 
@@ -50,7 +52,7 @@ for name, _, _, pts in P.ROADS:
 # ---------------------------------------------------------------- trees (blue-noise per zone)
 rng = random.Random(4)
 blocked_for_trees = unary_union([ways.buffer(5), unary_union(bldg_geoms).buffer(7), water.buffer(4),
-                                 town_box.buffer(6)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden')])
+                                 town_box.buffer(6)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden', 'sugarcane')])
 trees = []
 def scatter(area, spacing, kind, keep=1.0):
     if area.is_empty: return
@@ -67,9 +69,28 @@ for t, g in zone_geoms:
     if t == 'jungle': scatter(g, 13, 'jungle')
     elif t == 'forest': scatter(g, 15, 'tree')
     elif t == 'rock': scatter(g, 40, 'rock')
+    elif t == 'swamp': scatter(g, 16, 'mangrove')
+    elif t == 'palms': scatter(g, 15, 'palm')
 scatter(beach, 30, 'palm', 0.55)
 grass = coast.buffer(-14).difference(town_box).difference(unary_union([g for _, g in zone_geoms]))
 scatter(grass, 38, 'tree', 0.35)
+
+# ---------------------------------------------------------------- points of interest
+blocks0, _ = S.painted()
+town_blocked = unary_union([box(l, t, r, b) for l, r, t, b in blocks0])
+taken = unary_union([unary_union(bldg_geoms).buffer(3), water.buffer(2), town_blocked]
+                    + [Point(x, y).buffer(3.5) for x, y, _ in trees])
+pois = []
+for kind, pid, x, y in P.POIS:
+    p = Point(x, y)
+    ok = (coast.contains(p) or town_box.contains(p)) and not taken.contains(p)
+    if not ok:
+        free = coast.buffer(-4).union(town_box.intersection(coast)).difference(taken)
+        from shapely.ops import nearest_points
+        q = nearest_points(free, p)[0]
+        problems.append(f'POI {pid} moved from ({x},{y}) to ({q.x:.0f},{q.y:.0f})')
+        x, y = round(q.x, 1), round(q.y, 1)
+    pois.append((kind, pid, x, y))
 
 # ---------------------------------------------------------------- the painted town, derived
 blocks, doors = S.painted()
@@ -127,7 +148,7 @@ for g, b in zip(bldg_geoms, P.BUILDINGS):
     burn(g.buffer(-1))
 burn(water)
 for x, y, k in trees:
-    burn(Point(x, y).buffer(2.4 if k != 'rock' else 4))
+    burn(Point(x, y).buffer(4 if k == 'rock' else 2.4))
 sol_rects = [(X0 + i * C, X0 + k * C, Y0 + j * C, Y0 + jj * C) for i, k, j, jj in merge(sol)]
 
 # ---------------------------------------------------------------- write TS
@@ -154,8 +175,11 @@ for b in P.BUILDINGS:
     d = door_point(b)
     bl.append(f"  {{ id: {('null' if bid is None else repr(bid))}, label: {label!r}, kind: '{kind}', l: {cx - w / 2:g}, t: {cy - h / 2:g}, w: {w}, h: {h}, door: {('null' if d is None else f'[{d[0]:g}, {d[1]:g}]')} }},")
 out.append('export const BP_BUILDINGS: BpBuilding[] = [\n' + '\n'.join(bl) + '\n];')
-out.append('/** x, y, kind code (0 jungle, 1 tree, 2 palm, 3 rock), packed. */')
-code = {'jungle': 0, 'tree': 1, 'palm': 2, 'rock': 3}
+out.append(f"export const BP_BRIDGES = '{poly_d(bridges)}';")
+out.append('export const BP_SEA_ZONES: { t: string; d: string }[] = [' + ', '.join(f"{{ t: '{t}', d: '{poly_d(g)}' }}" for t, g in sea_zones) + '];')
+out.append('export const BP_POIS: [string, string, number, number][] = [' + ', '.join(f"['{k}', {i!r}, {x:g}, {y:g}]" for k, i, x, y in pois) + '];')
+out.append('/** x, y, kind code (0 jungle, 1 tree, 2 palm, 3 rock, 4 mangrove), packed. */')
+code = {'jungle': 0, 'tree': 1, 'palm': 2, 'rock': 3, 'mangrove': 4}
 out.append('export const BP_TREES: number[] = [' + ','.join(f'{x:g},{y:g},{code[k]}' for x, y, k in trees) + '];')
 out.append('export const BP_PROPS: [string, number, number][] = [' + ', '.join(f"['{k}', {x}, {y}]" for k, x, y in P.PROPS) + '];')
 out.append('export const BP_LABELS: [number, number, string, string][] = [' + ', '.join(f"[{x}, {y}, {t!r}, '{s}']" for x, y, t, s in P.LABELS) + '];')
@@ -176,4 +200,5 @@ print('PROBLEMS' if problems else 'no problems', *problems, sep='\n  ')
 # ---------------------------------------------------------------- preview
 if len(sys.argv) > 2:
     import preview
-    preview.draw(sys.argv[2], coast, beach, zone_geoms, water, P, town_rects, town_bldgs, doors, trees, door_point)
+    preview.draw(sys.argv[2], coast, beach, zone_geoms, water, P, town_rects, town_bldgs, doors, trees, door_point,
+                 bridges=bridges, sea_zones=sea_zones, pois=pois)

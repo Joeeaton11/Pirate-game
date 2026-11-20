@@ -9,12 +9,15 @@ import { BUILDINGS } from '../data/buildings';
 import { PAINTED_DOORS } from '../town/tortugaPainted.generated';
 import {
   BP_BEACH,
+  BP_BRIDGES,
   BP_BUILDINGS,
   BP_COAST,
   BP_LABELS,
   BP_PLAZAS,
+  BP_POIS,
   BP_PROPS,
   BP_ROADS,
+  BP_SEA_ZONES,
   BP_TOWN,
   BP_TOWN_BUILDINGS,
   BP_TREES,
@@ -32,12 +35,15 @@ const PAL: Record<string, string> = {
   b_civic: '#b4a7cc', b_shop: '#e3aa5c', b_tavern: '#db744f', b_warehouse: '#ab8f6b', b_market: '#e3c45c',
   b_home: '#cc916f', b_fort: '#8f8f8f', b_manor: '#bb82b3', b_ruin: '#8c8272', b_landmark: '#f2efe6',
   b_shed: '#a98b66', b_town: '#c97b5c',
+  swamp: '#5d7d55', palms: '#a3c46e', sugarcane: '#b4c95a', reef: '#c78f86', bridge: '#8a5a32', roadEdge: '#785c3e',
+  poi_treasure: '#f2c230', poi_resource: '#55c8e8', poi_quest: '#e8432e', poi_landmark: '#f2c230',
 };
 const TREE_STYLE = [
   { r: 4, fill: '#2a5a29' }, // jungle
   { r: 5, fill: '#2f6b2d' }, // tree
   { r: 3.5, fill: '#5f9a35' }, // palm
   { r: 4, fill: '#7d776b' }, // rock
+  { r: 3.5, fill: '#34503a' }, // mangrove
 ];
 const PROP_ICON: Record<string, string> = {
   signpost: '🪧', well: '🪣', crates: '📦', barrels: '🛢️', cart: '🛒', bench: '🪑', lamp: '🏮',
@@ -81,7 +87,7 @@ function Label({ x, y, text, size, color = PAL.label }: { x: number; y: number; 
 }
 
 export const BlueprintLayer = React.memo(function BlueprintLayer({ origin }: { origin: { x: number; y: number } }) {
-  const trees: [number, number][][] = [[], [], [], []];
+  const trees: [number, number][][] = [[], [], [], [], []];
   for (let i = 0; i < BP_TREES.length; i += 3) trees[BP_TREES[i + 2]].push([BP_TREES[i], BP_TREES[i + 1]]);
   const doors = BP_BUILDINGS.filter((b) => b.door).map((b) => b.door!);
   const townDoorD = PAINTED_DOORS.map((d) => `M${d.x - 2} ${d.y - 1.5}h4v3h-4Z`).join('');
@@ -94,6 +100,11 @@ export const BlueprintLayer = React.memo(function BlueprintLayer({ origin }: { o
       height={H}
       viewBox={`${X0} ${Y0} ${W} ${H}`}
     >
+      {/* 0. Offshore (reef) */}
+      {BP_SEA_ZONES.map((z, i) => (
+        <Path key={`s${i}`} d={z.d} fill={PAL[z.t]} stroke="#e9d3c4" strokeWidth={0.8} strokeDasharray="3 2" />
+      ))}
+
       {/* 1. Terrain */}
       <Path d={BP_COAST} fill={PAL.grass} stroke={PAL.outline} strokeWidth={1.5} />
       <Path d={BP_BEACH} fill={PAL.beach} fillRule="evenodd" />
@@ -102,7 +113,18 @@ export const BlueprintLayer = React.memo(function BlueprintLayer({ origin }: { o
       ))}
       <Path d={BP_WATER} fill={PAL.water} />
 
-      {/* 2. Roads and plazas */}
+      {/* 2. Roads (dark edging underneath), bridges and plazas */}
+      {BP_ROADS.map((r, i) => (
+        <Polyline
+          key={`re${i}`}
+          points={r.pts.map((p) => p.join(',')).join(' ')}
+          fill="none"
+          stroke={PAL.roadEdge}
+          strokeWidth={r.w + 1.6}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ))}
       {BP_ROADS.map((r, i) => (
         <Polyline
           key={`r${i}`}
@@ -114,6 +136,7 @@ export const BlueprintLayer = React.memo(function BlueprintLayer({ origin }: { o
           strokeLinejoin="round"
         />
       ))}
+      <Path d={BP_BRIDGES} fill={PAL.bridge} stroke={PAL.outline} strokeWidth={0.6} />
       {BP_PLAZAS.map(([n, l, r, t, b]) => (
         <Rect key={n} x={l} y={t} width={r - l} height={b - t} fill={PAL.plaza} />
       ))}
@@ -144,7 +167,16 @@ export const BlueprintLayer = React.memo(function BlueprintLayer({ origin }: { o
         </SvgText>
       ))}
 
-      {/* 7. Planning grid and names */}
+      {/* 7. Points of interest: treasure/landmark (gold), resource (blue), quest (red) */}
+      {BP_POIS.map(([k, id, x, y]) =>
+        k === 'quest' ? (
+          <Path key={`q${id}`} d={`M${x - 3.5} ${y}a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0`} fill={PAL.poi_quest} stroke="#fff" strokeWidth={0.8} />
+        ) : (
+          <Path key={`q${id}`} d={`M${x} ${y - 4}L${x + 4} ${y}L${x} ${y + 4}L${x - 4} ${y}Z`} fill={PAL[`poi_${k}`]} stroke={PAL.outline} strokeWidth={0.6} />
+        )
+      )}
+
+      {/* 8. Planning grid and names */}
       <Path d={gridPath()} stroke="rgba(30,40,60,0.18)" strokeWidth={0.5} />
       <G>
         {BP_BUILDINGS.filter((b) => b.kind !== 'home' || b.label !== 'Cottage').map((b, i) => (
