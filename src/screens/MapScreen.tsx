@@ -2956,7 +2956,8 @@ export default function MapScreen({ navigation }: Props) {
 
               {SHOW_DOCK &&
                 PIERS.map((pier, i) => {
-                if (pier.townDrawn && SHOW_TORTUGA_V2) return null;
+                // Tortuga's docks are painted on the Art map base from the plan.
+                if ((pier.townDrawn && SHOW_TORTUGA_V2) || pier.islandId === 'tortuga_cove') return null;
                 const islandPos = ISLANDS[pier.islandId].position;
                 const x1 = islandPos.x + pier.from.x;
                 const y1 = islandPos.y + pier.from.y;
@@ -2995,7 +2996,7 @@ export default function MapScreen({ navigation }: Props) {
 
               {SHOW_DOCK &&
                 QUAYS.map((quay, i) => {
-                if (quay.townDrawn && SHOW_TORTUGA_V2) return null;
+                if ((quay.townDrawn && SHOW_TORTUGA_V2) || quay.islandId === 'tortuga_cove') return null;
                 const islandPos = ISLANDS[quay.islandId].position;
                 const x1 = islandPos.x + quay.from.x;
                 const y1 = islandPos.y + quay.from.y;

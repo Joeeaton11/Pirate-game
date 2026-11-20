@@ -14,7 +14,7 @@ ROOF = {'civic': '#8d7fae', 'shop': '#c98a3f', 'tavern': '#b5523a', 'warehouse':
         'home': '#b4694a', 'fort': '#7c7c7c', 'manor': '#9a5f93', 'ruin': '#7b7163', 'landmark': '#d8d2c2',
         'shed': '#8f7353', 'mill': '#b78d4a', 'town': '#a8583c'}
 
-def draw(path, coast, beach, zones, water, P, bldgs, trees, bridges, docks, breakwater, sea_zones, ss=4, out_scale=2):
+def draw(path, coast, beach, zones, water, P, bldgs, trees, bridges, docks, breakwater, sea_zones, ss=3, out_scale=2):
     S = ss
     im = Image.new('RGBA', (W * S, H * S), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
@@ -29,32 +29,47 @@ def draw(path, coast, beach, zones, water, P, bldgs, trees, bridges, docks, brea
     poly(coast.buffer(22), (120, 200, 210, 70)); poly(coast.buffer(10), (150, 215, 215, 110))
     for t, g in sea_zones: poly(g, hexc(PAL[t], 150))
     poly(coast.buffer(2.5), hexc('#d9c48a'))
-    poly(coast, hexc(PAL['grass'])); poly(beach, hexc(PAL['beach']))
-    for t, g in zones: poly(g, hexc(PAL.get(t, PAL['grass'])))
+    import ground, math as _m
+    gp = ground.Painter(im, T, S)
+    gp.grass(coast)
+    gp.sand(beach, water_edge=coast.boundary)
+    for t, g in zones:
+        if t in ('jungle', 'forest', 'swamp', 'palms'): gp.woodland(g, PAL[t])
+        elif t == 'rock': gp.fill(gp.mask([g]), PAL['rock'], 0.1, (6, 2))
+        elif t in ('fields', 'sugarcane'): gp.fill(gp.mask([g]), PAL[t], 0.05, (10, 3))
+        else: gp.grass(g, PAL.get(t, PAL['grass']))
     # furrows in the fields
     for t, g in zones:
-        if t not in ('fields', 'sugarcane'): continue
+        if t not in ('fields', 'sugarcane', 'allotment'): continue
         l, tp, r, b = g.bounds
-        for y in range(int(tp), int(b), 4):
+        step = 4 if t == 'fields' else 3
+        for y in range(int(tp), int(b), step):
             from shapely.geometry import LineString
             ln = LineString([(l, y), (r, y)]).intersection(g)
             for seg in getattr(ln, 'geoms', [ln]):
                 if seg.is_empty or seg.geom_type != 'LineString': continue
-                d.line([T(*c) for c in seg.coords], fill=shade(hexc(PAL[t]), 0.82), width=S)
-    poly(water.buffer(1.2), hexc('#3b7f9e')); poly(water, hexc(PAL['water']))
-    for name, k, w, pts in P.ROADS:
+                d.line([T(*c) for c in seg.coords], fill=shade(hexc(PAL[t]), 0.78), width=S)
+                d.line([(T(*c)[0], T(*c)[1] - S) for c in seg.coords], fill=shade(hexc(PAL[t]), 1.12), width=max(1, S // 2))
+    gp.water(water)
+    order = {'path': 0, 'lane': 1, 'main': 2}
+    for name, k, w, pts in sorted(P.ROADS, key=lambda r: order.get(r[1], 0)):
         if k == 'secret': continue
-        d.line([T(*p) for p in pts], fill=hexc('#8f6f4c'), width=int((w + 1.4) * S), joint='curve')
-    for name, k, w, pts in P.ROADS:
-        if k == 'secret': continue
-        d.line([T(*p) for p in pts], fill=hexc(PAL[k]), width=int(w * S), joint='curve')
-    for _, l, r, t, b in P.PLAZAS:
-        d.rectangle([T(l, t), T(r, b)], fill=hexc(PAL['plaza']), outline=hexc('#8f6f4c'), width=S)
-        for x in range(int(l) + 3, int(r), 4):
-            for y in range(int(t) + 3, int(b), 4): d.point(T(x, y), fill=hexc('#b9aa88'))
-    if bridges is not None: poly(bridges, hexc(PAL['bridge']))
-    for *_, g in docks: poly(g, hexc(PAL['wood']), outline=hexc('#5e4128'), width=S)
-    if breakwater is not None: poly(breakwater, hexc('#8d877a'), outline=hexc('#5c574d'), width=S)
+        gp.road(pts, w, k)
+    for _, l, r, t, b in P.PLAZAS: gp.flagstones(l, t, r, b)
+    if bridges is not None and not bridges.is_empty:
+        from shapely.geometry import LineString
+        for bg in getattr(bridges, 'geoms', [bridges]):
+            ang = 0
+            for name, k, w, pts in P.ROADS:
+                for p, q in zip(pts, pts[1:]):
+                    if LineString([p, q]).intersects(bg): ang = _m.atan2(q[1] - p[1], q[0] - p[0])
+            gp.planks(bg.buffer(0.6), ang, '#8a5a32')
+    for name, kind_, w, g in docks:
+        pts = [pt for nm, kk, ww, pp in P.DOCKS if nm == name for pt in pp]
+        ang = _m.atan2(pts[-1][1] - pts[0][1], pts[-1][0] - pts[0][0]) if len(pts) > 1 else 0
+        gp.planks(g, ang)
+    if breakwater is not None:
+        m_ = gp.mask([breakwater]); gp.fill(m_, '#8d877a', 0.08, (5, 2)); gp.cobbles(breakwater, m_, 1.8)
     # shadows (south-east), then trees, then buildings
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sd = ImageDraw.Draw(sh)
     for x, y, k in trees:
