@@ -91,8 +91,27 @@ def draw(path, coast, beach, zones, water, P, bldgs, trees, bridges, docks, brea
             m = (l + r) / 2; d.rectangle([T(m, t + 0.4), T(r - 0.4, bt - 0.4)], fill=shade(col, 0.8))
             d.line([T(m, t), T(m, bt)], fill=shade(col, 1.2), width=S)
     for k, x, y in P.PROPS:
-        if k in ('signpost', 'lamp', 'bollard', 'grave', 'cave'): continue
-        cx, cy = T(x, y); r = 1.6 * S
+        cx, cy = T(x, y)
+        if k == 'skull_rock':
+            d.ellipse([cx - 14 * S, cy - 12 * S, cx + 14 * S, cy + 8 * S], fill=hexc('#cfc8b8'), outline=hexc('#6d665a'), width=S)
+            d.rectangle([cx - 8 * S, cy + 4 * S, cx + 8 * S, cy + 12 * S], fill=hexc('#cfc8b8'), outline=hexc('#6d665a'), width=S)
+            for ex in (-5, 5): d.ellipse([cx + (ex - 3.4) * S, cy - 4 * S, cx + (ex + 3.4) * S, cy + 2 * S], fill=hexc('#2b2620'))
+            d.polygon([(cx, cy + 2 * S), (cx - 1.5 * S, cy + 5 * S), (cx + 1.5 * S, cy + 5 * S)], fill=hexc('#2b2620'))
+            continue
+        if k == 'careened_ship':
+            d.chord([cx - 16 * S, cy - 8 * S, cx + 16 * S, cy + 10 * S], 180, 360, fill=hexc('#7a5230'), outline=hexc('#4a3018'), width=S)
+            d.line([cx - 4 * S, cy - 2 * S, cx - 14 * S, cy - 12 * S], fill=hexc('#4a3018'), width=S); continue
+        if k in ('whale_bones', 'kraken_bones'):
+            for i in range(6): d.arc([cx + (-12 + i * 4) * S, cy - 7 * S, cx + (-8 + i * 4) * S, cy + 7 * S], 270, 90, fill=hexc('#efe9dc'), width=S)
+            d.line([cx - 14 * S, cy, cx + 14 * S, cy], fill=hexc('#efe9dc'), width=S); continue
+        if k == 'jolly_roger':
+            d.line([cx, cy + 3 * S, cx, cy - 6 * S], fill=hexc('#4a3018'), width=S)
+            d.rectangle([cx, cy - 6 * S, cx + 5 * S, cy - 2.6 * S], fill=hexc('#1b1b1b')); d.ellipse([cx + 1.8 * S, cy - 5.3 * S, cx + 3.2 * S, cy - 3.9 * S], fill=hexc('#ffffff')); continue
+        if k == 'buoy': d.ellipse([cx - 1.4 * S, cy - 1.4 * S, cx + 1.4 * S, cy + 1.4 * S], fill=hexc('#e74c3c')); continue
+        if k == 'wreck_mast': d.line([cx, cy + 3 * S, cx + 2 * S, cy - 6 * S], fill=hexc('#4a3018'), width=S); continue
+        if k in ('treasure_pile', 'sea_chest'): d.ellipse([cx - 2 * S, cy - 1.4 * S, cx + 2 * S, cy + 1.4 * S], fill=hexc('#e8c547')); continue
+        if k in ('signpost', 'lamp', 'bollard', 'grave', 'cave', 'x_mark', 'bottle', 'notice'): continue
+        r = 1.6 * S
         d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=hexc('#6b4d2e'))
     im = im.resize((W * out_scale, H * out_scale), Image.LANCZOS)
     im.save(path)

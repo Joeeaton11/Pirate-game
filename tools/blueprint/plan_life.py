@@ -110,3 +110,37 @@ EXTRA_PROPS = [
     ('wheelbarrow', 166, 78), ('wheelbarrow', 470, -146), ('water_butt', 152, 60), ('kennel', 128, 60),
     ('rubble', -114, 420), ('rubble', -80, 444), ('rubble', -110, 446),
 ]
+
+# ---- Pirate island dressing (third pass). Big pieces first, then the small stuff.
+PIRATE_PROPS = [
+    # Landmarks
+    ('skull_rock', -500, 356), ('careened_ship', -282, -396), ('whale_bones', -470, 168), ('kraken_bones', 120, 486),
+    ('figurehead', -334, 84), ('wreck_mast', 250, 500), ('wreck_mast', -560, 250), ('mermaid_statue', 452, 14),
+    # Jolly Rogers over the rough places
+    ('jolly_roger', -364, 64), ('jolly_roger', -252, 398), ('jolly_roger', -404, 310), ('jolly_roger', -530, -30),
+    ('jolly_roger', 316, 306), ('jolly_roger', -228, 430),
+    # Harbour and town clutter
+    ('sea_chest', -404, -16), ('sea_chest', 292, 316), ('sea_chest', -424, 316), ('powder_keg', -412, -18),
+    ('powder_keg', -388, -18), ('powder_keg', 296, 326), ('rum_barrels', -366, 84), ('rum_barrels', -228, 402),
+    ('rum_barrels', 520, 116), ('rope_coil', -244, -360), ('rope_coil', 172, 420), ('rope_coil', 484, -200),
+    ('ship_wheel', 504, -160), ('spyglass', 506, -32), ('signal_lamp', -560, -64), ('lantern_post', -186, -232),
+    ('lantern_post', -212, -270), ('lantern_post', 300, -144), ('lantern_post', 330, -148),
+    # Beaches and wild places
+    ('plank', -206, 480), ('x_mark', -480, 140), ('x_mark', 230, 440), ('x_mark', 540, 120),
+    ('buried_chest', -452, 276), ('hammock', -546, -70), ('hammock', -430, 150), ('beach_cannon', -262, -452),
+    ('beach_cannon', -570, -116), ('beach_cannon', 196, 410), ('beach_cannon', 584, 40),
+    ('pirate_grave', 64, 464), ('pirate_grave', 76, 464), ('pirate_grave', -400, 300), ('treasure_pile', -420, 312),
+    ('cannon', 568, 6), ('cannon', 556, -6), ('buoy', 20, -480), ('buoy', 120, -470), ('buoy', -120, -470),
+]
+# Kinds that sit in the sea (not moved ashore by the builder).
+SEA_PROPS = {'skull_rock', 'wreck_mast', 'buoy', 'plank', 'boat'}
+
+# ---- Messages in bottles washed up on the beaches: (x, y, message). Some point to dig spots.
+BOTTLES = [
+    (-470, 230, '"Sixteen paces to the sunrise from the palm with the mark. Don\'t tell Duval." — R.'),
+    (210, 470, '"The dead keep thirty paces of secrets. West of them, mind." — unsigned'),
+    (-560, -30, '"If found, return to Captain Mudd. Reward: one (1) biscuit."'),
+    (580, 60, '"Dear Mum, the cook is a sea-witch. Send socks."'),
+    (-180, 470, '"From the lamp, thirty south. The keeper is a thief and so am I."'),
+    (-24, 520, '"Skull Rock sees all. Skull Rock says nothing. Skull Rock is a rock."'),
+]

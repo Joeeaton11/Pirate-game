@@ -163,18 +163,18 @@ def free_spot(x, y, name, town=False, way=False, dock=False):
 
 # hand-placed props: off buildings and out of the water (docks allowed)
 _moved = []
-_extra_set = set(P.EXTRA_PROPS) | {('notice', x, y) for _, x, y in P.NOTICE_BOARDS}
+_extra_set = set(P.EXTRA_PROPS) | set(P.PIRATE_PROPS) | {('notice', x, y) for _, x, y in P.NOTICE_BOARDS} | {('bottle', x, y) for x, y, _ in P.BOTTLES}
 for k, x, y in P.PROPS:
     p = Point(x, y)
     if (k, x, y) not in _extra_set: _moved.append((k, x, y)); continue
     if _bld.contains(p) or _wet.contains(p) or not (coast.contains(p) or dock_area.contains(p) or town_box.contains(p)):
-        if k in ('boat', 'falls', 'spring', 'cave'): _moved.append((k, x, y)); continue
+        if k in P.SEA_PROPS or k in ('falls', 'spring', 'cave'): _moved.append((k, x, y)); continue
         x, y = free_spot(x, y, f'prop {k}', town=town_box.contains(p), way=True, dock=True)
     _moved.append((k, x, y))
 P.PROPS = _moved
 
 # automatic props round every building, chosen by kind, on the sides away from the door
-PROP_BY_KIND = {'tavern': ['barrels', 'bench', 'lantern'], 'shop': ['crates', 'flowerpot', 'lantern'], 'market': ['crates', 'barrels', 'stall'],
+PROP_BY_KIND = {'tavern': ['rum_barrels', 'parrot_perch', 'bench'], 'shop': ['crates', 'flowerpot', 'lantern'], 'market': ['crates', 'barrels', 'stall'],
                 'warehouse': ['crates', 'barrels', 'cart'], 'home': ['flowerpot', 'woodpile', 'water_butt', 'barrels'],
                 'civic': ['bench', 'lantern', 'flowerpot'], 'fort': ['cannonballs', 'barrels'], 'shed': ['woodpile', 'barrels', 'crates'],
                 'mill': ['barrels', 'cart'], 'manor': ['flowerpot', 'lantern', 'statue'], 'ruin': ['rubble', 'rubble'], 'landmark': ['lantern']}
@@ -206,6 +206,17 @@ for b in P.BUILDINGS:
         dx, dy = EDITS['props'].get(key, [0, 0])
         auto_props.append((k, x + dx, y + dy)); PROPS_ORIG.append((k, x, y)); _pts.append((x, y)); want -= 1
 P.PROPS = list(P.PROPS) + auto_props
+# a hanging sign beside every tavern and shop door
+for b in P.BUILDINGS:
+    bid, label, kind, cx, cy, w, h, side = b
+    if kind not in ('tavern', 'shop') or not side: continue
+    dx, dy = {'S': (w * 0.3, h / 2 + 1.5), 'N': (w * 0.3, -h / 2 - 1.5), 'E': (w / 2 + 1.5, h * 0.3), 'W': (-w / 2 - 1.5, h * 0.3)}[side]
+    k = 'tavern_sign' if kind == 'tavern' else 'shop_sign'
+    P.PROPS.append((k, round(cx + dx, 1), round(cy + dy, 1))); PROPS_ORIG.append(P.PROPS[-1])
+bottles = []
+for x, y, msg in P.BOTTLES:
+    q = next(((a, b_) for k, a, b_ in P.PROPS if k == 'bottle' and math.hypot(a - x, b_ - y) < 60), (x, y))
+    bottles.append((q[0], q[1], msg))
 
 fishing = [(i, *free_spot(x, y, f'fishing {i}'), wh) for i, x, y, wh in P.FISHING]
 digs = []
@@ -585,6 +596,8 @@ g_out.append('export const BP_MUD: [number, number][][] = [' + ', '.join('[' + '
 g_out.append('/** Who lives where: home, work and favourite haunt for each errand-giver (for daily routines). */')
 g_out.append('export const BP_PEOPLE: { name: string; district: string; home: [number, number]; work: [number, number]; haunt: [number, number] }[] = [' + ', '.join(
     f'{{ name: {_json.dumps(n, ensure_ascii=False)}, district: {_json.dumps(d)}, home: [{h[0]:g}, {h[1]:g}], work: [{w[0]:g}, {w[1]:g}], haunt: [{a[0]:g}, {a[1]:g}] }}' for n, d, h, w, a in L_['people']) + '];')
+g_out.append('/** Messages in bottles on the beaches. */')
+g_out.append('export const BP_BOTTLES: { x: number; y: number; text: string }[] = [' + ', '.join(f'{{ x: {x:g}, y: {y:g}, text: {_json.dumps(t, ensure_ascii=False)} }}' for x, y, t in bottles) + '];')
 g_out.append('/** Random event spots on the roads (for later). */')
 g_out.append('export const BP_EVENTS: { kind: string; x: number; y: number }[] = [' + ', '.join(f'{{ kind: {_json.dumps(k)}, x: {x:g}, y: {y:g} }}' for k, x, y in L_['events']) + '];')
 g_out.append('/** Signposts (island-relative): standing by one points you at unexplored districts. */')

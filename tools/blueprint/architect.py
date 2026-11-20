@@ -394,6 +394,41 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         elif k == 'kennel': o.append(f'<rect x="{x - 1.6}" y="{y - 1.4}" width="3.2" height="2.8" fill="none" stroke="{INK}" stroke-width="0.35"/>' + path(f'M{x - 1.6} {y - 1.4}l1.6 -1.2l1.6 1.2', INK, 0.3))
         elif k == 'rubble': o.append(''.join(f'<rect x="{x + a}" y="{y + b}" width="1.4" height="1" fill="none" stroke="{INK}" stroke-width="0.25" transform="rotate({r} {x + a} {y + b})"/>' for a, b, r in ((-2, -1, 20), (0.5, 0.4, -15), (-0.6, 1.2, 40), (1.4, -1.4, 5))))
         elif k == 'notice': pass
+        elif k == 'skull_rock':
+            o.append(f'<path d="M{x - 13} {y + 2}C{x - 14} {y - 14} {x + 14} {y - 14} {x + 13} {y + 2}L{x + 8} {y + 6}L{x + 8} {y + 12}L{x - 8} {y + 12}L{x - 8} {y + 6}Z" fill="#d5d0c3" stroke="{INK}" stroke-width="0.7"/>'
+                     f'<ellipse cx="{x - 5}" cy="{y - 1}" rx="3.4" ry="3" fill="{INK}"/><ellipse cx="{x + 5}" cy="{y - 1}" rx="3.4" ry="3" fill="{INK}"/>'
+                     f'<path d="M{x} {y + 2}l-1.5 3h3Z" fill="{INK}"/>' + path(''.join(f'M{x - 6 + i * 3} {y + 8}v4' for i in range(5)), INK, 0.4))
+        elif k == 'careened_ship':
+            o.append(f'<path d="M{x - 16} {y + 2}Q{x} {y - 8} {x + 16} {y + 2}L{x + 13} {y + 6}L{x - 13} {y + 6}Z" fill="none" stroke="{INK}" stroke-width="0.6"/>'
+                     + path(f'M{x - 4} {y - 2}l-10 -10M{x + 6} {y - 2}l-8 -12', INK, 0.5) + path(''.join(f'M{x - 12 + i * 4} {y + 1}v4' for i in range(7)), INK, 0.2))
+        elif k in ('whale_bones', 'kraken_bones'):
+            if k == 'whale_bones':
+                o.append(path(f'M{x - 14} {y}H{x + 14}' + ''.join(f'M{x - 10 + i * 4} {y}q2 -5 0 -7M{x - 10 + i * 4} {y}q2 5 0 7' for i in range(6)), INK, 0.45)
+                         + f'<ellipse cx="{x + 16}" cy="{y}" rx="4" ry="3" fill="none" stroke="{INK}" stroke-width="0.5"/>')
+            else:
+                o.append(path(''.join(f'M{x} {y}c{3 * c} {-4} {6 * c} {2} {9 * c} {-3 + i}' for i, c in enumerate((1, -1, 0.6, -0.6))), INK, 0.6)
+                         + ''.join(f'<circle cx="{x + 2 * c}" cy="{y - 1}" r="0.5" fill="{INK}"/>' for c in (1, -1)))
+        elif k == 'figurehead': o.append(f'<path d="M{x - 2} {y + 3}q-1 -5 2 -7q3 2 2 7Z" fill="none" stroke="{INK}" stroke-width="0.45"/><circle cx="{x}" cy="{y - 4.6}" r="1.2" fill="none" stroke="{INK}" stroke-width="0.4"/>')
+        elif k == 'wreck_mast': o.append(path(f'M{x} {y + 3}l2 -9M{x - 3} {y - 3}l6 1.2', INK, 0.6) + path(f'M{x - 5} {y + 3}q5 -2 10 0', BLUE, 0.35))
+        elif k == 'mermaid_statue': o.append(f'<circle cx="{x}" cy="{y}" r="3.4" fill="none" stroke="{BLUE}" stroke-width="0.4"/>' + path(f'M{x} {y - 2}v3q-1 1.6 -2 1.2M{x} {y + 1}q1 1.6 2 1.2', INK, 0.4))
+        elif k == 'jolly_roger': o.append(path(f'M{x} {y + 3}v-9', INK, 0.4) + f'<rect x="{x}" y="{y - 6}" width="5" height="3.4" fill="{INK}"/><circle cx="{x + 2.5}" cy="{y - 4.6}" r="0.7" fill="{PAPER}"/>' + path(f'M{x + 1.4} {y - 3.4}l2.2 0.0', PAPER, 0.3))
+        elif k in ('sea_chest', 'buried_chest'): o.append(f'<rect x="{x - 2}" y="{y - 1.3}" width="4" height="2.6" fill="{"#f9e79f" if k == "sea_chest" else "none"}" stroke="{INK}" stroke-width="0.35" {"stroke-dasharray=\"0.8 0.6\"" if k == "buried_chest" else ""}/>' + path(f'M{x - 2} {y - 0.3}h4', INK, 0.25))
+        elif k == 'powder_keg': o.append(f'<circle cx="{x}" cy="{y}" r="1.4" fill="none" stroke="{INK}" stroke-width="0.4"/>' + text(x, y + 0.8, 'P', 1.8, 'bold'))
+        elif k == 'rum_barrels': o.append(''.join(f'<circle cx="{x + a}" cy="{y}" r="1.2" fill="none" stroke="#6e2c00" stroke-width="0.4"/>' for a in (-2.6, 0, 2.6)))
+        elif k == 'rope_coil': o.append(f'<circle cx="{x}" cy="{y}" r="1.6" fill="none" stroke="#a04000" stroke-width="0.35"/><circle cx="{x}" cy="{y}" r="0.8" fill="none" stroke="#a04000" stroke-width="0.3"/>')
+        elif k == 'ship_wheel': o.append(f'<circle cx="{x}" cy="{y}" r="2" fill="none" stroke="{INK}" stroke-width="0.4"/>' + path(f'M{x - 3} {y}h6M{x} {y - 3}v6M{x - 2.1} {y - 2.1}l4.2 4.2M{x + 2.1} {y - 2.1}l-4.2 4.2', INK, 0.25))
+        elif k == 'spyglass': o.append(path(f'M{x - 2} {y + 2}l4 -4', INK, 0.8) + path(f'M{x} {y + 2}v2', INK, 0.3))
+        elif k in ('signal_lamp', 'lantern_post'): o.append(path(f'M{x} {y + 3}v-5', INK, 0.4) + f'<circle cx="{x}" cy="{y - 2.6}" r="1" fill="#f5cba7" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'plank': o.append(f'<rect x="{x - 0.8}" y="{y - 5}" width="1.6" height="7" fill="none" stroke="{INK}" stroke-width="0.35"/>' + text(x + 3, y - 3, 'the plank', 2, 'normal', INK, anchor='start', italic=True))
+        elif k == 'x_mark': o.append(path(f'M{x - 2} {y - 2}l4 4M{x + 2} {y - 2}l-4 4', '#a04000', 0.6))
+        elif k == 'hammock': o.append(path(f'M{x - 5} {y}q5 3 10 0', INK, 0.4) + f'<circle cx="{x - 5}" cy="{y}" r="0.6" fill="{INK}"/><circle cx="{x + 5}" cy="{y}" r="0.6" fill="{INK}"/>')
+        elif k == 'beach_cannon': o.append(path(f'M{x - 2.4} {y + 1}l4.8 -2', INK, 1) + f'<circle cx="{x - 1}" cy="{y + 1.6}" r="0.8" fill="none" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'pirate_grave': o.append(path(f'M{x - 1.8} {y - 1.8}l3.6 3.6M{x + 1.8} {y - 1.8}l-3.6 3.6', INK, 0.4) + f'<circle cx="{x}" cy="{y - 2.6}" r="0.8" fill="none" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'treasure_pile': o.append(f'<path d="M{x - 3} {y + 1.5}q3 -5 6 0Z" fill="#f9e79f" stroke="{INK}" stroke-width="0.35"/>')
+        elif k == 'buoy': o.append(f'<circle cx="{x}" cy="{y}" r="1.4" fill="#e74c3c" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'bottle': o.append(f'<rect x="{x - 0.6}" y="{y - 1.8}" width="1.2" height="3" rx="0.5" fill="none" stroke="{BLUE}" stroke-width="0.35"/>' + path(f'M{x} {y - 1.8}v-0.8', BLUE, 0.3))
+        elif k in ('tavern_sign', 'shop_sign'): o.append(path(f'M{x - 1.6} {y - 1.6}h3.2', INK, 0.35) + f'<rect x="{x - 1.3}" y="{y - 1.3}" width="2.6" height="2" fill="none" stroke="{INK}" stroke-width="0.3"/>' + (f'<circle cx="{x}" cy="{y - 0.3}" r="0.4" fill="{INK}"/>' if k == 'tavern_sign' else ''))
+        elif k == 'parrot_perch': o.append(path(f'M{x} {y + 2}v-4M{x - 1.4} {y - 2}h2.8', INK, 0.35) + f'<circle cx="{x}" cy="{y - 2.8}" r="0.8" fill="#27ae60"/>')
         elif k == 'timber': o.append(path(''.join(f'M{x - 6} {y - 1.5 + i * 1.5}h12' for i in range(3)), '#6e4b2a', 0.5))
         else: o.append(f'<circle cx="{x}" cy="{y}" r="1.2" fill="none" stroke="{INK}" stroke-width="0.35"/>')
 

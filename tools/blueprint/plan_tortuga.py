@@ -82,6 +82,7 @@ ROADS = [
     ("Hermit's Path", 'path', 3, [(150, 389), (196, 380), (230, 368)]),
     ('Mill Lane', 'lane', 5, [(232, 160), (232, 200)]),
     ('Yard Lane', 'lane', 5, [(444, -153), (481, -153)]),
+    ('Rope Bridge', 'path', 3, [(432, -70), (472, -40)]),
     ("Smugglers' Trail", 'secret', 3, [(-4, 222), (-80, 262), (-170, 282), (-262, 300), (-340, 312), (-406, 322)]),
 ]
 
@@ -417,5 +418,6 @@ BUILDINGS = _out
 from plan_life import *  # noqa: E402,F401,F403
 ZONES = ZONES + LIFE_ZONES
 FENCED = ['pen', 'allotment']
-PROPS = PROPS + EXTRA_PROPS + [('notice', x, y) for _, x, y in NOTICE_BOARDS]
+PROPS = PROPS + EXTRA_PROPS + PIRATE_PROPS + [('notice', x, y) for _, x, y in NOTICE_BOARDS] + [('bottle', x, y) for x, y, _ in BOTTLES]
+LABELS = LABELS + [(-500, 380, 'Skull Rock', 'place'), (-282, -380, 'Careened Sloop', 'place'), (-470, 186, 'Whale Bones', 'place'), (120, 500, 'Kraken Bones', 'place')]
 GATHER = GATHER + [('fish', i, x, y) for i, x, y, _ in FISHING]

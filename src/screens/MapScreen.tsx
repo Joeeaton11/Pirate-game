@@ -57,6 +57,7 @@ import {
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
 import {
+  BP_BOTTLES,
   BP_DIGS,
   BP_DISTRICT_CENTRES,
   BP_ERRANDS,
@@ -1528,8 +1529,15 @@ export default function MapScreen({ navigation }: Props) {
     });
   }
 
+  // Toasts that arrive close together are shown together (e.g. a bottle found as a district is discovered).
+  const toastStackRef = useRef<{ at: number; msg: string }>({ at: 0, msg: '' });
   function showResourceToast(message: string, durationMs = 2200) {
-    setResourceToast(message);
+    const nowMs = Date.now();
+    const prev = toastStackRef.current;
+    const combined = nowMs - prev.at < 1500 && prev.msg && prev.msg !== message ? `${message}\n${prev.msg}` : message;
+    toastStackRef.current = { at: nowMs, msg: combined };
+    if (combined !== message) durationMs = Math.max(durationMs, 4500);
+    setResourceToast(combined);
     if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
     resourceToastTimeoutRef.current = setTimeout(() => setResourceToast(null), durationMs);
   }
@@ -2114,6 +2122,12 @@ export default function MapScreen({ navigation }: Props) {
             if (st.findSkull(k.district)) showResourceToast(`💀 Carved skull found! ${st.foundSkulls.length + 1} of ${BP_SKULLS.length}`, 3000);
           });
         });
+        BP_BOTTLES.forEach((bt, i) =>
+          enter(`bottle:${i}`, Math.hypot(rx - bt.x, ry - bt.y) <= 5, () => {
+            const first = st.readBottle(`bottle_${i}`);
+            showResourceToast(`🍾 ${first ? 'A message in a bottle!' : 'The bottle again:'}\n${bt.text}`, 5000);
+          })
+        );
         BP_VIEWPOINTS.forEach((v) =>
           enter(`view:${v.name}`, Math.hypot(rx - v.x, ry - v.y) <= 8, () => {
             const fresh = v.districts.filter((d) => !discoveredRef.current.includes(d));
@@ -2130,8 +2144,8 @@ export default function MapScreen({ navigation }: Props) {
             const open = BP_ERRANDS.filter((e) => e.district === n.district && !completedErrandsRef.current.includes(e.id));
             showResourceToast(
               open.length
-                ? `📋 ${n.district} notice board:\n${open.map((e) => `• ${e.person} wants ${e.amount} ${e.resource}`).join('\n')}`
-                : `📋 ${n.district} notice board: nothing wanted today.`,
+                ? `📋 ${n.district} notice board — WANTED: Captain Scally, 50 gold (artist's likeness unflattering)\n${open.map((e) => `• ${e.person} wants ${e.amount} ${e.resource}`).join('\n')}`
+                : `📋 ${n.district} notice board — WANTED: Captain Scally, 50 gold. Nothing else wanted today.`,
               3800
             );
           })

@@ -31,4 +31,8 @@
 <text x="232" y="238" font-family="Arial, Helvetica, sans-serif" font-size="4.2" font-weight="normal" fill="#2b2a27" text-anchor="middle" font-style="italic">Sugar Mill</text>
 <text x="440" y="118" font-family="Arial, Helvetica, sans-serif" font-size="4.2" font-weight="normal" fill="#2b2a27" text-anchor="middle" font-style="italic">Lagoon</text>
 <text x="500" y="140" font-family="Arial, Helvetica, sans-serif" font-size="4.2" font-weight="normal" fill="#2b2a27" text-anchor="middle" font-style="italic">Old Suzette's Still</text>
+<text x="-500" y="380" font-family="Arial, Helvetica, sans-serif" font-size="4.2" font-weight="normal" fill="#2b2a27" text-anchor="middle" font-style="italic">Skull Rock</text>
+<text x="-282" y="-380" font-family="Arial, Helvetica, sans-serif" font-size="4.2" font-weight="normal" fill="#2b2a27" text-anchor="middle" font-style="italic">Careened Sloop</text>
+<text x="-470" y="186" font-family="Arial, Helvetica, sans-serif" font-size="4.2" font-weight="normal" fill="#2b2a27" text-anchor="middle" font-style="italic">Whale Bones</text>
+<text x="120" y="500" font-family="Arial, Helvetica, sans-serif" font-size="4.2" font-weight="normal" fill="#2b2a27" text-anchor="middle" font-style="italic">Kraken Bones</text>
 </svg>
