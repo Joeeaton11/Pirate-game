@@ -35,6 +35,8 @@ import {
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
 import { TownLife } from '../town/TownLife';
+import { BlueprintLayer } from '../blueprint/BlueprintLayer';
+import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
 import { DayNight } from '../town/DayNight';
 import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
@@ -422,6 +424,27 @@ const TORTUGA_V2_SOLID_RECTS = (() => {
   });
   return rects.concat(TOWN_SCENE.solids);
 })();
+
+/** Blueprint (plan) mode: walk the island's layout plan instead of its art. Solids are the plan's
+ * own buildings, trees and inland water outside the painted town, plus the town's walk map. */
+const BLUEPRINT_SOLID_RECTS = (() => {
+  const o = ISLANDS.tortuga_cove.position;
+  const rects: { l: number; r: number; t: number; b: number }[] = [];
+  for (let i = 0; i < BP_SOLIDS.length; i += 4) {
+    rects.push({ l: o.x + BP_SOLIDS[i], r: o.x + BP_SOLIDS[i + 1], t: o.y + BP_SOLIDS[i + 2], b: o.y + BP_SOLIDS[i + 3] });
+  }
+  return rects.concat(TOWN_SCENE.solids);
+})();
+const BLUEPRINT_DOORS = TOWN_DOORS.concat(
+  BP_DOORS.map((d) => ({ id: d.id, x: ISLANDS.tortuga_cove.position.x + d.x, y: ISLANDS.tortuga_cove.position.y + d.y }))
+);
+function startInPlanMode() {
+  try {
+    return typeof window !== 'undefined' && !!window.location && /[?&]plan=1/.test(window.location.search);
+  } catch {
+    return false;
+  }
+}
 
 /** Playtest helper (web only): `?at=x,y` starts Scally at that spot, in Tortuga-relative world
  * units (the same coordinates as src/town/tortugaTownLayout.ts) — handy for checking one corner of
@@ -830,6 +853,9 @@ export default function MapScreen({ navigation }: Props) {
   const isFocused = useIsFocused();
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [player, setPlayer] = useState(devStartPosition);
+  const [planMode, setPlanMode] = useState(startInPlanMode);
+  const planModeRef = useRef(planMode);
+  planModeRef.current = planMode;
   // Camera eases after the player instead of being nailed to them; Scally's screen position is
   // offset by the gap, so he leads slightly into a walk and the view catches up when he stops.
   const [cam, setCam] = useState(player);
@@ -1844,7 +1870,12 @@ export default function MapScreen({ navigation }: Props) {
         BUILDING_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
       );
       if (SHOW_TORTUGA_V2 && currentIsland?.id === 'tortuga_cove') {
-        nextPosition = slideAroundRects(playerRef.current, nextPosition, TORTUGA_V2_SOLID_RECTS, 1.5);
+        nextPosition = slideAroundRects(
+          playerRef.current,
+          nextPosition,
+          planModeRef.current ? BLUEPRINT_SOLID_RECTS : TORTUGA_V2_SOLID_RECTS,
+          1.5
+        );
       }
 
       const nextIsland = islandAtPoint(nextPosition);
@@ -1957,7 +1988,7 @@ export default function MapScreen({ navigation }: Props) {
           // Town-core terraces: nearest door within reach (doors sit ~28 units apart, so the
           // nearest-door rule picks the facade Scally is actually standing in front of).
           let best: { id: string; d: number } | null = null;
-          for (const door of TOWN_DOORS) {
+          for (const door of planModeRef.current ? BLUEPRINT_DOORS : TOWN_DOORS) {
             const d = Math.hypot(nextPosition.x - door.x, nextPosition.y - door.y);
             if (d <= TOWN_DOOR_RADIUS && (!best || d < best.d)) best = { id: door.id, d };
           }
@@ -2842,15 +2873,16 @@ export default function MapScreen({ navigation }: Props) {
               );
             })}
 
-            {SHOW_TORTUGA_V2 && (
+            {SHOW_TORTUGA_V2 && !planMode && (
               <View pointerEvents="none" style={StyleSheet.absoluteFill}>
                 {TORTUGA_TOWN_FEATHERED}
                 {TORTUGA_V2_SPRITE_LAYER}
               </View>
             )}
+            {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} />}
             {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
                 the same sailing sprite and size the player gets once aboard. */}
-            <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} />
+            <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} />
 
             {SHOW_LANDMARKS &&
               LANDMARKS.map((landmark) => {
@@ -3427,7 +3459,7 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
-        {viewport.width > 0 && (
+        {viewport.width > 0 && !planMode && (
           <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} />
         )}
 
@@ -3723,6 +3755,15 @@ export default function MapScreen({ navigation }: Props) {
             <Text style={styles.buildingPromptText}>Board the Black Pearl?</Text>
           </Pressable>
         )}
+
+        <Pressable
+          style={styles.planToggle}
+          onPress={() => setPlanMode((m) => !m)}
+          hitSlop={6}
+          accessibilityLabel={planMode ? 'Show the island art' : 'Show the island blueprint'}
+        >
+          <Text style={styles.planToggleText}>{planMode ? '🎨 Art' : '📐 Plan'}</Text>
+        </Pressable>
 
         {compassAngleDeg !== null && (
           <View pointerEvents="none" style={styles.compassBadge}>
@@ -4099,6 +4140,22 @@ const styles = StyleSheet.create({
   },
   compassEmoji: {
     fontSize: 26,
+  },
+  planToggle: {
+    position: 'absolute',
+    top: 68,
+    right: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderWidth: 2,
+    borderColor: '#f4e9cd',
+  },
+  planToggleText: {
+    color: '#f4e9cd',
+    fontSize: 13,
+    fontWeight: '700',
   },
   edgeIndicator: {
     position: 'absolute',

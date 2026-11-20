@@ -85,9 +85,11 @@ interface Props {
   origin: { x: number; y: number };
   /** The moored Black Pearl's world position, or null while she's being sailed. */
   ship: { x: number; y: number; size: number; source: ImageSourcePropType } | null;
+  /** Blueprint mode: only the ship and the walkers (no painted-ship bobbing, gulls or glints). */
+  plan?: boolean;
 }
 
-export const TownLife = React.memo(function TownLife({ origin, ship }: Props) {
+export const TownLife = React.memo(function TownLife({ origin, ship, plan }: Props) {
   const t = useClock();
   const ox = origin.x;
   const oy = origin.y;
@@ -159,8 +161,8 @@ export const TownLife = React.memo(function TownLife({ origin, ship }: Props) {
 
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }}>
-      {shimmer}
-      {BOATS.map((b, i) => (
+      {!plan && shimmer}
+      {!plan && BOATS.map((b, i) => (
         <RNImage
           key={`b${i}`}
           source={b.src}
@@ -190,7 +192,7 @@ export const TownLife = React.memo(function TownLife({ origin, ship }: Props) {
         />
       )}
       {walkers}
-      {gulls}
+      {!plan && gulls}
     </View>
   );
 });
