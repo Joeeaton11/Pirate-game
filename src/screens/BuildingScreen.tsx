@@ -308,7 +308,7 @@ export default function BuildingScreen({ navigation }: Props) {
       const sprite = NPC_SPRITES[spot.id === 'main' ? `${interior.buildingId}:main` : spot.id];
       const pinned = spot.id === 'main' || patronQuests.some((q) => q.id === spot.id) || !AMBIENT_NPCS[spot.id];
       if (pinned) {
-        if (!sprite?.walk) continue;
+        if (!sprite?.walk || spot.seated) continue;
         const reach = spot.id === 'main' ? 26 : 12;
         map[spot.id] = [
           { x: spot.x, y: spot.y, seat: false },
@@ -336,10 +336,12 @@ export default function BuildingScreen({ navigation }: Props) {
     for (const item of interior.furniture) {
       switch (item.type) {
         case 'table':
-          obstacles.push({ x: item.x, y: item.y, radius: 26 + PLAYER_FURNITURE_CLEARANCE });
+          // Painted rooms measure tables off the art (feet stop at the table edge), so seated
+          // drinkers on the far side stay within talking distance.
+          obstacles.push({ x: item.x, y: item.y, radius: interior.backdrop ? 22 : 26 + PLAYER_FURNITURE_CLEARANCE });
           break;
         case 'barrel':
-          obstacles.push({ x: item.x, y: item.y, radius: 12 + PLAYER_FURNITURE_CLEARANCE });
+          obstacles.push({ x: item.x, y: item.y, radius: interior.backdrop ? 14 : 12 + PLAYER_FURNITURE_CLEARANCE });
           break;
         case 'shelf': {
           // Rendered as a 60x20 rect — two circles spaced along its width so the whole span
@@ -992,6 +994,28 @@ export default function BuildingScreen({ navigation }: Props) {
           }}
         />
       ),
+    });
+  }
+
+  // Painted-room cut-outs (bar counter, table tops) drawn over whoever stands behind them.
+  if (interior.backdrop) {
+    (interior.foreground ?? []).forEach((f, i) => {
+      depthSortedEntities.push({
+        key: `fg-${i}`,
+        y: f.b,
+        node: (
+          <View
+            pointerEvents="none"
+            style={{ position: 'absolute', left: f.l, top: f.t, width: f.r - f.l, height: f.b - f.t, overflow: 'hidden' }}
+          >
+            <Image
+              source={interior.backdrop!}
+              resizeMode="stretch"
+              style={{ position: 'absolute', left: -f.l, top: -f.t, width: interior.width, height: interior.height }}
+            />
+          </View>
+        ),
+      });
     });
   }
 

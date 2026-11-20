@@ -28,6 +28,9 @@ export interface InteriorNpcSpot {
   id: string;
   x: number;
   y: number;
+  /** Sits at a table (painted rooms): stays put rather than pacing. Place the spot on the far
+   * side of a table that has a foreground cut-out, so the table hides their legs. */
+  seated?: boolean;
 }
 
 /** Ordinary members of the public — just flavor, no quest attached. Talking to one shows a
@@ -76,6 +79,10 @@ export interface BuildingInterior {
   /** Painted rooms: walking into this area (heading down, out of the door) leaves the building.
    * Rooms without one use their 'door' furniture's position instead. */
   exitZone?: { l: number; r: number; t: number; b: number };
+  /** Painted rooms: pieces of the picture (the bar counter, table tops) that are re-drawn over
+   * anyone standing behind them, so a barman stands behind his bar and drinkers sit at tables.
+   * Each one sorts in depth at its bottom edge. */
+  foreground?: { l: number; r: number; t: number; b: number }[];
 }
 
 /** Hand-authored floor plans. Buildings without an entry here get a generic room via
@@ -103,6 +110,14 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { l: 0, r: 72, t: 172, b: 232 }, // wanted-poster partition
       { l: 312, r: 360, t: 98, b: 205 }, // fireplace
     ],
+    foreground: [
+      { l: 106, r: 252, t: 100, b: 125 }, // bar counter
+      { l: 48, r: 87, t: 97, b: 118 }, // table, top left
+      { l: 260, r: 307, t: 101, b: 126 }, // table, top right
+      { l: 260, r: 307, t: 170, b: 198 }, // table, middle right
+      { l: 241, r: 284, t: 230, b: 256 }, // table, bottom right
+      { l: 58, r: 102, t: 236, b: 263 }, // table, bottom left
+    ],
     furniture: [
       { type: 'table', x: 66, y: 106 },
       { type: 'table', x: 285, y: 112 },
@@ -111,25 +126,20 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { type: 'table', x: 82, y: 248 },
       { type: 'barrel', x: 325, y: 232 },
       { type: 'barrel', x: 24, y: 240 },
-      { type: 'stool', x: 135, y: 128 },
-      { type: 'stool', x: 213, y: 128 },
-      { type: 'stool', x: 250, y: 132 },
-      { type: 'stool', x: 282, y: 142 },
-      { type: 'chair', x: 255, y: 172 },
-      { type: 'stool', x: 258, y: 205 },
-      { type: 'chair', x: 233, y: 228 },
-      { type: 'chair', x: 108, y: 230 },
-      { type: 'stool', x: 90, y: 125 },
+      // Seats the roaming locals sit at — each on the far side of a table, so it hides their legs.
+      { type: 'chair', x: 291, y: 113 },
+      { type: 'chair', x: 262, y: 240 },
+      { type: 'chair', x: 272, y: 183 },
     ],
     npcSpots: [
-      { id: 'main', x: 178, y: 98 },
-      { id: 'patron_tortuga_drunk', x: 98, y: 128 },
-      { id: 'patron_tortuga_local', x: 250, y: 130 },
-      { id: 'patron_tortuga_rival', x: 300, y: 150 },
-      { id: 'patron_tortuga_mystic', x: 112, y: 232 },
-      { id: 'tortuga_amb_sailor', x: 55, y: 205 },
-      { id: 'tortuga_amb_cook', x: 250, y: 205 },
-      { id: 'tortuga_amb_lass', x: 225, y: 236 },
+      { id: 'main', x: 178, y: 118 }, // behind the bar
+      { id: 'patron_tortuga_drunk', x: 67, y: 109, seated: true },
+      { id: 'patron_tortuga_local', x: 230, y: 140 },
+      { id: 'patron_tortuga_rival', x: 293, y: 184, seated: true },
+      { id: 'patron_tortuga_mystic', x: 80, y: 250, seated: true },
+      { id: 'tortuga_amb_sailor', x: 150, y: 215 },
+      { id: 'tortuga_amb_cook', x: 215, y: 205 },
+      { id: 'tortuga_amb_lass', x: 190, y: 160 },
     ],
   },
   tortuga_fort: {
