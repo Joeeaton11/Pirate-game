@@ -18,9 +18,9 @@ export const BlueprintLayer = React.memo(function BlueprintLayer({ origin }: { o
     <SvgXml
       xml={TORTUGA_PLAN_SVG}
       width={1240}
-      height={1080}
+      height={1120}
       pointerEvents="none"
-      style={{ position: 'absolute', left: origin.x - 620, top: origin.y - 540, width: 1240, height: 1080 }}
+      style={{ position: 'absolute', left: origin.x - 620, top: origin.y - 580, width: 1240, height: 1120 }}
     />
   );
 });

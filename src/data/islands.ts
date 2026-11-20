@@ -278,7 +278,7 @@ export function islandAtPoint(point: { x: number; y: number }): Island | null {
     const island = ISLANDS[segment.islandId];
     const from = { x: island.position.x + segment.from.x, y: island.position.y + segment.from.y };
     const to = { x: island.position.x + segment.to.x, y: island.position.y + segment.to.y };
-    if (distToSegment(point, from, to) <= PIER_WALK_RADIUS) {
+    if (distToSegment(point, from, to) <= (segment.halfWidth ?? PIER_WALK_RADIUS)) {
       return island;
     }
   }

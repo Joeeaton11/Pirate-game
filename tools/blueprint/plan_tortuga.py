@@ -203,3 +203,26 @@ POIS = [
     ('landmark', 'The High Woods', 520, -40), ('landmark', 'La Ringot Fields', 290, 230),
     ('landmark', 'The Lighthouse', -224, -486), ("landmark", "Contrebandiers' Cove", -560, -50),
 ]
+
+# ---- Docks outside the painted town (the town's own piers come from its walk map).
+# (name, kind, deck width, points). The first point must sit on land; the builder checks it.
+# These also become the game's walkable boardwalks (src/data/harbor.ts reads them).
+DOCKS = [
+    # North-west: the careening wharf along the lighthouse headland, and the West Pier into the bay.
+    ('Careening Wharf', 'quay', 8, [(-252, -322), (-247, -432)]),
+    ('West Pier', 'pier', 7, [(-248, -378), (-184, -378)]),
+    ('West Pier Head', 'pier', 7, [(-184, -402), (-184, -354)]),
+    ('Lighthouse Steps', 'jetty', 5, [(-222, -484), (-202, -498)]),
+    # South: the South Jetty off the graves' cove, with its two heads.
+    ('South Jetty', 'pier', 7, [(150, 390), (179, 450)]),
+    ('South Jetty East Head', 'pier', 6, [(179, 450), (208, 468)]),
+    ('South Jetty South Head', 'pier', 6, [(179, 450), (166, 504)]),
+    # Small landings round the coast.
+    ('Old Landing Jetty', 'jetty', 5, [(-40, 486), (-36, 516)]),
+    ('Turtle Cove Jetty', 'jetty', 5, [(-212, 444), (-208, 474)]),
+    ("Shipyard Slipway", 'slip', 10, [(470, -188), (494, -220)]),
+]
+# The offshore rubble breakwater sheltering the harbour mouth (not walkable).
+BREAKWATER = [(-273, -555), (46, -447), (351, -505)]
+# Boats tied up at the docks (x, y, heading degrees) — outlines only.
+MOORED = [(-176, -414, 90), (-200, -366, 0), (196, 476, 30), (158, 506, -80), (-28, 520, 80), (-200, 480, 85)]

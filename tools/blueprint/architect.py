@@ -5,7 +5,7 @@ from shapely.geometry import Polygon, LineString, Point, box
 from shapely.ops import unary_union
 from xml.sax.saxutils import escape
 
-X0, Y0, W, H = -620, -540, 1240, 1080
+X0, Y0, W, H = -620, -580, 1240, 1120
 PAPER, INK, BLUE, GREEN, GRID = '#f4f1e6', '#2b2a27', '#3b6e9c', '#4c7a45', '#8fb0cf'
 POI_COL = {'treasure': '#b8860b', 'landmark': '#b8860b', 'resource': '#2f8fb5', 'quest': '#c0392b'}
 
@@ -63,19 +63,31 @@ def text(x, y, t, size, weight='normal', color=INK, spacing=0, italic=False, anc
     return (f'<text x="{f(x)}" y="{f(y)}" font-family="Arial, Helvetica, sans-serif" font-size="{size}" '
             f'font-weight="{weight}" fill="{color}" text-anchor="{anchor}"{st}{ls}>{escape(t)}</text>')
 
+P_ref = [None]
+
 def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_rects, town_bldgs, painted_doors,
-             names, door_point, town_box):
+             names, door_point, town_box, docks=(), breakwater=None):
+    P_ref[0] = P
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{X0} {Y0} {W} {H}" width="{W}" height="{H}">',
          f'<rect x="{X0}" y="{Y0}" width="{W}" height="{H}" fill="{PAPER}"/>']
     # Drafting grid: 10-unit minor, 50-unit major.
-    minor = ''.join(f'M{x} {Y0}V{Y0 + H}' for x in range(-620, 621, 10) if x % 50) + ''.join(f'M{X0} {y}H{X0 + W}' for y in range(-540, 541, 10) if y % 50)
-    major = ''.join(f'M{x} {Y0}V{Y0 + H}' for x in range(-600, 601, 50)) + ''.join(f'M{X0} {y}H{X0 + W}' for y in range(-500, 501, 50))
+    minor = ''.join(f'M{x} {Y0}V{Y0 + H}' for x in range(-620, 621, 10) if x % 50) + ''.join(f'M{X0} {y}H{X0 + W}' for y in range(Y0, Y0 + H + 1, 10) if y % 50)
+    major = ''.join(f'M{x} {Y0}V{Y0 + H}' for x in range(-600, 601, 50)) + ''.join(f'M{X0} {y}H{X0 + W}' for y in range(-550, 541, 50))
     o.append(path(minor, GRID, 0.15, 'opacity="0.35"')); o.append(path(major, GRID, 0.3, 'opacity="0.6"'))
     # Sea: chart-style offset lines outside the coast, reef stippled.
     for dist, w, op in ((5, 0.35, 0.7), (11, 0.3, 0.45), (18, 0.25, 0.25)):
         o.append(path(outline_d(coast.buffer(dist, join_style=1), drop=town_box), BLUE, w, f'opacity="{op}"'))
     for t, g in sea_zones:
         o.append(path(d_of(g), BLUE, 0.5, 'stroke-dasharray="1 1.6"'))
+    # Breakwater: a rubble arm, stippled between two broken lines.
+    if breakwater is not None:
+        o.append(f'<path d="{d_of(breakwater)}" fill="{PAPER}" stroke="{INK}" stroke-width="0.5" stroke-dasharray="2 1"/>')
+        import random as _r
+        rg = _r.Random(3); minx, miny, maxx, maxy = breakwater.bounds; dots = []
+        while len(dots) < 260:
+            x, y = rg.uniform(minx, maxx), rg.uniform(miny, maxy)
+            if breakwater.buffer(-1).contains(Point(x, y)): dots.append(f'M{f(x)} {f(y)}h0.6')
+        o.append(path(''.join(dots), INK, 0.6, 'stroke-linecap="round"'))
     # Coast, and the beach line inside it.
     o.append(path(outline_d(coast, drop=town_box), INK, 1.4, 'stroke-linejoin="round"'))
     o.append(path(d_of(coast.buffer(-14).difference(town_box)), INK, 0.3, 'stroke-dasharray="2 2" opacity="0.7"'))
@@ -129,6 +141,24 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     o.append(path(outline_d(urects(town_rects['garden'], 1.0, 25, 1.5), keep=inside), GREEN, 0.35, 'stroke-dasharray="3 1.5"'))
     o.append(path(outline_d(urects(town_rects['wood'], 0.4), keep=inside), INK, 0.6))
     o.append(path(outline_d(urects(town_rects['sand'], 0.8, 20, 1.5), keep=inside), INK, 0.3, 'stroke-dasharray="2 2"'))
+    # Docks: deck outline, planks across, piles along the edges; slipway ramps hatched lengthways.
+    for n, k, w, g in docks:
+        o.append(f'<path d="{d_of(g)}" fill="{PAPER}" stroke="{INK}" stroke-width="0.7"/>')
+        c = list(g.minimum_rotated_rectangle.exterior.coords)
+        import math
+        e1 = (c[1][0] - c[0][0], c[1][1] - c[0][1]); e2 = (c[2][0] - c[1][0], c[2][1] - c[1][1])
+        le = e1 if math.hypot(*e1) > math.hypot(*e2) else e2
+        ang = math.degrees(math.atan2(le[1], le[0]))
+        o.append(path(hatch(g.buffer(-0.5), 1.8 if k != 'slip' else 1.4, ang + (0 if k == 'slip' else 90)), INK, 0.18))
+        if k != 'slip':
+            edge = g.exterior; L = edge.length; piles = []
+            t = 0
+            while t < L:
+                p = edge.interpolate(t); piles.append(f'M{f(p.x - 0.7)} {f(p.y - 0.7)}h1.4v1.4h-1.4Z'); t += 8
+            o.append(f'<path d="{"".join(piles)}" fill="{INK}"/>')
+    for x, y, hdg in getattr(P_ref[0], 'MOORED', []):
+        o.append(f'<g transform="translate({x},{y}) rotate({hdg})"><path d="M-7 0Q-4 -2.6 3 -2.4L7 0L3 2.4Q-4 2.6 -7 0Z" fill="{PAPER}" stroke="{INK}" stroke-width="0.45"/>'
+                 f'<path d="M-4 0H4" stroke="{INK}" stroke-width="0.2"/></g>')
     # Trees (canopy circles) and rocks.
     TR = {'jungle': 4, 'tree': 5, 'palm': 3.2, 'rock': 3.6, 'mangrove': 3.4}
     for kind in TR:
@@ -198,7 +228,7 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         if s == 'district': o.append(text(x, y, t.upper(), 8, 'bold', '#1f3b5c', spacing=1.6))
         else: o.append(text(x, y, t, 4.2, 'normal', INK, italic=True))
     # North arrow, scale bar and title block (bottom right, over the sea).
-    o.append(f'<g transform="translate(-570,-480)"><circle r="12" fill="none" stroke="{INK}" stroke-width="0.5"/>'
+    o.append(f'<g transform="translate(-570,-520)"><circle r="12" fill="none" stroke="{INK}" stroke-width="0.5"/>'
              f'<path d="M0 -10L4 6L0 3L-4 6Z" fill="{INK}"/>{text(0, -15, "N", 6, "bold")}</g>')
     tb = (420, 462, 190, 64)
     o.append(f'<rect x="{tb[0]}" y="{tb[1]}" width="{tb[2]}" height="{tb[3]}" fill="{PAPER}" stroke="{INK}" stroke-width="0.8"/>'

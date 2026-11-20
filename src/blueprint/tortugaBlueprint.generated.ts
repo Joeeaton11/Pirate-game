@@ -100,6 +100,19 @@ export const BP_BUILDINGS: BpBuilding[] = [
   { id: null, label: 'Cottage', kind: 'home', l: 235, t: 176, w: 18, h: 16, door: [244, 176] },
 ];
 export const BP_BRIDGES = 'M-407.6 102.1L-403.4 102.9L-405.7 91.2L-410.0 90.4ZM-327.0 97.6L-333.0 98.1L-333.0 109.1L-327.0 108.6ZM371.6 241.5L369.6 245.9L385.0 243.5L387.1 239.1Z';
+/** Walkable boardwalks outside the painted town (src/data/harbor.ts reads these). */
+export const BP_DOCK_SEGMENTS: { from: { x: number; y: number }; to: { x: number; y: number }; halfWidth: number }[] = [
+  { from: { x: -252, y: -322 }, to: { x: -247, y: -432 }, halfWidth: 5 },
+  { from: { x: -248, y: -378 }, to: { x: -184, y: -378 }, halfWidth: 4.5 },
+  { from: { x: -184, y: -402 }, to: { x: -184, y: -354 }, halfWidth: 4.5 },
+  { from: { x: -222, y: -484 }, to: { x: -202, y: -498 }, halfWidth: 3.5 },
+  { from: { x: 150, y: 390 }, to: { x: 179, y: 450 }, halfWidth: 4.5 },
+  { from: { x: 179, y: 450 }, to: { x: 208, y: 468 }, halfWidth: 4 },
+  { from: { x: 179, y: 450 }, to: { x: 166, y: 504 }, halfWidth: 4 },
+  { from: { x: -40, y: 486 }, to: { x: -36, y: 516 }, halfWidth: 3.5 },
+  { from: { x: -212, y: 444 }, to: { x: -208, y: 474 }, halfWidth: 3.5 }
+];
+export const BP_BREAKWATER: [number, number][] = [[-273, -555], [46, -447], [351, -505]];
 export const BP_SEA_ZONES: { t: string; d: string }[] = [{ t: 'reef', d: 'M458.0 -292.0L478.0 -262.0L520.0 -258.0L546.0 -282.0L540.0 -318.0L500.0 -340.0L456.0 -330.0Z' }];
 export const BP_POIS: [string, string, number, number][] = [['treasure', 'site_fragment_tortuga', -369.3, 375.2], ['treasure', 'site_buried_doubloons', -403, 76], ['treasure', 'site_rusty_compass', -461, -173], ['resource', 'node_tortuga_fish', -100, -288], ['resource', 'node_tortuga_timber_1', 581, 23], ['resource', 'node_tortuga_timber_2', 472, 115], ['quest', 'quest_bounty_board', 0, -55], ['quest', 'tortuga_locked_ward', 56, -55], ['quest', 'blackfin_tortuga_intro', 196, -294], ['landmark', 'Wreck of the Santa Catalina', -444.7, 284], ['landmark', "Smugglers' Grotto", -416, 318], ['landmark', 'The Marked Palm', -354, 394], ['landmark', 'Turtle Cove', -214, 446], ['landmark', 'Ruins of the Old Landing', -60, 470], ['landmark', 'The Forgotten Graves', 84, 440], ['landmark', "Blackwood's Hollow", -12, 236], ['landmark', "Old Suzette's Still", 496, 132], ['landmark', 'The High Woods', 520, -40], ['landmark', 'La Ringot Fields', 290, 230], ['landmark', 'The Lighthouse', -224, -486], ['landmark', "Contrebandiers' Cove", -560, -50]];
 /** x, y, kind code (0 jungle, 1 tree, 2 palm, 3 rock, 4 mangrove), packed. */

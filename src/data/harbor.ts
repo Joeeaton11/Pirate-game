@@ -1,3 +1,4 @@
+import { BP_DOCK_SEGMENTS } from '../blueprint/tortugaBlueprint.generated';
 /** Pure decoration: a boardwalk reaching from the harbor out into open water, small boats moored
  * along it, and larger ships anchored further offshore. Same discipline as Scenery — zero
  * gameplay hook, no interaction, no collision — but deliberately placed OUTSIDE the island's land
@@ -20,6 +21,8 @@ export interface PierSegment {
   to: { x: number; y: number };
   /** Drawn by the town scene (src/town) instead of the generic SVG pier/quay stroke. */
   townDrawn?: boolean;
+  /** How far either side of the line counts as walkable deck (default: islands.ts PIER_WALK_RADIUS). */
+  halfWidth?: number;
 }
 
 // Straightened to due-vertical 2026-08-14, per direct feedback ("the jetty's need to also be
@@ -48,13 +51,10 @@ export interface PierSegment {
 export const PIERS: PierSegment[] = [
   // Four piers off the quay, spread around the bay — the docks-and-careening quarter (west),
   // the harbor's administrative core, the tavern district, and the east side by the chapel.
-  { islandId: 'tortuga_cove', from: { x: -168, y: -359 }, to: { x: -168, y: -507 } },
   // T-head on the west pier (docks-and-careening quarter): the spur above ends at (-146,-440),
   // and this pier turns a full corner in both directions there — a real "wraps around" jetty,
   // not just a longer straight run. Both arms are pure horizontal, meeting the vertical spur at a
   // right angle.
-  { islandId: 'tortuga_cove', from: { x: -168, y: -507 }, to: { x: -238, y: -507 } },
-  { islandId: 'tortuga_cove', from: { x: -168, y: -507 }, to: { x: -99, y: -507 } },
   // Town harbour piers (2026-11-14 town-centre rebuild): walkable boardwalks painted into the town
   // picture (src/town/tortugaTownLayout.ts); these lines trace the painted planks: Long Pier
   // (T-head), Customs Pier (L-head) and the Fish Pier.
@@ -75,19 +75,19 @@ export const PIERS: PierSegment[] = [
   // jetty at the island's south tip, which had no pier/quay data at all before this, only the
   // one building marker. Both traced the same way as the coastline itself: isolate the
   // structure's own warm-wood pixels against the water, follow its centerline out from shore.
-  { islandId: 'tortuga_cove', from: { x: -283, y: -321 }, to: { x: -255, y: -425 } },
-  { islandId: 'tortuga_cove', from: { x: -255, y: -425 }, to: { x: -209, y: -512 } },
   // Old Dock / Old Landing: a bent jetty reaching south off the ruins, with its own short
   // crossbar near the tip (same "wraps around" convention as the T/L-heads above).
-  { islandId: 'tortuga_cove', from: { x: 147, y: 402 }, to: { x: 179, y: 454 } },
-  { islandId: 'tortuga_cove', from: { x: 179, y: 454 }, to: { x: 165, y: 509 } },
-  { islandId: 'tortuga_cove', from: { x: 179, y: 454 }, to: { x: 208, y: 472 } },
 ];
 
 /** A built stone quay along the natural curve of the new horseshoe bay's coastline — rendered
  * distinctly from the wooden piers (grey masonry, not brown planks) since a quay is a solid
  * embankment ships pull alongside, not a walkway reaching out to sea. Sits a few world units
  * inland of the true coastline so it always draws on solid ground. */
+// Tortuga's docks outside the painted town come from the island blueprint (tools/blueprint/
+// plan_tortuga.py DOCKS) since 2026-11-20 — the West Pier, careening wharf, lighthouse steps, South
+// Jetty and the small landings — at their drawn deck width. The old hand-placed ones were removed.
+PIERS.push(...BP_DOCK_SEGMENTS.map((d) => ({ islandId: 'tortuga_cove', ...d })));
+
 export const QUAYS: PierSegment[] = [
   // Town wharf (2026-11-14): keeps the whole plank wharf walkable where the coast dips inland.
   { islandId: 'tortuga_cove', from: { x: -55, y: -303 }, to: { x: 121, y: -303 }, townDrawn: true },
@@ -96,8 +96,6 @@ export const QUAYS: PierSegment[] = [
   { islandId: 'tortuga_cove', from: { x: 200, y: -362 }, to: { x: 258, y: -362 }, townDrawn: true },
   // Tortuga Cove art pass v2 (2026-11-14): quay walls retraced to match the painted backdrop
   // (tortugaV2.ts) — 10 world units inland of the coastline through the harbour mouth.
-  { islandId: 'tortuga_cove', from: { x: -246, y: -435.5 }, to: { x: -253.5, y: -319.5 } },
-  { islandId: 'tortuga_cove', from: { x: -253.5, y: -319.5 }, to: { x: -170.5, y: -223.5 } },
   { islandId: 'tortuga_cove', from: { x: -170.5, y: -223.5 }, to: { x: -105.5, y: -229.5 } },
   { islandId: 'tortuga_cove', from: { x: -80.5, y: -259.5 }, to: { x: -135, y: -335 }, townDrawn: true },
   { islandId: 'tortuga_cove', from: { x: -135, y: -335 }, to: { x: -102, y: -359.5 } },
