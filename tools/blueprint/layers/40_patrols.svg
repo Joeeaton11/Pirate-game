@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-620 -580 1240 1120" width="1240" height="1120">
+<path d="M364 -321L366 -230L362 -140L300 -150" fill="none" stroke="#2e4053" stroke-width="0.7" stroke-dasharray="4 1.5 1 1.5" opacity="0.8"/>
+<text x="364" y="-324" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#2e4053" text-anchor="middle">GUARDS (DAY)</text>
+<path d="M-150 -64L-232 -58L-300 -36" fill="none" stroke="#2e4053" stroke-width="0.7" stroke-dasharray="4 1.5 1 1.5" opacity="0.8"/>
+<text x="-150" y="-67" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#2e4053" text-anchor="middle">GUARDS (DAY)</text>
+<path d="M-40 -300L240 -300" fill="none" stroke="#2e4053" stroke-width="0.7" stroke-dasharray="4 1.5 1 1.5" opacity="0.8"/>
+<text x="-40" y="-303" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#2e4053" text-anchor="middle">GUARDS (DAY)</text>
+<path d="M-406 322L-340 312L-262 300L-170 282L-80 262L-4 222" fill="none" stroke="#8e44ad" stroke-width="0.7" stroke-dasharray="4 1.5 1 1.5" opacity="0.8"/>
+<text x="-406" y="319" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#8e44ad" text-anchor="middle">SMUGGLERS (NIGHT)</text>
+<path d="M-500 -36L-548 -46L-560 -80" fill="none" stroke="#8e44ad" stroke-width="0.7" stroke-dasharray="4 1.5 1 1.5" opacity="0.8"/>
+<text x="-500" y="-39" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#8e44ad" text-anchor="middle">SMUGGLERS (NIGHT)</text>
+</svg>

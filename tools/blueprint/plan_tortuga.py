@@ -412,3 +412,10 @@ for _b in BUILDINGS:
             _out.append((None, 'Wing', 'home', _cx + _back[0] * (_w / 2 + _aw / 2), _cy + _h / 4, _aw, _ah, None))
     _n += 1
 BUILDINGS = _out
+
+# ---- Second sheet: things to do and the life of the island.
+from plan_life import *  # noqa: E402,F401,F403
+ZONES = ZONES + LIFE_ZONES
+FENCED = ['pen', 'allotment']
+PROPS = PROPS + EXTRA_PROPS + [('notice', x, y) for _, x, y in NOTICE_BOARDS]
+GATHER = GATHER + [('fish', i, x, y) for i, x, y, _ in FISHING]

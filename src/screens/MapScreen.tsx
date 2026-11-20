@@ -12,6 +12,7 @@ import {
   StyleSheet,
   Text,
   View,
+  ScrollView,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -55,7 +56,18 @@ import {
 } from '../blueprint/planEditing';
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
-import { BP_DISTRICT_CENTRES, BP_ERRANDS, BP_FERRY, BP_SIGNPOSTS } from '../blueprint/tortugaGameplay.generated';
+import {
+  BP_DIGS,
+  BP_DISTRICT_CENTRES,
+  BP_ERRANDS,
+  BP_FERRY,
+  BP_HAZARDS,
+  BP_MUD,
+  BP_NOTICES,
+  BP_SIGNPOSTS,
+  BP_SKULLS,
+  BP_VIEWPOINTS,
+} from '../blueprint/tortugaGameplay.generated';
 import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
 import { DayNight } from '../town/DayNight';
 import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
@@ -318,6 +330,24 @@ function streetTilePositions(
 const SEA_SPEED = 150; // world units per second
 /** The Black Pearl slows to this share of her speed in the blueprint's shallows. */
 const SHALLOWS_SPEED_FACTOR = 0.45;
+function inPoly(x: number, y: number, pts: [number, number][]) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i];
+    const [xj, yj] = pts[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+/** Tortuga's mud (the swamp) and wasp nests slow you down on foot. */
+function hazardSpeedFactor(p: { x: number; y: number }) {
+  const o = ISLANDS.tortuga_cove.position;
+  const x = p.x - o.x;
+  const y = p.y - o.y;
+  if (BP_MUD.some((poly) => inPoly(x, y, poly))) return 0.55;
+  if (BP_HAZARDS.some((h) => h.kind === 'wasps' && Math.hypot(x - h.x, y - h.y) <= h.r)) return 0.7;
+  return 1;
+}
 /** Stride length per animation frame (world units) — 8 frames make one full two-step cycle. */
 // Measured from the frames: in walk_e a planted boot travels ~10 sprite px per frame, and one sprite
 // px is ~0.115 world units (128px canvas drawn 14.7 units tall) — so ~1.2 units/frame keeps the
@@ -911,6 +941,8 @@ export default function MapScreen({ navigation }: Props) {
   const [nearbyFerry, setNearbyFerry] = useState<number | null>(null);
   const nearbyFerryRef = useRef<number | null>(null);
   const lastSignpostRef = useRef<number | null>(null);
+  // Trigger spots the player is standing in (so each fires once per visit).
+  const insideSpotsRef = useRef<Set<string>>(new Set());
   // Whole-island view: zoomed right out over the island Scally is on; movement pauses.
   const [overview, setOverview] = useState(false);
   const overviewRef = useRef(false);
@@ -1942,7 +1974,7 @@ export default function MapScreen({ navigation }: Props) {
       const speed = currentIsland
         ? isOnPath(playerRef.current, currentIsland)
           ? ON_PATH_SPEED
-          : OFF_PATH_SPEED
+          : OFF_PATH_SPEED * (currentIsland.id === 'tortuga_cove' ? hazardSpeedFactor(playerRef.current) : 1)
         : SEA_SPEED * (isShallow(playerRef.current) ? SHALLOWS_SPEED_FACTOR : 1);
       const dt = TICK_MS / 1000;
       if (!currentIsland && blackPearlBoardedRef.current) {
@@ -2061,6 +2093,55 @@ export default function MapScreen({ navigation }: Props) {
           }
         }
         if (sp !== lastSignpostRef.current) lastSignpostRef.current = sp >= 0 ? sp : null;
+        // Spots that fire once each time you step into them.
+        const st = useGameStore.getState();
+        const now = new Set<string>();
+        const enter = (id: string, near: boolean, fire: () => void) => {
+          if (!near) return;
+          now.add(id);
+          if (!insideSpotsRef.current.has(id)) fire();
+        };
+        BP_DIGS.forEach((d) => {
+          if (st.dugSpots.includes(d.id)) return;
+          enter(`clue:${d.id}`, Math.hypot(rx - d.lx, ry - d.ly) <= 12, () => showResourceToast(`📜 ${d.landmark}: ${d.clue}`, 4500));
+          enter(`dig:${d.id}`, Math.hypot(rx - d.x, ry - d.y) <= 4, () => {
+            if (st.digSpot(d.id, d.gold)) showResourceToast(`⛏️ You dig where the clue said… ${d.gold} gold!`, 3200);
+          });
+        });
+        BP_SKULLS.forEach((k) => {
+          if (st.foundSkulls.includes(k.district)) return;
+          enter(`skull:${k.district}`, Math.hypot(rx - k.x, ry - k.y) <= 5, () => {
+            if (st.findSkull(k.district)) showResourceToast(`💀 Carved skull found! ${st.foundSkulls.length + 1} of ${BP_SKULLS.length}`, 3000);
+          });
+        });
+        BP_VIEWPOINTS.forEach((v) =>
+          enter(`view:${v.name}`, Math.hypot(rx - v.x, ry - v.y) <= 8, () => {
+            const fresh = v.districts.filter((d) => !discoveredRef.current.includes(d));
+            fresh.forEach((d) => discoverDistrict(d));
+            discoveredRef.current = [...discoveredRef.current, ...fresh];
+            showResourceToast(
+              fresh.length ? `🔭 From ${v.name} you can see ${fresh.join(', ')}` : `🔭 ${v.name} — a fine view of places you know`,
+              3600
+            );
+          })
+        );
+        BP_NOTICES.forEach((n) =>
+          enter(`notice:${n.district}`, Math.hypot(rx - n.x, ry - n.y) <= 8, () => {
+            const open = BP_ERRANDS.filter((e) => e.district === n.district && !completedErrandsRef.current.includes(e.id));
+            showResourceToast(
+              open.length
+                ? `📋 ${n.district} notice board:\n${open.map((e) => `• ${e.person} wants ${e.amount} ${e.resource}`).join('\n')}`
+                : `📋 ${n.district} notice board: nothing wanted today.`,
+              3800
+            );
+          })
+        );
+        BP_HAZARDS.forEach((h, i) =>
+          enter(`hazard:${i}`, Math.hypot(rx - h.x, ry - h.y) <= h.r, () =>
+            showResourceToast(h.kind === 'wasps' ? '🐝 Wasps! Slow and steady…' : '🪨 Loose rocks overhead — careful!', 2200)
+          )
+        );
+        insideSpotsRef.current = now;
         const fi = ferryUnlockedRef.current ? BP_FERRY.findIndex((f) => Math.hypot(rx - f.x, ry - f.y) <= 14) : -1;
         const fv = fi >= 0 ? fi : null;
         if (fv !== nearbyFerryRef.current) {
@@ -4195,7 +4276,7 @@ export default function MapScreen({ navigation }: Props) {
                 <Text style={styles.layerPanelQuickText}>None</Text>
               </Pressable>
             </View>
-            <View style={styles.layerGrid}>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.layerGrid}>
               {PLAN_LAYERS.filter((l) => l.id !== 'paper').map((l) => (
                 <Pressable
                   key={l.id}
@@ -4206,7 +4287,7 @@ export default function MapScreen({ navigation }: Props) {
                   <Text style={[styles.layerName, !planLayers[l.id] && { opacity: 0.5 }]}>{l.name}</Text>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
           </View>
         )}
 
@@ -4634,6 +4715,7 @@ const styles = StyleSheet.create({
   layerPanel: {
     position: 'absolute',
     top: 220,
+    bottom: 16,
     right: 12,
     width: 340,
     padding: 10,

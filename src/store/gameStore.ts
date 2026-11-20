@@ -97,6 +97,9 @@ interface GameState {
   completedErrands: string[];
   /** Rowboat taxi between Tortuga's jetties (an errand reward). */
   ferryUnlocked: boolean;
+  /** Buried treasure already dug up, and carved skulls found (Tortuga). */
+  dugSpots: string[];
+  foundSkulls: string[];
   currentBlackfinStageId: string | null;
   completedBlackfinStageIds: string[];
   currentGraceStageId: string | null;
@@ -168,6 +171,9 @@ interface GameState {
   /** Hand over `amount` of a resource for an errand; returns false if you don't have enough. */
   completeErrand: (id: string, resourceId: string, amount: number, gold: number) => boolean;
   unlockFerry: () => void;
+  /** Dig up a buried treasure (once): adds its gold. */
+  digSpot: (id: string, gold: number) => boolean;
+  findSkull: (district: string) => boolean;
   /** Pay for something with gold; false if you can't afford it. */
   spendGold: (amount: number) => boolean;
   /** Turn resources into another at a fixed rate (e.g. 3 sugarcane -> 1 rum); false if short. */
@@ -210,6 +216,8 @@ type InitialState = Pick<
   | 'discoveredDistricts'
   | 'completedErrands'
   | 'ferryUnlocked'
+  | 'dugSpots'
+  | 'foundSkulls'
   | 'currentBlackfinStageId'
   | 'completedBlackfinStageIds'
   | 'currentGraceStageId'
@@ -254,6 +262,8 @@ function createInitialState(): InitialState {
     discoveredDistricts: START_DISTRICTS,
     completedErrands: [],
     ferryUnlocked: false,
+    dugSpots: [],
+    foundSkulls: [],
     currentBlackfinStageId: null,
     completedBlackfinStageIds: [],
     currentGraceStageId: null,
@@ -503,6 +513,16 @@ export const useGameStore = create<GameState>()(
 
       disembarkBlackPearl: (position) => set({ blackPearlBoarded: false, blackPearlPosition: position }),
       unlockFerry: () => set({ ferryUnlocked: true }),
+      digSpot: (id, gold) => {
+        if (get().dugSpots.includes(id)) return false;
+        set({ dugSpots: [...get().dugSpots, id], gold: get().gold + gold });
+        return true;
+      },
+      findSkull: (district) => {
+        if (get().foundSkulls.includes(district)) return false;
+        set({ foundSkulls: [...get().foundSkulls, district] });
+        return true;
+      },
       spendGold: (amount) => {
         if (get().gold < amount) return false;
         set({ gold: get().gold - amount });
@@ -854,6 +874,8 @@ export const useGameStore = create<GameState>()(
         discoveredDistricts: state.discoveredDistricts,
         completedErrands: state.completedErrands,
         ferryUnlocked: state.ferryUnlocked,
+        dugSpots: state.dugSpots,
+        foundSkulls: state.foundSkulls,
         completedBlackfinStageIds: state.completedBlackfinStageIds,
         completedGraceStageIds: state.completedGraceStageIds,
       }),

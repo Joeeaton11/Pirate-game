@@ -66,6 +66,7 @@ for b in P.BUILDINGS:
 for t, g in zone_geoms:
     if t in P.HEDGED: bounds_hedge.append(g.exterior)
     if t in P.WALLED: bounds_wall.append(LineString(g.exterior.coords))
+    if t in getattr(P, 'FENCED', []): bounds_fence.append(LineString(g.exterior.coords))
 fl, ft, fr, fb = P.FORT_WALLS
 fort_ring = box(fl, ft, fr, fb).intersection(coast.buffer(-3))
 bounds_wall.append(LineString(fort_ring.exterior.coords))
@@ -96,7 +97,7 @@ for name, _, _, pts in P.ROADS:
 # ---------------------------------------------------------------- trees (blue-noise per zone)
 rng = random.Random(4)
 blocked_for_trees = unary_union([ways.buffer(5), unary_union(bldg_geoms).buffer(7), water.buffer(4),
-                                 town_box.buffer(6), Point(-290, 202).buffer(26)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden', 'sugarcane', 'paddock')])
+                                 town_box.buffer(6), Point(-290, 202).buffer(26)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden', 'sugarcane', 'paddock', 'allotment', 'pen')])
 trees = []
 def scatter(area, spacing, kind, keep=1.0):
     if area.is_empty: return
@@ -143,6 +144,99 @@ for kind, pid, x, y in P.POIS:
         problems.append(f'POI {pid} moved from ({x},{y}) to ({q.x:.0f},{q.y:.0f})')
         x, y = round(q.x, 1), round(q.y, 1)
     pois.append((kind, pid, x, y))
+
+# ---------------------------------------------------------------- the life sheet (plan_life.py)
+from shapely.ops import nearest_points as _np
+dock_area = unary_union([g for *_, g in dock_geoms])
+_bld = unary_union(bldg_geoms).buffer(1.5)
+_wet = water.buffer(1)
+def free_spot(x, y, name, town=False, way=False, dock=False):
+    p = Point(x, y)
+    area = coast.buffer(-1.5) if town else coast.buffer(-1.5).difference(town_box)
+    if dock: area = area.union(dock_area)
+    bad = unary_union([_bld, _wet] + ([] if way else [ways.buffer(1.5)]))
+    ok = area.difference(bad)
+    if ok.contains(p): return (x, y)
+    q = _np(ok, p)[0]
+    problems.append(f'{name} moved from ({x:g},{y:g}) to ({q.x:.0f},{q.y:.0f})')
+    return (round(q.x, 1), round(q.y, 1))
+
+# hand-placed props: off buildings and out of the water (docks allowed)
+_moved = []
+_extra_set = set(P.EXTRA_PROPS) | {('notice', x, y) for _, x, y in P.NOTICE_BOARDS}
+for k, x, y in P.PROPS:
+    p = Point(x, y)
+    if (k, x, y) not in _extra_set: _moved.append((k, x, y)); continue
+    if _bld.contains(p) or _wet.contains(p) or not (coast.contains(p) or dock_area.contains(p) or town_box.contains(p)):
+        if k in ('boat', 'falls', 'spring', 'cave'): _moved.append((k, x, y)); continue
+        x, y = free_spot(x, y, f'prop {k}', town=town_box.contains(p), way=True, dock=True)
+    _moved.append((k, x, y))
+P.PROPS = _moved
+
+# automatic props round every building, chosen by kind, on the sides away from the door
+PROP_BY_KIND = {'tavern': ['barrels', 'bench', 'lantern'], 'shop': ['crates', 'flowerpot', 'lantern'], 'market': ['crates', 'barrels', 'stall'],
+                'warehouse': ['crates', 'barrels', 'cart'], 'home': ['flowerpot', 'woodpile', 'water_butt', 'barrels'],
+                'civic': ['bench', 'lantern', 'flowerpot'], 'fort': ['cannonballs', 'barrels'], 'shed': ['woodpile', 'barrels', 'crates'],
+                'mill': ['barrels', 'cart'], 'manor': ['flowerpot', 'lantern', 'statue'], 'ruin': ['rubble', 'rubble'], 'landmark': ['lantern']}
+_rng = random.Random(11)
+_pts = [(x, y) for _, x, y in P.PROPS]
+auto_props = []
+for b in P.BUILDINGS:
+    bid, label, kind, cx, cy, w, h, side = b
+    if label in ('Wing', 'Gate Tower'): continue
+    kinds = PROP_BY_KIND.get(kind, [])
+    want = 1 if label == 'Cottage' else 2
+    cands = []
+    for sd in 'NSEW':
+        if sd == side: continue
+        for t in (0.2, 0.5, 0.8):
+            if sd in 'NS': cands.append((cx - w / 2 + w * t, cy + (h / 2 + 3.5) * (1 if sd == 'S' else -1)))
+            else: cands.append((cx + (w / 2 + 3.5) * (1 if sd == 'E' else -1), cy - h / 2 + h * t))
+    _rng.shuffle(cands)
+    for x, y in cands:
+        if want == 0: break
+        p = Point(x, y)
+        if town_box.contains(p) or not coast.buffer(-1.5).contains(p) or ways.buffer(1.5).contains(p) or _wet.contains(p): continue
+        if any(g.buffer(1.2).contains(p) for g in bldg_geoms): continue
+        if any(math.hypot(x - a, y - c) < 4.5 for a, c in _pts): continue
+        k = kinds[_rng.randrange(len(kinds))] if kinds else 'barrels'
+        x, y = round(x, 1), round(y, 1)
+        key = f'{k}@{x:g},{y:g}'
+        if key in EDITS.get('deleted_props', []): want -= 1; continue
+        dx, dy = EDITS['props'].get(key, [0, 0])
+        auto_props.append((k, x + dx, y + dy)); PROPS_ORIG.append((k, x, y)); _pts.append((x, y)); want -= 1
+P.PROPS = list(P.PROPS) + auto_props
+
+fishing = [(i, *free_spot(x, y, f'fishing {i}'), wh) for i, x, y, wh in P.FISHING]
+digs = []
+for did, lm, lx, ly, n, d, gold, clue in P.DIG_SPOTS:
+    x, y = free_spot(lx + P.DIRS[d][0] * n, ly + P.DIRS[d][1] * n, did, way=True)
+    digs.append((did, lm, lx, ly, x, y, gold, clue))
+collect = [(dist, *free_spot(x, y, f'skull {dist}', town=(dist == 'Basse-Terre'))) for dist, x, y in P.COLLECTIBLES]
+views = [(n, x, y, ds) for n, x, y, ds in P.VIEWPOINTS]
+notices = [(dist, *free_spot(x, y, f'notice {dist}', town=(dist == 'Basse-Terre'), way=True)) for dist, x, y in P.NOTICE_BOARDS]
+events = [(k, *free_spot(x, y, f'event {k}', way=True)) for k, x, y in P.EVENTS]
+# shelters: a porch in front of every tavern, shop and market door, plus the market roofs
+shelters = []
+for b in P.BUILDINGS:
+    bid, label, kind, cx, cy, w, h, side = b
+    if kind not in ('tavern', 'shop', 'market') or not side: continue
+    pw = (w if side in 'NS' else h) * 0.7
+    if side == 'S': shelters.append((cx - pw / 2, cy + h / 2, cx + pw / 2, cy + h / 2 + 4))
+    elif side == 'N': shelters.append((cx - pw / 2, cy - h / 2 - 4, cx + pw / 2, cy - h / 2))
+    elif side == 'E': shelters.append((cx + w / 2, cy - pw / 2, cx + w / 2 + 4, cy + pw / 2))
+    else: shelters.append((cx - w / 2 - 4, cy - pw / 2, cx - w / 2, cy + pw / 2))
+# homes and haunts: each errand-giver lives in the nearest free cottage and drinks/sits nearby
+cottages = [(b[3], b[4]) for b in P.BUILDINGS if b[1] == 'Cottage']
+haunts = [(b[3], b[4]) for b in P.BUILDINGS if b[2] == 'tavern'] + [((l + r) / 2, (t + b_) / 2) for _, l, r, t, b_ in P.PLAZAS] + \
+         [(x, y) for k, x, y in P.PROPS if k in ('well', 'bench')]
+people, _used = [], set()
+for e in P.ERRANDS:
+    ex, ey = e[4], e[5]
+    free_c = [c for c in cottages if c not in _used] or cottages
+    home = min(free_c, key=lambda c: math.hypot(c[0] - ex, c[1] - ey)); _used.add(home)
+    haunt = min(haunts, key=lambda c: math.hypot(c[0] - home[0], c[1] - home[1]) + 0.5 * math.hypot(c[0] - ex, c[1] - ey))
+    people.append((e[2], e[1], home, (ex, ey), haunt))
 
 # ---------------------------------------------------------------- the painted town, derived
 blocks, doors = S.painted()
@@ -393,6 +487,7 @@ extra['fence'], extra['hedge'], extra['wall'] = fence_geom, hedge_geom, wall_geo
 extra['town_walls'] = town_walls
 wild = [(k, Polygon(p).buffer(0)) for k, p in P.WILDLIFE]
 extra['wildlife'] = wild
+extra['life'] = dict(fishing=fishing, digs=digs, collect=collect, views=views, notices=notices, events=events, shelters=shelters, people=people)
 rng2 = random.Random(21)
 def spots(area, n, spacing):
     out_ = []
@@ -474,6 +569,24 @@ g_out.append('export const BP_GATHER: { resource: string; id: string; x: number;
 lh = next(b for b in P.BUILDINGS if b[0] == 'tortuga_lighthouse_tower')
 g_out.append(f'export const BP_LIGHTHOUSE = {{ x: {lh[3]}, y: {lh[4]} }};')
 g_out.append("export const BP_GROTTO = { x: -416, y: 318 };")
+L_ = extra['life']
+g_out.append('/** Buried treasure, paced out from a landmark: the clue shows by the landmark, the spot is dug where it says. */')
+g_out.append('export const BP_DIGS: { id: string; landmark: string; lx: number; ly: number; x: number; y: number; gold: number; clue: string }[] = [' + ', '.join(
+    f'{{ id: {_json.dumps(i)}, landmark: {_json.dumps(lm)}, lx: {lx:g}, ly: {ly:g}, x: {x:g}, y: {y:g}, gold: {g}, clue: {_json.dumps(c, ensure_ascii=False)} }}' for i, lm, lx, ly, x, y, g, c in L_['digs']) + '];')
+g_out.append('/** One carved skull hidden in each district. */')
+g_out.append('export const BP_SKULLS: { district: string; x: number; y: number }[] = [' + ', '.join(f'{{ district: {_json.dumps(d)}, x: {x:g}, y: {y:g} }}' for d, x, y in L_['collect']) + '];')
+g_out.append('/** Viewpoints: standing here reveals these districts. */')
+g_out.append('export const BP_VIEWPOINTS: { name: string; x: number; y: number; districts: string[] }[] = [' + ', '.join(f'{{ name: {_json.dumps(n)}, x: {x:g}, y: {y:g}, districts: {_json.dumps(ds)} }}' for n, x, y, ds in L_['views']) + '];')
+g_out.append('/** Notice boards: list the errands of their district. */')
+g_out.append('export const BP_NOTICES: { district: string; x: number; y: number }[] = [' + ', '.join(f'{{ district: {_json.dumps(d)}, x: {x:g}, y: {y:g} }}' for d, x, y in L_['notices']) + '];')
+g_out.append('/** Hazards: wasps sting (slow), rockfall warns; mud is the swamp polygon. */')
+g_out.append('export const BP_HAZARDS: { kind: string; x: number; y: number; r: number }[] = [' + ', '.join(f'{{ kind: {_json.dumps(k)}, x: {x}, y: {y}, r: {r} }}' for k, x, y, r in P.HAZARDS if k != 'tide') + '];')
+g_out.append('export const BP_MUD: [number, number][][] = [' + ', '.join('[' + ', '.join(f'[{x}, {y}]' for x, y in pts) + ']' for t, pts in P.ZONES if t == 'swamp') + '];')
+g_out.append('/** Who lives where: home, work and favourite haunt for each errand-giver (for daily routines). */')
+g_out.append('export const BP_PEOPLE: { name: string; district: string; home: [number, number]; work: [number, number]; haunt: [number, number] }[] = [' + ', '.join(
+    f'{{ name: {_json.dumps(n, ensure_ascii=False)}, district: {_json.dumps(d)}, home: [{h[0]:g}, {h[1]:g}], work: [{w[0]:g}, {w[1]:g}], haunt: [{a[0]:g}, {a[1]:g}] }}' for n, d, h, w, a in L_['people']) + '];')
+g_out.append('/** Random event spots on the roads (for later). */')
+g_out.append('export const BP_EVENTS: { kind: string; x: number; y: number }[] = [' + ', '.join(f'{{ kind: {_json.dumps(k)}, x: {x:g}, y: {y:g} }}' for k, x, y in L_['events']) + '];')
 g_out.append('/** Signposts (island-relative): standing by one points you at unexplored districts. */')
 g_out.append('export const BP_SIGNPOSTS: [number, number][] = [' + ', '.join(f'[{x}, {y}]' for k, x, y in P.PROPS if k == 'signpost') + '];')
 g_out.append('/** District centres, for signpost directions. */')

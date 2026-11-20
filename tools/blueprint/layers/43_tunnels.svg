@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-620 -580 1240 1120" width="1240" height="1120">
+<path d="M-416 318L-340 352L-240 386" fill="none" stroke="#6e2c00" stroke-width="2.2" opacity="0.18" stroke-linecap="round"/>
+<path d="M-416 318L-340 352L-240 386" fill="none" stroke="#6e2c00" stroke-width="0.5" stroke-dasharray="2 1.2"/>
+<rect x="-417.8" y="316.2" width="3.6" height="3.6" fill="#f4f1e6" stroke="#6e2c00" stroke-width="0.5"/><path d="M-417.8 318h3.6" fill="none" stroke="#6e2c00" stroke-width="0.3" />
+<rect x="-241.8" y="384.2" width="3.6" height="3.6" fill="#f4f1e6" stroke="#6e2c00" stroke-width="0.5"/><path d="M-241.8 386h3.6" fill="none" stroke="#6e2c00" stroke-width="0.3" />
+<text x="-340" y="349" font-family="Arial, Helvetica, sans-serif" font-size="2.4" font-weight="normal" fill="#6e2c00" text-anchor="middle" font-style="italic">Grotto run</text>
+<path d="M304 318L270 270L232 222" fill="none" stroke="#6e2c00" stroke-width="2.2" opacity="0.18" stroke-linecap="round"/>
+<path d="M304 318L270 270L232 222" fill="none" stroke="#6e2c00" stroke-width="0.5" stroke-dasharray="2 1.2"/>
+<rect x="302.2" y="316.2" width="3.6" height="3.6" fill="#f4f1e6" stroke="#6e2c00" stroke-width="0.5"/><path d="M302.2 318h3.6" fill="none" stroke="#6e2c00" stroke-width="0.3" />
+<rect x="230.2" y="220.2" width="3.6" height="3.6" fill="#f4f1e6" stroke="#6e2c00" stroke-width="0.5"/><path d="M230.2 222h3.6" fill="none" stroke="#6e2c00" stroke-width="0.3" />
+<text x="270" y="267" font-family="Arial, Helvetica, sans-serif" font-size="2.4" font-weight="normal" fill="#6e2c00" text-anchor="middle" font-style="italic">Cache to the mill</text>
+<path d="M-146 6L-200 -20L-300 -26" fill="none" stroke="#6e2c00" stroke-width="2.2" opacity="0.18" stroke-linecap="round"/>
+<path d="M-146 6L-200 -20L-300 -26" fill="none" stroke="#6e2c00" stroke-width="0.5" stroke-dasharray="2 1.2"/>
+<rect x="-147.8" y="4.2" width="3.6" height="3.6" fill="#f4f1e6" stroke="#6e2c00" stroke-width="0.5"/><path d="M-147.8 6h3.6" fill="none" stroke="#6e2c00" stroke-width="0.3" />
+<rect x="-301.8" y="-27.8" width="3.6" height="3.6" fill="#f4f1e6" stroke="#6e2c00" stroke-width="0.5"/><path d="M-301.8 -26h3.6" fill="none" stroke="#6e2c00" stroke-width="0.3" />
+<text x="-200" y="-23" font-family="Arial, Helvetica, sans-serif" font-size="2.4" font-weight="normal" fill="#6e2c00" text-anchor="middle" font-style="italic">Old town drain</text>
+</svg>

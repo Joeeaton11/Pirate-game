@@ -101,6 +101,18 @@ LAYERS = [
     ('lighting', 'Night lighting', False, 'game'),
     ('sound', 'Sound zones', False, 'game'),
     ('spawns', 'Spawn & mooring', False, 'game'),
+    ('fishing', 'Fishing spots', True, 'game'),
+    ('digs', 'Dig spots', False, 'game'),
+    ('skulls', 'Hidden skulls', False, 'game'),
+    ('views', 'Viewpoints', True, 'game'),
+    ('notices', 'Notice boards', True, 'game'),
+    ('hazards', 'Hazards', False, 'game'),
+    ('patrols', 'Patrols', False, 'game'),
+    ('events', 'Random events', False, 'game'),
+    ('people', 'Homes & haunts', False, 'game'),
+    ('tunnels', 'Tunnels', False, 'game'),
+    ('shortcuts', 'Shortcuts', False, 'game'),
+    ('shelter', 'Shelter', False, 'build'),
     ('roadnames', 'Road names', True, 'names'),
     ('places', 'Place names', True, 'names'),
     ('names', 'Building names', True, 'names'),
@@ -183,10 +195,12 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
             else:
                 o.append(path(d_of(g), GREEN, 0.5, 'stroke-dasharray="4 2"'))
                 if t == 'swamp': o.append(path(hatch(g, 7, 0), GREEN, 0.25, 'stroke-dasharray="1.5 2.5" opacity="0.8"'))
-        elif t in ('fields', 'sugarcane', 'paddock'):
+        elif t in ('fields', 'sugarcane', 'paddock', 'allotment', 'pen'):
             L('farmland')
             o.append(path(d_of(g), INK, 0.5))
-            if t == 'paddock': continue
+            if t in ('paddock', 'pen'): continue
+            if t == 'allotment':
+                o.append(path(hatch(g, 3, 90), GREEN, 0.3, 'stroke-dasharray="2 1"')); continue
             o.append(path(hatch(g, 4 if t == 'fields' else 3, 0 if t == 'fields' else 70), GREEN, 0.25))
 
     L('water')
@@ -360,6 +374,26 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         elif k == 'woodpile': o.append(path(''.join(f'M{x - 4} {y - 1.5 + i * 1.5}h8' for i in range(3)), INK, 0.35))
         elif k == 'cane_press': o.append(f'<circle cx="{x}" cy="{y}" r="3.4" fill="none" stroke="{INK}" stroke-width="0.4"/>' + path(f'M{x} {y}l7 0', INK, 0.5))
         elif k == 'hull': o.append(f'<path d="M{x - 8} {y}Q{x} {y - 5} {x + 8} {y}Q{x} {y + 5} {x - 8} {y}Z" fill="none" stroke="{INK}" stroke-width="0.4"/>' + path(''.join(f'M{x - 5 + i * 2.5} {y - 2.6}v5.2' for i in range(5)), INK, 0.15))
+        elif k == 'lantern': o.append(f'<circle cx="{x}" cy="{y}" r="1.1" fill="#f5cba7" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'flowerpot': o.append(f'<circle cx="{x}" cy="{y}" r="1.3" fill="none" stroke="#a04000" stroke-width="0.35"/><circle cx="{x}" cy="{y}" r="0.5" fill="{GREEN}"/>')
+        elif k == 'beehive': o.append(f'<path d="M{x - 1.6} {y + 1.4}h3.2l-0.5 -2.2a1.2 1.2 0 0 0 -2.2 0Z" fill="#f7dc6f" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'scarecrow': o.append(path(f'M{x} {y - 3}v6M{x - 3} {y - 1}h6', INK, 0.45) + f'<circle cx="{x}" cy="{y - 3.6}" r="0.9" fill="none" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'anchor': o.append(path(f'M{x} {y - 2.6}v5M{x - 1.4} {y - 1.6}h2.8M{x - 2.4} {y + 1}a2.4 2.4 0 0 0 4.8 0', INK, 0.45))
+        elif k == 'lobster_pot': o.append(f'<rect x="{x - 1.4}" y="{y - 1}" width="2.8" height="2" rx="0.8" fill="none" stroke="{INK}" stroke-width="0.3"/>' + path(f'M{x - 0.5} {y - 1}v2M{x + 0.5} {y - 1}v2', INK, 0.15))
+        elif k == 'rowboat': o.append(f'<path d="M{x - 4} {y}Q{x} {y - 2.4} {x + 4} {y}Q{x} {y + 2.4} {x - 4} {y}Z" fill="none" stroke="{INK}" stroke-width="0.35"/>' + path(f'M{x - 1} {y - 1.5}v3M{x + 1.2} {y - 1.5}v3', INK, 0.2))
+        elif k == 'flag': o.append(path(f'M{x} {y + 3}v-7', INK, 0.4) + f'<path d="M{x} {y - 4}l4 1.2l-4 1.2Z" fill="#c0392b"/>')
+        elif k == 'chest': o.append(f'<rect x="{x - 2}" y="{y - 1.3}" width="4" height="2.6" fill="#f9e79f" stroke="{INK}" stroke-width="0.35"/>' + path(f'M{x - 2} {y - 0.3}h4', INK, 0.25))
+        elif k == 'campfire': o.append(f'<circle cx="{x}" cy="{y}" r="1.8" fill="none" stroke="{INK}" stroke-width="0.35"/><circle cx="{x}" cy="{y}" r="0.8" fill="#e67e22"/>')
+        elif k == 'signal_fire': o.append(f'<circle cx="{x}" cy="{y}" r="2.4" fill="none" stroke="{INK}" stroke-width="0.4"/><circle cx="{x}" cy="{y}" r="1.2" fill="#e67e22"/>')
+        elif k == 'fishing_rack': o.append(path(f'M{x - 4} {y - 1.5}v3M{x + 4} {y - 1.5}v3M{x - 4} {y - 1.5}h8', INK, 0.35) + path(''.join(f'M{x - 3 + i * 1.5} {y - 1.5}v1.6' for i in range(5)), BLUE, 0.3))
+        elif k == 'statue': o.append(f'<rect x="{x - 2}" y="{y - 2}" width="4" height="4" fill="none" stroke="{INK}" stroke-width="0.4"/><circle cx="{x}" cy="{y}" r="1.1" fill="{INK}"/>')
+        elif k == 'cannonballs': o.append(''.join(f'<circle cx="{x + a}" cy="{y + b}" r="0.7" fill="{INK}"/>' for a, b in ((-0.8, 0.5), (0.8, 0.5), (0, -0.7))))
+        elif k == 'stool': o.append(f'<circle cx="{x}" cy="{y}" r="0.9" fill="none" stroke="{INK}" stroke-width="0.35"/>')
+        elif k == 'wheelbarrow': o.append(f'<rect x="{x - 1.6}" y="{y - 1.2}" width="3.2" height="2.4" fill="none" stroke="{INK}" stroke-width="0.3"/><circle cx="{x + 2.4}" cy="{y}" r="0.7" fill="none" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'water_butt': o.append(f'<circle cx="{x}" cy="{y}" r="1.3" fill="none" stroke="{BLUE}" stroke-width="0.4"/>')
+        elif k == 'kennel': o.append(f'<rect x="{x - 1.6}" y="{y - 1.4}" width="3.2" height="2.8" fill="none" stroke="{INK}" stroke-width="0.35"/>' + path(f'M{x - 1.6} {y - 1.4}l1.6 -1.2l1.6 1.2', INK, 0.3))
+        elif k == 'rubble': o.append(''.join(f'<rect x="{x + a}" y="{y + b}" width="1.4" height="1" fill="none" stroke="{INK}" stroke-width="0.25" transform="rotate({r} {x + a} {y + b})"/>' for a, b, r in ((-2, -1, 20), (0.5, 0.4, -15), (-0.6, 1.2, 40), (1.4, -1.4, 5))))
+        elif k == 'notice': pass
         elif k == 'timber': o.append(path(''.join(f'M{x - 6} {y - 1.5 + i * 1.5}h12' for i in range(3)), '#6e4b2a', 0.5))
         else: o.append(f'<circle cx="{x}" cy="{y}" r="1.2" fill="none" stroke="{INK}" stroke-width="0.35"/>')
 
@@ -517,6 +551,70 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         o.append(f'<circle cx="{x}" cy="{y}" r="4" fill="none" stroke="#117a65" stroke-width="0.6"/>'
                  f'<path d="M{x - 6} {y}h12M{x} {y - 6}v12" stroke="#117a65" stroke-width="0.4"/>')
         o.append(text(x + 6, y - 5, label, 3.2, 'bold', '#0e6251', anchor='start'))
+
+    # ---- the life sheet
+    LF = extra.get('life', {})
+    RED, PURP, GOLD, TEAL = '#c0392b', '#8e44ad', '#b7950b', '#16a085'
+    L('fishing')
+    for i, x, y, wh in LF.get('fishing', []) + [(g[1], g[2], g[3], '') for g in [(None, i, x, y) for r, i, x, y in P.GATHER if r == 'fish']]:
+        o.append(path(f'M{f(x)} {f(y - 3)}v4.5a1.6 1.6 0 0 1 -3.2 0', BLUE, 0.5) + f'<circle cx="{f(x)}" cy="{f(y - 3.4)}" r="0.6" fill="{BLUE}"/>')
+    L('digs')
+    for i, lm, lx, ly, x, y, g, c in LF.get('digs', []):
+        o.append(path(f'M{f(lx)} {f(ly)}L{f(x)} {f(y)}', GOLD, 0.4, 'stroke-dasharray="1 1"'))
+        o.append(path(f'M{f(x - 2.4)} {f(y - 2.4)}l4.8 4.8M{f(x + 2.4)} {f(y - 2.4)}l-4.8 4.8', RED, 0.9))
+        o.append(text(x, y - 3.6, f'{g}g', 2.4, 'bold', RED))
+    L('skulls')
+    for d_, x, y in LF.get('collect', []):
+        o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="2.2" fill="none" stroke="{PURP}" stroke-width="0.5"/>'
+                 f'<circle cx="{f(x - 0.8)}" cy="{f(y - 0.3)}" r="0.5" fill="{PURP}"/><circle cx="{f(x + 0.8)}" cy="{f(y - 0.3)}" r="0.5" fill="{PURP}"/>')
+    L('views')
+    for n, x, y, ds in LF.get('views', []):
+        o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="28" fill="{TEAL}" fill-opacity="0.05" stroke="{TEAL}" stroke-width="0.4" stroke-dasharray="2 2"/>')
+        o.append(path(f'M{f(x - 3)} {f(y)}Q{f(x)} {f(y - 3)} {f(x + 3)} {f(y)}Q{f(x)} {f(y + 3)} {f(x - 3)} {f(y)}Z', TEAL, 0.5) + f'<circle cx="{f(x)}" cy="{f(y)}" r="1" fill="{TEAL}"/>')
+        o.append(text(x, y - 5, n, 2.6, 'bold', TEAL))
+    L('notices')
+    for d_, x, y in LF.get('notices', []):
+        o.append(f'<rect x="{f(x - 2.5)}" y="{f(y - 2)}" width="5" height="3.2" fill="{PAPER}" stroke="{INK}" stroke-width="0.4"/>' + path(f'M{f(x - 1.6)} {f(y - 1)}h3.2M{f(x - 1.6)} {f(y)}h2.2M{f(x)} {f(y + 1.2)}v2', INK, 0.25))
+    L('hazards')
+    for k, x, y, r in P.HAZARDS:
+        col = {'wasps': GOLD, 'rockfall': INK, 'tide': BLUE}[k]
+        o.append(f'<circle cx="{x}" cy="{y}" r="{r}" fill="{col}" fill-opacity="0.08" stroke="{col}" stroke-width="0.5" stroke-dasharray="1.5 1"/>')
+        o.append(text(x, y + 1, k.upper(), 2.4, 'bold', col, spacing=0.3))
+    for t, pts in P.ZONES:
+        if t == 'swamp':
+            o.append(f'<path d="M{"L".join(f"{a} {b}" for a, b in pts)}Z" fill="#6e4b2a" fill-opacity="0.08" stroke="#6e4b2a" stroke-width="0.5" stroke-dasharray="3 1.5"/>')
+            o.append(text(sum(a for a, _ in pts) / len(pts), sum(b for _, b in pts) / len(pts) + 8, 'MUD (SLOW)', 2.6, 'bold', '#6e4b2a'))
+    L('patrols')
+    for who, pts in P.PATROLS:
+        col = '#2e4053' if who == 'guards' else PURP
+        o.append(path('M' + 'L'.join(f'{a} {b}' for a, b in pts), col, 0.7, 'stroke-dasharray="4 1.5 1 1.5" opacity="0.8"'))
+        o.append(text(pts[0][0], pts[0][1] - 3, 'GUARDS (DAY)' if who == 'guards' else 'SMUGGLERS (NIGHT)', 2.2, 'bold', col))
+    L('events')
+    for k, x, y in LF.get('events', []):
+        o.append(f'<path d="M{f(x)} {f(y - 3)}L{f(x + 2.8)} {f(y + 1.8)}L{f(x - 2.8)} {f(y + 1.8)}Z" fill="#f5b041" stroke="{INK}" stroke-width="0.3"/>' + text(x, y + 1.3, '?', 2.6, 'bold'))
+        o.append(text(x, y + 4.8, k, 2, 'normal', INK, italic=True))
+    L('people')
+    for n, d_, h_, w_, a_ in LF.get('people', []):
+        o.append(path(f'M{f(h_[0])} {f(h_[1])}L{f(w_[0])} {f(w_[1])}L{f(a_[0])} {f(a_[1])}', '#7d3c98', 0.4, 'stroke-dasharray="1.2 1" opacity="0.8"'))
+        o.append(f'<circle cx="{f(h_[0])}" cy="{f(h_[1])}" r="1.4" fill="#7d3c98"/>')
+        o.append(text(h_[0], h_[1] - 2.6, n.split()[-1] + "'s home", 2, 'bold', '#7d3c98'))
+    L('tunnels')
+    for n, pts in P.TUNNELS:
+        o.append(path('M' + 'L'.join(f'{a} {b}' for a, b in pts), '#6e2c00', 2.2, 'opacity="0.18" stroke-linecap="round"'))
+        o.append(path('M' + 'L'.join(f'{a} {b}' for a, b in pts), '#6e2c00', 0.5, 'stroke-dasharray="2 1.2"'))
+        for a, b in (pts[0], pts[-1]): o.append(f'<rect x="{a - 1.8}" y="{b - 1.8}" width="3.6" height="3.6" fill="{PAPER}" stroke="#6e2c00" stroke-width="0.5"/>' + path(f'M{a - 1.8} {b}h3.6', '#6e2c00', 0.3))
+        mx, my = pts[len(pts) // 2]; o.append(text(mx, my - 3, n, 2.4, 'normal', '#6e2c00', italic=True))
+    L('shortcuts')
+    for k, pts in P.SHORTCUTS:
+        d_ = 'M' + 'L'.join(f'{a} {b}' for a, b in pts)
+        o.append(path(d_, '#a04000', 0.6, 'stroke-dasharray="0.6 1"' if k == 'gap' else ''))
+        if k in ('rope', 'climb'):
+            (a, b), (c, e) = pts[0], pts[-1]; n_ = 5
+            o.append(path(''.join(f'M{a + (c - a) * i / n_ - 1} {b + (e - b) * i / n_}h2' for i in range(1, n_)), '#a04000', 0.4))
+        o.append(text(pts[0][0], pts[0][1] - 2.5, k, 2.2, 'bold', '#a04000'))
+    L('shelter')
+    for l_, t_, r_, b_ in LF.get('shelters', []):
+        o.append(f'<rect x="{f(l_)}" y="{f(t_)}" width="{f(r_ - l_)}" height="{f(b_ - t_)}" fill="{TEAL}" fill-opacity="0.12" stroke="{TEAL}" stroke-width="0.4" stroke-dasharray="1 0.8"/>')
 
     L('roadnames')
     for x, y, ang, t_, size, italic in extra.get('road_labels', []):
