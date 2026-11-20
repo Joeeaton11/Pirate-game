@@ -11,6 +11,7 @@ import { CRAFTING_RECIPES, ITEMS } from '../data/items';
 import { RESOURCE_LIST, RESOURCES } from '../data/resources';
 import { FacingDirection, ICON_EXCLAIM, ICON_SPEECH, scallySpriteSource } from '../data/scallySprites';
 import { CHEEKY_HOP, CHEEKY_IDLE } from '../data/monkeySprites';
+import { NPC_SPRITES } from '../data/npcSprites';
 import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { SIDE_QUESTS } from '../data/sideQuests';
 import { TREASURES } from '../data/treasures';
@@ -907,6 +908,29 @@ export default function BuildingScreen({ navigation }: Props) {
     const x = live?.x ?? spot.x;
     const y = live?.y ?? spot.y;
     const seated = live?.seated ?? false;
+    const sprite = NPC_SPRITES[isMain ? `${building.id}:main` : spot.id];
+    if (sprite) {
+      // Painted character: drawn the same height as Scally, feet on the spot.
+      const h = ROOM_SCALLY_H * 0.95;
+      const w = h * sprite.aspect;
+      depthSortedEntities.push({
+        key: spot.id,
+        y,
+        node: (
+          <View style={{ position: 'absolute', left: x - w / 2, top: y - h, width: w, height: h }}>
+            <Image source={sprite.src} resizeMode="contain" style={{ width: w, height: h }} />
+            {hasOpenQuest && (
+              <Image
+                source={ICON_EXCLAIM}
+                resizeMode="contain"
+                style={{ position: 'absolute', top: -14, left: w / 2 - 6, width: 12, height: 14 }}
+              />
+            )}
+          </View>
+        ),
+      });
+      return;
+    }
     depthSortedEntities.push({
       key: spot.id,
       y,
