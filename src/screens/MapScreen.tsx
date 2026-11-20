@@ -36,10 +36,26 @@ import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForI
 import { buildTownScene } from '../town/townScene';
 import { TownLife } from '../town/TownLife';
 import { BlueprintLayer, DEFAULT_PLAN_LAYERS, DiscoveryFog, EditOverlay, PLAN_LAYERS, PLAN_PAPER, PlanIslands, PlanWorld } from '../blueprint/BlueprintLayer';
-import { EMPTY_EDITS, EditItem, PlanEdits, editCount, exportEdits, hitTest, loadEdits, saveEdits, withOffset } from '../blueprint/planEditing';
+import {
+  ADDABLE,
+  addItem,
+  deleteItem,
+  dragStart,
+  dragTo,
+  EMPTY_EDITS,
+  EditItem,
+  editCount,
+  exportEdits,
+  findItem,
+  hitTest,
+  loadEdits,
+  PlanEdits,
+  resizeItem,
+  saveEdits,
+} from '../blueprint/planEditing';
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
-import { BP_ERRANDS } from '../blueprint/tortugaGameplay.generated';
+import { BP_DISTRICT_CENTRES, BP_ERRANDS, BP_FERRY, BP_SIGNPOSTS } from '../blueprint/tortugaGameplay.generated';
 import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
 import { DayNight } from '../town/DayNight';
 import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
@@ -378,6 +394,7 @@ const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict
 /** Door points (absolute world coords). */
 const TOWN_DOORS = TOWN_SCENE.doors;
 const TOWN_DOOR_RADIUS = 9;
+const TORTUGA_PLAN_ART = require('../../assets/sprites/tortuga_town/plan_art.png');
 const TORTUGA_TOWN_GROUND = [...TOWN_SCENE.ground.map(renderGroundTile), ...TOWN_SCENE.decals.map(renderDecal)];
 // The painted town's outer band (EDGE units) is drawn from alpha-feathered strips instead of the
 // hard-edged JPG chunks, so the painting melts into the island art around it rather than ending
@@ -444,6 +461,14 @@ const BLUEPRINT_DOORS = TOWN_DOORS.concat(
   BP_DOORS.map((d) => ({ id: d.id, x: ISLANDS.tortuga_cove.position.x + d.x, y: ISLANDS.tortuga_cove.position.y + d.y }))
 );
 /** The map shows the architect's plan by default (art is parked for now); `?art=1` on web shows art. */
+/** `?nofog=1` (web review only): hide the discovery fog. */
+const NO_FOG = (() => {
+  try {
+    return typeof window !== 'undefined' && !!window.location && /[?&]nofog=1/.test(window.location.search);
+  } catch {
+    return false;
+  }
+})();
 function startInPlanMode() {
   try {
     return !(typeof window !== 'undefined' && !!window.location && /[?&]art=1/.test(window.location.search));
@@ -875,6 +900,17 @@ export default function MapScreen({ navigation }: Props) {
   const nearbyErrandRef = useRef<string | null>(null);
   const completedErrandsRef = useRef(completedErrands);
   completedErrandsRef.current = completedErrands;
+  const addResource = useGameStore((s) => s.addResource);
+  const addCrewMember = useGameStore((s) => s.addCrewMember);
+  const unlockFerry = useGameStore((s) => s.unlockFerry);
+  const spendGold = useGameStore((s) => s.spendGold);
+  const ferryUnlocked = useGameStore((s) => s.ferryUnlocked);
+  const ferryUnlockedRef = useRef(ferryUnlocked);
+  ferryUnlockedRef.current = ferryUnlocked;
+  // Rowboat taxi stop the player is standing at, and the last signpost read (so it fires once).
+  const [nearbyFerry, setNearbyFerry] = useState<number | null>(null);
+  const nearbyFerryRef = useRef<number | null>(null);
+  const lastSignpostRef = useRef<number | null>(null);
   // Whole-island view: zoomed right out over the island Scally is on; movement pauses.
   const [overview, setOverview] = useState(false);
   const overviewRef = useRef(false);
@@ -888,6 +924,14 @@ export default function MapScreen({ navigation }: Props) {
   editsRef.current = edits;
   const [editSelected, setEditSelected] = useState<string | null>(null);
   const editDragRef = useRef<{ item: EditItem; start: [number, number] } | null>(null);
+  // On web a tap inside the map's gesture area can deliver onPress twice; editor buttons ignore the echo.
+  const lastEditPressRef = useRef(0);
+  const editPressOnce = () => {
+    const now = Date.now();
+    if (now - lastEditPressRef.current < 300) return false;
+    lastEditPressRef.current = now;
+    return true;
+  };
   useEffect(() => {
     loadEdits().then(setEdits);
   }, []);
@@ -1241,7 +1285,7 @@ export default function MapScreen({ navigation }: Props) {
       if (editModeRef.current) {
         const p = screenToIsland(e.x, e.y);
         const item = hitTest(editsRef.current, p.x, p.y);
-        editDragRef.current = item ? { item, start: editsRef.current[item.kind][item.key] ?? [0, 0] } : null;
+        editDragRef.current = item ? { item, start: dragStart(editsRef.current, item) } : null;
         setEditSelected(item ? item.key : null);
         return;
       }
@@ -1261,8 +1305,8 @@ export default function MapScreen({ navigation }: Props) {
     .onUpdate((e) => {
       if (editModeRef.current) {
         const d = editDragRef.current;
-        if (d) {
-          setEdits(withOffset(editsRef.current, d.item, d.start[0] + e.translationX / viewZoom, d.start[1] + e.translationY / viewZoom));
+        if (d && Math.hypot(e.translationX, e.translationY) > 2) {
+          setEdits(dragTo(editsRef.current, d.item, d.start, e.translationX / viewZoom, e.translationY / viewZoom));
         }
         return;
       }
@@ -1953,7 +1997,7 @@ export default function MapScreen({ navigation }: Props) {
         nextPosition = slideAroundRects(
           playerRef.current,
           nextPosition,
-          planModeRef.current ? BLUEPRINT_SOLID_RECTS : TORTUGA_V2_SOLID_RECTS,
+          BLUEPRINT_SOLID_RECTS,
           1.5
         );
       } else if (planModeRef.current && currentIsland && PLAN_SOLIDS[currentIsland.id]) {
@@ -1991,6 +2035,37 @@ export default function MapScreen({ navigation }: Props) {
         if (id !== nearbyErrandRef.current) {
           nearbyErrandRef.current = id;
           setNearbyErrandId(id);
+        }
+      }
+      if (nextIsland?.id === 'tortuga_cove') {
+        const o = ISLANDS.tortuga_cove.position;
+        const rx = nextPosition.x - o.x;
+        const ry = nextPosition.y - o.y;
+        // Signposts point at districts you haven't found yet: arrow, name and rough distance.
+        const sp = BP_SIGNPOSTS.findIndex(([x, y]) => Math.hypot(rx - x, ry - y) <= 10);
+        if (sp >= 0 && sp !== lastSignpostRef.current) {
+          const [sx, sy] = BP_SIGNPOSTS[sp];
+          const arrows = ['➡️', '↘️', '⬇️', '↙️', '⬅️', '↖️', '⬆️', '↗️'];
+          const unseen = BP_DISTRICT_CENTRES.filter((d) => !discoveredRef.current.includes(d.name))
+            .map((d) => ({ ...d, dist: Math.hypot(d.x - sx, d.y - sy) }))
+            .sort((a, b) => a.dist - b.dist)
+            .slice(0, 3);
+          if (unseen.length) {
+            const lines = unseen.map((d) => {
+              const a = Math.round(Math.atan2(d.y - sy, d.x - sx) / (Math.PI / 4));
+              return `${arrows[(a + 8) % 8]} ${d.name} · ${Math.max(1, Math.round(d.dist / 10)) * 10} paces`;
+            });
+            showResourceToast(`🪧 ${lines.join('\n')}`, 4200);
+          } else {
+            showResourceToast('🪧 Every road on this signpost leads somewhere you know.', 2400);
+          }
+        }
+        if (sp !== lastSignpostRef.current) lastSignpostRef.current = sp >= 0 ? sp : null;
+        const fi = ferryUnlockedRef.current ? BP_FERRY.findIndex((f) => Math.hypot(rx - f.x, ry - f.y) <= 14) : -1;
+        const fv = fi >= 0 ? fi : null;
+        if (fv !== nearbyFerryRef.current) {
+          nearbyFerryRef.current = fv;
+          setNearbyFerry(fv);
         }
       }
       const district = nextIsland?.id === 'tortuga_cove' ? districtAt(nextPosition) : null;
@@ -2107,7 +2182,7 @@ export default function MapScreen({ navigation }: Props) {
           // Town-core terraces: nearest door within reach (doors sit ~28 units apart, so the
           // nearest-door rule picks the facade Scally is actually standing in front of).
           let best: { id: string; d: number } | null = null;
-          for (const door of planModeRef.current ? BLUEPRINT_DOORS : TOWN_DOORS) {
+          for (const door of BLUEPRINT_DOORS) {
             const d = Math.hypot(nextPosition.x - door.x, nextPosition.y - door.y);
             if (d <= TOWN_DOOR_RADIUS && (!best || d < best.d)) best = { id: door.id, d };
           }
@@ -2652,7 +2727,7 @@ export default function MapScreen({ navigation }: Props) {
                 />
               ))}
 
-              {SHOW_TORTUGA_V2 && (
+              {false && (
                 <SvgImage
                   href={TORTUGA_V2_BACKDROP.source}
                   x={ISLANDS.tortuga_cove.position.x + TORTUGA_V2_BACKDROP.x}
@@ -2998,8 +3073,19 @@ export default function MapScreen({ navigation }: Props) {
 
             {SHOW_TORTUGA_V2 && !planMode && (
               <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+                {/* Art mode is painted from the plan: the island base below, the painted town on top. */}
+                <RNImage
+                  source={TORTUGA_PLAN_ART}
+                  resizeMode="stretch"
+                  style={{
+                    position: 'absolute',
+                    left: ISLANDS.tortuga_cove.position.x - 620,
+                    top: ISLANDS.tortuga_cove.position.y - 580,
+                    width: 1240,
+                    height: 1120,
+                  }}
+                />
                 {TORTUGA_TOWN_FEATHERED}
-                {TORTUGA_V2_SPRITE_LAYER}
               </View>
             )}
             {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} visible={planLayers} />}
@@ -3007,7 +3093,7 @@ export default function MapScreen({ navigation }: Props) {
             {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
                 the same sailing sprite and size the player gets once aboard. */}
             <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} doneErrands={completedErrands} />
-            {!editMode && <DiscoveryFog origin={ISLANDS.tortuga_cove.position} discovered={discoveredDistricts} />}
+            {!editMode && !NO_FOG && <DiscoveryFog origin={ISLANDS.tortuga_cove.position} discovered={discoveredDistricts} />}
             {planMode && editMode && (
               <EditOverlay origin={ISLANDS.tortuga_cove.position} edits={edits} selected={editSelected} />
             )}
@@ -3907,13 +3993,27 @@ export default function MapScreen({ navigation }: Props) {
               <Text style={styles.errandLine}>"{e.line}"</Text>
               <Text style={styles.errandNeed}>
                 Wants {e.amount} {res?.emoji} {res?.name} · you have {have} · reward {e.gold} gold
+                {e.reward ? ` + ${e.reward.kind === 'crew' ? 'a new crew member' : e.reward.kind === 'map' ? 'a map piece' : e.reward.kind === 'ferry' ? 'the rowboat taxi' : `${e.reward.value} ${e.reward.kind}`}` : ''}
               </Text>
               <Pressable
                 style={[styles.errandButton, !enough && { opacity: 0.45 }]}
                 disabled={!enough}
                 onPress={() => {
                   if (completeErrand(e.id, e.resource, e.amount, e.gold)) {
-                    showResourceToast(`🪙 +${e.gold} gold — ${e.person} thanks you`, 2600);
+                    const rw = e.reward;
+                    if (rw?.kind === 'ferry') unlockFerry();
+                    else if (rw?.kind === 'crew') addCrewMember(String(rw.value), 3);
+                    else if (rw?.kind === 'map')
+                      String(rw.value)
+                        .split('|')
+                        .forEach((d) => {
+                          if (!discoveredRef.current.includes(d)) {
+                            discoveredRef.current = [...discoveredRef.current, d];
+                            discoverDistrict(d);
+                          }
+                        });
+                    else if (rw) addResource(rw.kind, Number(rw.value));
+                    showResourceToast(`🪙 +${e.gold} gold — ${e.person} thanks you${rw ? `\n🎁 ${rw.text}` : ''}`, rw ? 4200 : 2600);
                     nearbyErrandRef.current = null;
                     setNearbyErrandId(null);
                   }
@@ -3924,6 +4024,36 @@ export default function MapScreen({ navigation }: Props) {
             </View>
           );
         })()}
+
+        {nearbyFerry !== null && !nearbyErrandId && (
+          <View style={styles.errandCard}>
+            <Text style={styles.errandWho}>🚣 Rowboat taxi · {BP_FERRY[nearbyFerry].name}</Text>
+            <Text style={styles.errandNeed}>2 gold a trip · you have {gold}</Text>
+            <View style={styles.ferryRow}>
+              {BP_FERRY.map((f, i) =>
+                i === nearbyFerry ? null : (
+                  <Pressable
+                    key={f.name}
+                    style={[styles.ferryStop, gold < 2 && { opacity: 0.45 }]}
+                    disabled={gold < 2}
+                    onPress={() => {
+                      if (!spendGold(2)) return;
+                      const o = ISLANDS.tortuga_cove.position;
+                      const to = { x: o.x + f.x, y: o.y + f.y };
+                      playerRef.current = to;
+                      setPlayer(to);
+                      nearbyFerryRef.current = i;
+                      setNearbyFerry(i);
+                      showResourceToast(`🚣 Rowed to ${f.name}`, 2000);
+                    }}
+                  >
+                    <Text style={styles.ferryStopText}>{f.name}</Text>
+                  </Pressable>
+                )
+              )}
+            </View>
+          </View>
+        )}
 
         {showBoardPrompt && (
           <Pressable style={styles.buildingPrompt} onPress={confirmBoardBlackPearl}>
@@ -3972,8 +4102,60 @@ export default function MapScreen({ navigation }: Props) {
         {planMode && editMode && (
           <View style={styles.editBar}>
             <Text style={styles.editBarText}>
-              Drag a building, prop or tree to move it · {editCount(edits)} moved
+              Drag to move · tap to select · {editCount(edits)} edits
             </Text>
+            <View style={styles.editBarButtons}>
+              {Object.entries(ADDABLE).map(([what, d]) => (
+                <Pressable
+                  key={what}
+                  style={styles.editBarButton}
+                  onPress={() => {
+                    if (!editPressOnce()) return;
+                    const o = ISLANDS.tortuga_cove.position;
+                    const r = addItem(editsRef.current, what, playerRef.current.x - o.x, playerRef.current.y - o.y);
+                    setEdits(r.edits);
+                    saveEdits(r.edits);
+                    setEditSelected(r.key);
+                  }}
+                >
+                  <Text style={styles.editBarButtonText}>＋{d.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+            {(() => {
+              const sel = findItem(edits, editSelected);
+              if (!sel) return null;
+              const resizable = sel.kind === 'buildings' || (sel.kind === 'added' && sel.label === 'cottage');
+              const apply = (next: PlanEdits) => {
+                if (!editPressOnce()) return;
+                setEdits(next);
+                saveEdits(next);
+              };
+              return (
+                <View style={styles.editBarButtons}>
+                  <Text style={[styles.editBarText, { alignSelf: 'center' }]}>{sel.label}</Text>
+                  {resizable && (
+                    <Pressable style={styles.editBarButton} onPress={() => apply(resizeItem(editsRef.current, sel, -2))}>
+                      <Text style={styles.editBarButtonText}>− Smaller</Text>
+                    </Pressable>
+                  )}
+                  {resizable && (
+                    <Pressable style={styles.editBarButton} onPress={() => apply(resizeItem(editsRef.current, sel, 2))}>
+                      <Text style={styles.editBarButtonText}>＋ Bigger</Text>
+                    </Pressable>
+                  )}
+                  <Pressable
+                    style={[styles.editBarButton, { backgroundColor: '#c0392b' }]}
+                    onPress={() => {
+                      apply(deleteItem(editsRef.current, sel));
+                      setEditSelected(null);
+                    }}
+                  >
+                    <Text style={styles.editBarButtonText}>🗑 Delete</Text>
+                  </Pressable>
+                </View>
+              );
+            })()}
             <View style={styles.editBarButtons}>
               <Pressable
                 style={styles.editBarButton}
@@ -4427,6 +4609,9 @@ const styles = StyleSheet.create({
     borderColor: '#c9a227',
   },
   errandWho: { color: '#f4e9cd', fontSize: 15, fontWeight: '800' },
+  ferryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  ferryStop: { backgroundColor: '#c9a227', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 },
+  ferryStopText: { color: '#24180e', fontWeight: '800', fontSize: 13 },
   errandLine: { color: '#f4e9cd', fontSize: 14, fontStyle: 'italic', marginTop: 4 },
   errandNeed: { color: '#e8c872', fontSize: 13, marginTop: 6 },
   errandButton: { alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, backgroundColor: '#c9a227' },
@@ -4443,7 +4628,7 @@ const styles = StyleSheet.create({
     borderColor: '#d35400',
   },
   editBarText: { color: '#2b2a27', fontSize: 13, fontWeight: '700', textAlign: 'center' },
-  editBarButtons: { flexDirection: 'row', justifyContent: 'center', gap: 12, marginTop: 8 },
+  editBarButtons: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 8 },
   editBarButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, backgroundColor: '#2b2a27' },
   editBarButtonText: { color: '#f4e9cd', fontSize: 13, fontWeight: '700' },
   layerPanel: {

@@ -95,6 +95,8 @@ interface GameState {
   discoveredDistricts: string[];
   /** District errands handed in (blueprint ERRANDS). */
   completedErrands: string[];
+  /** Rowboat taxi between Tortuga's jetties (an errand reward). */
+  ferryUnlocked: boolean;
   currentBlackfinStageId: string | null;
   completedBlackfinStageIds: string[];
   currentGraceStageId: string | null;
@@ -165,6 +167,11 @@ interface GameState {
   discoverDistrict: (name: string) => void;
   /** Hand over `amount` of a resource for an errand; returns false if you don't have enough. */
   completeErrand: (id: string, resourceId: string, amount: number, gold: number) => boolean;
+  unlockFerry: () => void;
+  /** Pay for something with gold; false if you can't afford it. */
+  spendGold: (amount: number) => boolean;
+  /** Turn resources into another at a fixed rate (e.g. 3 sugarcane -> 1 rum); false if short. */
+  convertResource: (from: string, fromAmount: number, to: string, toAmount: number) => boolean;
 }
 
 const STARTER_TEMPLATE_ID = 'deckhand_swordsman';
@@ -202,6 +209,7 @@ type InitialState = Pick<
   | 'foundTreasureIds'
   | 'discoveredDistricts'
   | 'completedErrands'
+  | 'ferryUnlocked'
   | 'currentBlackfinStageId'
   | 'completedBlackfinStageIds'
   | 'currentGraceStageId'
@@ -245,6 +253,7 @@ function createInitialState(): InitialState {
     foundTreasureIds: [],
     discoveredDistricts: START_DISTRICTS,
     completedErrands: [],
+    ferryUnlocked: false,
     currentBlackfinStageId: null,
     completedBlackfinStageIds: [],
     currentGraceStageId: null,
@@ -493,6 +502,18 @@ export const useGameStore = create<GameState>()(
       boardBlackPearl: () => set({ blackPearlBoarded: true }),
 
       disembarkBlackPearl: (position) => set({ blackPearlBoarded: false, blackPearlPosition: position }),
+      unlockFerry: () => set({ ferryUnlocked: true }),
+      spendGold: (amount) => {
+        if (get().gold < amount) return false;
+        set({ gold: get().gold - amount });
+        return true;
+      },
+      convertResource: (from, fromAmount, to, toAmount) => {
+        const r = get().resources;
+        if ((r[from] ?? 0) < fromAmount) return false;
+        set({ resources: { ...r, [from]: (r[from] ?? 0) - fromAmount, [to]: (r[to] ?? 0) + toAmount } });
+        return true;
+      },
       completeErrand: (id, resourceId, amount, gold) => {
         const state = get();
         if (state.completedErrands.includes(id) || (state.resources[resourceId] ?? 0) < amount) return false;
@@ -832,6 +853,7 @@ export const useGameStore = create<GameState>()(
         foundTreasureIds: state.foundTreasureIds,
         discoveredDistricts: state.discoveredDistricts,
         completedErrands: state.completedErrands,
+        ferryUnlocked: state.ferryUnlocked,
         completedBlackfinStageIds: state.completedBlackfinStageIds,
         completedGraceStageIds: state.completedGraceStageIds,
       }),

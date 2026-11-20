@@ -24,6 +24,10 @@ ZONES = [
     ('rock', [(-272, -470), (-245, -505), (-205, -500), (-222, -440), (-246, -410), (-274, -420)]),
     ('rock', [(-470, 300), (-430, 300), (-405, 340), (-440, 370), (-472, 340)]),
     ('rock', [(318, -430), (405, -360), (412, -330), (340, -326), (320, -380)]),
+    # The burners' wood west of the Hollow (charcoal clearing cut out of it by the builder).
+    ('forest', [(-356, 146), (-300, 136), (-274, 150), (-278, 228), (-320, 250), (-358, 222)]),
+    # Fontaine farmstead paddock in the meadows.
+    ('paddock', [(82, 44), (114, 44), (114, 68), (82, 68)]),
     # The Forgotten Graves.
     ('graveyard', [(58, 428), (112, 428), (112, 458), (58, 458)]),
     # Le Vasseur's walled garden.
@@ -73,6 +77,11 @@ ROADS = [
     ('South Shore Path', 'path', 4, [(20, 410), (100, 393), (150, 389)]),
     ('Signal Post Spur', 'path', 3, [(-258, -330), (-267, -330)]),
     ('Lookout Spur', 'path', 3, [(500, -20), (500, -29)]),
+    ('Farm Track', 'path', 4, [(140, 109), (140, 84), (172, 82)]),
+    ("Burners' Track", 'path', 4, [(-330, 128), (-312, 158), (-298, 186)]),
+    ("Hermit's Path", 'path', 3, [(150, 389), (196, 380), (230, 368)]),
+    ('Mill Lane', 'lane', 5, [(232, 160), (232, 200)]),
+    ('Yard Lane', 'lane', 5, [(444, -153), (481, -153)]),
     ("Smugglers' Trail", 'secret', 3, [(-4, 222), (-80, 262), (-170, 282), (-262, 300), (-340, 312), (-406, 322)]),
 ]
 
@@ -122,6 +131,12 @@ BUILDINGS = [
     ('tortuga_wayside_tavern', 'Wayside Tavern', 'tavern', -240, 390, 26, 19, 'N'),
     ('tortuga_crossroads_shop', 'Crossroads Shop', 'shop', -236, 336, 22, 17, 'S'),
     (None, "Suzette's Still", 'shed', 508, 118, 18, 14, 'W'),
+    ('tortuga_farmstead', 'Fontaine Farmstead', 'home', 140, 68, 22, 16, 'S'),
+    (None, 'Barn', 'shed', 172, 66, 24, 16, 'S'),
+    ('tortuga_charcoal_burner', "Charcoal Burner's Hut", 'home', -290, 198, 16, 12, 'N'),
+    ('tortuga_hermit_hut', "Hermit's Hut", 'home', 242, 368, 14, 12, 'W'),
+    ('tortuga_sugar_mill', 'La Ringot Sugar Mill', 'mill', 232, 214, 26, 20, 'N'),
+    ('tortuga_boatbuilder', "Boat-Builder's Yard", 'warehouse', 494, -153, 20, 14, 'W'),
     (None, 'Ringot Farmhouse', 'home', 300, 174, 24, 18, 'S'),
     # Homes: Cayonne and the West Road.
     (None, 'Cottage', 'home', -200, -80, 18, 16, 'S'),
@@ -134,7 +149,7 @@ BUILDINGS = [
     (None, 'Cottage', 'home', -462, -48, 18, 16, 'S'),
     (None, 'Cottage', 'home', -444, -8, 18, 16, 'N'),
     (None, 'Cottage', 'home', -306, -140, 18, 16, 'W'),
-    (None, 'Cottage', 'home', -354, -98, 18, 16, 'E'),
+    (None, 'Cottage', 'home', -351, -98, 18, 16, 'E'),
     (None, 'Cottage', 'home', -306, 70, 18, 16, 'W'),
     # Homes: Crossroads hamlet and the King's Road.
     (None, 'Cottage', 'home', -206, 340, 18, 16, 'S'),
@@ -155,7 +170,7 @@ BUILDINGS = [
     (None, 'Fishing Hut', 'shed', -196, 422, 16, 12, 'W'),
     (None, 'Fishing Hut', 'shed', -226, 434, 16, 12, 'E'),
     # Homes: east road.
-    (None, 'Cottage', 'home', 340, -120, 18, 16, 'N'),
+    (None, 'Cottage', 'home', 340, -122, 18, 16, 'N'),
     (None, 'Cottage', 'home', 396, -136, 18, 16, 'S'),
     (None, 'Cottage', 'home', 404, -88, 18, 16, 'N'),
     (None, 'Cottage', 'home', 348, -170, 18, 16, 'E'),
@@ -169,7 +184,7 @@ PROPS = [
     ('signpost', -214, 354), ('signpost', -322, 374), ('signpost', -50, 386), ('signpost', -156, -70),
     ('well', -331, -34), ('well', -236, 362), ('well', 322, 186), ('well', 392, -240),
     ('crates', -386, -6), ('barrels', -386, 6), ('crates', -322, 40), ('barrels', -368, 32),
-    ('crates', 458, -186), ('barrels', 458, -174), ('crates', 494, -150), ('barrels', 316, 318),
+    ('crates', 458, -186), ('barrels', 458, -174), ('barrels', 316, 318),
     ('crates', -52, 482), ('barrels', -140, 420),
     ('cart', -300, -18), ('cart', 280, 196), ('bench', -350, -18), ('bench', -312, -52),
     ('lamp', -300, -60), ('lamp', -362, -60), ('lamp', -300, -10), ('lamp', -362, -10),
@@ -191,6 +206,14 @@ PROPS = [
     ('washing', -245, -80), ('washing', -449, -48), ('washing', -192, 340), ('washing', 344, -241), ('washing', 344, -271),
     # High Woods: the falls and the lookout.
     ('falls', 446, -30), ('lookout', 500, -36),
+    # River sources.
+    ('spring', -160, 46), ('spring', 474, -64),
+    # Farmstead, charcoal clearing, sugar mill, boat-builder.
+    ('cart', 156, 84), ('haystack', 190, 60), ('trough', 98, 74),
+    ('kiln', -306, 206), ('kiln', -276, 214), ('woodpile', -302, 188),
+    ('cane_press', 252, 206), ('barrels', 214, 206), ('signpost', 232, 166),
+    ('hull', 512, -162), ('timber', 512, -144), ('signpost', 448, -158),
+    ('signpost', 144, 104), ('signpost', -326, 136),
 ]
 
 # ---- Labels: district and landmark names (x, y, text, size)
@@ -205,7 +228,9 @@ LABELS = [
     (-300, 118, 'Cayonne Brook', 'place'), (-70, 470, 'Old Landing', 'place'), (85, 422, 'Forgotten Graves', 'place'),
     (-430, 270, 'Wreck of the Santa Catalina', 'place'), (452, -48, 'High Woods Falls', 'place'), (515, -48, 'Lookout', 'place'),
     (-200, 296, "Smugglers' Trail (hidden)", 'place'), (-408, 308, "Smugglers' Grotto", 'place'),
-    (-352, 408, 'The Marked Palm', 'place'), (440, 118, 'Lagoon', 'place'), (500, 140, "Old Suzette's Still", 'place'),
+    (-352, 408, 'The Marked Palm', 'place'),
+    (-150, 36, 'Cayonne Spring', 'place'), (486, -72, 'Falls Spring', 'place'), (150, 52, 'Fontaine Farm', 'place'),
+    (-300, 230, "Burners' Clearing", 'place'), (250, 384, "Hermit's Hut", 'place'), (232, 238, 'Sugar Mill', 'place'), (440, 118, 'Lagoon', 'place'), (500, 140, "Old Suzette's Still", 'place'),
 ]
 
 # ---- Points of interest: the game's own Tortuga sites (treasure, resources, quest stages) plus
@@ -303,7 +328,7 @@ TOWN_STREETS = [
 # the fields, stone walls round the graveyard, the manor garden and the fort. Gaps are cut wherever
 # a road or path meets them, so every gate lines up with the way in.
 FORT_WALLS = (334, -376, 402, -318)   # l, t, r, b — clipped to the coast; gate where the Fort Road enters
-HEDGED = ['fields', 'sugarcane']
+HEDGED = ['fields', 'sugarcane', 'paddock']
 WALLED = ['graveyard', 'garden']
 
 # ---- Wildlife zones: (kind, polygon). The game puts crabs on beaches and gulls on the docks.
@@ -344,4 +369,46 @@ ERRANDS = [
     ('errand_rocher', 'Rocher Row', 'Madame Coquille', 'tortuga_amb_sailmaker', 372, -244, 'timber', 2, 20, 'My shutters blew off in the gale. Timber, love.'),
     ('errand_fort', 'Fort de Rocher', 'Sergeant Brisac', 'patron_tortuga_rival', 360, -300, 'fish', 5, 40, 'The garrison eats like sharks. Fish. Lots.'),
     ('errand_meadows', "King's Meadows", 'Shepherd Tomas', 'tortuga_amb_clerk', 90, 112, 'coconut', 3, 25, 'The goats are off their feed. Coconuts help.'),
+    ('errand_boatyard', "Boat-Builder's Yard", 'Old Kessler', 'tortuga_amb_captain', 470, -153, 'timber', 4, 10, 'Timber for a new gig, and my lads will row you anywhere on the coast.'),
 ]
+
+# ---- Errand rewards beyond gold: (kind, value, what the player is told).
+#   rum/sugarcane/fish… = resources; crew = a crew template joins; map = districts revealed; ferry = rowboat taxi.
+REWARDS = {
+    'errand_boatyard': ('ferry', '', "Kessler's rowboats will ferry you between the jetties for 2 gold."),
+    'errand_crossroads': ('rum', 2, 'Duval slips you two bottles of the good stuff.'),
+    'errand_highwoods': ('rum', 3, "Three bottles of Suzette's finest."),
+    'errand_ringot': ('sugarcane', 3, 'Rosalie gives you a bundle of cane — take it to the Distillery.'),
+    'errand_fort': ('crew', 'musketeer_marksman', 'A bored musketeer deserts the garrison to join your crew.'),
+    'errand_cove': ('crew', 'powder_monkey', "Lefèvre's nephew signs on as your powder monkey."),
+    'errand_hollow': ('map', "Palm Shore|Crossroads|Southern Shore", "Brac's old hunting map shows the south-west coast."),
+    'errand_lighthouse': ('map', "Contrebandiers' Cove|Fort de Rocher|Rocher Row", 'From the lamp-room you can see the whole north coast.'),
+}
+
+# ---- Rowboat taxi stops (unlocked by REWARDS 'ferry'): (name, x, y) on the jetty roots.
+FERRY = [
+    ('Basse-Terre Wharf', 60, -292), ('West Pier', -232, -378), ('Turtle Cove', -210, 450),
+    ('Old Landing', -39, 490), ('South Jetty', 158, 408), ('Shipyard Slipway', 476, -192),
+]
+
+# ---- Cottage variety: three footprints in rotation, and every fourth cottage gets a rear wing
+# (an L-shaped house). The wing is its own footprint so its roof ridge runs across the main one.
+_SIZES = [(18, 16), (16, 14), (22, 16)]
+_out, _n = [], 0
+for _b in BUILDINGS:
+    if _b[1] != 'Cottage':
+        _out.append(_b); continue
+    _id, _lab, _k, _cx, _cy, _w, _h, _side = _b
+    _w, _h = _SIZES[_n % 3]
+    if _side in ('E', 'W'): _w, _h = min(_w, 18), _h + (_w - 18) // 2
+    _out.append((_id, _lab, _k, _cx, _cy, _w, _h, _side))
+    if _n % 4 == 1:
+        _back = {'S': (0, -1), 'N': (0, 1), 'E': (-1, 0), 'W': (1, 0)}[_side]
+        if _back[1]:
+            _aw, _ah = round(_w / 2), 8
+            _out.append((None, 'Wing', 'home', _cx + _w / 4, _cy + _back[1] * (_h / 2 + _ah / 2), _aw, _ah, None))
+        else:
+            _aw, _ah = 8, round(_h / 2)
+            _out.append((None, 'Wing', 'home', _cx + _back[0] * (_w / 2 + _aw / 2), _cy + _h / 4, _aw, _ah, None))
+    _n += 1
+BUILDINGS = _out

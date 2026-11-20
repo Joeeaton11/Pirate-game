@@ -270,6 +270,7 @@ export default function BuildingScreen({ navigation }: Props) {
   const resources = useGameStore((s) => s.resources);
   const sellResource = useGameStore((s) => s.sellResource);
   const craftItem = useGameStore((s) => s.craftItem);
+  const convertResource = useGameStore((s) => s.convertResource);
   const theftCooldowns = useGameStore((s) => s.theftCooldowns);
   const stealFromShop = useGameStore((s) => s.stealFromShop);
   const shipUpgrades = useGameStore((s) => s.shipUpgrades);
@@ -1381,6 +1382,24 @@ export default function BuildingScreen({ navigation }: Props) {
         </View>
       )}
 
+      {(currentBuildingId === 'tortuga_distillery' || currentBuildingId === 'tortuga_sugar_mill') && (
+        <Pressable
+          style={[styles.distilButton, { top: insets.top + 64 }, (resources.sugarcane ?? 0) < 3 && { opacity: 0.55 }]}
+          onPress={() =>
+            showAmbientMessage(
+              convertResource('sugarcane', 3, 'rum', 1)
+                ? '🥃 Three bundles of cane, one barrel of rum. The Distillery thanks you.'
+                : `You need 3 🎋 sugarcane to make rum — you have ${resources.sugarcane ?? 0}.`
+            )
+          }
+        >
+          <Text style={styles.talkButtonText}>Distil 3 🎋 → 1 🥃</Text>
+          <Text style={styles.distilHave}>
+            🎋 {resources.sugarcane ?? 0} · 🥃 {resources.rum ?? 0}
+          </Text>
+        </Pressable>
+      )}
+
       {!nearbyNpcId && nearbyHotspot !== null && interior.hotspots?.[nearbyHotspot] && !ambientMessage && (
         <Pressable
           style={[styles.talkButton, styles.roomOverlayBottom, { bottom: insets.bottom + 24 }]}
@@ -1550,6 +1569,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   talkButtonIcon: { width: 20, height: 20 },
+  distilButton: {
+    position: 'absolute',
+    right: 12,
+    backgroundColor: '#ffd166',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  distilHave: { color: '#0b3d5c', fontSize: 11, fontWeight: '700', marginTop: 2 },
   talkButtonText: { color: '#0b3d5c', fontWeight: '800', fontSize: 14 },
   ambientToast: {
     alignSelf: 'center',

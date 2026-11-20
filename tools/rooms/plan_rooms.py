@@ -10,6 +10,8 @@ OUT = f'{ROOT}/assets/sprites/interiors/plan'
 os.makedirs(OUT, exist_ok=True)
 sys.path.insert(0, f'{ROOT}/tools/blueprint')
 import plan_tortuga as P
+sys.path.insert(0, f'{ROOT}/tools/rooms')
+from room_lines import LINES
 
 # Room geometry shared with the painted shells (360 x 360 room units).
 WALLS = [(0, 360, 0, 98), (0, 24, 0, 360), (336, 360, 0, 360), (0, 148, 258, 360), (210, 360, 258, 360), (0, 360, 292, 360)]
@@ -133,7 +135,7 @@ LAYOUT = {
                      [dict(x=180, y=190, label='silver chest', text='An empty chest, stamped with the Spanish crown. Someone got here first.')]),
 }
 KIND_TO_LAYOUT = {'tavern': 'tavern', 'shop': 'shop', 'market': 'market', 'civic': 'civic', 'warehouse': 'warehouse', 'home': 'civic',
-                  'fort': 'stone', 'manor': 'manor', 'ruin': 'stone', 'landmark': 'stone', 'shed': 'warehouse'}
+                  'fort': 'stone', 'manor': 'manor', 'ruin': 'stone', 'landmark': 'stone', 'shed': 'warehouse', 'mill': 'warehouse'}
 
 KEEPERS = ['tortuga_amb_sailor', 'tortuga_amb_cook', 'patron_tortuga_local', 'patron_tortuga_drunk', 'patron_tortuga_rival',
            'patron_tortuga_mystic', 'tortuga_amb_lass', 'tortuga_amb_browser']
@@ -158,6 +160,8 @@ ts.append('')
 ts.append('export const PLAN_ROOMS: Record<string, BuildingInterior> = {')
 for i, (bid, lay) in enumerate(rooms):
     props, furn, floor_style, keeper, hot = LAYOUT[lay]()
+    if bid in LINES:
+        hot = [dict(hot[0], label=LINES[bid][0], text=LINES[bid][1])]
     local = LOCALS[i % len(LOCALS)]
     lights = [dict(x=180, y=96, r=18)] if floor_style != 'cave' else [dict(x=120, y=120, r=22), dict(x=260, y=150, r=22)]
     room = dict(buildingId=bid, width=360, height=360, entryPosition=dict(x=ENTRY[0], y=ENTRY[1]),

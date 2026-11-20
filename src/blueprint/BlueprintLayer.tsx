@@ -8,7 +8,7 @@ import Svg, { Path, SvgXml, Text as SvgText } from 'react-native-svg';
 import { ISLAND_LIST, ISLANDS, WORLD_HEIGHT, WORLD_WIDTH } from '../data/islands';
 import { ISLAND_PLANS } from './islandPlans.generated';
 import { DISTRICTS } from './planGameplay';
-import { EDIT_ITEMS, itemPos, PlanEdits } from './planEditing';
+import { allItems, isDeleted, itemPos, itemSize, PlanEdits } from './planEditing';
 import { TORTUGA_PLAN_LAYERS } from './tortugaPlanSvg';
 
 export const PLAN_PAPER = '#f4f1e6';
@@ -138,9 +138,17 @@ export const DiscoveryFog = React.memo(function DiscoveryFog({
   );
 });
 
-/** Plan editor overlay: moved items drawn at their new spot (orange), ghosts where they were. */
+/** Plan editor overlay: moved items at their new spot (orange), ghosts where they were, added items
+ * (green), deleted items crossed out (red). */
 export function EditOverlay({ origin, edits, selected }: { origin: { x: number; y: number }; edits: PlanEdits; selected: string | null }) {
-  const moved = EDIT_ITEMS.filter((it) => edits[it.kind][it.key] || it.key === selected);
+  const shown = allItems(edits).filter(
+    (it) =>
+      it.kind === 'added' ||
+      isDeleted(edits, it) ||
+      it.key === selected ||
+      Boolean(edits[it.kind as 'buildings' | 'props' | 'trees'][it.key]) ||
+      (it.kind === 'buildings' && Boolean(edits.resized[it.key]))
+  );
   return (
     <Svg
       width={1240}
@@ -149,23 +157,32 @@ export function EditOverlay({ origin, edits, selected }: { origin: { x: number; 
       pointerEvents="none"
       style={{ position: 'absolute', left: origin.x - 620, top: origin.y - 580, width: 1240, height: 1120 }}
     >
-      {moved.map((it) => {
+      {shown.map((it) => {
         const p = itemPos(edits, it);
+        const sz = itemSize(edits, it);
         const sel = it.key === selected;
+        const box = (x: number, y: number, w: number, h: number) => `M${x - w / 2} ${y - h / 2}h${w}v${h}h${-w}Z`;
+        if (isDeleted(edits, it)) {
+          return (
+            <Path
+              key={`${it.kind}${it.key}`}
+              d={box(p.x, p.y, sz.w, sz.h) + `M${p.x - sz.w / 2} ${p.y - sz.h / 2}l${sz.w} ${sz.h}M${p.x + sz.w / 2} ${p.y - sz.h / 2}l${-sz.w} ${sz.h}`}
+              fill="#c0392b"
+              fillOpacity={0.12}
+              stroke="#c0392b"
+              strokeWidth={0.9}
+            />
+          );
+        }
+        const added = it.kind === 'added';
         return (
           <React.Fragment key={`${it.kind}${it.key}`}>
+            {!added && <Path d={box(it.x, it.y, it.w, it.h)} fill="none" stroke="#8d8676" strokeWidth={0.6} strokeDasharray="1.5 1.5" />}
             <Path
-              d={`M${it.x - it.w / 2} ${it.y - it.h / 2}h${it.w}v${it.h}h${-it.w}Z`}
-              fill="none"
-              stroke="#8d8676"
-              strokeWidth={0.6}
-              strokeDasharray="1.5 1.5"
-            />
-            <Path
-              d={`M${p.x - it.w / 2} ${p.y - it.h / 2}h${it.w}v${it.h}h${-it.w}Z`}
-              fill="#e67e22"
-              fillOpacity={sel ? 0.3 : 0.15}
-              stroke="#d35400"
+              d={box(p.x, p.y, sz.w, sz.h)}
+              fill={added ? '#27ae60' : '#e67e22'}
+              fillOpacity={sel ? 0.35 : 0.18}
+              stroke={added ? '#1e8449' : '#d35400'}
               strokeWidth={sel ? 1.2 : 0.8}
             />
           </React.Fragment>

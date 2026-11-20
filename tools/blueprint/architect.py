@@ -183,9 +183,10 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
             else:
                 o.append(path(d_of(g), GREEN, 0.5, 'stroke-dasharray="4 2"'))
                 if t == 'swamp': o.append(path(hatch(g, 7, 0), GREEN, 0.25, 'stroke-dasharray="1.5 2.5" opacity="0.8"'))
-        elif t in ('fields', 'sugarcane'):
+        elif t in ('fields', 'sugarcane', 'paddock'):
             L('farmland')
             o.append(path(d_of(g), INK, 0.5))
+            if t == 'paddock': continue
             o.append(path(hatch(g, 4 if t == 'fields' else 3, 0 if t == 'fields' else 70), GREEN, 0.25))
 
     L('water')
@@ -272,6 +273,16 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     if extra.get('hedge') is not None and not extra['hedge'].is_empty:
         o.append(path(lines_d(extra['hedge']), GREEN, 2.0, 'stroke-linecap="round" opacity="0.35"'))
         o.append(path(lines_d(extra['hedge']), GREEN, 0.4, 'stroke-dasharray="1.2 0.8"'))
+    for l, r, t, b, gaps in extra.get('town_walls', []):
+        # retaining walls of the upper town: coursed stone, gaps where the stairs climb
+        xs = [l] + [v for g in sorted(gaps) for v in g] + [r]
+        for a, c in zip(xs[0::2], xs[1::2]):
+            o.append(f'<rect x="{f(a)}" y="{f(t)}" width="{f(c - a)}" height="{f(b - t)}" fill="#e9e1cf" stroke="{INK}" stroke-width="0.5"/>')
+            n = max(1, int((c - a) / 4))
+            o.append(path(''.join(f'M{f(a + (c - a) * k / n)} {f(t)}v{f(b - t)}' for k in range(1, n)), INK, 0.15))
+            o.append(path(f'M{f(a)} {f((t + b) / 2)}H{f(c)}', INK, 0.15))
+        for g0, g1 in gaps:  # stair treads in each gap
+            o.append(path(''.join(f'M{f(g0)} {f(t + (b - t) * k / 5)}H{f(g1)}' for k in range(1, 5)), INK, 0.25))
     if extra.get('wall') is not None and not extra['wall'].is_empty:
         o.append(path(lines_d(extra['wall']), INK, 1.6, 'stroke-linecap="square"'))
         o.append(path(lines_d(extra['wall']), PAPER, 0.6, 'stroke-linecap="square"'))
@@ -342,6 +353,14 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         elif k == 'washing': o.append(path(f'M{x - 7} {y}H{x + 7}', INK, 0.25) + ''.join(f'<rect x="{x - 6 + i * 3}" y="{y}" width="2" height="{1.5 + (i % 2)}" fill="none" stroke="{INK}" stroke-width="0.2"/>' for i in range(4)))
         elif k == 'falls': o.append(path(f'M{x - 4} {y - 2}h8M{x - 4} {y}h8M{x - 4} {y + 2}h8', BLUE, 0.4) + text(x + 6, y + 1, 'falls', 2.4, 'normal', BLUE, anchor='start', italic=True))
         elif k == 'lookout': o.append(path(f'M{x - 3} {y - 3}l6 6M{x + 3} {y - 3}l-6 6', INK, 0.3))
+        elif k == 'spring': o.append(f'<circle cx="{x}" cy="{y}" r="2.6" fill="none" stroke="{BLUE}" stroke-width="0.45"/><circle cx="{x}" cy="{y}" r="1.2" fill="none" stroke="{BLUE}" stroke-width="0.3"/>' + text(x, y - 4, 'spring', 2.4, 'normal', BLUE, italic=True))
+        elif k == 'haystack': o.append(f'<circle cx="{x}" cy="{y}" r="3" fill="none" stroke="{INK}" stroke-width="0.3"/>' + path(f'M{x - 2} {y - 1}h4M{x - 2.4} {y + 1}h4.8', INK, 0.15))
+        elif k == 'trough': o.append(f'<rect x="{x - 4}" y="{y - 1}" width="8" height="2" fill="none" stroke="{INK}" stroke-width="0.3"/>')
+        elif k == 'kiln': o.append(f'<circle cx="{x}" cy="{y}" r="4" fill="none" stroke="{INK}" stroke-width="0.45"/><circle cx="{x}" cy="{y}" r="1" fill="{INK}"/>')
+        elif k == 'woodpile': o.append(path(''.join(f'M{x - 4} {y - 1.5 + i * 1.5}h8' for i in range(3)), INK, 0.35))
+        elif k == 'cane_press': o.append(f'<circle cx="{x}" cy="{y}" r="3.4" fill="none" stroke="{INK}" stroke-width="0.4"/>' + path(f'M{x} {y}l7 0', INK, 0.5))
+        elif k == 'hull': o.append(f'<path d="M{x - 8} {y}Q{x} {y - 5} {x + 8} {y}Q{x} {y + 5} {x - 8} {y}Z" fill="none" stroke="{INK}" stroke-width="0.4"/>' + path(''.join(f'M{x - 5 + i * 2.5} {y - 2.6}v5.2' for i in range(5)), INK, 0.15))
+        elif k == 'timber': o.append(path(''.join(f'M{x - 6} {y - 1.5 + i * 1.5}h12' for i in range(3)), '#6e4b2a', 0.5))
         else: o.append(f'<circle cx="{x}" cy="{y}" r="1.2" fill="none" stroke="{INK}" stroke-width="0.35"/>')
 
     for k, pid, x, y in pois:
@@ -506,7 +525,7 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     L('names')
     for b in P.BUILDINGS:
         bid, label, kind, cx, cy, w, h, side = b
-        if label == 'Cottage': continue
+        if label in ('Cottage', 'Wing'): continue
         name = (names.get(bid) or label).upper()
         size = min(2.6, (w - 3) / (len(name) * 0.72))
         o.append(text(cx, cy + size * 0.4, name, round(size, 2), 'bold', spacing=0.1))

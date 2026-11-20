@@ -18,6 +18,16 @@ P_ORIG = list(P.BUILDINGS); PROPS_ORIG = list(P.PROPS)
 P.BUILDINGS = [tuple(list(b[:3]) + [b[3] + EDITS['buildings'].get(bkey(b), [0, 0])[0], b[4] + EDITS['buildings'].get(bkey(b), [0, 0])[1]] + list(b[5:])) for b in P.BUILDINGS]
 def pkey(p): return f'{p[0]}@{p[1]:g},{p[2]:g}'
 P.PROPS = [(p[0], p[1] + EDITS['props'].get(pkey(p), [0, 0])[0], p[2] + EDITS['props'].get(pkey(p), [0, 0])[1]) for p in P.PROPS]
+# deletions, resizes and additions from the editor (keys refer to the plan as authored)
+_db, _dp = set(EDITS.get('deleted_buildings', [])), set(EDITS.get('deleted_props', []))
+_keep = [i for i, b in enumerate(P_ORIG) if bkey(b) not in _db]
+P_ORIG = [P_ORIG[i] for i in _keep]
+P.BUILDINGS = [tuple(list(b[:5]) + list(EDITS.get('resized', {}).get(bkey(P_ORIG[k]), b[5:7])) + [b[7]]) for k, b in enumerate(P.BUILDINGS[i] for i in _keep)]
+_keepp = [i for i, p in enumerate(PROPS_ORIG) if pkey(p) not in _dp]
+PROPS_ORIG = [PROPS_ORIG[i] for i in _keepp]; P.PROPS = [P.PROPS[i] for i in _keepp]
+for _a in EDITS.get('added', []):
+    if _a['what'] == 'cottage': P.BUILDINGS.append((None, 'Cottage', 'home', _a['x'], _a['y'], _a['w'], _a['h'], 'S')); P_ORIG.append(P.BUILDINGS[-1])
+    elif _a['what'] != 'tree': P.PROPS.append((_a['what'], _a['x'], _a['y'])); PROPS_ORIG.append(P.PROPS[-1])
 TOWN = (-150, 300, -455, 2336 / 4.8 - 455)  # l, r, t, b of the painted town
 town_box = box(TOWN[0], TOWN[2], TOWN[1], TOWN[3])
 coast = Polygon(S.coast()).buffer(0)
@@ -71,7 +81,7 @@ for i, b in enumerate(P.BUILDINGS):
     if g.buffer(-0.5).intersects(ways): problems.append(f'{b[1]} @({b[3]},{b[4]}) sits on a road')
     if g.intersects(water): problems.append(f'{b[1]} sits in water')
     for j in range(i):
-        if g.buffer(2).intersects(bldg_geoms[j]): problems.append(f'{b[1]} touches {P.BUILDINGS[j][1]}')
+        if 'Wing' not in (b[1], P.BUILDINGS[j][1]) and g.buffer(2).intersects(bldg_geoms[j]): problems.append(f'{b[1]} touches {P.BUILDINGS[j][1]}')
     d = door_point(b)
     if d and b[2] not in ('landmark',) and Point(d).distance(ways) > 12:
         problems.append(f'{b[1]} @({b[3]},{b[4]}) door is {Point(d).distance(ways):.0f} from a road')
@@ -86,7 +96,7 @@ for name, _, _, pts in P.ROADS:
 # ---------------------------------------------------------------- trees (blue-noise per zone)
 rng = random.Random(4)
 blocked_for_trees = unary_union([ways.buffer(5), unary_union(bldg_geoms).buffer(7), water.buffer(4),
-                                 town_box.buffer(6)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden', 'sugarcane')])
+                                 town_box.buffer(6), Point(-290, 202).buffer(26)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden', 'sugarcane', 'paddock')])
 trees = []
 def scatter(area, spacing, kind, keep=1.0):
     if area.is_empty: return
@@ -113,6 +123,8 @@ def tkey(t): return f'{t[0]:g},{t[1]:g}'
 _del = set(EDITS.get('deleted_trees', []))
 TREES_ORIG = [(x, y) for x, y, k in trees if tkey((x, y)) not in _del]
 trees = [(x + EDITS['trees'].get(tkey((x, y)), [0, 0])[0], y + EDITS['trees'].get(tkey((x, y)), [0, 0])[1], k) for x, y, k in trees if tkey((x, y)) not in _del]
+trees += [(_a['x'], _a['y'], 'tree') for _a in EDITS.get('added', []) if _a['what'] == 'tree']
+TREES_ORIG += [(_a['x'], _a['y']) for _a in EDITS.get('added', []) if _a['what'] == 'tree']
 
 # ---------------------------------------------------------------- points of interest
 blocks0, _ = S.painted()
@@ -137,7 +149,24 @@ blocks, doors = S.painted()
 import importlib.util
 spec = importlib.util.spec_from_file_location('mapdata', f'{ROOT}/tools/town/painted/mapdata.py')
 md = importlib.util.module_from_spec(spec); spec.loader.exec_module(md)
-town_bldgs = [(l, r, t, b) for l, r, t, b, *_ in md.B if l is not None]
+terraces = []
+for l, r, t, b, dx, i in md.B:
+    if l is not None: terraces.append([l, r, t, b, []])
+    if dx is not None: terraces[-1][4].append(dx)
+town_bldgs = []  # one footprint per house: terraces split midway between their doors
+for l, r, t, b, dxs in terraces:
+    dxs = sorted(dxs)
+    if len(dxs) >= 2:
+        cuts = [l] + [round((dxs[k] + dxs[k + 1]) / 2, 1) for k in range(len(dxs) - 1)] + [r]
+    elif not dxs and r - l > 30:
+        n = int((r - l) // 18); cuts = [round(l + (r - l) * k / n, 1) for k in range(n + 1)]
+    else:
+        cuts = [l, r]
+    for a, c in zip(cuts, cuts[1:]):
+        # stagger the frontage a little so a row reads as separate houses
+        k = len(town_bldgs)
+        town_bldgs.append((a, c, t + (0, 1.5, 0.8)[k % 3], b))
+town_walls = list(md.WALLS)
 hsv = np.asarray(Image.open(sys.argv[1]).convert('HSV')).astype(int)
 CELL = 2
 nx, ny = int((TOWN[1] - TOWN[0]) / CELL), int((TOWN[3] - TOWN[2]) / CELL)
@@ -323,7 +352,7 @@ surfaces = {
     'sand': unary_union([beach, U(town_rects['sand'])]).difference(ways).simplify(0.4),
     'dirt': unary_union(road_geoms).difference(town_box).difference(bridges).simplify(0.4),
 }
-surfaces['grass'] = coast.difference(town_box).difference(unary_union([beach, ways, water] + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane')])).simplify(0.6)
+surfaces['grass'] = coast.difference(town_box).difference(unary_union([beach, ways, water] + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'paddock')])).simplify(0.6)
 # ---- districts (Voronoi of the seeds, clipped to the island; Basse-Terre is the painted town)
 from shapely.ops import voronoi_diagram
 from shapely.geometry import MultiPoint
@@ -361,6 +390,7 @@ extra.update({'contours': contours, 'contour_labels': clabels, 'cliffs': ''.join
               'districts_disc': districts, 'danger': danger, 'shallows': shallows, 'triggers': trig})
 # ---- boundaries and wildlife for the drawing; crab and gull spots for the game
 extra['fence'], extra['hedge'], extra['wall'] = fence_geom, hedge_geom, wall_geom
+extra['town_walls'] = town_walls
 wild = [(k, Polygon(p).buffer(0)) for k, p in P.WILDLIFE]
 extra['wildlife'] = wild
 rng2 = random.Random(21)
@@ -432,15 +462,24 @@ g_out.append('export const BP_CRABS: [number, number][] = [' + ', '.join(f'[{x},
 g_out.append('export const BP_GULLS: [number, number][] = [' + ', '.join(f'[{x}, {y}]' for x, y in gull_spots) + '];')
 poi_at = {pid: (x, y) for k, pid, x, y in pois}
 g_out.append('/** One errand per district (plan_tortuga.py ERRANDS). */')
-g_out.append('export const BP_ERRANDS: { id: string; district: string; person: string; sprite: string; x: number; y: number; resource: string; amount: number; gold: number; line: string }[] = [')
+g_out.append('export const BP_ERRANDS: { id: string; district: string; person: string; sprite: string; x: number; y: number; resource: string; amount: number; gold: number; line: string; reward?: { kind: string; value: string | number; text: string } }[] = [')
+import json as _json
 for e in P.ERRANDS:
-    g_out.append(f"  {{ id: {e[0]!r}, district: {e[1]!r}, person: {e[2]!r}, sprite: {e[3]!r}, x: {poi_at[e[0]][0]:g}, y: {poi_at[e[0]][1]:g}, resource: {e[6]!r}, amount: {e[7]}, gold: {e[8]}, line: {e[9]!r} }},")
+    rw = P.REWARDS.get(e[0])
+    rws = f", reward: {{ kind: {_json.dumps(rw[0])}, value: {_json.dumps(rw[1])}, text: {_json.dumps(rw[2], ensure_ascii=False)} }}" if rw else ''
+    g_out.append(f"  {{ id: {e[0]!r}, district: {e[1]!r}, person: {e[2]!r}, sprite: {e[3]!r}, x: {poi_at[e[0]][0]:g}, y: {poi_at[e[0]][1]:g}, resource: {e[6]!r}, amount: {e[7]}, gold: {e[8]}, line: {e[9]!r}{rws} }},")
 g_out.append('];')
 poi_at = {pid: (x, y) for k, pid, x, y in pois}
 g_out.append('export const BP_GATHER: { resource: string; id: string; x: number; y: number }[] = [' + ', '.join(f"{{ resource: {r!r}, id: {i!r}, x: {poi_at[i][0]:g}, y: {poi_at[i][1]:g} }}" for r, i, x, y in P.GATHER) + '];')
 lh = next(b for b in P.BUILDINGS if b[0] == 'tortuga_lighthouse_tower')
 g_out.append(f'export const BP_LIGHTHOUSE = {{ x: {lh[3]}, y: {lh[4]} }};')
 g_out.append("export const BP_GROTTO = { x: -416, y: 318 };")
+g_out.append('/** Signposts (island-relative): standing by one points you at unexplored districts. */')
+g_out.append('export const BP_SIGNPOSTS: [number, number][] = [' + ', '.join(f'[{x}, {y}]' for k, x, y in P.PROPS if k == 'signpost') + '];')
+g_out.append('/** District centres, for signpost directions. */')
+g_out.append('export const BP_DISTRICT_CENTRES: { name: string; x: number; y: number }[] = [' + ', '.join(f'{{ name: {_json.dumps(n)}, x: {x}, y: {y} }}' for n, x, y, _ in P.DISTRICTS) + '];')
+g_out.append('/** Rowboat taxi stops (unlocked by the boat-builder errand). */')
+g_out.append('export const BP_FERRY: { name: string; x: number; y: number }[] = [' + ', '.join(f'{{ name: {_json.dumps(n)}, x: {x}, y: {y} }}' for n, x, y in P.FERRY) + '];')
 open(f'{ROOT}/src/blueprint/tortugaGameplay.generated.ts', 'w').write('\n'.join(g_out) + '\n')
 extra['routes'] = routes + walk_loops
 
@@ -488,3 +527,11 @@ if len(sys.argv) > 2:
     import preview
     preview.draw(sys.argv[2], coast, beach, zone_geoms, water, P, town_rects, town_bldgs, doors, trees, door_point,
                  bridges=bridges, sea_zones=sea_zones, pois=pois)
+
+# ---------------------------------------------------------------- art mode base (painted from the plan)
+import art
+art_bldgs = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2, b[2]) for b in P.BUILDINGS]
+art_bldgs += [(l, t, r, b, 'town') for l, r, t, b in town_bldgs]
+art.draw(f'{ROOT}/assets/sprites/tortuga_town/plan_art.png', coast, beach, zone_geoms, water, P, art_bldgs, trees,
+         bridges, dock_geoms, breakwater, sea_zones)
+print('art base written')

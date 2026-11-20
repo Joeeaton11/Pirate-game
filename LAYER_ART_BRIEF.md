@@ -1,6 +1,6 @@
 # Layer Art Brief — Tortuga Cove
 
-**96 separate generations.**
+**119 separate generations.**
 
 Generated from the island blueprint (`tools/blueprint/plan_tortuga.py`) by `tools/blueprint/brief_layers.py`.
 Re-run it after the plan changes. Each layer below is painted on its own, in this order, and each asset is
@@ -362,6 +362,48 @@ The Crossroads Shop: a small shop with an awning and goods by the door. Footprin
 Suzette's Still: a small timber shed. Footprint 18 x 14 world units (aspect 1.29:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the left (west) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
+### Fontaine Farmstead
+*home · footprint 22×16 · door S*
+
+```
+Fontaine Farmstead: a modest island cottage. Footprint 22 x 16 world units (aspect 1.38:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the front (south) wall, facing the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Barn
+*shed · footprint 24×16 · door S*
+
+```
+Barn: a small timber shed. Footprint 24 x 16 world units (aspect 1.50:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the front (south) wall, facing the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Charcoal Burner's Hut
+*home · footprint 16×12 · door N*
+
+```
+Charcoal Burner's Hut: a modest island cottage. Footprint 16 x 12 world units (aspect 1.33:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the back (north) wall, facing away from the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Hermit's Hut
+*home · footprint 14×12 · door W*
+
+```
+Hermit's Hut: a modest island cottage. Footprint 14 x 12 world units (aspect 1.17:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the left (west) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### La Ringot Sugar Mill
+*mill · footprint 26×20 · door N*
+
+```
+La Ringot Sugar Mill: a building. Footprint 26 x 20 world units (aspect 1.30:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the back (north) wall, facing away from the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Boat-Builder's Yard
+*warehouse · footprint 20×14 · door W*
+
+```
+Boat-Builder's Yard: a timber warehouse with big doors and stacked cargo. Footprint 20 x 14 world units (aspect 1.43:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the left (west) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
 ### Ringot Farmhouse
 *home · footprint 24×18 · door S*
 
@@ -369,29 +411,92 @@ Suzette's Still: a small timber shed. Footprint 18 x 14 world units (aspect 1.29
 Ringot Farmhouse: a modest island cottage. Footprint 24 x 18 world units (aspect 1.33:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the front (south) wall, facing the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
-### Cottage (×10)
-*home · footprint 18×16 · door S · used 10 times*
+### Cottage (×3)
+*home · footprint 18×16 · door S · used 3 times*
 
 ```
 Cottage: a modest island cottage. Footprint 18 x 16 world units (aspect 1.12:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the front (south) wall, facing the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
-### Cottage (×9)
-*home · footprint 18×16 · door N · used 9 times*
+### Cottage (×3)
+*home · footprint 16×14 · door S · used 3 times*
+
+```
+Cottage: a modest island cottage. Footprint 16 x 14 world units (aspect 1.14:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the front (south) wall, facing the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Wing (×8)
+*home · footprint 8×8 · door — · used 8 times*
+
+```
+Wing: a modest island cottage. Footprint 8 x 8 world units (aspect 1.00:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the no door. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cottage (×4)
+*home · footprint 22×16 · door S · used 4 times*
+
+```
+Cottage: a modest island cottage. Footprint 22 x 16 world units (aspect 1.38:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the front (south) wall, facing the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cottage (×4)
+*home · footprint 18×16 · door N · used 4 times*
 
 ```
 Cottage: a modest island cottage. Footprint 18 x 16 world units (aspect 1.12:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the back (north) wall, facing away from the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
-### Cottage (×5)
-*home · footprint 18×16 · door W · used 5 times*
+### Cottage (×2)
+*home · footprint 16×14 · door N · used 2 times*
+
+```
+Cottage: a modest island cottage. Footprint 16 x 14 world units (aspect 1.14:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the back (north) wall, facing away from the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cottage (×3)
+*home · footprint 22×16 · door N · used 3 times*
+
+```
+Cottage: a modest island cottage. Footprint 22 x 16 world units (aspect 1.38:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the back (north) wall, facing away from the viewer. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cottage (×2)
+*home · footprint 18×16 · door W · used 2 times*
 
 ```
 Cottage: a modest island cottage. Footprint 18 x 16 world units (aspect 1.12:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the left (west) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
-### Cottage (×7)
-*home · footprint 18×16 · door E · used 7 times*
+### Cottage (×3)
+*home · footprint 16×13 · door E · used 3 times*
+
+```
+Cottage: a modest island cottage. Footprint 16 x 13 world units (aspect 1.23:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the right (east) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cottage
+*home · footprint 18×18 · door W*
+
+```
+Cottage: a modest island cottage. Footprint 18 x 18 world units (aspect 1.00:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the left (west) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cottage (×2)
+*home · footprint 16×13 · door W · used 2 times*
+
+```
+Cottage: a modest island cottage. Footprint 16 x 13 world units (aspect 1.23:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the left (west) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cottage (×2)
+*home · footprint 18×18 · door E · used 2 times*
+
+```
+Cottage: a modest island cottage. Footprint 18 x 18 world units (aspect 1.00:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the right (east) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cottage (×2)
+*home · footprint 18×16 · door E · used 2 times*
 
 ```
 Cottage: a modest island cottage. Footprint 18 x 16 world units (aspect 1.12:1), seen from the high three-quarter view. Hipped roof, ridge running east–west. Door on the right (east) wall. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
@@ -502,8 +607,8 @@ a grey island boulder with moss, about 7 world units across, variant 3 of 3 (dif
 
 From the *Props* and *Moored boats* layers.
 
-### Signpost (×11)
-*used 11 time(s)*
+### Signpost (×15)
+*used 15 time(s)*
 
 ```
 a wooden crossroads signpost with two arrow boards. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
@@ -516,22 +621,22 @@ a wooden crossroads signpost with two arrow boards. Match the attached MASTER_ST
 a round stone well with a rope and bucket. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
-### Crates (×6)
-*used 6 time(s)*
+### Crates (×5)
+*used 5 time(s)*
 
 ```
 a small stack of wooden cargo crates. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
-### Barrels (×6)
-*used 6 time(s)*
+### Barrels (×7)
+*used 7 time(s)*
 
 ```
 a cluster of three wooden barrels. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
-### Cart (×2)
-*used 2 time(s)*
+### Cart (×3)
+*used 3 time(s)*
 
 ```
 a two-wheeled wooden hand cart. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
@@ -661,6 +766,62 @@ falls. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with v
 
 ```
 lookout. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Spring (×2)
+*used 2 time(s)*
+
+```
+spring. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Haystack
+*used 1 time(s)*
+
+```
+haystack. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Trough
+*used 1 time(s)*
+
+```
+trough. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Kiln (×2)
+*used 2 time(s)*
+
+```
+kiln. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Woodpile
+*used 1 time(s)*
+
+```
+woodpile. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Cane Press
+*used 1 time(s)*
+
+```
+cane_press. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Hull
+*used 1 time(s)*
+
+```
+hull. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
+```
+
+### Timber
+*used 1 time(s)*
+
+```
+timber. Match the attached MASTER_STYLE_harbour.png: dense retro pixel art with visible pixel grain, high top-down three-quarter view (large roof seen from above, front wall plus a little side wall), weathered Caribbean pirate port, warm terracotta roofs, crisp dark outlines. Flat pure-green (#00FF00) background for keying, no shadow on the background, no text, no border. One asset per image: a single isolated item, not a sheet, grid, row or collage of several items.
 ```
 
 ### Moored rowboat

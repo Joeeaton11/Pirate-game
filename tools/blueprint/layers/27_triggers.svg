@@ -173,6 +173,21 @@
 <circle cx="-236" cy="344.5" r="9" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>
 <circle cx="-236" cy="344.5" r="0.9" fill="#ca6f1e"/>
 <text x="-236" y="334" font-family="Arial, Helvetica, sans-serif" font-size="2.8" font-weight="bold" fill="#a04000" text-anchor="middle"></text>
+<circle cx="140" cy="76" r="9" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>
+<circle cx="140" cy="76" r="0.9" fill="#ca6f1e"/>
+<text x="140" y="65.5" font-family="Arial, Helvetica, sans-serif" font-size="2.8" font-weight="bold" fill="#a04000" text-anchor="middle"></text>
+<circle cx="-290" cy="192" r="9" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>
+<circle cx="-290" cy="192" r="0.9" fill="#ca6f1e"/>
+<text x="-290" y="181.5" font-family="Arial, Helvetica, sans-serif" font-size="2.8" font-weight="bold" fill="#a04000" text-anchor="middle"></text>
+<circle cx="235" cy="368" r="9" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>
+<circle cx="235" cy="368" r="0.9" fill="#ca6f1e"/>
+<text x="235" y="357.5" font-family="Arial, Helvetica, sans-serif" font-size="2.8" font-weight="bold" fill="#a04000" text-anchor="middle"></text>
+<circle cx="232" cy="204" r="9" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>
+<circle cx="232" cy="204" r="0.9" fill="#ca6f1e"/>
+<text x="232" y="193.5" font-family="Arial, Helvetica, sans-serif" font-size="2.8" font-weight="bold" fill="#a04000" text-anchor="middle"></text>
+<circle cx="484" cy="-153" r="9" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>
+<circle cx="484" cy="-153" r="0.9" fill="#ca6f1e"/>
+<text x="484" y="-163.5" font-family="Arial, Helvetica, sans-serif" font-size="2.8" font-weight="bold" fill="#a04000" text-anchor="middle"></text>
 <circle cx="-10" cy="-422" r="26" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>
 <circle cx="-10" cy="-422" r="0.9" fill="#ca6f1e"/>
 <text x="-10" y="-449.5" font-family="Arial, Helvetica, sans-serif" font-size="2.8" font-weight="bold" fill="#a04000" text-anchor="middle">BOARD / DUEL FOR THE BLACK PEARL</text>
