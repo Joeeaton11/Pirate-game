@@ -655,9 +655,24 @@ if len(sys.argv) > 2:
                  bridges=bridges, sea_zones=sea_zones, pois=pois)
 
 # ---------------------------------------------------------------- art mode base (painted from the plan)
+import art_slots
+_assets, _stats = art_slots.build(ROOT, P, trees, town_box)
+print('art slots', _stats)
+def _drawn(aid): return bool(_assets.get(aid, {}).get('file'))
+_cot = [0]
+def _bld_aid(b):
+    if b[0]: return f'bld_{b[0]}'
+    if b[1] == 'Cottage':
+        a = f'home_cottage_{"abcd"[_cot[0] % 4]}'; _cot[0] += 1; return a
+    if b[1] == 'Wing': return 'wing'
+    return f'home_{art_slots.slug(b[1])}'
 import art
-art_bldgs = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2, b[2]) for b in P.BUILDINGS]
+# The base keeps only what has no sprite yet; anything with a sprite is drawn by the game on top.
+art_bldgs = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2, b[2]) for b in P.BUILDINGS if not _drawn(_bld_aid(b))]
 art_bldgs += [(l, t, r, b, 'town') for l, r, t, b in town_bldgs]
-art.draw(f'{ROOT}/assets/sprites/tortuga_town/plan_art.png', coast, beach, zone_geoms, water, P, art_bldgs, trees,
+class _PP: pass
+_P2 = _PP(); _P2.__dict__.update({k: getattr(P, k) for k in dir(P) if not k.startswith('__')})
+_P2.PROPS = [p for p in P.PROPS if not _drawn(f'prop_{p[0]}')]
+art.draw(f'{ROOT}/assets/sprites/tortuga_town/plan_art.png', coast, beach, zone_geoms, water, _P2, art_bldgs, [t for t in trees if t[2] not in ('palm', 'rock')],
          bridges, dock_geoms, breakwater, sea_zones)
 print('art base written')

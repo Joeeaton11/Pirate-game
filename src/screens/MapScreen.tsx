@@ -56,6 +56,7 @@ import {
 } from '../blueprint/planEditing';
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
+import { ArtSprites } from '../blueprint/ArtSprites';
 import { autoTarget, JournalPanel, TrackerArrow, TrackTarget, targetDone } from '../town/Journal';
 import {
   BP_BOTTLES,
@@ -426,6 +427,7 @@ const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict
 /** Door points (absolute world coords). */
 const TOWN_DOORS = TOWN_SCENE.doors;
 const TOWN_DOOR_RADIUS = 9;
+const TORTUGA_TOWN_SCENE_SPRITES = [...TOWN_SCENE.sprites].sort((a, b) => a.z - b.z).map(renderSceneSprite);
 const TORTUGA_PLAN_ART = require('../../assets/sprites/tortuga_town/plan_art.png');
 const TORTUGA_TOWN_GROUND = [...TOWN_SCENE.ground.map(renderGroundTile), ...TOWN_SCENE.decals.map(renderDecal)];
 // The painted town's outer band (EDGE units) is drawn from alpha-feathered strips instead of the
@@ -3192,6 +3194,8 @@ export default function MapScreen({ navigation }: Props) {
                   }}
                 />
                 {TORTUGA_TOWN_FEATHERED}
+                {TORTUGA_TOWN_SCENE_SPRITES}
+                <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
               </View>
             )}
             {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} visible={planLayers} />}

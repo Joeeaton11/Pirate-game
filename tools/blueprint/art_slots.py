@@ -1,0 +1,149 @@
+"""Art slots: one sprite slot for every building, home, tree and prop on Tortuga's plan, each naming an
+art-list asset id. The game draws whatever image the asset registry holds for that id — today a
+stand-in from the existing sprite library, later the new consistent art. Swapping art = changing
+STANDINS (or dropping new files in), never re-placing anything.
+
+Writes src/blueprint/tortugaArtSlots.generated.ts and docs/ART_LIST_TORTUGA.md (the master art list).
+"""
+import glob, json, os
+from PIL import Image
+
+SPR = 'assets/sprites'
+
+# Asset id -> stand-in file (relative to assets/sprites). None = no stand-in yet (the coloured base shows).
+def _first(pattern):
+    hits = sorted(glob.glob(f'{ROOT}/{SPR}/{pattern}'))
+    return os.path.relpath(hits[0], f'{ROOT}/{SPR}') if hits else None
+
+ROOT = None
+V2_ALIAS = {'tortuga_shipyard': 'tortuga_v2_the_shipyard', 'tortuga_wayside_tavern': 'tortuga_v2_the_wayside_tavern',
+            'tortuga_crossroads_shop': 'tortuga_v2_the_crossroads_shop'}
+NAMED_STANDIN = {'bld_tortuga_lighthouse_tower': 'landmarks/lighthouse_1.png', 'bld_tortuga_farmstead': 'tortuga_v2/houses/house_3.png',
+                 'bld_tortuga_charcoal_burner': 'tortuga_v2/houses/house_2.png', 'bld_tortuga_hermit_hut': 'tortuga_v2/houses/house_4.png',
+                 'bld_tortuga_boatbuilder': 'tortuga_v2/buildings/tortuga_careening_shed.png', 'bld_tortuga_sugar_mill': None,
+                 'home_barracks': 'tortuga_v2/buildings/tortuga_gaol.png', 'home_gate_tower': 'landmarks/turret_1.png',
+                 'home_lookout': 'landmarks/watchtower_1.png', 'home_fishing_hut': 'tortuga_v2/houses/house_4.png',
+                 'home_suzettes_still': 'tortuga_v2/houses/house_2.png', 'home_ringot_farmhouse': 'tortuga_v2/houses/house_3.png',
+                 'home_barn': None}
+PROP_STANDIN = {
+    'barrels': 'tortuga_v2/props/barrels2.png', 'crates': 'tortuga_v2/props/crates.png', 'cart': 'tortuga_v2/props/cart.png',
+    'bench': 'tortuga_v2/props/bench.png', 'well': 'tortuga_v2/props/well.png', 'lamp': 'tortuga_v2/props/lamp_iron.png',
+    'lantern_post': 'tortuga_v2/props/lamp_wood.png', 'lantern': 'props/dock_lamp_1.png', 'stall': 'tortuga_v2/props/stall.png',
+    'signpost': 'props/signpost_1.png', 'notice': 'props/notice_board*.png', 'campfire': 'props/campfire_1.png',
+    'anchor': 'props/anchor_1.png', 'jolly_roger': 'props/flag_skull.png', 'fishing_rack': 'props/fish_rack*.png',
+    'nets': 'props/fishing_net*.png', 'haystack': 'props/hay_bale*.png', 'flowerpot': 'props/potted_plant*.png',
+    'grave': 'props/grave_marker*.png', 'pirate_grave': 'props/grave_marker*.png', 'rubble': 'props/ruin_stone_blocks*.png',
+    'cannonballs': 'props/cannonball_pile_1.png', 'wheelbarrow': 'props/wheelbarrow*.png', 'spyglass': 'props/telescope_tripod*.png',
+    'tavern_sign': 'props/tavern_sign_1.png', 'washing': 'props/clothesline*.png', 'rum_barrels': 'props/barrels_2.png',
+    'powder_keg': 'props/barrel_3.png', 'water_butt': 'props/barrel_1.png', 'trough': 'props/crate_trough*.png',
+    'sea_chest': 'treasure/chest_1.png', 'buried_chest': 'treasure/chest_2.png', 'chest': 'treasure/chest_3.png',
+    'treasure_pile': 'treasure/chest_4.png', 'wreck': 'landmarks/shipwreck_debris_1.png', 'woodpile': 'props/dock_plank_bundle*.png',
+    'timber': 'props/dock_plank_bundle*.png', 'x_mark': 'treasure/treasure_marker_1.png', 'cargo': 'props/crates_3.png',
+    'bollard': 'props/dock_piling*.png', 'statue': 'landmarks/fountain_statue_1.png', 'mermaid_statue': 'landmarks/fountain_statue_2.png',
+    'signal_fire': 'props/brazier*.png', 'signal_lamp': 'props/torch*.png', 'rope_coil': 'props/sacks*.png', 'shop_sign': 'props/tavern_sign_1.png',
+}
+# World width (units) each prop is drawn at.
+PROP_W = {'barrels': 6, 'crates': 6, 'cart': 9, 'bench': 6, 'well': 7, 'lamp': 3.5, 'lantern_post': 3.5, 'lantern': 3, 'stall': 10,
+          'signpost': 4, 'notice': 5, 'campfire': 5, 'anchor': 5, 'jolly_roger': 5, 'fishing_rack': 9, 'nets': 9, 'haystack': 6,
+          'flowerpot': 3, 'grave': 3.5, 'pirate_grave': 3.5, 'rubble': 7, 'cannonballs': 4, 'wheelbarrow': 5, 'spyglass': 4,
+          'tavern_sign': 4, 'washing': 13, 'rum_barrels': 8, 'powder_keg': 3.5, 'water_butt': 3.5, 'trough': 7, 'sea_chest': 4.5,
+          'buried_chest': 4.5, 'chest': 4.5, 'treasure_pile': 6, 'wreck': 30, 'woodpile': 7, 'timber': 11, 'x_mark': 4, 'cargo': 8,
+          'bollard': 2, 'statue': 6, 'mermaid_statue': 7, 'signal_fire': 5, 'signal_lamp': 3, 'rope_coil': 4, 'shop_sign': 3.5}
+# The library has no clean broadleaf/jungle trees (they're cropped or sit on grass squares), so those
+# stay painted on the Art map base until the new art arrives; palms and boulders have good stand-ins.
+TREE_STANDIN = {'jungle': [None, None, None], 'tree': [None, None, None],
+                'palm': ['nature/trees/palm_1.png', 'nature/trees/palm_2.png', 'nature/trees/palm_6.png', 'nature/trees/palm_8.png'],
+                'mangrove': [None, None],
+                'rock': ['nature/rocks/boulder_large_1.png', 'nature/rocks/boulder_large_2.png', 'nature/rocks/boulder_cluster_2.png']}
+TREE_W = {'jungle': 11, 'tree': 13, 'palm': 11, 'mangrove': 10, 'rock': 8}
+
+# Plain-English descriptions for the master art list.
+def slug(s): return ''.join(c if c.isalnum() else '_' for c in s.lower()).strip('_').replace('__', '_')
+
+
+def build(root, P, trees, town_box):
+    global ROOT
+    ROOT = root
+    from shapely.geometry import Point
+    slots, assets = [], {}
+
+    def asset(aid, standin, kind, desc, w_units):
+        if aid not in assets:
+            f = standin
+            if f and ('*' in f): f = _first(f)
+            if f and not os.path.exists(f'{root}/{SPR}/{f}'): f = None
+            if f:  # a stand-in must have a transparent background, or it shows as a box
+                im = Image.open(f'{root}/{SPR}/{f}').convert('RGBA'); W_, H_ = im.size
+                if max(im.getpixel(q)[3] for q in ((0, 0), (W_ - 1, 0), (0, H_ - 1), (W_ - 1, H_ - 1))) > 10: f = None
+            assets[aid] = dict(file=f, kind=kind, desc=desc, w=w_units, count=0)
+        assets[aid]['count'] += 1
+
+    cottage_n = 0
+    for b in P.BUILDINGS:
+        bid, label, kind, cx, cy, w, h, side = b
+        if label == 'Wing': continue
+        if bid:
+            aid = f'bld_{bid}'
+            v2 = V2_ALIAS.get(bid, bid)
+            st = NAMED_STANDIN.get(aid, f'tortuga_v2/buildings/{v2}.png')
+            asset(aid, st, 'building', f'{label} — {kind}, footprint {w:g}×{h:g}, door {side or "none"}', w * 1.12)
+            sw = w * 1.12
+        elif label == 'Cottage':
+            aid = f'home_cottage_{"abcd"[cottage_n % 4]}'; cottage_n += 1
+            asset(aid, f'tortuga_v2/houses/house_{"1234"["abcd".index(aid[-1])]}.png', 'home', 'Cottage, single storey (variant ' + aid[-1].upper() + ')', w * 1.05)
+            sw = w * 1.05
+        else:
+            aid = f'home_{slug(label)}'
+            asset(aid, NAMED_STANDIN.get(aid, 'tortuga_v2/houses/house_2.png'), 'home', f'{label} — {kind}, footprint {w:g}×{h:g}', w * 1.1)
+            sw = w * 1.1
+        slots.append((aid, cx, cy + h / 2, round(sw, 1)))
+    for i, (x, y, k) in enumerate(trees):
+        if town_box.contains(Point(x, y)): continue
+        opts = TREE_STANDIN[k]
+        v = (int(abs(x) * 7 + abs(y) * 3)) % len(opts)
+        aid = f'tree_{k}_{v + 1}'
+        asset(aid, opts[v], 'tree', f'{ {"jungle": "Jungle tree", "tree": "Broadleaf tree", "palm": "Palm", "mangrove": "Mangrove", "rock": "Boulder"}[k] } (variant {v + 1})', TREE_W[k])
+        slots.append((aid, x, y + TREE_W[k] * 0.15, TREE_W[k] * (0.9 + ((i * 37) % 20) / 100)))
+    for k, x, y in P.PROPS:
+        if town_box.contains(Point(x, y)) and k not in ('notice',): continue
+        aid = f'prop_{k}'
+        asset(aid, PROP_STANDIN.get(k), 'prop', k.replace('_', ' '), PROP_W.get(k, 5))
+        slots.append((aid, x, y, PROP_W.get(k, 5)))
+
+    # registry + slots for the game
+    ts = ['// GENERATED by tools/blueprint/art_slots.py — every art slot on Tortuga and the image each asset uses.',
+          '// To swap in new art: change STANDINS in art_slots.py (or replace the file) and rebuild. Never hand-edit.',
+          "import type { ImageSourcePropType } from 'react-native';", '',
+          '/** Asset id -> image and its height/width ratio. Assets without an image are not drawn yet. */',
+          'export const ART_ASSETS: Record<string, { src: ImageSourcePropType; aspect: number }> = {']
+    for aid, a in sorted(assets.items()):
+        if not a['file']: continue
+        im = Image.open(f'{root}/{SPR}/{a["file"]}'); bb = im.getbbox() or (0, 0, *im.size)
+        ts.append(f"  {aid}: {{ src: require('../../{SPR}/{a['file']}'), aspect: {round(im.size[1] / im.size[0], 3)} }},")
+    ts.append('};')
+    ts.append('/** [asset id, x, ground y (island-relative), width in world units], sorted back to front. */')
+    slots.sort(key=lambda s: s[2])
+    ts.append('export const ART_SLOTS: [string, number, number, number][] = [' + ', '.join(f"['{a}', {x:g}, {round(y, 1):g}, {w:g}]" for a, x, y, w in slots) + '];')
+    open(f'{root}/src/blueprint/tortugaArtSlots.generated.ts', 'w').write('\n'.join(ts) + '\n')
+
+    # master art list
+    md = ['# Tortuga — master art list', '',
+          'Generated from the plan by `tools/blueprint/art_slots.py`. **One asset per image** — every row is its own',
+          'separate generation, never a sheet. Follow `docs/ART_STYLE_GUIDE.md` for every asset.', '',
+          'Status: **stand-in** = an existing sprite fills the slot for now (to be redrawn in the house style);',
+          '**missing** = nothing yet, the coloured map shows through.', '']
+    order = [('building', 'Buildings (bespoke, one per named building)'), ('home', 'Homes, huts and outbuildings'),
+             ('tree', 'Trees and rocks'), ('prop', 'Props')]
+    pr = {'building': 1, 'home': 1, 'tree': 2, 'prop': 3}
+    for kind, title in order:
+        md.append(f'## {title}'); md.append('')
+        md.append('| Asset id | What | Size on map (units wide) | Used | Status | Priority |')
+        md.append('|---|---|---|---|---|---|')
+        for aid, a in sorted(assets.items(), key=lambda kv: (-kv[1]['count'], kv[0])):
+            if a['kind'] != kind: continue
+            status = 'stand-in' if a['file'] else '**missing**'
+            md.append(f"| `{aid}` | {a['desc']} | {a['w']:.0f} | {a['count']}× | {status} | {pr[kind] if a['file'] else 1} |")
+        md.append('')
+    os.makedirs(f'{root}/docs', exist_ok=True)
+    open(f'{root}/docs/ART_LIST_TORTUGA.md', 'w').write('\n'.join(md) + '\n')
+    return assets, (len(slots), len(assets), sum(1 for a in assets.values() if not a['file']))
