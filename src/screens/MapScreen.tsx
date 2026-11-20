@@ -35,7 +35,7 @@ import {
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
 import { TownLife } from '../town/TownLife';
-import { BlueprintLayer, PLAN_PAPER, PlanWorld } from '../blueprint/BlueprintLayer';
+import { BlueprintLayer, DEFAULT_PLAN_LAYERS, PLAN_LAYERS, PLAN_PAPER, PlanWorld } from '../blueprint/BlueprintLayer';
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
 import { DayNight } from '../town/DayNight';
@@ -856,6 +856,8 @@ export default function MapScreen({ navigation }: Props) {
   const [player, setPlayer] = useState(devStartPosition);
   const [planMode, setPlanMode] = useState(startInPlanMode);
   const planModeRef = useRef(planMode);
+  const [planLayers, setPlanLayers] = useState<Record<string, boolean>>(DEFAULT_PLAN_LAYERS);
+  const [showLayerPanel, setShowLayerPanel] = useState(false);
   planModeRef.current = planMode;
   // Camera eases after the player instead of being nailed to them; Scally's screen position is
   // offset by the gap, so he leads slightly into a walk and the view catches up when he stops.
@@ -2884,7 +2886,7 @@ export default function MapScreen({ navigation }: Props) {
                 {TORTUGA_V2_SPRITE_LAYER}
               </View>
             )}
-            {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} />}
+            {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} visible={planLayers} />}
             {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
                 the same sailing sprite and size the player gets once aboard. */}
             <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} />
@@ -3769,6 +3771,44 @@ export default function MapScreen({ navigation }: Props) {
         >
           <Text style={styles.planToggleText}>{planMode ? '🎨 Art' : '📐 Plan'}</Text>
         </Pressable>
+        {planMode && (
+          <Pressable style={[styles.planToggle, { top: 106 }]} onPress={() => setShowLayerPanel((v) => !v)} hitSlop={6}>
+            <Text style={styles.planToggleText}>🗂 Layers</Text>
+          </Pressable>
+        )}
+        {planMode && showLayerPanel && (
+          <View style={styles.layerPanel}>
+            <View style={styles.layerPanelHeader}>
+              <Text style={styles.layerPanelTitle}>Plan layers</Text>
+              <Pressable onPress={() => setShowLayerPanel(false)} hitSlop={8}>
+                <Text style={styles.layerPanelClose}>✕</Text>
+              </Pressable>
+            </View>
+            <View style={styles.layerPanelQuick}>
+              <Pressable onPress={() => setPlanLayers(Object.fromEntries(PLAN_LAYERS.map((l) => [l.id, true])))}>
+                <Text style={styles.layerPanelQuickText}>All</Text>
+              </Pressable>
+              <Pressable onPress={() => setPlanLayers(DEFAULT_PLAN_LAYERS)}>
+                <Text style={styles.layerPanelQuickText}>Default</Text>
+              </Pressable>
+              <Pressable onPress={() => setPlanLayers(Object.fromEntries(PLAN_LAYERS.map((l) => [l.id, false])))}>
+                <Text style={styles.layerPanelQuickText}>None</Text>
+              </Pressable>
+            </View>
+            <View style={styles.layerGrid}>
+              {PLAN_LAYERS.filter((l) => l.id !== 'paper').map((l) => (
+                <Pressable
+                  key={l.id}
+                  style={styles.layerRow}
+                  onPress={() => setPlanLayers((v) => ({ ...v, [l.id]: !v[l.id] }))}
+                >
+                  <Text style={styles.layerCheck}>{planLayers[l.id] ? '☑' : '☐'}</Text>
+                  <Text style={[styles.layerName, !planLayers[l.id] && { opacity: 0.5 }]}>{l.name}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        )}
 
         {compassAngleDeg !== null && (
           <View pointerEvents="none" style={styles.compassBadge}>
@@ -4157,6 +4197,26 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#f4e9cd',
   },
+  layerPanel: {
+    position: 'absolute',
+    top: 144,
+    right: 12,
+    width: 340,
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(244,241,230,0.97)',
+    borderWidth: 2,
+    borderColor: '#2b2a27',
+  },
+  layerPanelHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  layerPanelTitle: { color: '#1f3b5c', fontSize: 15, fontWeight: '800', letterSpacing: 1 },
+  layerPanelClose: { color: '#2b2a27', fontSize: 16, fontWeight: '700' },
+  layerPanelQuick: { flexDirection: 'row', gap: 14, marginBottom: 6 },
+  layerPanelQuickText: { color: '#3b6e9c', fontSize: 13, fontWeight: '700', textDecorationLine: 'underline' },
+  layerGrid: { flexDirection: 'row', flexWrap: 'wrap' },
+  layerRow: { width: '50%', flexDirection: 'row', alignItems: 'center', paddingVertical: 3, paddingRight: 4 },
+  layerCheck: { fontSize: 16, color: '#2b2a27', width: 22 },
+  layerName: { fontSize: 11.5, color: '#2b2a27', flexShrink: 1 },
   planToggleText: {
     color: '#f4e9cd',
     fontSize: 13,

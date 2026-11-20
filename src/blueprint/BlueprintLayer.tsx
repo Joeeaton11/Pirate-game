@@ -6,22 +6,42 @@
 import React from 'react';
 import Svg, { Path, SvgXml, Text as SvgText } from 'react-native-svg';
 import { ISLAND_LIST, WORLD_HEIGHT, WORLD_WIDTH } from '../data/islands';
-import { TORTUGA_PLAN_SVG } from './tortugaPlanSvg';
+import { TORTUGA_PLAN_LAYERS } from './tortugaPlanSvg';
 
 export const PLAN_PAPER = '#f4f1e6';
 const INK = '#2b2a27';
 const GRID = '#8fb0cf';
 
-/** Tortuga's site plan, placed at the island's world position (static, renders once). */
-export const BlueprintLayer = React.memo(function BlueprintLayer({ origin }: { origin: { x: number; y: number } }) {
+export const PLAN_LAYERS = TORTUGA_PLAN_LAYERS;
+export const DEFAULT_PLAN_LAYERS: Record<string, boolean> = Object.fromEntries(TORTUGA_PLAN_LAYERS.map((l) => [l.id, l.on]));
+
+/** One layer of Tortuga's site plan at the island's world position (static, renders once). */
+const PlanLayerSvg = React.memo(function PlanLayerSvg({ svg, left, top }: { svg: string; left: number; top: number }) {
   return (
     <SvgXml
-      xml={TORTUGA_PLAN_SVG}
+      xml={svg}
       width={1240}
       height={1120}
       pointerEvents="none"
-      style={{ position: 'absolute', left: origin.x - 620, top: origin.y - 580, width: 1240, height: 1120 }}
+      style={{ position: 'absolute', left, top, width: 1240, height: 1120 }}
     />
+  );
+});
+
+/** Tortuga's site plan, stacked layer by layer (bottom to top); hidden layers aren't mounted. */
+export const BlueprintLayer = React.memo(function BlueprintLayer({
+  origin,
+  visible,
+}: {
+  origin: { x: number; y: number };
+  visible: Record<string, boolean>;
+}) {
+  return (
+    <>
+      {TORTUGA_PLAN_LAYERS.map((l) =>
+        l.id === 'paper' || visible[l.id] ? <PlanLayerSvg key={l.id} svg={l.svg} left={origin.x - 620} top={origin.y - 580} /> : null
+      )}
+    </>
   );
 });
 

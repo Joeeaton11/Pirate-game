@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-620 -580 1240 1120" width="1240" height="1120">
+<circle cx="30" cy="-100" r="4" fill="none" stroke="#117a65" stroke-width="0.6"/><path d="M24 -100h12M30 -106v12" stroke="#117a65" stroke-width="0.4"/>
+<text x="36" y="-105" font-family="Arial, Helvetica, sans-serif" font-size="3.2" font-weight="bold" fill="#0e6251" text-anchor="start">START / SPAWN</text>
+<circle cx="-10.0" cy="-422.0" r="4" fill="none" stroke="#117a65" stroke-width="0.6"/><path d="M-16.0 -422.0h12M-10.0 -428.0v12" stroke="#117a65" stroke-width="0.4"/>
+<text x="-4" y="-427" font-family="Arial, Helvetica, sans-serif" font-size="3.2" font-weight="bold" fill="#0e6251" text-anchor="start">BLACK PEARL MOORING</text>
+</svg>

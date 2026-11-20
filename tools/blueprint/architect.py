@@ -65,21 +65,62 @@ def text(x, y, t, size, weight='normal', color=INK, spacing=0, italic=False, anc
 
 P_ref = [None]
 
+# Layer order (bottom to top): id, name, shown by default, group.
+LAYERS = [
+    ('paper', 'Paper', True, 'base'),
+    ('grid', 'Drafting grid', True, 'base'),
+    ('sea', 'Sea, reef & breakwater', True, 'land'),
+    ('coast', 'Coastline & beaches', True, 'land'),
+    ('terrain', 'Terrain zones (woods, jungle, swamp)', True, 'land'),
+    ('farmland', 'Farmland', True, 'land'),
+    ('water', 'Rivers & lagoon', True, 'land'),
+    ('roads', 'Roads, paths & squares', True, 'build'),
+    ('bridges', 'Bridges', True, 'build'),
+    ('docks', 'Docks & piers', True, 'build'),
+    ('boats', 'Moored boats', True, 'build'),
+    ('trees', 'Trees & planting', True, 'nature'),
+    ('rocks', 'Rocks', True, 'nature'),
+    ('buildings', 'Buildings (homes, sheds)', True, 'build'),
+    ('interactive', 'Interactive buildings', True, 'build'),
+    ('entrances', 'Doors & entrances', True, 'build'),
+    ('props', 'Props', True, 'detail'),
+    ('pois', 'Treasure & resources', True, 'game'),
+    ('quests', 'Quest spots', True, 'game'),
+    ('walkmap', 'Walk map (blocked ground)', False, 'game'),
+    ('routes', 'Townsfolk routes', False, 'game'),
+    ('lighting', 'Night lighting', False, 'game'),
+    ('sound', 'Sound zones', False, 'game'),
+    ('spawns', 'Spawn & mooring points', False, 'game'),
+    ('places', 'Place names', True, 'names'),
+    ('names', 'Building names', True, 'names'),
+    ('titleblock', 'Title block, north arrow & scale', True, 'base'),
+]
+
 def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_rects, town_bldgs, painted_doors,
-             names, door_point, town_box, docks=(), breakwater=None):
+             names, door_point, town_box, docks=(), breakwater=None, extra=None):
+    """Returns {layer_id: svg_body}; wrap with svg_doc() to get a standalone SVG."""
+    import math
     P_ref[0] = P
-    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{X0} {Y0} {W} {H}" width="{W}" height="{H}">',
-         f'<rect x="{X0}" y="{Y0}" width="{W}" height="{H}" fill="{PAPER}"/>']
-    # Drafting grid: 10-unit minor, 50-unit major.
+    extra = extra or {}
+    layers = {lid: [] for lid, *_ in LAYERS}
+    cur = ['paper']
+    def L(lid): cur[0] = lid
+    class _O:
+        def append(self, x):
+            if x: layers[cur[0]].append(x)
+    o = _O()
+
+    L('paper'); o.append(f'<rect x="{X0}" y="{Y0}" width="{W}" height="{H}" fill="{PAPER}"/>')
+    L('grid')
     minor = ''.join(f'M{x} {Y0}V{Y0 + H}' for x in range(-620, 621, 10) if x % 50) + ''.join(f'M{X0} {y}H{X0 + W}' for y in range(Y0, Y0 + H + 1, 10) if y % 50)
     major = ''.join(f'M{x} {Y0}V{Y0 + H}' for x in range(-600, 601, 50)) + ''.join(f'M{X0} {y}H{X0 + W}' for y in range(-550, 541, 50))
     o.append(path(minor, GRID, 0.15, 'opacity="0.35"')); o.append(path(major, GRID, 0.3, 'opacity="0.6"'))
-    # Sea: chart-style offset lines outside the coast, reef stippled.
+
+    L('sea')
     for dist, w, op in ((5, 0.35, 0.7), (11, 0.3, 0.45), (18, 0.25, 0.25)):
         o.append(path(outline_d(coast.buffer(dist, join_style=1), drop=town_box), BLUE, w, f'opacity="{op}"'))
     for t, g in sea_zones:
         o.append(path(d_of(g), BLUE, 0.5, 'stroke-dasharray="1 1.6"'))
-    # Breakwater: a rubble arm, stippled between two broken lines.
     if breakwater is not None:
         o.append(f'<path d="{d_of(breakwater)}" fill="{PAPER}" stroke="{INK}" stroke-width="0.5" stroke-dasharray="2 1"/>')
         import random as _r
@@ -88,25 +129,41 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
             x, y = rg.uniform(minx, maxx), rg.uniform(miny, maxy)
             if breakwater.buffer(-1).contains(Point(x, y)): dots.append(f'M{f(x)} {f(y)}h0.6')
         o.append(path(''.join(dots), INK, 0.6, 'stroke-linecap="round"'))
-    # Coast, and the beach line inside it.
+
+    def urects(rs, simp=0.5, min_area=0, smooth=0):
+        u = unary_union([box(l, t, r, b) for l, r, t, b in rs])
+        if smooth: u = u.buffer(smooth, join_style=1).buffer(-smooth, join_style=1)
+        if min_area:
+            u = unary_union([p for p in (u.geoms if hasattr(u, 'geoms') else [u]) if p.area >= min_area])
+        return u.simplify(simp)
+    inside = town_box.buffer(-0.8)
+
+    L('coast')
     o.append(path(outline_d(coast, drop=town_box), INK, 1.4, 'stroke-linejoin="round"'))
     o.append(path(d_of(coast.buffer(-14).difference(town_box)), INK, 0.3, 'stroke-dasharray="2 2" opacity="0.7"'))
-    # Zones.
+    town_water = urects(town_rects['water'], 0.9, 30, 1.5)
+    o.append(path(outline_d(town_water, keep=inside), INK, 1.2, 'stroke-linejoin="round"'))
+    o.append(path(outline_d(town_water.buffer(5, join_style=1), keep=inside), BLUE, 0.35, 'opacity="0.7"'))
+    o.append(path(outline_d(urects(town_rects['sand'], 0.8, 20, 1.5), keep=inside), INK, 0.3, 'stroke-dasharray="2 2"'))
+
     for t, g in zone_geoms:
-        if t in ('jungle', 'forest', 'palms', 'swamp', 'garden'):
-            o.append(path(d_of(g), GREEN, 0.5, 'stroke-dasharray="4 2"'))
-            if t == 'swamp': o.append(path(hatch(g, 7, 0), GREEN, 0.25, 'stroke-dasharray="1.5 2.5" opacity="0.8"'))
+        if t in ('jungle', 'forest', 'palms', 'swamp', 'garden', 'rock', 'graveyard'):
+            L('terrain')
+            if t == 'rock': o.append(path(d_of(g), INK, 0.45, 'stroke-dasharray="1 1.5"'))
+            elif t == 'graveyard': o.append(path(d_of(g), INK, 0.5))
+            else:
+                o.append(path(d_of(g), GREEN, 0.5, 'stroke-dasharray="4 2"'))
+                if t == 'swamp': o.append(path(hatch(g, 7, 0), GREEN, 0.25, 'stroke-dasharray="1.5 2.5" opacity="0.8"'))
         elif t in ('fields', 'sugarcane'):
+            L('farmland')
             o.append(path(d_of(g), INK, 0.5))
             o.append(path(hatch(g, 4 if t == 'fields' else 3, 0 if t == 'fields' else 70), GREEN, 0.25))
-        elif t == 'rock':
-            o.append(path(d_of(g), INK, 0.45, 'stroke-dasharray="1 1.5"'))
-        elif t == 'graveyard':
-            o.append(path(d_of(g), INK, 0.5))
-    # Inland water: double bank line.
+
+    L('water')
     o.append(path(d_of(water), BLUE, 0.7))
     o.append(path(d_of(water.buffer(-1.6)), BLUE, 0.3))
-    # Roads: inked casing, plazas, then the paper carriageway over it (clean junctions).
+
+    L('roads')
     for _, k, w, pts in P.ROADS:
         pl = ' '.join(f'{x},{y}' for x, y in pts)
         dash = ' stroke-dasharray="2.5 1.5"' if k == 'path' else ''
@@ -116,118 +173,150 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     for _, k, w, pts in P.ROADS:
         pl = ' '.join(f'{x},{y}' for x, y in pts)
         o.append(f'<polyline points="{pl}" fill="none" stroke="{PAPER}" stroke-width="{w - 0.2}" stroke-linecap="round" stroke-linejoin="round"/>')
-    # Bridges: rails and planks.
+
+    L('bridges')
     if not bridges.is_empty:
         o.append(f'<path d="{d_of(bridges)}" fill="{PAPER}" stroke="{INK}" stroke-width="0.6"/>')
         for g in (bridges.geoms if hasattr(bridges, 'geoms') else [bridges]):
-            mrr = g.minimum_rotated_rectangle
-            import math
-            c = list(mrr.exterior.coords)
+            c = list(g.minimum_rotated_rectangle.exterior.coords)
             e1 = (c[1][0] - c[0][0], c[1][1] - c[0][1]); e2 = (c[2][0] - c[1][0], c[2][1] - c[1][1])
-            long_e = e1 if math.hypot(*e1) > math.hypot(*e2) else e2
-            ang = math.degrees(math.atan2(long_e[1], long_e[0])) + 90
-            o.append(path(hatch(g.buffer(-0.4), 1.6, ang), INK, 0.2))
-    # The painted town as a plan: outlines of water, planting, piers/wharf and buildings.
-    def urects(rs, simp=0.5, min_area=0, smooth=0):
-        u = unary_union([box(l, t, r, b) for l, r, t, b in rs])
-        if smooth: u = u.buffer(smooth, join_style=1).buffer(-smooth, join_style=1)
-        if min_area:
-            u = unary_union([p for p in (u.geoms if hasattr(u, 'geoms') else [u]) if p.area >= min_area])
-        return u.simplify(simp)
-    inside = town_box.buffer(-0.8)
-    # In the town the harbour's own water edge is the coastline, drawn as heavily as the coast.
-    o.append(path(outline_d(urects(town_rects['water'], 0.9, 30, 1.5), keep=inside), INK, 1.2, 'stroke-linejoin="round"'))
-    o.append(path(outline_d(urects(town_rects['water'], 0.9, 30, 1.5).buffer(5, join_style=1), keep=inside), BLUE, 0.35, 'opacity="0.7"'))
-    o.append(path(outline_d(urects(town_rects['garden'], 1.0, 25, 1.5), keep=inside), GREEN, 0.35, 'stroke-dasharray="3 1.5"'))
+            le = e1 if math.hypot(*e1) > math.hypot(*e2) else e2
+            o.append(path(hatch(g.buffer(-0.4), 1.6, math.degrees(math.atan2(le[1], le[0])) + 90), INK, 0.2))
+
+    L('docks')
     o.append(path(outline_d(urects(town_rects['wood'], 0.4), keep=inside), INK, 0.6))
-    o.append(path(outline_d(urects(town_rects['sand'], 0.8, 20, 1.5), keep=inside), INK, 0.3, 'stroke-dasharray="2 2"'))
-    # Docks: deck outline, planks across, piles along the edges; slipway ramps hatched lengthways.
     for n, k, w, g in docks:
         o.append(f'<path d="{d_of(g)}" fill="{PAPER}" stroke="{INK}" stroke-width="0.7"/>')
         c = list(g.minimum_rotated_rectangle.exterior.coords)
-        import math
         e1 = (c[1][0] - c[0][0], c[1][1] - c[0][1]); e2 = (c[2][0] - c[1][0], c[2][1] - c[1][1])
         le = e1 if math.hypot(*e1) > math.hypot(*e2) else e2
         ang = math.degrees(math.atan2(le[1], le[0]))
         o.append(path(hatch(g.buffer(-0.5), 1.8 if k != 'slip' else 1.4, ang + (0 if k == 'slip' else 90)), INK, 0.18))
         if k != 'slip':
-            edge = g.exterior; L = edge.length; piles = []
-            t = 0
-            while t < L:
+            edge = g.exterior; Ln = edge.length; piles = []; t = 0
+            while t < Ln:
                 p = edge.interpolate(t); piles.append(f'M{f(p.x - 0.7)} {f(p.y - 0.7)}h1.4v1.4h-1.4Z'); t += 8
             o.append(f'<path d="{"".join(piles)}" fill="{INK}"/>')
-    for x, y, hdg in getattr(P_ref[0], 'MOORED', []):
+
+    L('boats')
+    for x, y, hdg in getattr(P, 'MOORED', []):
         o.append(f'<g transform="translate({x},{y}) rotate({hdg})"><path d="M-7 0Q-4 -2.6 3 -2.4L7 0L3 2.4Q-4 2.6 -7 0Z" fill="{PAPER}" stroke="{INK}" stroke-width="0.45"/>'
                  f'<path d="M-4 0H4" stroke="{INK}" stroke-width="0.2"/></g>')
-    # Trees (canopy circles) and rocks.
+
     TR = {'jungle': 4, 'tree': 5, 'palm': 3.2, 'rock': 3.6, 'mangrove': 3.4}
     for kind in TR:
         r = TR[kind]
         d = ''.join(f'M{f(x - r)} {f(y)}a{r} {r} 0 1 0 {2 * r} 0a{r} {r} 0 1 0 {-2 * r} 0' for x, y, k in trees if k == kind)
-        if kind == 'rock': o.append(path(d, INK, 0.35, 'stroke-dasharray="0.8 0.8"'))
-        else: o.append(path(d, GREEN, 0.35))
-        if kind == 'palm':  # palm fronds: a small cross
-            o.append(path(''.join(f'M{f(x - 2)} {f(y)}h4M{f(x)} {f(y - 2)}v4' for x, y, k in trees if k == kind), GREEN, 0.25))
-    # Buildings: wall outline, inner wall line, door gap with a door leaf.
-    def building(l, t, w, h, door, thick=True):
-        s = f'<rect x="{f(l)}" y="{f(t)}" width="{f(w)}" height="{f(h)}" fill="{PAPER}" stroke="{INK}" stroke-width="0.8"/>'
-        if thick and w > 4 and h > 4:
-            s += f'<rect x="{f(l + 1)}" y="{f(t + 1)}" width="{f(w - 2)}" height="{f(h - 2)}" fill="none" stroke="{INK}" stroke-width="0.25"/>'
-        if door:
-            x, y = door; dw = 4.5
-            if abs(y - t) < 0.6 or abs(y - (t + h)) < 0.6:
-                s += f'<path d="M{f(x - dw / 2)} {f(y)}h{dw}" stroke="{PAPER}" stroke-width="1.6"/>'
-                sy = -1 if abs(y - (t + h)) < 0.6 else 1
-                s += f'<path d="M{f(x - dw / 2)} {f(y)}l0 {f(sy * dw)}" stroke="{INK}" stroke-width="0.35"/>'
-                s += f'<path d="M{f(x - dw / 2)} {f(y + sy * dw)}A{dw} {dw} 0 0 {1 if sy < 0 else 0} {f(x + dw / 2)} {f(y)}" fill="none" stroke="{INK}" stroke-width="0.2"/>'
-            else:
-                s += f'<path d="M{f(x)} {f(y - dw / 2)}v{dw}" stroke="{PAPER}" stroke-width="1.6"/>'
-                sx = -1 if abs(x - (l + w)) < 0.6 else 1
-                s += f'<path d="M{f(x)} {f(y - dw / 2)}l{f(sx * dw)} 0" stroke="{INK}" stroke-width="0.35"/>'
-                s += f'<path d="M{f(x + sx * dw)} {f(y - dw / 2)}A{dw} {dw} 0 0 {0 if sx < 0 else 1} {f(x)} {f(y + dw / 2)}" fill="none" stroke="{INK}" stroke-width="0.2"/>'
-        return s
+        if kind == 'rock':
+            L('rocks'); o.append(path(d, INK, 0.35, 'stroke-dasharray="0.8 0.8"'))
+        else:
+            L('trees'); o.append(path(d, GREEN, 0.35))
+            if kind == 'palm':
+                o.append(path(''.join(f'M{f(x - 2)} {f(y)}h4M{f(x)} {f(y - 2)}v4' for x, y, k in trees if k == kind), GREEN, 0.25))
+    L('trees')
+    o.append(path(outline_d(urects(town_rects['garden'], 1.0, 25, 1.5), keep=inside), GREEN, 0.35, 'stroke-dasharray="3 1.5"'))
+
+    def walls(l, t, w, h, hatched=False):
+        s_ = f'<rect x="{f(l)}" y="{f(t)}" width="{f(w)}" height="{f(h)}" fill="{PAPER}" stroke="{INK}" stroke-width="{0.9 if hatched else 0.8}"/>'
+        if w > 4 and h > 4:
+            s_ += f'<rect x="{f(l + 1)}" y="{f(t + 1)}" width="{f(w - 2)}" height="{f(h - 2)}" fill="none" stroke="{INK}" stroke-width="0.25"/>'
+        if hatched:  # interactive: light diagonal hatch inside the inner wall
+            s_ += path(hatch(box(l + 1.6, t + 1.6, l + w - 1.6, t + h - 1.6), 3, 45), INK, 0.12, 'opacity="0.6"')
+        return s_
+    def door_mark(x, y, side_h, outward):
+        dw = 4.5
+        if side_h:
+            sy = -outward
+            return (f'<path d="M{f(x - dw / 2)} {f(y)}h{dw}" stroke="{PAPER}" stroke-width="1.6"/>'
+                    f'<path d="M{f(x - dw / 2)} {f(y)}l0 {f(sy * dw)}" stroke="{INK}" stroke-width="0.35"/>'
+                    f'<path d="M{f(x - dw / 2)} {f(y + sy * dw)}A{dw} {dw} 0 0 {1 if sy < 0 else 0} {f(x + dw / 2)} {f(y)}" fill="none" stroke="{INK}" stroke-width="0.2"/>')
+        sx = -outward
+        return (f'<path d="M{f(x)} {f(y - dw / 2)}v{dw}" stroke="{PAPER}" stroke-width="1.6"/>'
+                f'<path d="M{f(x)} {f(y - dw / 2)}l{f(sx * dw)} 0" stroke="{INK}" stroke-width="0.35"/>'
+                f'<path d="M{f(x + sx * dw)} {f(y - dw / 2)}A{dw} {dw} 0 0 {0 if sx < 0 else 1} {f(x)} {f(y + dw / 2)}" fill="none" stroke="{INK}" stroke-width="0.2"/>')
     for b in P.BUILDINGS:
-        _, label, kind, cx, cy, w, h, side = b
-        o.append(building(cx - w / 2, cy - h / 2, w, h, door_point(b)))
+        bid, label, kind, cx, cy, w, h, side = b
+        l, t = cx - w / 2, cy - h / 2
+        L('interactive' if bid else 'buildings'); o.append(walls(l, t, w, h, hatched=bool(bid)))
+        d = door_point(b)
+        if d:
+            L('entrances'); o.append(door_mark(d[0], d[1], side in ('N', 'S'), 1 if side in ('S', 'E') else -1))
     for l, r, t, b in town_bldgs:
         ds = [(x, y) for _, x, y in painted_doors if l - 1 <= x <= r + 1 and abs(y - b) < 8]
-        o.append(building(l, t, r - l, b - t, None))
-        for x, _ in ds:
-            o.append(f'<path d="M{f(x - 2.2)} {f(b)}h4.4" stroke="{PAPER}" stroke-width="1.6"/>'
-                     f'<path d="M{f(x - 2.2)} {f(b)}l0 -4.4" stroke="{INK}" stroke-width="0.35"/>'
-                     f'<path d="M{f(x - 2.2)} {f(b - 4.4)}A4.4 4.4 0 0 1 {f(x + 2.2)} {f(b)}" fill="none" stroke="{INK}" stroke-width="0.2"/>')
-    # Props as small drafting symbols.
+        L('interactive' if ds else 'buildings'); o.append(walls(l, t, r - l, b - t, hatched=bool(ds)))
+        L('entrances')
+        for x, _ in ds: o.append(door_mark(x, b, True, 1))
+    L('entrances')
     for k, x, y in P.PROPS:
-        if k in ('well',): o.append(f'<circle cx="{x}" cy="{y}" r="2.2" fill="none" stroke="{INK}" stroke-width="0.35"/><circle cx="{x}" cy="{y}" r="1.2" fill="none" stroke="{BLUE}" stroke-width="0.3"/>')
+        if k == 'cave':
+            o.append(f'<path d="M{x - 3} {y + 1.5}A3 3 0 0 1 {x + 3} {y + 1.5}" fill="none" stroke="{INK}" stroke-width="0.6"/>'
+                     f'<path d="M{x - 3} {y + 1.5}h6" stroke="{INK}" stroke-width="0.3" stroke-dasharray="0.8 0.6"/>')
+
+    L('props')
+    for k, x, y in P.PROPS:
+        if k == 'well': o.append(f'<circle cx="{x}" cy="{y}" r="2.2" fill="none" stroke="{INK}" stroke-width="0.35"/><circle cx="{x}" cy="{y}" r="1.2" fill="none" stroke="{BLUE}" stroke-width="0.3"/>')
         elif k in ('crates', 'cart', 'bench'): o.append(f'<rect x="{x - 1.6}" y="{y - 1.6}" width="3.2" height="3.2" fill="none" stroke="{INK}" stroke-width="0.3"/>')
         elif k == 'grave': o.append(path(f'M{x} {y - 2}v4M{x - 1.2} {y - 0.8}h2.4', INK, 0.35))
         elif k == 'signpost': o.append(path(f'M{x} {y + 2}v-4M{x - 2} {y - 2}h4', INK, 0.4))
         elif k == 'boat': o.append(f'<ellipse cx="{x}" cy="{y}" rx="3.5" ry="1.4" fill="none" stroke="{INK}" stroke-width="0.35"/>')
         elif k == 'cannon': o.append(path(f'M{x - 2} {y}h4', INK, 0.9))
-        elif k == 'cave': o.append(f'<path d="M{x - 3} {y + 1.5}A3 3 0 0 1 {x + 3} {y + 1.5}" fill="none" stroke="{INK}" stroke-width="0.5"/>')
+        elif k == 'cave': pass
         else: o.append(f'<circle cx="{x}" cy="{y}" r="1.2" fill="none" stroke="{INK}" stroke-width="0.35"/>')
-    # Points of interest.
+
     for k, pid, x, y in pois:
         c = POI_COL[k]
-        if k == 'quest': o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="3" fill="none" stroke="{c}" stroke-width="0.7"/><circle cx="{f(x)}" cy="{f(y)}" r="0.9" fill="{c}"/>')
-        else: o.append(f'<path d="M{f(x)} {f(y - 3.6)}L{f(x + 3.6)} {f(y)}L{f(x)} {f(y + 3.6)}L{f(x - 3.6)} {f(y)}Z" fill="none" stroke="{c}" stroke-width="0.7"/>')
-    # Names.
+        if k == 'quest':
+            L('quests'); o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="3" fill="none" stroke="{c}" stroke-width="0.7"/><circle cx="{f(x)}" cy="{f(y)}" r="0.9" fill="{c}"/>')
+        else:
+            L('pois'); o.append(f'<path d="M{f(x)} {f(y - 3.6)}L{f(x + 3.6)} {f(y)}L{f(x)} {f(y + 3.6)}L{f(x - 3.6)} {f(y)}Z" fill="none" stroke="{c}" stroke-width="0.7"/>')
+
+    # ---- gameplay overlays
+    L('walkmap')
+    if extra.get('solids') is not None:
+        o.append(f'<path d="{d_of(extra["solids"])}" fill="#c0392b" fill-opacity="0.16" stroke="#c0392b" stroke-width="0.25" stroke-opacity="0.6"/>')
+    L('routes')
+    cols = ['#8e44ad', '#d35400', '#16a085', '#2c3e50', '#c0392b', '#2980b9']
+    for i, r in enumerate(extra.get('routes', [])):
+        pts = r + [r[0]]
+        o.append(f'<polyline points="{" ".join(f"{x},{y}" for x, y in pts)}" fill="none" stroke="{cols[i % 6]}" stroke-width="0.7" stroke-dasharray="3 1.5" stroke-linejoin="round"/>')
+        for a, b in zip(pts, pts[1:]):
+            mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+            ang = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
+            if math.hypot(b[0] - a[0], b[1] - a[1]) > 12:
+                o.append(f'<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="{cols[i % 6]}" transform="translate({f(mx)},{f(my)}) rotate({f(ang)})"/>')
+        o.append(f'<circle cx="{r[0][0]}" cy="{r[0][1]}" r="1.6" fill="{cols[i % 6]}"/>')
+    L('lighting')
+    for x, y in extra.get('lamps', []):
+        o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="10" fill="#f5b041" fill-opacity="0.12" stroke="#d68910" stroke-width="0.3" stroke-dasharray="1.5 1"/>'
+                 f'<circle cx="{f(x)}" cy="{f(y)}" r="1" fill="#d68910"/>')
+    L('sound')
+    for (l, t, r, b, label, op) in extra.get('sound', []):
+        o.append(f'<rect x="{l}" y="{t}" width="{r - l}" height="{b - t}" fill="#2e86c1" fill-opacity="{op}" stroke="#2e86c1" stroke-width="0.4" stroke-dasharray="4 2"/>')
+        o.append(text(l + 4, t + 8, label, 4, 'bold', '#1b4f72', anchor='start'))
+    L('spawns')
+    for x, y, label in extra.get('spawns', []):
+        o.append(f'<circle cx="{x}" cy="{y}" r="4" fill="none" stroke="#117a65" stroke-width="0.6"/>'
+                 f'<path d="M{x - 6} {y}h12M{x} {y - 6}v12" stroke="#117a65" stroke-width="0.4"/>')
+        o.append(text(x + 6, y - 5, label, 3.2, 'bold', '#0e6251', anchor='start'))
+
+    L('names')
     for b in P.BUILDINGS:
         bid, label, kind, cx, cy, w, h, side = b
         if label == 'Cottage': continue
         name = (names.get(bid) or label).upper()
-        size = min(2.6, (w - 3) / (len(name) * 0.72))  # fit inside the footprint
+        size = min(2.6, (w - 3) / (len(name) * 0.72))
         o.append(text(cx, cy + size * 0.4, name, round(size, 2), 'bold', spacing=0.1))
-    # Terraces hold several businesses: stagger neighbouring names so they don't run together.
     prev = None
-    for i, (did, x, y) in enumerate(sorted(painted_doors, key=lambda d: (d[2], d[1]))):
+    for did, x, y in sorted(painted_doors, key=lambda d: (d[2], d[1])):
         lift = 7.2 if prev and abs(prev[1] - y) < 1 and x - prev[0] < 24 and prev[2] == 3.2 else 3.2
         o.append(text(x, y - lift, (names.get(did) or did).upper(), 2.0, 'bold', spacing=0.15))
         prev = (x, y, lift)
-    for x, y, t, s in P.LABELS:
-        if s == 'district': o.append(text(x, y, t.upper(), 8, 'bold', '#1f3b5c', spacing=1.6))
+    L('places')
+    for x, y, t, s_ in P.LABELS:
+        if s_ == 'district': o.append(text(x, y, t.upper(), 8, 'bold', '#1f3b5c', spacing=1.6))
         else: o.append(text(x, y, t, 4.2, 'normal', INK, italic=True))
-    # North arrow, scale bar and title block (bottom right, over the sea).
+
+    L('titleblock')
     o.append(f'<g transform="translate(-570,-520)"><circle r="12" fill="none" stroke="{INK}" stroke-width="0.5"/>'
              f'<path d="M0 -10L4 6L0 3L-4 6Z" fill="{INK}"/>{text(0, -15, "N", 6, "bold")}</g>')
     tb = (420, 462, 190, 64)
@@ -241,5 +330,7 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         o.append(text(sx + i * 25, sy + 9, str(i * 25), 3))
     o.append(text(sx + 100, sy + 9, '100 units', 3, anchor='start'))
     o.append(text(tb[0] + 165, tb[1] + 52, 'grid 10 / 50', 3))
-    o.append('</svg>')
-    return '\n'.join(s for s in o if s)
+    return {k: '\n'.join(v) for k, v in layers.items()}
+
+def svg_doc(body):
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{X0} {Y0} {W} {H}" width="{W}" height="{H}">\n{body}\n</svg>'
