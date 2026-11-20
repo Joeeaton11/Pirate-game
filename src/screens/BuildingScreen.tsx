@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backgroundForBuilding } from '../data/buildingBackgrounds';
 import { BUILDINGS, BuildingType } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
@@ -248,6 +248,14 @@ export default function BuildingScreen({ navigation }: Props) {
     : null;
 
   const [roomPlayer, setRoomPlayer] = useState(() => interior?.entryPosition ?? { x: 0, y: 0 });
+  // The room's name shows as a short banner on the way in instead of a permanent header, so the
+  // whole screen below the status bar is room.
+  const insets = useSafeAreaInsets();
+  const [showRoomName, setShowRoomName] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setShowRoomName(false), 2500);
+    return () => clearTimeout(t);
+  }, []);
   const roomPlayerRef = useRef(roomPlayer);
   roomPlayerRef.current = roomPlayer;
   const directionRef = useRef<{ x: number; y: number } | null>(null);
@@ -867,16 +875,18 @@ export default function BuildingScreen({ navigation }: Props) {
   // which is the more forgiving default for an exact tie.
   depthSortedEntities.sort((a, b) => a.y - b.y);
 
-  const cameraX = clampCameraAxis(roomPlayer.x, interior.width, roomViewport.width, INTERIOR_ZOOM);
-  const cameraY = clampCameraAxis(roomPlayer.y, interior.height, roomViewport.height, INTERIOR_ZOOM);
+  // Zoom in at least INTERIOR_ZOOM, and further if needed so the room always fills the screen
+  // (no empty bands above and below a short room on a tall phone).
+  const roomZoom = Math.max(
+    INTERIOR_ZOOM,
+    roomViewport.width / interior.width,
+    roomViewport.height / interior.height
+  );
+  const cameraX = clampCameraAxis(roomPlayer.x, interior.width, roomViewport.width, roomZoom);
+  const cameraY = clampCameraAxis(roomPlayer.y, interior.height, roomViewport.height, roomZoom);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.roomHeader}>
-        <Text style={styles.buildingEmoji}>{building.emoji}</Text>
-        <Text style={styles.buildingName}>{building.name}</Text>
-      </View>
-
       <GestureDetector gesture={panGesture}>
         <View style={styles.roomOuter} onLayout={onLayoutRoomOuter}>
           {roomViewport.width > 0 && (
@@ -897,15 +907,15 @@ export default function BuildingScreen({ navigation }: Props) {
                     translateX:
                       roomViewport.width / 2 -
                       interior.width / 2 +
-                      INTERIOR_ZOOM * (interior.width / 2 - cameraX),
+                      roomZoom * (interior.width / 2 - cameraX),
                   },
                   {
                     translateY:
                       roomViewport.height / 2 -
                       interior.height / 2 +
-                      INTERIOR_ZOOM * (interior.height / 2 - cameraY),
+                      roomZoom * (interior.height / 2 - cameraY),
                   },
-                  { scale: INTERIOR_ZOOM },
+                  { scale: roomZoom },
                 ],
               },
             ]}
@@ -944,23 +954,29 @@ export default function BuildingScreen({ navigation }: Props) {
       </GestureDetector>
 
       {ambientMessage && (
-        <View style={styles.ambientToast}>
+        <View style={[styles.ambientToast, styles.roomOverlayBottom, { bottom: insets.bottom + 24 }]}>
           <Text style={styles.ambientToastText}>{ambientMessage}</Text>
         </View>
       )}
 
       {nearbyNpcId && !ambientMessage && (
-        <Pressable style={styles.talkButton} onPress={handleTalk}>
+        <Pressable style={[styles.talkButton, styles.roomOverlayBottom, { bottom: insets.bottom + 24 }]} onPress={handleTalk}>
           <Image source={ICON_SPEECH} resizeMode="contain" style={styles.talkButtonIcon} />
           <Text style={styles.talkButtonText}>Talk to {nearbyLabel}</Text>
         </Pressable>
       )}
 
-      <View style={styles.footer}>
-        <Pressable style={styles.leaveButton} onPress={handleLeaveBuilding}>
-          <Text style={styles.leaveButtonText}>Leave Building</Text>
-        </Pressable>
-      </View>
+      {showRoomName && (
+        <View style={[styles.roomNameBanner, { top: insets.top + 12 }]} pointerEvents="none">
+          <Text style={styles.roomNameText}>
+            {building.emoji} {building.name}
+          </Text>
+        </View>
+      )}
+
+      <Pressable style={[styles.roomLeavePill, { top: insets.top + 12 }]} onPress={handleLeaveBuilding} hitSlop={8}>
+        <Text style={styles.roomLeavePillText}>⬅ Leave</Text>
+      </Pressable>
     </SafeAreaView>
   );
 }
@@ -974,12 +990,12 @@ const styles = StyleSheet.create({
   // legible over a busy scene, but light enough that the art underneath still reads as art.
   counterScrim: { backgroundColor: 'rgba(0,0,0,0.32)' },
   header: { alignItems: 'center', paddingTop: 24, paddingBottom: 12 },
-  roomHeader: { alignItems: 'center', paddingTop: 12, paddingBottom: 8 },
   buildingEmoji: { fontSize: 40 },
   buildingName: { color: '#f4e9cd', fontSize: 18, fontWeight: '700', marginTop: 4 },
   roomOuter: {
     flex: 1,
     overflow: 'hidden',
+    backgroundColor: '#120b06',
   },
   room: {
     position: 'absolute',
@@ -1217,6 +1233,30 @@ const styles = StyleSheet.create({
   },
   theftBannerText: { color: '#f4e9cd', fontSize: 12, fontWeight: '600' },
   footer: { padding: 20, paddingTop: 8 },
+  roomNameBanner: {
+    position: 'absolute',
+    alignSelf: 'center',
+    backgroundColor: 'rgba(20,12,6,0.82)',
+    borderColor: '#c9a35a',
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  roomNameText: { color: '#f3dca4', fontWeight: '800', fontSize: 18 },
+  // Talk button and NPC one-liners float over the bottom of the room instead of taking a strip.
+  roomOverlayBottom: { position: 'absolute', marginBottom: 0 },
+  roomLeavePill: {
+    position: 'absolute',
+    left: 12,
+    backgroundColor: 'rgba(20,12,6,0.78)',
+    borderColor: '#c9a35a',
+    borderWidth: 1.5,
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  roomLeavePillText: { color: '#f3dca4', fontWeight: '800', fontSize: 14 },
   leaveButton: {
     backgroundColor: '#f4e9cd',
     paddingVertical: 14,
