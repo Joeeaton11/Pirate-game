@@ -190,7 +190,7 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
     npcSpots: [
       { id: 'main', x: 178, y: 118 }, // behind the bar
       { id: 'patron_tortuga_drunk', x: 41, y: 121, seated: true, seat: 'right' },
-      { id: 'patron_tortuga_local', x: 230, y: 158 },
+      { id: 'patron_tortuga_local', x: 262, y: 162 },
       { id: 'patron_tortuga_rival', x: 252, y: 200, seated: true },
       { id: 'patron_tortuga_mystic', x: 112, y: 264, seated: true },
       { id: 'tortuga_amb_sailor', x: 200, y: 220 },

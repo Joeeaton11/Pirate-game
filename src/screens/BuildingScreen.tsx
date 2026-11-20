@@ -145,6 +145,8 @@ const ROOM_UNITS_PER_FRAME = 4.2;
 const DOOR_ARM_DISTANCE = 26;
 /** Townsfolk walk-cycle speed (ms per frame) — their wander speed is fixed, so time-based is fine. */
 const NPC_WALK_FRAME_MS = 115;
+/** How close two townsfolk (or a townsperson and Scally) may get, in room units. */
+const NPC_PERSONAL_SPACE = 16;
 const DOOR_EXIT_RADIUS = 14;
 
 function facingFromVector(x: number, y: number): FacingDirection {
@@ -546,13 +548,43 @@ export default function BuildingScreen({ navigation }: Props) {
       // room feel lived-in rather than a static backdrop with icons pinned to it.
       const now = Date.now();
       let ambientMoved = false;
+      // Where everyone else is (and is heading), so nobody shares a seat or walks through anyone.
+      const others = (selfId: string) => {
+        const list: { x: number; y: number; tx?: number; ty?: number }[] = [];
+        for (const spot of interior.npcSpots) {
+          if (spot.id === selfId) continue;
+          const st = ambientWanderRef.current.get(spot.id);
+          if (st) list.push({ x: st.x, y: st.y, tx: st.target.x, ty: st.target.y });
+          else list.push({ x: spot.x, y: spot.y });
+        }
+        // the regulars sat at the bar count too
+        (interior.props ?? []).forEach((q) => {
+          if (q.kit.startsWith('bar_')) list.push({ x: q.x, y: q.y });
+        });
+        return list;
+      };
       for (const [id, waypoints] of Object.entries(ambientWaypoints)) {
         const state = ambientWanderRef.current.get(id);
         if (!state) continue;
         if (state.phase === 'paused') {
           if (now >= state.waitUntil) {
-            state.target = waypoints[Math.floor(Math.random() * waypoints.length)];
+            // Only pick a spot nobody is standing on, sitting at or already walking to.
+            const busy = others(id);
+            const free = waypoints.filter(
+              (w) =>
+                !busy.some(
+                  (o) =>
+                    Math.hypot(o.x - w.x, o.y - w.y) < NPC_PERSONAL_SPACE ||
+                    (o.tx !== undefined && Math.hypot(o.tx - w.x, o.ty! - w.y) < NPC_PERSONAL_SPACE)
+                )
+            );
+            if (!free.length) {
+              state.waitUntil = now + 1500;
+              continue;
+            }
+            state.target = free[Math.floor(Math.random() * free.length)];
             state.phase = 'walking';
+            state.seated = false;
           }
           continue;
         }
@@ -568,8 +600,25 @@ export default function BuildingScreen({ navigation }: Props) {
           // Seated NPCs linger much longer than ones just pausing mid-room.
           state.waitUntil = now + (state.seated ? 6000 + Math.random() * 9000 : 2000 + Math.random() * 4000);
         } else {
-          state.x += (dx / dist) * step;
-          state.y += (dy / dist) * step;
+          const nx = state.x + (dx / dist) * step;
+          const ny = state.y + (dy / dist) * step;
+          // Someone (or Scally) in the way: stop and wait for them to pass, then carry on or
+          // pick somewhere else.
+          const p = roomPlayerRef.current;
+          const blocked =
+            others(id).some((o) => {
+              const dNow = Math.hypot(o.x - state.x, o.y - state.y);
+              const dNext = Math.hypot(o.x - nx, o.y - ny);
+              return dNext < NPC_PERSONAL_SPACE && dNext < dNow;
+            }) || (Math.hypot(p.x - nx, p.y - ny) < NPC_PERSONAL_SPACE && Math.hypot(p.x - nx, p.y - ny) < Math.hypot(p.x - state.x, p.y - state.y));
+          if (blocked) {
+            state.phase = 'paused';
+            state.seated = false;
+            state.waitUntil = now + 700 + Math.random() * 900;
+          } else {
+            state.x = nx;
+            state.y = ny;
+          }
         }
         ambientMoved = true;
       }
