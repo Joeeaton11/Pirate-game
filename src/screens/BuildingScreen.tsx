@@ -104,10 +104,12 @@ interface FurnitureObstacle {
 function slideAroundFurniture(
   current: { x: number; y: number },
   raw: { x: number; y: number },
-  obstacles: FurnitureObstacle[]
+  obstacles: FurnitureObstacle[],
+  walls: { l: number; r: number; t: number; b: number }[] = []
 ): { x: number; y: number } {
   const blocked = (pos: { x: number; y: number }) =>
-    obstacles.some((o) => Math.hypot(pos.x - o.x, pos.y - o.y) < o.radius);
+    obstacles.some((o) => Math.hypot(pos.x - o.x, pos.y - o.y) < o.radius) ||
+    walls.some((w) => pos.x > w.l - WALL_PAD && pos.x < w.r + WALL_PAD && pos.y > w.t - WALL_PAD && pos.y < w.b + WALL_PAD);
   if (!blocked(raw)) return raw;
   const slideX = { x: raw.x, y: current.y };
   if (!blocked(slideX)) return slideX;
@@ -115,6 +117,9 @@ function slideAroundFurniture(
   if (!blocked(slideY)) return slideY;
   return current;
 }
+
+/** How close Scally's feet may get to a painted wall, in room units. */
+const WALL_PAD = 3;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -370,7 +375,8 @@ export default function BuildingScreen({ navigation }: Props) {
         roomPlayerRef.current = slideAroundFurniture(
           roomPlayerRef.current,
           { x: rawX, y: rawY },
-          furnitureObstacles
+          furnitureObstacles,
+          interior.walls
         );
         setRoomPlayer(roomPlayerRef.current);
       }
@@ -798,7 +804,8 @@ export default function BuildingScreen({ navigation }: Props) {
   const backgroundFurnitureNodes: React.ReactNode[] = [];
   const depthSortedEntities: { key: string; y: number; node: React.ReactNode }[] = [];
 
-  interior.furniture.forEach((item, i) => {
+  // A painted room already shows its furniture: the list is collision and seating data only.
+  (interior.backdrop ? [] : interior.furniture).forEach((item, i) => {
     if (item.type === 'rug' || item.type === 'door' || item.type === 'prop') {
       backgroundFurnitureNodes.push(
         <React.Fragment key={`bg-${i}`}>{renderFurniture(item, i)}</React.Fragment>
@@ -903,7 +910,15 @@ export default function BuildingScreen({ navigation }: Props) {
               },
             ]}
           >
-            <Image source={backgroundSource} style={StyleSheet.absoluteFill} resizeMode="cover" />
+            {interior.backdrop ? (
+              <Image
+                source={interior.backdrop}
+                style={{ position: 'absolute', left: 0, top: 0, width: interior.width, height: interior.height }}
+                resizeMode="stretch"
+              />
+            ) : (
+              <Image source={backgroundSource} style={StyleSheet.absoluteFill} resizeMode="cover" />
+            )}
 
             {backgroundFurnitureNodes}
 

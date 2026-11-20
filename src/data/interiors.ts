@@ -1,3 +1,5 @@
+import { ImageSourcePropType } from 'react-native';
+
 export type FurnitureType =
   | 'counter'
   | 'table'
@@ -65,66 +67,65 @@ export interface BuildingInterior {
   entryPosition: { x: number; y: number };
   furniture: InteriorFurniture[];
   npcSpots: InteriorNpcSpot[];
+  /** A painted room (one picture covering width x height). When set, the furniture list is
+   * invisible collision/seating data only — the picture already shows every table and barrel. */
+  backdrop?: ImageSourcePropType;
+  /** Solid areas of a painted room (walls, the staircase, the fireplace, the bar's back), in room
+   * units. Only used with a backdrop. */
+  walls?: { l: number; r: number; t: number; b: number }[];
 }
 
 /** Hand-authored floor plans. Buildings without an entry here get a generic room via
  * fallbackInterior() instead — nothing is left without a walkable interior. */
 export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
+  // Painted room (2026-11-20), styled on the "Jolly Roger" reference: bar along the back wall,
+  // skull rug in the middle, tables in the corners, stairs left, fireplace right, door bottom
+  // centre. Coordinates are read off assets/sprites/interiors/tavern_salty_parrot.jpg (360 x 360).
   tortuga_tavern: {
     buildingId: 'tortuga_tavern',
     width: 360,
-    height: 340,
-    entryPosition: { x: 180, y: 310 },
+    height: 360,
+    entryPosition: { x: 180, y: 262 },
+    backdrop: require('../../assets/sprites/interiors/tavern_salty_parrot.jpg'),
+    walls: [
+      { l: 0, r: 360, t: 0, b: 84 }, // back wall
+      { l: 0, r: 22, t: 0, b: 360 }, // left wall
+      { l: 336, r: 360, t: 0, b: 360 }, // right wall
+      { l: 0, r: 148, t: 262, b: 360 }, // front wall, left of the door
+      { l: 212, r: 360, t: 262, b: 360 }, // front wall, right of the door
+      { l: 0, r: 360, t: 292, b: 360 }, // outside, below the door step
+      { l: 108, r: 250, t: 84, b: 124 }, // bar counter
+      { l: 0, r: 75, t: 115, b: 165 }, // staircase
+      { l: 0, r: 72, t: 172, b: 232 }, // wanted-poster partition
+      { l: 312, r: 360, t: 98, b: 205 }, // fireplace
+    ],
     furniture: [
-      // Floor + fixed furniture
-      { type: 'rug', x: 170, y: 180 },
-      { type: 'counter', x: 170, y: 36, width: 260, height: 26 },
-      { type: 'stool', x: 75, y: 74 },
-      { type: 'stool', x: 140, y: 74 },
-      { type: 'stool', x: 200, y: 74 },
-      { type: 'stool', x: 265, y: 74 },
-      { type: 'table', x: 80, y: 150 },
-      { type: 'chair', x: 80, y: 112 },
-      { type: 'chair', x: 80, y: 188 },
-      { type: 'chair', x: 42, y: 150 },
-      { type: 'chair', x: 118, y: 150 },
-      { type: 'table', x: 170, y: 215 },
-      { type: 'chair', x: 170, y: 177 },
-      { type: 'chair', x: 170, y: 253 },
-      { type: 'chair', x: 132, y: 215 },
-      { type: 'chair', x: 208, y: 215 },
-      { type: 'table', x: 260, y: 150 },
-      { type: 'chair', x: 260, y: 112 },
-      { type: 'chair', x: 260, y: 188 },
-      { type: 'chair', x: 222, y: 150 },
-      { type: 'chair', x: 298, y: 150 },
-      { type: 'barrel', x: 300, y: 255 },
-      { type: 'barrel', x: 18, y: 150 },
-      { type: 'barrel', x: 342, y: 150 },
-      { type: 'stool', x: 320, y: 100 },
-      // Walls & atmosphere
-      { type: 'door', x: 180, y: 328, fontSize: 26 },
-      { type: 'prop', x: 170, y: 12, emoji: '🦜', fontSize: 24 },
-      { type: 'prop', x: 55, y: 12, emoji: '🏴‍☠️', fontSize: 22 },
-      { type: 'prop', x: 285, y: 12, emoji: '🗺️', fontSize: 22 },
-      { type: 'prop', x: 16, y: 95, emoji: '🪟', fontSize: 22 },
-      { type: 'prop', x: 344, y: 235, emoji: '🪟', fontSize: 22 },
-      { type: 'prop', x: 22, y: 272, emoji: '🔥', fontSize: 24 },
-      { type: 'prop', x: 342, y: 300, emoji: '🪴', fontSize: 22 },
-      { type: 'prop', x: 300, y: 280, emoji: '🐈', fontSize: 20 },
-      { type: 'prop', x: 335, y: 88, emoji: '🎯', fontSize: 26 },
-      { type: 'prop', x: 110, y: 34, emoji: '🕯️', fontSize: 16 },
-      { type: 'prop', x: 230, y: 34, emoji: '🕯️', fontSize: 16 },
+      { type: 'table', x: 66, y: 106 },
+      { type: 'table', x: 285, y: 112 },
+      { type: 'table', x: 282, y: 182 },
+      { type: 'table', x: 258, y: 240 },
+      { type: 'table', x: 82, y: 248 },
+      { type: 'barrel', x: 325, y: 232 },
+      { type: 'barrel', x: 24, y: 240 },
+      { type: 'stool', x: 135, y: 128 },
+      { type: 'stool', x: 213, y: 128 },
+      { type: 'stool', x: 250, y: 132 },
+      { type: 'stool', x: 282, y: 142 },
+      { type: 'chair', x: 255, y: 172 },
+      { type: 'stool', x: 258, y: 205 },
+      { type: 'chair', x: 233, y: 228 },
+      { type: 'chair', x: 108, y: 230 },
+      { type: 'stool', x: 90, y: 125 },
     ],
     npcSpots: [
-      { id: 'main', x: 170, y: 36 },
-      { id: 'patron_tortuga_drunk', x: 80, y: 150 },
-      { id: 'patron_tortuga_local', x: 230, y: 95 },
-      { id: 'patron_tortuga_rival', x: 320, y: 100 },
-      { id: 'patron_tortuga_mystic', x: 40, y: 230 },
-      { id: 'tortuga_amb_sailor', x: 55, y: 110 },
-      { id: 'tortuga_amb_cook', x: 330, y: 190 },
-      { id: 'tortuga_amb_lass', x: 250, y: 280 },
+      { id: 'main', x: 178, y: 98 },
+      { id: 'patron_tortuga_drunk', x: 98, y: 128 },
+      { id: 'patron_tortuga_local', x: 250, y: 130 },
+      { id: 'patron_tortuga_rival', x: 300, y: 150 },
+      { id: 'patron_tortuga_mystic', x: 112, y: 232 },
+      { id: 'tortuga_amb_sailor', x: 55, y: 205 },
+      { id: 'tortuga_amb_cook', x: 250, y: 205 },
+      { id: 'tortuga_amb_lass', x: 225, y: 236 },
     ],
   },
   tortuga_fort: {
