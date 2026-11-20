@@ -69,31 +69,39 @@ P_ref = [None]
 LAYERS = [
     ('paper', 'Paper', True, 'base'),
     ('grid', 'Drafting grid', True, 'base'),
-    ('sea', 'Sea, reef & breakwater', True, 'land'),
-    ('coast', 'Coastline & beaches', True, 'land'),
-    ('terrain', 'Terrain zones (woods, jungle, swamp)', True, 'land'),
+    ('sea', 'Sea, reef, breakwater', True, 'land'),
+    ('coast', 'Coast & beaches', True, 'land'),
+    ('terrain', 'Terrain zones', True, 'land'),
     ('farmland', 'Farmland', True, 'land'),
     ('water', 'Rivers & lagoon', True, 'land'),
-    ('roads', 'Roads, paths & squares', True, 'build'),
+    ('roads', 'Roads & squares', True, 'build'),
     ('bridges', 'Bridges', True, 'build'),
     ('docks', 'Docks & piers', True, 'build'),
     ('boats', 'Moored boats', True, 'build'),
     ('trees', 'Trees & planting', True, 'nature'),
     ('rocks', 'Rocks', True, 'nature'),
-    ('buildings', 'Buildings (homes, sheds)', True, 'build'),
+    ('buildings', 'Homes & sheds', True, 'build'),
     ('interactive', 'Interactive buildings', True, 'build'),
     ('entrances', 'Doors & entrances', True, 'build'),
     ('props', 'Props', True, 'detail'),
     ('pois', 'Treasure & resources', True, 'game'),
     ('quests', 'Quest spots', True, 'game'),
-    ('walkmap', 'Walk map (blocked ground)', False, 'game'),
+    ('height', 'Height & cliffs', False, 'land'),
+    ('surface', 'Ground surface', False, 'land'),
+    ('districts', 'Districts', False, 'names'),
+    ('roofs', 'Roofs', False, 'build'),
+    ('danger', 'Danger zones', False, 'game'),
+    ('shipping', 'Shallows & lanes', False, 'game'),
+    ('discovery', 'Discovery areas', False, 'game'),
+    ('triggers', 'Quest triggers', False, 'game'),
+    ('walkmap', 'Walk map', False, 'game'),
     ('routes', 'Townsfolk routes', False, 'game'),
     ('lighting', 'Night lighting', False, 'game'),
     ('sound', 'Sound zones', False, 'game'),
-    ('spawns', 'Spawn & mooring points', False, 'game'),
+    ('spawns', 'Spawn & mooring', False, 'game'),
     ('places', 'Place names', True, 'names'),
     ('names', 'Building names', True, 'names'),
-    ('titleblock', 'Title block, north arrow & scale', True, 'base'),
+    ('titleblock', 'Title block', True, 'base'),
 ]
 
 def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_rects, town_bldgs, painted_doors,
@@ -269,6 +277,110 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
             L('quests'); o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="3" fill="none" stroke="{c}" stroke-width="0.7"/><circle cx="{f(x)}" cy="{f(y)}" r="0.9" fill="{c}"/>')
         else:
             L('pois'); o.append(f'<path d="M{f(x)} {f(y - 3.6)}L{f(x + 3.6)} {f(y)}L{f(x)} {f(y + 3.6)}L{f(x - 3.6)} {f(y)}Z" fill="none" stroke="{c}" stroke-width="0.7"/>')
+
+    # ---- height: contour lines (every 5 m, index every 20 m) and cliff hachures
+    L('height')
+    for lvl, d_, index in extra.get('contours', []):
+        o.append(path(d_, '#8a5a2b', 0.45 if index else 0.25, '' if index else 'opacity="0.8"'))
+    for x, y, lvl in extra.get('contour_labels', []):
+        o.append(text(x, y, f'{lvl}m', 2.6, 'normal', '#8a5a2b'))
+    if extra.get('cliffs'):
+        o.append(path(extra['cliffs'], INK, 0.35))
+    for x, y, h in extra.get('peaks', []):
+        o.append(f'<path d="M{x} {y - 2.4}L{x + 2.1} {y + 1.4}L{x - 2.1} {y + 1.4}Z" fill="#8a5a2b"/>')
+        o.append(text(x, y + 6, f'{h}m', 3, 'bold', '#8a5a2b'))
+
+    # ---- ground surface: patterned fills
+    L('surface')
+    o.append('<defs>'
+             '<pattern id="pCobble" width="3" height="3" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.05" fill="none" stroke="#7f7a6c" stroke-width="0.18"/></pattern>'
+             '<pattern id="pDirt" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.25" fill="#9c7a4f"/><circle cx="3" cy="2.6" r="0.2" fill="#9c7a4f"/></pattern>'
+             '<pattern id="pSand" width="3" height="3" patternUnits="userSpaceOnUse"><circle cx="0.8" cy="0.8" r="0.18" fill="#b89b55"/><circle cx="2.2" cy="2.1" r="0.18" fill="#b89b55"/></pattern>'
+             '<pattern id="pGrass" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M2 5l0.6 -1.4M3 5l0 -1.6M4 5l-0.6 -1.4" stroke="#6b8f4e" stroke-width="0.2"/></pattern>'
+             '<pattern id="pPlank" width="2" height="2" patternUnits="userSpaceOnUse"><path d="M0 1H2" stroke="#8a6a44" stroke-width="0.2"/></pattern>'
+             '</defs>')
+    for key, pat, col in (('grass', 'pGrass', '#6b8f4e'), ('sand', 'pSand', '#b89b55'), ('dirt', 'pDirt', '#9c7a4f'),
+                          ('cobble', 'pCobble', '#7f7a6c'), ('plank', 'pPlank', '#8a6a44')):
+        g = extra.get('surfaces', {}).get(key)
+        if g is not None and not g.is_empty:
+            o.append(f'<path d="{d_of(g)}" fill="url(#{pat})" fill-rule="evenodd" stroke="{col}" stroke-width="0.2" stroke-opacity="0.6"/>')
+    lx, ly = -600, 300
+    o.append(f'<rect x="{lx - 4}" y="{ly - 10}" width="70" height="66" fill="{PAPER}" stroke="{INK}" stroke-width="0.4"/>')
+    o.append(text(lx, ly - 2, 'GROUND SURFACE', 3.4, 'bold', anchor='start'))
+    for i, (n_, pat) in enumerate((('Grass', 'pGrass'), ('Sand', 'pSand'), ('Dirt road', 'pDirt'), ('Cobbles', 'pCobble'), ('Planks', 'pPlank'))):
+        o.append(f'<rect x="{lx}" y="{ly + 4 + i * 10}" width="12" height="7" fill="url(#{pat})" stroke="{INK}" stroke-width="0.3"/>')
+        o.append(text(lx + 16, ly + 9.5 + i * 10, n_, 3.2, anchor='start'))
+
+    # ---- districts
+    L('districts')
+    for name_, g, cx, cy in extra.get('districts', []):
+        o.append(path(d_of(g), '#6c3483', 0.6, 'stroke-dasharray="6 2 1.5 2" stroke-linejoin="round"'))
+        o.append(text(cx, cy, name_.upper(), 4.6, 'bold', '#6c3483', spacing=0.8))
+
+    # ---- roofs: eaves outline, ridge and hip lines (hipped roofs, ridge along the long side)
+    L('roofs')
+    def roof(l, t, w, h):
+        e = 1.2
+        L_, T_, W_, H_ = l - e, t - e, w + 2 * e, h + 2 * e
+        s_ = f'<rect x="{f(L_)}" y="{f(T_)}" width="{f(W_)}" height="{f(H_)}" fill="none" stroke="#7b241c" stroke-width="0.45"/>'
+        if W_ >= H_:
+            y_ = T_ + H_ / 2; a_ = L_ + H_ / 2; b_ = L_ + W_ - H_ / 2
+            if b_ < a_: a_ = b_ = L_ + W_ / 2
+            s_ += path(f'M{f(a_)} {f(y_)}H{f(b_)}M{f(L_)} {f(T_)}L{f(a_)} {f(y_)}L{f(L_)} {f(T_ + H_)}M{f(L_ + W_)} {f(T_)}L{f(b_)} {f(y_)}L{f(L_ + W_)} {f(T_ + H_)}', '#7b241c', 0.35)
+        else:
+            x_ = L_ + W_ / 2; a_ = T_ + W_ / 2; b_ = T_ + H_ - W_ / 2
+            if b_ < a_: a_ = b_ = T_ + H_ / 2
+            s_ += path(f'M{f(x_)} {f(a_)}V{f(b_)}M{f(L_)} {f(T_)}L{f(x_)} {f(a_)}L{f(L_ + W_)} {f(T_)}M{f(L_)} {f(T_ + H_)}L{f(x_)} {f(b_)}L{f(L_ + W_)} {f(T_ + H_)}', '#7b241c', 0.35)
+        return s_
+    for b in P.BUILDINGS:
+        _, label, kind, cx, cy, w, h, side = b
+        o.append(roof(cx - w / 2, cy - h / 2, w, h))
+    for l, r, t, b in town_bldgs:
+        o.append(roof(l, t, r - l, b - t))
+
+    # ---- danger & encounter zones
+    L('danger')
+    for kind_, g, label, col in extra.get('danger', []):
+        if kind_ == 'ring':
+            x, y, r = g
+            o.append(f'<circle cx="{x}" cy="{y}" r="{r}" fill="{col}" fill-opacity="0.12" stroke="{col}" stroke-width="0.6" stroke-dasharray="3 1.5"/>')
+            o.append(text(x, y - r - 2, label, 3.4, 'bold', col))
+        else:
+            o.append(f'<path d="{d_of(g)}" fill="{col}" fill-opacity="0.06" fill-rule="evenodd" stroke="{col}" stroke-width="0.6" stroke-dasharray="5 2"/>')
+            lx_, ly_ = label[1]
+            o.append(text(lx_, ly_, label[0], 5, 'bold', col, spacing=0.6))
+
+    # ---- shallows & shipping lanes
+    L('shipping')
+    if extra.get('shallows') is not None:
+        o.append('<defs><pattern id="pShallow" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 4L4 0" stroke="#5dade2" stroke-width="0.3"/></pattern></defs>')
+        o.append(f'<path d="{d_of(extra["shallows"])}" fill="url(#pShallow)" fill-rule="evenodd" stroke="#5dade2" stroke-width="0.4"/>')
+        o.append(text(-470, -300, 'SHALLOWS', 4, 'bold', '#2e86c1', spacing=1))
+    for name_, pts in getattr(P, 'LANES', []):
+        o.append(f'<polyline points="{" ".join(f"{x},{y}" for x, y in pts)}" fill="none" stroke="#1a5276" stroke-width="1.2" stroke-dasharray="6 3" stroke-linejoin="round"/>')
+        for a, b in zip(pts, pts[1:]):
+            mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+            ang = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
+            o.append(f'<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate({f(mx)},{f(my)}) rotate({f(ang)})"/>')
+        o.append(text(pts[-1][0], pts[-1][1] + 7, name_.upper(), 3.6, 'bold', '#1a5276', spacing=0.5))
+
+    # ---- discovery areas: fog over everything not known at the start, reveal points marked
+    L('discovery')
+    for name_, g, cx, cy, known in extra.get('districts_disc', []):
+        if known:
+            o.append(path(d_of(g), '#117a65', 0.6))
+            o.append(text(cx, cy + 6, 'KNOWN FROM THE START', 3, 'bold', '#117a65'))
+        else:
+            o.append(f'<path d="{d_of(g)}" fill="#5d6d7e" fill-opacity="0.13" stroke="#5d6d7e" stroke-width="0.4" stroke-dasharray="2 2"/>')
+            o.append(f'<circle cx="{cx}" cy="{cy}" r="14" fill="none" stroke="#5d6d7e" stroke-width="0.5" stroke-dasharray="1.5 1"/>')
+            o.append(text(cx, cy + 1.6, '?', 6, 'bold', '#5d6d7e'))
+
+    # ---- quest triggers: invisible circles that start something when Scally walks in
+    L('triggers')
+    for x, y, r, label in extra.get('triggers', []):
+        o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="{r}" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>')
+        o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="0.9" fill="#ca6f1e"/>')
+        o.append(text(x, y - r - 1.5, label, 2.8, 'bold', '#a04000'))
 
     # ---- gameplay overlays
     L('walkmap')

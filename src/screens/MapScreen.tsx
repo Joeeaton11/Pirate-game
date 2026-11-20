@@ -4214,7 +4214,7 @@ const styles = StyleSheet.create({
   layerPanelQuick: { flexDirection: 'row', gap: 14, marginBottom: 6 },
   layerPanelQuickText: { color: '#3b6e9c', fontSize: 13, fontWeight: '700', textDecorationLine: 'underline' },
   layerGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  layerRow: { width: '50%', flexDirection: 'row', alignItems: 'center', paddingVertical: 3, paddingRight: 4 },
+  layerRow: { width: '50%', flexDirection: 'row', alignItems: 'center', paddingVertical: 2, paddingRight: 4 },
   layerCheck: { fontSize: 16, color: '#2b2a27', width: 22 },
   layerName: { fontSize: 11.5, color: '#2b2a27', flexShrink: 1 },
   planToggleText: {

@@ -228,6 +228,93 @@ extra = {
     'sound': [(-170, -470, 320, -340, 'HARBOUR: SURF & GULLS (LOUD)', 0.10), (-170, -340, 320, -200, 'HARBOUR: SURF (FADING)', 0.05)],
     'spawns': [(30, -100, 'START / SPAWN'), (mx, my, 'BLACK PEARL MOORING')],
 }
+# ---- height field, contours, cliffs
+from skimage import measure
+GX0, GY0, GS = -620, -580, 3
+gw, gh = int(1240 / GS) + 1, int(1120 / GS) + 1
+xs = GX0 + np.arange(gw) * GS; ys = GY0 + np.arange(gh) * GS
+XX, YY = np.meshgrid(xs, ys)
+hf = np.zeros_like(XX, dtype=float)
+for hx, hy, hh, rx, ry in P.HILLS:
+    hf += hh * np.exp(-2.2 * (((XX - hx) / rx) ** 2 + ((YY - hy) / ry) ** 2))
+from shapely import contains_xy
+land = contains_xy(coast, XX, YY)
+from scipy.ndimage import distance_transform_edt
+dist = distance_transform_edt(land) * GS
+hf = np.where(land, hf * np.clip(dist / 30, 0, 1) + np.clip(dist / 40, 0, 1) * 3, 0.0)
+def height_at(x, y):
+    i = int(round((x - GX0) / GS)); j = int(round((y - GY0) / GS))
+    return float(hf[min(max(j, 0), gh - 1), min(max(i, 0), gw - 1)])
+contours, clabels = [], []
+for lvl in range(5, 45, 5):
+    lines = []
+    for c in measure.find_contours(hf, lvl):
+        pts = [(GX0 + cc[1] * GS, GY0 + cc[0] * GS) for cc in c]
+        if len(pts) < 4: continue
+        ln = LineString(pts).simplify(0.6).difference(town_box)
+        if not ln.is_empty and ln.length > 12: lines.append(ln)
+    if not lines: continue
+    u = unary_union(lines)
+    contours.append((lvl, architect.lines_d(u if u.geom_type != 'GeometryCollection' else unary_union([g for g in u.geoms if 'Line' in g.geom_type])), lvl % 20 == 0))
+    if lvl % 10 == 0:
+        longest = max((g for g in (u.geoms if hasattr(u, 'geoms') else [u])), key=lambda g: g.length)
+        pt = longest.interpolate(0.5, normalized=True); clabels.append((round(pt.x, 1), round(pt.y, 1), lvl))
+peaks = [(hx, hy, int(round(height_at(hx, hy)))) for hx, hy, hh, rx, ry in P.HILLS if hh >= 12]
+cliff = []
+ext = coast.exterior; Lc = ext.length; t = 0
+while t < Lc:
+    p0 = ext.interpolate(t); p1 = ext.interpolate(min(Lc, t + 1))
+    dx, dy = p1.x - p0.x, p1.y - p0.y; n = math.hypot(dx, dy) or 1
+    nx, ny = -dy / n, dx / n
+    if not coast.contains(Point(p0.x + nx * 4, p0.y + ny * 4)): nx, ny = -nx, -ny
+    if not town_box.contains(p0) and height_at(p0.x + nx * 8, p0.y + ny * 8) > 9:
+        cliff.append(f'M{p0.x:.1f} {p0.y:.1f}l{nx * 3.2:.1f} {ny * 3.2:.1f}')
+    t += 2.5
+# ---- ground surfaces
+def U(rs): return unary_union([box(l, t_, r, b) for l, r, t_, b in rs])
+dock_union = unary_union([g for *_, g in dock_geoms])
+surfaces = {
+    'cobble': unary_union([U(town_rects['street'])] + plaza_geoms).simplify(0.4),
+    'plank': unary_union([U(town_rects['wood']), dock_union, bridges]).simplify(0.4),
+    'sand': unary_union([beach, U(town_rects['sand'])]).difference(ways).simplify(0.4),
+    'dirt': unary_union(road_geoms).difference(town_box).difference(bridges).simplify(0.4),
+}
+surfaces['grass'] = coast.difference(town_box).difference(unary_union([beach, ways, water] + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane')])).simplify(0.6)
+# ---- districts (Voronoi of the seeds, clipped to the island; Basse-Terre is the painted town)
+from shapely.ops import voronoi_diagram
+from shapely.geometry import MultiPoint
+seeds = [d for d in P.DISTRICTS if d[0] != 'Basse-Terre']
+vor = voronoi_diagram(MultiPoint([(x, y) for _, x, y, _ in seeds]), envelope=box(-700, -700, 700, 700))
+land_out = coast.buffer(2).difference(town_box)
+districts = []
+for name_, x, y, known in P.DISTRICTS:
+    if name_ == 'Basse-Terre':
+        g = town_box.intersection(coast.buffer(60))
+    else:
+        cell = next(c for c in vor.geoms if c.contains(Point(x, y)))
+        g = cell.intersection(land_out)
+    if g.is_empty: continue
+    if g.geom_type == 'MultiPolygon': g = max(g.geoms, key=lambda q: q.area)
+    rp = g.representative_point() if not g.contains(Point(x, y)) else Point(x, y)
+    districts.append((name_, g.simplify(0.5), round(rp.x, 1), round(rp.y, 1), known))
+# ---- danger, shipping, triggers
+enter_r = 26
+danger = [
+    ('area', coast, ('SAFE ZONE  ·  NO WILD ENCOUNTERS ON TORTUGA', (40, 140)), '#1e8449'),
+    ('area', coast.buffer(30, join_style=1).difference(coast.buffer(29, join_style=1)) , ('OPEN SEA  ·  ENCOUNTERS WHILE SAILING', (-300, -520)), '#b03a2e'),
+    ('ring', (mx, my, enter_r), 'DUEL: CAPTAIN ODESSA KANE (UNTIL THE SHIP IS WON)', '#b03a2e'),
+]
+shallows = coast.buffer(22, join_style=1).difference(coast).difference(town_box)
+shallows = unary_union([shallows] + [g.buffer(10) for _, g in sea_zones]).simplify(0.6)
+trig = [(x, y, 9, '') for _, x, y in doors] + [(b[3] + 0, b[4] + 0, 0, '') for b in []]
+trig += [(door_point(b)[0], door_point(b)[1], 9, '') for b in P.BUILDINGS if b[0]]
+trig += [(mx, my, enter_r, 'BOARD / DUEL FOR THE BLACK PEARL')]
+for k, pid, x, y in pois:
+    if k in ('quest', 'treasure', 'resource'):
+        trig.append((x, y, enter_r, pid.replace('_', ' ').upper()))
+extra.update({'contours': contours, 'contour_labels': clabels, 'cliffs': ''.join(cliff), 'peaks': peaks,
+              'surfaces': surfaces, 'districts': [(n, g, x, y) for n, g, x, y, k in districts],
+              'districts_disc': districts, 'danger': danger, 'shallows': shallows, 'triggers': trig})
 parts = architect.make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_rects, town_bldgs, doors,
                            S.building_names(), door_point, town_box, dock_geoms, breakwater, extra)
 import os

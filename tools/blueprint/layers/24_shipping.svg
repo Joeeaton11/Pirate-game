@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-620 -580 1240 1120" width="1240" height="1120">
+<defs><pattern id="pShallow" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 4L4 0" stroke="#5dade2" stroke-width="0.3"/></pattern></defs>
+<path d="M-61.5 -458.5L-89.1 -478.1L-94.9 -480.4L-101.2 -481L-107.3 -479.7L-112.9 -476.8L-133.9 -455L-103.7 -455L-100 -459L-94.4 -455L-58.3 -455ZM-150 -434.5L-150.8 -425.4L-150 -421.5ZM-156.7 -348.4L-160.8 -341.1L-162 -334.9L-161.8 -330.7L-159 -322.9L-150 -310.3L-150 -354.1ZM470.9 -254.9L477.1 -252L519.1 -248L522.7 -248.4L526.8 -250.7L552.8 -274.7L555.7 -279.7L555.9 -283.6L549.9 -319.6L547.2 -324.9L504.8 -348.8L499.8 -350L451 -338.7L448 -336L446.3 -332.4L446.5 -319.4L433.3 -361.6L431.2 -365.4L426.8 -370.1L327.1 -450.4L321.3 -453.1L314.9 -454L308.6 -453L300 -449.6L300 -425.8L315 -432L413 -353L453 -225L585 -111L585 93L559 165L414 347L300 414L286 394L118 394L117 463L59 473L24 504L-53 491L-166 431L-218 450L-345 411L-449 285L-425 117L-456 70L-585 -27L-585 -79L-558 -120L-434 -216L-348 -241L-330 -320L-279 -379L-270 -452L-211 -504L-199 -486L-241 -434L-249 -321L-168 -228L-150 -229.8L-150 -251.9L-158.9 -251L-226.4 -328.6L-219.5 -425.6L-181.9 -472.2L-179.5 -475.8L-177.4 -481.8L-177.1 -488.2L-179.6 -496.4L-192.7 -516.2L-197.1 -521.1L-202.8 -524.4L-209.2 -525.9L-215.8 -525.5L-222 -523.1L-284.5 -468.5L-288.9 -463.3L-291.8 -454.7L-300 -388.3L-349.1 -330.9L-351.5 -324.9L-366.6 -258.5L-440.1 -237.1L-445.8 -234.6L-574.9 -134L-603.4 -91.1L-606.1 -85.3L-607 -79L-606.5 -22.5L-602.9 -14.3L-598.2 -9.4L-472.3 85.3L-448 122.1L-470.8 281.9L-470.2 291L-466 299L-358.9 428L-351.5 432L-220.5 471.9L-210.4 470.7L-167.7 455L-61.2 511.4L20.3 525.7L29 525.4L36.9 521.8L68.9 493.6L122.9 484.2L126.9 482.6L132.2 478.9L137.2 471.8L138.9 465.5L139.7 416L274.5 416L283.3 428.3L288.3 432.6L294.3 435.2L302.9 435.8L311.1 433L425.1 366L431.2 360.7L577.6 176.8L605.7 100.5L606.9 94.9L607 -111L606.1 -117.2L603.5 -122.9L599.4 -127.7L472.1 -237.5L463.2 -266.2Z" fill="url(#pShallow)" fill-rule="evenodd" stroke="#5dade2" stroke-width="0.4"/>
+<text x="-470" y="-300" font-family="Arial, Helvetica, sans-serif" font-size="4" font-weight="bold" fill="#2e86c1" text-anchor="middle" letter-spacing="1">SHALLOWS</text>
+<polyline points="-10,-432 150,-444 300,-458 382,-482 450,-570" fill="none" stroke="#1a5276" stroke-width="1.2" stroke-dasharray="6 3" stroke-linejoin="round"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(70,-438) rotate(-4.3)"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(225,-451) rotate(-5.3)"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(341,-470) rotate(-16.3)"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(416,-526) rotate(-52.3)"/>
+<text x="450" y="-563" font-family="Arial, Helvetica, sans-serif" font-size="3.6" font-weight="bold" fill="#1a5276" text-anchor="middle" letter-spacing="0.5">EAST CHANNEL</text>
+<polyline points="-10,-432 -120,-478 -200,-524 -300,-575" fill="none" stroke="#1a5276" stroke-width="1.2" stroke-dasharray="6 3" stroke-linejoin="round"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(-65,-455) rotate(-157.3)"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(-160,-501) rotate(-150.1)"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(-250,-549.5) rotate(-153)"/>
+<text x="-300" y="-568" font-family="Arial, Helvetica, sans-serif" font-size="3.6" font-weight="bold" fill="#1a5276" text-anchor="middle" letter-spacing="0.5">WEST CHANNEL</text>
+<polyline points="196,480 214,540 230,580" fill="none" stroke="#1a5276" stroke-width="1.2" stroke-dasharray="6 3" stroke-linejoin="round"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(205,510) rotate(73.3)"/>
+<path d="M-2.4 -1.8L2.4 0L-2.4 1.8Z" fill="#1a5276" transform="translate(222,560) rotate(68.2)"/>
+<text x="230" y="587" font-family="Arial, Helvetica, sans-serif" font-size="3.6" font-weight="bold" fill="#1a5276" text-anchor="middle" letter-spacing="0.5">SOUTH ANCHORAGE</text>
+</svg>

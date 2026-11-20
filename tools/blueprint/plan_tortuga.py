@@ -226,3 +226,34 @@ DOCKS = [
 BREAKWATER = [(-273, -555), (46, -447), (351, -505)]
 # Boats tied up at the docks (x, y, heading degrees) — outlines only.
 MOORED = [(-176, -414, 90), (-200, -366, 0), (196, 476, 30), (158, 506, -80), (-28, 520, 80), (-200, 480, 85)]
+
+# ---- Height: hills as (x, y, peak height in metres, radius x, radius y). Summed into a height
+# field for contour lines; coast where the land is high becomes cliff.
+HILLS = [
+    (500, -30, 42, 110, 120),     # the High Woods hill
+    (-240, -430, 26, 40, 80),     # Lighthouse Head
+    (368, -372, 30, 50, 40),      # the fort's crag
+    (-40, 230, 22, 170, 110),     # Blackwood ridge
+    (-445, 320, 26, 55, 55),      # grotto cliffs
+    (90, 440, 12, 45, 30),        # the graves' knoll
+    (-560, -60, 6, 50, 60),       # swamp hummock
+    (-330, -30, 6, 90, 70),       # Cayonne rise
+]
+
+# ---- Districts: seeds for the district map (Voronoi, clipped to the island). Basse-Terre is the
+# painted town itself. (name, x, y, revealed at start?)
+DISTRICTS = [
+    ('Basse-Terre', 75, -200, True),
+    ('Cayonne', -330, -40, False), ('Lighthouse Head', -240, -400, False),
+    ("Contrebandiers' Cove", -545, -50, False), ('Palm Shore', -410, 180, False),
+    ('Crossroads', -240, 370, False), ("Blackwood's Hollow", -20, 230, False),
+    ('Southern Shore', 40, 450, False), ('La Ringot', 320, 240, False), ('The High Woods', 495, 10, False),
+    ('Rocher Row', 372, -230, False), ('Fort de Rocher', 366, -372, False), ('King\'s Meadows', 120, 80, False),
+]
+
+# ---- Shipping lanes for the Black Pearl round the breakwater: (name, points).
+LANES = [
+    ('East Channel', [(-10, -432), (150, -444), (300, -458), (382, -482), (450, -570)]),
+    ('West Channel', [(-10, -432), (-120, -478), (-200, -524), (-300, -575)]),
+    ('South Anchorage', [(196, 480), (214, 540), (230, 580)]),
+]
