@@ -102,6 +102,8 @@ interface GameState {
   foundSkulls: string[];
   /** Messages in bottles already read. */
   readBottles: string[];
+  /** Dig-spot clues already read (so the journal and tracker can show them). */
+  seenClues: string[];
   currentBlackfinStageId: string | null;
   completedBlackfinStageIds: string[];
   currentGraceStageId: string | null;
@@ -177,6 +179,7 @@ interface GameState {
   digSpot: (id: string, gold: number) => boolean;
   findSkull: (district: string) => boolean;
   readBottle: (id: string) => boolean;
+  seeClue: (id: string) => void;
   /** Pay for something with gold; false if you can't afford it. */
   spendGold: (amount: number) => boolean;
   /** Turn resources into another at a fixed rate (e.g. 3 sugarcane -> 1 rum); false if short. */
@@ -222,6 +225,7 @@ type InitialState = Pick<
   | 'dugSpots'
   | 'foundSkulls'
   | 'readBottles'
+  | 'seenClues'
   | 'currentBlackfinStageId'
   | 'completedBlackfinStageIds'
   | 'currentGraceStageId'
@@ -269,6 +273,7 @@ function createInitialState(): InitialState {
     dugSpots: [],
     foundSkulls: [],
     readBottles: [],
+    seenClues: [],
     currentBlackfinStageId: null,
     completedBlackfinStageIds: [],
     currentGraceStageId: null,
@@ -522,6 +527,9 @@ export const useGameStore = create<GameState>()(
         if (get().dugSpots.includes(id)) return false;
         set({ dugSpots: [...get().dugSpots, id], gold: get().gold + gold });
         return true;
+      },
+      seeClue: (id) => {
+        if (!get().seenClues.includes(id)) set({ seenClues: [...get().seenClues, id] });
       },
       readBottle: (id) => {
         if (get().readBottles.includes(id)) return false;
@@ -887,6 +895,7 @@ export const useGameStore = create<GameState>()(
         dugSpots: state.dugSpots,
         foundSkulls: state.foundSkulls,
         readBottles: state.readBottles,
+        seenClues: state.seenClues,
         completedBlackfinStageIds: state.completedBlackfinStageIds,
         completedGraceStageIds: state.completedGraceStageIds,
       }),

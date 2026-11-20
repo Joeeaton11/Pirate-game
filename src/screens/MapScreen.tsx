@@ -56,6 +56,7 @@ import {
 } from '../blueprint/planEditing';
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
+import { autoTarget, JournalPanel, TrackerArrow, TrackTarget, targetDone } from '../town/Journal';
 import {
   BP_BOTTLES,
   BP_DIGS,
@@ -946,6 +947,13 @@ export default function MapScreen({ navigation }: Props) {
   const insideSpotsRef = useRef<Set<string>>(new Set());
   // Whole-island view: zoomed right out over the island Scally is on; movement pauses.
   const [overview, setOverview] = useState(false);
+  // Ship's journal and the guidance arrow (null = follow the nearest errand automatically).
+  const [showJournal, setShowJournal] = useState(false);
+  const [tracked, setTracked] = useState<TrackTarget | null>(null);
+  const dugSpots = useGameStore((s) => s.dugSpots);
+  const seenClues = useGameStore((s) => s.seenClues);
+  const foundSkulls = useGameStore((s) => s.foundSkulls);
+  const readBottles = useGameStore((s) => s.readBottles);
   const overviewRef = useRef(false);
   overviewRef.current = overview;
   // Plan editor: drag buildings, props and trees; edits saved on the device and exportable.
@@ -2111,7 +2119,10 @@ export default function MapScreen({ navigation }: Props) {
         };
         BP_DIGS.forEach((d) => {
           if (st.dugSpots.includes(d.id)) return;
-          enter(`clue:${d.id}`, Math.hypot(rx - d.lx, ry - d.ly) <= 12, () => showResourceToast(`📜 ${d.landmark}: ${d.clue}`, 4500));
+          enter(`clue:${d.id}`, Math.hypot(rx - d.lx, ry - d.ly) <= 12, () => {
+            st.seeClue(d.id);
+            showResourceToast(`📜 ${d.landmark}: ${d.clue}`, 4500);
+          });
           enter(`dig:${d.id}`, Math.hypot(rx - d.x, ry - d.y) <= 4, () => {
             if (st.digSpot(d.id, d.gold)) showResourceToast(`⛏️ You dig where the clue said… ${d.gold} gold!`, 3200);
           });
@@ -4074,6 +4085,32 @@ export default function MapScreen({ navigation }: Props) {
           </Pressable>
         )}
 
+        {(() => {
+          if (overview || editMode || showJournal || !viewport.width) return null;
+          const o = ISLANDS.tortuga_cove.position;
+          const rel = { x: player.x - o.x, y: player.y - o.y };
+          if (Math.abs(rel.x) > 620 || Math.abs(rel.y) > 580) return null;
+          const progress = {
+            completedErrands,
+            dugSpots,
+            seenClues,
+            foundSkulls,
+            readBottles,
+            discoveredDistricts,
+            resources: resourcesHeld,
+            ferryUnlocked,
+          };
+          const live = tracked && !targetDone(tracked, progress) ? tracked : autoTarget(progress, rel);
+          // A tracked dig points at its landmark until you've read the clue there, then at the spot.
+          const t =
+            live?.kind === 'dig'
+              ? (() => {
+                  const d = BP_DIGS.find((x) => x.id === live.id);
+                  return d && Math.hypot(rel.x - d.lx, rel.y - d.ly) < 14 ? { ...live, x: d.x, y: d.y } : live;
+                })()
+              : live;
+          return <TrackerArrow target={t} rel={rel} centre={{ x: viewport.width / 2, y: viewport.height / 2 }} />;
+        })()}
         {nearbyErrandId && (() => {
           const e = BP_ERRANDS.find((er) => er.id === nearbyErrandId);
           if (!e) return null;
@@ -4193,6 +4230,39 @@ export default function MapScreen({ navigation }: Props) {
           >
             <Text style={styles.planToggleText}>{editMode ? '✓ Done' : '✏️ Edit'}</Text>
           </Pressable>
+        )}
+        {!editMode && (
+          <Pressable
+            style={[styles.planToggle, { top: planMode ? 220 : 144 }]}
+            onPress={() => {
+              directionRef.current = null;
+              setShowLayerPanel(false);
+              setShowJournal((v) => !v);
+            }}
+            hitSlop={6}
+          >
+            <Text style={styles.planToggleText}>📖 Journal</Text>
+          </Pressable>
+        )}
+        {showJournal && (
+          <JournalPanel
+            progress={{
+              completedErrands,
+              dugSpots,
+              seenClues,
+              foundSkulls,
+              readBottles,
+              discoveredDistricts,
+              resources: resourcesHeld,
+              ferryUnlocked,
+            }}
+            tracked={tracked}
+            onTrack={(t) => {
+              setTracked(t);
+              if (t) setShowJournal(false);
+            }}
+            onClose={() => setShowJournal(false)}
+          />
         )}
         {planMode && editMode && (
           <View style={styles.editBar}>
