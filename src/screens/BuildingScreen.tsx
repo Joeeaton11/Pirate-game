@@ -129,6 +129,8 @@ const ROOM_UNITS_PER_FRAME = 4.2;
 /** Leaving by the door: once he has walked this far from where he came in, stepping back onto the
  * door (or a painted room's exit zone) takes him outside. */
 const DOOR_ARM_DISTANCE = 26;
+/** Townsfolk walk-cycle speed (ms per frame) — their wander speed is fixed, so time-based is fine. */
+const NPC_WALK_FRAME_MS = 115;
 const DOOR_EXIT_RADIUS = 14;
 
 function facingFromVector(x: number, y: number): FacingDirection {
@@ -301,9 +303,20 @@ export default function BuildingScreen({ navigation }: Props) {
     if (!interior) return map;
     const seats = interior.furniture.filter((f) => f.type === 'chair' || f.type === 'stool');
     for (const spot of interior.npcSpots) {
-      if (spot.id === 'main') continue;
-      if (patronQuests.some((q) => q.id === spot.id)) continue;
-      if (!AMBIENT_NPCS[spot.id]) continue;
+      // Keepers and quest-givers with a walk cycle pace a few steps either side of their spot
+      // (so they stay easy to find and talk to); everyone else is a free-roaming local.
+      const sprite = NPC_SPRITES[spot.id === 'main' ? `${interior.buildingId}:main` : spot.id];
+      const pinned = spot.id === 'main' || patronQuests.some((q) => q.id === spot.id) || !AMBIENT_NPCS[spot.id];
+      if (pinned) {
+        if (!sprite?.walk) continue;
+        const reach = spot.id === 'main' ? 26 : 12;
+        map[spot.id] = [
+          { x: spot.x, y: spot.y, seat: false },
+          { x: spot.x - reach, y: spot.y, seat: false },
+          { x: spot.x + reach, y: spot.y, seat: false },
+        ];
+        continue;
+      }
       const nearbySeats = seats
         .filter((s) => Math.hypot(s.x - spot.x, s.y - spot.y) <= AMBIENT_SEAT_RADIUS)
         .map((s) => ({ x: s.x, y: s.y, seat: true }));
@@ -904,21 +917,27 @@ export default function BuildingScreen({ navigation }: Props) {
     const hasOpenQuest = !!patronQuest && !completedQuestIds.includes(patronQuest.id);
     // Ambient NPCs report their live wandered position; everyone else stays pinned to their
     // authored floor-plan spot.
-    const live = ambient ? ambientPositions[spot.id] : undefined;
+    const live = ambientPositions[spot.id];
     const x = live?.x ?? spot.x;
     const y = live?.y ?? spot.y;
     const seated = live?.seated ?? false;
     const sprite = NPC_SPRITES[isMain ? `${building.id}:main` : spot.id];
     if (sprite) {
-      // Painted character: drawn the same height as Scally, feet on the spot.
-      const h = ROOM_SCALLY_H * 0.95;
-      const w = h * sprite.aspect;
+      // Painted character: drawn the same height as Scally, feet on the spot. While walking
+      // between spots they play their side-view walk cycle, flipped to face the way they go.
+      const wander = ambientWanderRef.current.get(spot.id);
+      const walking = !!sprite.walk && wander?.phase === 'walking';
+      const goingLeft = walking && wander!.target.x < wander!.x;
+      const frames = walking ? (goingLeft ? sprite.walkLeft! : sprite.walk!) : null;
+      const src = frames ? frames[Math.floor(Date.now() / NPC_WALK_FRAME_MS) % frames.length] : sprite.src;
+      const h = ROOM_SCALLY_H * 0.95 * (frames ? sprite.walkScale ?? 1 : 1);
+      const w = h * (frames ? sprite.walkAspect ?? sprite.aspect : sprite.aspect);
       depthSortedEntities.push({
         key: spot.id,
         y,
         node: (
           <View style={{ position: 'absolute', left: x - w / 2, top: y - h, width: w, height: h }}>
-            <Image source={sprite.src} resizeMode="contain" style={{ width: w, height: h }} />
+            <Image source={src} resizeMode="contain" style={{ width: w, height: h }} />
             {hasOpenQuest && (
               <Image
                 source={ICON_EXCLAIM}
