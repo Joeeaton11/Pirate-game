@@ -15,4 +15,10 @@ export const ROOM_KIT: Record<string, KitPiece> = {
   stool: { src: require('../../assets/sprites/interiors/kit/stool.png'), w: 22, h: 20.5 },
   barrel: { src: require('../../assets/sprites/interiors/kit/barrel.png'), w: 27, h: 31 },
   crates: { src: require('../../assets/sprites/interiors/kit/crates.png'), w: 32, h: 34.75 },
+  /** A local sat at the bar, seen from behind (stool included). */
+  bar_red: { src: require('../../assets/sprites/interiors/kit/bar_red.png'), w: 24.6, h: 40 },
+  /** A local sat at the bar, seen from behind (stool included). */
+  bar_deckhand: { src: require('../../assets/sprites/interiors/kit/bar_deckhand.png'), w: 20.7, h: 40 },
+  /** A local sat at the bar, seen from behind (stool included). */
+  bar_old: { src: require('../../assets/sprites/interiors/kit/bar_old.png'), w: 24.3, h: 40 },
 };

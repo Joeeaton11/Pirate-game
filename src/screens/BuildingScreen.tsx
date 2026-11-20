@@ -65,12 +65,13 @@ const AMBIENT_WANDER_SPEED = 40; // world units per second
 // How far from an ambient NPC's registered spot a chair/stool counts as "their" seat. Keeps a
 // tavern sailor circulating around the bar he's stood at rather than wandering across the whole
 // room to sit at a table on the far side.
-const AMBIENT_SEAT_RADIUS = 110;
+const AMBIENT_SEAT_RADIUS = 140;
 
 interface AmbientWaypoint {
   x: number;
   y: number;
   seat: boolean;
+  facing?: 'front' | 'right';
 }
 
 interface AmbientWanderState {
@@ -120,6 +121,18 @@ function slideAroundFurniture(
   if (!blocked(slideY)) return slideY;
   return current;
 }
+
+/** One-liners townsfolk call out as you pass. Keyed by NPC spot id. */
+const CHATTER: Record<string, string[]> = {
+  default: ['Ahoy!', 'Mind yer purse, lad.', 'Fair winds.', 'Seen any treasure?'],
+  patron_tortuga_drunk: ['Another round!', '*hic* ...where was I?', 'Best rum in Tortuga!'],
+  patron_tortuga_rival: ['Keep walkin\', boy.', 'This table\'s taken.', 'Watch yerself.'],
+  patron_tortuga_mystic: ['The cards speak of you...', 'Cross my palm with gold.', 'I see a storm coming.'],
+  patron_tortuga_local: ['What\'ll it be?', 'Coming through!', 'Mind the tray!'],
+  tortuga_amb_sailor: ['Fair winds, lad.', 'Sea\'s choppy today.', 'Seen a kraken once.'],
+  tortuga_amb_cook: ['Stew\'s nearly ready!', 'Don\'t ask what\'s in it.', 'Hungry, captain?'],
+  tortuga_amb_lass: ['Buy me a drink?', 'Nice hat, captain.', 'Ooh, a monkey!'],
+};
 
 /** Scally and Cheeky in rooms, in room units (a painted room is 360 across; its door ~45 wide). */
 const ROOM_SCALLY_W = 40;
@@ -282,6 +295,17 @@ export default function BuildingScreen({ navigation }: Props) {
   const [roomCheeky, setRoomCheeky] = useState<{ x: number; y: number } | null>(null);
   const doorArmedRef = useRef(false);
   const leavingRef = useRef(false);
+  // Townsfolk call out a line when you walk past (one at a time, each at most every 15 s).
+  const [chatter, setChatter] = useState<{ id: string; text: string; until: number } | null>(null);
+  const chatterRef = useRef<{ id: string; text: string; until: number } | null>(null);
+  const lastChatRef = useRef<Record<string, number>>({});
+  // Re-render a few times a second for candle flicker and the bobbing parrot.
+  const [flickerT, setFlickerT] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setFlickerT(Date.now()), 140);
+    return () => clearInterval(t);
+  }, []);
+  const idleSinceRef = useRef(Date.now());
   useEffect(() => {
     const t = setInterval(() => setRoomAnim((a) => (a.moving ? a : { ...a, idle: a.idle + 1 })), 160);
     return () => clearInterval(t);
@@ -320,7 +344,9 @@ export default function BuildingScreen({ navigation }: Props) {
       }
       const nearbySeats = seats
         .filter((s) => Math.hypot(s.x - spot.x, s.y - spot.y) <= AMBIENT_SEAT_RADIUS)
-        .map((s) => ({ x: s.x, y: s.y, seat: true }));
+        // painted rooms: a side-on seat needs a side sitting pose
+        .filter((s) => !interior.backdrop || (s.facing === 'right' ? !!sprite?.sitSide : true))
+        .map((s) => ({ x: s.x, y: s.y, seat: true, facing: s.facing }));
       map[spot.id] = [{ x: spot.x, y: spot.y, seat: false }, ...nearbySeats];
     }
     return map;
@@ -457,16 +483,27 @@ export default function BuildingScreen({ navigation }: Props) {
           leavingRef.current = true;
           handleLeaveBuilding();
         }
+        idleSinceRef.current = Date.now();
       } else {
         setRoomAnim((a) => (a.moving ? { ...a, moving: false } : a));
       }
 
-      // Cheeky follows a little behind and to the side.
+      // Cheeky follows a little behind and to the side — and if Scally stands still for a bit
+      // next to an empty stool, Cheeky hops up onto it.
       {
         const p = roomPlayerRef.current;
         const c = cheekyRef.current ?? { x: p.x - 16, y: p.y + 2 };
-        const tx = p.x - 15;
-        const ty = p.y + 3;
+        let tx = p.x - 15;
+        let ty = p.y + 3;
+        if (Date.now() - idleSinceRef.current > 2500) {
+          const stool = (interior.props ?? []).find(
+            (q) => q.kit === 'stool' && Math.hypot(q.x - p.x, q.y - p.y) < 60
+          );
+          if (stool) {
+            tx = stool.x;
+            ty = stool.y - 9;
+          }
+        }
         const d = Math.hypot(tx - c.x, ty - c.y);
         if (d > 1) {
           const k = Math.min(1, (dt * ROOM_SPEED * 1.05) / d);
@@ -475,6 +512,32 @@ export default function BuildingScreen({ navigation }: Props) {
         } else if (!cheekyRef.current) {
           cheekyRef.current = c;
           setRoomCheeky(c);
+        }
+      }
+
+      // Chatter: the nearest townsperson within earshot says something.
+      {
+        const nowC = Date.now();
+        if (chatterRef.current && nowC > chatterRef.current.until) {
+          chatterRef.current = null;
+          setChatter(null);
+        }
+        if (!chatterRef.current) {
+          const p = roomPlayerRef.current;
+          for (const spot of interior.npcSpots) {
+            if (spot.id === 'main') continue;
+            const live = ambientWanderRef.current.get(spot.id);
+            const nx = live ? live.x : spot.x;
+            const ny = live ? live.y : spot.y;
+            if (Math.hypot(p.x - nx, p.y - ny) > 46) continue;
+            if (nowC - (lastChatRef.current[spot.id] ?? 0) < 15000) continue;
+            const lines = CHATTER[spot.id] ?? CHATTER.default;
+            const c = { id: spot.id, text: lines[Math.floor(Math.random() * lines.length)], until: nowC + 2600 };
+            lastChatRef.current[spot.id] = nowC;
+            chatterRef.current = c;
+            setChatter(c);
+            break;
+          }
         }
       }
 
@@ -932,20 +995,44 @@ export default function BuildingScreen({ navigation }: Props) {
       const walking = !!sprite.walk && wander?.phase === 'walking';
       const goingLeft = walking && wander!.target.x < wander!.x;
       const frames = walking ? (goingLeft ? sprite.walkLeft! : sprite.walk!) : null;
-      const sitting = !walking && !!sprite.sit && (spot.seated || seated);
+      const isSeated = !walking && (spot.seated || seated);
+      const facing = spot.seated ? spot.seat ?? 'front' : wander?.target.facing ?? 'front';
+      const sideSit = isSeated && facing === 'right' && !!sprite.sitSide;
+      const sitting = isSeated && !sideSit && !!sprite.sit;
+      const pouring = isMain && nearbyNpcId === 'main' && !walking && !!sprite.pour;
       const src = frames
         ? frames[Math.floor(Date.now() / NPC_WALK_FRAME_MS) % frames.length]
+        : sideSit
+        ? sprite.sitSide!
         : sitting
         ? sprite.sit!
+        : pouring
+        ? sprite.pour!
         : sprite.src;
-      const h = ROOM_SCALLY_H * 0.95 * (frames ? sprite.walkScale ?? 1 : sitting ? 0.8 : 1);
-      const w = h * (frames ? sprite.walkAspect ?? sprite.aspect : sitting ? sprite.sitAspect ?? sprite.aspect : sprite.aspect);
+      const h = ROOM_SCALLY_H * 0.95 * (frames ? sprite.walkScale ?? 1 : sitting || sideSit ? 0.8 : 1);
+      const w =
+        h *
+        (frames
+          ? sprite.walkAspect ?? sprite.aspect
+          : sideSit
+          ? sprite.sitSideAspect ?? sprite.aspect
+          : sitting
+          ? sprite.sitAspect ?? sprite.aspect
+          : pouring
+          ? sprite.pourAspect ?? sprite.aspect
+          : sprite.aspect);
+      const chat = chatter && chatter.id === spot.id ? chatter.text : null;
       depthSortedEntities.push({
         key: spot.id,
         y,
         node: (
           <View style={{ position: 'absolute', left: x - w / 2, top: y - h, width: w, height: h }}>
             <Image source={src} resizeMode="contain" style={{ width: w, height: h }} />
+            {chat && (
+              <View pointerEvents="none" style={[styles.chatBubble, { left: w / 2 - 45, top: -16 }]}>
+                <Text style={styles.chatBubbleText}>{chat}</Text>
+              </View>
+            )}
             {hasOpenQuest && (
               <Image
                 source={ICON_EXCLAIM}
@@ -984,9 +1071,12 @@ export default function BuildingScreen({ navigation }: Props) {
     const cheekySrc = roomAnim.moving
       ? CHEEKY_HOP[hopDir][roomAnim.frame % CHEEKY_HOP[hopDir].length]
       : CHEEKY_IDLE[roomAnim.idle % CHEEKY_IDLE.length];
+    const onStool = (interior.props ?? []).some(
+      (q) => q.kit === 'stool' && Math.abs(q.x - roomCheeky.x) < 1.5 && Math.abs(q.y - 9 - roomCheeky.y) < 1.5
+    );
     depthSortedEntities.push({
       key: 'cheeky',
-      y: roomCheeky.y,
+      y: onStool ? roomCheeky.y + 12 : roomCheeky.y,
       node: (
         <Image
           source={cheekySrc}
@@ -1132,6 +1222,43 @@ export default function BuildingScreen({ navigation }: Props) {
             {depthSortedEntities.map((entity) => (
               <React.Fragment key={entity.key}>{entity.node}</React.Fragment>
             ))}
+
+            {interior.backdrop &&
+              (interior.bobs ?? []).map((b, i) => {
+                const up = Math.floor(flickerT / 140) % 22 < 2 ? -1.2 : 0;
+                return (
+                  <View
+                    key={`bob-${i}`}
+                    pointerEvents="none"
+                    style={{ position: 'absolute', left: b.l, top: b.t + up, width: b.r - b.l, height: b.b - b.t, overflow: 'hidden' }}
+                  >
+                    <Image
+                      source={interior.backdrop!}
+                      resizeMode="stretch"
+                      style={{ position: 'absolute', left: -b.l, top: -b.t, width: interior.width, height: interior.height }}
+                    />
+                  </View>
+                );
+              })}
+
+            {(interior.lights ?? []).map((l, i) => {
+              const f = 0.1 + 0.05 * Math.sin(flickerT / 90 + i * 1.7) + 0.03 * Math.sin(flickerT / 37 + i);
+              return (
+                <View
+                  key={`light-${i}`}
+                  pointerEvents="none"
+                  style={{
+                    position: 'absolute',
+                    left: l.x - l.r,
+                    top: l.y - l.r,
+                    width: l.r * 2,
+                    height: l.r * 2,
+                    borderRadius: l.r,
+                    backgroundColor: `rgba(255,170,70,${f.toFixed(3)})`,
+                  }}
+                />
+              );
+            })}
           </View>
           )}
 
@@ -1443,6 +1570,22 @@ const styles = StyleSheet.create({
   roomNameText: { color: '#f3dca4', fontWeight: '800', fontSize: 18 },
   // Talk button and NPC one-liners float over the bottom of the room instead of taking a strip.
   roomOverlayBottom: { position: 'absolute', marginBottom: 0 },
+  chatBubble: {
+    position: 'absolute',
+    width: 90,
+    alignItems: 'center',
+  },
+  chatBubbleText: {
+    backgroundColor: 'rgba(250,240,215,0.95)',
+    color: '#2a1a0c',
+    fontSize: 5.5,
+    fontWeight: '700',
+    paddingHorizontal: 3,
+    paddingVertical: 1.5,
+    borderRadius: 3,
+    overflow: 'hidden',
+    textAlign: 'center',
+  },
   roomLeavePill: {
     position: 'absolute',
     left: 12,

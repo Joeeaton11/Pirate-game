@@ -19,6 +19,12 @@ export interface NpcSprite {
   /** Sitting on a stool, facing the viewer (used at tables). */
   sit?: ImageSourcePropType;
   sitAspect?: number;
+  /** Sitting side-on, facing right (on a chair beside a table); mirrored when facing left. */
+  sitSide?: ImageSourcePropType;
+  sitSideAspect?: number;
+  /** Keeper's 'serving' pose, shown while the player stands at their counter. */
+  pour?: ImageSourcePropType;
+  pourAspect?: number;
 }
 
 export const NPC_SPRITES: Record<string, NpcSprite> = {
@@ -27,6 +33,8 @@ export const NPC_SPRITES: Record<string, NpcSprite> = {
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/old_tom_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/old_tom_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/old_tom_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/old_tom_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/old_tom_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/old_tom_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/old_tom_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/old_tom_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    pour: require('../../assets/sprites/characters/npcs/old_tom_pour.png'),
+    pourAspect: 0.664,
   },
   'patron_tortuga_local': { src: require('../../assets/sprites/characters/npcs/barmaid_ross.png'), aspect: 0.562,
     walk: [require('../../assets/sprites/characters/npcs/walk/barmaid_ross_walk_0.png'), require('../../assets/sprites/characters/npcs/walk/barmaid_ross_walk_1.png'), require('../../assets/sprites/characters/npcs/walk/barmaid_ross_walk_2.png'), require('../../assets/sprites/characters/npcs/walk/barmaid_ross_walk_3.png'), require('../../assets/sprites/characters/npcs/walk/barmaid_ross_walk_4.png'), require('../../assets/sprites/characters/npcs/walk/barmaid_ross_walk_5.png'), require('../../assets/sprites/characters/npcs/walk/barmaid_ross_walk_6.png'), require('../../assets/sprites/characters/npcs/walk/barmaid_ross_walk_7.png')],
@@ -39,6 +47,8 @@ export const NPC_SPRITES: Record<string, NpcSprite> = {
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/wobbly_pete_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    sitSide: require('../../assets/sprites/characters/npcs/sit/wobbly_pete_side.png'),
+    sitSideAspect: 0.558,
     sit: require('../../assets/sprites/characters/npcs/sit/wobbly_pete_sit.png'),
     sitAspect: 0.625,
   },
@@ -79,6 +89,8 @@ export const NPC_SPRITES: Record<string, NpcSprite> = {
     walkLeft: [require('../../assets/sprites/characters/npcs/walk/lass_walkl_0.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_1.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_2.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_3.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_4.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_5.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_6.png'), require('../../assets/sprites/characters/npcs/walk/lass_walkl_7.png')],
     walkAspect: 112 / 128,
     walkScale: 128 / 108,
+    sitSide: require('../../assets/sprites/characters/npcs/sit/lass_side.png'),
+    sitSideAspect: 0.519,
     sit: require('../../assets/sprites/characters/npcs/sit/lass_sit.png'),
     sitAspect: 0.529,
   },

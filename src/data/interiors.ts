@@ -19,6 +19,8 @@ export interface InteriorFurniture {
   height?: number;
   emoji?: string; // required for 'prop', ignored otherwise
   fontSize?: number; // optional size override for 'prop'/'door' emoji
+  /** Seats in painted rooms: which way a local sits here ('right' needs a side-on sitting pose). */
+  facing?: 'front' | 'right';
 }
 
 /** One walk-up-to character in the room: 'main' is the building's own NPC, an id found in
@@ -28,9 +30,11 @@ export interface InteriorNpcSpot {
   id: string;
   x: number;
   y: number;
-  /** Sits at a table (painted rooms): stays put rather than pacing. Place the spot on the far
-   * side of a table that has a foreground cut-out, so the table hides their legs. */
+  /** Sits (painted rooms): stays put rather than pacing. */
   seated?: boolean;
+  /** How they sit: 'front' = facing the viewer on their own stool; 'right' = side-on on a chair,
+   * facing right towards the table. Default 'front'. */
+  seat?: 'front' | 'right';
 }
 
 /** Ordinary members of the public — just flavor, no quest attached. Talking to one shows a
@@ -86,6 +90,10 @@ export interface BuildingInterior {
   /** Painted rooms built in layers: furniture pieces from the room kit (src/data/roomKit.ts), placed
    * by centre x and bottom y and depth-sorted with the characters. */
   props?: { kit: string; x: number; y: number; flip?: boolean }[];
+  /** Flickering warm glows (candles, lanterns, fire), room units. */
+  lights?: { x: number; y: number; r: number }[];
+  /** Small pieces of the picture that bob now and then (the parrot on the sign). */
+  bobs?: { l: number; r: number; t: number; b: number }[];
 }
 
 /** Hand-authored floor plans. Buildings without an entry here get a generic room via
@@ -125,34 +133,43 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { kit: 'table', x: 66, y: 124 },
       { kit: 'chair_back', x: 66, y: 136 },
       { kit: 'chair_front', x: 285, y: 98 },
-      { kit: 'chair_side', x: 312, y: 120, flip: true },
       { kit: 'chair_side', x: 258, y: 120 },
       { kit: 'table', x: 285, y: 128 },
       { kit: 'chair_back', x: 285, y: 140 },
       { kit: 'chair_front', x: 282, y: 170 },
       { kit: 'chair_side', x: 309, y: 192, flip: true },
-      { kit: 'chair_side', x: 255, y: 192 },
       { kit: 'table', x: 282, y: 200 },
       { kit: 'chair_back', x: 282, y: 212 },
       { kit: 'chair_front', x: 258, y: 226 },
-      { kit: 'chair_side', x: 285, y: 248, flip: true },
       { kit: 'chair_side', x: 231, y: 248 },
       { kit: 'table', x: 258, y: 256 },
       { kit: 'chair_back', x: 258, y: 268 },
       { kit: 'chair_front', x: 82, y: 234 },
-      { kit: 'chair_side', x: 109, y: 256, flip: true },
       { kit: 'chair_side', x: 55, y: 256 },
       { kit: 'table', x: 82, y: 264 },
       { kit: 'chair_back', x: 82, y: 276 },
-      { kit: 'stool', x: 138, y: 140 },
+      { kit: 'bar_red', x: 138, y: 142 },
       { kit: 'stool', x: 170, y: 140 },
-      { kit: 'stool', x: 202, y: 140 },
-      { kit: 'stool', x: 234, y: 140 },
+      { kit: 'bar_deckhand', x: 202, y: 142 },
+      { kit: 'bar_old', x: 234, y: 142 },
       { kit: 'barrel', x: 326, y: 238 },
       { kit: 'barrel', x: 340, y: 256 },
       { kit: 'barrel', x: 22, y: 250 },
       { kit: 'crates', x: 30, y: 272 },
     ],
+    lights: [
+      { x: 66, y: 106, r: 14 },
+      { x: 285, y: 110, r: 14 },
+      { x: 282, y: 182, r: 14 },
+      { x: 258, y: 238, r: 14 },
+      { x: 82, y: 246, r: 14 },
+      { x: 330, y: 172, r: 34 }, // fireplace
+      { x: 140, y: 268, r: 16 }, // door lanterns
+      { x: 218, y: 268, r: 16 },
+      { x: 120, y: 62, r: 14 }, // bar lanterns
+      { x: 236, y: 62, r: 14 },
+    ],
+    bobs: [{ l: 165, r: 190, t: 14, b: 48 }], // the parrot on the sign
     furniture: [
       { type: 'table', x: 66, y: 112 },
       { type: 'table', x: 285, y: 116 },
@@ -163,19 +180,22 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { type: 'barrel', x: 340, y: 250 },
       { type: 'barrel', x: 22, y: 244 },
       { type: 'barrel', x: 30, y: 264 },
-      // Chairs the roaming locals sit on (the ones facing you, behind a table).
-      { type: 'chair', x: 285, y: 100 },
-      { type: 'chair', x: 258, y: 228 },
+      // Seats the roaming locals use: side-on chairs (only for those with a side sitting pose) and
+      // spots at a table's front corner where they sit facing the room on their own stool.
+      { type: 'chair', x: 260, y: 125, facing: 'right' },
+      { type: 'chair', x: 233, y: 253, facing: 'right' },
+      { type: 'chair', x: 286, y: 256, facing: 'front' },
+      { type: 'chair', x: 313, y: 128, facing: 'front' },
     ],
     npcSpots: [
       { id: 'main', x: 178, y: 118 }, // behind the bar
-      { id: 'patron_tortuga_drunk', x: 66, y: 96, seated: true },
-      { id: 'patron_tortuga_local', x: 230, y: 150 },
-      { id: 'patron_tortuga_rival', x: 282, y: 172, seated: true },
-      { id: 'patron_tortuga_mystic', x: 82, y: 236, seated: true },
-      { id: 'tortuga_amb_sailor', x: 150, y: 215 },
+      { id: 'patron_tortuga_drunk', x: 41, y: 121, seated: true, seat: 'right' },
+      { id: 'patron_tortuga_local', x: 230, y: 158 },
+      { id: 'patron_tortuga_rival', x: 252, y: 200, seated: true },
+      { id: 'patron_tortuga_mystic', x: 112, y: 264, seated: true },
+      { id: 'tortuga_amb_sailor', x: 200, y: 220 },
       { id: 'tortuga_amb_cook', x: 215, y: 205 },
-      { id: 'tortuga_amb_lass', x: 190, y: 160 },
+      { id: 'tortuga_amb_lass', x: 190, y: 165 },
     ],
   },
   tortuga_fort: {
@@ -279,42 +299,77 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { id: 'patron_tortuga_customs', x: 60, y: 140 },
     ],
   },
+  // Painted room (2026-11-20): The Anchor & Forge — forge at the back, quench trough left, door down the short passage.
   tortuga_smithy: {
     buildingId: 'tortuga_smithy',
-    width: 240,
-    height: 200,
-    entryPosition: { x: 120, y: 178 },
+    width: 360,
+    height: 360,
+    entryPosition: { x: 180, y: 262 },
+    backdrop: require('../../assets/sprites/interiors/smithy_anchor_forge.jpg'),
+    exitZone: { l: 160, r: 200, t: 318, b: 336 },
+    walls: [
+      { l: 0, r: 360, t: 0, b: 118 },
+      { l: 195, r: 255, t: 0, b: 140 },
+      { l: 28, r: 112, t: 100, b: 218 },
+      { l: 0, r: 36, t: 0, b: 360 },
+      { l: 324, r: 360, t: 0, b: 360 },
+      { l: 312, r: 360, t: 0, b: 218 },
+      { l: 0, r: 70, t: 212, b: 360 },
+      { l: 290, r: 360, t: 212, b: 360 },
+      { l: 0, r: 158, t: 252, b: 360 },
+      { l: 202, r: 360, t: 252, b: 360 },
+      { l: 0, r: 360, t: 336, b: 360 },
+    ],
+    props: [
+      { kit: 'barrel', x: 290, y: 244 },
+      { kit: 'barrel', x: 305, y: 230 },
+      { kit: 'crates', x: 100, y: 248 },
+    ],
     furniture: [
-      { type: 'rug', x: 120, y: 110 },
-      { type: 'barrel', x: 30, y: 50 },
-      { type: 'barrel', x: 30, y: 130 },
-      { type: 'shelf', x: 210, y: 140 },
-      { type: 'door', x: 120, y: 192, fontSize: 24 },
-      { type: 'prop', x: 120, y: 16, emoji: '🔥', fontSize: 24 },
-      { type: 'prop', x: 200, y: 40, emoji: '⚒️', fontSize: 22 },
+      { type: 'barrel', x: 290, y: 236 },
+      { type: 'barrel', x: 305, y: 222 },
+      { type: 'barrel', x: 100, y: 238 },
     ],
     npcSpots: [
-      { id: 'main', x: 120, y: 40 },
-      { id: 'patron_tortuga_smithy', x: 180, y: 140 },
+      { id: 'main', x: 225, y: 152 },
+      { id: 'patron_tortuga_smithy', x: 140, y: 200 },
     ],
   },
+  // Painted room (2026-11-20): Harbor Trading Post, kit-furnished.
   tortuga_shop: {
     buildingId: 'tortuga_shop',
-    width: 250,
-    height: 200,
-    entryPosition: { x: 125, y: 178 },
-    furniture: [
-      { type: 'rug', x: 125, y: 110 },
-      { type: 'counter', x: 125, y: 40, width: 150, height: 26 },
-      { type: 'shelf', x: 30, y: 90 },
-      { type: 'shelf', x: 220, y: 90 },
-      { type: 'barrel', x: 30, y: 150 },
-      { type: 'barrel', x: 220, y: 150 },
-      { type: 'door', x: 125, y: 192, fontSize: 24 },
-      { type: 'prop', x: 125, y: 16, emoji: '🗺️', fontSize: 20 },
-      { type: 'prop', x: 70, y: 40, emoji: '⚖️', fontSize: 18 },
+    width: 360,
+    height: 360,
+    entryPosition: { x: 179, y: 262 },
+    backdrop: require('../../assets/sprites/interiors/shop_trading_post.jpg'),
+    exitZone: { l: 150, r: 208, t: 280, b: 298 },
+    walls: [
+      { l: 0, r: 360, t: 0, b: 98 },
+      { l: 0, r: 24, t: 0, b: 360 },
+      { l: 336, r: 360, t: 0, b: 360 },
+      { l: 0, r: 148, t: 258, b: 360 },
+      { l: 210, r: 360, t: 258, b: 360 },
+      { l: 0, r: 360, t: 292, b: 360 },
+      { l: 0, r: 40, t: 95, b: 240 },
     ],
-    npcSpots: [{ id: 'main', x: 125, y: 40 }],
+    props: [
+      { kit: 'crates', x: 60, y: 128 },
+      { kit: 'crates', x: 300, y: 126 },
+      { kit: 'table', x: 180, y: 164 },
+      { kit: 'barrel', x: 300, y: 246 },
+      { kit: 'barrel', x: 318, y: 232 },
+      { kit: 'crates', x: 62, y: 248 },
+    ],
+    furniture: [
+      { type: 'table', x: 180, y: 152 },
+      { type: 'barrel', x: 60, y: 118 },
+      { type: 'barrel', x: 300, y: 116 },
+      { type: 'barrel', x: 306, y: 236 },
+      { type: 'barrel', x: 62, y: 238 },
+    ],
+    npcSpots: [
+      { id: 'main', x: 180, y: 104 },
+    ],
   },
   cow_island_camp: {
     buildingId: 'cow_island_camp',
@@ -583,38 +638,76 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
     ],
     npcSpots: [{ id: 'main', x: 110, y: 90 }],
   },
+  // Painted room (2026-11-20): Harbourmaster's Office — big sea window behind the desk.
   tortuga_harbourmaster: {
     buildingId: 'tortuga_harbourmaster',
-    width: 230,
-    height: 195,
-    entryPosition: { x: 115, y: 183 },
-    furniture: [
-      { type: 'rug', x: 115, y: 110 },
-      { type: 'counter', x: 115, y: 40, width: 130, height: 24 },
-      { type: 'shelf', x: 210, y: 90 },
-      { type: 'shelf', x: 20, y: 90 },
-      { type: 'door', x: 115, y: 187, fontSize: 24 },
-      { type: 'prop', x: 115, y: 16, emoji: '📜', fontSize: 22 },
-      { type: 'prop', x: 190, y: 150, emoji: '⚖️', fontSize: 18 },
+    width: 360,
+    height: 360,
+    entryPosition: { x: 179, y: 262 },
+    backdrop: require('../../assets/sprites/interiors/harbourmaster_office.jpg'),
+    exitZone: { l: 150, r: 208, t: 280, b: 298 },
+    walls: [
+      { l: 0, r: 360, t: 0, b: 98 },
+      { l: 0, r: 24, t: 0, b: 360 },
+      { l: 336, r: 360, t: 0, b: 360 },
+      { l: 0, r: 148, t: 258, b: 360 },
+      { l: 210, r: 360, t: 258, b: 360 },
+      { l: 0, r: 360, t: 292, b: 360 },
+      { l: 0, r: 80, t: 80, b: 238 },
+      { l: 318, r: 360, t: 98, b: 180 },
     ],
-    npcSpots: [{ id: 'main', x: 115, y: 40 }],
+    props: [
+      { kit: 'chair_front', x: 180, y: 140 },
+      { kit: 'table', x: 180, y: 166 },
+      { kit: 'crates', x: 300, y: 248 },
+      { kit: 'barrel', x: 312, y: 150 },
+    ],
+    furniture: [
+      { type: 'table', x: 180, y: 154 },
+      { type: 'barrel', x: 300, y: 238 },
+      { type: 'barrel', x: 312, y: 142 },
+    ],
+    npcSpots: [
+      { id: 'main', x: 150, y: 120 },
+    ],
   },
+  // Painted room (2026-11-20): The Chandlery — rope, tackle and sailcloth.
   tortuga_chandlery: {
     buildingId: 'tortuga_chandlery',
-    width: 230,
-    height: 195,
-    entryPosition: { x: 115, y: 183 },
-    furniture: [
-      { type: 'counter', x: 115, y: 40, width: 140, height: 24 },
-      { type: 'barrel', x: 30, y: 100 },
-      { type: 'barrel', x: 30, y: 150 },
-      { type: 'shelf', x: 200, y: 90 },
-      { type: 'shelf', x: 200, y: 150 },
-      { type: 'door', x: 115, y: 187, fontSize: 24 },
-      { type: 'prop', x: 115, y: 16, emoji: '🪢', fontSize: 22 },
-      { type: 'prop', x: 60, y: 40, emoji: '🕯️', fontSize: 16 },
+    width: 360,
+    height: 360,
+    entryPosition: { x: 179, y: 262 },
+    backdrop: require('../../assets/sprites/interiors/chandlery.jpg'),
+    exitZone: { l: 150, r: 208, t: 280, b: 298 },
+    walls: [
+      { l: 0, r: 360, t: 0, b: 98 },
+      { l: 0, r: 24, t: 0, b: 360 },
+      { l: 336, r: 360, t: 0, b: 360 },
+      { l: 0, r: 148, t: 258, b: 360 },
+      { l: 210, r: 360, t: 258, b: 360 },
+      { l: 0, r: 360, t: 292, b: 360 },
+      { l: 0, r: 50, t: 95, b: 262 },
+      { l: 316, r: 360, t: 95, b: 262 },
     ],
-    npcSpots: [{ id: 'main', x: 115, y: 40 }],
+    props: [
+      { kit: 'barrel', x: 82, y: 128 },
+      { kit: 'barrel', x: 290, y: 126 },
+      { kit: 'table', x: 180, y: 166 },
+      { kit: 'crates', x: 284, y: 248 },
+      { kit: 'crates', x: 78, y: 250 },
+      { kit: 'crates', x: 240, y: 130 },
+    ],
+    furniture: [
+      { type: 'barrel', x: 82, y: 120 },
+      { type: 'barrel', x: 290, y: 118 },
+      { type: 'table', x: 180, y: 154 },
+      { type: 'barrel', x: 284, y: 238 },
+      { type: 'barrel', x: 78, y: 240 },
+      { type: 'barrel', x: 240, y: 120 },
+    ],
+    npcSpots: [
+      { id: 'main', x: 180, y: 104 },
+    ],
   },
   tortuga_dockworkers_bunkhouse: {
     buildingId: 'tortuga_dockworkers_bunkhouse',
