@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { BLACK_PEARL_ISLAND_ID, BLACK_PEARL_START_OFFSET } from '../data/blackPearl';
+import { BLACK_PEARL_ISLAND_ID, BLACK_PEARL_OLD_START_OFFSET, BLACK_PEARL_START_OFFSET } from '../data/blackPearl';
 import { BUILDINGS } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ISLANDS } from '../data/islands';
@@ -810,6 +810,17 @@ export const useGameStore = create<GameState>()(
         completedGraceStageIds: state.completedGraceStageIds,
       }),
       onRehydrateStorage: () => (state) => {
+        // Saves from before the mooring moved still park her at the old west pier.
+        if (state && !state.blackPearlBoarded) {
+          const c = ISLANDS[BLACK_PEARL_ISLAND_ID].position;
+          const p = state.blackPearlPosition;
+          const old = { x: c.x + BLACK_PEARL_OLD_START_OFFSET.x, y: c.y + BLACK_PEARL_OLD_START_OFFSET.y };
+          if (!p || Math.hypot(p.x - old.x, p.y - old.y) < 1) {
+            useGameStore.setState({
+              blackPearlPosition: { x: c.x + BLACK_PEARL_START_OFFSET.x, y: c.y + BLACK_PEARL_START_OFFSET.y },
+            });
+          }
+        }
         state?.setHasHydrated(true);
       },
     }

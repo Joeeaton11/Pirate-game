@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -33,6 +33,15 @@ import {
   BLACK_PEARL_FLAG_EMOJI,
 } from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
+import { buildTownScene } from '../town/townScene';
+import { TownLife } from '../town/TownLife';
+import { BlueprintLayer, PLAN_PAPER, PlanWorld } from '../blueprint/BlueprintLayer';
+import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
+import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
+import { DayNight } from '../town/DayNight';
+import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
+import { TORTUGA_TOWN_ASSETS } from '../town/tortugaTownAssets';
+import { TORTUGA_TOWN_LAYOUT } from '../town/tortugaTownLayout';
 import { CREW_TEMPLATES } from '../data/crew';
 import {
   ISLAND_LIST,
@@ -45,6 +54,16 @@ import {
   islandAtPoint,
 } from '../data/islands';
 import { HOUSES, houseWorldPosition, housesForIsland } from '../data/houses';
+import {
+  TORTUGA_V2_ASPECT,
+  TORTUGA_V2_BACKDROP,
+  TORTUGA_V2_BUILDING_SPRITES,
+  TORTUGA_V2_HOUSES,
+  TORTUGA_V2_HOUSE_SPRITES,
+  TORTUGA_V2_PROPS,
+  TORTUGA_V2_PROP_SPRITES,
+  TORTUGA_V2_STRUCTURES,
+} from '../data/tortugaV2';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
 import { PROPS, propWorldPosition } from '../data/props';
 import { SCENERY, sceneryWorldPosition } from '../data/scenery';
@@ -64,6 +83,7 @@ import {
   FACE_LAUGH,
   FACE_NEUTRAL,
   FACE_WINK,
+  captainPortrait,
   FacingDirection,
   ICON_EXCLAIM,
   ICON_MAP,
@@ -77,14 +97,30 @@ import {
   POSE_SWORD_READY,
   RUN_FRAME_COUNT,
   RUN_HEAT_THRESHOLD,
-  RUN_SOURCES,
+  RUN_SOURCES_BY_DIR,
+  RUN_S_MIRRORED,
+  ANIM_FRAME_MS,
+  WAVE_FRAMES,
+  CELEBRATE_FRAMES,
+  ATTACK_FRAMES,
   SCALLY_PORTRAIT,
   VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
   WAVE_ANIMATION_MS,
   scallySpriteFrames,
 } from '../data/scallySprites';
-import { MONKEY_IDLE, MONKEY_WINK, MONKEY_WINK_HOLD_MS, MONKEY_WINK_INTERVAL_MS } from '../data/monkeySprites';
+import {
+  CHEEKY_WALK_FRAMES,
+  CHEEKY_HOP,
+  CHEEKY_IDLE,
+  CHEEKY_CELEBRATE,
+  SCALLY_CHEEKY_CLIMB,
+  CHEEKY_V2_ALL,
+  MONKEY_IDLE,
+  MONKEY_WINK,
+  MONKEY_WINK_HOLD_MS,
+  MONKEY_WINK_INTERVAL_MS,
+} from '../data/monkeySprites';
 import {
   ACCELERATE_ANIMATION_MS,
   DEPART_ANIMATION_MS,
@@ -160,14 +196,25 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 // Pokémon-style close camera: the world renders at ZOOM x its native scale (buildings, houses,
 // streets, everything inside the `world` container), while the player token — rendered as a
 // separate fixed element always centered on screen — is sized to match by hand below.
-const ZOOM = 5;
+const ZOOM = 7;
 // In real Pokémon a character is ~1 tile and a building is ~5-7 tiles — the character is small
 // next to structures. PLAYER_SIZE previously scaled at the same native size as a building (40 vs
 // 44), which is why zooming alone never got there: zoom scales everything in lockstep, so a
 // player already sized like a building stayed sized like a building at any zoom level. Fixed by
 // giving the player a genuinely small native footprint before the same ZOOM is applied to it.
-const PLAYER_SIZE = 12 * ZOOM;
+// 2026-11-14: player shrunk 12 -> 8.5 native while ZOOM went 5 -> 7, so Scally stays ~60px on
+// screen but buildings/props render 1.4x larger around him (doors now taller than he is).
+const PLAYER_SIZE = 8.5 * ZOOM;
 const BUILDING_SIZE = 44;
+// Cheeky follows Captain Scally on foot. Story-wise he's aboard the guarded Black Pearl until it's
+// captured (see showMonkeyOnDeck); CHEEKY_ALWAYS_FOLLOW skips that gate so he can be play-tested
+// from the start. Set it back to false once the follow behaviour is signed off.
+const CHEEKY_ALWAYS_FOLLOW = true;
+/** How long Scally stands still before Cheeky climbs onto his shoulder. */
+const SHOULDER_CLIMB_DELAY_MS = 6000;
+const CHEEKY_SIZE = 9.5; // world units (Scally is ~12 tall in his v2 frames)
+const CHEEKY_TRAIL = 8; // world units of path Cheeky stays behind Scally
+const CHEEKY_MAX_CRUMBS = 120;
 // The Black Pearl under sail reads as a ship, not a person, so she gets a footprint closer to the
 // docked marker's (BUILDING_SIZE * 1.8) than to Captain Scally's own on-foot sprite.
 const SHIP_SPRITE_SIZE = 80;
@@ -250,6 +297,16 @@ function streetTilePositions(
 // Slowed from 260 — full sea speed made sailing feel uncontrollable, especially threading the
 // harbor mouth/piers right after boarding the Black Pearl.
 const SEA_SPEED = 150; // world units per second
+/** Stride length per animation frame (world units) — 8 frames make one full two-step cycle. */
+// Measured from the frames: in walk_e a planted boot travels ~10 sprite px per frame, and one sprite
+// px is ~0.115 world units (128px canvas drawn 14.7 units tall) — so ~1.2 units/frame keeps the
+// planted foot still on the ground. Slightly longer here so he doesn't look like he's pedalling.
+const WALK_UNITS_PER_FRAME = 1.5;
+const RUN_UNITS_PER_FRAME = 2.3;
+/** Never step faster than this (ms per frame), so a fast drag can't blur his legs. */
+const MIN_STRIDE_FRAME_MS = 55;
+/** Drag past this fraction of the joystick and Scally runs instead of walks. */
+const RUN_DRAG_THRESHOLD = 0.62;
 const ON_PATH_SPEED = 45; // world units per second — walking an actual street/path
 // Cutting across open grass/scenery instead of following a street reads as harder going, and
 // nudges players toward the authored street network instead of beelining through decor.
@@ -294,6 +351,171 @@ const SHOW_GARDENS = false;
 // size and dimensions first... Remove all buildings and roads for now" — so buildings, real art or
 // placeholder boxes alike, are off again while the island shape/dock get checked in isolation.
 const SHOW_BUILDINGS = false;
+// Tortuga Cove art pass v2 (2026-11-14): painted terrain backdrop + front-facing, street-facing
+// building/house/prop sprites from src/data/tortugaV2.ts. Independent of the SHOW_* scaffolding
+// layers above, so it can be flipped off on its own to compare against the old layer rebuild.
+const SHOW_TORTUGA_V2 = true;
+const SHOW_OLD_IDLE_FLOURISHES = false;
+
+/** Every Tortuga v2 sprite (buildings, houses, street props) as one list sorted by its ground line
+ * (bottom edge), so nearer things overlap farther ones correctly. Static — built once. Sprites are
+ * bottom-anchored on their footprint's bottom edge and drawn slightly wider than the footprint
+ * (eaves/props overhang), matching how the art pass render was composed. */
+/** Town centre (2026-11-14): data-driven scene from src/town/ (layout + asset registry). Inside the
+ * layout's clear rects the old v2 buildings, houses and props are hidden; every building the new
+ * town places is hidden from its old v2 spot too. */
+const TOWN_SCENE = buildTownScene(TORTUGA_TOWN_LAYOUT, TORTUGA_TOWN_ASSETS, ISLANDS.tortuga_cove.position);
+const inTownDistrict = (x: number, y: number) =>
+  TOWN_SCENE.clear.some((r) => x > r.l && x < r.r && y > r.t && y < r.b);
+const keepOldStructure = (s: { buildingId: string | null; x: number; y: number }) =>
+  !(s.buildingId && TOWN_SCENE.buildingIds.has(s.buildingId)) && !inTownDistrict(s.x, s.y);
+const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict(p.x, p.y);
+/** Door points (absolute world coords). */
+const TOWN_DOORS = TOWN_SCENE.doors;
+const TOWN_DOOR_RADIUS = 9;
+const TORTUGA_TOWN_GROUND = [...TOWN_SCENE.ground.map(renderGroundTile), ...TOWN_SCENE.decals.map(renderDecal)];
+// The painted town's outer band (EDGE units) is drawn from alpha-feathered strips instead of the
+// hard-edged JPG chunks, so the painting melts into the island art around it rather than ending
+// on a straight seam. Chunks are clipped to the inner rect; strips cover the band.
+const TORTUGA_TOWN_FEATHERED = (() => {
+  const EDGE = 67 / 4.8;
+  const ds = TOWN_SCENE.decals;
+  if (!ds.length) return TORTUGA_TOWN_GROUND;
+  const L = Math.min(...ds.map((d) => d.left));
+  const T = Math.min(...ds.map((d) => d.top));
+  const R = L + 450;
+  const B = T + 2336 / 4.8;
+  const strip = (key: string, src: ImageSourcePropType, left: number, top: number, w: number, h: number) => (
+    <RNImage key={key} source={src} resizeMode="stretch" style={{ position: 'absolute', left, top, width: w, height: h }} />
+  );
+  return [
+    ...TOWN_SCENE.ground.map(renderGroundTile),
+    <View key="town-clip" style={{ position: 'absolute', left: L + EDGE, top: T + EDGE, width: R - L - 2 * EDGE, height: B - T - 2 * EDGE, overflow: 'hidden' }}>
+      {ds.map((d) => renderDecal({ ...d, left: d.left - L - EDGE, top: d.top - T - EDGE }))}
+    </View>,
+    strip('edge-t', require('../../assets/sprites/tortuga_town/life/edge_top.png'), L, T, R - L, EDGE),
+    strip('edge-b', require('../../assets/sprites/tortuga_town/life/edge_bottom.png'), L, B - EDGE, R - L, EDGE),
+    strip('edge-l', require('../../assets/sprites/tortuga_town/life/edge_left.png'), L, T + EDGE, EDGE, B - T - 2 * EDGE),
+    strip('edge-r', require('../../assets/sprites/tortuga_town/life/edge_right.png'), R - EDGE, T + EDGE, EDGE, B - T - 2 * EDGE),
+  ];
+})();
+
+/** Solid rectangles (world coords) for every Tortuga v2 building and house, covering the whole
+ * drawn sprite (footprint plus roof). The player token always renders on top of the sprite layer,
+ * so letting him walk "behind" a roof would draw him standing on it — the full sprite is solid
+ * instead. Doors sit on each sprite's bottom edge, well inside ENTER_RADIUS of the building centre. */
+const TORTUGA_V2_SOLID_RECTS = (() => {
+  const o = ISLANDS.tortuga_cove.position;
+  const rects: { l: number; r: number; t: number; b: number }[] = [];
+  const add = (x: number, bottom: number, w: number, h: number) =>
+    rects.push({ l: o.x + x - w / 2 + 1, r: o.x + x + w / 2 - 1, t: o.y + bottom - h + 2, b: o.y + bottom });
+  // These four have doors boxed in by a neighbouring sprite or set too far from their entry point,
+  // so they stay walk-through until the layout is adjusted.
+  const notSolid = new Set(['tortuga_fort', 'tortuga_vendue_house', 'tortuga_coopers_yard', 'tortuga_smithy']);
+  TORTUGA_V2_STRUCTURES.forEach((s) => {
+    if (notSolid.has(s.key) || !keepOldStructure(s)) return;
+    const w = s.w * 1.12;
+    add(s.x, s.y + s.h / 2, w, w * (TORTUGA_V2_ASPECT[s.key] ?? 1));
+  });
+  TORTUGA_V2_HOUSES.forEach((h) => {
+    if (inTownDistrict(h.x, h.y)) return;
+    const w = h.w * 1.02;
+    add(h.x, h.y + h.h / 2, w, w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1));
+  });
+  return rects.concat(TOWN_SCENE.solids);
+})();
+
+/** Blueprint (plan) mode: walk the island's layout plan instead of its art. Solids are the plan's
+ * own buildings, trees and inland water outside the painted town, plus the town's walk map. */
+const BLUEPRINT_SOLID_RECTS = (() => {
+  const o = ISLANDS.tortuga_cove.position;
+  const rects: { l: number; r: number; t: number; b: number }[] = [];
+  for (let i = 0; i < BP_SOLIDS.length; i += 4) {
+    rects.push({ l: o.x + BP_SOLIDS[i], r: o.x + BP_SOLIDS[i + 1], t: o.y + BP_SOLIDS[i + 2], b: o.y + BP_SOLIDS[i + 3] });
+  }
+  return rects.concat(TOWN_SCENE.solids);
+})();
+const BLUEPRINT_DOORS = TOWN_DOORS.concat(
+  BP_DOORS.map((d) => ({ id: d.id, x: ISLANDS.tortuga_cove.position.x + d.x, y: ISLANDS.tortuga_cove.position.y + d.y }))
+);
+/** The map shows the architect's plan by default (art is parked for now); `?art=1` on web shows art. */
+function startInPlanMode() {
+  try {
+    return !(typeof window !== 'undefined' && !!window.location && /[?&]art=1/.test(window.location.search));
+  } catch {
+    return true;
+  }
+}
+
+/** Playtest helper (web only): `?at=x,y` starts Scally at that spot, in Tortuga-relative world
+ * units (the same coordinates as src/town/tortugaTownLayout.ts) — handy for checking one corner of
+ * the town without walking there. Ignored anywhere else. */
+function devStartPosition(): { x: number; y: number } {
+  try {
+    const q = typeof window !== 'undefined' && window.location ? new URLSearchParams(window.location.search).get('at') : null;
+    const m = q?.match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/);
+    if (m) {
+      const o = ISLANDS.tortuga_cove.position;
+      return { x: o.x + Number(m[1]), y: o.y + Number(m[2]) };
+    }
+  } catch {
+    // not a browser
+  }
+  return START_POSITION;
+}
+
+function slideAroundRects(
+  current: { x: number; y: number },
+  raw: { x: number; y: number },
+  rects: { l: number; r: number; t: number; b: number }[],
+  pad: number
+): { x: number; y: number } {
+  const blocked = (p: { x: number; y: number }) =>
+    rects.some((q) => p.x > q.l - pad && p.x < q.r + pad && p.y > q.t - pad && p.y < q.b + pad);
+  if (!blocked(raw)) return raw;
+  // Already inside one (e.g. an old save spawned there): let the player walk out freely.
+  if (blocked(current)) return raw;
+  const slideX = { x: raw.x, y: current.y };
+  if (!blocked(slideX)) return slideX;
+  const slideY = { x: current.x, y: raw.y };
+  if (!blocked(slideY)) return slideY;
+  return current;
+}
+
+const TORTUGA_V2_SPRITE_LAYER = (() => {
+  const origin = ISLANDS.tortuga_cove.position;
+  // Everything in absolute world coords, depth-sorted by ground line.
+  const items: { z: number; el: React.ReactElement }[] = [];
+  const img = (key: string, source: ImageSourcePropType, x: number, bottom: number, w: number, h: number, flip?: boolean) =>
+    items.push({
+      z: origin.y + bottom,
+      el: (
+        <RNImage
+          key={key}
+          source={source}
+          resizeMode="stretch"
+          style={{ position: 'absolute', left: origin.x + x - w / 2, top: origin.y + bottom - h, width: w, height: h, transform: flip ? [{ scaleX: -1 }] : undefined }}
+        />
+      ),
+    });
+  TORTUGA_V2_STRUCTURES.forEach((s) => {
+    if (!keepOldStructure(s)) return;
+    const w = s.w * 1.12;
+    img(`t2b-${s.key}`, TORTUGA_V2_BUILDING_SPRITES[s.key], s.x, s.y + s.h / 2, w, w * (TORTUGA_V2_ASPECT[s.key] ?? 1));
+  });
+  TORTUGA_V2_HOUSES.forEach((h, i) => {
+    if (inTownDistrict(h.x, h.y)) return;
+    const w = h.w * 1.02;
+    img(`t2h-${i}`, TORTUGA_V2_HOUSE_SPRITES[h.variant], h.x, h.y + h.h / 2, w, w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1), h.flip);
+  });
+  TORTUGA_V2_PROPS.forEach((p, i) => {
+    if (!keepOldProp(p)) return;
+    img(`t2p-${i}`, TORTUGA_V2_PROP_SPRITES[p.id], p.x, p.y, p.w, p.w * (TORTUGA_V2_ASPECT[`prop:${p.id}`] ?? 1));
+  });
+  TOWN_SCENE.sprites.forEach((sp) => items.push({ z: sp.z, el: renderSceneSprite(sp) }));
+  items.sort((a, b) => a.z - b.z);
+  return items.map((it) => it.el);
+})();
 // Disabled 2026-08-14, same request as SHOW_BUILDINGS above but taken further: "remove everything
 // that isn't the ground" — so the street/road network itself, houses, decorative scenery/props,
 // landmarks, ambient street NPCs, and every interactive map marker (quests, resource/salvage/
@@ -621,6 +843,8 @@ function initNpcSim(npc: StreetNpc): NpcSimState {
   };
 }
 const TICK_MS = 33;
+/** Share of the player-camera gap closed each tick (~0.3 s to settle). */
+const CAMERA_EASE = 0.16;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -629,7 +853,14 @@ function clamp(value: number, min: number, max: number) {
 export default function MapScreen({ navigation }: Props) {
   const isFocused = useIsFocused();
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
-  const [player, setPlayer] = useState(START_POSITION);
+  const [player, setPlayer] = useState(devStartPosition);
+  const [planMode, setPlanMode] = useState(startInPlanMode);
+  const planModeRef = useRef(planMode);
+  planModeRef.current = planMode;
+  // Camera eases after the player instead of being nailed to them; Scally's screen position is
+  // offset by the gap, so he leads slightly into a walk and the view catches up when he stops.
+  const [cam, setCam] = useState(player);
+  const camRef = useRef(player);
   const [dragKnob, setDragKnob] = useState<{ x: number; y: number } | null>(null);
   const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number } | null>(null);
   const [zoneLabel, setZoneLabel] = useState('Tortuga Cove');
@@ -707,7 +938,8 @@ export default function MapScreen({ navigation }: Props) {
   // immediately if isMoving flips true while one is showing, so an emote can never freeze a stride
   // (the actual bug in item 79's first attempt was elsewhere — see scallySprites.ts — but this guard
   // costs nothing and removes any risk of repeating it).
-  const [emoteOverlay, setEmoteOverlay] = useState<{ source: any } | null>(null);
+  const [emoteOverlay, setEmoteOverlay] = useState<{ frames: any[] } | null>(null);
+  const [emoteFrame, setEmoteFrame] = useState(0);
   const emoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // The "prolonged idle" flourish — a full multi-frame animated vignette (juggling coins, reading
   // a map, dozing off, ...), distinct from the single-frame emotes above. Holds which flourish is
@@ -731,7 +963,62 @@ export default function MapScreen({ navigation }: Props) {
   // Cheeky blinks every so often while perched on the docked, unboarded Black Pearl (see the ship
   // marker render below) — see monkeySprites.ts for why he lives there instead of trailing on foot.
   const [monkeyWinking, setMonkeyWinking] = useState(false);
-  const showMonkeyOnDeck = !blackPearlBoarded && !blackPearlCaptured;
+  const showMonkeyOnDeck = !blackPearlBoarded && !blackPearlCaptured && !CHEEKY_ALWAYS_FOLLOW;
+  const cheekyFollowing = !blackPearlBoarded && (blackPearlCaptured || CHEEKY_ALWAYS_FOLLOW);
+  // Breadcrumb trail of Scally's recent positions; Cheeky sits CHEEKY_TRAIL units back along it,
+  // so he follows the actual route walked (round corners, along streets) instead of cutting across.
+  const cheekyCrumbsRef = useRef<{ x: number; y: number }[]>([]);
+  const cheekyPrevRef = useRef<{ x: number; y: number } | null>(null);
+  const cheekyDirRef = useRef<'e' | 'w' | 's' | 'n'>('e');
+  // Cheeky's own slow clock for his sitting idle loop.
+  const [cheekyTick, setCheekyTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setCheekyTick((t) => (t + 1) % 1200), 300);
+    return () => clearInterval(id);
+  }, []);
+  // After Scally has stood still a while, Cheeky scampers up onto his shoulder and rides there
+  // until Scally moves again ('climbing' plays SCALLY_CHEEKY_CLIMB, 'riding' holds its last frame).
+  const [shoulder, setShoulder] = useState<null | 'climbing' | 'riding'>(null);
+  const [climbFrame, setClimbFrame] = useState(0);
+  const cheeky = (() => {
+    const crumbs = cheekyCrumbsRef.current;
+    const last = crumbs[crumbs.length - 1];
+    const jump = last ? Math.hypot(player.x - last.x, player.y - last.y) : Infinity;
+    if (jump > 40) {
+      // Fresh start or a teleport (building exit, fast travel): drop him just behind Scally.
+      cheekyCrumbsRef.current = [{ x: player.x - 8, y: player.y + 1 }, { x: player.x, y: player.y }];
+    } else if (jump > 0.5) {
+      crumbs.push({ x: player.x, y: player.y });
+      if (crumbs.length > CHEEKY_MAX_CRUMBS) crumbs.shift();
+    }
+    const trail = cheekyCrumbsRef.current;
+    let remaining = CHEEKY_TRAIL;
+    let pos = trail[trail.length - 1];
+    for (let i = trail.length - 1; i > 0; i--) {
+      const a = trail[i];
+      const b = trail[i - 1];
+      const seg = Math.hypot(a.x - b.x, a.y - b.y);
+      if (seg >= remaining) {
+        const t = remaining / seg;
+        pos = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+        remaining = 0;
+        break;
+      }
+      remaining -= seg;
+      pos = b;
+    }
+    const prev = cheekyPrevRef.current;
+    const facingLeft = prev && Math.abs(pos.x - prev.x) > 0.05 ? pos.x < prev.x : player.x < pos.x;
+    if (prev) {
+      const dx = pos.x - prev.x;
+      const dy = pos.y - prev.y;
+      if (Math.hypot(dx, dy) > 0.05) {
+        cheekyDirRef.current = Math.abs(dy) > Math.abs(dx) * 1.3 ? (dy > 0 ? 's' : 'n') : dx < 0 ? 'w' : 'e';
+      }
+    }
+    cheekyPrevRef.current = pos;
+    return { ...pos, facingLeft, dir: cheekyDirRef.current };
+  })();
   useEffect(() => {
     if (!showMonkeyOnDeck) return;
     const id = setInterval(() => {
@@ -802,6 +1089,13 @@ export default function MapScreen({ navigation }: Props) {
   blackPearlBoardedRef.current = blackPearlBoarded;
   const shipHeadingRef = useRef(shipHeading);
   shipHeadingRef.current = shipHeading;
+  const mooredShip = useMemo(
+    () =>
+      blackPearlBoarded
+        ? null
+        : { x: blackPearlPosition.x, y: blackPearlPosition.y, size: SHIP_SPRITE_SIZE / ZOOM, source: shipSpriteSource('e') },
+    [blackPearlBoarded, blackPearlPosition.x, blackPearlPosition.y]
+  );
   const blackPearlPositionRef = useRef(blackPearlPosition);
   blackPearlPositionRef.current = blackPearlPosition;
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
@@ -990,15 +1284,12 @@ export default function MapScreen({ navigation }: Props) {
       // attack then sword-ready for a beat each before cutting to the battle screen, instead of an
       // instant cut. Also clears any showing emote outright — a duel starting is a harder interrupt
       // than ordinary movement, so it doesn't wait for the emote's own hold timer to finish.
-      setEmoteOverlay(null);
-      setScallyAttackFlash('attack');
+      setScallyAttackFlash(null);
+      flashEmote(ATTACK_FRAMES, 0);
       setTimeout(() => {
-        setScallyAttackFlash('sword_ready');
-        setTimeout(() => {
-          setScallyAttackFlash(null);
-          fire();
-        }, ATTACK_FLASH_MS);
-      }, ATTACK_FLASH_MS);
+        setEmoteOverlay(null);
+        fire();
+      }, ATTACK_FRAMES.length * ANIM_FRAME_MS + 150);
     }
   }
 
@@ -1141,11 +1432,26 @@ export default function MapScreen({ navigation }: Props) {
   // due-west only ('w'/'e', the old 'left'/'right') — RUN_SOURCES is a single side-view pose set
   // with no directional variants, so the other 6 headings (including the 4 new diagonals) keep
   // using the plain walk cycle instead of running sideways at an angle that doesn't match the pose.
+  // Ambient sound: footsteps (planks on piers, cobbles elsewhere), the harbour's surf and gulls
+  // swelling as Scally nears the water, and the open sea while sailing.
+  const tortugaOrigin = ISLANDS.tortuga_cove.position;
+  const relX = player.x - tortugaOrigin.x;
+  const relY = player.y - tortugaOrigin.y;
+  const inTortugaTown = relX > -170 && relX < 320 && relY > -470 && relY < 50;
+  const harbourVolume = blackPearlBoarded
+    ? 0.45
+    : inTortugaTown
+    ? 0.08 + 0.5 * Math.max(0, Math.min(1, (-200 - relY) / 140))
+    : 0.12;
+  useAmbientLoop(SFX.harbour, harbourVolume);
+  useRandomCalls(SFX.gull, harbourVolume > 0.25, 6, 14, 0.35);
+  const onPlanks = distanceToNearestPier(player) < 4 || (inTortugaTown && relY < -290);
+  useFootsteps(isMoving && !blackPearlBoarded, onPlanks ? 'wood' : 'cobble', 290, 0.45);
+
   const isRunning =
     isMoving &&
     !!islandAtPoint(player) &&
-    (facingDir === 'w' || facingDir === 'e') &&
-    heat > RUN_HEAT_THRESHOLD * 100;
+    (heat > RUN_HEAT_THRESHOLD * 100 || dragIntensity > RUN_DRAG_THRESHOLD); // big drag = run
 
   // Cycles Captain Scally's sprite through its 12-frame walk cycle while moving, AND bobs him
   // vertically, off the exact same 110ms tick — merged into one effect/interval 2026-08-23 after
@@ -1189,28 +1495,25 @@ export default function MapScreen({ navigation }: Props) {
       Animated.timing(walkBounce, { toValue: 0, duration: 120, useNativeDriver: true }).start();
       return;
     }
-    const bounceAmplitude = isRunning ? -3 : -6;
-    // A ref, not a local variable — this effect re-runs whenever `isRunning` toggles mid-walk (to
-    // pick up the new bounce amplitude), and a local counter would reset to 0 on every one of those
-    // reruns, reintroducing the exact "pops back to frame 0 on a run transition" glitch a previous
-    // fix (see scallySprites.ts's run-cycle comment) deliberately avoided. The ref persists across
-    // reruns so a walk<->run transition always continues from wherever the stride actually was.
+    // v2 (2026-11-16): the frames carry their own body bob, and the stride is tied to how far
+    // Scally actually travels — one frame per STRIDE_UNITS_PER_FRAME world units — so his feet keep
+    // pace with the ground at any drag speed, and stop (no moonwalking) when he's blocked by a wall.
+    walkBounce.setValue(0);
+    const perFrame = isRunning ? RUN_UNITS_PER_FRAME : WALK_UNITS_PER_FRAME;
+    let last = { ...playerRef.current };
+    let acc = 0;
+    let lastStep = 0;
     const id = setInterval(() => {
-      walkTickRef.current = (walkTickRef.current + 1) % 60;
-      const tick = walkTickRef.current;
-      setWalkSpriteFrame(tick);
-      const strideFraction = (tick % WALK_FRAME_COUNT) / WALK_FRAME_COUNT;
-      // 1 - cos ranges 0..2, so this ranges 0..bounceAmplitude — 0 (ground contact) at the start of
-      // each half-stride, full amplitude (mid-stride peak) at the midpoint. The *4*Math.PI (two full
-      // cosine periods across the 12-frame loop) is what gives two dips per loop instead of one.
-      const bounceTarget = (bounceAmplitude * (1 - Math.cos(strideFraction * 4 * Math.PI))) / 2;
-      Animated.timing(walkBounce, {
-        toValue: bounceTarget,
-        duration: 110,
-        easing: Easing.inOut(Easing.quad),
-        useNativeDriver: true,
-      }).start();
-    }, 110);
+      const p = playerRef.current;
+      acc += Math.hypot(p.x - last.x, p.y - last.y);
+      last = { ...p };
+      const now = Date.now();
+      if (acc < perFrame || now - lastStep < MIN_STRIDE_FRAME_MS) return;
+      acc = Math.min(acc - perFrame, perFrame); // don't bank a backlog of steps
+      lastStep = now;
+      walkTickRef.current = (walkTickRef.current + 1) % 120;
+      setWalkSpriteFrame(walkTickRef.current);
+    }, 33);
     return () => clearInterval(id);
   }, [isMoving, isRunning, walkBounce]);
 
@@ -1233,11 +1536,46 @@ export default function MapScreen({ navigation }: Props) {
     return () => clearInterval(id);
   }, [isMoving]);
 
-  function flashEmote(source: any, holdMs: number) {
+  /** Plays a one-shot animation once through (a single image just holds for holdMs). */
+  function flashEmote(frames: any[], holdMs: number) {
     if (emoteTimeoutRef.current) clearTimeout(emoteTimeoutRef.current);
-    setEmoteOverlay({ source });
-    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), holdMs);
+    setEmoteOverlay({ frames });
+    setEmoteFrame(0);
+    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), Math.max(holdMs, frames.length * ANIM_FRAME_MS + 250));
   }
+
+  useEffect(() => {
+    if (!emoteOverlay || emoteOverlay.frames.length < 2) return;
+    const id = setInterval(() => setEmoteFrame((f) => Math.min(f + 1, emoteOverlay.frames.length - 1)), ANIM_FRAME_MS);
+    return () => clearInterval(id);
+  }, [emoteOverlay]);
+
+  useEffect(() => {
+    if (isMoving || !cheekyFollowing || emoteOverlay) {
+      setShoulder(null);
+      return;
+    }
+    const start = setTimeout(() => {
+      setFacingDir('s');
+      setClimbFrame(0);
+      setShoulder('climbing');
+    }, SHOULDER_CLIMB_DELAY_MS);
+    return () => clearTimeout(start);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMoving, cheekyFollowing, emoteOverlay]);
+  useEffect(() => {
+    if (shoulder !== 'climbing') return;
+    const id = setInterval(() => {
+      setClimbFrame((f) => {
+        if (f + 1 >= SCALLY_CHEEKY_CLIMB.length - 1) {
+          setShoulder('riding');
+          return SCALLY_CHEEKY_CLIMB.length - 1;
+        }
+        return f + 1;
+      });
+    }, 130);
+    return () => clearInterval(id);
+  }, [shoulder]);
 
   function flashCaptainFace(source: any, holdMs: number) {
     if (captainFaceOverrideTimeoutRef.current) clearTimeout(captainFaceOverrideTimeoutRef.current);
@@ -1250,7 +1588,7 @@ export default function MapScreen({ navigation }: Props) {
   // building shouldn't interrupt the stride to wave at it.
   useEffect(() => {
     if (nearbyBuildingPrompt && !isMoving) {
-      flashEmote(EMOTE_WAVE, WAVE_ANIMATION_MS);
+      flashEmote(WAVE_FRAMES, WAVE_ANIMATION_MS);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once per prompt appearing, not
     // once per render while it's showing.
@@ -1269,7 +1607,7 @@ export default function MapScreen({ navigation }: Props) {
     prevDefeatedLordCountRef.current = defeatedLordIds.length;
     prevCompletedQuestCountRef.current = completedQuestIds.length;
     if (!grew) return;
-    if (!isMoving) flashEmote(EMOTE_VICTORY, VICTORY_ANIMATION_MS);
+    if (!isMoving) flashEmote(CELEBRATE_FRAMES, VICTORY_ANIMATION_MS);
     flashCaptainFace(lordGrew ? FACE_LAUGH : FACE_HAPPY, VICTORY_ANIMATION_MS);
   }, [defeatedLordIds.length, completedQuestIds.length, isMoving]);
 
@@ -1284,6 +1622,8 @@ export default function MapScreen({ navigation }: Props) {
       }
       return;
     }
+    // Old-style flourish art doesn't match the v2 sprites (2026-11-16) — off until redone in v2.
+    if (!SHOW_OLD_IDLE_FLOURISHES) return;
     idleFlourishTimerRef.current = setTimeout(() => {
       const pick = IDLE_FLOURISHES[Math.floor(Math.random() * IDLE_FLOURISHES.length)];
       setIdleFlourish(pick);
@@ -1463,9 +1803,22 @@ export default function MapScreen({ navigation }: Props) {
       }
     }
 
+    const easeCamera = () => {
+      const c = camRef.current;
+      const p = playerRef.current;
+      const gap = Math.hypot(p.x - c.x, p.y - c.y);
+      if (gap < 0.02) return;
+      // Snap on teleports (doors, landfall, dev jumps) instead of sliding across the map.
+      const next = gap > 40 ? p : { x: c.x + (p.x - c.x) * CAMERA_EASE, y: c.y + (p.y - c.y) * CAMERA_EASE };
+      camRef.current = next;
+      setCam(next);
+    };
     const interval = setInterval(() => {
       const direction = directionRef.current;
-      if (!direction) return;
+      if (!direction) {
+        easeCamera();
+        return;
+      }
 
       const currentIsland = islandAtPoint(playerRef.current);
       const speed = currentIsland
@@ -1517,6 +1870,14 @@ export default function MapScreen({ navigation }: Props) {
         buildingObstacles,
         BUILDING_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
       );
+      if (SHOW_TORTUGA_V2 && currentIsland?.id === 'tortuga_cove') {
+        nextPosition = slideAroundRects(
+          playerRef.current,
+          nextPosition,
+          planModeRef.current ? BLUEPRINT_SOLID_RECTS : TORTUGA_V2_SOLID_RECTS,
+          1.5
+        );
+      }
 
       const nextIsland = islandAtPoint(nextPosition);
 
@@ -1527,6 +1888,7 @@ export default function MapScreen({ navigation }: Props) {
 
       playerRef.current = nextPosition;
       setPlayer(nextPosition);
+      easeCamera();
 
       // Swap to the "APPROACH DOCK" loop once she's closing in on land, still under sail — only
       // meaningful while boarded and still at sea (nextIsland null); once ashore the docked marker
@@ -1617,12 +1979,22 @@ export default function MapScreen({ navigation }: Props) {
           }
         }
 
-        const nearbyBuilding = SHOW_BUILDINGS
+        let nearbyBuilding = SHOW_BUILDINGS
           ? buildingsForIsland(nextIsland.id).find((building) => {
               const pos = buildingWorldPosition(building, nextIsland.position);
               return Math.hypot(nextPosition.x - pos.x, nextPosition.y - pos.y) <= ENTER_RADIUS;
             })
           : undefined;
+        if (!nearbyBuilding && SHOW_TORTUGA_V2 && nextIsland.id === 'tortuga_cove') {
+          // Town-core terraces: nearest door within reach (doors sit ~28 units apart, so the
+          // nearest-door rule picks the facade Scally is actually standing in front of).
+          let best: { id: string; d: number } | null = null;
+          for (const door of planModeRef.current ? BLUEPRINT_DOORS : TOWN_DOORS) {
+            const d = Math.hypot(nextPosition.x - door.x, nextPosition.y - door.y);
+            if (d <= TOWN_DOOR_RADIUS && (!best || d < best.d)) best = { id: door.id, d };
+          }
+          if (best) nearbyBuilding = BUILDINGS.find((b) => b.id === best!.id);
+        }
         if (nearbyBuilding) {
           if (nearbyBuildingPromptIdRef.current !== nearbyBuilding.id) {
             nearbyBuildingPromptIdRef.current = nearbyBuilding.id;
@@ -1993,8 +2365,10 @@ export default function MapScreen({ navigation }: Props) {
   // face set: it reflects state MapScreen actually has, rather than reaching for an expression with
   // no story behind it. `captainFaceOverride` (occasional idle wink, or a happy/laugh flash on a
   // real win — see the effects above) takes priority over the plain heat tier while it's set.
-  const captainFace =
-    captainFaceOverride ?? (heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : FACE_NEUTRAL);
+  const captainFace = captainPortrait(
+    captainFaceOverride ?? (heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : FACE_NEUTRAL),
+    blackPearlCaptured || CHEEKY_ALWAYS_FOLLOW,
+  );
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -2053,6 +2427,7 @@ export default function MapScreen({ navigation }: Props) {
           <View
             style={[
               styles.world,
+              planMode && { backgroundColor: PLAN_PAPER },
               {
                 width: WORLD_WIDTH,
                 height: WORLD_HEIGHT,
@@ -2065,17 +2440,19 @@ export default function MapScreen({ navigation }: Props) {
                 transform: [
                   {
                     translateX:
-                      viewport.width / 2 - WORLD_WIDTH / 2 + ZOOM * (WORLD_WIDTH / 2 - player.x),
+                      viewport.width / 2 - WORLD_WIDTH / 2 + ZOOM * (WORLD_WIDTH / 2 - cam.x),
                   },
                   {
                     translateY:
-                      viewport.height / 2 - WORLD_HEIGHT / 2 + ZOOM * (WORLD_HEIGHT / 2 - player.y),
+                      viewport.height / 2 - WORLD_HEIGHT / 2 + ZOOM * (WORLD_HEIGHT / 2 - cam.y),
                   },
                   { scale: ZOOM },
                 ],
               },
             ]}
           >
+            {planMode && <PlanWorld />}
+            {!planMode && (
             <Svg
               width={WORLD_WIDTH}
               height={WORLD_HEIGHT}
@@ -2156,6 +2533,17 @@ export default function MapScreen({ navigation }: Props) {
                   strokeWidth={3}
                 />
               ))}
+
+              {SHOW_TORTUGA_V2 && (
+                <SvgImage
+                  href={TORTUGA_V2_BACKDROP.source}
+                  x={ISLANDS.tortuga_cove.position.x + TORTUGA_V2_BACKDROP.x}
+                  y={ISLANDS.tortuga_cove.position.y + TORTUGA_V2_BACKDROP.y}
+                  width={TORTUGA_V2_BACKDROP.width}
+                  height={TORTUGA_V2_BACKDROP.height}
+                  preserveAspectRatio="none"
+                />
+              )}
 
               {/* Garden/yard patches, centered on each entity's precomputed HOUSE/BUILDING_GARDEN_
                   OFFSETS rather than its actual position — nudged away from any real path so the
@@ -2267,6 +2655,7 @@ export default function MapScreen({ navigation }: Props) {
 
               {SHOW_DOCK &&
                 PIERS.map((pier, i) => {
+                if (pier.townDrawn && SHOW_TORTUGA_V2) return null;
                 const islandPos = ISLANDS[pier.islandId].position;
                 const x1 = islandPos.x + pier.from.x;
                 const y1 = islandPos.y + pier.from.y;
@@ -2305,6 +2694,7 @@ export default function MapScreen({ navigation }: Props) {
 
               {SHOW_DOCK &&
                 QUAYS.map((quay, i) => {
+                if (quay.townDrawn && SHOW_TORTUGA_V2) return null;
                 const islandPos = ISLANDS[quay.islandId].position;
                 const x1 = islandPos.x + quay.from.x;
                 const y1 = islandPos.y + quay.from.y;
@@ -2340,6 +2730,7 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
             </Svg>
+            )}
 
             {SHOW_HOUSES &&
               HOUSES.map((house, i) => {
@@ -2486,6 +2877,17 @@ export default function MapScreen({ navigation }: Props) {
                 </View>
               );
             })}
+
+            {SHOW_TORTUGA_V2 && !planMode && (
+              <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+                {TORTUGA_TOWN_FEATHERED}
+                {TORTUGA_V2_SPRITE_LAYER}
+              </View>
+            )}
+            {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} />}
+            {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
+                the same sailing sprite and size the player gets once aboard. */}
+            <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} />
 
             {SHOW_LANDMARKS &&
               LANDMARKS.map((landmark) => {
@@ -2840,6 +3242,49 @@ export default function MapScreen({ navigation }: Props) {
                 )}
               </View>
             )}
+
+            {cheekyFollowing && !shoulder && (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: cheeky.x - CHEEKY_SIZE / 2,
+                  // Feet on the same ground line as Scally's (his box is centred on the player).
+                  top: cheeky.y + PLAYER_SIZE / ZOOM / 2 - CHEEKY_SIZE,
+                  width: CHEEKY_SIZE,
+                  height: CHEEKY_SIZE,
+                }}
+              >
+                {/* Same opacity-toggle trick as Scally's own frames (see the "ghosting" note on the
+                    player sprite): every frame stays mounted and decoded, only one is visible. */}
+                {(() => {
+                  const celebrating = emoteOverlay?.frames === CELEBRATE_FRAMES;
+                  const active = celebrating
+                    ? CHEEKY_CELEBRATE
+                    : isMoving
+                    ? CHEEKY_HOP[cheeky.dir]
+                    : CHEEKY_IDLE;
+                  const idx = celebrating
+                    ? Math.min(Math.round((emoteFrame * CHEEKY_CELEBRATE.length) / CELEBRATE_FRAMES.length), CHEEKY_CELEBRATE.length - 1)
+                    : isMoving
+                    ? walkSpriteFrame % active.length
+                    : cheekyTick % active.length;
+                  return CHEEKY_V2_ALL.slice(0, 8 * 4 + CHEEKY_IDLE.length + CHEEKY_CELEBRATE.length).map((src, i) => (
+                    <RNImage
+                      key={`cheeky-${i}`}
+                      source={src}
+                      resizeMode="contain"
+                      style={{
+                        position: 'absolute',
+                        width: CHEEKY_SIZE,
+                        height: CHEEKY_SIZE,
+                        opacity: src === active[idx] ? 1 : 0,
+                      }}
+                    />
+                  ));
+                })()}
+              </View>
+            )}
           </View>
         )}
 
@@ -2848,8 +3293,8 @@ export default function MapScreen({ navigation }: Props) {
             style={[
               styles.player,
               {
-                left: viewport.width / 2 - PLAYER_SIZE / 2,
-                top: viewport.height / 2 - PLAYER_SIZE / 2,
+                left: viewport.width / 2 - PLAYER_SIZE / 2 + (player.x - cam.x) * ZOOM,
+                top: viewport.height / 2 - PLAYER_SIZE / 2 + (player.y - cam.y) * ZOOM,
               },
             ]}
           >
@@ -2860,7 +3305,7 @@ export default function MapScreen({ navigation }: Props) {
                 triggers a flourish in) that direction. 0-size and non-interactive — exists purely
                 to force an early decode. See the "ghosting" fix note below. */}
             <View style={styles.preloadFrames} pointerEvents="none">
-              {ALL_SCALLY_MAP_FRAMES.map((frameSource, i) => (
+              {[...ALL_SCALLY_MAP_FRAMES, ...CHEEKY_V2_ALL].map((frameSource, i) => (
                 <RNImage key={i} source={frameSource} style={styles.preloadFrame} />
               ))}
             </View>
@@ -2900,17 +3345,27 @@ export default function MapScreen({ navigation }: Props) {
               // (preloading every direction's frames up front so even a fresh direction change never
               // re-triggers a first-time-decode).
               (() => {
-                const activePoseFrames = scallyAttackFlash
+                const activePoseFrames = shoulder
+                  ? SCALLY_CHEEKY_CLIMB
+                  : scallyAttackFlash
                   ? [scallyAttackFlash === 'attack' ? POSE_ATTACK : POSE_SWORD_READY]
                   : emoteOverlay
-                  ? [emoteOverlay.source]
+                  ? emoteOverlay.frames
                   : idleFlourish
                   ? idleFlourish.frames
                   : isRunning
-                  ? RUN_SOURCES
+                  ? facingDir === 's' && !facingRight
+                    ? RUN_S_MIRRORED
+                    : RUN_SOURCES_BY_DIR[facingDir]
                   : scallySpriteFrames(facingDir, isMoving);
-                const activeFrameIndex = scallyAttackFlash || emoteOverlay
+                const activeFrameIndex = shoulder
+                  ? shoulder === 'riding'
+                    ? SCALLY_CHEEKY_CLIMB.length - 1
+                    : climbFrame
+                  : scallyAttackFlash
                   ? 0
+                  : emoteOverlay
+                  ? emoteFrame
                   : idleFlourish
                   ? idleFlourishFrame
                   : isRunning
@@ -2925,6 +3380,7 @@ export default function MapScreen({ navigation }: Props) {
                   <Animated.View
                     style={[styles.playerSprite, { transform: [{ translateY: walkBounce }] }]}
                   >
+                    <View pointerEvents="none" style={styles.playerShadow} />
                     {activePoseFrames.map((frameSource, i) => (
                       <RNImage
                         key={i}
@@ -3006,6 +3462,10 @@ export default function MapScreen({ navigation }: Props) {
               })()
             )}
           </View>
+        )}
+
+        {viewport.width > 0 && !planMode && (
+          <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} />
         )}
 
         {viewport.width > 0 && merchantShipFlash && (() => {
@@ -3300,6 +3760,15 @@ export default function MapScreen({ navigation }: Props) {
             <Text style={styles.buildingPromptText}>Board the Black Pearl?</Text>
           </Pressable>
         )}
+
+        <Pressable
+          style={styles.planToggle}
+          onPress={() => setPlanMode((m) => !m)}
+          hitSlop={6}
+          accessibilityLabel={planMode ? 'Show the island art' : 'Show the island blueprint'}
+        >
+          <Text style={styles.planToggleText}>{planMode ? '🎨 Art' : '📐 Plan'}</Text>
+        </Pressable>
 
         {compassAngleDeg !== null && (
           <View pointerEvents="none" style={styles.compassBadge}>
@@ -3677,6 +4146,22 @@ const styles = StyleSheet.create({
   compassEmoji: {
     fontSize: 26,
   },
+  planToggle: {
+    position: 'absolute',
+    top: 68,
+    right: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderWidth: 2,
+    borderColor: '#f4e9cd',
+  },
+  planToggleText: {
+    color: '#f4e9cd',
+    fontSize: 13,
+    fontWeight: '700',
+  },
   edgeIndicator: {
     position: 'absolute',
     width: EDGE_ICON_SIZE,
@@ -3735,9 +4220,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // v2 frames are a 112x128 canvas with the standing figure 108px tall; sized so he stands the
+  // same height as before (the old frames filled ~97% of theirs).
   playerSprite: {
-    width: PLAYER_SIZE * 1.5,
-    height: PLAYER_SIZE * 1.5,
+    width: PLAYER_SIZE * 1.5 * 1.15,
+    height: PLAYER_SIZE * 1.5 * 1.15,
+  },
+  // Soft ground shadow under his boots (feet sit 4px above the bottom of the 128px v2 canvas).
+  playerShadow: {
+    position: 'absolute',
+    left: PLAYER_SIZE * 1.725 * 0.5 - PLAYER_SIZE * 1.725 * 0.21,
+    top: PLAYER_SIZE * 1.725 * (124 / 128) - PLAYER_SIZE * 1.725 * 0.045,
+    width: PLAYER_SIZE * 1.725 * 0.42,
+    height: PLAYER_SIZE * 1.725 * 0.09,
+    borderRadius: PLAYER_SIZE,
+    backgroundColor: 'rgba(30, 18, 8, 0.45)',
   },
   // Each frame in the active walk/idle/run/flourish set overlays the same box, absolutely
   // positioned so they all stack exactly on top of each other — only the active one's `opacity`
