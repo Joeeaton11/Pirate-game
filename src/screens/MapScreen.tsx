@@ -39,6 +39,7 @@ import { BlueprintLayer, DEFAULT_PLAN_LAYERS, DiscoveryFog, EditOverlay, PLAN_LA
 import { EMPTY_EDITS, EditItem, PlanEdits, editCount, exportEdits, hitTest, loadEdits, saveEdits, withOffset } from '../blueprint/planEditing';
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
+import { BP_ERRANDS } from '../blueprint/tortugaGameplay.generated';
 import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
 import { DayNight } from '../town/DayNight';
 import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
@@ -866,6 +867,14 @@ export default function MapScreen({ navigation }: Props) {
   const discoveredRef = useRef(discoveredDistricts);
   discoveredRef.current = discoveredDistricts;
   const cliffToastRef = useRef(false);
+  // District errands: a local in each district wants something gathered.
+  const completedErrands = useGameStore((s) => s.completedErrands);
+  const completeErrand = useGameStore((s) => s.completeErrand);
+  const resourcesHeld = useGameStore((s) => s.resources);
+  const [nearbyErrandId, setNearbyErrandId] = useState<string | null>(null);
+  const nearbyErrandRef = useRef<string | null>(null);
+  const completedErrandsRef = useRef(completedErrands);
+  completedErrandsRef.current = completedErrands;
   // Whole-island view: zoomed right out over the island Scally is on; movement pauses.
   const [overview, setOverview] = useState(false);
   const overviewRef = useRef(false);
@@ -1971,6 +1980,19 @@ export default function MapScreen({ navigation }: Props) {
       playerRef.current = nextPosition;
       setPlayer(nextPosition);
       easeCamera();
+      {
+        const o = ISLANDS.tortuga_cove.position;
+        const e = nextIsland?.id === 'tortuga_cove'
+          ? BP_ERRANDS.find(
+              (er) => !completedErrandsRef.current.includes(er.id) && Math.hypot(nextPosition.x - o.x - er.x, nextPosition.y - o.y - er.y) <= 16
+            )
+          : undefined;
+        const id = e ? e.id : null;
+        if (id !== nearbyErrandRef.current) {
+          nearbyErrandRef.current = id;
+          setNearbyErrandId(id);
+        }
+      }
       const district = nextIsland?.id === 'tortuga_cove' ? districtAt(nextPosition) : null;
       if (district && !discoveredRef.current.includes(district)) {
         discoveredRef.current = [...discoveredRef.current, district];
@@ -2165,7 +2187,7 @@ export default function MapScreen({ navigation }: Props) {
         }
 
         // Resource nodes gather passively while walking through — no navigation, no interrupt.
-        const nearbyNode = SHOW_MAP_MARKERS
+        const nearbyNode = SHOW_MAP_MARKERS || nextIsland.id === 'tortuga_cove'
           ? RESOURCE_NODES.find((n) => {
               if (n.islandId !== nextIsland.id) return false;
               const np = resourceNodeWorldPosition(n, nextIsland.position);
@@ -2984,7 +3006,7 @@ export default function MapScreen({ navigation }: Props) {
             {planMode && <PlanIslands cam={camCoarse} visible={planLayers} />}
             {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
                 the same sailing sprite and size the player gets once aboard. */}
-            <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} />
+            <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} doneErrands={completedErrands} />
             {!editMode && <DiscoveryFog origin={ISLANDS.tortuga_cove.position} discovered={discoveredDistricts} />}
             {planMode && editMode && (
               <EditOverlay origin={ISLANDS.tortuga_cove.position} edits={edits} selected={editSelected} />
@@ -3871,6 +3893,38 @@ export default function MapScreen({ navigation }: Props) {
           </Pressable>
         )}
 
+        {nearbyErrandId && (() => {
+          const e = BP_ERRANDS.find((er) => er.id === nearbyErrandId);
+          if (!e) return null;
+          const res = RESOURCES[e.resource as keyof typeof RESOURCES];
+          const have = resourcesHeld[e.resource] ?? 0;
+          const enough = have >= e.amount;
+          return (
+            <View style={styles.errandCard}>
+              <Text style={styles.errandWho}>
+                {e.person} · {e.district}
+              </Text>
+              <Text style={styles.errandLine}>"{e.line}"</Text>
+              <Text style={styles.errandNeed}>
+                Wants {e.amount} {res?.emoji} {res?.name} · you have {have} · reward {e.gold} gold
+              </Text>
+              <Pressable
+                style={[styles.errandButton, !enough && { opacity: 0.45 }]}
+                disabled={!enough}
+                onPress={() => {
+                  if (completeErrand(e.id, e.resource, e.amount, e.gold)) {
+                    showResourceToast(`🪙 +${e.gold} gold — ${e.person} thanks you`, 2600);
+                    nearbyErrandRef.current = null;
+                    setNearbyErrandId(null);
+                  }
+                }}
+              >
+                <Text style={styles.errandButtonText}>{enough ? 'Hand over' : `Gather ${e.amount - have} more`}</Text>
+              </Pressable>
+            </View>
+          );
+        })()}
+
         {showBoardPrompt && (
           <Pressable style={styles.buildingPrompt} onPress={confirmBoardBlackPearl}>
             <Text style={styles.buildingPromptEmoji}>{BLACK_PEARL_EMOJI}</Text>
@@ -4361,6 +4415,22 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#f4e9cd',
   },
+  errandCard: {
+    position: 'absolute',
+    left: 14,
+    right: 14,
+    bottom: 18,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: 'rgba(36,24,14,0.94)',
+    borderWidth: 2,
+    borderColor: '#c9a227',
+  },
+  errandWho: { color: '#f4e9cd', fontSize: 15, fontWeight: '800' },
+  errandLine: { color: '#f4e9cd', fontSize: 14, fontStyle: 'italic', marginTop: 4 },
+  errandNeed: { color: '#e8c872', fontSize: 13, marginTop: 6 },
+  errandButton: { alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, backgroundColor: '#c9a227' },
+  errandButtonText: { color: '#24180e', fontSize: 14, fontWeight: '800' },
   editBar: {
     position: 'absolute',
     left: 12,

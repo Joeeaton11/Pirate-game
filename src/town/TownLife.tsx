@@ -5,10 +5,11 @@
  * re-renders this layer, not itself.
  */
 import React, { useEffect, useState } from 'react';
-import { Image as RNImage, ImageSourcePropType, View } from 'react-native';
+import { Image as RNImage, ImageSourcePropType, Text, View } from 'react-native';
 import { NPC_SPRITES } from '../data/npcSprites';
 import { SHIMMER_POINTS, WALKER_ROUTES } from './townLife.generated';
-import { BP_WALKS } from '../blueprint/tortugaGameplay.generated';
+import { BP_CRABS, BP_ERRANDS, BP_GROTTO, BP_GULLS, BP_LIGHTHOUSE, BP_WALKS } from '../blueprint/tortugaGameplay.generated';
+import { nightAmount } from './DayNight';
 
 const FRAME_MS = 100;
 const WALK_FRAME_MS = 115;
@@ -24,6 +25,18 @@ const BOATS: { src: ImageSourcePropType; l: number; t: number; w: number; h: num
 ];
 
 const GULL = require('../../assets/sprites/wildlife/seagull_flying_1.png');
+const GULL_PERCHED = [
+  require('../../assets/sprites/wildlife/seagull_1.png'),
+  require('../../assets/sprites/wildlife/seagull_2.png'),
+];
+const CRAB = [
+  require('../../assets/sprites/wildlife/crab_1.png'),
+  require('../../assets/sprites/wildlife/crab_2.png'),
+  require('../../assets/sprites/wildlife/crab_3.png'),
+  require('../../assets/sprites/wildlife/crab_4.png'),
+  require('../../assets/sprites/wildlife/crab_5.png'),
+  require('../../assets/sprites/wildlife/crab_6.png'),
+];
 const GULLS = [
   { cx: 40, cy: -420, rx: 60, ry: 22, speed: 0.22, phase: 0, size: 7 },
   { cx: 170, cy: -400, rx: 45, ry: 30, speed: -0.3, phase: 2, size: 6 },
@@ -91,9 +104,11 @@ interface Props {
   ship: { x: number; y: number; size: number; source: ImageSourcePropType } | null;
   /** Blueprint mode: only the ship and the walkers (no painted-ship bobbing, gulls or glints). */
   plan?: boolean;
+  /** Errands already handed in (their askers go home). */
+  doneErrands?: string[];
 }
 
-export const TownLife = React.memo(function TownLife({ origin, ship, plan }: Props) {
+export const TownLife = React.memo(function TownLife({ origin, ship, plan, doneErrands = [] }: Props) {
   const t = useClock();
   const ox = origin.x;
   const oy = origin.y;
@@ -120,7 +135,11 @@ export const TownLife = React.memo(function TownLife({ origin, ship, plan }: Pro
     );
   });
 
+  const { dark } = nightAmount(t);
+  const night = dark > 0.6;
+  // Townsfolk head home after dark; only the odd straggler stays out.
   const walkers = PLANS.map((plan, i) => {
+    if (night && i % 4 !== 0) return null;
     const sprite = NPC_SPRITES[WALKER_CAST[i % WALKER_CAST.length]];
     if (!sprite) return null;
     // Stagger each walker along its own loop so they don't all leave home together.
@@ -139,6 +158,81 @@ export const TownLife = React.memo(function TownLife({ origin, ship, plan }: Pro
     .filter(Boolean)
     .sort((a, b) => a!.y - b!.y)
     .map((x) => x!.el);
+
+  // Errand-givers stand at their spots with a '!' until their errand is done.
+  const errandFolk = BP_ERRANDS.filter((e) => !doneErrands.includes(e.id)).map((e, i) => {
+    const sprite = NPC_SPRITES[e.sprite];
+    if (!sprite) return null;
+    const h = WALKER_HEIGHT;
+    const w = h * sprite.aspect;
+    const bob = Math.sin(t * 2 + i) * 0.3;
+    return (
+      <View key={`e${e.id}`} style={{ position: 'absolute', left: ox + e.x - w / 2, top: oy + e.y - h, width: w, height: h }}>
+        <View style={{ position: 'absolute', left: w * 0.22, right: w * 0.22, bottom: -0.6, height: 1.4, borderRadius: 1, backgroundColor: 'rgba(0,0,0,0.25)' }} />
+        <RNImage source={sprite.src} resizeMode="contain" style={{ width: w, height: h }} />
+        <View style={{ position: 'absolute', left: w / 2 - 2.2, top: -6 + bob, width: 4.4, height: 4.4, borderRadius: 2.2, backgroundColor: '#c9a227', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 3.4, lineHeight: 4.2, fontWeight: '900', color: '#24180e' }}>!</Text>
+        </View>
+      </View>
+    );
+  });
+
+  // Smugglers come out at the grotto after dark.
+  const smugglers = night
+    ? ['patron_tortuga_rival', 'tortuga_amb_sailor'].map((key, i) => {
+        const sprite = NPC_SPRITES[key];
+        if (!sprite) return null;
+        const pace = Math.sin(t * 0.5 + i * 2) * 6;
+        const frames = Math.cos(t * 0.5 + i * 2) >= 0 ? sprite.walk : sprite.walkLeft;
+        const frame = frames ? frames[Math.floor((t * 1000) / WALK_FRAME_MS) % frames.length] : sprite.src;
+        const h = WALKER_HEIGHT * (frames ? sprite.walkScale ?? 1 : 1);
+        const w = h * (frames ? sprite.walkAspect ?? sprite.aspect : sprite.aspect);
+        const x = BP_GROTTO.x + 8 + i * 10 + pace;
+        const y = BP_GROTTO.y + 10 + i * 4;
+        return (
+          <RNImage key={`sm${i}`} source={frame} resizeMode="contain" style={{ position: 'absolute', left: ox + x - w / 2, top: oy + y - h, width: w, height: h }} />
+        );
+      })
+    : null;
+
+  // Crabs scuttle side to side on the beaches; gulls sit on the docks and hop now and then.
+  const crabs = BP_CRABS.map(([x, y], i) => {
+    const dx = Math.sin(t * 0.7 + i * 1.9) * 3;
+    const frame = CRAB[Math.floor(t * 8 + i) % CRAB.length];
+    return (
+      <RNImage key={`c${i}`} source={frame} resizeMode="contain" style={{ position: 'absolute', left: ox + x + dx - 2, top: oy + y - 2, width: 4, height: 4 }} />
+    );
+  });
+  const perched = BP_GULLS.map(([x, y], i) => {
+    const hop = Math.max(0, Math.sin(t * 0.9 + i * 2.3) - 0.9) * 8;
+    return (
+      <RNImage
+        key={`pg${i}`}
+        source={GULL_PERCHED[i % GULL_PERCHED.length]}
+        resizeMode="contain"
+        style={{ position: 'absolute', left: ox + x - 2.5, top: oy + y - 4 - hop, width: 5, height: 4, transform: [{ scaleX: i % 3 ? 1 : -1 }] }}
+      />
+    );
+  });
+
+  // The lighthouse lamp sweeps the sea at night.
+  const beam =
+    dark > 0.3 ? (
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          left: ox + BP_LIGHTHOUSE.x,
+          top: oy + BP_LIGHTHOUSE.y - 4,
+          width: 160,
+          height: 8,
+          opacity: 0.35 * Math.min(1, (dark - 0.3) / 0.4),
+          transform: [{ translateX: -80 }, { rotate: `${(t * 40) % 360}deg` }, { translateX: 80 }],
+        }}
+      >
+        <View style={{ flex: 1, backgroundColor: '#ffe9a8', borderTopRightRadius: 8, borderBottomRightRadius: 8 }} />
+      </View>
+    ) : null;
 
   const gulls = GULLS.map((g, i) => {
     const a = t * g.speed + g.phase;
@@ -195,7 +289,12 @@ export const TownLife = React.memo(function TownLife({ origin, ship, plan }: Pro
           }}
         />
       )}
+      {crabs}
+      {perched}
       {walkers}
+      {errandFolk}
+      {smugglers}
+      {beam}
       {!plan && gulls}
     </View>
   );

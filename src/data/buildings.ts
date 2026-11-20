@@ -1007,6 +1007,41 @@ export const BUILDINGS: Building[] = [
     npcEmoji: '💃',
     dialogue: "Every captain needs a parrot. Well — every captain who wants to look like one.",
   },
+  // Explorable landmarks (2026-11-20, island blueprint pass): places you can walk into on Tortuga.
+  // Their doors come from the blueprint (tools/blueprint/plan_tortuga.py), not `offset`.
+  {
+    id: 'tortuga_lighthouse_tower',
+    islandId: 'tortuga_cove',
+    name: 'The Lighthouse',
+    type: 'watchtower',
+    emoji: '🗼',
+    offset: { x: -224, y: -474 },
+    npcName: 'Keeper Hollis',
+    npcEmoji: '🧓',
+    dialogue: "Two hundred and twelve steps. I counted them every night for thirty years. The lamp doesn't light itself.",
+  },
+  {
+    id: 'tortuga_grotto',
+    islandId: 'tortuga_cove',
+    name: "The Smugglers' Grotto",
+    type: 'ruins',
+    emoji: '🕳️',
+    offset: { x: -416, y: 318 },
+    npcName: 'Jacques the Lantern',
+    npcEmoji: '🧔',
+    dialogue: "You didn't see me, I didn't see you, and neither of us saw the barrels. Comprende?",
+  },
+  {
+    id: 'tortuga_wreck',
+    islandId: 'tortuga_cove',
+    name: 'Wreck of the Santa Catalina',
+    type: 'ruins',
+    emoji: '⚓',
+    offset: { x: -445, y: 284 },
+    npcName: 'Old Salvager Pim',
+    npcEmoji: '🧑‍🦳',
+    dialogue: "She went down with forty chests of silver. I've found two. Patience, lad — the sea gives things back.",
+  },
 ];
 
 export function buildingsForIsland(islandId: string): Building[] {

@@ -93,6 +93,8 @@ interface GameState {
   foundTreasureIds: string[];
   /** Tortuga districts the player has walked into (blueprint discovery fog). */
   discoveredDistricts: string[];
+  /** District errands handed in (blueprint ERRANDS). */
+  completedErrands: string[];
   currentBlackfinStageId: string | null;
   completedBlackfinStageIds: string[];
   currentGraceStageId: string | null;
@@ -161,6 +163,8 @@ interface GameState {
   boardBlackPearl: () => void;
   disembarkBlackPearl: (position: { x: number; y: number }) => void;
   discoverDistrict: (name: string) => void;
+  /** Hand over `amount` of a resource for an errand; returns false if you don't have enough. */
+  completeErrand: (id: string, resourceId: string, amount: number, gold: number) => boolean;
 }
 
 const STARTER_TEMPLATE_ID = 'deckhand_swordsman';
@@ -197,6 +201,7 @@ type InitialState = Pick<
   | 'blackPearlPosition'
   | 'foundTreasureIds'
   | 'discoveredDistricts'
+  | 'completedErrands'
   | 'currentBlackfinStageId'
   | 'completedBlackfinStageIds'
   | 'currentGraceStageId'
@@ -239,6 +244,7 @@ function createInitialState(): InitialState {
     },
     foundTreasureIds: [],
     discoveredDistricts: START_DISTRICTS,
+    completedErrands: [],
     currentBlackfinStageId: null,
     completedBlackfinStageIds: [],
     currentGraceStageId: null,
@@ -487,6 +493,16 @@ export const useGameStore = create<GameState>()(
       boardBlackPearl: () => set({ blackPearlBoarded: true }),
 
       disembarkBlackPearl: (position) => set({ blackPearlBoarded: false, blackPearlPosition: position }),
+      completeErrand: (id, resourceId, amount, gold) => {
+        const state = get();
+        if (state.completedErrands.includes(id) || (state.resources[resourceId] ?? 0) < amount) return false;
+        set({
+          completedErrands: [...state.completedErrands, id],
+          resources: { ...state.resources, [resourceId]: (state.resources[resourceId] ?? 0) - amount },
+          gold: state.gold + gold,
+        });
+        return true;
+      },
       discoverDistrict: (name) =>
         set((state) => (state.discoveredDistricts.includes(name) ? state : { discoveredDistricts: [...state.discoveredDistricts, name] })),
 
@@ -815,6 +831,7 @@ export const useGameStore = create<GameState>()(
         blackPearlPosition: state.blackPearlPosition,
         foundTreasureIds: state.foundTreasureIds,
         discoveredDistricts: state.discoveredDistricts,
+        completedErrands: state.completedErrands,
         completedBlackfinStageIds: state.completedBlackfinStageIds,
         completedGraceStageIds: state.completedGraceStageIds,
       }),

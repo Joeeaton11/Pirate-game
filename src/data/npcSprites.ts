@@ -115,3 +115,9 @@ alias('tortuga_amb_clerk', 'tortuga_amb_lass');
 alias('tortuga_amb_captain', 'tortuga_amb_sailor');
 alias('tortuga_amb_galley', 'tortuga_amb_cook');
 alias('tortuga_amb_sailmaker', 'tortuga_amb_lass');
+
+// Keepers for the blueprint rooms (src/data/planRooms.generated.ts), drawn with the same cast.
+import { PLAN_ROOM_KEEPERS } from './planRooms.generated';
+Object.entries(PLAN_ROOM_KEEPERS).forEach(([bid, from]) => {
+  if (!NPC_SPRITES[`${bid}:main`]) alias(`${bid}:main`, from, ['pour', 'pourAspect', 'sit', 'sitAspect', 'sitSide', 'sitSideAspect']);
+});

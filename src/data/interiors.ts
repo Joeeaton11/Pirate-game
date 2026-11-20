@@ -827,7 +827,7 @@ export function interiorForBuilding(
   buildingId: string,
   patronQuestIds: string[]
 ): BuildingInterior {
-  const authored = BUILDING_INTERIORS[buildingId];
+  const authored = BUILDING_INTERIORS[buildingId] ?? PLAN_ROOMS[buildingId];
   if (authored) return authored;
   return fallbackInterior(buildingId, patronQuestIds);
 }
@@ -854,3 +854,6 @@ function fallbackInterior(buildingId: string, patronQuestIds: string[]): Buildin
     npcSpots,
   };
 }
+
+// Rooms for Tortuga's buildings outside the painted town and its explorable landmarks.
+import { PLAN_ROOMS } from './planRooms.generated';

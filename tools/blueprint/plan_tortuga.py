@@ -39,6 +39,7 @@ SEA_ZONES = [
 LAGOON = {'c': (440, 118), 'r': 30}
 RIVERS = [
     {'name': 'Ringot River', 'pts': [(424, 144), (400, 196), (372, 256), (350, 326), (334, 398)], 'w': 10},
+    {'name': 'High Woods Falls', 'pts': [(472, -62), (446, -30), (428, -2), (416, 48), (424, 92)], 'w': 5},
     {'name': 'Cayonne Brook', 'pts': [(-162, 46), (-240, 60), (-292, 100), (-360, 106), (-420, 94), (-454, 84)], 'w': 8},
 ]
 
@@ -55,7 +56,7 @@ ROADS = [
     ('Ringot Bridge Track', 'path', 4, [(330, 250), (420, 236), (470, 196), (494, 140)]),
     ('Rocher Row', 'lane', 6, [(366, -262), (410, -262)]),
     ('East Road', 'main', 8, [(300, -150), (362, -140), (420, -96), (452, -20), (466, 4)]),
-    ('Fort Road', 'main', 7, [(362, -140), (366, -230), (364, -326)]),
+    ('Fort Road', 'main', 7, [(362, -140), (366, -230), (364, -321)]),
     ('Shipyard Lane', 'lane', 6, [(420, -96), (444, -138), (444, -176)]),
     ('Watchtower Path', 'path', 4, [(452, -20), (520, -20), (552, 0)]),
     ("Suzette's Path", 'path', 4, [(498, 40), (500, 96), (494, 118)]),
@@ -71,13 +72,15 @@ ROADS = [
     ('Trapper Path', 'path', 4, [(-20, 206), (-4, 214)]),
     ('South Shore Path', 'path', 4, [(20, 410), (100, 393), (150, 389)]),
     ('Signal Post Spur', 'path', 3, [(-258, -330), (-267, -330)]),
+    ('Lookout Spur', 'path', 3, [(500, -20), (500, -29)]),
+    ("Smugglers' Trail", 'secret', 3, [(-4, 222), (-80, 262), (-170, 282), (-262, 300), (-340, 312), (-406, 322)]),
 ]
 
 # Plazas (cobbled open ground): (name, l, r, t, b)
 PLAZAS = [
     ('Cayonne Square', -362, -300, -60, -10),
     ('Crossroads Green', -256, -216, 348, 376),
-    ('Fort Yard', 346, 382, -336, -324),
+    ('Fort Yard', 346, 384, -336, -320),
     ('Rocher Green', 380, 404, -250, -230),
 ]
 
@@ -100,9 +103,13 @@ BUILDINGS = [
     # Lighthouse headland.
     ('tortuga_west_point', 'West Point Shack', 'home', -238, -262, 20, 16, 'E'),
     ('tortuga_signal_post', 'Signal Post', 'civic', -278, -330, 14, 12, 'E'),
-    (None, 'Lighthouse', 'landmark', -224, -474, 14, 14, 'S'),
+    ('tortuga_lighthouse_tower', 'Lighthouse', 'landmark', -224, -474, 14, 14, 'S'),
     # East: fort, shipyard, manor, watchtower.
     ('tortuga_fort', 'Fort de Rocher', 'fort', 364, -350, 44, 28, 'S'),
+    (None, 'Barracks', 'civic', 394, -330, 10, 16, 'W'),
+    (None, 'Gate Tower', 'fort', 354, -317, 6, 6, None),
+    (None, 'Gate Tower', 'fort', 374, -317, 6, 6, None),
+    (None, 'Lookout', 'shed', 500, -36, 8, 8, 'S'),
     ('tortuga_shipyard', 'The Shipyard', 'warehouse', 468, -176, 30, 22, 'W'),
     ('tortuga_shipwrights_slip', "Shipwright's Slip", 'warehouse', 464, -138, 24, 18, 'W'),
     ('tortuga_le_vasseur_residence', "Le Vasseur's Residence", 'manor', 466, 26, 30, 22, 'N'),
@@ -172,6 +179,18 @@ PROPS = [
     ('boat', -232, 450), ('boat', -24, 490), ('signpost', 334, 246), ('signpost', -404, 110), ('signpost', -24, 214),
     ('cave', -416, 318), ('wreck', -452, 290), ('marked_palm', -354, 394), ('campfire', -2, 228),
     ('still', 486, 128),
+    # Fort battery facing the harbour.
+    ('cannon', 346, -362), ('cannon', 382, -362), ('cannon', 352, -374), ('cannon', 376, -374),
+    # Busier docks: crane, cargo, bollards and nets on the town wharf; nets at the jetties.
+    ('crane', 160, -297), ('cargo', 118, -296), ('cargo', 205, -296), ('cargo', 40, -299), ('nets', 232, -298), ('nets', -205, -372),
+    ('bollard', -40, -305), ('bollard', 0, -305), ('bollard', 60, -305), ('bollard', 120, -297), ('bollard', 180, -297), ('bollard', 240, -297),
+    ('nets', 190, 446), ('crates', -190, -372), ('barrels', -234, -380),
+    # Market day in Basse-Terre Square.
+    ('stall', 10, -92), ('stall', 30, -92), ('stall', 80, -92), ('stall', 100, -92), ('bench', 40, -104), ('bench', 66, -104),
+    # Washing lines in Cayonne, the Crossroads and Rocher Row.
+    ('washing', -245, -80), ('washing', -449, -48), ('washing', -192, 340), ('washing', 344, -241), ('washing', 344, -271),
+    # High Woods: the falls and the lookout.
+    ('falls', 446, -30), ('lookout', 500, -36),
 ]
 
 # ---- Labels: district and landmark names (x, y, text, size)
@@ -184,7 +203,8 @@ LABELS = [
     (-226, 470, 'Turtle Cove', 'place'), (-548, -60, 'Mangrove Swamp', 'place'), (500, -296, 'Coral Reef Shoal', 'place'),
     (-398, 168, 'Coconut Palm Grove', 'place'), (366, 196, 'Wild Sugarcane', 'place'), (392, -272, 'ROCHER ROW', 'district'),
     (-300, 118, 'Cayonne Brook', 'place'), (-70, 470, 'Old Landing', 'place'), (85, 422, 'Forgotten Graves', 'place'),
-    (-430, 270, 'Wreck of the Santa Catalina', 'place'), (-408, 308, "Smugglers' Grotto", 'place'),
+    (-430, 270, 'Wreck of the Santa Catalina', 'place'), (452, -48, 'High Woods Falls', 'place'), (515, -48, 'Lookout', 'place'),
+    (-200, 296, "Smugglers' Trail (hidden)", 'place'), (-408, 308, "Smugglers' Grotto", 'place'),
     (-352, 408, 'The Marked Palm', 'place'), (440, 118, 'Lagoon', 'place'), (500, 140, "Old Suzette's Still", 'place'),
 ]
 
@@ -277,4 +297,51 @@ TOWN_STREETS = [
     ('Quayside', 100, -199, 0), ('Rue du Commerce', 150, -123, 0), ('Chapel Street', 40, -49, 0),
     ('South Lane', -20, 23, 0), ('Basse-Terre Square', 52, -96, 0),
     ('Harbour Steps', 67, -170, 90), ("Coopers' Alley", -80, -100, 90), ('Church Row', 211, -80, 90),
+]
+
+# ---- Boundaries: fences round cottage yards (behind and to the sides; front open), hedges round
+# the fields, stone walls round the graveyard, the manor garden and the fort. Gaps are cut wherever
+# a road or path meets them, so every gate lines up with the way in.
+FORT_WALLS = (334, -376, 402, -318)   # l, t, r, b — clipped to the coast; gate where the Fort Road enters
+HEDGED = ['fields', 'sugarcane']
+WALLED = ['graveyard', 'garden']
+
+# ---- Wildlife zones: (kind, polygon). The game puts crabs on beaches and gulls on the docks.
+WILDLIFE = [
+    ('crabs', [(-240, 430), (-190, 420), (-170, 450), (-230, 470)]),
+    ('crabs', [(-470, 200), (-440, 200), (-445, 300), (-470, 290)]),
+    ('crabs', [(-560, -80), (-520, -110), (-500, -60), (-560, -20)]),
+    ('gulls', [(-260, -440), (-170, -430), (-170, -340), (-260, -330)]),
+    ('gulls', [(-60, -420), (280, -420), (280, -290), (-60, -290)]),
+    ('gulls', [(140, 380), (220, 380), (220, 480), (140, 480)]),
+    ('parrots', [(-200, 140), (180, 150), (200, 300), (-180, 320)]),
+    ('goats', [(470, -110), (560, -60), (540, 20), (460, -20)]),
+    ('goats', [(-262, -480), (-215, -500), (-240, -400), (-270, -410)]),
+    ('turtles', [(-245, 440), (-180, 430), (-190, 468), (-240, 470)]),
+]
+
+# ---- Gathering spots: (resource, id, x, y). Walk through to gather (cooldown per spot).
+GATHER = [
+    ('fish', 'node_tortuga_fish_westpier', -184, -400), ('fish', 'node_tortuga_fish_southjetty', 196, 462),
+    ('fish', 'node_tortuga_fish_turtlecove', -210, 468), ('fish', 'node_tortuga_fish_oldlanding', -38, 506),
+    ('timber', 'node_tortuga_timber_highwoods', 520, -90), ('timber', 'node_tortuga_timber_hollow', -110, 236),
+    ('coconut', 'node_tortuga_coconut_grove', -396, 150), ('coconut', 'node_tortuga_coconut_grove2', -372, 196),
+    ('sugarcane', 'node_tortuga_cane_ringot', 366, 236),
+]
+
+# ---- District errands: one local per district who wants something gathered. (id, district,
+# person, sprite key, x, y, resource, amount, gold, line)
+ERRANDS = [
+    ('errand_cayonne', 'Cayonne', 'Widow Marchand', 'tortuga_amb_lass', -318, -24, 'fish', 3, 25, "Three fish for the almshouse pot, and I'll see you paid."),
+    ('errand_lighthouse', 'Lighthouse Head', 'Keeper Hollis', 'tortuga_amb_sailor', -250, -350, 'timber', 2, 20, 'The lamp-house shutters are rotten. Bring me timber.'),
+    ('errand_cove', "Contrebandiers' Cove", 'Mud-Boots Lefèvre', 'patron_tortuga_drunk', -528, -40, 'coconut', 2, 15, "Coconuts, mate. Don't ask what for."),
+    ('errand_palmshore', 'Palm Shore', 'Little Anouk', 'tortuga_amb_browser', -392, 120, 'fish', 2, 15, 'Gran says the cove fish are best. Can you catch some?'),
+    ('errand_crossroads', 'Crossroads', 'Innkeeper Duval', 'tortuga_amb_cook', -214, 380, 'sugarcane', 3, 30, 'No cane, no rum. No rum, no customers.'),
+    ('errand_hollow', "Blackwood's Hollow", 'Old Trapper Brac', 'tortuga_amb_deckhand', -14, 240, 'timber', 3, 25, 'Need wood for the smoke-hut before the rains.'),
+    ('errand_south', 'Southern Shore', 'Sexton Morne', 'patron_tortuga_mystic', 40, 420, 'coconut', 1, 10, 'One coconut for the dead. Old custom. Ask no more.'),
+    ('errand_ringot', 'La Ringot', 'Farmer Rosalie', 'tortuga_amb_galley', 288, 206, 'fish', 4, 30, 'Fish guts make the cane grow. Truly.'),
+    ('errand_highwoods', 'The High Woods', "Suzette's Nephew", 'tortuga_amb_apprentice', 488, 100, 'sugarcane', 2, 25, "Auntie's still is dry. Cane, if you've any."),
+    ('errand_rocher', 'Rocher Row', 'Madame Coquille', 'tortuga_amb_sailmaker', 372, -244, 'timber', 2, 20, 'My shutters blew off in the gale. Timber, love.'),
+    ('errand_fort', 'Fort de Rocher', 'Sergeant Brisac', 'patron_tortuga_rival', 360, -300, 'fish', 5, 40, 'The garrison eats like sharks. Fish. Lots.'),
+    ('errand_meadows', "King's Meadows", 'Shepherd Tomas', 'tortuga_amb_clerk', 90, 112, 'coconut', 3, 25, 'The goats are off their feed. Coconuts help.'),
 ]

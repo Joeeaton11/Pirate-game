@@ -7,7 +7,7 @@ from xml.sax.saxutils import escape
 
 X0, Y0, W, H = -620, -580, 1240, 1120
 PAPER, INK, BLUE, GREEN, GRID = '#f4f1e6', '#2b2a27', '#3b6e9c', '#4c7a45', '#8fb0cf'
-POI_COL = {'treasure': '#b8860b', 'landmark': '#b8860b', 'resource': '#2f8fb5', 'quest': '#c0392b'}
+POI_COL = {'treasure': '#b8860b', 'landmark': '#b8860b', 'resource': '#2f8fb5', 'quest': '#c0392b', 'errand': '#8e44ad'}
 
 def f(v): return f'{v:.1f}'.rstrip('0').rstrip('.')
 
@@ -78,6 +78,7 @@ LAYERS = [
     ('bridges', 'Bridges', True, 'build'),
     ('docks', 'Docks & piers', True, 'build'),
     ('boats', 'Moored boats', True, 'build'),
+    ('boundaries', 'Fences, hedges & walls', True, 'build'),
     ('trees', 'Trees & planting', True, 'nature'),
     ('rocks', 'Rocks', True, 'nature'),
     ('buildings', 'Homes & sheds', True, 'build'),
@@ -94,6 +95,7 @@ LAYERS = [
     ('shipping', 'Shallows & lanes', False, 'game'),
     ('discovery', 'Discovery areas', False, 'game'),
     ('triggers', 'Quest triggers', False, 'game'),
+    ('wildlife', 'Wildlife', False, 'game'),
     ('walkmap', 'Walk map', False, 'game'),
     ('routes', 'Townsfolk routes', False, 'game'),
     ('lighting', 'Night lighting', False, 'game'),
@@ -193,11 +195,15 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     L('roads')
     for _, k, w, pts in P.ROADS:
         pl = ' '.join(f'{x},{y}' for x, y in pts)
+        if k == 'secret':  # hidden trail: a faint dotted line, no kerbs
+            o.append(f'<polyline points="{pl}" fill="none" stroke="#7d6a55" stroke-width="0.7" stroke-dasharray="0.6 1.8" stroke-linecap="round" stroke-linejoin="round"/>')
+            continue
         dash = ' stroke-dasharray="2.5 1.5"' if k == 'path' else ''
         o.append(f'<polyline points="{pl}" fill="none" stroke="{INK}" stroke-width="{w + 0.8}" stroke-linecap="round" stroke-linejoin="round"{dash}/>')
     for n, l, r, t, b in P.PLAZAS:
         o.append(f'<rect x="{l}" y="{t}" width="{r - l}" height="{b - t}" fill="{PAPER}" stroke="{INK}" stroke-width="0.5"/>')
     for _, k, w, pts in P.ROADS:
+        if k == 'secret': continue
         pl = ' '.join(f'{x},{y}' for x, y in pts)
         o.append(f'<polyline points="{pl}" fill="none" stroke="{PAPER}" stroke-width="{w - 0.2}" stroke-linecap="round" stroke-linejoin="round"/>')
     # The painted town's streets: the edge of its open ground, inked like a road kerb.
@@ -233,6 +239,22 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     for x, y, hdg in getattr(P, 'MOORED', []):
         o.append(f'<g transform="translate({x},{y}) rotate({hdg})"><path d="M-7 0Q-4 -2.6 3 -2.4L7 0L3 2.4Q-4 2.6 -7 0Z" fill="{PAPER}" stroke="{INK}" stroke-width="0.45"/>'
                  f'<path d="M-4 0H4" stroke="{INK}" stroke-width="0.2"/></g>')
+
+    L('boundaries')
+    if extra.get('fence') is not None and not extra['fence'].is_empty:
+        o.append(path(lines_d(extra['fence']), '#6e4b2a', 0.45))
+        posts = []
+        for ln in (extra['fence'].geoms if hasattr(extra['fence'], 'geoms') else [extra['fence']]):
+            t = 0
+            while t <= ln.length:
+                p = ln.interpolate(t); posts.append(f'M{f(p.x - 0.5)} {f(p.y - 0.5)}h1v1h-1Z'); t += 4
+        o.append(f'<path d="{"".join(posts)}" fill="#6e4b2a"/>')
+    if extra.get('hedge') is not None and not extra['hedge'].is_empty:
+        o.append(path(lines_d(extra['hedge']), GREEN, 2.0, 'stroke-linecap="round" opacity="0.35"'))
+        o.append(path(lines_d(extra['hedge']), GREEN, 0.4, 'stroke-dasharray="1.2 0.8"'))
+    if extra.get('wall') is not None and not extra['wall'].is_empty:
+        o.append(path(lines_d(extra['wall']), INK, 1.6, 'stroke-linecap="square"'))
+        o.append(path(lines_d(extra['wall']), PAPER, 0.6, 'stroke-linecap="square"'))
 
     TR = {'jungle': 4, 'tree': 5, 'palm': 3.2, 'rock': 3.6, 'mangrove': 3.4}
     for kind in TR:
@@ -292,10 +314,21 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         elif k == 'boat': o.append(f'<ellipse cx="{x}" cy="{y}" rx="3.5" ry="1.4" fill="none" stroke="{INK}" stroke-width="0.35"/>')
         elif k == 'cannon': o.append(path(f'M{x - 2} {y}h4', INK, 0.9))
         elif k == 'cave': pass
+        elif k == 'crane': o.append(f'<circle cx="{x}" cy="{y}" r="2" fill="none" stroke="{INK}" stroke-width="0.5"/>' + path(f'M{x} {y}l9 -6', INK, 0.8) + path(f'M{x + 9} {y - 6}v4', INK, 0.25))
+        elif k == 'cargo': o.append(f'<rect x="{x - 4}" y="{y - 2.5}" width="8" height="5" fill="none" stroke="{INK}" stroke-width="0.35"/>' + path(f'M{x - 4} {y - 2.5}l8 5M{x + 4} {y - 2.5}l-8 5', INK, 0.2))
+        elif k == 'bollard': o.append(f'<circle cx="{x}" cy="{y}" r="0.9" fill="{INK}"/>')
+        elif k == 'nets': o.append(path(f'M{x - 4} {y - 2}h8M{x - 4} {y}h8M{x - 4} {y + 2}h8M{x - 3} {y - 2.5}v5M{x} {y - 2.5}v5M{x + 3} {y - 2.5}v5', INK, 0.2))
+        elif k == 'stall': o.append(f'<rect x="{x - 4}" y="{y - 3}" width="8" height="6" fill="none" stroke="{INK}" stroke-width="0.4"/>' + path(f'M{x - 4} {y - 3}l4 -2l4 2', INK, 0.35))
+        elif k == 'washing': o.append(path(f'M{x - 7} {y}H{x + 7}', INK, 0.25) + ''.join(f'<rect x="{x - 6 + i * 3}" y="{y}" width="2" height="{1.5 + (i % 2)}" fill="none" stroke="{INK}" stroke-width="0.2"/>' for i in range(4)))
+        elif k == 'falls': o.append(path(f'M{x - 4} {y - 2}h8M{x - 4} {y}h8M{x - 4} {y + 2}h8', BLUE, 0.4) + text(x + 6, y + 1, 'falls', 2.4, 'normal', BLUE, anchor='start', italic=True))
+        elif k == 'lookout': o.append(path(f'M{x - 3} {y - 3}l6 6M{x + 3} {y - 3}l-6 6', INK, 0.3))
         else: o.append(f'<circle cx="{x}" cy="{y}" r="1.2" fill="none" stroke="{INK}" stroke-width="0.35"/>')
 
     for k, pid, x, y in pois:
         c = POI_COL[k]
+        if k == 'errand':
+            L('quests'); o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="3.2" fill="none" stroke="{c}" stroke-width="0.7"/>' + text(x, y + 1.3, '!', 4, 'bold', c))
+            continue
         if k == 'quest':
             L('quests'); o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="3" fill="none" stroke="{c}" stroke-width="0.7"/><circle cx="{f(x)}" cy="{f(y)}" r="0.9" fill="{c}"/>')
         else:
@@ -404,6 +437,18 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="{r}" fill="#e67e22" fill-opacity="0.12" stroke="#ca6f1e" stroke-width="0.5" stroke-dasharray="2 1"/>')
         o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="0.9" fill="#ca6f1e"/>')
         o.append(text(x, y - r - 1.5, label, 2.8, 'bold', '#a04000'))
+
+    L('wildlife')
+    WCOL = {'crabs': '#c0392b', 'gulls': '#5d6d7e', 'parrots': '#27ae60', 'goats': '#8e6e53', 'turtles': '#16a085'}
+    for kind_, g in extra.get('wildlife', []):
+        c = WCOL.get(kind_, INK)
+        o.append(f'<path d="{d_of(g)}" fill="{c}" fill-opacity="0.08" stroke="{c}" stroke-width="0.5" stroke-dasharray="1.5 1.5"/>')
+        cpt = g.representative_point()
+        o.append(text(cpt.x, cpt.y, kind_.upper(), 3.2, 'bold', c, spacing=0.6))
+    for x, y in extra.get('crab_spots', []):
+        o.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="0.8" fill="#c0392b"/>')
+    for x, y in extra.get('gull_spots', []):
+        o.append(path(f'M{f(x - 1.2)} {f(y)}q0.6 -0.8 1.2 0q0.6 -0.8 1.2 0', '#5d6d7e', 0.3))
 
     # ---- gameplay overlays
     L('walkmap')

@@ -42,6 +42,26 @@ sea_zones = [(t, Polygon(p).buffer(0).difference(coast)) for t, p in P.SEA_ZONES
 zone_geoms = [(t, Polygon(p).buffer(0).intersection(coast).difference(town_box)) for t, p in P.ZONES]
 beach = coast.difference(coast.buffer(-14)).difference(town_box)
 
+# ---- boundaries: fences (cottage yards), hedges (fields), stone walls (graveyard, garden, fort)
+def door_side_of(b): return b[7]
+bounds_fence, bounds_hedge, bounds_wall = [], [], []
+for b in P.BUILDINGS:
+    if b[1] != 'Cottage': continue
+    _, _, _, cx, cy, w, h, side = b
+    yl, yt, yr, yb = cx - w / 2 - 6, cy - h / 2 - 6, cx + w / 2 + 6, cy + h / 2 + 6
+    ring = {'S': [(yl, yb), (yl, yt), (yr, yt), (yr, yb)], 'N': [(yl, yt), (yl, yb), (yr, yb), (yr, yt)],
+            'E': [(yr, yt), (yl, yt), (yl, yb), (yr, yb)], 'W': [(yl, yt), (yr, yt), (yr, yb), (yl, yb)]}[side]
+    bounds_fence.append(LineString(ring))
+for t, g in zone_geoms:
+    if t in P.HEDGED: bounds_hedge.append(g.exterior)
+    if t in P.WALLED: bounds_wall.append(LineString(g.exterior.coords))
+fl, ft, fr, fb = P.FORT_WALLS
+fort_ring = box(fl, ft, fr, fb).intersection(coast.buffer(-3))
+bounds_wall.append(LineString(fort_ring.exterior.coords))
+gaps = unary_union([LineString(pts).buffer(w / 2 + 3, cap_style=2) for n, k, w, pts in P.ROADS] + [box(l, t, r, b_) for _, l, r, t, b_ in P.PLAZAS])
+def cut(lines): return unary_union([ln for ln in lines]).difference(gaps).difference(unary_union([g for g in bldg_geoms]).buffer(0.5))
+fence_geom, hedge_geom, wall_geom = cut(bounds_fence), cut(bounds_hedge), cut(bounds_wall)
+
 # ---------------------------------------------------------------- checks
 for i, b in enumerate(P.BUILDINGS):
     g = bldg_geoms[i]
@@ -99,9 +119,10 @@ town_blocked = unary_union([box(l, t, r, b) for l, r, t, b in blocks0])
 taken = unary_union([unary_union(bldg_geoms).buffer(3), water.buffer(2), town_blocked]
                     + [Point(x, y).buffer(3.5) for x, y, _ in trees])
 pois = []
+P.POIS = list(P.POIS) + [('resource', gid, x, y) for res, gid, x, y in P.GATHER] + [('errand', e[0], e[4], e[5]) for e in P.ERRANDS]
 for kind, pid, x, y in P.POIS:
     p = Point(x, y)
-    ok = (coast.contains(p) or town_box.contains(p)) and not taken.contains(p)
+    ok = (coast.contains(p) or town_box.contains(p) or unary_union([g for *_, g in dock_geoms]).contains(p)) and not taken.contains(p)
     if not ok:
         free = coast.buffer(-4).union(town_box.intersection(coast)).difference(taken)
         from shapely.ops import nearest_points
@@ -167,6 +188,8 @@ for g, b in zip(bldg_geoms, P.BUILDINGS):
 burn(water)
 for x, y, k in trees:
     burn(Point(x, y).buffer(4 if k == 'rock' else 2.4))
+for g_, wdt in ((fence_geom, 1.1), (hedge_geom, 1.4), (wall_geom, 1.4)):
+    if not g_.is_empty: burn(g_.buffer(wdt))
 sol_rects = [(X0 + i * C, X0 + k * C, Y0 + j * C, Y0 + jj * C) for i, k, j, jj in merge(sol)]
 
 # ---------------------------------------------------------------- write TS
@@ -217,8 +240,10 @@ out.append('export const BP_TOWN_BUILDINGS: number[] = [' + flat([(l, r, t, b) f
 out.append('/** Walk solids outside the painted town (buildings, trees, rocks, inland water): l,r,t,b packed. */')
 out.append('export const BP_SOLIDS: number[] = [' + flat(sol_rects) + '];')
 out.append('/** Enterable doors outside the painted town (the town keeps its own). */')
+LANDMARK_DOORS = [('tortuga_grotto', -411, 322), ('tortuga_wreck', -438, 298)]
 out.append('export const BP_DOORS: { id: string; x: number; y: number }[] = [' + ', '.join(
-    f"{{ id: '{b[0]}', x: {door_point(b)[0]:g}, y: {door_point(b)[1]:g} }}" for b in P.BUILDINGS if b[0]) + '];')
+    [f"{{ id: '{b[0]}', x: {door_point(b)[0]:g}, y: {door_point(b)[1]:g} }}" for b in P.BUILDINGS if b[0]]
+    + [f"{{ id: '{i}', x: {x}, y: {y} }}" for i, x, y in LANDMARK_DOORS]) + '];')
 txt = '\n'.join(out) + '\n'
 open(f'{ROOT}/src/blueprint/tortugaBlueprint.generated.ts', 'w').write(txt)
 
@@ -333,6 +358,26 @@ for k, pid, x, y in pois:
 extra.update({'contours': contours, 'contour_labels': clabels, 'cliffs': ''.join(cliff), 'peaks': peaks,
               'surfaces': surfaces, 'districts': [(n, g, x, y) for n, g, x, y, k in districts],
               'districts_disc': districts, 'danger': danger, 'shallows': shallows, 'triggers': trig})
+# ---- boundaries and wildlife for the drawing; crab and gull spots for the game
+extra['fence'], extra['hedge'], extra['wall'] = fence_geom, hedge_geom, wall_geom
+wild = [(k, Polygon(p).buffer(0)) for k, p in P.WILDLIFE]
+extra['wildlife'] = wild
+rng2 = random.Random(21)
+def spots(area, n, spacing):
+    out_ = []
+    if area.is_empty: return out_
+    minx, miny, maxx, maxy = area.bounds
+    for _ in range(4000):
+        if len(out_) >= n: break
+        x, y = rng2.uniform(minx, maxx), rng2.uniform(miny, maxy)
+        if area.contains(Point(x, y)) and all((x - a) ** 2 + (y - b) ** 2 > spacing ** 2 for a, b in out_):
+            out_.append((round(x, 1), round(y, 1)))
+    return out_
+crab_area = unary_union([g for k, g in wild if k == 'crabs']).intersection(beach)
+gull_area = unary_union([g for k, g in wild if k == 'gulls']).intersection(unary_union([dock_union, U(town_rects['wood'])]))
+crab_spots, gull_spots = spots(crab_area, 16, 10), spots(gull_area, 14, 12)
+extra['crab_spots'], extra['gull_spots'] = crab_spots, gull_spots
+
 # ---- gameplay data from the plan: districts (discovery), cliffs (no landing), surface grid (footsteps)
 cliff_segs = []
 t = 0; run = []
@@ -381,6 +426,20 @@ g_out.append('export const BP_REEF: number[] = [' + ','.join(f'{x:.0f},{y:.0f}' 
 g_out.append('/** Townsfolk routes outside the painted town (there and back along the roads). */')
 walk_loops = [w + w[-2:0:-1] for w in P.WALKS]
 g_out.append('export const BP_WALKS: [number, number][][] = [' + ', '.join('[' + ', '.join(f'[{x}, {y}]' for x, y in w) + ']' for w in walk_loops) + '];')
+g_out.append('/** Wildlife spots (island-relative): crabs scuttle on beaches, gulls sit on the docks. */')
+g_out.append('export const BP_CRABS: [number, number][] = [' + ', '.join(f'[{x}, {y}]' for x, y in crab_spots) + '];')
+g_out.append('export const BP_GULLS: [number, number][] = [' + ', '.join(f'[{x}, {y}]' for x, y in gull_spots) + '];')
+poi_at = {pid: (x, y) for k, pid, x, y in pois}
+g_out.append('/** One errand per district (plan_tortuga.py ERRANDS). */')
+g_out.append('export const BP_ERRANDS: { id: string; district: string; person: string; sprite: string; x: number; y: number; resource: string; amount: number; gold: number; line: string }[] = [')
+for e in P.ERRANDS:
+    g_out.append(f"  {{ id: {e[0]!r}, district: {e[1]!r}, person: {e[2]!r}, sprite: {e[3]!r}, x: {poi_at[e[0]][0]:g}, y: {poi_at[e[0]][1]:g}, resource: {e[6]!r}, amount: {e[7]}, gold: {e[8]}, line: {e[9]!r} }},")
+g_out.append('];')
+poi_at = {pid: (x, y) for k, pid, x, y in pois}
+g_out.append('export const BP_GATHER: { resource: string; id: string; x: number; y: number }[] = [' + ', '.join(f"{{ resource: {r!r}, id: {i!r}, x: {poi_at[i][0]:g}, y: {poi_at[i][1]:g} }}" for r, i, x, y in P.GATHER) + '];')
+lh = next(b for b in P.BUILDINGS if b[0] == 'tortuga_lighthouse_tower')
+g_out.append(f'export const BP_LIGHTHOUSE = {{ x: {lh[3]}, y: {lh[4]} }};')
+g_out.append("export const BP_GROTTO = { x: -416, y: 318 };")
 open(f'{ROOT}/src/blueprint/tortugaGameplay.generated.ts', 'w').write('\n'.join(g_out) + '\n')
 extra['routes'] = routes + walk_loops
 

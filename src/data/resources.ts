@@ -1,4 +1,4 @@
-export type ResourceId = 'fish' | 'timber' | 'rum' | 'gunpowder';
+export type ResourceId = 'fish' | 'timber' | 'rum' | 'gunpowder' | 'coconut' | 'sugarcane';
 
 export interface ResourceType {
   id: ResourceId;
@@ -12,6 +12,8 @@ export const RESOURCES: Record<ResourceId, ResourceType> = {
   timber: { id: 'timber', name: 'Timber', emoji: '🪵', sellPrice: 5 },
   rum: { id: 'rum', name: 'Rum', emoji: '🥃', sellPrice: 6 },
   gunpowder: { id: 'gunpowder', name: 'Gunpowder', emoji: '💥', sellPrice: 8 },
+  coconut: { id: 'coconut', name: 'Coconut', emoji: '🥥', sellPrice: 2 },
+  sugarcane: { id: 'sugarcane', name: 'Sugarcane', emoji: '🎋', sellPrice: 4 },
 };
 
 export const RESOURCE_LIST = Object.values(RESOURCES);
@@ -26,6 +28,8 @@ export interface ResourceNode {
   maxYield: number;
   cooldownMinutes: number;
 }
+
+import { BP_GATHER } from '../blueprint/tortugaGameplay.generated';
 
 export const RESOURCE_NODES: ResourceNode[] = [
   {
@@ -43,7 +47,7 @@ export const RESOURCE_NODES: ResourceNode[] = [
   {
     id: 'node_tortuga_timber_1',
     islandId: 'tortuga_cove',
-    offset: { x: 599, y: 23 },
+    offset: { x: 581, y: 23 }, // was 599,23 — just off the coast; moved onto land 2026-11-20
     resourceId: 'timber',
     name: 'High Woods Stand',
     minYield: 2,
@@ -102,3 +106,24 @@ export function resourceNodeWorldPosition(
 ): { x: number; y: number } {
   return { x: islandPosition.x + node.offset.x, y: islandPosition.y + node.offset.y };
 }
+
+// Tortuga gathering spots from the island blueprint (2026-11-20): fishing off the jetties, timber in
+// the woods, coconuts in the palm grove, sugarcane at La Ringot. Walk through to gather.
+const GATHER_NAMES: Record<string, string> = {
+  fish: 'Fishing Spot',
+  timber: 'Timber Stand',
+  coconut: 'Coconut Palms',
+  sugarcane: 'Sugarcane Rows',
+};
+RESOURCE_NODES.push(
+  ...BP_GATHER.map((g) => ({
+    id: g.id,
+    islandId: 'tortuga_cove',
+    offset: { x: g.x, y: g.y },
+    resourceId: g.resource as ResourceId,
+    name: GATHER_NAMES[g.resource] ?? 'Gathering Spot',
+    minYield: 1,
+    maxYield: g.resource === 'fish' ? 2 : 3,
+    cooldownMinutes: 3,
+  }))
+);
