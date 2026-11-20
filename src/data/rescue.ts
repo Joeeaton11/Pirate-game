@@ -9,8 +9,9 @@ export const RESCUE_POINT: RescuePoint = {
   id: 'tortuga_locked_ward',
   islandId: 'tortuga_cove',
   // Full-town rebuild 2026-08-07 (item 52): near Basse-Terre Square, the harbor town's
-  // administrative core.
-  offset: { x: 55, y: -55 },
+  // administrative core. Nudged 2026-11-20 from (55,-55), which sat inside a wall of the painted
+  // town's walk map, to the nearest open street.
+  offset: { x: 61, y: -51 },
 };
 
 export function rescuePointWorldPosition(islandPosition: { x: number; y: number }): {

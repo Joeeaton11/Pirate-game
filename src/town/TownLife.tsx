@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { Image as RNImage, ImageSourcePropType, View } from 'react-native';
 import { NPC_SPRITES } from '../data/npcSprites';
 import { SHIMMER_POINTS, WALKER_ROUTES } from './townLife.generated';
+import { BP_WALKS } from '../blueprint/tortugaGameplay.generated';
 
 const FRAME_MS = 100;
 const WALK_FRAME_MS = 115;
@@ -31,6 +32,7 @@ const GULLS = [
 
 const WALKER_CAST = [
   'tortuga_amb_sailor',
+  'patron_tortuga_rival',
   'tortuga_amb_cook',
   'tortuga_amb_lass',
   'patron_tortuga_local',
@@ -43,7 +45,9 @@ interface RoutePlan {
   cum: number[]; // cumulative distance at each point
   total: number;
 }
-const PLANS: RoutePlan[] = WALKER_ROUTES.map((r) => {
+// Town errands from the painted town, plus the blueprint's roads out to Cayonne, the Crossroads,
+// La Ringot and Rocher Row.
+const PLANS: RoutePlan[] = [...WALKER_ROUTES, ...BP_WALKS].map((r) => {
   const pts = [...r, r[0]] as [number, number][];
   const cum = [0];
   for (let i = 1; i < pts.length; i++) {

@@ -22,6 +22,7 @@ export const audioUnlocked = () => unlocked;
 export const SFX = {
   stepWood: [require('../../assets/sfx/step_wood_0.wav'), require('../../assets/sfx/step_wood_1.wav')],
   stepCobble: [require('../../assets/sfx/step_cobble_0.wav'), require('../../assets/sfx/step_cobble_1.wav')],
+  stepSoft: [require('../../assets/sfx/step_soft_0.wav'), require('../../assets/sfx/step_soft_1.wav')],
   fire: require('../../assets/sfx/fire_loop.wav'),
   harbour: require('../../assets/sfx/harbour_loop.wav'),
   murmur: require('../../assets/sfx/tavern_murmur.wav'),
@@ -53,18 +54,20 @@ export function useAmbientLoop(source: AudioSource, volume: number) {
 }
 
 /** Footsteps every `stepMs` while `moving`, alternating two takes so they don't sound stamped. */
-export function useFootsteps(moving: boolean, surface: 'wood' | 'cobble', stepMs = 300, volume = 0.5) {
+export function useFootsteps(moving: boolean, surface: 'wood' | 'cobble' | 'soft', stepMs = 300, volume = 0.5) {
   const wood0 = useAudioPlayer(SFX.stepWood[0]);
   const wood1 = useAudioPlayer(SFX.stepWood[1]);
   const cob0 = useAudioPlayer(SFX.stepCobble[0]);
   const cob1 = useAudioPlayer(SFX.stepCobble[1]);
+  const soft0 = useAudioPlayer(SFX.stepSoft[0]);
+  const soft1 = useAudioPlayer(SFX.stepSoft[1]);
   const surfaceRef = useRef(surface);
   surfaceRef.current = surface;
   useEffect(() => {
     if (!moving) return;
     let n = 0;
     const id = setInterval(() => {
-      const pair = surfaceRef.current === 'wood' ? [wood0, wood1] : [cob0, cob1];
+      const pair = surfaceRef.current === 'wood' ? [wood0, wood1] : surfaceRef.current === 'soft' ? [soft0, soft1] : [cob0, cob1];
       const p = pair[n++ % 2];
       if (!unlocked) return;
       try {
@@ -76,7 +79,7 @@ export function useFootsteps(moving: boolean, surface: 'wood' | 'cobble', stepMs
       }
     }, stepMs);
     return () => clearInterval(id);
-  }, [moving, stepMs, volume, wood0, wood1, cob0, cob1]);
+  }, [moving, stepMs, volume, wood0, wood1, cob0, cob1, soft0, soft1]);
 }
 
 /** A one-shot that fires every `minS..maxS` seconds while `active` (gull cries). */

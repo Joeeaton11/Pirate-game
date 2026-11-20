@@ -1,4 +1,5 @@
 import { BP_DOCK_SEGMENTS } from '../blueprint/tortugaBlueprint.generated';
+import { ISLAND_PLANS } from '../blueprint/islandPlans.generated';
 /** Pure decoration: a boardwalk reaching from the harbor out into open water, small boats moored
  * along it, and larger ships anchored further offshore. Same discipline as Scenery — zero
  * gameplay hook, no interaction, no collision — but deliberately placed OUTSIDE the island's land
@@ -87,6 +88,8 @@ export const PIERS: PierSegment[] = [
 // plan_tortuga.py DOCKS) since 2026-11-20 — the West Pier, careening wharf, lighthouse steps, South
 // Jetty and the small landings — at their drawn deck width. The old hand-placed ones were removed.
 PIERS.push(...BP_DOCK_SEGMENTS.map((d) => ({ islandId: 'tortuga_cove', ...d })));
+// Every other island's landing jetty, from its generated blueprint (tools/blueprint/build_islands.py).
+for (const [islandId, plan] of Object.entries(ISLAND_PLANS)) PIERS.push(...plan.docks.map((d) => ({ islandId, ...d })));
 
 export const QUAYS: PierSegment[] = [
   // Town wharf (2026-11-14): keeps the whole plank wharf walkable where the coast dips inland.

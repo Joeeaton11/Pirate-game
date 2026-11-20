@@ -1,3 +1,4 @@
+import { START_DISTRICTS } from '../blueprint/planGameplay';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -90,6 +91,8 @@ interface GameState {
   blackPearlBoarded: boolean;
   blackPearlPosition: { x: number; y: number };
   foundTreasureIds: string[];
+  /** Tortuga districts the player has walked into (blueprint discovery fog). */
+  discoveredDistricts: string[];
   currentBlackfinStageId: string | null;
   completedBlackfinStageIds: string[];
   currentGraceStageId: string | null;
@@ -157,6 +160,7 @@ interface GameState {
   captureBlackPearl: () => void;
   boardBlackPearl: () => void;
   disembarkBlackPearl: (position: { x: number; y: number }) => void;
+  discoverDistrict: (name: string) => void;
 }
 
 const STARTER_TEMPLATE_ID = 'deckhand_swordsman';
@@ -192,6 +196,7 @@ type InitialState = Pick<
   | 'blackPearlBoarded'
   | 'blackPearlPosition'
   | 'foundTreasureIds'
+  | 'discoveredDistricts'
   | 'currentBlackfinStageId'
   | 'completedBlackfinStageIds'
   | 'currentGraceStageId'
@@ -233,6 +238,7 @@ function createInitialState(): InitialState {
       y: ISLANDS[BLACK_PEARL_ISLAND_ID].position.y + BLACK_PEARL_START_OFFSET.y,
     },
     foundTreasureIds: [],
+    discoveredDistricts: START_DISTRICTS,
     currentBlackfinStageId: null,
     completedBlackfinStageIds: [],
     currentGraceStageId: null,
@@ -481,6 +487,8 @@ export const useGameStore = create<GameState>()(
       boardBlackPearl: () => set({ blackPearlBoarded: true }),
 
       disembarkBlackPearl: (position) => set({ blackPearlBoarded: false, blackPearlPosition: position }),
+      discoverDistrict: (name) =>
+        set((state) => (state.discoveredDistricts.includes(name) ? state : { discoveredDistricts: [...state.discoveredDistricts, name] })),
 
       markSeen: (templateId) =>
         set((state) =>
@@ -806,6 +814,7 @@ export const useGameStore = create<GameState>()(
         blackPearlBoarded: state.blackPearlBoarded,
         blackPearlPosition: state.blackPearlPosition,
         foundTreasureIds: state.foundTreasureIds,
+        discoveredDistricts: state.discoveredDistricts,
         completedBlackfinStageIds: state.completedBlackfinStageIds,
         completedGraceStageIds: state.completedGraceStageIds,
       }),

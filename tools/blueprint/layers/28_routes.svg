@@ -75,4 +75,66 @@
 <path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2980b9" transform="translate(171,-57) rotate(-85.5)"/>
 <path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2980b9" transform="translate(183.5,-120) rotate(-34.5)"/>
 <circle cx="193.5" cy="-128.5" r="1.6" fill="#2980b9"/>
+<polyline points="-150,-64 -232,-58 -300,-36 -362,-34 -432,-28 -362,-34 -300,-36 -232,-58 -150,-64" fill="none" stroke="#8e44ad" stroke-width="0.7" stroke-dasharray="3 1.5" stroke-linejoin="round"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(-191,-61) rotate(175.8)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(-266,-47) rotate(162.1)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(-331,-35) rotate(178.2)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(-397,-31) rotate(175.1)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(-397,-31) rotate(-4.9)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(-331,-35) rotate(-1.8)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(-266,-47) rotate(-17.9)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(-191,-61) rotate(-4.2)"/>
+<circle cx="-150" cy="-64" r="1.6" fill="#8e44ad"/>
+<polyline points="-330,-40 -330,-150 -330,-40 -330,112 -330,-40 -330,-150 -330,-40" fill="none" stroke="#d35400" stroke-width="0.7" stroke-dasharray="3 1.5" stroke-linejoin="round"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#d35400" transform="translate(-330,-95) rotate(-90)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#d35400" transform="translate(-330,-95) rotate(90)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#d35400" transform="translate(-330,36) rotate(90)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#d35400" transform="translate(-330,36) rotate(-90)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#d35400" transform="translate(-330,-95) rotate(-90)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#d35400" transform="translate(-330,-95) rotate(90)"/>
+<circle cx="-330" cy="-40" r="1.6" fill="#d35400"/>
+<polyline points="40,30 40,92 12,160 -20,206 -40,300 -56,380 -40,300 -20,206 12,160 40,92 40,30" fill="none" stroke="#16a085" stroke-width="0.7" stroke-dasharray="3 1.5" stroke-linejoin="round"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(40,61) rotate(90)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(26,126) rotate(112.4)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(-4,183) rotate(124.8)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(-30,253) rotate(102)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(-48,340) rotate(101.3)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(-48,340) rotate(-78.7)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(-30,253) rotate(-78)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(-4,183) rotate(-55.2)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(26,126) rotate(-67.6)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#16a085" transform="translate(40,61) rotate(-90)"/>
+<circle cx="40" cy="30" r="1.6" fill="#16a085"/>
+<polyline points="40,92 150,112 232,160 296,192 232,160 150,112 40,92" fill="none" stroke="#2c3e50" stroke-width="0.7" stroke-dasharray="3 1.5" stroke-linejoin="round"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2c3e50" transform="translate(95,102) rotate(10.3)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2c3e50" transform="translate(191,136) rotate(30.3)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2c3e50" transform="translate(264,176) rotate(26.6)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2c3e50" transform="translate(264,176) rotate(-153.4)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2c3e50" transform="translate(191,136) rotate(-149.7)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2c3e50" transform="translate(95,102) rotate(-169.7)"/>
+<circle cx="40" cy="92" r="1.6" fill="#2c3e50"/>
+<polyline points="-40,300 -140,342 -236,362 -330,382 -236,362 -140,342 -40,300" fill="none" stroke="#c0392b" stroke-width="0.7" stroke-dasharray="3 1.5" stroke-linejoin="round"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#c0392b" transform="translate(-90,321) rotate(157.2)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#c0392b" transform="translate(-188,352) rotate(168.2)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#c0392b" transform="translate(-283,372) rotate(168)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#c0392b" transform="translate(-283,372) rotate(-12)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#c0392b" transform="translate(-188,352) rotate(-11.8)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#c0392b" transform="translate(-90,321) rotate(-22.8)"/>
+<circle cx="-40" cy="300" r="1.6" fill="#c0392b"/>
+<polyline points="300,-150 362,-140 366,-230 364,-326 366,-230 362,-140 300,-150" fill="none" stroke="#2980b9" stroke-width="0.7" stroke-dasharray="3 1.5" stroke-linejoin="round"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2980b9" transform="translate(331,-145) rotate(9.2)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2980b9" transform="translate(364,-185) rotate(-87.5)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2980b9" transform="translate(365,-278) rotate(-91.2)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2980b9" transform="translate(365,-278) rotate(88.8)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2980b9" transform="translate(364,-185) rotate(92.5)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#2980b9" transform="translate(331,-145) rotate(-170.8)"/>
+<circle cx="300" cy="-150" r="1.6" fill="#2980b9"/>
+<polyline points="362,-140 420,-96 452,-20 466,4 452,-20 420,-96 362,-140" fill="none" stroke="#8e44ad" stroke-width="0.7" stroke-dasharray="3 1.5" stroke-linejoin="round"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(391,-118) rotate(37.2)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(436,-58) rotate(67.2)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(459,-8) rotate(59.7)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(459,-8) rotate(-120.3)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(436,-58) rotate(-112.8)"/>
+<path d="M-1.6 -1.3L1.6 0L-1.6 1.3Z" fill="#8e44ad" transform="translate(391,-118) rotate(-142.8)"/>
+<circle cx="362" cy="-140" r="1.6" fill="#8e44ad"/>
 </svg>

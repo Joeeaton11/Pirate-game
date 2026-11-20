@@ -35,8 +35,10 @@ import {
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
 import { TownLife } from '../town/TownLife';
-import { BlueprintLayer, DEFAULT_PLAN_LAYERS, PLAN_LAYERS, PLAN_PAPER, PlanWorld } from '../blueprint/BlueprintLayer';
+import { BlueprintLayer, DEFAULT_PLAN_LAYERS, DiscoveryFog, EditOverlay, PLAN_LAYERS, PLAN_PAPER, PlanIslands, PlanWorld } from '../blueprint/BlueprintLayer';
+import { EMPTY_EDITS, EditItem, PlanEdits, editCount, exportEdits, hitTest, loadEdits, saveEdits, withOffset } from '../blueprint/planEditing';
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
+import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
 import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
 import { DayNight } from '../town/DayNight';
 import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
@@ -297,6 +299,8 @@ function streetTilePositions(
 // Slowed from 260 — full sea speed made sailing feel uncontrollable, especially threading the
 // harbor mouth/piers right after boarding the Black Pearl.
 const SEA_SPEED = 150; // world units per second
+/** The Black Pearl slows to this share of her speed in the blueprint's shallows. */
+const SHALLOWS_SPEED_FACTOR = 0.45;
 /** Stride length per animation frame (world units) — 8 frames make one full two-step cycle. */
 // Measured from the frames: in walk_e a planted boot travels ~10 sprite px per frame, and one sprite
 // px is ~0.115 world units (128px canvas drawn 14.7 units tall) — so ~1.2 units/frame keeps the
@@ -857,12 +861,37 @@ export default function MapScreen({ navigation }: Props) {
   const [planMode, setPlanMode] = useState(startInPlanMode);
   const planModeRef = useRef(planMode);
   const [planLayers, setPlanLayers] = useState<Record<string, boolean>>(DEFAULT_PLAN_LAYERS);
+  const discoveredDistricts = useGameStore((s) => s.discoveredDistricts);
+  const discoverDistrict = useGameStore((s) => s.discoverDistrict);
+  const discoveredRef = useRef(discoveredDistricts);
+  discoveredRef.current = discoveredDistricts;
+  const cliffToastRef = useRef(false);
+  // Whole-island view: zoomed right out over the island Scally is on; movement pauses.
+  const [overview, setOverview] = useState(false);
+  const overviewRef = useRef(false);
+  overviewRef.current = overview;
+  // Plan editor: drag buildings, props and trees; edits saved on the device and exportable.
+  const [editMode, setEditMode] = useState(false);
+  const editModeRef = useRef(false);
+  editModeRef.current = editMode;
+  const [edits, setEdits] = useState<PlanEdits>(EMPTY_EDITS);
+  const editsRef = useRef(edits);
+  editsRef.current = edits;
+  const [editSelected, setEditSelected] = useState<string | null>(null);
+  const editDragRef = useRef<{ item: EditItem; start: [number, number] } | null>(null);
+  useEffect(() => {
+    loadEdits().then(setEdits);
+  }, []);
+  const inShallowsRef = useRef(false);
   const [showLayerPanel, setShowLayerPanel] = useState(false);
   planModeRef.current = planMode;
   // Camera eases after the player instead of being nailed to them; Scally's screen position is
   // offset by the gap, so he leads slightly into a walk and the view catches up when he stops.
   const [cam, setCam] = useState(player);
   const camRef = useRef(player);
+  const viewIsland = islandAtPoint(player) ?? null;
+  // Rounded camera for things that only need to know roughly where we are (which islands to mount).
+  const camCoarse = useMemo(() => ({ x: Math.round(cam.x / 200) * 200, y: Math.round(cam.y / 200) * 200 }), [Math.round(cam.x / 200), Math.round(cam.y / 200)]);
   const [dragKnob, setDragKnob] = useState<{ x: number; y: number } | null>(null);
   const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number } | null>(null);
   const [zoneLabel, setZoneLabel] = useState('Tortuga Cove');
@@ -1183,11 +1212,31 @@ export default function MapScreen({ navigation }: Props) {
   // never itself reset by a focus change — would immediately act on the moment you came back,
   // reading as the character moving on its own or the joystick responding wrong right after leaving
   // a building/fight/menu.
+  // Whole-island view zooms right out over the current island; otherwise the usual close camera.
+  const overviewZoom = viewport.width ? Math.min(viewport.width / 1250, viewport.height / 1130) : 1;
+  const viewZoom = overview ? overviewZoom : ZOOM;
+  const viewCenter = overview ? viewIsland?.position ?? cam : cam;
+  const screenToIsland = (sx: number, sy: number) => {
+    const o = ISLANDS.tortuga_cove.position;
+    return {
+      x: viewCenter.x + (sx - viewport.width / 2) / viewZoom - o.x,
+      y: viewCenter.y + (sy - viewport.height / 2) / viewZoom - o.y,
+    };
+  };
+
   const panGesture = Gesture.Pan()
     .enabled(isFocused)
     .minDistance(0)
     .shouldCancelWhenOutside(false)
     .onBegin((e) => {
+      if (editModeRef.current) {
+        const p = screenToIsland(e.x, e.y);
+        const item = hitTest(editsRef.current, p.x, p.y);
+        editDragRef.current = item ? { item, start: editsRef.current[item.kind][item.key] ?? [0, 0] } : null;
+        setEditSelected(item ? item.key : null);
+        return;
+      }
+      if (overviewRef.current) return;
       if (dragResetTimeoutRef.current) {
         clearTimeout(dragResetTimeoutRef.current);
         dragResetTimeoutRef.current = null;
@@ -1201,6 +1250,14 @@ export default function MapScreen({ navigation }: Props) {
       setDragKnob(center);
     })
     .onUpdate((e) => {
+      if (editModeRef.current) {
+        const d = editDragRef.current;
+        if (d) {
+          setEdits(withOffset(editsRef.current, d.item, d.start[0] + e.translationX / viewZoom, d.start[1] + e.translationY / viewZoom));
+        }
+        return;
+      }
+      if (overviewRef.current) return;
       const dist = Math.hypot(e.translationX, e.translationY);
       if (dist > DEADZONE) {
         const clampedDist = Math.min(dist, MAX_DRAG);
@@ -1237,6 +1294,10 @@ export default function MapScreen({ navigation }: Props) {
       }
     })
     .onFinalize(() => {
+      if (editDragRef.current) {
+        editDragRef.current = null;
+        saveEdits(editsRef.current);
+      }
       clearDrag();
     });
 
@@ -1447,8 +1508,10 @@ export default function MapScreen({ navigation }: Props) {
     : 0.12;
   useAmbientLoop(SFX.harbour, harbourVolume);
   useRandomCalls(SFX.gull, harbourVolume > 0.25, 6, 14, 0.35);
-  const onPlanks = distanceToNearestPier(player) < 4 || (inTortugaTown && relY < -290);
-  useFootsteps(isMoving && !blackPearlBoarded, onPlanks ? 'wood' : 'cobble', 290, 0.45);
+  // Footsteps follow the blueprint's ground-surface layer: planks, cobbles, or soft ground.
+  const surface = inTortugaTown || relX < 640 ? surfaceAt(player) : 'none';
+  const stepKind = distanceToNearestPier(player) < 4 || surface === 'plank' ? 'wood' : surface === 'cobble' ? 'cobble' : 'soft';
+  useFootsteps(isMoving && !blackPearlBoarded, stepKind, 290, 0.45);
 
   const isRunning =
     isMoving &&
@@ -1827,8 +1890,13 @@ export default function MapScreen({ navigation }: Props) {
         ? isOnPath(playerRef.current, currentIsland)
           ? ON_PATH_SPEED
           : OFF_PATH_SPEED
-        : SEA_SPEED;
+        : SEA_SPEED * (isShallow(playerRef.current) ? SHALLOWS_SPEED_FACTOR : 1);
       const dt = TICK_MS / 1000;
+      if (!currentIsland && blackPearlBoardedRef.current) {
+        const shallow = isShallow(playerRef.current);
+        if (shallow && !inShallowsRef.current) showResourceToast('🌊 Shallows — easing off the sails');
+        inShallowsRef.current = shallow;
+      }
 
       const rawX = clamp(playerRef.current.x + direction.x * speed * dt, 0, WORLD_WIDTH);
       const rawY = clamp(playerRef.current.y + direction.y * speed * dt, 0, WORLD_HEIGHT);
@@ -1879,9 +1947,21 @@ export default function MapScreen({ navigation }: Props) {
           planModeRef.current ? BLUEPRINT_SOLID_RECTS : TORTUGA_V2_SOLID_RECTS,
           1.5
         );
+      } else if (planModeRef.current && currentIsland && PLAN_SOLIDS[currentIsland.id]) {
+        nextPosition = slideAroundRects(playerRef.current, nextPosition, PLAN_SOLIDS[currentIsland.id], 1.5);
       }
 
       const nextIsland = islandAtPoint(nextPosition);
+
+      // Cliffs (from the blueprint's height layer): the Black Pearl can't put in under them.
+      if (nextIsland && !currentIsland && blackPearlBoardedRef.current && atCliff(nextPosition) && distanceToNearestPier(nextPosition) > 12) {
+        if (!cliffToastRef.current) {
+          cliffToastRef.current = true;
+          showResourceToast('🪨 Cliffs here — find a beach or a jetty to land');
+          setTimeout(() => (cliffToastRef.current = false), 2500);
+        }
+        return;
+      }
 
       if (nextIsland?.id === 'ile_sainte_marie' && !shipUpgradesRef.current.includes('reinforced_hull')) {
         showResourceToast('⛔ Too rough without a Reinforced Hull!');
@@ -1891,6 +1971,12 @@ export default function MapScreen({ navigation }: Props) {
       playerRef.current = nextPosition;
       setPlayer(nextPosition);
       easeCamera();
+      const district = nextIsland?.id === 'tortuga_cove' ? districtAt(nextPosition) : null;
+      if (district && !discoveredRef.current.includes(district)) {
+        discoveredRef.current = [...discoveredRef.current, district];
+        discoverDistrict(district);
+        showResourceToast(`📍 Discovered: ${district}`, 2600);
+      }
 
       // Swap to the "APPROACH DOCK" loop once she's closing in on land, still under sail — only
       // meaningful while boarded and still at sea (nextIsland null); once ashore the docked marker
@@ -1987,6 +2073,14 @@ export default function MapScreen({ navigation }: Props) {
               return Math.hypot(nextPosition.x - pos.x, nextPosition.y - pos.y) <= ENTER_RADIUS;
             })
           : undefined;
+        if (!nearbyBuilding && planModeRef.current && nextIsland.id !== 'tortuga_cove' && PLAN_DOORS[nextIsland.id]) {
+          let best: { id: string; d: number } | null = null;
+          for (const door of PLAN_DOORS[nextIsland.id]) {
+            const d = Math.hypot(nextPosition.x - door.x, nextPosition.y - door.y);
+            if (d <= TOWN_DOOR_RADIUS && (!best || d < best.d)) best = { id: door.id, d };
+          }
+          if (best) nearbyBuilding = BUILDINGS.find((b) => b.id === best!.id);
+        }
         if (!nearbyBuilding && SHOW_TORTUGA_V2 && nextIsland.id === 'tortuga_cove') {
           // Town-core terraces: nearest door within reach (doors sit ~28 units apart, so the
           // nearest-door rule picks the facade Scally is actually standing in front of).
@@ -2442,13 +2536,13 @@ export default function MapScreen({ navigation }: Props) {
                 transform: [
                   {
                     translateX:
-                      viewport.width / 2 - WORLD_WIDTH / 2 + ZOOM * (WORLD_WIDTH / 2 - cam.x),
+                      viewport.width / 2 - WORLD_WIDTH / 2 + viewZoom * (WORLD_WIDTH / 2 - viewCenter.x),
                   },
                   {
                     translateY:
-                      viewport.height / 2 - WORLD_HEIGHT / 2 + ZOOM * (WORLD_HEIGHT / 2 - cam.y),
+                      viewport.height / 2 - WORLD_HEIGHT / 2 + viewZoom * (WORLD_HEIGHT / 2 - viewCenter.y),
                   },
-                  { scale: ZOOM },
+                  { scale: viewZoom },
                 ],
               },
             ]}
@@ -2887,9 +2981,30 @@ export default function MapScreen({ navigation }: Props) {
               </View>
             )}
             {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} visible={planLayers} />}
+            {planMode && <PlanIslands cam={camCoarse} visible={planLayers} />}
             {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
                 the same sailing sprite and size the player gets once aboard. */}
             <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} />
+            {!editMode && <DiscoveryFog origin={ISLANDS.tortuga_cove.position} discovered={discoveredDistricts} />}
+            {planMode && editMode && (
+              <EditOverlay origin={ISLANDS.tortuga_cove.position} edits={edits} selected={editSelected} />
+            )}
+            {overview && (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: player.x - 9 / viewZoom,
+                  top: player.y - 9 / viewZoom,
+                  width: 18 / viewZoom,
+                  height: 18 / viewZoom,
+                  borderRadius: 9 / viewZoom,
+                  backgroundColor: '#e8432e',
+                  borderWidth: 3 / viewZoom,
+                  borderColor: '#fff',
+                }}
+              />
+            )}
 
             {SHOW_LANDMARKS &&
               LANDMARKS.map((landmark) => {
@@ -3290,7 +3405,7 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
-        {viewport.width > 0 && (
+        {viewport.width > 0 && !overview && (
           <View
             style={[
               styles.player,
@@ -3776,6 +3891,55 @@ export default function MapScreen({ navigation }: Props) {
             <Text style={styles.planToggleText}>🗂 Layers</Text>
           </Pressable>
         )}
+        <Pressable
+          style={[styles.planToggle, { top: planMode ? 144 : 106 }]}
+          onPress={() => {
+            directionRef.current = null;
+            setOverview((v) => !v);
+          }}
+          hitSlop={6}
+        >
+          <Text style={styles.planToggleText}>{overview ? '🔍 Close' : '🗺 Island'}</Text>
+        </Pressable>
+        {planMode && (
+          <Pressable
+            style={[styles.planToggle, { top: 182 }, editMode && { backgroundColor: '#d35400' }]}
+            onPress={() => {
+              directionRef.current = null;
+              setEditMode((v) => !v);
+              setEditSelected(null);
+              setShowLayerPanel(false);
+            }}
+            hitSlop={6}
+          >
+            <Text style={styles.planToggleText}>{editMode ? '✓ Done' : '✏️ Edit'}</Text>
+          </Pressable>
+        )}
+        {planMode && editMode && (
+          <View style={styles.editBar}>
+            <Text style={styles.editBarText}>
+              Drag a building, prop or tree to move it · {editCount(edits)} moved
+            </Text>
+            <View style={styles.editBarButtons}>
+              <Pressable
+                style={styles.editBarButton}
+                onPress={async () => showResourceToast(await exportEdits(editsRef.current), 2600)}
+              >
+                <Text style={styles.editBarButtonText}>📋 Copy edits</Text>
+              </Pressable>
+              <Pressable
+                style={styles.editBarButton}
+                onPress={() => {
+                  setEdits(EMPTY_EDITS);
+                  saveEdits(EMPTY_EDITS);
+                  setEditSelected(null);
+                }}
+              >
+                <Text style={styles.editBarButtonText}>↺ Reset</Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
         {planMode && showLayerPanel && (
           <View style={styles.layerPanel}>
             <View style={styles.layerPanelHeader}>
@@ -4197,9 +4361,24 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#f4e9cd',
   },
+  editBar: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 16,
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(244,241,230,0.97)',
+    borderWidth: 2,
+    borderColor: '#d35400',
+  },
+  editBarText: { color: '#2b2a27', fontSize: 13, fontWeight: '700', textAlign: 'center' },
+  editBarButtons: { flexDirection: 'row', justifyContent: 'center', gap: 12, marginTop: 8 },
+  editBarButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, backgroundColor: '#2b2a27' },
+  editBarButtonText: { color: '#f4e9cd', fontSize: 13, fontWeight: '700' },
   layerPanel: {
     position: 'absolute',
-    top: 144,
+    top: 220,
     right: 12,
     width: 340,
     padding: 10,

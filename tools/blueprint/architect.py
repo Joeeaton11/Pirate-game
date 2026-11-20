@@ -105,7 +105,7 @@ LAYERS = [
 ]
 
 def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_rects, town_bldgs, painted_doors,
-             names, door_point, town_box, docks=(), breakwater=None, extra=None):
+             names, door_point, town_box, docks=(), breakwater=None, extra=None, title='TORTUGA COVE'):
     """Returns {layer_id: svg_body}; wrap with svg_doc() to get a standalone SVG."""
     import math
     P_ref[0] = P
@@ -138,21 +138,39 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
             if breakwater.buffer(-1).contains(Point(x, y)): dots.append(f'M{f(x)} {f(y)}h0.6')
         o.append(path(''.join(dots), INK, 0.6, 'stroke-linecap="round"'))
 
+    def chaikin(poly, n=2):
+        def sm(coords):
+            c = list(coords)[:-1]
+            for _ in range(n):
+                out_ = []
+                for i in range(len(c)):
+                    a, b = c[i], c[(i + 1) % len(c)]
+                    out_ += [(0.75 * a[0] + 0.25 * b[0], 0.75 * a[1] + 0.25 * b[1]), (0.25 * a[0] + 0.75 * b[0], 0.25 * a[1] + 0.75 * b[1])]
+                c = out_
+            return c
+        gs = [poly] if poly.geom_type == 'Polygon' else list(getattr(poly, 'geoms', []))
+        res = []
+        for g in gs:
+            if g.geom_type != 'Polygon' or len(g.exterior.coords) < 4: continue
+            res.append(Polygon(sm(g.exterior.coords), [sm(h.coords) for h in g.interiors if len(h.coords) >= 4]).buffer(0))
+        return unary_union(res) if res else poly
     def urects(rs, simp=0.5, min_area=0, smooth=0):
+        if not rs: return Polygon()
         u = unary_union([box(l, t, r, b) for l, r, t, b in rs])
         if smooth: u = u.buffer(smooth, join_style=1).buffer(-smooth, join_style=1)
         if min_area:
             u = unary_union([p for p in (u.geoms if hasattr(u, 'geoms') else [u]) if p.area >= min_area])
-        return u.simplify(simp)
+        u = u.simplify(max(simp, 0.9 if smooth else simp))
+        return chaikin(u) if smooth else u
     inside = town_box.buffer(-0.8)
 
     L('coast')
     o.append(path(outline_d(coast, drop=town_box), INK, 1.4, 'stroke-linejoin="round"'))
     o.append(path(d_of(coast.buffer(-14).difference(town_box)), INK, 0.3, 'stroke-dasharray="2 2" opacity="0.7"'))
-    town_water = urects(town_rects['water'], 0.9, 30, 1.5)
+    town_water = urects(town_rects['water'], 1.2, 30, 2.5)
     o.append(path(outline_d(town_water, keep=inside), INK, 1.2, 'stroke-linejoin="round"'))
     o.append(path(outline_d(town_water.buffer(5, join_style=1), keep=inside), BLUE, 0.35, 'opacity="0.7"'))
-    o.append(path(outline_d(urects(town_rects['sand'], 0.8, 20, 1.5), keep=inside), INK, 0.3, 'stroke-dasharray="2 2"'))
+    o.append(path(outline_d(urects(town_rects['sand'], 1.0, 20, 2.5), keep=inside), INK, 0.3, 'stroke-dasharray="2 2"'))
 
     for t, g in zone_geoms:
         if t in ('jungle', 'forest', 'palms', 'swamp', 'garden', 'rock', 'graveyard'):
@@ -222,7 +240,7 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
             if kind == 'palm':
                 o.append(path(''.join(f'M{f(x - 2)} {f(y)}h4M{f(x)} {f(y - 2)}v4' for x, y, k in trees if k == kind), GREEN, 0.25))
     L('trees')
-    o.append(path(outline_d(urects(town_rects['garden'], 1.0, 25, 1.5), keep=inside), GREEN, 0.35, 'stroke-dasharray="3 1.5"'))
+    o.append(path(outline_d(urects(town_rects['garden'], 1.2, 30, 2.5), keep=inside), GREEN, 0.35, 'stroke-dasharray="3 1.5"'))
 
     def walls(l, t, w, h, hatched=False):
         s_ = f'<rect x="{f(l)}" y="{f(t)}" width="{f(w)}" height="{f(h)}" fill="{PAPER}" stroke="{INK}" stroke-width="{0.9 if hatched else 0.8}"/>'
@@ -434,7 +452,7 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     tb = (420, 462, 190, 64)
     o.append(f'<rect x="{tb[0]}" y="{tb[1]}" width="{tb[2]}" height="{tb[3]}" fill="{PAPER}" stroke="{INK}" stroke-width="0.8"/>'
              f'<rect x="{tb[0] + 2}" y="{tb[1] + 2}" width="{tb[2] - 4}" height="{tb[3] - 4}" fill="none" stroke="{INK}" stroke-width="0.3"/>')
-    o.append(text(tb[0] + 95, tb[1] + 16, 'TORTUGA COVE', 9, 'bold', spacing=2))
+    o.append(text(tb[0] + 95, tb[1] + 16, title.upper(), 9 if len(title) < 16 else 7, 'bold', spacing=2))
     o.append(text(tb[0] + 95, tb[1] + 26, 'SITE PLAN  ·  LAYOUT BLUEPRINT', 4, 'normal', spacing=1))
     sx, sy = tb[0] + 20, tb[1] + 42
     for i in range(4):

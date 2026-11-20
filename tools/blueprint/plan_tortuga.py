@@ -194,7 +194,7 @@ POIS = [
     ('treasure', 'site_rusty_compass', -461, -173),
     ('resource', 'node_tortuga_fish', -100, -288), ('resource', 'node_tortuga_timber_1', 599, 23),
     ('resource', 'node_tortuga_timber_2', 472, 115),
-    ('quest', 'quest_bounty_board', 0, -55), ('quest', 'tortuga_locked_ward', 55, -55),
+    ('quest', 'quest_bounty_board', 0, -55), ('quest', 'tortuga_locked_ward', 61, -51),
     ('quest', 'blackfin_tortuga_intro', 196, -294),
     ('landmark', 'Wreck of the Santa Catalina', -452, 290), ("landmark", "Smugglers' Grotto", -416, 318),
     ('landmark', 'The Marked Palm', -354, 394), ('landmark', 'Turtle Cove', -214, 446),
@@ -256,4 +256,15 @@ LANES = [
     ('East Channel', [(-10, -432), (150, -444), (300, -458), (382, -482), (450, -570)]),
     ('West Channel', [(-10, -432), (-120, -478), (-200, -524), (-300, -575)]),
     ('South Anchorage', [(196, 480), (214, 540), (230, 580)]),
+]
+
+# ---- Townsfolk walking routes outside the painted town (there and back along the roads).
+WALKS = [
+    [(-150, -64), (-232, -58), (-300, -36), (-362, -34), (-432, -28)],
+    [(-330, -40), (-330, -150), (-330, -40), (-330, 112)],
+    [(40, 30), (40, 92), (12, 160), (-20, 206), (-40, 300), (-56, 380)],
+    [(40, 92), (150, 112), (232, 160), (296, 192)],
+    [(-40, 300), (-140, 342), (-236, 362), (-330, 382)],
+    [(300, -150), (362, -140), (366, -230), (364, -326)],
+    [(362, -140), (420, -96), (452, -20), (466, 4)],
 ]

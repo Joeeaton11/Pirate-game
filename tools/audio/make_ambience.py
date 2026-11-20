@@ -35,6 +35,13 @@ for i in range(2):
     tap = lp(rng.normal(size=n), 0.3) * env(n, 0.001, 0.01) * 1.5
     save(f'step_cobble_{i}', grit + tap, 0.55)
 
+# Soft ground (grass, sand, dirt): a muffled pad with a little grit.
+for i in range(2):
+    n = int(0.16 * SR)
+    pad = lp(rng.normal(size=n), 0.08) * env(n, 0.006, 0.035)
+    grit = hp(rng.normal(size=n), 0.6) * env(n, 0.004, 0.012) * 0.25
+    save(f'step_soft_{i}', pad + grit, 0.5)
+
 # Fire crackle loop: brown rumble + random pops.
 n = 4 * SR
 x = lp(rng.normal(size=n), 0.02) * 0.6
