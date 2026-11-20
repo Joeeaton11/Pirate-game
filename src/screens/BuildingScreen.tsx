@@ -12,6 +12,7 @@ import { RESOURCE_LIST, RESOURCES } from '../data/resources';
 import { FacingDirection, ICON_EXCLAIM, ICON_SPEECH, scallySpriteSource } from '../data/scallySprites';
 import { CHEEKY_HOP, CHEEKY_IDLE } from '../data/monkeySprites';
 import { NPC_SPRITES } from '../data/npcSprites';
+import { ROOM_KIT } from '../data/roomKit';
 import { SHIP_UPGRADES } from '../data/shipUpgrades';
 import { SIDE_QUESTS } from '../data/sideQuests';
 import { TREASURES } from '../data/treasures';
@@ -1001,6 +1002,30 @@ export default function BuildingScreen({ navigation }: Props) {
       ),
     });
   }
+
+  // Kit furniture: each piece sorts by its bottom edge (minus its baked shadow) like a character.
+  (interior.props ?? []).forEach((p, i) => {
+    const k = ROOM_KIT[p.kit];
+    if (!k) return;
+    depthSortedEntities.push({
+      key: `prop-${i}`,
+      y: p.y - 4,
+      node: (
+        <Image
+          source={k.src}
+          resizeMode="stretch"
+          style={{
+            position: 'absolute',
+            left: p.x - k.w / 2,
+            top: p.y - k.h,
+            width: k.w,
+            height: k.h,
+            transform: p.flip ? [{ scaleX: -1 }] : undefined,
+          }}
+        />
+      ),
+    });
+  });
 
   // Painted-room cut-outs (bar counter, table tops) drawn over whoever stands behind them.
   if (interior.backdrop) {

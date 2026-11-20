@@ -83,6 +83,9 @@ export interface BuildingInterior {
    * anyone standing behind them, so a barman stands behind his bar and drinkers sit at tables.
    * Each one sorts in depth at its bottom edge. */
   foreground?: { l: number; r: number; t: number; b: number }[];
+  /** Painted rooms built in layers: furniture pieces from the room kit (src/data/roomKit.ts), placed
+   * by centre x and bottom y and depth-sorted with the characters. */
+  props?: { kit: string; x: number; y: number; flip?: boolean }[];
 }
 
 /** Hand-authored floor plans. Buildings without an entry here get a generic room via
@@ -96,7 +99,7 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
     width: 360,
     height: 360,
     entryPosition: { x: 180, y: 262 },
-    backdrop: require('../../assets/sprites/interiors/tavern_salty_parrot.jpg'),
+    backdrop: require('../../assets/sprites/interiors/tavern_salty_parrot_shell.jpg'),
     exitZone: { l: 150, r: 210, t: 280, b: 300 },
     walls: [
       { l: 0, r: 360, t: 0, b: 84 }, // back wall
@@ -111,32 +114,65 @@ export const BUILDING_INTERIORS: Record<string, BuildingInterior> = {
       { l: 312, r: 360, t: 98, b: 205 }, // fireplace
     ],
     foreground: [
-      { l: 106, r: 252, t: 100, b: 125 }, // bar counter
-      { l: 48, r: 87, t: 97, b: 118 }, // table, top left
-      { l: 260, r: 307, t: 101, b: 126 }, // table, top right
-      { l: 260, r: 307, t: 170, b: 198 }, // table, middle right
-      { l: 241, r: 284, t: 230, b: 256 }, // table, bottom right
-      { l: 58, r: 102, t: 236, b: 263 }, // table, bottom left
+      { l: 106, r: 252, t: 100, b: 125 }, // bar counter (part of the room shell)
+    ],
+    // Furniture from the room kit: five tables, each with a chair facing you (behind it), one either
+    // side and one with its back to you, stools along the bar, barrels and crates.
+    props: [
+      { kit: 'chair_front', x: 66, y: 100 },
+      { kit: 'chair_side', x: 93, y: 116 },
+      { kit: 'chair_side', x: 39, y: 116, flip: true },
+      { kit: 'table', x: 66, y: 124 },
+      { kit: 'chair_back', x: 66, y: 136 },
+      { kit: 'chair_front', x: 285, y: 104 },
+      { kit: 'chair_side', x: 312, y: 120 },
+      { kit: 'chair_side', x: 258, y: 120, flip: true },
+      { kit: 'table', x: 285, y: 128 },
+      { kit: 'chair_back', x: 285, y: 140 },
+      { kit: 'chair_front', x: 282, y: 176 },
+      { kit: 'chair_side', x: 309, y: 192 },
+      { kit: 'chair_side', x: 255, y: 192, flip: true },
+      { kit: 'table', x: 282, y: 200 },
+      { kit: 'chair_back', x: 282, y: 212 },
+      { kit: 'chair_front', x: 258, y: 232 },
+      { kit: 'chair_side', x: 285, y: 248 },
+      { kit: 'chair_side', x: 231, y: 248, flip: true },
+      { kit: 'table', x: 258, y: 256 },
+      { kit: 'chair_back', x: 258, y: 268 },
+      { kit: 'chair_front', x: 82, y: 240 },
+      { kit: 'chair_side', x: 109, y: 256 },
+      { kit: 'chair_side', x: 55, y: 256, flip: true },
+      { kit: 'table', x: 82, y: 264 },
+      { kit: 'chair_back', x: 82, y: 276 },
+      { kit: 'stool', x: 138, y: 140 },
+      { kit: 'stool', x: 170, y: 140 },
+      { kit: 'stool', x: 202, y: 140 },
+      { kit: 'stool', x: 234, y: 140 },
+      { kit: 'barrel', x: 326, y: 238 },
+      { kit: 'barrel', x: 340, y: 256 },
+      { kit: 'barrel', x: 22, y: 250 },
+      { kit: 'crates', x: 30, y: 272 },
     ],
     furniture: [
-      { type: 'table', x: 66, y: 106 },
-      { type: 'table', x: 285, y: 112 },
-      { type: 'table', x: 282, y: 182 },
-      { type: 'table', x: 258, y: 240 },
-      { type: 'table', x: 82, y: 248 },
-      { type: 'barrel', x: 325, y: 232 },
-      { type: 'barrel', x: 24, y: 240 },
-      // Seats the roaming locals sit at — each on the far side of a table, so it hides their legs.
-      { type: 'chair', x: 291, y: 113 },
-      { type: 'chair', x: 262, y: 240 },
-      { type: 'chair', x: 272, y: 183 },
+      { type: 'table', x: 66, y: 112 },
+      { type: 'table', x: 285, y: 116 },
+      { type: 'table', x: 282, y: 188 },
+      { type: 'table', x: 258, y: 244 },
+      { type: 'table', x: 82, y: 252 },
+      { type: 'barrel', x: 326, y: 232 },
+      { type: 'barrel', x: 340, y: 250 },
+      { type: 'barrel', x: 22, y: 244 },
+      { type: 'barrel', x: 30, y: 264 },
+      // Chairs the roaming locals sit on (the ones facing you, behind a table).
+      { type: 'chair', x: 285, y: 105 },
+      { type: 'chair', x: 258, y: 233 },
     ],
     npcSpots: [
       { id: 'main', x: 178, y: 118 }, // behind the bar
-      { id: 'patron_tortuga_drunk', x: 67, y: 109, seated: true },
-      { id: 'patron_tortuga_local', x: 230, y: 140 },
-      { id: 'patron_tortuga_rival', x: 293, y: 184, seated: true },
-      { id: 'patron_tortuga_mystic', x: 80, y: 250, seated: true },
+      { id: 'patron_tortuga_drunk', x: 66, y: 101, seated: true },
+      { id: 'patron_tortuga_local', x: 230, y: 150 },
+      { id: 'patron_tortuga_rival', x: 282, y: 177, seated: true },
+      { id: 'patron_tortuga_mystic', x: 82, y: 241, seated: true },
       { id: 'tortuga_amb_sailor', x: 150, y: 215 },
       { id: 'tortuga_amb_cook', x: 215, y: 205 },
       { id: 'tortuga_amb_lass', x: 190, y: 160 },
