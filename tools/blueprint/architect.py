@@ -99,6 +99,7 @@ LAYERS = [
     ('lighting', 'Night lighting', False, 'game'),
     ('sound', 'Sound zones', False, 'game'),
     ('spawns', 'Spawn & mooring', False, 'game'),
+    ('roadnames', 'Road names', True, 'names'),
     ('places', 'Place names', True, 'names'),
     ('names', 'Building names', True, 'names'),
     ('titleblock', 'Title block', True, 'base'),
@@ -199,6 +200,10 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     for _, k, w, pts in P.ROADS:
         pl = ' '.join(f'{x},{y}' for x, y in pts)
         o.append(f'<polyline points="{pl}" fill="none" stroke="{PAPER}" stroke-width="{w - 0.2}" stroke-linecap="round" stroke-linejoin="round"/>')
+    # The painted town's streets: the edge of its open ground, inked like a road kerb.
+    if town_rects.get('street'):
+        st = unary_union([box(l, t, r, b) for l, r, t, b in town_rects['street']]).buffer(1.2, join_style=1).buffer(-1.2, join_style=1).simplify(0.8)
+        o.append(path(outline_d(st, keep=town_box.buffer(-0.8)), INK, 0.55, 'stroke-linejoin="round"'))
 
     L('bridges')
     if not bridges.is_empty:
@@ -428,6 +433,10 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
         o.append(f'<circle cx="{x}" cy="{y}" r="4" fill="none" stroke="#117a65" stroke-width="0.6"/>'
                  f'<path d="M{x - 6} {y}h12M{x} {y - 6}v12" stroke="#117a65" stroke-width="0.4"/>')
         o.append(text(x + 6, y - 5, label, 3.2, 'bold', '#0e6251', anchor='start'))
+
+    L('roadnames')
+    for x, y, ang, t_, size, italic in extra.get('road_labels', []):
+        o.append(f'<g transform="translate({f(x)},{f(y)}) rotate({f(ang)})">' + text(0, size * 0.35, t_, size, 'bold', '#5b4636', spacing=0.3, italic=italic) + '</g>')
 
     L('names')
     for b in P.BUILDINGS:

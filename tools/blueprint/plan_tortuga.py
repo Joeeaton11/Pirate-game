@@ -69,6 +69,8 @@ ROADS = [
     ('Graves Path', 'path', 4, [(-56, 380), (20, 410), (60, 440)]),
     ('Old Landing Lane', 'lane', 5, [(-70, 440), (-40, 470)]),
     ('Trapper Path', 'path', 4, [(-20, 206), (-4, 214)]),
+    ('South Shore Path', 'path', 4, [(20, 410), (100, 393), (150, 389)]),
+    ('Signal Post Spur', 'path', 3, [(-258, -330), (-267, -330)]),
 ]
 
 # Plazas (cobbled open ground): (name, l, r, t, b)
@@ -174,7 +176,7 @@ PROPS = [
 
 # ---- Labels: district and landmark names (x, y, text, size)
 LABELS = [
-    (75, -10, 'BASSE-TERRE (painted town)', 'district'),
+    (95, -282, 'BASSE-TERRE (painted town)', 'district'),
     (-330, -142, 'CAYONNE', 'district'), (-20, 250, "BLACKWOOD'S HOLLOW", 'district'),
     (480, -60, 'THE HIGH WOODS', 'district'), (313, 270, 'LA RINGOT FIELDS', 'district'),
     (-236, 320, 'CROSSROADS', 'district'), (-240, -420, 'LIGHTHOUSE HEAD', 'district'),
@@ -267,4 +269,12 @@ WALKS = [
     [(-40, 300), (-140, 342), (-236, 362), (-330, 382)],
     [(300, -150), (362, -140), (366, -230), (364, -326)],
     [(362, -140), (420, -96), (452, -20), (466, 4)],
+]
+
+# ---- Street names inside the painted town (label point and angle; the streets themselves are the
+# town's open ground, drawn from its walk map).
+TOWN_STREETS = [
+    ('Quayside', 100, -199, 0), ('Rue du Commerce', 150, -123, 0), ('Chapel Street', 40, -49, 0),
+    ('South Lane', -20, 23, 0), ('Basse-Terre Square', 52, -96, 0),
+    ('Harbour Steps', 67, -170, 90), ("Coopers' Alley", -80, -100, 90), ('Church Row', 211, -80, 90),
 ]

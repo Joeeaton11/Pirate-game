@@ -61,7 +61,18 @@ def plan_island(iid, rng):
     if not inner.contains(sq): sq = nearest_points(inner, sq)[0]
     plazas = [('Square', sq.x - 22, sq.x + 22, sq.y - 16, sq.y + 16)]
     roads = [('Landing Road', 'main', 8, [root, (sq.x, sq.y)])]
-    builds, taken = [], [box(*[plazas[0][1], plazas[0][3], plazas[0][2], plazas[0][4]]).buffer(4), LineString(roads[0][3]).buffer(8)]
+    # Hill on the far side from the landing (woods round it), a path up to it, and a coast path
+    # looping the island just inside the beach.
+    far = Point(sq.x - ux * 200, sq.y - uy * 200)
+    if not coast.buffer(-60).contains(far): far = nearest_points(coast.buffer(-60), far)[0]
+    ring = coast.buffer(-20, join_style=1).simplify(6)
+    if ring.geom_type == 'MultiPolygon': ring = max(ring.geoms, key=lambda q: q.area)
+    loop = [(round(x, 1), round(y, 1)) for x, y in ring.exterior.coords]
+    hill_path = [(sq.x, sq.y), (round((sq.x + far.x) / 2 + uy * 25, 1), round((sq.y + far.y) / 2 - ux * 25, 1)), (round(far.x, 1), round(far.y, 1))]
+    roads.append(('Coast Path', 'path', 4, loop))
+    roads.append(('Hill Path', 'path', 4, hill_path))
+    builds, taken = [], [box(*[plazas[0][1], plazas[0][3], plazas[0][2], plazas[0][4]]).buffer(4), LineString(roads[0][3]).buffer(8),
+                         LineString(loop).buffer(6), LineString(hill_path).buffer(6)]
     def place(bid, label, kind, x, y, w, h, link=True):
         p = Point(x, y)
         g = box(x - w / 2, y - h / 2, x + w / 2, y + h / 2)
@@ -90,9 +101,6 @@ def plan_island(iid, rng):
     for k in range(6):
         a = k / 6 * 2 * math.pi + 0.4
         place(None, 'Cottage', 'home', sq.x + math.cos(a) * 52, sq.y + math.sin(a) * 42, 18, 16, link=False)
-    # Hill on the far side from the landing; woods round it.
-    far = Point(sq.x - ux * 200, sq.y - uy * 200)
-    if not coast.buffer(-60).contains(far): far = nearest_points(coast.buffer(-60), far)[0]
     woods, extra_zone, flavour = THEME.get(iid, ('forest', None, ''))
     hills = [(round(far.x), round(far.y), 30, 110, 90)]
     zones = []
@@ -174,7 +182,15 @@ def main():
         enc = float(ENC_OF.get(iid, 0))
         danger = [('area', coast, (f'WILD ENCOUNTERS ON LAND · {round(enc * 100)}% A STEP' if enc else 'SAFE ON LAND', (P.LABELS[0][0], P.LABELS[0][1] - 14)), '#b03a2e' if enc else '#1e8449')]
         trig = [(door_point(b)[0], door_point(b)[1], 9, '') for b in P.BUILDINGS if b[0]]
-        extra = {'contours': contours, 'contour_labels': [], 'cliffs': cliff_d, 'peaks': [(h[0], h[1], h[2]) for h in hills],
+        road_labels = []
+        for rn, k, w, pts in P.ROADS:
+            segs = list(zip(pts, pts[1:]))
+            a_, b_ = max(segs, key=lambda sg: math.hypot(sg[1][0] - sg[0][0], sg[1][1] - sg[0][1]))
+            if math.hypot(b_[0] - a_[0], b_[1] - a_[1]) < 24: continue
+            ang = math.degrees(math.atan2(b_[1] - a_[1], b_[0] - a_[0]))
+            ang = ang - 180 if ang > 90 else ang + 180 if ang < -90 else ang
+            road_labels.append(((a_[0] + b_[0]) / 2, (a_[1] + b_[1]) / 2, ang, rn, 3.0 if k == 'main' else 2.4, k == 'path'))
+        extra = {'road_labels': road_labels, 'contours': contours, 'contour_labels': [], 'cliffs': cliff_d, 'peaks': [(h[0], h[1], h[2]) for h in hills],
                  'surfaces': surfaces, 'districts': [], 'districts_disc': [], 'danger': danger,
                  'shallows': coast.buffer(22, join_style=1).difference(coast), 'triggers': trig, 'routes': [], 'lamps': [(x, y) for k, x, y in P.PROPS if k == 'lamp']}
         solids_geom = unary_union([box(x - w / 2 + 1, y - h / 2 + 1, x + w / 2 - 1, y + h / 2 - 1) for _, _, _, x, y, w, h, _ in P.BUILDINGS]

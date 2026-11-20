@@ -384,6 +384,23 @@ g_out.append('export const BP_WALKS: [number, number][][] = [' + ', '.join('[' +
 open(f'{ROOT}/src/blueprint/tortugaGameplay.generated.ts', 'w').write('\n'.join(g_out) + '\n')
 extra['routes'] = routes + walk_loops
 
+# ---- road name labels: along the longest stretch of each road, plus the town's streets
+road_labels = []
+for name_, k, w, pts in P.ROADS:
+    if 'Spur' in name_: continue
+    segs = list(zip(pts, pts[1:]))
+    a_, b_ = max(segs, key=lambda sg: math.hypot(sg[1][0] - sg[0][0], sg[1][1] - sg[0][1]))
+    L_ = math.hypot(b_[0] - a_[0], b_[1] - a_[1])
+    if L_ < 24: continue
+    ang = math.degrees(math.atan2(b_[1] - a_[1], b_[0] - a_[0]))
+    if ang > 90: ang -= 180
+    if ang < -90: ang += 180
+    size = 3.0 if k == 'main' else 2.4
+    road_labels.append(((a_[0] + b_[0]) / 2, (a_[1] + b_[1]) / 2, ang, name_, size, k == 'path'))
+for name_, x, y, ang in P.TOWN_STREETS:
+    road_labels.append((x, y, ang, name_, 3.0, False))
+extra['road_labels'] = road_labels
+
 parts = architect.make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_rects, town_bldgs, doors,
                            S.building_names(), door_point, town_box, dock_geoms, breakwater, extra)
 import os
