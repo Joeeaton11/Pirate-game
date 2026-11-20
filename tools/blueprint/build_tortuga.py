@@ -28,7 +28,8 @@ def door_point(b):
     _, _, _, cx, cy, w, h, side = b
     return {'N': (cx, cy - h / 2), 'S': (cx, cy + h / 2), 'E': (cx + w / 2, cy), 'W': (cx - w / 2, cy), None: None}[side]
 
-road_geoms = [LineString(pts).buffer(w / 2, cap_style=1, join_style=1) for _, _, w, pts in P.ROADS]
+# Flat road ends (no rounded caps): the plan is what the artwork copies.
+road_geoms = [LineString(pts).buffer(w / 2, cap_style=2, join_style=1) for _, _, w, pts in P.ROADS]
 dock_geoms = [(n, k, w, LineString(pts).buffer(w / 2, cap_style=2, join_style=2)) for n, k, w, pts in P.DOCKS]
 breakwater = LineString(P.BREAKWATER).buffer(4, cap_style=1)
 plaza_geoms = [box(l, t, r, b) for _, l, r, t, b in P.PLAZAS]

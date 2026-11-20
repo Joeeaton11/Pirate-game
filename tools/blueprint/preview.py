@@ -21,7 +21,7 @@ def draw(path, coast, beach, zones, water, P, town_rects, town_bldgs, doors, tre
         d.line([T(*p) for p in pts], fill=(120, 92, 62), width=max(3, int((w + 1.6) * scale)), joint='curve')
     for name, k, w, pts in P.ROADS:
         d.line([T(*p) for p in pts], fill=hexc(PAL[k]), width=max(2, int(w * scale)), joint='curve')
-        for p in pts: r = w * scale / 2; d.ellipse([T(*p)[0] - r, T(*p)[1] - r, T(*p)[0] + r, T(*p)[1] + r], fill=hexc(PAL[k]))
+        for p in pts[1:-1]: r = w * scale / 2; d.ellipse([T(*p)[0] - r, T(*p)[1] - r, T(*p)[0] + r, T(*p)[1] + r], fill=hexc(PAL[k]))
     if bridges is not None: poly(bridges, PAL['bridge'])
     for _, l, r, t, b in P.PLAZAS: d.rectangle([T(l, t), T(r, b)], fill=hexc(PAL['plaza']))
     for k, col in (('street', 'street'), ('wood', 'wood'), ('water', 'townwater'), ('garden', 'towngarden'), ('sand', 'beach')):

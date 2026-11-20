@@ -110,7 +110,7 @@ def plan_island(iid, rng):
         ez = Point(sq.x + uy * 160, sq.y - ux * 160).buffer(110).intersection(coast.buffer(-14)).difference(unary_union(taken).buffer(10)).difference(wz)
         zones.append((extra_zone, ez))
     beach = coast.difference(coast.buffer(-12))
-    ways = unary_union([LineString(p).buffer(w / 2) for _, _, w, p in roads] + [box(l, t, r, b) for _, l, r, t, b in plazas])
+    ways = unary_union([LineString(p).buffer(w / 2, cap_style=2) for _, _, w, p in roads] + [box(l, t, r, b) for _, l, r, t, b in plazas])
     bg = [box(x - w / 2, y - h / 2, x + w / 2, y + h / 2) for _, _, _, x, y, w, h, _ in builds]
     blocked = unary_union([ways.buffer(5), unary_union(bg).buffer(7) if bg else Polygon()])
     trees = []
@@ -175,7 +175,7 @@ def main():
                 run = []
         if len(run) > 1: cliffs.append(run)
         cliff_d = ''.join(f'M{x:.1f} {y:.1f}L{(x * 0.97):.1f} {(y * 0.97):.1f}' for r in cliffs for x, y in r)
-        ways = unary_union([LineString(p).buffer(w / 2, cap_style=1) for _, _, w, p in P.ROADS])
+        ways = unary_union([LineString(p).buffer(w / 2, cap_style=2) for _, _, w, p in P.ROADS])
         surfaces = {'sand': coast.difference(coast.buffer(-12)).difference(ways), 'dirt': ways, 'plank': unary_union([g for *_, g in dock_geoms]),
                     'cobble': unary_union([box(l, t, r, b) for _, l, r, t, b in P.PLAZAS]),
                     'grass': coast.buffer(-12).difference(ways)}

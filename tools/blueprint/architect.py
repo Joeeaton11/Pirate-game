@@ -193,19 +193,39 @@ def make_svg(P, coast, zone_geoms, sea_zones, water, bridges, trees, pois, town_
     o.append(path(d_of(water.buffer(-1.6)), BLUE, 0.3))
 
     L('roads')
+    # Roads as one joined network: flat ends (no rounded caps), clean junctions. Footpaths dashed;
+    # where a path meets a road the road's kerb opens.
+    def rbuf(kinds):
+        gs = [LineString(pts).buffer(w / 2, cap_style=2, join_style=1) for _, k, w, pts in P.ROADS if k in kinds]
+        # Where two roads meet end to end at an angle, fill the outside corner with a straight
+        # chamfer (the hull of both road ends) so the join has no notch and nothing is rounded.
+        def end_piece(pts, w, at_start):
+            ln = LineString(pts if at_start else pts[::-1])
+            seg = LineString([ln.interpolate(0).coords[0], ln.interpolate(min(6, ln.length)).coords[0]])
+            return seg.buffer(w / 2, cap_style=2)
+        for i, (_, k, w, pts) in enumerate(P.ROADS):
+            if k not in kinds: continue
+            for si, end in ((True, pts[0]), (False, pts[-1])):
+                for j, (_, k2, w2, pts2) in enumerate(P.ROADS):
+                    if j <= i or k2 not in kinds: continue
+                    for sj, end2 in ((True, pts2[0]), (False, pts2[-1])):
+                        if math.hypot(end[0] - end2[0], end[1] - end2[1]) < 0.5:
+                            gs.append(unary_union([end_piece(pts, w, si), end_piece(pts2, w2, sj)]).convex_hull)
+        return unary_union(gs) if gs else Polygon()
+    paths_u = rbuf(('path',))
+    roads_u = unary_union([rbuf(('main', 'lane'))] + [box(l, t, r, b) for _, l, r, t, b in P.PLAZAS])
     for _, k, w, pts in P.ROADS:
-        pl = ' '.join(f'{x},{y}' for x, y in pts)
         if k == 'secret':  # hidden trail: a faint dotted line, no kerbs
-            o.append(f'<polyline points="{pl}" fill="none" stroke="#7d6a55" stroke-width="0.7" stroke-dasharray="0.6 1.8" stroke-linecap="round" stroke-linejoin="round"/>')
-            continue
-        dash = ' stroke-dasharray="2.5 1.5"' if k == 'path' else ''
-        o.append(f'<polyline points="{pl}" fill="none" stroke="{INK}" stroke-width="{w + 0.8}" stroke-linecap="round" stroke-linejoin="round"{dash}/>')
-    for n, l, r, t, b in P.PLAZAS:
-        o.append(f'<rect x="{l}" y="{t}" width="{r - l}" height="{b - t}" fill="{PAPER}" stroke="{INK}" stroke-width="0.5"/>')
-    for _, k, w, pts in P.ROADS:
-        if k == 'secret': continue
-        pl = ' '.join(f'{x},{y}' for x, y in pts)
-        o.append(f'<polyline points="{pl}" fill="none" stroke="{PAPER}" stroke-width="{w - 0.2}" stroke-linecap="round" stroke-linejoin="round"/>')
+            pl = ' '.join(f'{x},{y}' for x, y in pts)
+            o.append(f'<polyline points="{pl}" fill="none" stroke="#7d6a55" stroke-width="0.7" stroke-dasharray="0.6 1.8" stroke-linecap="butt" stroke-linejoin="round"/>')
+    if not paths_u.is_empty:
+        o.append(f'<path d="{d_of(paths_u)}" fill="{PAPER}" fill-rule="evenodd" stroke="{INK}" stroke-width="0.4" stroke-dasharray="2.5 1.5"/>')
+    if not roads_u.is_empty:
+        o.append(f'<path d="{d_of(roads_u)}" fill="{PAPER}" fill-rule="evenodd" stroke="{INK}" stroke-width="0.5" stroke-linejoin="round"/>')
+    if not paths_u.is_empty and not roads_u.is_empty:
+        mouth = paths_u.intersection(roads_u.buffer(0.6))
+        if not mouth.is_empty:
+            o.append(f'<path d="{d_of(mouth.buffer(-0.05))}" fill="{PAPER}" stroke="none"/>')
     # The painted town's streets: the edge of its open ground, inked like a road kerb.
     if town_rects.get('street'):
         st = unary_union([box(l, t, r, b) for l, r, t, b in town_rects['street']]).buffer(1.2, join_style=1).buffer(-1.2, join_style=1).simplify(0.8)
