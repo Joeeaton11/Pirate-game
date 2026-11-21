@@ -10,74 +10,74 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 
 | Asset id | What | Size on map (units wide) | Used | Status | Priority |
 |---|---|---|---|---|---|
-| `bld_tortuga_almshouse` | Almshouse — civic, footprint 20×18, door N (drawn in code) | 23 | 1× | drawn in code | 1 |
-| `bld_tortuga_apothecary` | Apothecary — shop, footprint 22×17, door S (drawn in code) | 25 | 1× | drawn in code | 1 |
-| `bld_tortuga_boatbuilder` | Boat-Builder's Yard — warehouse, footprint 20×14, door W (drawn in code) | 23 | 1× | drawn in code | 1 |
-| `bld_tortuga_charcoal_burner` | Charcoal Burner's Hut — home, footprint 16×12, door N (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `bld_tortuga_counting_house` | Counting House — civic, footprint 24×18, door S (drawn in code) | 27 | 1× | drawn in code | 1 |
-| `bld_tortuga_crossroads_shop` | Crossroads Shop — shop, footprint 22×17, door S (drawn in code) | 25 | 1× | drawn in code | 1 |
-| `bld_tortuga_farmstead` | Fontaine Farmstead — home, footprint 22×16, door S (drawn in code) | 25 | 1× | drawn in code | 1 |
-| `bld_tortuga_fort` | Fort de Rocher — fort, footprint 44×28, door S (drawn in code) | 47 | 1× | drawn in code | 1 |
-| `bld_tortuga_gaol` | The Gaol — civic, footprint 30×22, door E (drawn in code) | 33 | 1× | drawn in code | 1 |
-| `bld_tortuga_gunsmith` | Gunsmith — shop, footprint 22×17, door W (drawn in code) | 25 | 1× | drawn in code | 1 |
-| `bld_tortuga_hermit_hut` | Hermit's Hut — home, footprint 14×12, door W (drawn in code) | 17 | 1× | drawn in code | 1 |
-| `bld_tortuga_le_vasseur_residence` | Le Vasseur's Residence — manor, footprint 30×22, door N (drawn in code) | 33 | 1× | drawn in code | 1 |
-| `bld_tortuga_lighthouse_tower` | Lighthouse — landmark, footprint 14×14, door S (drawn in code) | 17 | 1× | drawn in code | 1 |
-| `bld_tortuga_lucky_draw` | The Lucky Draw — tavern, footprint 26×19, door E (drawn in code) | 29 | 1× | drawn in code | 1 |
-| `bld_tortuga_netmenders_shed` | Netmender's Shed — warehouse, footprint 30×22, door W (drawn in code) | 33 | 1× | drawn in code | 1 |
-| `bld_tortuga_old_landing_dock` | Old Landing Dock — warehouse, footprint 22×12, door N (drawn in code) | 25 | 1× | drawn in code | 1 |
-| `bld_tortuga_old_watchtower` | Old Watchtower — civic, footprint 14×14, door W (drawn in code) | 17 | 1× | drawn in code | 1 |
-| `bld_tortuga_powder_magazine` | Powder Magazine — warehouse, footprint 30×22, door N (drawn in code) | 33 | 1× | drawn in code | 1 |
-| `bld_tortuga_ropewalk` | The Ropewalk — warehouse, footprint 72×14, door S (drawn in code) | 75 | 1× | drawn in code | 1 |
-| `bld_tortuga_ruins` | El Fuerte Viejo — ruin, footprint 34×26, door E (drawn in code) | 37 | 1× | drawn in code | 1 |
-| `bld_tortuga_shipwrights_slip` | Shipwright's Slip — warehouse, footprint 24×18, door W (drawn in code) | 27 | 1× | drawn in code | 1 |
-| `bld_tortuga_shipyard` | The Shipyard — warehouse, footprint 30×22, door W (drawn in code) | 33 | 1× | drawn in code | 1 |
-| `bld_tortuga_signal_post` | Signal Post — civic, footprint 14×12, door E (drawn in code) | 17 | 1× | drawn in code | 1 |
-| `bld_tortuga_smuggler_cache` | Smuggler's Cache — warehouse, footprint 26×20, door N (drawn in code) | 29 | 1× | drawn in code | 1 |
-| `bld_tortuga_sugar_mill` | La Ringot Sugar Mill — mill, footprint 26×20, door N (drawn in code) | 29 | 1× | drawn in code | 1 |
-| `bld_tortuga_tailor` | Tailor — shop, footprint 22×17, door N (drawn in code) | 25 | 1× | drawn in code | 1 |
-| `bld_tortuga_tobacco_warehouse` | Tobacco Warehouse — warehouse, footprint 30×22, door E (drawn in code) | 33 | 1× | drawn in code | 1 |
-| `bld_tortuga_trapper_camp` | Trapper's Camp — home, footprint 20×16, door W (drawn in code) | 23 | 1× | drawn in code | 1 |
-| `bld_tortuga_vendue_house` | Vendue House — market, footprint 26×20, door S (drawn in code) | 29 | 1× | drawn in code | 1 |
-| `bld_tortuga_wayside_tavern` | Wayside Tavern — tavern, footprint 26×19, door N (drawn in code) | 29 | 1× | drawn in code | 1 |
-| `bld_tortuga_west_point` | West Point Shack — home, footprint 20×16, door E (drawn in code) | 23 | 1× | drawn in code | 1 |
+| `bld_tortuga_almshouse` | Almshouse — civic, footprint 20×18, door N (pixel art drawn in code) | 23 | 1× | drawn in code | 1 |
+| `bld_tortuga_apothecary` | Apothecary — shop, footprint 22×17, door S (pixel art drawn in code) | 25 | 1× | drawn in code | 1 |
+| `bld_tortuga_boatbuilder` | Boat-Builder's Yard — warehouse, footprint 20×14, door W (pixel art drawn in code) | 23 | 1× | drawn in code | 1 |
+| `bld_tortuga_charcoal_burner` | Charcoal Burner's Hut — home, footprint 16×12, door N (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `bld_tortuga_counting_house` | Counting House — civic, footprint 24×18, door S (pixel art drawn in code) | 27 | 1× | drawn in code | 1 |
+| `bld_tortuga_crossroads_shop` | Crossroads Shop — shop, footprint 22×17, door S (pixel art drawn in code) | 25 | 1× | drawn in code | 1 |
+| `bld_tortuga_farmstead` | Fontaine Farmstead — home, footprint 22×16, door S (pixel art drawn in code) | 25 | 1× | drawn in code | 1 |
+| `bld_tortuga_fort` | Fort de Rocher — fort, footprint 44×28, door S (pixel art drawn in code) | 47 | 1× | drawn in code | 1 |
+| `bld_tortuga_gaol` | The Gaol — civic, footprint 30×22, door E (pixel art drawn in code) | 33 | 1× | drawn in code | 1 |
+| `bld_tortuga_gunsmith` | Gunsmith — shop, footprint 22×17, door W (pixel art drawn in code) | 25 | 1× | drawn in code | 1 |
+| `bld_tortuga_hermit_hut` | Hermit's Hut — home, footprint 14×12, door W (pixel art drawn in code) | 17 | 1× | drawn in code | 1 |
+| `bld_tortuga_le_vasseur_residence` | Le Vasseur's Residence — manor, footprint 30×22, door N (pixel art drawn in code) | 33 | 1× | drawn in code | 1 |
+| `bld_tortuga_lighthouse_tower` | Lighthouse — landmark, footprint 14×14, door S (pixel art drawn in code) | 17 | 1× | drawn in code | 1 |
+| `bld_tortuga_lucky_draw` | The Lucky Draw — tavern, footprint 26×19, door E (pixel art drawn in code) | 29 | 1× | drawn in code | 1 |
+| `bld_tortuga_netmenders_shed` | Netmender's Shed — warehouse, footprint 30×22, door W (pixel art drawn in code) | 33 | 1× | drawn in code | 1 |
+| `bld_tortuga_old_landing_dock` | Old Landing Dock — warehouse, footprint 22×12, door N (pixel art drawn in code) | 25 | 1× | drawn in code | 1 |
+| `bld_tortuga_old_watchtower` | Old Watchtower — civic, footprint 14×14, door W (pixel art drawn in code) | 16 | 1× | drawn in code | 1 |
+| `bld_tortuga_powder_magazine` | Powder Magazine — warehouse, footprint 30×22, door N (pixel art drawn in code) | 33 | 1× | drawn in code | 1 |
+| `bld_tortuga_ropewalk` | The Ropewalk — warehouse, footprint 72×14, door S (pixel art drawn in code) | 75 | 1× | drawn in code | 1 |
+| `bld_tortuga_ruins` | El Fuerte Viejo — ruin, footprint 34×26, door E (pixel art drawn in code) | 36 | 1× | drawn in code | 1 |
+| `bld_tortuga_shipwrights_slip` | Shipwright's Slip — warehouse, footprint 24×18, door W (pixel art drawn in code) | 27 | 1× | drawn in code | 1 |
+| `bld_tortuga_shipyard` | The Shipyard — warehouse, footprint 30×22, door W (pixel art drawn in code) | 33 | 1× | drawn in code | 1 |
+| `bld_tortuga_signal_post` | Signal Post — civic, footprint 14×12, door E (pixel art drawn in code) | 16 | 1× | drawn in code | 1 |
+| `bld_tortuga_smuggler_cache` | Smuggler's Cache — warehouse, footprint 26×20, door N (pixel art drawn in code) | 29 | 1× | drawn in code | 1 |
+| `bld_tortuga_sugar_mill` | La Ringot Sugar Mill — mill, footprint 26×20, door N (pixel art drawn in code) | 29 | 1× | drawn in code | 1 |
+| `bld_tortuga_tailor` | Tailor — shop, footprint 22×17, door N (pixel art drawn in code) | 25 | 1× | drawn in code | 1 |
+| `bld_tortuga_tobacco_warehouse` | Tobacco Warehouse — warehouse, footprint 30×22, door E (pixel art drawn in code) | 33 | 1× | drawn in code | 1 |
+| `bld_tortuga_trapper_camp` | Trapper's Camp — home, footprint 20×16, door W (pixel art drawn in code) | 23 | 1× | drawn in code | 1 |
+| `bld_tortuga_vendue_house` | Vendue House — market, footprint 26×20, door S (pixel art drawn in code) | 29 | 1× | drawn in code | 1 |
+| `bld_tortuga_wayside_tavern` | Wayside Tavern — tavern, footprint 26×19, door N (pixel art drawn in code) | 29 | 1× | drawn in code | 1 |
+| `bld_tortuga_west_point` | West Point Shack — home, footprint 20×16, door E (pixel art drawn in code) | 23 | 1× | drawn in code | 1 |
 
 ## Homes, huts and outbuildings
 
 | Asset id | What | Size on map (units wide) | Used | Status | Priority |
 |---|---|---|---|---|---|
-| `home_cottage_18x16_3` | Cottage — home, footprint 18×16, door S (drawn in code) | 21 | 4× | drawn in code | 1 |
-| `home_wing_8x8_0` | Wing — home, footprint 8×8, door none (drawn in code) | 11 | 4× | drawn in code | 1 |
-| `home_cottage_18x16_4` | Cottage — home, footprint 18×16, door W (drawn in code) | 21 | 3× | drawn in code | 1 |
-| `home_cottage_22x16_1` | Cottage — home, footprint 22×16, door S (drawn in code) | 25 | 3× | drawn in code | 1 |
-| `home_cottage_16x13_1` | Cottage — home, footprint 16×13, door E (drawn in code) | 19 | 2× | drawn in code | 1 |
-| `home_cottage_16x14_4` | Cottage — home, footprint 16×14, door S (drawn in code) | 19 | 2× | drawn in code | 1 |
-| `home_cottage_18x16_1` | Cottage — home, footprint 18×16, door S (drawn in code) | 21 | 2× | drawn in code | 1 |
-| `home_cottage_18x16_2` | Cottage — home, footprint 18×16, door N (drawn in code) | 21 | 2× | drawn in code | 1 |
-| `home_cottage_22x16_3` | Cottage — home, footprint 22×16, door N (drawn in code) | 25 | 2× | drawn in code | 1 |
-| `home_gate_tower` | Gate Tower — fort, footprint 6×6, door none (drawn in code) | 9 | 2× | drawn in code | 1 |
-| `home_barn` | Barn — shed, footprint 24×16, door S (drawn in code) | 27 | 1× | drawn in code | 1 |
-| `home_barracks` | Barracks — civic, footprint 10×16, door W (drawn in code) | 13 | 1× | drawn in code | 1 |
-| `home_cottage_16x13_0` | Cottage — home, footprint 16×13, door E (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `home_cottage_16x13_2` | Cottage — home, footprint 16×13, door E (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `home_cottage_16x13_3` | Cottage — home, footprint 16×13, door W (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `home_cottage_16x14_1` | Cottage — home, footprint 16×14, door N (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `home_cottage_16x14_2` | Cottage — home, footprint 16×14, door S (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `home_cottage_16x14_3` | Cottage — home, footprint 16×14, door N (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `home_cottage_18x18_2` | Cottage — home, footprint 18×18, door W (drawn in code) | 21 | 1× | drawn in code | 1 |
-| `home_cottage_18x18_3` | Cottage — home, footprint 18×18, door E (drawn in code) | 21 | 1× | drawn in code | 1 |
-| `home_cottage_18x18_4` | Cottage — home, footprint 18×18, door E (drawn in code) | 21 | 1× | drawn in code | 1 |
-| `home_cottage_22x16_2` | Cottage — home, footprint 22×16, door S (drawn in code) | 25 | 1× | drawn in code | 1 |
-| `home_cottage_22x16_4` | Cottage — home, footprint 22×16, door N (drawn in code) | 25 | 1× | drawn in code | 1 |
-| `home_fishing_hut_16x12_0` | Fishing Hut — shed, footprint 16×12, door E (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `home_fishing_hut_16x12_4` | Fishing Hut — shed, footprint 16×12, door W (drawn in code) | 19 | 1× | drawn in code | 1 |
-| `home_lookout` | Lookout — shed, footprint 8×8, door S (drawn in code) | 11 | 1× | drawn in code | 1 |
-| `home_ringot_farmhouse_24x18_2` | Ringot Farmhouse — home, footprint 24×18, door S (drawn in code) | 27 | 1× | drawn in code | 1 |
-| `home_suzette_s_still_18x14_0` | Suzette's Still — shed, footprint 18×14, door W (drawn in code) | 21 | 1× | drawn in code | 1 |
-| `home_wing_11x8_0` | Wing — home, footprint 11×8, door none (drawn in code) | 14 | 1× | drawn in code | 1 |
-| `home_wing_11x8_2` | Wing — home, footprint 11×8, door none (drawn in code) | 14 | 1× | drawn in code | 1 |
-| `home_wing_8x8_2` | Wing — home, footprint 8×8, door none (drawn in code) | 11 | 1× | drawn in code | 1 |
-| `home_wing_8x9_0` | Wing — home, footprint 8×9, door none (drawn in code) | 11 | 1× | drawn in code | 1 |
+| `home_cottage_18x16_3` | Cottage — home, footprint 18×16, door S (pixel art drawn in code) | 21 | 4× | drawn in code | 1 |
+| `home_wing_8x8_0` | Wing — home, footprint 8×8, door none (pixel art drawn in code) | 11 | 4× | drawn in code | 1 |
+| `home_cottage_18x16_4` | Cottage — home, footprint 18×16, door W (pixel art drawn in code) | 21 | 3× | drawn in code | 1 |
+| `home_cottage_22x16_1` | Cottage — home, footprint 22×16, door S (pixel art drawn in code) | 25 | 3× | drawn in code | 1 |
+| `home_cottage_16x13_1` | Cottage — home, footprint 16×13, door E (pixel art drawn in code) | 19 | 2× | drawn in code | 1 |
+| `home_cottage_16x14_4` | Cottage — home, footprint 16×14, door S (pixel art drawn in code) | 19 | 2× | drawn in code | 1 |
+| `home_cottage_18x16_1` | Cottage — home, footprint 18×16, door S (pixel art drawn in code) | 21 | 2× | drawn in code | 1 |
+| `home_cottage_18x16_2` | Cottage — home, footprint 18×16, door N (pixel art drawn in code) | 21 | 2× | drawn in code | 1 |
+| `home_cottage_22x16_3` | Cottage — home, footprint 22×16, door N (pixel art drawn in code) | 25 | 2× | drawn in code | 1 |
+| `home_gate_tower` | Gate Tower — fort, footprint 6×6, door none (pixel art drawn in code) | 8 | 2× | drawn in code | 1 |
+| `home_barn` | Barn — shed, footprint 24×16, door S (pixel art drawn in code) | 27 | 1× | drawn in code | 1 |
+| `home_barracks` | Barracks — civic, footprint 10×16, door W (pixel art drawn in code) | 13 | 1× | drawn in code | 1 |
+| `home_cottage_16x13_0` | Cottage — home, footprint 16×13, door E (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `home_cottage_16x13_2` | Cottage — home, footprint 16×13, door E (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `home_cottage_16x13_3` | Cottage — home, footprint 16×13, door W (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `home_cottage_16x14_1` | Cottage — home, footprint 16×14, door N (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `home_cottage_16x14_2` | Cottage — home, footprint 16×14, door S (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `home_cottage_16x14_3` | Cottage — home, footprint 16×14, door N (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `home_cottage_18x18_2` | Cottage — home, footprint 18×18, door W (pixel art drawn in code) | 21 | 1× | drawn in code | 1 |
+| `home_cottage_18x18_3` | Cottage — home, footprint 18×18, door E (pixel art drawn in code) | 21 | 1× | drawn in code | 1 |
+| `home_cottage_18x18_4` | Cottage — home, footprint 18×18, door E (pixel art drawn in code) | 21 | 1× | drawn in code | 1 |
+| `home_cottage_22x16_2` | Cottage — home, footprint 22×16, door S (pixel art drawn in code) | 25 | 1× | drawn in code | 1 |
+| `home_cottage_22x16_4` | Cottage — home, footprint 22×16, door N (pixel art drawn in code) | 25 | 1× | drawn in code | 1 |
+| `home_fishing_hut_16x12_0` | Fishing Hut — shed, footprint 16×12, door E (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `home_fishing_hut_16x12_4` | Fishing Hut — shed, footprint 16×12, door W (pixel art drawn in code) | 19 | 1× | drawn in code | 1 |
+| `home_lookout` | Lookout — shed, footprint 8×8, door S (pixel art drawn in code) | 10 | 1× | drawn in code | 1 |
+| `home_ringot_farmhouse_24x18_2` | Ringot Farmhouse — home, footprint 24×18, door S (pixel art drawn in code) | 27 | 1× | drawn in code | 1 |
+| `home_suzette_s_still_18x14_0` | Suzette's Still — shed, footprint 18×14, door W (pixel art drawn in code) | 21 | 1× | drawn in code | 1 |
+| `home_wing_11x8_0` | Wing — home, footprint 11×8, door none (pixel art drawn in code) | 14 | 1× | drawn in code | 1 |
+| `home_wing_11x8_2` | Wing — home, footprint 11×8, door none (pixel art drawn in code) | 14 | 1× | drawn in code | 1 |
+| `home_wing_8x8_2` | Wing — home, footprint 8×8, door none (pixel art drawn in code) | 11 | 1× | drawn in code | 1 |
+| `home_wing_8x9_0` | Wing — home, footprint 8×9, door none (pixel art drawn in code) | 11 | 1× | drawn in code | 1 |
 
 ## Trees and rocks
 

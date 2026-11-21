@@ -72,7 +72,7 @@ def build(root, P, trees, town_box):
             f = standin
             if f and ('*' in f): f = _first(f)
             if f and not os.path.exists(f'{root}/{SPR}/{f}'): f = None
-            if f:  # a stand-in must have a transparent background, or it shows as a box
+            if f and not f.startswith('plan_art/'):  # a stand-in must have a transparent background, or it shows as a box
                 im = Image.open(f'{root}/{SPR}/{f}').convert('RGBA'); W_, H_ = im.size
                 if max(im.getpixel(q)[3] for q in ((0, 0), (W_ - 1, 0), (0, H_ - 1), (W_ - 1, H_ - 1))) > 10: f = None
             assets[aid] = dict(file=f, kind=kind, desc=desc, w=w_units, count=0)
@@ -80,7 +80,7 @@ def build(root, P, trees, town_box):
 
     import sys as _sys
     _sys.path.insert(0, f'{root}/tools/art')
-    import houses, specs
+    import pixel_houses as houses, specs
     os.makedirs(f'{root}/{SPR}/plan_art', exist_ok=True)
     drawn = set()
     for n, b in enumerate(P.BUILDINGS):
@@ -90,8 +90,8 @@ def build(root, P, trees, town_box):
         sp = specs.spec_for(b, n)
         rel = f'plan_art/{aid}.png'
         sw = houses.render(sp, f'{root}/{SPR}/{rel}')
-        asset(aid, rel, 'building' if bid else 'home', f'{label} — {kind}, footprint {w:g}×{h:g}, door {side or "none"} (drawn in code)', sw)
-        slots.append((aid, cx, cy + h / 2 + 1.8, round(sw, 1)))
+        asset(aid, rel, 'building' if bid else 'home', f'{label} — {kind}, footprint {w:g}×{h:g}, door {side or "none"} (pixel art drawn in code)', sw)
+        slots.append((aid, cx, cy + h / 2 + 1.2, round(sw, 2)))
         drawn.add(n)
     for i, (x, y, k) in enumerate(trees):
         if town_box.contains(Point(x, y)): continue

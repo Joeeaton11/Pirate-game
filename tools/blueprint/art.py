@@ -2,6 +2,7 @@
 shadows, no labels. Everything outside the land (and docks) is transparent so the game's sea shows
 through. The painted town is drawn on top of this in the game."""
 import random
+import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from palette import PAL
 
@@ -14,7 +15,7 @@ ROOF = {'civic': '#8d7fae', 'shop': '#c98a3f', 'tavern': '#b5523a', 'warehouse':
         'home': '#b4694a', 'fort': '#7c7c7c', 'manor': '#9a5f93', 'ruin': '#7b7163', 'landmark': '#d8d2c2',
         'shed': '#8f7353', 'mill': '#b78d4a', 'town': '#a8583c'}
 
-def draw(path, coast, beach, zones, water, P, bldgs, trees, bridges, docks, breakwater, sea_zones, ss=3, out_scale=2):
+def draw(path, coast, beach, zones, water, P, bldgs, trees, bridges, docks, breakwater, sea_zones, ss=4, out_scale=4):
     S = ss
     im = Image.new('RGBA', (W * S, H * S), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
@@ -70,63 +71,33 @@ def draw(path, coast, beach, zones, water, P, bldgs, trees, bridges, docks, brea
         gp.planks(g, ang)
     if breakwater is not None:
         m_ = gp.mask([breakwater]); gp.fill(m_, '#8d877a', 0.08, (5, 2)); gp.cobbles(breakwater, m_, 1.8)
-    # shadows (south-east), then trees, then buildings
+    # ---- pixel-art objects: flat contact shadows, then trees and props back to front
+    import sys as _sys, os as _os
+    _sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), '..', 'art'))
+    import pixel_props as pp, pixel_houses as ph
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sd = ImageDraw.Draw(sh)
     for x, y, k in trees:
-        r = {'jungle': 4, 'tree': 5, 'palm': 3.5, 'rock': 4, 'mangrove': 3.5}[k] * S
-        cx, cy = T(x + 1.5, y + 1.5); sd.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(20, 30, 10, 90))
-    for b in bldgs:
-        l, t, r, bt = b[:4]
-        sd.rectangle([T(l + 1.8, t + 1.8), T(r + 1.8, bt + 1.8)], fill=(20, 20, 10, 100))
-    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(S)))
+        r = {'jungle': 4, 'tree': 5, 'palm': 3, 'rock': 3.5, 'mangrove': 3.5}[k] * S
+        cx, cy = T(x + 1.2, y + 1.0); sd.ellipse([cx - r, cy - r * 0.5, cx + r, cy + r * 0.5], fill=(20, 30, 10, 70))
+    im.alpha_composite(sh)
+    items = [(y, 't', x, k) for x, y, k in trees]
+    skip = {'falls', 'spring', 'cave', 'lookout', 'x_mark', 'bottle', 'bollard', 'grave_marker', 'tavern_sign', 'shop_sign', 'parrot_perch',
+            'plank', 'hammock', 'rope_coil', 'ship_wheel', 'spyglass', 'cannonballs', 'trough', 'figurehead', 'cane_press', 'hull', 'lobster_pot'}
+    items += [(y, 'p', x, k) for k, x, y in P.PROPS if k not in skip]
+    items.sort()
+    for i, (y, t, x, k) in enumerate(items):
+        got = pp.get(S, k, int(abs(x * 7 + y * 3)) % 4) if t == 't' else pp.get(S, k, 0)
+        if not got: continue
+        spr, anc = got
+        pp.stamp(im, spr, anc, *T(x, y))
     d = ImageDraw.Draw(im)
-    rng = random.Random(7)
-    for x, y, k in trees:
-        r = {'jungle': 4, 'tree': 5, 'palm': 3.5, 'rock': 4, 'mangrove': 3.5}[k] * S
-        base = shade(hexc(PAL['t_' + k]), rng.uniform(0.9, 1.1))
-        cx, cy = T(x, y)
-        if k == 'palm':
-            for a in range(6):
-                import math
-                ang = a * math.pi / 3 + rng.random()
-                d.line([cx, cy, cx + math.cos(ang) * r * 1.3, cy + math.sin(ang) * r * 1.3], fill=base, width=int(S * 1.4))
-            d.ellipse([cx - S, cy - S, cx + S, cy + S], fill=hexc('#7a5a33'))
-            continue
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=base)
-        if k != 'rock':
-            hr = r * 0.55; d.ellipse([cx - r * 0.55 - hr * 0.3, cy - r * 0.55 - hr * 0.3, cx - r * 0.55 + hr, cy - r * 0.55 + hr], fill=shade(base, 1.18))
-    for b in bldgs:
+    for b in bldgs:  # anything without a building sprite yet: a simple roof block
         l, t, r, bt, kind = b
         col = hexc(ROOF.get(kind, ROOF['home']))
-        d.rectangle([T(l, t), T(r, bt)], fill=col, outline=shade(col, 0.55), width=S)
-        if r - l >= bt - t:   # ridge runs east-west: north slope lit, south slope dark
-            m = (t + bt) / 2; d.rectangle([T(l + 0.4, m), T(r - 0.4, bt - 0.4)], fill=shade(col, 0.8))
-            d.line([T(l, m), T(r, m)], fill=shade(col, 1.2), width=S)
-        else:
-            m = (l + r) / 2; d.rectangle([T(m, t + 0.4), T(r - 0.4, bt - 0.4)], fill=shade(col, 0.8))
-            d.line([T(m, t), T(m, bt)], fill=shade(col, 1.2), width=S)
-    for k, x, y in P.PROPS:
-        cx, cy = T(x, y)
-        if k == 'skull_rock':
-            d.ellipse([cx - 14 * S, cy - 12 * S, cx + 14 * S, cy + 8 * S], fill=hexc('#cfc8b8'), outline=hexc('#6d665a'), width=S)
-            d.rectangle([cx - 8 * S, cy + 4 * S, cx + 8 * S, cy + 12 * S], fill=hexc('#cfc8b8'), outline=hexc('#6d665a'), width=S)
-            for ex in (-5, 5): d.ellipse([cx + (ex - 3.4) * S, cy - 4 * S, cx + (ex + 3.4) * S, cy + 2 * S], fill=hexc('#2b2620'))
-            d.polygon([(cx, cy + 2 * S), (cx - 1.5 * S, cy + 5 * S), (cx + 1.5 * S, cy + 5 * S)], fill=hexc('#2b2620'))
-            continue
-        if k == 'careened_ship':
-            d.chord([cx - 16 * S, cy - 8 * S, cx + 16 * S, cy + 10 * S], 180, 360, fill=hexc('#7a5230'), outline=hexc('#4a3018'), width=S)
-            d.line([cx - 4 * S, cy - 2 * S, cx - 14 * S, cy - 12 * S], fill=hexc('#4a3018'), width=S); continue
-        if k in ('whale_bones', 'kraken_bones'):
-            for i in range(6): d.arc([cx + (-12 + i * 4) * S, cy - 7 * S, cx + (-8 + i * 4) * S, cy + 7 * S], 270, 90, fill=hexc('#efe9dc'), width=S)
-            d.line([cx - 14 * S, cy, cx + 14 * S, cy], fill=hexc('#efe9dc'), width=S); continue
-        if k == 'jolly_roger':
-            d.line([cx, cy + 3 * S, cx, cy - 6 * S], fill=hexc('#4a3018'), width=S)
-            d.rectangle([cx, cy - 6 * S, cx + 5 * S, cy - 2.6 * S], fill=hexc('#1b1b1b')); d.ellipse([cx + 1.8 * S, cy - 5.3 * S, cx + 3.2 * S, cy - 3.9 * S], fill=hexc('#ffffff')); continue
-        if k == 'buoy': d.ellipse([cx - 1.4 * S, cy - 1.4 * S, cx + 1.4 * S, cy + 1.4 * S], fill=hexc('#e74c3c')); continue
-        if k == 'wreck_mast': d.line([cx, cy + 3 * S, cx + 2 * S, cy - 6 * S], fill=hexc('#4a3018'), width=S); continue
-        if k in ('treasure_pile', 'sea_chest'): d.ellipse([cx - 2 * S, cy - 1.4 * S, cx + 2 * S, cy + 1.4 * S], fill=hexc('#e8c547')); continue
-        if k in ('signpost', 'lamp', 'bollard', 'grave', 'cave', 'x_mark', 'bottle', 'notice'): continue
-        r = 1.6 * S
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=hexc('#6b4d2e'))
-    im = im.resize((W * out_scale, H * out_scale), Image.LANCZOS)
-    im.save(path)
+        d.rectangle([T(l, t), T(r, bt)], fill=col, outline=hexc('#2a1c12'), width=S)
+    # ---- pixel finish: snap every colour to the house palette, hard alpha edges on land
+    a = np.asarray(im.getchannel('A'))
+    rgb = Image.new('RGB', im.size, (0, 0, 0)); rgb.paste(im, (0, 0), im)
+    q = rgb.quantize(palette=ph.palette(), dither=Image.Dither.NONE).convert('RGB')
+    q.putalpha(Image.fromarray(a))
+    q.save(path)

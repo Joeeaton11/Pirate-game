@@ -211,7 +211,7 @@ class Painter:
                 d.rectangle([self.T(l, y), self.T(l + (1.2 if row % 2 else 0), y + hgt)], fill=hexrgb('#c6b999') + (255,), outline=hexrgb('#8f826a') + (255,), width=max(1, S // 4))
                 while x < r:
                     w = self.rng.uniform(2.4, 3.6)
-                    c = hexrgb(self.rng.choice(['#d8ccb0', '#cbbf9f', '#ded3b9', '#c3b696']))
+                    c = hexrgb(self.rng.choice(['#cfc6b0', '#c6bda6', '#d6cdb8', '#bfb69f']))
                     d.rectangle([self.T(x, y), self.T(min(x + w, r), y + hgt)], fill=c + (255,), outline=hexrgb('#8f826a') + (255,), width=max(1, S // 4))
                     x += w
                 y += hgt; row += 1

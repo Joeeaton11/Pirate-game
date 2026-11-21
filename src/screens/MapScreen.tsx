@@ -57,6 +57,7 @@ import {
 import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
 import { ArtSprites } from '../blueprint/ArtSprites';
+import { ArtTiles } from '../blueprint/ArtTiles';
 import { autoTarget, JournalPanel, TrackerArrow, TrackTarget, targetDone } from '../town/Journal';
 import {
   BP_BOTTLES,
@@ -428,7 +429,6 @@ const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict
 const TOWN_DOORS = TOWN_SCENE.doors;
 const TOWN_DOOR_RADIUS = 9;
 const TORTUGA_TOWN_SCENE_SPRITES = [...TOWN_SCENE.sprites].sort((a, b) => a.z - b.z).map(renderSceneSprite);
-const TORTUGA_PLAN_ART = require('../../assets/sprites/tortuga_town/plan_art.png');
 const TORTUGA_TOWN_GROUND = [...TOWN_SCENE.ground.map(renderGroundTile), ...TOWN_SCENE.decals.map(renderDecal)];
 // The painted town's outer band (EDGE units) is drawn from alpha-feathered strips instead of the
 // hard-edged JPG chunks, so the painting melts into the island art around it rather than ending
@@ -3183,17 +3183,7 @@ export default function MapScreen({ navigation }: Props) {
             {SHOW_TORTUGA_V2 && !planMode && (
               <View pointerEvents="none" style={StyleSheet.absoluteFill}>
                 {/* Art mode is painted from the plan: the island base below, the painted town on top. */}
-                <RNImage
-                  source={TORTUGA_PLAN_ART}
-                  resizeMode="stretch"
-                  style={{
-                    position: 'absolute',
-                    left: ISLANDS.tortuga_cove.position.x - 620,
-                    top: ISLANDS.tortuga_cove.position.y - 580,
-                    width: 1240,
-                    height: 1120,
-                  }}
-                />
+                <ArtTiles origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
                 {TORTUGA_TOWN_FEATHERED}
                 {TORTUGA_TOWN_SCENE_SPRITES}
                 <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
