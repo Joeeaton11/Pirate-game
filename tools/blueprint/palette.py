@@ -2,7 +2,7 @@
 PAL = {
     'sea': '#1f4f6e', 'grass': '#86b25e', 'beach': '#e8d49c', 'jungle': '#3e7438', 'forest': '#4f8a45',
     'fields': '#cdb35e', 'paddock': '#a9c46a', 'allotment': '#8fae5a', 'pen': '#b9b07a', 'b_mill': '#d8b26a', 'rock': '#9d9585', 'graveyard': '#8f9f7c', 'garden': '#93c46c', 'water': '#4ea6cc',
-    'main': '#b8936a', 'lane': '#c4a479', 'path': '#cdb48c', 'secret': '#9c8a70', 'poi_errand': '#8e44ad', 'plaza': '#d3c7ab',
+    'main': '#b8936a', 'ruinlane': '#a59a84', 'orchard': '#8fbf5a', 'quarry': '#a09a8e', 'b_ruin_tower': '#8c8272', 'b_windmill': '#e8dcc0', 'lane': '#c4a479', 'path': '#cdb48c', 'secret': '#9c8a70', 'poi_errand': '#8e44ad', 'plaza': '#d3c7ab',
     'street': '#d3c7ab', 'wood': '#a5784a', 'townwater': '#2f78a6', 'towngarden': '#5d8e47',
     'outline': '#3a2a1a', 'door': '#e8432e', 'label': '#2a1d10',
     'b_civic': '#b4a7cc', 'b_shop': '#e3aa5c', 'b_tavern': '#db744f', 'b_warehouse': '#ab8f6b', 'b_market': '#e3c45c',

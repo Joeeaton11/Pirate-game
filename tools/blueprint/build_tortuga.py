@@ -41,7 +41,7 @@ def door_point(b):
 # Flat road ends (no rounded caps): the plan is what the artwork copies.
 road_geoms = [LineString(pts).buffer(w / 2, cap_style=2, join_style=1) for _, _, w, pts in P.ROADS]
 dock_geoms = [(n, k, w, LineString(pts).buffer(w / 2, cap_style=2, join_style=2)) for n, k, w, pts in P.DOCKS]
-breakwater = LineString(P.BREAKWATER).buffer(4, cap_style=1)
+breakwater = unary_union([LineString(m).buffer(4, cap_style=1) for m in P.MOLES])
 plaza_geoms = [box(l, t, r, b) for _, l, r, t, b in P.PLAZAS]
 ways = unary_union(road_geoms + plaza_geoms)
 bldg_geoms = [box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2) for _, _, _, cx, cy, w, h, _ in P.BUILDINGS]
@@ -85,7 +85,7 @@ for i, b in enumerate(P.BUILDINGS):
     if g.buffer(-0.5).intersects(ways): problems.append(f'{b[1]} @({b[3]},{b[4]}) sits on a road')
     if g.intersects(water): problems.append(f'{b[1]} sits in water')
     for j in range(i):
-        if 'Wing' not in (b[1], P.BUILDINGS[j][1]) and g.buffer(2).intersects(bldg_geoms[j]): problems.append(f'{b[1]} touches {P.BUILDINGS[j][1]}')
+        if not {'Wing', 'Bell Tower'} & {b[1], P.BUILDINGS[j][1]} and g.buffer(2).intersects(bldg_geoms[j]): problems.append(f'{b[1]} touches {P.BUILDINGS[j][1]}')
     d = door_point(b)
     if d and b[2] not in ('landmark',) and Point(d).distance(ways) > 12:
         problems.append(f'{b[1]} @({b[3]},{b[4]}) door is {Point(d).distance(ways):.0f} from a road')
@@ -100,7 +100,7 @@ for name, _, _, pts in P.ROADS:
 # ---------------------------------------------------------------- trees (blue-noise per zone)
 rng = random.Random(4)
 blocked_for_trees = unary_union([ways.buffer(5), unary_union(bldg_geoms).buffer(7), water.buffer(4),
-                                 town_box.buffer(6), Point(-290, 202).buffer(26)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden', 'sugarcane', 'paddock', 'allotment', 'pen')])
+                                 town_box.buffer(6), Point(-290, 202).buffer(26)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden', 'sugarcane', 'paddock', 'allotment', 'pen', 'orchard', 'quarry')])
 trees = []
 def scatter(area, spacing, kind, keep=1.0):
     if area.is_empty: return
@@ -128,6 +128,7 @@ _del = set(EDITS.get('deleted_trees', []))
 TREES_ORIG = [(x, y) for x, y, k in trees if tkey((x, y)) not in _del]
 trees = [(x + EDITS['trees'].get(tkey((x, y)), [0, 0])[0], y + EDITS['trees'].get(tkey((x, y)), [0, 0])[1], k) for x, y, k in trees if tkey((x, y)) not in _del]
 trees += [(_a['x'], _a['y'], 'tree') for _a in EDITS.get('added', []) if _a['what'] == 'tree']
+trees += list(P.ORCHARD_TREES); TREES_ORIG += [(x, y) for x, y, k in P.ORCHARD_TREES]
 TREES_ORIG += [(_a['x'], _a['y']) for _a in EDITS.get('added', []) if _a['what'] == 'tree']
 
 # ---------------------------------------------------------------- points of interest
@@ -328,6 +329,22 @@ for x, y, k in trees:
     burn(Point(x, y).buffer(4 if k == 'rock' else 2.4))
 for g_, wdt in ((fence_geom, 1.1), (hedge_geom, 1.4), (wall_geom, 1.4)):
     if not g_.is_empty: burn(g_.buffer(wdt))
+# terraces: retaining walls along the south half of each high-ground ellipse, cut where roads climb
+_road_cut = unary_union([LineString(pts).buffer(w / 2 + 1.5) for n_, k_, w, pts in P.ROADS if k_ != 'secret'])
+terrace_walls, terrace_stairs = [], []
+for tcx, tcy, trx, try_ in P.TERRACES:
+    arc = LineString([(tcx + math.cos(a) * trx, tcy + math.sin(a) * try_) for a in [math.radians(d) for d in range(15, 166, 3)]])
+    arc = arc.intersection(coast.buffer(-3))
+    for seg in getattr(arc, 'geoms', [arc]):
+        if seg.is_empty or seg.geom_type != 'LineString': continue
+        cut = seg.difference(_road_cut).difference(unary_union(bldg_geoms).buffer(2))
+        for piece in getattr(cut, 'geoms', [cut]):
+            if piece.geom_type == 'LineString' and piece.length > 2: terrace_walls.append(list(piece.coords))
+        st = seg.intersection(_road_cut)
+        for piece in getattr(st, 'geoms', [st]):
+            if piece.geom_type == 'LineString' and piece.length > 1: terrace_stairs.append(list(piece.coords))
+for tw in terrace_walls: burn(LineString(tw).buffer(1.2))
+extra_terraces = (terrace_walls, terrace_stairs)
 sol_rects = [(X0 + i * C, X0 + k * C, Y0 + j * C, Y0 + jj * C) for i, k, j, jj in merge(sol)]
 
 # ---------------------------------------------------------------- write TS
@@ -361,7 +378,7 @@ for n, k, w, pts in P.DOCKS:
     for a, b in zip(pts, pts[1:]): segs.append(f'{{ from: {{ x: {a[0]}, y: {a[1]} }}, to: {{ x: {b[0]}, y: {b[1]} }}, halfWidth: {w / 2 + 1:g} }}')
 out.append('/** Walkable boardwalks outside the painted town (src/data/harbor.ts reads these). */')
 out.append('export const BP_DOCK_SEGMENTS: { from: { x: number; y: number }; to: { x: number; y: number }; halfWidth: number }[] = [\n  ' + ',\n  '.join(segs) + '\n];')
-out.append(f"export const BP_BREAKWATER: [number, number][] = [{', '.join(f'[{x}, {y}]' for x, y in P.BREAKWATER)}];")
+out.append(f"export const BP_BREAKWATER: [number, number][] = [{', '.join(f'[{x}, {y}]' for m in P.MOLES for x, y in m)}];")
 out.append('export const BP_SEA_ZONES: { t: string; d: string }[] = [' + ', '.join(f"{{ t: '{t}', d: '{poly_d(g)}' }}" for t, g in sea_zones) + '];')
 out.append('export const BP_POIS: [string, string, number, number][] = [' + ', '.join(f"['{k}', {i!r}, {x:g}, {y:g}]" for k, i, x, y in pois) + '];')
 out.append('/** x, y, kind code (0 jungle, 1 tree, 2 palm, 3 rock, 4 mangrove), packed. */')
@@ -501,6 +518,7 @@ extra['fence'], extra['hedge'], extra['wall'] = fence_geom, hedge_geom, wall_geo
 extra['town_walls'] = town_walls
 wild = [(k, Polygon(p).buffer(0)) for k, p in P.WILDLIFE]
 extra['wildlife'] = wild
+extra['terraces'] = extra_terraces
 extra['life'] = dict(fishing=fishing, digs=digs, collect=collect, views=views, notices=notices, events=events, shelters=shelters, people=people)
 rng2 = random.Random(21)
 def spots(area, n, spacing):
@@ -659,7 +677,7 @@ if len(sys.argv) > 2:
 
 # ---------------------------------------------------------------- art mode base (painted from the plan)
 import art_slots
-_assets, _drawn_b, _stats = art_slots.build(ROOT, P, trees, town_box)
+_assets, _drawn_b, _stats = art_slots.build(ROOT, P, trees, town_box, (town_bldgs, doors))
 print('art slots', _stats)
 import art
 # The base keeps only what has no sprite yet; anything with a sprite is drawn by the game on top.
@@ -673,7 +691,11 @@ _avoid = unary_union([ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.b
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock')])
 _no_rocks = unary_union([dock_area.buffer(6), town_box.buffer(2)] + [LineString(pts).buffer(w / 2 + 3) for n_, k_, w, pts in P.ROADS])
 _fp = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2) for b in P.BUILDINGS]
-art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid, _no_rocks, _fp)
+_town_open = unary_union([box(l, t, r, b) for k_ in ('street', 'wood', 'water', 'sand') for l, r, t, b in town_rects.get(k_, [])] + [box(l, t, r, b) for l, r, t, b in blocks])
+_avoid = unary_union([ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), _town_open.buffer(1.5), dock_area.buffer(2)]
+                     + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock', 'quarry', 'orchard')])
+_fp = _fp + [(l, t, r, b) for l, r, t, b in town_bldgs]
+art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid, _no_rocks, _fp, town_rects, town_walls)
 # cut the base into tiles so phones never need one huge texture, and the game loads only nearby ones
 from PIL import Image as _Im
 _full = _Im.open('/tmp/plan_art_full.png'); _TW, _TH = _full.size[0] // 4, _full.size[1] // 4

@@ -50,9 +50,9 @@ def up(arr):
 
 
 # ---------------------------------------------------------------- 01 sea
-def sea(coast, docks_union):
+def sea(coast, town_water=None):
     rng = random.Random(1); nrng = np.random.default_rng(1)
-    land = lowres_mask([coast])
+    land = lowres_mask([coast.difference(town_water) if town_water is not None else coast])
     dist = distance_transform_edt(~land)  # units from shore
     yy, xx = np.mgrid[0:H, 0:W]
     edge = np.minimum.reduce([xx, W - 1 - xx, yy, H - 1 - yy]).astype(np.float32)
@@ -104,10 +104,11 @@ def sea(coast, docks_union):
 
 
 # ---------------------------------------------------------------- 02 terrain
-def terrain(coast, beach, zones):
+def terrain(coast, beach, zones, town_water=None):
     im, T = new_layer()
     gp = ground.Painter(im, T, S, seed=2)
-    gp.grass(coast, '#5f9e3c')
+    land_ = coast.difference(town_water) if town_water is not None else coast
+    gp.grass(land_, '#5f9e3c')
     def blades(d):  # dense pixel blades so the grass reads as grass, not paint
         for x, y in gp.scatter(coast, 70):
             X, Y = T(x, y)
@@ -116,13 +117,21 @@ def terrain(coast, beach, zones):
         for x, y in gp.scatter(coast, 0.8):  # clover and darker patches
             X, Y = T(x, y); r = gp.rng.randint(4, 9)
             d.ellipse([X - r, Y - r * 0.6, X + r, Y + r * 0.6], fill=(70, 132, 50, 255))
-    gp.pattern(gp.mask([coast.difference(beach)]), blades)
+    gp.pattern(gp.mask([land_.difference(beach)]), blades)
     gp.sand(beach, water_edge=coast.boundary)
     for t, g in zones:
         if t in ('jungle', 'forest'): gp.woodland(g, '#3f7d32' if t == 'jungle' else '#4a8a36')
         elif t == 'swamp': gp.woodland(g, '#4d6e3c')
         elif t == 'palms': gp.grass(g, '#7fae48')
         elif t == 'rock': gp.fill(gp.mask([g]), '#8d877c', 0.12, (5, 2))
+        elif t == 'quarry':  # a stepped pit cut into pale stone
+            gp.fill(gp.mask([g]), '#b8b0a0', 0.08, (4, 2))
+            for k, f in enumerate((0.75, 0.5, 0.28)):
+                inner = g.buffer(-(1 - f) * 12)
+                if inner.is_empty: break
+                gp.fill(gp.mask([inner]), ['#a39b8b', '#8e8778', '#77716a'][k], 0.06, (4, 2))
+                ring = gp.mask([inner.boundary.buffer(0.4)])
+                gp.pattern(ring, lambda d: d.rectangle([0, 0, *im.size], fill=(220, 214, 200, 255)))
         elif t in ('fields', 'sugarcane', 'allotment'):
             gp.fill(gp.mask([g]), {'fields': '#c9a04e', 'sugarcane': '#9cbf4a', 'allotment': '#7a5a36'}[t], 0.05, (10, 3))
             l, tp, r, b = g.bounds
@@ -164,7 +173,7 @@ def rivers(water):
 
 
 # ---------------------------------------------------------------- 04 roads
-def cobble_pattern(gp, geom, m, size=1.0):
+def cobble_pattern(gp, geom, m, size=1.0, keep=1.0):
     S_ = gp.S; rng = gp.rng
     l, t, r, b = geom.bounds
     def stones(d):
@@ -175,7 +184,7 @@ def cobble_pattern(gp, geom, m, size=1.0):
                 w = size * rng.uniform(0.8, 1.2)
                 c = rng.choice([(168, 160, 146), (152, 144, 130), (182, 174, 158), (140, 134, 122)])
                 X0_, Y0_ = gp.T(x + 0.1, y + 0.1); X1_, Y1_ = gp.T(x + w - 0.1, y + size * 0.8 - 0.1)
-                if X1_ - X0_ < 2 or Y1_ - Y0_ < 2: x += w; continue
+                if X1_ - X0_ < 2 or Y1_ - Y0_ < 2 or rng.random() > keep: x += w; continue
                 d.rounded_rectangle([X0_, Y0_, X1_, Y1_], radius=1, fill=c + (255,), outline=(92, 84, 74, 255))
                 d.line([X0_ + 1, Y0_ + 1, X1_ - 2, Y0_ + 1], fill=(210, 204, 190, 255))
                 x += w
@@ -189,6 +198,10 @@ def roads(P):
     order = {'path': 0, 'lane': 1, 'main': 2}
     for name, k, w, pts in sorted(P.ROADS, key=lambda r: order.get(r[1], 0)):
         if k == 'secret': continue
+        if k == 'ruinlane':  # the Old Landing's streets: broken cobbles swallowed by grass
+            m = gp.mask(lines=[(pts, w)]); gp.fill(m, '#7c9a4e', 0.06)
+            cobble_pattern(gp, LineString(pts).buffer(w / 2), m, 1.5, keep=0.55)
+            continue
         if k == 'lane':
             gp.fill(gp.mask(lines=[(pts, w + 1.0)]), '#6e6458', 0.04)
             m = gp.mask(lines=[(pts, w)]); gp.fill(m, '#a49a88', 0.04)
@@ -209,7 +222,12 @@ def roads(P):
         else:
             m = gp.mask(lines=[(pts, w)])
             gp.fill(m.filter(ImageFilter.GaussianBlur(2)).point(lambda v: 255 if v > 120 else 0), '#d9bd84', 0.07, (8, 2))
-    for _, l, r, t, b in P.PLAZAS:
+    for name_, l, r, t, b in P.PLAZAS:
+        if name_ == 'Duelling Ground':
+            gp.fill(gp.mask(rects=[(l, t, r, b)]), '#d9bd84', 0.06, (6, 2)); continue
+        if name_ == 'Old Landing Square':
+            m = gp.mask(rects=[(l, t, r, b)]); gp.fill(m, '#7c9a4e', 0.05)
+            cobble_pattern(gp, Polygon([(l, t), (r, t), (r, b), (l, b)]), m, 1.9, keep=0.5); continue
         gp.fill(gp.mask(rects=[(l - 0.8, t - 0.8, r + 0.8, b + 0.8)]), '#6e6458', 0.03)
         m = gp.mask(rects=[(l, t, r, b)]); gp.fill(m, '#a49a88', 0.03)
         cobble_pattern(gp, Polygon([(l, t), (r, t), (r, b), (l, b)]), m, 1.9)
@@ -217,8 +235,39 @@ def roads(P):
 
 
 # ---------------------------------------------------------------- 05 walls, fences, hedges
-def walls(fence, hedge, wall):
+def retaining(d, T, pts, rng, height=3.2):
+    """A stone retaining wall seen from the south: grassy lip on top, block face below, shadow at its foot."""
+    ln = LineString(pts)
+    for i in range(int(ln.length / 0.8) + 1):
+        p = ln.interpolate(i * 0.8); X, Y = T(p.x, p.y)
+        d.rectangle([X, Y + height * S, X + 0.8 * S + 1, Y + height * S + 3], fill=(16, 40, 14, 110))
+        for r in range(int(height / 0.8)):
+            c = rng.choice([(150, 144, 132), (136, 130, 120), (164, 158, 146), (124, 118, 110)])
+            yy = Y + r * 0.8 * S
+            d.rectangle([X, yy, X + 0.8 * S, yy + 0.8 * S - 1], fill=c + (255,))
+            d.line([X, yy, X + 0.8 * S - 1, yy], fill=(190, 184, 170, 255))
+        d.line([X, Y - 1, X + 0.8 * S, Y - 1], fill=(72, 132, 48, 255), width=2)
+
+
+def stairs(d, T, pts, rng, height=3.2):
+    ln = LineString(pts)
+    for i in range(int(ln.length / 0.8) + 1):
+        p = ln.interpolate(i * 0.8); X, Y = T(p.x, p.y)
+        for r in range(int(height / 0.8)):
+            yy = Y + r * 0.8 * S
+            d.rectangle([X, yy, X + 0.8 * S, yy + 0.8 * S - 1], fill=(184, 176, 160, 255))
+            d.line([X, yy + 0.8 * S - 1, X + 0.8 * S, yy + 0.8 * S - 1], fill=(112, 104, 92, 255))
+
+
+def walls(fence, hedge, wall, terraces=None, town_walls=()):
     im, T = new_layer(); d = ImageDraw.Draw(im); rng = random.Random(5)
+    if terraces:
+        for tw in terraces[0]: retaining(d, T, tw, rng)
+        for st in terraces[1]: stairs(d, T, st, rng)
+    for l, r, t, b, gaps in town_walls:
+        xs = [l] + [v for g in sorted(gaps) for v in g] + [r]
+        for a, c in zip(xs[0::2], xs[1::2]): retaining(d, T, [(a, t), (c, t)], rng, height=b - t)
+        for g0, g1 in gaps: stairs(d, T, [(g0, t), (g1, t)], rng, height=b - t)
     def segs(g):
         for ln in (getattr(g, 'geoms', [g]) if g is not None and not g.is_empty else []):
             if ln.geom_type == 'LineString': yield ln
@@ -242,6 +291,29 @@ def walls(fence, hedge, wall):
         for i in range(int(ln.length / 2.2) + 1):
             p = ln.interpolate(i * 2.2); X, Y = T(p.x, p.y)
             d.rectangle([X - 1, Y - 6, X + 1, Y + 1], fill=(108, 74, 42, 255), outline=(52, 34, 20, 255))
+    return im
+
+
+# ---------------------------------------------------------------- 02b the town (Basse-Terre), from the walk map
+def town(rects):
+    im, T = new_layer(); gp = ground.Painter(im, T, S, seed=12)
+    from shapely.geometry import box as _bx
+    from shapely.ops import unary_union as _uu
+    def geom(k): return _uu([_bx(l, t, r, b) for l, r, t, b in rects.get(k, [])])
+    st, wd, sd, gd = geom('street'), geom('wood'), geom('sand'), geom('garden')
+    if not st.is_empty:
+        gp.fill(gp.mask([st.buffer(0.6)]), '#6e6458', 0.03)
+        m = gp.mask([st]); gp.fill(m, '#a49a88', 0.03); cobble_pattern(gp, st, m, 1.6)
+    if not sd.is_empty: gp.sand(sd)
+    if not wd.is_empty:
+        gp.planks(wd, 0, '#8e6236')
+        d = ImageDraw.Draw(im)
+        for poly in getattr(wd, 'geoms', [wd]):
+            ring = poly.exterior
+            for i in range(int(ring.length / 3)):
+                p = ring.interpolate(i * 3); X, Y = T(p.x, p.y)
+                d.rectangle([X - 3, Y - 6, X + 3, Y + 5], fill=(92, 62, 36, 255), outline=(40, 26, 14, 255))
+                d.ellipse([X - 3, Y - 8, X + 3, Y - 5], fill=(120, 86, 52, 255), outline=(40, 26, 14, 255))
     return im
 
 
@@ -416,7 +488,7 @@ def plants(trees, coast, zones, avoid):
 
 
 # ---------------------------------------------------------------- 09 props
-SKIP_PROPS = {'falls', 'spring', 'cave', 'lookout', 'x_mark', 'bottle', 'bollard', 'grave_marker', 'tavern_sign', 'shop_sign', 'parrot_perch',
+SKIP_PROPS = {'spring', 'lookout', 'x_mark', 'bottle', 'bollard', 'grave_marker', 'tavern_sign', 'shop_sign', 'parrot_perch',
               'plank', 'hammock', 'rope_coil', 'ship_wheel', 'spyglass', 'cannonballs', 'trough', 'figurehead', 'cane_press', 'hull', 'lobster_pot'}
 
 
@@ -445,14 +517,19 @@ def quantise(im):
     return q
 
 
-def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, breakwater, extra, avoid, no_rocks=None, footprints=()):
+def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, breakwater, extra, avoid, no_rocks=None, footprints=(), town_rects=None, town_walls=()):
     os.makedirs(os.path.join(HERE, 'art_layers'), exist_ok=True)
     base = None
-    steps = [('01_sea', lambda: sea(coast, None)),
-             ('02_terrain', lambda: terrain(coast, beach, zones)),
+    from shapely.geometry import box as _bx
+    from shapely.ops import unary_union as _uu
+    tw = _uu([_bx(l, t, r, b) for l, r, t, b in (town_rects or {}).get('water', [])]).buffer(0.5).buffer(-0.5)
+    tw = _uu([g for g in getattr(tw, 'geoms', [tw]) if g.area > 300])  # the harbour, not garden ponds
+    steps = [('01_sea', lambda: sea(coast, tw)),
+             ('02_terrain', lambda: terrain(coast, beach, zones, tw)),
+             ('02b_town', lambda: town(town_rects or {})),
              ('03_rivers', lambda: rivers(water)),
              ('04_roads', lambda: roads(P)),
-             ('05_walls', lambda: walls(extra.get('fence'), extra.get('hedge'), extra.get('wall'))),
+             ('05_walls', lambda: walls(extra.get('fence'), extra.get('hedge'), extra.get('wall'), extra.get('terraces'), town_walls)),
              ('06_docks', lambda: docks(P, dock_geoms, breakwater, bridges)),
              ('07_cliffs', lambda: cliffs(coast, zones, no_rocks)),
              ('08_plants', lambda: plants(trees, coast, zones, avoid)),

@@ -3184,8 +3184,7 @@ export default function MapScreen({ navigation }: Props) {
               <View pointerEvents="none" style={StyleSheet.absoluteFill}>
                 {/* Art mode is painted from the plan: the island base below, the painted town on top. */}
                 <ArtTiles origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
-                {TORTUGA_TOWN_FEATHERED}
-                {TORTUGA_TOWN_SCENE_SPRITES}
+                {/* The town core is now drawn from the plan too (ground in the tiles, houses as sprites). */}
                 <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
               </View>
             )}

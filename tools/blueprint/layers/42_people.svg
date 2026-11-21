@@ -2,10 +2,10 @@
 <path d="M-280 -20L-318 -24L-330 -14" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
 <circle cx="-280" cy="-20" r="1.4" fill="#7d3c98"/>
 <text x="-280" y="-22.6" font-family="Arial, Helvetica, sans-serif" font-size="2" font-weight="bold" fill="#7d3c98" text-anchor="middle">Marchand's home</text>
-<path d="M-306 -140L-250 -350L-343 -113.5" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
+<path d="M-306 -140L-250 -350L-352 -142.5" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
 <circle cx="-306" cy="-140" r="1.4" fill="#7d3c98"/>
 <text x="-306" y="-142.6" font-family="Arial, Helvetica, sans-serif" font-size="2" font-weight="bold" fill="#7d3c98" text-anchor="middle">Hollis's home</text>
-<path d="M-462 -48L-528 -40L-358.5 3" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
+<path d="M-462 -48L-528 -40L-358.5 -2.4" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
 <circle cx="-462" cy="-48" r="1.4" fill="#7d3c98"/>
 <text x="-462" y="-50.6" font-family="Arial, Helvetica, sans-serif" font-size="2" font-weight="bold" fill="#7d3c98" text-anchor="middle">Lefèvre's home</text>
 <path d="M-306 70L-392 120L-352 72" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
@@ -14,16 +14,16 @@
 <path d="M-206 340L-214 380L-230 366" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
 <circle cx="-206" cy="340" r="1.4" fill="#7d3c98"/>
 <text x="-206" y="337.4" font-family="Arial, Helvetica, sans-serif" font-size="2" font-weight="bold" fill="#7d3c98" text-anchor="middle">Duval's home</text>
-<path d="M-122 356L-14 240L-230 366" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
+<path d="M-122 356L-14 240L-170 266" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
 <circle cx="-122" cy="356" r="1.4" fill="#7d3c98"/>
 <text x="-122" y="353.4" font-family="Arial, Helvetica, sans-serif" font-size="2" font-weight="bold" fill="#7d3c98" text-anchor="middle">Brac's home</text>
-<path d="M-178 334L40 420L-230 366" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
+<path d="M-178 334L40 420L-170 266" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
 <circle cx="-178" cy="334" r="1.4" fill="#7d3c98"/>
 <text x="-178" y="331.4" font-family="Arial, Helvetica, sans-serif" font-size="2" font-weight="bold" fill="#7d3c98" text-anchor="middle">Morne's home</text>
 <path d="M244 184L288 206L322 186" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
 <circle cx="244" cy="184" r="1.4" fill="#7d3c98"/>
 <text x="244" y="181.4" font-family="Arial, Helvetica, sans-serif" font-size="2" font-weight="bold" fill="#7d3c98" text-anchor="middle">Rosalie's home</text>
-<path d="M404 -88L488 100L566.2 10.5" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
+<path d="M404 -88L488 100L392 -232" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>
 <circle cx="404" cy="-88" r="1.4" fill="#7d3c98"/>
 <text x="404" y="-90.6" font-family="Arial, Helvetica, sans-serif" font-size="2" font-weight="bold" fill="#7d3c98" text-anchor="middle">Nephew's home</text>
 <path d="M344 -256L372 -244L392 -240" fill="none" stroke="#7d3c98" stroke-width="0.4" stroke-dasharray="1.2 1" opacity="0.8"/>

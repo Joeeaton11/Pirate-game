@@ -421,3 +421,45 @@ FENCED = ['pen', 'allotment']
 PROPS = PROPS + EXTRA_PROPS + PIRATE_PROPS + [('notice', x, y) for _, x, y in NOTICE_BOARDS] + [('bottle', x, y) for x, y, _ in BOTTLES]
 LABELS = LABELS + [(-500, 380, 'Skull Rock', 'place'), (-282, -380, 'Careened Sloop', 'place'), (-470, 186, 'Whale Bones', 'place'), (120, 500, 'Kraken Bones', 'place')]
 GATHER = GATHER + [('fish', i, x, y) for i, x, y, _ in FISHING]
+
+# ---- Third sheet: the design review (Nov 2026) — ruins town, landmarks, new places, moles, terraces.
+from plan_extras import *  # noqa: E402,F401,F403
+BUILDINGS = BUILDINGS + EXTRA_BUILDINGS
+ROADS = [r for r in ROADS if r[0] not in ROAD_REPLACE] + [ROAD_REPLACE[r[0]] for r in ROADS if r[0] in ROAD_REPLACE] + EXTRA_ROADS
+ZONES = ZONES + EXTRA_ZONES
+PLAZAS = PLAZAS + EXTRA_PLAZAS
+LABELS = LABELS + EXTRA_LABELS
+PIRATE_PROPS = PIRATE_PROPS + EXTRA_PROPS2
+PROPS = PROPS + EXTRA_PROPS2
+PROPS = [(k, *SKULL_ROCK_AT) if k == 'skull_rock' else (k, x, y) for k, x, y in PROPS]
+PIRATE_PROPS = [(k, *SKULL_ROCK_AT) if k == 'skull_rock' else (k, x, y) for k, x, y in PIRATE_PROPS]
+DIG_SPOTS = DIG_SPOTS + EXTRA_DIGS
+BREAKWATER = None  # replaced by the two curved moles below
+LANES = NEW_LANES
+
+# ---- Every door faces south (the game draws only the south face). Buildings whose door was on
+# another side are turned round; a short path leads from the new front door to the nearest road.
+from shapely.geometry import LineString as _LS, Point as _Pt, box as _box  # noqa: E402
+from shapely.ops import nearest_points as _np2, unary_union as _uu  # noqa: E402
+_net = _uu([_LS(p).buffer(w / 2) for n, k, w, p in ROADS if k != 'secret'] + [_box(l, t, r, b) for _, l, r, t, b in PLAZAS])
+_fixed = []
+for _i, _b in enumerate(BUILDINGS):
+    _id, _lab, _k, _cx, _cy, _w, _h, _side = _b
+    if _lab == 'Wing':
+        _prev = _fixed[-1]
+        if _cy > _prev[4]:  # a rear wing that now sits in front of the turned-round door: move it behind
+            _cy = _prev[4] - (_prev[6] / 2 + _h / 2)
+        _fixed.append((_id, _lab, _k, _cx, _cy, _w, _h, _side)); continue
+    if _side in (None, 'S'):
+        _fixed.append(_b); continue
+    _fixed.append((_id, _lab, _k, _cx, _cy, _w, _h, 'S'))
+    _by = _cy + _h / 2
+    _rp = _np2(_net, _Pt(_cx, _by + 3))[0]
+    if _rp.distance(_Pt(_cx, _by)) <= 5: continue
+    if _rp.y >= _by + 2:
+        _pts = [(_cx, _by + 1), (round(_rp.x, 1), round(_rp.y, 1))]
+    else:  # the road is behind or beside: walk round the near corner
+        _sx = _cx - _w / 2 - 4 if _rp.x < _cx else _cx + _w / 2 + 4
+        _pts = [(_cx, _by + 1), (_cx, _by + 4), (round(_sx, 1), _by + 4), (round(_sx, 1), round(_rp.y, 1)), (round(_rp.x, 1), round(_rp.y, 1))]
+    ROADS.append((f'{_lab} Walk', 'path', 3, _pts))
+BUILDINGS = _fixed

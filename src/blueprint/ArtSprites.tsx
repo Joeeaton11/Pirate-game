@@ -42,7 +42,7 @@ export const ArtSprites = React.memo(function ArtSprites({
             key={i}
             source={a.src}
             resizeMode="stretch"
-            style={{ position: 'absolute', left: wx - w / 2, top: wy - h, width: w, height: h }}
+            style={{ position: 'absolute', left: wx - w / 2, top: wy - h, width: w, height: h, opacity: occludeFor ? 0.72 : 1 }}
           />
         );
       })}

@@ -14,7 +14,9 @@ def spec_for(b, n):
     s = dict(w=w, d=h, kind=kind, door=(side == 'S'), seed=n + 7)
     if bid in SIGNS: s['sign'] = SIGNS[bid]
     if bid == 'tortuga_lighthouse_tower': return dict(w=w, d=h, shape='lighthouse')
-    if bid == 'tortuga_ruins': return dict(w=w, d=h, shape='ruin')
+    if bid == 'tortuga_ruins' or kind == 'ruin': return dict(w=w, d=h, shape='ruin')
+    if kind == 'ruin_tower': return dict(w=w, d=h, shape='tower', wall='stone_dark', height=9 if 'Gate' in label else 13, door=False, broken=True)
+    if kind == 'windmill': return dict(w=w, d=h, shape='windmill')
     if bid in ('tortuga_old_watchtower', 'tortuga_signal_post') or label in ('Gate Tower', 'Lookout'):
         return dict(w=w, d=h, shape='tower', flag='#c0392b' if label != 'Lookout' else None,
                     wall='planks' if label == 'Lookout' else 'stone', height=8 if label == 'Gate Tower' else 14, door=label != 'Gate Tower')

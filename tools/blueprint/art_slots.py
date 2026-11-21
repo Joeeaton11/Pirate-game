@@ -61,7 +61,7 @@ TREE_W = {'jungle': 11, 'tree': 13, 'palm': 11, 'mangrove': 10, 'rock': 8}
 def slug(s): return ''.join(c if c.isalnum() else '_' for c in s.lower()).strip('_').replace('__', '_')
 
 
-def build(root, P, trees, town_box):
+def build(root, P, trees, town_box, town=None):
     global ROOT
     ROOT = root
     from shapely.geometry import Point
@@ -93,6 +93,26 @@ def build(root, P, trees, town_box):
         asset(aid, rel, 'building' if bid else 'home', f'{label} — {kind}, footprint {w:g}×{h:g}, door {side or "none"} (pixel art drawn in code)', sw)
         slots.append((aid, cx, cy + h / 2 + 1.2, round(sw, 2)))
         drawn.add(n)
+    # the town core (Basse-Terre): one sprite per house of each terrace, kind from the game's building type
+    if town:
+        town_bldgs, town_doors = town
+        bts = open(f'{root}/src/data/buildings.ts').read()
+        import re as _re
+        types = dict(_re.findall(r"id: '(tortuga_[a-z0-9_]+)',\s*\n\s*islandId: 'tortuga_cove',\s*\n\s*name: [^\n]+\n\s*type: '([a-z]+)'", bts))
+        KIND = {'tavern': 'tavern', 'shop': 'shop', 'market': 'market', 'warehouse': 'warehouse', 'smithy': 'civic', 'customs': 'civic',
+                'chapel': 'civic', 'manor': 'manor', 'gaol': 'civic', 'fort': 'fort', 'watchtower': 'civic', 'college': 'civic', 'shrine': 'civic'}
+        for n, (l, r, t, b) in enumerate(town_bldgs):
+            ids = [i for i, x, y in town_doors if l - 1 <= x <= r + 1 and abs(y - b) < 8]
+            bid = next((i for i in ids if i), None)
+            kind = KIND.get(types.get(bid, ''), 'home') if bid else ('home' if ids else 'warehouse')
+            w, h = r - l, b - t
+            sp = specs.spec_for((bid, 'Town house', kind, (l + r) / 2, (t + b) / 2, w, h, 'S' if ids else None), n + 300)
+            sp['door'] = bool(ids)
+            aid = f'town_{n}'
+            rel = f'plan_art/{aid}.png'
+            sw = houses.render(sp, f'{root}/{SPR}/{rel}')
+            asset(aid, rel, 'building', f'Basse-Terre {bid or "house"} — {kind}, footprint {w:g}×{h:g}', sw)
+            slots.append((aid, (l + r) / 2, b + 1.2, round(sw, 2)))
     for i, (x, y, k) in enumerate(trees):
         if town_box.contains(Point(x, y)): continue
         opts = TREE_STANDIN[k]

@@ -277,6 +277,73 @@ def prop(S, kind, seed):
             for t in range(1, 6): d.point(((dx + sgn * math.sin(t / 3) * 2.5) * s, (dy - t * 1.1) * s), fill=(236, 196, 210, 255))
         d.ellipse([12 * s, 3 * s, 18 * s, 8 * s], fill=(222, 212, 186, 255)); d.ellipse([13.5 * s, 4.5 * s, 15 * s, 6 * s], fill=(50, 40, 34, 255))
         return _outline(im, (70, 56, 40, 255)), (15 * s, 14 * s)
+    if kind == 'wreck_ship':
+        im, d = _canvas(40 * s, 26 * s)
+        hull = [(2 * s, 14 * s), (30 * s, 10 * s), (38 * s, 15 * s), (33 * s, 22 * s), (6 * s, 22 * s)]
+        d.polygon(hull, fill=(104, 70, 42, 255)); d.polygon(hull[:2] + [(30 * s, 13 * s), (4 * s, 17 * s)], fill=(136, 96, 58, 255))
+        for k in range(8): d.line([(6 + k * 3.6) * s, 13 * s, (7 + k * 3.6) * s, 21 * s], fill=(72, 48, 28, 255))
+        d.polygon([(12 * s, 15 * s), (20 * s, 14 * s), (18 * s, 20 * s)], fill=(40, 30, 24, 255))  # stove-in planks
+        d.line([22 * s, 12 * s, 14 * s, 0], fill=(80, 56, 36, 255), width=max(2, s))  # broken mast
+        d.polygon([(14 * s, 2 * s), (24 * s, 5 * s), (16 * s, 9 * s)], fill=(214, 204, 176, 255))  # torn sail
+        d.line([4 * s, 23 * s, 36 * s, 23 * s], fill=(240, 250, 250, 255))
+        return _outline(im), (20 * s, 22 * s)
+    if kind == 'harbour_light':
+        im, d = _canvas(8 * s, 16 * s)
+        d.rectangle([1.5 * s, 4 * s, 6.5 * s, 15.5 * s], fill=(222, 214, 196, 255)); d.line([1.5 * s, 4 * s, 1.5 * s, 15.5 * s], fill=(246, 240, 226, 255))
+        for yy in (7, 11): d.rectangle([1.5 * s, yy * s, 6.5 * s, (yy + 1.6) * s], fill=(196, 72, 52, 255))
+        d.rectangle([2.2 * s, 1.4 * s, 5.8 * s, 4 * s], fill=(255, 226, 140, 255)); d.polygon([(1.6 * s, 1.6 * s), (4 * s, 0), (6.4 * s, 1.6 * s)], fill=(70, 70, 76, 255))
+        return _outline(im), (4 * s, 15.5 * s)
+    if kind == 'ruin_wall':
+        im, d = _canvas(16 * s, 6 * s)
+        for k in range(8):
+            hgt = (1.5 + 3.5 * abs(math.sin(k * 1.7 + seed))) * s
+            d.rectangle([k * 2 * s, 6 * s - hgt, k * 2 * s + 2 * s - 1, 6 * s - 1], fill=(150, 144, 132, 255))
+            d.line([k * 2 * s, 6 * s - hgt, k * 2 * s + 2 * s - 2, 6 * s - hgt], fill=(186, 180, 166, 255))
+        d.line([1 * s, 3 * s, 5 * s, 5 * s], fill=(82, 120, 60, 255), width=2)
+        return _outline(im), (8 * s, 5.9 * s)
+    if kind == 'dry_well':
+        im, d = _canvas(5 * s, 4 * s)
+        d.ellipse([0, 0.4 * s, 5 * s - 1, 4 * s - 1], fill=(140, 134, 122, 255)); d.ellipse([1 * s, 1.2 * s, 4 * s, 3 * s], fill=(40, 34, 30, 255))
+        d.rectangle([0.2 * s, 1.6 * s, 1.2 * s, 2.4 * s], fill=(112, 106, 96, 255))
+        return _outline(im), (2.5 * s, 3.8 * s)
+    if kind == 'tent':
+        im, d = _canvas(8 * s, 6 * s)
+        d.polygon([(0, 5.8 * s), (4 * s, 0.4 * s), (8 * s - 1, 5.8 * s)], fill=(196, 176, 132, 255)); d.polygon([(4 * s, 0.4 * s), (8 * s - 1, 5.8 * s), (5 * s, 5.8 * s)], fill=(160, 140, 100, 255))
+        d.polygon([(3.2 * s, 5.8 * s), (4 * s, 3 * s), (4.8 * s, 5.8 * s)], fill=(60, 44, 30, 255))
+        return _outline(im), (4 * s, 5.8 * s)
+    if kind == 'pilings':
+        im, d = _canvas(10 * s, 5 * s)
+        for k in range(4):
+            x = (1 + k * 2.4) * s; h = (2 + (k * 7 % 3)) * s
+            d.rectangle([x, 4.6 * s - h, x + 1.2 * s, 4.6 * s], fill=(70, 50, 32, 255)); d.line([x, 4.6 * s - h, x + 1.2 * s, 4.6 * s - h], fill=(110, 80, 50, 255))
+        d.line([0, 4.8 * s, 10 * s, 4.8 * s], fill=(240, 250, 250, 255))
+        return _outline(im), (5 * s, 4.8 * s)
+    if kind == 'gibbet':
+        im, d = _canvas(8 * s, 12 * s)
+        d.line([1.5 * s, 12 * s, 1.5 * s, 0.6 * s], fill=(80, 56, 36, 255), width=max(2, s)); d.line([1.5 * s, 1 * s, 6 * s, 1 * s], fill=(80, 56, 36, 255), width=max(2, s // 2 + 1))
+        d.line([5.5 * s, 1 * s, 5.5 * s, 3.4 * s], fill=(60, 60, 64, 255))
+        d.rectangle([4.2 * s, 3.4 * s, 6.8 * s, 7.6 * s], outline=(60, 60, 64, 255), width=max(1, s // 3))
+        for x in (4.9, 5.5, 6.1): d.line([x * s, 3.4 * s, x * s, 7.6 * s], fill=(60, 60, 64, 255))
+        return _outline(im), (1.5 * s, 11.8 * s)
+    if kind == 'crane':
+        im, d = _canvas(12 * s, 12 * s)
+        d.rectangle([1 * s, 9 * s, 4 * s, 11.6 * s], fill=(110, 76, 46, 255)); d.line([2.5 * s, 9 * s, 2.5 * s, 1 * s], fill=(96, 66, 40, 255), width=max(2, s))
+        d.line([2.5 * s, 1.2 * s, 11 * s, 3 * s], fill=(96, 66, 40, 255), width=max(2, s // 2 + 1)); d.line([10.5 * s, 3 * s, 10.5 * s, 7 * s], fill=(60, 60, 60, 255))
+        d.rectangle([9.6 * s, 7 * s, 11.4 * s, 8.6 * s], fill=(150, 104, 60, 255))
+        return _outline(im), (2.5 * s, 11.6 * s)
+    if kind == 'falls':
+        im, d = _canvas(16 * s, 12 * s)
+        d.polygon([(0, 0), (16 * s - 1, 0), (16 * s - 1, 5 * s), (0, 5 * s)], fill=(108, 104, 100, 255))
+        for k in range(7):
+            x = (2 + k * 2) * s
+            d.line([x, 1 * s, x + 0.4 * s, 9 * s], fill=(200, 240, 244, 255) if k % 2 else (120, 210, 226, 255), width=max(2, s))
+        d.ellipse([0, 8 * s, 16 * s - 1, 12 * s - 1], fill=(240, 250, 250, 255)); d.ellipse([2 * s, 9 * s, 14 * s, 11 * s], fill=(150, 226, 232, 255))
+        return _outline(im, (30, 50, 60, 255)), (8 * s, 11 * s)
+    if kind == 'cave':
+        im, d = _canvas(12 * s, 9 * s)
+        d.ellipse([0, 0, 12 * s - 1, 12 * s], fill=(96, 92, 90, 255)); d.ellipse([2.5 * s, 2.5 * s, 9.5 * s, 13 * s], fill=(22, 18, 16, 255))
+        d.arc([0, 0, 12 * s - 1, 12 * s], 190, 300, fill=(150, 146, 140, 255), width=max(1, s // 2))
+        return _outline(im), (6 * s, 8.8 * s)
     if kind in ('wreck', 'wreck_mast'):
         im, d = _canvas(10 * s, 10 * s)
         d.line([3 * s, 10 * s, 6 * s, 0], fill=(80, 56, 36, 255), width=max(1, s)); d.line([2 * s, 3 * s, 8 * s, 4 * s], fill=(80, 56, 36, 255), width=max(1, s // 2))

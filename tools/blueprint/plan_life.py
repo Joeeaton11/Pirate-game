@@ -133,7 +133,7 @@ PIRATE_PROPS = [
     ('cannon', 568, 6), ('cannon', 556, -6), ('buoy', 20, -480), ('buoy', 120, -470), ('buoy', -120, -470),
 ]
 # Kinds that sit in the sea (not moved ashore by the builder).
-SEA_PROPS = {'skull_rock', 'wreck_mast', 'buoy', 'plank', 'boat'}
+SEA_PROPS = {'skull_rock', 'wreck_mast', 'buoy', 'plank', 'boat', 'wreck_ship', 'harbour_light', 'pilings'}
 
 # ---- Messages in bottles washed up on the beaches: (x, y, message). Some point to dig spots.
 BOTTLES = [

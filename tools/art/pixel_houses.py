@@ -450,6 +450,7 @@ def building(s):
     if s.get('shape') == 'lighthouse': return lighthouse(s)
     if s.get('shape') == 'tower': return tower(s)
     if s.get('shape') == 'ruin': return ruin(s)
+    if s.get('shape') == 'windmill': return windmill(s)
     w, d = s['w'], s['d']; st = s.get('storeys', 1)
     eave = 4
     WW = int(w * PPU)
@@ -591,7 +592,12 @@ def tower(s):
     n = max(3, WW // 8)
     for k in range(0, n, 2):
         a = x0 + WW * k // n; b = x0 + WW * (k + 1) // n - 1
-        (wall_planks if mat.startswith('planks') else wall_stone)(p, a, top - 7, b, top, RAMPS[mat])
+        hgt = 7 if not s.get('broken') else p.rng.randint(0, 9)
+        (wall_planks if mat.startswith('planks') else wall_stone)(p, a, top - hgt, b, top, RAMPS[mat])
+    if s.get('broken'):
+        for _ in range(4):
+            vx = p.rng.randint(x0, x0 + WW - 2); vy = p.rng.randint(top, bot - 6)
+            p.line([(vx, vy), (vx + p.rng.randint(-2, 2), vy + 6)], (82, 120, 60), 2)
     window(p, x0 + WW // 2 - 3, top + 10, 6, 9)
     if s.get('door', True): door(p, x0 + WW // 2, bot - 1, int(2.1 * PPU), int(3.3 * PPU))
     if s.get('flag'):
@@ -621,6 +627,33 @@ def ruin(s):
         p.line([(vx, vy), (vx + p.rng.randint(-2, 2), vy + 5)], (82, 120, 60), 2)
     im = light_gradient(p.im, x0, x0 + WW)
     return finish(outline_and_finish(quantise(im)), base_px=y_front + Hw + 2)
+
+
+def windmill(s):
+    """Stone tower mill with a conical thatch cap and four lattice sails."""
+    w = s['w']; WW = int(w * PPU); Ht = int(15 * PPU); sail = int(11 * PPU)
+    W = WW + 2 * sail; p = Pix(W, Ht + sail + 30, 11)
+    cx = W // 2; top = sail + 8; bot = top + Ht
+    for y in range(top, bot):
+        t = (y - top) / Ht; half = int(WW * (0.32 + 0.18 * t))
+        p.line([(cx - half, y), (cx + half, y)], jitter(RAMPS['plaster'][0], p.rng, 0.03))
+        p.px(cx - half, y, RAMPS['plaster'][1]); p.line([(cx + half - 3, y), (cx + half, y)], RAMPS['plaster'][2])
+    p.poly([(cx - int(WW * 0.38), top + 2), (cx, top - int(5 * PPU)), (cx + int(WW * 0.38), top + 2)], RAMPS['thatch'][0])
+    for k in range(-3, 4): p.line([(cx + k * 3, top), (cx, top - int(5 * PPU) + 3)], RAMPS['thatch'][2])
+    door(p, cx, bot - 1, int(2.2 * PPU), int(3.3 * PPU)); window(p, cx - 3, top + Ht // 3, 6, 8)
+    hub = (cx, top + 6)
+    for k in range(4):
+        a = math.pi / 4 + k * math.pi / 2
+        ex, ey = hub[0] + math.cos(a) * sail, hub[1] + math.sin(a) * sail
+        p.line([hub, (ex, ey)], RAMPS['timber'][0], 3)
+        nx, ny = -math.sin(a), math.cos(a)
+        for t in [i / 6 for i in range(2, 7)]:
+            qx, qy = hub[0] + (ex - hub[0]) * t, hub[1] + (ey - hub[1]) * t
+            p.line([(qx, qy), (qx + nx * 9, qy + ny * 9)], (232, 222, 196), 2)
+        p.line([(hub[0] + nx * 9, hub[1] + ny * 9), (ex + nx * 9, ey + ny * 9)], RAMPS['timber'][1], 1)
+    p.d.ellipse([hub[0] - 3, hub[1] - 3, hub[0] + 3, hub[1] + 3], fill=RAMPS['timber'][3] + (255,))
+    im = light_gradient(p.im, cx - WW // 2, cx + WW // 2)
+    return finish(outline_and_finish(quantise(im)), base_px=bot + 2)
 
 
 def finish(im, base_px):
