@@ -313,24 +313,31 @@ for c, name in enumerate(['street', 'wood', 'water', 'garden', 'sand']):
     town_rects[name] = [(round(TOWN[0] + i * CELL, 1), round(TOWN[0] + k * CELL, 1), round(TOWN[2] + j * CELL, 1), round(TOWN[2] + jj * CELL, 1))
                         for i, k, j, jj in merge(cls == c)]
 
+# ---------------------------------------------------------------- building sprites (needed for the town's walk solids)
+import art_slots
+_assets, _drawn_b, _stats = art_slots.build(ROOT, P, trees, town_box, (town_bldgs, doors))
+print('art slots', _stats)
+
 # ---------------------------------------------------------------- walk solids outside the town
-X0, X1, Y0, Y1, C = -600, 600, -520, 520, 2
+X0, X1, Y0, Y1, C = -600, 600, -520, 520, 1
 W_, H_ = int((X1 - X0) / C), int((Y1 - Y0) / C)
 sol = np.zeros((H_, W_), bool)
-def burn(g):
+BURN_TAGS = {}
+def burn(g, tag='other'):
+    BURN_TAGS.setdefault(tag, []).append(g)
     minx, miny, maxx, maxy = g.bounds
     for j in range(max(0, int((miny - Y0) / C)), min(H_, int((maxy - Y0) / C) + 1)):
         for i in range(max(0, int((minx - X0) / C)), min(W_, int((maxx - X0) / C) + 1)):
             if g.contains(Point(X0 + (i + .5) * C, Y0 + (j + .5) * C)): sol[j, i] = True
 for g, b in zip(bldg_geoms, P.BUILDINGS):
-    burn(g.buffer(-1))
-burn(water)
+    burn(g.buffer(-1), 'building')
+burn(water, 'water')
 for x, y, k in trees:
-    burn(Point(x, y).buffer(4 if k == 'rock' else 2.4))
-for g_, wdt in ((fence_geom, 1.1), (hedge_geom, 1.4), (wall_geom, 1.4)):
-    if not g_.is_empty: burn(g_.buffer(wdt))
+    burn(Point(x, y).buffer(2.6 if k == 'rock' else 1.6), 'tree')  # trunks and boulders, not the crowns
+for g_, wdt in ((fence_geom, 0.7), (hedge_geom, 1.1), (wall_geom, 1.1)):
+    if not g_.is_empty: burn(g_.buffer(wdt), 'fence/hedge/wall')
 # terraces: retaining walls along the south half of each high-ground ellipse, cut where roads climb
-_road_cut = unary_union([LineString(pts).buffer(w / 2 + 1.5) for n_, k_, w, pts in P.ROADS if k_ != 'secret'])
+_road_cut = unary_union([LineString(pts).buffer(w / 2 + 1.5) for n_, k_, w, pts in P.ROADS])
 terrace_walls, terrace_stairs = [], []
 for tcx, tcy, trx, try_ in P.TERRACES:
     arc = LineString([(tcx + math.cos(a) * trx, tcy + math.sin(a) * try_) for a in [math.radians(d) for d in range(15, 166, 3)]])
@@ -343,16 +350,48 @@ for tcx, tcy, trx, try_ in P.TERRACES:
         st = seg.intersection(_road_cut)
         for piece in getattr(st, 'geoms', [st]):
             if piece.geom_type == 'LineString' and piece.length > 1: terrace_stairs.append(list(piece.coords))
-for tw in terrace_walls: burn(LineString(tw).buffer(1.2))
+for tw in terrace_walls: burn(LineString(tw).buffer(1.2), 'terrace')
 extra_terraces = (terrace_walls, terrace_stairs)
 # set dressing: clutter, cargo, boats, animals, flowers and name boards (art only; bulky ones are solid)
 import dressing
 dress_props = dressing.dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms)
 for k_, x_, y_ in dress_props:
-    if k_ in dressing.SOLID_KINDS: burn(Point(x_, y_).buffer(1.4))
+    if k_ in dressing.SOLID_KINDS: burn(Point(x_, y_).buffer(0.9), 'dress:' + k_)
 print('  dressing', len(dress_props))
 import life_sprites
 print('  life', life_sprites.build(ROOT, P, dress_props, coast, beach, unary_union([box(l, t, r, b) for kk in ('wood', 'water') for l, r, t, b in town_rects.get(kk, [])] + [g for *_, g in dock_geoms]).buffer(4)))
+# the town core: houses, harbour water and retaining walls exactly as the Art town draws them
+# a town house blocks only where its walls stand: the lower part of its sprite, never the garden behind it
+for l, r, t, b, gy, h in art_slots.TOWN_BOXES: burn(box(l + 0.6, max(t, gy - h * 0.62), r - 0.6, b - 0.4), 'building')
+_tw = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('water', [])]).buffer(0.5).buffer(-0.5)
+for _g in getattr(_tw, 'geoms', [_tw]):
+    if _g.area > 300:  # only the harbour the Art town draws, not old garden ponds, and never under drawn ground
+        _drawn = unary_union([box(l, t, r, b) for kk in ('street', 'wood', 'sand') for l, r, t, b in town_rects.get(kk, [])] + [ways])
+        burn(_g.difference(_drawn.buffer(0.6)).buffer(-0.4), 'water')
+# (the town's terrace walls are drawn as a broad paved step and read as walkable, so they are left walkable)
+# every path, lane, walk and square is walkable end to end: clear anything solid left on them
+# (except real buildings and water), so nothing invisible ever blocks the way
+_keep = unary_union(list(bldg_geoms) + [water] + [box(l, t, r, b) for l, r, t, b in town_bldgs] + [g for g in getattr(_tw, 'geoms', [_tw]) if g.area > 300])
+for n_, k_, w, pts in P.ROADS:
+    _g = LineString(pts).buffer(max(0.9, w / 2 - 0.2)).difference(_keep)
+    minx, miny, maxx, maxy = _g.bounds
+    for j in range(max(0, int((miny - Y0) / C)), min(H_, int((maxy - Y0) / C) + 1)):
+        for i in range(max(0, int((minx - X0) / C)), min(W_, int((maxx - X0) / C) + 1)):
+            if sol[j, i] and _g.contains(Point(X0 + (i + .5) * C, Y0 + (j + .5) * C)): sol[j, i] = False
+for _, l, r, t, b in P.PLAZAS:  # squares: open in the middle, stalls may line the edges
+    if r - l <= 14 or b - t <= 14: continue
+    l, r, t, b = l + 6, r - 6, t + 6, b - 6
+    _g = box(l, t, r, b).difference(_keep)
+    for j in range(max(0, int((t - Y0) / C)), min(H_, int((b - Y0) / C) + 1)):
+        for i in range(max(0, int((l - X0) / C)), min(W_, int((r - X0) / C) + 1)):
+            if sol[j, i] and _g.contains(Point(X0 + (i + .5) * C, Y0 + (j + .5) * C)): sol[j, i] = False
+# report anything still solid on a path centre line (should only be buildings or water)
+for n_, k_, w, pts in P.ROADS:
+    _ln = LineString(pts)
+    for d_ in range(0, int(_ln.length), 1):
+        p_ = _ln.interpolate(d_); i, j = int((p_.x - X0) / C), int((p_.y - Y0) / C)
+        if 0 <= i < W_ and 0 <= j < H_ and sol[j, i] and not _keep.buffer(1).contains(p_):
+            print(f'  BLOCKED PATH {n_} at {p_.x:.0f},{p_.y:.0f}'); break
 sol_rects = [(X0 + i * C, X0 + k * C, Y0 + j * C, Y0 + jj * C) for i, k, j, jj in merge(sol)]
 
 # ---------------------------------------------------------------- write TS
@@ -688,9 +727,6 @@ if len(sys.argv) > 2:
                  bridges=bridges, sea_zones=sea_zones, pois=pois)
 
 # ---------------------------------------------------------------- art mode base (painted from the plan)
-import art_slots
-_assets, _drawn_b, _stats = art_slots.build(ROOT, P, trees, town_box, (town_bldgs, doors))
-print('art slots', _stats)
 import art
 # The base keeps only what has no sprite yet; anything with a sprite is drawn by the game on top.
 art_bldgs = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2, b[2]) for n_, b in enumerate(P.BUILDINGS) if n_ not in _drawn_b]
@@ -699,12 +735,12 @@ class _PP: pass
 _P2 = _PP(); _P2.__dict__.update({k: getattr(P, k) for k in dir(P) if not k.startswith('__')})
 _P2.PROPS = list(P.PROPS)
 import art_layers
-_avoid = unary_union([ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), town_box.buffer(4), dock_area.buffer(2)]
+_avoid = unary_union([LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), town_box.buffer(4), dock_area.buffer(2)]
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock')])
 _no_rocks = unary_union([dock_area.buffer(6), town_box.buffer(2)] + [LineString(pts).buffer(w / 2 + 3) for n_, k_, w, pts in P.ROADS])
 _fp = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2) for b in P.BUILDINGS]
 _town_open = unary_union([box(l, t, r, b) for k_ in ('street', 'wood', 'water', 'sand') for l, r, t, b in town_rects.get(k_, [])] + [box(l, t, r, b) for l, r, t, b in blocks])
-_avoid = unary_union([ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), _town_open.buffer(1.5), dock_area.buffer(2)]
+_avoid = unary_union([LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), _town_open.buffer(1.5), dock_area.buffer(2)]
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock', 'quarry', 'orchard')])
 _fp = _fp + [(l, t, r, b) for l, r, t, b in town_bldgs]
 art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid, _no_rocks, _fp, town_rects, town_walls)

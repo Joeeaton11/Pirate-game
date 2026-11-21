@@ -43,6 +43,8 @@ export interface TownScene {
   decals: SceneDecal[];
   sprites: SceneSprite[];
   solids: Rect[];
+  /** Solids of the walls, blocks and buildings only (no props or planted patches). */
+  coreSolids: Rect[];
   doors: SceneDoor[];
   clear: Rect[];
   buildingIds: Set<string>;
@@ -73,7 +75,15 @@ export function buildTownScene(
     if (!a) throw new Error(`Town asset "${k}" missing from the registry`);
     return a;
   };
-  const solid = (r: Rect) => solids.push({ l: ox + r.l, r: ox + r.r, t: oy + r.t, b: oy + r.b });
+  // coreSolids: walls, blocks and buildings only — what the plan-drawn Art town still draws. The old
+  // scene's props and planted patches are not drawn there, so they must not block the way either.
+  const coreSolids: Rect[] = [];
+  let core = true;
+  const solid = (r: Rect) => {
+    const rr = { l: ox + r.l, r: ox + r.r, t: oy + r.t, b: oy + r.b };
+    solids.push(rr);
+    if (core) coreSolids.push(rr);
+  };
 
   const tileArea = (key: string, r: Rect, tile: string, size: number) => {
     const src = A(tile).src;
@@ -154,6 +164,7 @@ export function buildTownScene(
     buildingIds.add(d.id);
   });
 
+  core = false;
   // Planted patches become ordinary props (non-solid individually; the patch rect is solid).
   const DEFAULT_KINDS = ['bush', 'bush', 'bush', 'palm_tall', 'palm_tall', 'plant_bed'];
   const SIZE: Record<string, [number, number]> = { bush: [6.5, 9], palm_tall: [12, 17], plant_bed: [8, 10.5] };
@@ -192,6 +203,7 @@ export function buildTownScene(
     decals,
     sprites,
     solids,
+    coreSolids,
     doors,
     clear: layout.clear.map((r) => ({ l: r.l, r: r.r, t: r.t, b: r.b })),
     buildingIds,

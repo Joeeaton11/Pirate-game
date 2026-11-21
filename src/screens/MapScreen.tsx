@@ -491,8 +491,12 @@ const BLUEPRINT_SOLID_RECTS = (() => {
   for (let i = 0; i < BP_SOLIDS.length; i += 4) {
     rects.push({ l: o.x + BP_SOLIDS[i], r: o.x + BP_SOLIDS[i + 1], t: o.y + BP_SOLIDS[i + 2], b: o.y + BP_SOLIDS[i + 3] });
   }
-  return rects.concat(TOWN_SCENE.solids);
+  // the town's houses, harbour water and walls are in BP_SOLIDS too, matched to what the Art town
+  // draws; the old painted town's blocks no longer line up with it, so they are not used here
+  return rects;
 })();
+/** Debug: add ?solids=1 to the web URL to see every collision box. */
+const SHOW_SOLIDS_DEBUG = typeof window !== 'undefined' && typeof window.location !== 'undefined' && /[?&]solids=1/.test(window.location.search ?? '');
 const BLUEPRINT_DOORS = TOWN_DOORS.concat(
   BP_DOORS.map((d) => ({ id: d.id, x: ISLANDS.tortuga_cove.position.x + d.x, y: ISLANDS.tortuga_cove.position.y + d.y }))
 );
@@ -3812,6 +3816,10 @@ export default function MapScreen({ navigation }: Props) {
             ]}
           >
             <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} occludeFor={player} />
+            {SHOW_SOLIDS_DEBUG &&
+              BLUEPRINT_SOLID_RECTS.filter((r) => Math.abs(r.l - cam.x) < 160 && Math.abs(r.t - cam.y) < 200).map((r, i) => (
+                <View key={`sd${i}`} style={{ position: 'absolute', left: r.l, top: r.t, width: r.r - r.l, height: r.b - r.t, backgroundColor: 'rgba(255,0,0,0.35)' }} />
+              ))}
           </View>
         )}
 

@@ -71,8 +71,8 @@ def painted_over(root, aid, out):
 
 
 def build(root, P, trees, town_box, town=None):
-    global WINDOWS, CHIMNEYS
-    WINDOWS, CHIMNEYS = [], []
+    global WINDOWS, CHIMNEYS, TOWN_BOXES
+    WINDOWS, CHIMNEYS, TOWN_BOXES = [], [], []
     global ROOT
     ROOT = root
     from shapely.geometry import Point
@@ -130,6 +130,7 @@ def build(root, P, trees, town_box, town=None):
             asset(aid, rel, 'building', f'Basse-Terre {bid or "house"} — {kind}, footprint {w:g}×{h:g}', sw)
             slots.append((aid, (l + r) / 2, b + 1.2, round(sw, 2)))
             WINDOWS.extend(_w); CHIMNEYS.extend(_c)
+            _im = Image.open(f'{root}/{SPR}/{rel}'); TOWN_BOXES.append((l, r, t, b, b + 1.2, sw * _im.size[1] / _im.size[0]))
     for i, (x, y, k) in enumerate(trees):
         if town_box.contains(Point(x, y)): continue
         opts = TREE_STANDIN[k]

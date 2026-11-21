@@ -314,11 +314,12 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
             d.line([X - 2, Y + 1, X + 2, Y + 1], fill=(96, 90, 80, 255))
     for ln in segs(fence):
         cs = [T(*c) for c in ln.coords]
-        d.line([(x, y - 3) for x, y in cs], fill=(124, 86, 50, 255), width=2)
-        d.line([(x, y - 1) for x, y in cs], fill=(96, 64, 36, 255), width=1)
-        for i in range(int(ln.length / 2.2) + 1):
-            p = ln.interpolate(i * 2.2); X, Y = T(p.x, p.y)
-            d.rectangle([X - 1, Y - 6, X + 1, Y + 1], fill=(108, 74, 42, 255), outline=(52, 34, 20, 255))
+        d.line([(x, y - 4) for x, y in cs], fill=(52, 34, 20, 255), width=4)  # rails: bold enough to read as a barrier
+        d.line([(x, y - 4) for x, y in cs], fill=(150, 104, 62, 255), width=2)
+        d.line([(x, y) for x, y in cs], fill=(40, 60, 30, 90), width=3)  # its shadow on the grass
+        for i in range(int(ln.length / 2.0) + 1):
+            p = ln.interpolate(i * 2.0); X, Y = T(p.x, p.y)
+            d.rectangle([X - 2, Y - 8, X + 1, Y + 1], fill=(120, 82, 46, 255), outline=(52, 34, 20, 255))
     return im
 
 

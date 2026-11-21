@@ -12,7 +12,7 @@ from shapely.prepared import prep
 FRONT_CLUTTER = ['barrels', 'crates', 'sacks', 'flowerpot', 'potted_palm', 'barrel', 'crates', 'bench', 'lamp']
 QUAY_CARGO = ['cargo', 'barrels', 'crates', 'sacks', 'nets', 'barrels', 'crates', 'rope_pile', 'barrel']
 GRASS_DECOR = ['flowers', 'flowers', 'tall_grass', 'tall_grass', 'stone', 'log', 'mushrooms', 'flowers']
-SOLID_KINDS = {'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
+SOLID_KINDS = {'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
 
 
 def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms, seed=21):
@@ -26,7 +26,11 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     def free(x, y, gap=2.6):
         p = Point(x, y)
         return all(p.distance(q) > gap for q in taken) and all(p.distance(q) > 4 for q in door_pts)
+    # paths, lanes, walks and squares stay clear of anything you would bump into
+    corridor = prep(unary_union([LineString(pts).buffer(w / 2 + 1.4) for n, k, w, pts in P.ROADS] +
+                                [box(l + 6, t + 6, r - 6, b - 6) for _, l, r, t, b in P.PLAZAS if r - l > 14 and b - t > 14]))
     def put(k, x, y, gap=2.6):
+        if k in SOLID_KINDS and corridor.contains(Point(x, y)): return False
         if free(x, y, gap):
             out.append((k, round(x, 1), round(y, 1))); taken.append(Point(x, y)); return True
         return False
@@ -65,13 +69,14 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
             x, y = rng.uniform(l, r), rng.uniform(t, b)
             if not sp.contains(Point(x, y)) or bl_all.distance(Point(x, y)) < 1.2: continue
             near = bl_all.distance(Point(x, y)) < 4
-            k = rng.choice(['lamp', 'stall', 'cart', 'barrels', 'crates', 'bench', 'potted_palm']) if near else rng.choice(['cart', 'stall', 'sacks', 'barrels', 'well'] if rng.random() < 0.3 else ['lamp'])
+            if not near: continue  # the middle of the street stays open
+            k = rng.choice(['lamp', 'barrels', 'crates', 'bench', 'potted_palm', 'lamp'])
             put(k, x, y, 7 if not near else 4.5)
 
     # 3. quays and docks: cargo, nets, rope, cranes
     wood = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('wood', [])] + [g for *_, g in dock_geoms])
     if not wood.is_empty:
-        wp = prep(wood.buffer(-1.2)); l, t, r, b = wood.bounds
+        wp = prep(wood.buffer(-1.2).difference(wood.buffer(-4.5))); l, t, r, b = wood.bounds  # cargo along the quay edges, a clear way down the middle
         for _ in range(9000):
             x, y = rng.uniform(l, r), rng.uniform(t, b)
             if wp.contains(Point(x, y)): put(rng.choice(QUAY_CARGO), x, y, 3.0)
