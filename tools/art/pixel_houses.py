@@ -362,6 +362,88 @@ def quantise(im):
     return q
 
 
+def gable_roof(p, x0, x1, y_eave, gable_h, depth, kind, wall_ramp, timber, shutter, lit):
+    """Roof with its ridge running away from the camera: a gable end faces us (wall material, with
+    a window), and both roof slopes recede up and back from its edges. Left slope lit, right shaded."""
+    base, hi, lo, dk = RAMPS[kind]
+    cx = (x0 + x1) // 2
+    ov = 3
+    apex = y_eave - gable_h
+    L0, L1 = (x0 - ov, y_eave + 1), (cx, apex - 1)
+    R0 = (x1 + ov, y_eave + 1)
+    left = [L0, L1, (cx, apex - 1 - depth), (x0 - ov, y_eave + 1 - depth)]
+    right = [R0, L1, (cx, apex - 1 - depth), (x1 + ov, y_eave + 1 - depth)]
+    for poly_, col, rowcol in ((right, mul(base, 0.8), mul(base, 0.6)), (left, mul(base, 1.08), mul(base, 0.82))):
+        layer = Image.new('RGBA', p.im.size, (0, 0, 0, 0)); ld = ImageDraw.Draw(layer)
+        ld.polygon(poly_, fill=col)
+        m = Image.new('L', p.im.size, 0); ImageDraw.Draw(m).polygon(poly_, fill=255)
+        tiles = Image.new('RGBA', p.im.size, (0, 0, 0, 0)); td = ImageDraw.Draw(tiles)
+        if kind == 'thatch':
+            for _ in range(int(abs(x1 - x0) * depth / 6)):
+                tx = p.rng.randint(min(x0, x1) - ov, max(x0, x1) + ov); ty = p.rng.randint(apex - depth - 2, y_eave + 1)
+                td.line([(tx, ty), (tx, ty + 2)], fill=p.rng.choice([mul(base, 0.85), mul(base, 1.15), col]))
+        else:
+            for k in range(-depth - gable_h, depth + 4, 3):  # rows of tiles parallel to the slope's front edge
+                a, b = poly_[0], poly_[1]
+                td.line([(a[0], a[1] - k), (b[0], b[1] - k)], fill=rowcol, width=1)
+                td.line([(a[0], a[1] - k - 1), (b[0], b[1] - k - 1)], fill=mul(col, 1.14), width=1)
+            for j in range(0, depth + gable_h, 5):  # staggered joints
+                for t in range(0, 12):
+                    fx = a[0] + (b[0] - a[0]) * t / 12; fy = a[1] + (b[1] - a[1]) * t / 12 - j
+                    td.point((fx, fy - (t % 2)), fill=rowcol)
+        layer.alpha_composite(tiles); layer.putalpha(Image.fromarray(np.minimum(np.asarray(layer.getchannel('A')), np.asarray(m))))
+        p.im.alpha_composite(layer)
+        p.d = ImageDraw.Draw(p.im)
+        p.line(poly_ + [poly_[0]], dk)  # outline each slope
+    # gable end (wall material + timber + window)
+    tri = [(x0, y_eave), (cx, apex + 2), (x1, y_eave)]
+    p.poly(tri, RAMPS[wall_ramp][0])
+    for _ in range(gable_h * abs(x1 - x0) // 10):
+        tx, ty = p.rng.randint(x0, x1), p.rng.randint(apex + 2, y_eave)
+        if p.im.getpixel((tx, ty))[:3] == RAMPS[wall_ramp][0]: p.px(tx, ty, jitter(RAMPS[wall_ramp][0], p.rng, 0.06))
+    if timber:
+        tb = RAMPS['timber'][0]
+        p.line([(cx, apex + 3), (cx, y_eave)], tb, 2)
+        p.line([(x0 + 4, y_eave - 2), (x1 - 4, y_eave - 2)], tb, 2)
+        p.line([((x0 + cx) // 2, y_eave - 2), (cx - 2, apex + gable_h // 2)], tb, 2)
+        p.line([((x1 + cx) // 2, y_eave - 2), (cx + 2, apex + gable_h // 2)], tb, 2)
+    ww, wh = int(1.4 * PPU), int(1.7 * PPU)
+    if gable_h > wh + 8: window(p, cx - ww // 2, y_eave - wh - 6, ww, wh, shutter, lit)
+    # barge boards along the front edges + outline
+    for e in ((L0, L1), (R0, L1)):
+        p.line([e[0], e[1]], dk, 3); p.line([(e[0][0], e[0][1] - 2), (e[1][0], e[1][1] - 2)], hi if e[0][0] < cx else lo, 1)
+    p.line([(cx, apex - 2), (cx, apex - 1 - depth)], hi, 2)  # ridge running back
+    p.line([(x0 - ov, y_eave + 2), (x1 + ov, y_eave + 2)], dk, 1)
+
+
+def porch(p, x0, x1, y, kind):
+    """A small tiled lean-to over the door on two posts."""
+    base, hi, lo, dk = RAMPS[kind]
+    p.poly([(x0 - 2, y + 6), (x0 + 2, y), (x1 - 2, y), (x1 + 2, y + 6)], base)
+    for yy in range(y + 1, y + 6, 2): p.line([(x0, yy), (x1, yy)], mul(base, 0.75))
+    p.line([(x0 + 2, y), (x1 - 2, y)], hi); p.line([(x0 - 2, y + 6), (x1 + 2, y + 6)], dk, 2)
+    for x in (x0, x1 - 1): p.rect(x, y + 7, x + 1, y + 7 + int(3.6 * PPU), RAMPS['timber'][0])
+
+
+def flower_box(p, x, y, w):
+    p.rect(x - 1, y, x + w, y + 2, RAMPS['timber'][1]); p.line([(x - 1, y + 2), (x + w, y + 2)], RAMPS['timber'][3])
+    for k in range(0, w, 2):
+        p.px(x + k, y - 1, p.rng.choice([(214, 92, 120), (240, 200, 80), (236, 232, 222), (150, 100, 190)]))
+        p.px(x + k + 1, y - 1, (86, 130, 60))
+
+
+def weather(p, x0, y0, x1, y1):
+    """Eave shadow at the top of the wall, grime at its foot."""
+    arr = np.asarray(p.im).astype(np.float32)
+    for k, f in enumerate((0.55, 0.7, 0.85)):
+        yy = y0 + k
+        if 0 <= yy < arr.shape[0]: arr[yy, x0:x1 + 1, :3] *= f
+    for k in range(6):
+        yy = y1 - k
+        if 0 <= yy < arr.shape[0]: arr[yy, x0:x1 + 1, :3] *= 0.86 + k * 0.025
+    p.im = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), 'RGBA'); p.d = ImageDraw.Draw(p.im)
+
+
 # ---------------------------------------------------------------- buildings
 def building(s):
     rng_seed = s.get('seed', 1)
@@ -372,9 +454,14 @@ def building(s):
     eave = 4
     WW = int(w * PPU)
     W = WW + 2 * eave
-    storey = int(5.4 * PPU)
+    storey = int(6.2 * PPU)
     wall_h = storey * st
-    roof_h = int(max(4.4, d * 0.46) * PPU) + (6 if st > 1 else 0)
+    gable = s.get('massing') == 'gable'
+    if gable:
+        gable_h = int(WW * 0.4); depth = int(max(3.0, d * 0.32) * PPU)
+        roof_h = gable_h + depth + 3
+    else:
+        roof_h = int(max(4.6, d * 0.5) * PPU) + (6 if st > 1 else 0)
     extra = int(4 * PPU) if s.get('chimney_tall') else 10
     H = extra + roof_h + wall_h + 6
     p = Pix(W + 2, H, rng_seed)
@@ -405,6 +492,7 @@ def building(s):
             a = x0 + WW * k // n; b = x0 + WW * (k + 1) // n - 1
             wall_stone(p, a, wy0 - 7, b, wy0, RAMPS['stone'])
     p.rect(x0, wy1 - 2, x1, wy1, RAMPS['stone'][2]); p.line([(x0, wy1 - 2), (x1, wy1 - 2)], RAMPS['stone'][1])  # plinth
+    weather(p, x0, wy0, x1, wy1)
     # ---- windows, door, sign
     cx = x0 + int(WW * s.get('door_at', 0.5))
     door_on = s.get('door', True)
@@ -415,7 +503,10 @@ def building(s):
         for j in range(n):
             x = x0 + int(WW * (j + 0.5) / n) - ww // 2
             if k == st - 1 and (door_on or s.get('big_door')) and abs(x + ww // 2 - cx) < (int(3.2 * PPU) if not s.get('big_door') else int(min(w * 0.4, 6) * PPU / 2 + 6)): continue
-            window(p, x, a + (9 if k == st - 1 else 6), ww, wh, s.get('shutters'), s.get('lit', False), s.get('bars', False))
+            wy_ = a + (11 if k == st - 1 else 8)
+            window(p, x, wy_, ww, wh, s.get('shutters'), s.get('lit', False), s.get('bars', False))
+            if s.get('flowers') and k == 0 and st > 1: flower_box(p, x - 1, wy_ + wh + 2, ww + 1)
+            elif s.get('flowers') and st == 1 and j % 2 == 0: flower_box(p, x - 1, wy_ + wh + 2, ww + 1)
     base = wy1 - 2
     if s.get('big_door'):
         big_door(p, cx, base, int(min(w * 0.4, 6) * PPU), int(min(5.4 * 0.85, 4.4) * PPU))
@@ -425,8 +516,10 @@ def building(s):
         c1, c2 = s['awning']
         h2 = lambda h: tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
         awning(p, x0 + 3, x1 - 4, base - int(4.6 * PPU), h2(c1), h2(c2))
+    if s.get('porch') and (door_on or s.get('big_door')):
+        porch(p, cx - int(2.6 * PPU), cx + int(2.6 * PPU), base - int(5.0 * PPU), s.get('roof', 'tile') if s.get('roof', 'tile').startswith(('tile', 'slate')) else 'tile')
     if s.get('sign'):
-        sign(p, cx - int(2.0 * PPU) - 9, base - int(4.4 * PPU), s['sign'])
+        sign(p, cx - int(2.4 * PPU) - 9, base - int(4.6 * PPU), s['sign'])
     if s.get('lanterns'):
         lantern(p, cx - int(2.2 * PPU), base - int(3.6 * PPU)); lantern(p, cx + int(2.2 * PPU) - 2, base - int(3.6 * PPU))
     if s.get('columns'):
@@ -446,13 +539,17 @@ def building(s):
     if rk != 'none':
         if rk == 'flat':
             wall_stone(p, x0 - 2, y_roof + roof_h // 2, x1 + 2, y_eave, RAMPS['stone'])
+        elif gable:
+            gable_roof(p, x0, x1, y_eave, gable_h, depth, rk, 'plaster' if not wall.startswith(('stone', 'planks')) else ('stone' if wall.startswith('stone') else wall),
+                       wall == 'timber' or s.get('timber_gable', False), s.get('shutters'), s.get('lit', False))
         else:
             roof(p, 0, W - 1, y_roof, y_eave, rk)
+            p.line([(0, y_eave), (0, y_roof), (W - 1, y_roof), (W - 1, y_eave)], OUTLINE[:3] + (255,))
             if s.get('gable') or (st > 1 and w >= 22 and rk.startswith('tile')):
                 front_gable(p, cx, y_eave, y_roof + max(2, roof_h // 4), min(int(WW * 0.42), int(11 * PPU)), 'plaster' if wall != 'stone' else 'stone', rk, s.get('shutters'), s.get('lit', False))
     if s.get('chimney') or s.get('chimney_tall'):
         ch = int(3.5 * PPU) + roof_h // 3 if s.get('chimney_tall') else 12
-        chimney(p, int(W * 0.72), y_roof + roof_h // 3, ch)
+        chimney(p, int(W * (0.3 if gable else 0.72)), y_roof + (roof_h // 2 if gable else roof_h // 3), ch)
     if s.get('flag'):
         fx = int(W * 0.25); fy = y_roof + 2
         p.line([(fx, fy), (fx, fy - 26)], RAMPS['timber'][3], 1)
