@@ -25,12 +25,12 @@ def _canvas(w, h):
 
 
 # ---------------------------------------------------------------- trees
-TREE_COL = {'jungle': (52, 104, 48), 'tree': (70, 126, 56), 'mangrove': (58, 96, 62), 'palm': (92, 146, 60)}
+TREE_COL = {'jungle': (40, 112, 44), 'tree': (62, 138, 52), 'mangrove': (50, 104, 60), 'palm': (92, 146, 60)}
 
 
 def crown_tree(S, kind, seed):
     rng = random.Random(seed)
-    r = {'jungle': 4.2, 'tree': 5.0, 'mangrove': 3.8}[kind] * S
+    r = {'jungle': 5.2, 'tree': 5.6, 'mangrove': 4.2}[kind] * S
     base = TREE_COL[kind]
     W = int(r * 2.6) + 4; H = int(r * 2.9) + 4
     im, d = _canvas(W, H)
@@ -60,26 +60,38 @@ def crown_tree(S, kind, seed):
 
 def palm(S, seed):
     rng = random.Random(seed)
-    L = 5.5 * S
-    W = int(L * 2.6); H = int(L * 2.6)
+    L = 8.0 * S
+    W = int(L * 2.6); H = int(L * 2.8)
     im, d = _canvas(W, H)
     bx, by = W / 2 + rng.uniform(-1, 1) * S, H - 2
-    tx, ty = bx + rng.uniform(-1.5, 1.5) * S, by - L * 1.25
-    seg = 7
-    for k in range(seg):  # ringed trunk
+    lean = rng.uniform(-2.2, 2.2) * S
+    tx, ty = bx + lean, by - L * 1.2
+    seg = 9
+    for k in range(seg):  # ringed, gently curved trunk
         a = k / seg; b = (k + 1) / seg
-        x0, y0 = bx + (tx - bx) * a, by + (ty - by) * a; x1, y1 = bx + (tx - bx) * b, by + (ty - by) * b
-        d.line([x0, y0, x1, y1], fill=(126, 92, 56, 255) if k % 2 else (150, 112, 70, 255), width=max(2, int(S * 0.8)))
-    base = TREE_COL['palm']
-    for k in range(7):
-        a = -math.pi / 2 + (k - 3) * 0.75 + rng.uniform(-0.15, 0.15)
-        ex, ey = tx + math.cos(a) * L, ty + math.sin(a) * L * 0.6 + L * 0.25
-        mx, my = (tx + ex) / 2, (ty + ey) / 2 - L * 0.18
-        col = base if a < -math.pi / 2 else _mul(base, 0.82)
-        d.line([tx, ty, mx, my, ex, ey], fill=col + (255,) if len(col) == 3 else col, width=max(2, int(S * 0.9)), joint='curve')
-        d.line([tx, ty - 1, mx, my - 1], fill=_mul(base, 1.25), width=1)
-    d.ellipse([tx - S * 0.8, ty - S * 0.5, tx + S * 0.8, ty + S * 0.7], fill=(120, 84, 48, 255))  # coconuts
-    return _outline(im), (bx, by)
+        bend = math.sin(a * math.pi) * lean * 0.25
+        x0, y0 = bx + (tx - bx) * a + bend, by + (ty - by) * a; x1, y1 = bx + (tx - bx) * b + bend, by + (ty - by) * b
+        wdt = max(3, int(S * (1.3 - 0.4 * a)))
+        d.line([x0, y0, x1, y1], fill=(126, 88, 50, 255) if k % 2 else (156, 114, 68, 255), width=wdt)
+        d.line([x0 - wdt / 2 + 1, y0, x1 - wdt / 2 + 1, y1], fill=(186, 146, 96, 255), width=1)
+    dark, mid, lite = (38, 104, 38), (70, 150, 52), (126, 196, 78)
+    fr = 9
+    for layer, col in ((0, dark), (1, mid)):
+        for k in range(fr):
+            a = -math.pi / 2 + (k - (fr - 1) / 2) * (2.6 / fr) * 1.2 + rng.uniform(-0.12, 0.12) + (0.15 if layer else 0)
+            reach = L * rng.uniform(0.75, 1.0) * (0.92 if layer else 1)
+            ex, ey = tx + math.cos(a) * reach, ty + math.sin(a) * reach * 0.55 + reach * 0.35
+            mx, my = (tx + ex) / 2, (ty + ey) / 2 - reach * 0.22
+            pts = [(tx, ty), (mx, my), (ex, ey)]
+            d.line(pts, fill=col + (255,), width=max(3, int(S * 1.1)), joint='curve')
+            # leaflets
+            for t in np.linspace(0.25, 0.95, 6):
+                qx, qy = tx + (ex - tx) * t, ty + (ey - ty) * t - math.sin(t * math.pi) * reach * 0.18
+                d.line([qx, qy, qx + math.cos(a + 1.4) * S * 0.9, qy + math.sin(a + 1.4) * S * 0.9 + S * 0.5], fill=col + (255,), width=2)
+                d.line([qx, qy, qx + math.cos(a - 1.4) * S * 0.9, qy + math.sin(a - 1.4) * S * 0.9 + S * 0.5], fill=col + (255,), width=2)
+            if layer: d.line([(tx, ty - 1), (mx, my - 1)], fill=lite + (255,), width=1)
+    for cx_ in (-1, 1): d.ellipse([tx + cx_ * S * 0.6 - S * 0.6, ty - S * 0.1, tx + cx_ * S * 0.6 + S * 0.6, ty + S * 1.1], fill=(110, 76, 40, 255))
+    return _outline(im, (20, 44, 20, 255)), (bx, by)
 
 
 def rock(S, seed):

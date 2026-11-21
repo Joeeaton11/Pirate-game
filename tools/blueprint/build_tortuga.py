@@ -175,7 +175,7 @@ P.PROPS = _moved
 
 # automatic props round every building, chosen by kind, on the sides away from the door
 PROP_BY_KIND = {'tavern': ['rum_barrels', 'parrot_perch', 'bench'], 'shop': ['crates', 'flowerpot', 'lantern'], 'market': ['crates', 'barrels', 'stall'],
-                'warehouse': ['crates', 'barrels', 'cart'], 'home': ['flowerpot', 'woodpile', 'water_butt', 'barrels'],
+                'warehouse': ['crates', 'barrels', 'cart'], 'home': ['flowerpot', 'woodpile', 'water_butt', 'barrels', 'flowerpot', 'crates'],
                 'civic': ['bench', 'lantern', 'flowerpot'], 'fort': ['cannonballs', 'barrels'], 'shed': ['woodpile', 'barrels', 'crates'],
                 'mill': ['barrels', 'cart'], 'manor': ['flowerpot', 'lantern', 'statue'], 'ruin': ['rubble', 'rubble'], 'landmark': ['lantern']}
 _rng = random.Random(11)
@@ -185,7 +185,7 @@ for b in P.BUILDINGS:
     bid, label, kind, cx, cy, w, h, side = b
     if label in ('Wing', 'Gate Tower'): continue
     kinds = PROP_BY_KIND.get(kind, [])
-    want = 1 if label == 'Cottage' else 2
+    want = 2 if label == 'Cottage' else 4
     cands = []
     for sd in 'NSEW':
         if sd == side: continue
@@ -668,7 +668,9 @@ _P2.PROPS = list(P.PROPS)
 import art_layers
 _avoid = unary_union([ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), town_box.buffer(4), dock_area.buffer(2)]
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock')])
-art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid)
+_no_rocks = unary_union([dock_area.buffer(6), town_box.buffer(2)] + [LineString(pts).buffer(w / 2 + 3) for n_, k_, w, pts in P.ROADS])
+_fp = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2) for b in P.BUILDINGS]
+art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid, _no_rocks, _fp)
 # cut the base into tiles so phones never need one huge texture, and the game loads only nearby ones
 from PIL import Image as _Im
 _full = _Im.open('/tmp/plan_art_full.png'); _TW, _TH = _full.size[0] // 4, _full.size[1] // 4

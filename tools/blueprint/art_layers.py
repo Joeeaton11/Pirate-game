@@ -81,7 +81,12 @@ def sea(coast, docks_union):
         d.ellipse([X - r, Y - r * 0.7, X + r, Y + r * 0.7], fill=(10, 104, 120, 255))
         d.ellipse([X - r * 0.7, Y - r * 0.6, X + r * 0.2, Y], fill=(26, 132, 140, 255))
     # wave glints: short light dashes, thicker near the shore
-    for _ in range(9000):
+    for _ in range(26000):  # darker ripples all over the open water
+        x, y = rng.randrange(W), rng.randrange(H)
+        if dist[y, x] < 4: continue
+        X, Y = x * S + rng.randrange(S), y * S + rng.randrange(S)
+        c = im.getpixel((X, Y)); d.line([X, Y, X + rng.randint(2, 5), Y], fill=(int(c[0] * 0.8), int(c[1] * 0.82), int(c[2] * 0.86), 255))
+    for _ in range(16000):
         x, y = rng.randrange(W), rng.randrange(H)
         dd = dist[y, x]
         if dd < 1 or (dd > 30 and rng.random() < 0.6): continue
@@ -103,6 +108,15 @@ def terrain(coast, beach, zones):
     im, T = new_layer()
     gp = ground.Painter(im, T, S, seed=2)
     gp.grass(coast, '#5f9e3c')
+    def blades(d):  # dense pixel blades so the grass reads as grass, not paint
+        for x, y in gp.scatter(coast, 70):
+            X, Y = T(x, y)
+            c = gp.rng.choice([(74, 140, 52), (50, 116, 42), (104, 168, 66), (86, 154, 56)])
+            d.line([X, Y, X, Y - gp.rng.randint(1, 3)], fill=c + (255,))
+        for x, y in gp.scatter(coast, 0.8):  # clover and darker patches
+            X, Y = T(x, y); r = gp.rng.randint(4, 9)
+            d.ellipse([X - r, Y - r * 0.6, X + r, Y + r * 0.6], fill=(70, 132, 50, 255))
+    gp.pattern(gp.mask([coast.difference(beach)]), blades)
     gp.sand(beach, water_edge=coast.boundary)
     for t, g in zones:
         if t in ('jungle', 'forest'): gp.woodland(g, '#3f7d32' if t == 'jungle' else '#4a8a36')
@@ -301,25 +315,47 @@ def jagged_rock(seed, size):
     return im, (cx, base)
 
 
-def cliffs(coast, zones, rock_zones_only=False):
+def cliffs(coast, zones, no_rocks):
+    """Long rocky stretches of shore (dark rock ground + dense jagged rocks), scattered rocks
+    elsewhere, and outcrops on the crags."""
     im, T = new_layer(); rng = random.Random(7)
     ring = coast.exterior
     stamps = []
     rocky = [g for t, g in zones if t == 'rock']
-    n = int(ring.length / 4)
+    step = 3.0
+    n = int(ring.length / step)
+    run = 0; rocky_run = False
+    shore = []
     for i in range(n):
-        p = ring.interpolate(i * 4 + rng.uniform(0, 2))
-        near_rock = any(g.buffer(14).contains(p) for g in rocky)
-        if not near_rock and rng.random() > 0.16: continue
-        # push slightly out to sea
-        q = ring.interpolate(i * 4 + 0.5); nx, ny = q.y - p.y, -(q.x - p.x); L = math.hypot(nx, ny) or 1
-        out = Point(p.x + nx / L * 1.5, p.y + ny / L * 1.5)
-        if coast.contains(out): out = Point(p.x - nx / L * 1.5, p.y - ny / L * 1.5)
-        for k in range(rng.randint(1, 3 if near_rock else 2)):
-            stamps.append((out.y + rng.uniform(-1.5, 1.5), out.x + rng.uniform(-2.5, 2.5), rng.uniform(2.6, 5.2 if near_rock else 3.6), rng.randrange(10 ** 6)))
+        p = ring.interpolate(i * step)
+        if run <= 0:
+            rocky_run = rng.random() < 0.45; run = rng.randint(8, 26)
+        run -= 1
+        if no_rocks.contains(p): continue
+        near_rock = any(g.buffer(18).contains(p) for g in rocky)
+        is_rocky = rocky_run or near_rock
+        if is_rocky: shore.append(p)
+        if not is_rocky and rng.random() > 0.08: continue
+        q = ring.interpolate(i * step + 0.5); nx, ny = q.y - p.y, -(q.x - p.x); L = math.hypot(nx, ny) or 1
+        if coast.contains(Point(p.x + nx / L, p.y + ny / L)): nx, ny = -nx, -ny
+        for k in range(rng.randint(2, 4) if is_rocky else 1):
+            off = rng.uniform(-1.5, 3.0)
+            stamps.append((p.y + ny / L * off + rng.uniform(-1, 1), p.x + nx / L * off + rng.uniform(-1.5, 1.5),
+                           rng.uniform(2.8, 6.0 if near_rock else 4.6) if is_rocky else rng.uniform(2.2, 3.4), rng.randrange(10 ** 6)))
+    # dark rocky ground along the rocky stretches (covers the sand there)
+    gp = ground.Painter(im, T, S, seed=8)
+    if shore:
+        from shapely.ops import unary_union
+        band = unary_union([pt.buffer(5) for pt in shore]).intersection(coast.buffer(2)).difference(no_rocks)
+        m = gp.mask([band]); gp.fill(m, '#6f6a64', 0.12, (4, 1.5))
+        def pebbles(d):
+            for x, y in gp.scatter(band, 40):
+                X, Y = T(x, y); c = rng.choice([(96, 92, 88), (130, 124, 116), (60, 58, 60)])
+                d.ellipse([X - 2, Y - 1, X + 2, Y + 1], fill=c + (255,))
+        gp.pattern(m, pebbles)
     for g in rocky:  # outcrops inland on the crags
-        for x, y in ground.Painter(im, T, S, seed=8).scatter(g.intersection(coast), 3):
-            stamps.append((y, x, rng.uniform(2.2, 4.2), rng.randrange(10 ** 6)))
+        for x, y in gp.scatter(g.intersection(coast).difference(no_rocks), 4):
+            stamps.append((y, x, rng.uniform(2.4, 4.6), rng.randrange(10 ** 6)))
     stamps.sort()
     for y, x, size, seed in stamps:
         spr, anc = jagged_rock(seed, size)
@@ -384,8 +420,11 @@ SKIP_PROPS = {'falls', 'spring', 'cave', 'lookout', 'x_mark', 'bottle', 'bollard
               'plank', 'hammock', 'rope_coil', 'ship_wheel', 'spyglass', 'cannonballs', 'trough', 'figurehead', 'cane_press', 'hull', 'lobster_pot'}
 
 
-def props(P):
+def props(P, footprints=()):
     im, T = new_layer()
+    sh = ImageDraw.Draw(im)
+    for l, t, r, b in footprints:  # drop shadow of every building, cast to the lower right
+        sh.polygon([T(r, t + 2), T(r + 3.5, t + 4), T(r + 3.5, b + 2.2), T(l + 2.5, b + 2.2), T(l, b)], fill=(14, 30, 12, 95))
     for k, x, y in sorted(P.PROPS, key=lambda p: p[2]):
         if k in SKIP_PROPS: continue
         got = pp.get(S, k, 0)
@@ -406,7 +445,7 @@ def quantise(im):
     return q
 
 
-def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, breakwater, extra, avoid):
+def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, breakwater, extra, avoid, no_rocks=None, footprints=()):
     os.makedirs(os.path.join(HERE, 'art_layers'), exist_ok=True)
     base = None
     steps = [('01_sea', lambda: sea(coast, None)),
@@ -415,9 +454,9 @@ def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, b
              ('04_roads', lambda: roads(P)),
              ('05_walls', lambda: walls(extra.get('fence'), extra.get('hedge'), extra.get('wall'))),
              ('06_docks', lambda: docks(P, dock_geoms, breakwater, bridges)),
-             ('07_cliffs', lambda: cliffs(coast, zones)),
+             ('07_cliffs', lambda: cliffs(coast, zones, no_rocks)),
              ('08_plants', lambda: plants(trees, coast, zones, avoid)),
-             ('09_props', lambda: props(P))]
+             ('09_props', lambda: props(P, footprints))]
     for name, fn in steps:
         layer = fn()
         layer.resize((W, H), Image.NEAREST).save(os.path.join(HERE, 'art_layers', f'{name}.png'))  # 1 px/unit review copy

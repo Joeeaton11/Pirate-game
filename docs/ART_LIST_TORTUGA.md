@@ -103,27 +103,28 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 
 | Asset id | What | Size on map (units wide) | Used | Status | Priority |
 |---|---|---|---|---|---|
-| `prop_barrels` | barrels | 6 | 31× | **missing** | 1 |
-| `prop_flowerpot` | flowerpot | 3 | 24× | **missing** | 1 |
-| `prop_woodpile` | woodpile | 7 | 18× | **missing** | 1 |
-| `prop_crates` | crates | 6 | 16× | **missing** | 1 |
+| `prop_flowerpot` | flowerpot | 3 | 52× | **missing** | 1 |
+| `prop_crates` | crates | 6 | 47× | **missing** | 1 |
+| `prop_barrels` | barrels | 6 | 43× | **missing** | 1 |
+| `prop_woodpile` | woodpile | 7 | 25× | **missing** | 1 |
+| `prop_bench` | bench | 6 | 22× | **missing** | 1 |
 | `prop_signpost` | signpost | 4 | 15× | **missing** | 1 |
-| `prop_bench` | bench | 6 | 12× | **missing** | 1 |
+| `prop_cart` | cart | 9 | 14× | **missing** | 1 |
+| `prop_lantern` | lantern | 3 | 14× | **missing** | 1 |
 | `prop_notice` | notice | 5 | 12× | **missing** | 1 |
 | `prop_cannon` | cannon | 5 | 9× | **missing** | 1 |
-| `prop_cart` | cart | 9 | 8× | **missing** | 1 |
 | `prop_grave` | grave | 4 | 8× | **missing** | 1 |
-| `prop_lantern` | lantern | 3 | 8× | **missing** | 1 |
 | `prop_water_butt` | water butt | 4 | 8× | **missing** | 1 |
+| `prop_rubble` | rubble | 7 | 7× | **missing** | 1 |
 | `prop_bottle` | bottle | 5 | 6× | **missing** | 1 |
 | `prop_jolly_roger` | jolly roger | 5 | 6× | **missing** | 1 |
 | `prop_lamp` | lamp | 4 | 6× | **missing** | 1 |
+| `prop_cannonballs` | cannonballs | 4 | 5× | **missing** | 1 |
 | `prop_lobster_pot` | lobster pot | 5 | 5× | **missing** | 1 |
-| `prop_rubble` | rubble | 7 | 5× | **missing** | 1 |
 | `prop_washing` | washing | 13 | 5× | **missing** | 1 |
 | `prop_beach_cannon` | beach cannon | 5 | 4× | **missing** | 1 |
-| `prop_cannonballs` | cannonballs | 4 | 4× | **missing** | 1 |
 | `prop_lantern_post` | lantern post | 4 | 4× | **missing** | 1 |
+| `prop_parrot_perch` | parrot perch | 5 | 4× | **missing** | 1 |
 | `prop_rowboat` | rowboat | 5 | 4× | **missing** | 1 |
 | `prop_rum_barrels` | rum barrels | 8 | 4× | **missing** | 1 |
 | `prop_shop_sign` | shop sign | 4 | 4× | **missing** | 1 |
@@ -144,9 +145,9 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 | `prop_hammock` | hammock | 5 | 2× | **missing** | 1 |
 | `prop_kiln` | kiln | 5 | 2× | **missing** | 1 |
 | `prop_nets` | nets | 9 | 2× | **missing** | 1 |
-| `prop_parrot_perch` | parrot perch | 5 | 2× | **missing** | 1 |
 | `prop_scarecrow` | scarecrow | 5 | 2× | **missing** | 1 |
 | `prop_spring` | spring | 5 | 2× | **missing** | 1 |
+| `prop_statue` | statue | 6 | 2× | **missing** | 1 |
 | `prop_tavern_sign` | tavern sign | 4 | 2× | **missing** | 1 |
 | `prop_wheelbarrow` | wheelbarrow | 5 | 2× | **missing** | 1 |
 | `prop_wreck_mast` | wreck mast | 5 | 2× | **missing** | 1 |
@@ -171,7 +172,6 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 | `prop_skull_rock` | skull rock | 5 | 1× | **missing** | 1 |
 | `prop_spyglass` | spyglass | 4 | 1× | **missing** | 1 |
 | `prop_stall` | stall | 10 | 1× | **missing** | 1 |
-| `prop_statue` | statue | 6 | 1× | **missing** | 1 |
 | `prop_still` | still | 5 | 1× | **missing** | 1 |
 | `prop_timber` | timber | 11 | 1× | **missing** | 1 |
 | `prop_treasure_pile` | treasure pile | 6 | 1× | **missing** | 1 |
