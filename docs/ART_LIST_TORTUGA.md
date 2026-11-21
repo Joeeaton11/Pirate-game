@@ -86,8 +86,8 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 | `tree_jungle_2` | Jungle tree (variant 2) | 11 | 117× | **missing** | 1 |
 | `tree_jungle_3` | Jungle tree (variant 3) | 11 | 112× | **missing** | 1 |
 | `tree_jungle_1` | Jungle tree (variant 1) | 11 | 102× | **missing** | 1 |
-| `tree_tree_1` | Broadleaf tree (variant 1) | 13 | 68× | **missing** | 1 |
-| `tree_tree_2` | Broadleaf tree (variant 2) | 13 | 59× | **missing** | 1 |
+| `tree_tree_1` | Broadleaf tree (variant 1) | 13 | 70× | **missing** | 1 |
+| `tree_tree_2` | Broadleaf tree (variant 2) | 13 | 58× | **missing** | 1 |
 | `tree_tree_3` | Broadleaf tree (variant 3) | 13 | 52× | **missing** | 1 |
 | `tree_mangrove_2` | Mangrove (variant 2) | 10 | 9× | **missing** | 1 |
 | `tree_palm_2` | Palm (variant 2) | 11 | 9× | **missing** | 1 |

@@ -14,11 +14,15 @@ export const ArtSprites = React.memo(function ArtSprites({
   origin,
   cam,
   all,
+  occludeFor,
 }: {
   origin: { x: number; y: number };
   /** Coarse camera centre (world); only nearby slots are mounted unless `all`. */
   cam: { x: number; y: number };
   all?: boolean;
+  /** Occluder pass: only the sprites standing in front of this world point and covering it,
+   *  drawn again above the player so walking behind a building or tower hides them. */
+  occludeFor?: { x: number; y: number };
 }) {
   return (
     <>
@@ -29,6 +33,10 @@ export const ArtSprites = React.memo(function ArtSprites({
         const wy = origin.y + y;
         if (!all && (Math.abs(wx - cam.x) > MARGIN_X || Math.abs(wy - cam.y) > MARGIN_Y)) return null;
         const h = w * a.aspect;
+        if (occludeFor) {
+          const p = occludeFor;
+          if (!(wy > p.y + 0.5 && wy - h < p.y + 4 && Math.abs(p.x - wx) < w / 2 + 2)) return null;
+        }
         return (
           <Image
             key={i}

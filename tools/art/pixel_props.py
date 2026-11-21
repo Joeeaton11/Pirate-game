@@ -256,12 +256,27 @@ def prop(S, kind, seed):
         for k in range(8): d.line([(4 + k * 3.6) * s, 3 * s, (4 + k * 3.6) * s, 12 * s], fill=(96, 64, 40, 255))
         d.line([12 * s, 6 * s, 2 * s, 0], fill=(80, 56, 36, 255), width=max(1, s // 2))
         return _outline(im), (17 * s, 12 * s)
-    if kind in ('whale_bones', 'kraken_bones'):
-        im, d = _canvas(32 * s, 16 * s)
-        d.line([2 * s, 8 * s, 28 * s, 8 * s], fill=(238, 232, 216, 255), width=max(2, s))
-        for k in range(6): d.arc([(5 + k * 4) * s, 1 * s, (9 + k * 4) * s, 15 * s], 270, 90, fill=(238, 232, 216, 255), width=max(1, s // 2 + 1))
-        d.ellipse([26 * s, 5 * s, 31 * s, 11 * s], fill=(238, 232, 216, 255))
-        return _outline(im), (16 * s, 15 * s)
+    if kind == 'whale_bones':
+        im, d = _canvas(34 * s, 16 * s)
+        bone, bone_hi, bone_lo = (226, 216, 190, 255), (246, 240, 222, 255), (170, 158, 130, 255)
+        d.ellipse([1 * s, 9 * s, 33 * s, 15.5 * s], fill=(214, 186, 128, 255))  # sand drift
+        d.line([3 * s, 10 * s, 26 * s, 10 * s], fill=bone_lo, width=max(2, s))  # spine
+        for k in range(7):
+            x = (6 + k * 3) * s; hgt = (6.5 - abs(k - 3) * 0.8) * s
+            d.arc([x - 2 * s, 10 * s - hgt, x + 2 * s, 10 * s + 1], 200, 340, fill=bone, width=max(2, s // 2 + 1))
+            d.arc([x - 2 * s, 10 * s - hgt + 1, x + 2 * s, 10 * s + 2], 210, 260, fill=bone_hi, width=1)
+        d.polygon([(25 * s, 7 * s), (32 * s, 8 * s), (33 * s, 11 * s), (25 * s, 12 * s)], fill=bone)  # skull
+        d.line([25 * s, 7 * s, 32 * s, 8 * s], fill=bone_hi); d.ellipse([27 * s, 8.5 * s, 28.6 * s, 10 * s], fill=(60, 50, 40, 255))
+        return _outline(im, (70, 56, 40, 255)), (17 * s, 14 * s)
+    if kind == 'kraken_bones':
+        im, d = _canvas(30 * s, 16 * s)
+        d.ellipse([1 * s, 8 * s, 29 * s, 15.5 * s], fill=(214, 186, 128, 255))
+        for k, (dx, dy, sgn) in enumerate(((5, 11, 1), (11, 12, -1), (18, 11, 1), (24, 12, -1))):
+            pts = [((dx + sgn * math.sin(t / 3) * 2.5) * s, (dy - t * 1.1) * s) for t in range(7)]
+            d.line(pts, fill=(150, 104, 128, 255), width=max(2, int(s * 1.2)), joint='curve')
+            for t in range(1, 6): d.point(((dx + sgn * math.sin(t / 3) * 2.5) * s, (dy - t * 1.1) * s), fill=(236, 196, 210, 255))
+        d.ellipse([12 * s, 3 * s, 18 * s, 8 * s], fill=(222, 212, 186, 255)); d.ellipse([13.5 * s, 4.5 * s, 15 * s, 6 * s], fill=(50, 40, 34, 255))
+        return _outline(im, (70, 56, 40, 255)), (15 * s, 14 * s)
     if kind in ('wreck', 'wreck_mast'):
         im, d = _canvas(10 * s, 10 * s)
         d.line([3 * s, 10 * s, 6 * s, 0], fill=(80, 56, 36, 255), width=max(1, s)); d.line([2 * s, 3 * s, 8 * s, 4 * s], fill=(80, 56, 36, 255), width=max(1, s // 2))

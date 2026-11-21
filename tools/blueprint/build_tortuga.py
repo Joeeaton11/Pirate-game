@@ -45,7 +45,10 @@ breakwater = LineString(P.BREAKWATER).buffer(4, cap_style=1)
 plaza_geoms = [box(l, t, r, b) for _, l, r, t, b in P.PLAZAS]
 ways = unary_union(road_geoms + plaza_geoms)
 bldg_geoms = [box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2) for _, _, _, cx, cy, w, h, _ in P.BUILDINGS]
-lagoon = Point(P.LAGOON['c']).buffer(P.LAGOON['r'])
+import math as _mth
+_lc, _lr = P.LAGOON['c'], P.LAGOON['r']
+lagoon = Polygon([(_lc[0] + _mth.cos(a) * _lr * (1 + 0.16 * _mth.sin(3 * a + 1) + 0.09 * _mth.cos(5 * a)), _lc[1] + _mth.sin(a) * _lr * 0.86 * (1 + 0.12 * _mth.cos(2 * a + 0.5)))
+                  for a in [k * 2 * _mth.pi / 48 for k in range(48)]])  # an organic pool, not a circle
 rivers = unary_union([LineString(r['pts']).buffer(r['w'] / 2) for r in P.RIVERS])
 bridges = unary_union(road_geoms).intersection(rivers.buffer(1.5))
 water = unary_union([lagoon, rivers]).difference(ways)

@@ -3790,6 +3790,29 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
+        {/* Buildings and towers standing in front of Scally, drawn again on top of him so he
+            disappears behind them instead of walking over their roofs. */}
+        {viewport.width > 0 && !planMode && !overview && (
+          <View
+            pointerEvents="none"
+            style={[
+              styles.world,
+              {
+                width: WORLD_WIDTH,
+                height: WORLD_HEIGHT,
+                backgroundColor: 'transparent',
+                transform: [
+                  { translateX: viewport.width / 2 - WORLD_WIDTH / 2 + viewZoom * (WORLD_WIDTH / 2 - viewCenter.x) },
+                  { translateY: viewport.height / 2 - WORLD_HEIGHT / 2 + viewZoom * (WORLD_HEIGHT / 2 - viewCenter.y) },
+                  { scale: viewZoom },
+                ],
+              },
+            ]}
+          >
+            <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} occludeFor={player} />
+          </View>
+        )}
+
         {viewport.width > 0 && !planMode && (
           <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} />
         )}

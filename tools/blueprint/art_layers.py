@@ -346,7 +346,7 @@ def cliffs(coast, zones, no_rocks):
     gp = ground.Painter(im, T, S, seed=8)
     if shore:
         from shapely.ops import unary_union
-        band = unary_union([pt.buffer(5) for pt in shore]).intersection(coast.buffer(2)).difference(no_rocks)
+        band = unary_union([pt.buffer(9) for pt in shore]).intersection(coast.buffer(2).difference(coast.buffer(-11))).difference(no_rocks)
         m = gp.mask([band]); gp.fill(m, '#6f6a64', 0.12, (4, 1.5))
         def pebbles(d):
             for x, y in gp.scatter(band, 40):
@@ -424,7 +424,7 @@ def props(P, footprints=()):
     im, T = new_layer()
     sh = ImageDraw.Draw(im)
     for l, t, r, b in footprints:  # drop shadow of every building, cast to the lower right
-        sh.polygon([T(r, t + 2), T(r + 3.5, t + 4), T(r + 3.5, b + 2.2), T(l + 2.5, b + 2.2), T(l, b)], fill=(14, 30, 12, 95))
+        sh.polygon([T(r + 1, t), T(r + 6, t + 3), T(r + 6, b + 3.2), T(l + 4, b + 3.2), T(l + 1, b + 1.4)], fill=(14, 30, 12, 100))
     for k, x, y in sorted(P.PROPS, key=lambda p: p[2]):
         if k in SKIP_PROPS: continue
         got = pp.get(S, k, 0)
