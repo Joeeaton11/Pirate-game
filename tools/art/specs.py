@@ -47,4 +47,11 @@ def spec_for(b, n):
         if bid in ('tortuga_charcoal_burner', 'tortuga_hermit_hut', 'tortuga_trapper_camp', 'tortuga_west_point') or label == 'Fishing Hut':
             s.update(wall='planks', roof='thatch', shutters=None)
         if label == 'Wing': s.update(door=False)
+    # variety so a street never repeats: balconies, washing, vines, projecting signs
+    h_ = (n * 2654435761) % 97
+    if s.get('storeys', 1) > 1 and h_ % 4 == 1: s['balcony'] = True
+    if s.get('storeys', 1) > 1 and h_ % 5 == 2: s['washline'] = True
+    if h_ % 3 == 0 or kind == 'manor': s['vines'] = True
+    if kind in ('tavern', 'shop', 'market') or (kind == 'home' and h_ % 7 == 3): s['hanging_sign'] = True
+    if kind == 'home' and h_ % 2 == 0 and not s.get('storeys'): s['storeys'] = 2 if w >= 16 else 1
     return s

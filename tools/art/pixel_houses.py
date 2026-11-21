@@ -332,6 +332,7 @@ def front_gable(p, cx, y_eave, ridge_y, gw, wall_ramp, roof_kind, shutter, lit):
 
 
 def chimney(p, x, y_base, h):
+    META['chimneys'].append((x + 2.5, y_base - h - 3))
     sb = RAMPS['stone']
     wall_stone(p, x, y_base - h, x + 5, y_base, sb)
     p.rect(x - 1, y_base - h - 2, x + 6, y_base - h - 1, sb[3]); p.line([(x - 1, y_base - h - 2), (x + 6, y_base - h - 2)], sb[1])
@@ -446,6 +447,7 @@ def weather(p, x0, y0, x1, y1):
 
 # ---------------------------------------------------------------- buildings
 def building(s):
+    META.clear(); META.update(windows=[], chimneys=[])
     rng_seed = s.get('seed', 1)
     if s.get('shape') == 'lighthouse': return lighthouse(s)
     if s.get('shape') == 'tower': return tower(s)
@@ -505,7 +507,7 @@ def building(s):
             x = x0 + int(WW * (j + 0.5) / n) - ww // 2
             if k == st - 1 and (door_on or s.get('big_door')) and abs(x + ww // 2 - cx) < (int(3.2 * PPU) if not s.get('big_door') else int(min(w * 0.4, 6) * PPU / 2 + 6)): continue
             wy_ = a + (11 if k == st - 1 else 8)
-            window(p, x, wy_, ww, wh, s.get('shutters'), s.get('lit', False), s.get('bars', False))
+            window(p, x, wy_, ww, wh, s.get('shutters'), s.get('lit', False), s.get('bars', False)); META['windows'].append((x + ww / 2, wy_ + wh / 2))
             if s.get('flowers') and k == 0 and st > 1: flower_box(p, x - 1, wy_ + wh + 2, ww + 1)
             elif s.get('flowers') and st == 1 and j % 2 == 0: flower_box(p, x - 1, wy_ + wh + 2, ww + 1)
     base = wy1 - 2
@@ -535,6 +537,34 @@ def building(s):
     for side, what in s.get('base_props', []):
         x = x0 + 5 if side == 'L' else x1 - 5
         (barrel if what == 'barrel' else crate)(p, x, base + 2)
+    # ---- variety: balconies, washing lines, climbing vines, projecting signs
+    vr = random.Random(rng_seed * 13 + 5)
+    if s.get('balcony') and st > 1:
+        by = wy0 + (st - 1) * storey - 1
+        bx0, bx1 = x0 + WW // 4, x1 - WW // 4
+        p.rect(bx0 - 2, by - 1, bx1 + 2, by + 2, RAMPS['timber'][0]); p.line([(bx0 - 2, by - 1), (bx1 + 2, by - 1)], RAMPS['timber'][1])
+        p.line([(bx0 - 2, by - 9), (bx1 + 2, by - 9)], RAMPS['timber'][0], 2)
+        for xx in range(bx0 - 2, bx1 + 3, 4): p.line([(xx, by - 9), (xx, by)], RAMPS['timber'][2])
+        for xx in range(bx0 + 2, bx1, 9): p.rect(xx, by - 13, xx + 3, by - 10, (176, 92, 58)); p.rect(xx - 1, by - 16, xx + 4, by - 13, vr.choice([(214, 60, 80), (90, 160, 60), (240, 200, 70)]))
+    if s.get('washline') and st > 1:
+        ly = wy0 + storey - 4
+        p.line([(x0 + 3, ly), (x1 - 3, ly + 2)], (200, 190, 170), 1)
+        for xx in range(x0 + 7, x1 - 8, 8):
+            c = vr.choice([(236, 232, 220), (196, 70, 60), (70, 120, 170), (226, 196, 90), (236, 232, 220)])
+            yy = ly + (xx - x0) * 2 // max(1, WW)
+            p.rect(xx, yy + 1, xx + 4, yy + 6 + vr.randrange(3), c)
+    if s.get('vines'):
+        side_x = x0 + 2 if vr.random() < 0.5 else x1 - 6
+        for _ in range(int(wall_h * 1.4)):
+            yy = wy1 - 3 - int(abs(vr.gauss(0, wall_h * 0.45)))
+            xx = side_x + vr.randrange(-2, 7)
+            if yy > wy0: p.rect(xx, yy, xx + 1, yy + 1, vr.choice([(52, 110, 46), (74, 140, 56), (40, 90, 40), (214, 70, 110)]))
+    if s.get('hanging_sign'):
+        hx = x1 - 2; hy = wy1 - storey + 6
+        p.line([(hx, hy), (hx + 9, hy)], RAMPS['timber'][3], 2); p.line([(hx + 2, hy + 3), (hx + 6, hy)], RAMPS['timber'][3])
+        p.line([(hx + 4, hy), (hx + 4, hy + 3)], (60, 60, 60)); p.line([(hx + 9, hy), (hx + 9, hy + 3)], (60, 60, 60))
+        p.rect(hx + 3, hy + 3, hx + 10, hy + 10, RAMPS['timber'][0]); p.line([(hx + 3, hy + 3), (hx + 10, hy + 3)], RAMPS['timber'][1])
+        p.rect(hx + 5, hy + 5, hx + 8, hy + 8, s.get('hanging_col', (232, 196, 90)))
     # ---- roof
     rk = s.get('roof', 'tile')
     if rk != 'none':
@@ -656,20 +686,35 @@ def windmill(s):
     return finish(outline_and_finish(quantise(im)), base_px=bot + 2)
 
 
+META = {'windows': [], 'chimneys': []}
+
+
 def finish(im, base_px):
     """Trim, add a soft contact shadow under/right, and double the pixels."""
     bb = im.getbbox()
     top = bb[1] if bb else 0
+    META['top'] = top
     im = im.crop((0, top, im.size[0], min(im.size[1], base_px + 3)))
     W, H = im.size
     sh = Image.new('RGBA', (W + 8, H + 4), (0, 0, 0, 0))
     ImageDraw.Draw(sh).ellipse([6, H - 6, W + 6, H + 2], fill=(20, 14, 8, 70))
     sh.alpha_composite(im, (0, 0))
     out = sh.resize((sh.size[0] * UPSCALE, sh.size[1] * UPSCALE), Image.NEAREST)
+    META['size'] = sh.size
     return out, sh.size[0] / PPU  # image and its width in world units
 
 
 def render(spec, out_path):
+    META.clear(); META.update(windows=[], chimneys=[])
     im, width_units = building(spec)
     im.save(out_path)
     return width_units
+
+
+def features(wx, wy):
+    """World positions of the last rendered sprite's windows and chimney tops, for a sprite whose
+    bottom centre sits at (wx, wy)."""
+    if 'size' not in META: return [], []
+    W, H = META['size']; top = META.get('top', 0)
+    f = lambda px, py: (round(wx - W / PPU / 2 + px / PPU, 1), round(wy - H / PPU + (py - top) / PPU, 1))
+    return [f(*w) for w in META['windows']], [f(*c) for c in META['chimneys']]

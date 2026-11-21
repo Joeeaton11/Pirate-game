@@ -80,6 +80,15 @@ def sea(coast, town_water=None):
         X, Y = x * S, y * S; r = rng.uniform(1.5, 4) * S
         d.ellipse([X - r, Y - r * 0.7, X + r, Y + r * 0.7], fill=(10, 104, 120, 255))
         d.ellipse([X - r * 0.7, Y - r * 0.6, X + r * 0.2, Y], fill=(26, 132, 140, 255))
+    # sandbars: pale shoals just offshore, showing through the shallows
+    sb = np.argwhere((dist > 9) & (dist < 16))
+    sand = Image.new('RGBA', im.size, (0, 0, 0, 0)); sdr = ImageDraw.Draw(sand)
+    for _ in range(14):
+        y, x = sb[rng.randrange(len(sb))]
+        X, Y = x * S, y * S; rx, ry = rng.uniform(10, 22) * S, rng.uniform(2.5, 4.5) * S
+        sdr.ellipse([X - rx, Y - ry, X + rx, Y + ry], fill=(206, 214, 170, 120))
+        sdr.ellipse([X - rx * 0.7, Y - ry * 0.6, X + rx * 0.6, Y + ry * 0.4], fill=(226, 226, 184, 150))
+    im.alpha_composite(sand); d = ImageDraw.Draw(im)
     # wave glints: short light dashes, thicker near the shore
     for _ in range(26000):  # darker ripples all over the open water
         x, y = rng.randrange(W), rng.randrange(H)
@@ -222,6 +231,25 @@ def roads(P):
         else:
             m = gp.mask(lines=[(pts, w)])
             gp.fill(m.filter(ImageFilter.GaussianBlur(2)).point(lambda v: 255 if v > 120 else 0), '#d9bd84', 0.07, (8, 2))
+    # wear: ragged edges where grass creeps in and dirt kicks out, puddles, fallen leaves
+    d = ImageDraw.Draw(im)
+    for name, k, w, pts in P.ROADS:
+        if k in ('secret', 'lane', 'ruinlane'): continue
+        ln = LineString(pts)
+        edge = ln.buffer(w / 2 + 0.9).difference(ln.buffer(w / 2 - 0.9))
+        inner = ln.buffer(w / 2)
+        for x, y in gp.scatter(edge, 4.5):
+            X, Y = T(x, y)
+            if inner.contains(Point(x, y)):
+                for _ in range(3): d.line([X + gp.rng.randint(-2, 2), Y, X + gp.rng.randint(-1, 1), Y - gp.rng.randint(2, 5)], fill=gp.rng.choice([(78, 140, 52, 255), (98, 156, 60, 255)]))
+            else:
+                d.rectangle([X, Y, X + 1, Y + 1], fill=gp.rng.choice([(196, 166, 112, 255), (170, 140, 94, 255)]))
+        if k == 'main':
+            for x, y in gp.scatter(ln.buffer(w / 2 - 1), 0.25):
+                X, Y = T(x, y); rx = gp.rng.uniform(1.2, 2.4) * S
+                d.ellipse([X - rx, Y - rx * 0.5, X + rx, Y + rx * 0.5], fill=(112, 128, 130, 255)); d.line([X - rx * 0.4, Y - rx * 0.2, X, Y - rx * 0.2], fill=(196, 220, 224, 255))
+        for x, y in gp.scatter(inner, 1.2):
+            X, Y = T(x, y); d.rectangle([X, Y, X + 1, Y], fill=gp.rng.choice([(196, 110, 40, 255), (150, 96, 40, 255), (210, 170, 60, 255)]))
     for name_, l, r, t, b in P.PLAZAS:
         if name_ == 'Duelling Ground':
             gp.fill(gp.mask(rects=[(l, t, r, b)]), '#d9bd84', 0.06, (6, 2)); continue
@@ -497,7 +525,7 @@ def props(P, footprints=()):
     for l, t, r, b in footprints:  # drop shadow of every building, cast to the lower right
         sh.polygon([T(r + 1, t), T(r + 6, t + 3), T(r + 6, b + 3.2), T(l + 4, b + 3.2), T(l + 1, b + 1.4)], fill=(14, 30, 12, 100))
     for k, x, y in sorted(P.PROPS, key=lambda p: p[2]):
-        if k in SKIP_PROPS: continue
+        if k in SKIP_PROPS or k in ANIM_KINDS: continue
         got = pp.get(S, k, 0)
         if not got: continue
         spr, anc = got
@@ -507,25 +535,28 @@ def props(P, footprints=()):
     return im
 
 
+ANIM_KINDS = ('goat', 'pig', 'chicken', 'crow', 'parrot', 'crab', 'turtle', 'gull', 'rowboat_moored', 'fishing_boat', 'jolly_roger', 'flag', 'campfire')
+
+
 def name_board(text):
     from PIL import ImageFont
     f = ImageFont.load_default()
     w = int(f.getlength(text)) + 8
-    im = Image.new('RGBA', (w * 2, 34), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    im = Image.new('RGBA', (w, 20), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
     small = Image.new('RGBA', (w, 13), (0, 0, 0, 0)); sd = ImageDraw.Draw(small)
     sd.rectangle([0, 0, w - 1, 12], fill=(118, 80, 48, 255)); sd.line([0, 0, w - 1, 0], fill=(158, 114, 72, 255))
     sd.line([0, 12, w - 1, 12], fill=(78, 50, 30, 255))
     sd.text((4, 1), text, font=f, fill=(244, 226, 180, 255))
-    big = small.resize((w * 2, 26), Image.NEAREST)
-    d.rectangle([8, 24, 11, 33], fill=(78, 50, 30, 255)); d.rectangle([w * 2 - 12, 24, w * 2 - 9, 33], fill=(78, 50, 30, 255))
-    im.alpha_composite(big, (0, 0))
-    return pp._outline(im), (w, 33)
+    d.rectangle([4, 12, 5, 19], fill=(78, 50, 30, 255)); d.rectangle([w - 6, 12, w - 5, 19], fill=(78, 50, 30, 255))
+    im.alpha_composite(small, (0, 0))
+    return pp._outline(im), (w / 2, 19)
 
 
 def dressing_layer(items):
     im, T = new_layer(); d = ImageDraw.Draw(im)
     for k, x, y in sorted(items, key=lambda p: p[2]):
         X, Y = T(x, y)
+        if k in ANIM_KINDS: continue
         if k.startswith('name_board:'):
             spr, anc = name_board(k.split(':', 1)[1])
         else:

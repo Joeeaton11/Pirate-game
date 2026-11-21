@@ -12,7 +12,7 @@ from shapely.prepared import prep
 FRONT_CLUTTER = ['barrels', 'crates', 'sacks', 'flowerpot', 'potted_palm', 'barrel', 'crates', 'bench', 'lamp']
 QUAY_CARGO = ['cargo', 'barrels', 'crates', 'sacks', 'nets', 'barrels', 'crates', 'rope_pile', 'barrel']
 GRASS_DECOR = ['flowers', 'flowers', 'tall_grass', 'tall_grass', 'stone', 'log', 'mushrooms', 'flowers']
-SOLID_KINDS = {'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
+SOLID_KINDS = {'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
 
 
 def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms, seed=21):
@@ -117,6 +117,54 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
             k = rng.random()
             put('crab' if k < 0.25 else 'turtle' if k < 0.33 else 'shells' if k < 0.65 else 'driftwood' if k < 0.85 else 'beached_rowboat', x, y, 6)
 
+    # 7. canopies: striped market awnings over the squares' stalls, lean-tos at farms and camps
+    for k, x, y in list(out):
+        if k == 'stall' and rng.random() < 0.7: put('canopy', x + rng.uniform(-3, 3), y - 3.5, 3)
+    for t_, g in zone_geoms:
+        if t_ in ('fields', 'sugarcane', 'pen', 'paddock', 'allotment', 'orchard') and g.area > 400:
+            e = g.exterior if g.geom_type == 'Polygon' else max(g.geoms, key=lambda q: q.area).exterior
+            for i in range(0 if g.area < 4000 else 2):
+                p = e.interpolate(rng.uniform(0, e.length))
+                if coast.contains(p) and not ways.buffer(2).contains(p): put('lean_to', p.x, p.y, 10)
+            p = e.interpolate(rng.uniform(0, e.length))
+            if coast.contains(p) and not ways.buffer(2).contains(p): put('lean_to', p.x, p.y, 10)
+    for k, x, y in P.PROPS:
+        if k in ('tent', 'campfire') and rng.random() < 0.6: put('lean_to', x + rng.uniform(-8, 8), y + rng.uniform(-6, 2), 6)
+    # washing strung across the narrow town streets
+    if not st.is_empty:
+        for l, t, r, b in fronts:
+            if rng.random() < 0.18:
+                x, y = rng.uniform(l + 2, r - 2), t - 2
+                if sp.contains(Point(x, y - 3)): put('laundry_line', x, y - 3, 7)
+
+    # 8. district character
+    def around(cx, cy, rad, kinds, n, gap=4):
+        disk = Point(cx, cy).buffer(rad).intersection(coast.buffer(-2)).difference(unary_union([ways.buffer(1.5), bl_all.buffer(2), water.buffer(1)]))
+        if disk.is_empty: return
+        dp = prep(disk); l, t, r, b = disk.bounds
+        for _ in range(n * 12):
+            if n <= 0: break
+            x, y = rng.uniform(l, r), rng.uniform(t, b)
+            if dp.contains(Point(x, y)) and put(rng.choice(kinds), x, y, gap): n -= 1
+    around(-330, -142, 70, ['tent', 'campfire', 'loot_crates', 'barrels', 'tent', 'woodpile', 'jolly_roger'], 26, 6)
+    around(-20, 250, 75, ['dead_tree', 'dead_tree', 'fog', 'crow', 'fog', 'dead_tree', 'mushrooms'], 70, 4)
+    around(10, 445, 70, ['vines', 'rubble_stones', 'vines', 'rubble_stones', 'tall_grass'], 45, 4)
+    around(-96, 430, 30, ['vines', 'rubble_stones'], 14, 4)
+    # cliff birds' nests and mangroves round the swamp
+    band = coast.difference(coast.buffer(-10)).intersection(unary_union([g for t_, g in zone_geoms if t_ == 'rock']) if any(t_ == 'rock' for t_, _ in zone_geoms) else coast.difference(coast.buffer(-10)))
+    bp2 = prep(band); l, t, r, b = band.bounds
+    for _ in range(1500):
+        x, y = rng.uniform(l, r), rng.uniform(t, b)
+        if bp2.contains(Point(x, y)):
+            if rng.random() < 0.1: put('nest', x, y, 30)
+            elif rng.random() < 0.12 and coast.exterior.distance(Point(x, y)) < 5: put('tide_pool', x, y, 12)
+    for t_, g in zone_geoms:
+        if t_ == 'swamp':
+            e = g.buffer(-1)
+            for i in range(0, int(e.length), 7):
+                p = e.exterior.interpolate(i) if e.geom_type == 'Polygon' else None
+                if p is not None: put('mangrove_roots', p.x + rng.uniform(-2, 2), p.y + rng.uniform(-2, 2), 4)
+
     # 6. grass decor: flowers, tall grass, stones, logs, mushrooms
     hard = unary_union([box(l, t, r, b) for kk in ('wood', 'water', 'sand') for l, r, t, b in town_rects.get(kk, [])] + [g for *_, g in dock_geoms])
     open_grass = coast.buffer(-3).difference(unary_union([beach, ways.buffer(1.5), bl_all.buffer(2.5), water.buffer(1.5), st.buffer(1), hard.buffer(2)] + [g.buffer(1) for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'graveyard', 'quarry', 'rock', 'pen', 'paddock')]))
@@ -125,7 +173,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         x, y = rng.uniform(l, r), rng.uniform(t, b)
         if og.contains(Point(x, y)): put(rng.choice(GRASS_DECOR), x, y, 4.2)
 
-    # 7. a carved name board at each district label
+    # 9. a carved name board at each district label
     for x, y, text, size in P.LABELS:
         if size == 'district' and 'painted' not in text:
             out.append(('name_board:' + text.title().replace("'S", "'s"), x, y + 4))

@@ -62,6 +62,8 @@ def slug(s): return ''.join(c if c.isalnum() else '_' for c in s.lower()).strip(
 
 
 def build(root, P, trees, town_box, town=None):
+    global WINDOWS, CHIMNEYS
+    WINDOWS, CHIMNEYS = [], []
     global ROOT
     ROOT = root
     from shapely.geometry import Point
@@ -92,6 +94,7 @@ def build(root, P, trees, town_box, town=None):
         sw = houses.render(sp, f'{root}/{SPR}/{rel}')
         asset(aid, rel, 'building' if bid else 'home', f'{label} — {kind}, footprint {w:g}×{h:g}, door {side or "none"} (pixel art drawn in code)', sw)
         slots.append((aid, cx, cy + h / 2 + 1.2, round(sw, 2)))
+        _w, _c = houses.features(cx, cy + h / 2 + 1.2); WINDOWS.extend(_w); CHIMNEYS.extend(_c)
         drawn.add(n)
     # the town core (Basse-Terre): one sprite per house of each terrace, kind from the game's building type
     if town:
@@ -113,6 +116,7 @@ def build(root, P, trees, town_box, town=None):
             sw = houses.render(sp, f'{root}/{SPR}/{rel}')
             asset(aid, rel, 'building', f'Basse-Terre {bid or "house"} — {kind}, footprint {w:g}×{h:g}', sw)
             slots.append((aid, (l + r) / 2, b + 1.2, round(sw, 2)))
+            _w, _c = houses.features((l + r) / 2, b + 1.2); WINDOWS.extend(_w); CHIMNEYS.extend(_c)
     for i, (x, y, k) in enumerate(trees):
         if town_box.contains(Point(x, y)): continue
         opts = TREE_STANDIN[k]
@@ -139,6 +143,9 @@ def build(root, P, trees, town_box, town=None):
         im = Image.open(f'{root}/{SPR}/{a["file"]}'); bb = im.getbbox() or (0, 0, *im.size)
         ts.append(f"  {aid}: {{ src: require('../../{SPR}/{a['file']}'), aspect: {round(im.size[1] / im.size[0], 3)} }},")
     ts.append('};')
+    ts.append('/** Window centres and chimney tops of the drawn buildings (island-relative): lit and smoking in Art mode. */')
+    ts.append('export const ART_WINDOWS: [number, number][] = [' + ', '.join(f'[{x:g}, {y:g}]' for x, y in WINDOWS) + '];')
+    ts.append('export const ART_CHIMNEYS: [number, number][] = [' + ', '.join(f'[{x:g}, {y:g}]' for x, y in CHIMNEYS) + '];')
     ts.append('/** [asset id, x, ground y (island-relative), width in world units], sorted back to front. */')
     slots.sort(key=lambda s: s[2])
     ts.append('export const ART_SLOTS: [string, number, number, number][] = [' + ', '.join(f"['{a}', {x:g}, {round(y, 1):g}, {w:g}]" for a, x, y, w in slots) + '];')

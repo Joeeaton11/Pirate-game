@@ -57,6 +57,8 @@ import {
 import { BP_DOORS, BP_LAMPS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
 import { ArtSprites } from '../blueprint/ArtSprites';
+import { ArtLife } from '../blueprint/ArtLife';
+import { ART_WINDOWS } from '../blueprint/tortugaArtSlots.generated';
 import { ArtTiles } from '../blueprint/ArtTiles';
 import { autoTarget, JournalPanel, TrackerArrow, TrackTarget, targetDone } from '../town/Journal';
 import {
@@ -3186,6 +3188,7 @@ export default function MapScreen({ navigation }: Props) {
                 <ArtTiles origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
                 {/* The town core is now drawn from the plan too (ground in the tiles, houses as sprites). */}
                 <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
+                {!overview && <ArtLife origin={ISLANDS.tortuga_cove.position} cam={camCoarse} player={player} />}
               </View>
             )}
             {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} visible={planLayers} />}
@@ -3813,7 +3816,7 @@ export default function MapScreen({ navigation }: Props) {
         )}
 
         {viewport.width > 0 && !planMode && (
-          <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : BP_LAMPS} />
+          <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : BP_LAMPS} windows={planMode ? undefined : ART_WINDOWS} />
         )}
 
         {viewport.width > 0 && merchantShipFlash && (() => {

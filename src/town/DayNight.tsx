@@ -56,15 +56,17 @@ interface Props {
   lamps?: boolean;
   /** More lamp heads (island-relative) to light, e.g. Art mode's street lamps. */
   extraLamps?: [number, number][];
+  /** Window centres (island-relative) that light up warm at night. */
+  windows?: [number, number][];
 }
 
-export function DayNight({ cam, zoom, viewport, origin, lamps = true, extraLamps }: Props) {
+export function DayNight({ cam, zoom, viewport, origin, lamps = true, extraLamps, windows }: Props) {
   const { dark, warm } = useNight();
   if (dark < 0.01 && warm < 0.01) return null;
   const flicker = Date.now() / 1000;
   const glows =
-    lamps && dark > 0.35
-      ? (extraLamps ? [...DOOR_LAMPS, ...extraLamps] : DOOR_LAMPS).map(([x, y], i) => {
+    lamps && !extraLamps && dark > 0.35
+      ? DOOR_LAMPS.map(([x, y], i) => {
           const sx = viewport.width / 2 + (origin.x + x - cam.x) * zoom;
           const sy = viewport.height / 2 + (origin.y + y - cam.y) * zoom;
           if (sx < -80 || sy < -80 || sx > viewport.width + 80 || sy > viewport.height + 80) return null;
@@ -90,6 +92,51 @@ export function DayNight({ cam, zoom, viewport, origin, lamps = true, extraLamps
           });
         })
       : null;
+  // Art mode: small pixel-stepped lamp pools (square rings, not soft discs) and lit windows
+  const a2 = Math.max(0, (dark - 0.3) / 0.7);
+  const onScreen = (x: number, y: number) => {
+    const sx = viewport.width / 2 + (origin.x + x - cam.x) * zoom;
+    const sy = viewport.height / 2 + (origin.y + y - cam.y) * zoom;
+    return sx < -40 || sy < -40 || sx > viewport.width + 40 || sy > viewport.height + 40 ? null : [sx, sy];
+  };
+  const pix =
+    a2 > 0
+      ? [
+          ...(lamps && extraLamps ? [...DOOR_LAMPS, ...extraLamps] : []).map(([x, y], i) => {
+            const p = onScreen(x, y);
+            if (!p) return null;
+            const f = 0.85 + 0.15 * Math.sin(flicker * 9 + i * 2.1) * Math.sin(flicker * 3.3 + i);
+            return [5.5, 3.6, 2.0, 0.9].map((r, k) => {
+              const rr = Math.round(r * zoom * f);
+              return (
+                <View
+                  key={`p${i}-${k}`}
+                  style={{
+                    position: 'absolute',
+                    left: p[0] - rr,
+                    top: p[1] - rr,
+                    width: rr * 2,
+                    height: rr * 2,
+                    borderRadius: Math.round(rr * 0.45),
+                    backgroundColor: k >= 2 ? 'rgb(255,226,150)' : 'rgb(255,170,70)',
+                    opacity: a2 * [0.1, 0.14, 0.3, 0.8][k],
+                  }}
+                />
+              );
+            });
+          }),
+          ...(windows ?? []).map(([x, y], i) => {
+            const p = onScreen(x, y);
+            if (!p || (i * 7) % 10 > 6) return null; // not every window is lit
+            const w = 0.62 * zoom;
+            const g = 2.2 * zoom;
+            return [
+              <View key={`wg${i}`} style={{ position: 'absolute', left: p[0] - g, top: p[1] - g, width: g * 2, height: g * 2, borderRadius: g * 0.4, backgroundColor: 'rgb(255,180,80)', opacity: a2 * 0.16 }} />,
+              <View key={`w${i}`} style={{ position: 'absolute', left: p[0] - w * 0.8, top: p[1] - w, width: w * 1.6, height: w * 2, backgroundColor: 'rgb(255,214,130)', opacity: a2 * 0.85 }} />,
+            ];
+          }),
+        ]
+      : null;
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }}>
       {warm > 0.01 && (
@@ -99,6 +146,7 @@ export function DayNight({ cam, zoom, viewport, origin, lamps = true, extraLamps
         <View style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgb(16,24,70)', opacity: 0.5 * dark }} />
       )}
       {glows}
+      {pix}
     </View>
   );
 }

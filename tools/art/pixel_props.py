@@ -433,6 +433,83 @@ def critter(S, kind, seed):
         im = _outline(im); d = ImageDraw.Draw(im)
         d.line([0, 13.2 * s, 14 * s, 13.2 * s], fill=(214, 236, 236, 220), width=max(1, s // 3))
         return im, (7 * s, 13 * s)
+    if kind == 'canopy':
+        im, d = _canvas(10 * s, 5 * s)
+        c1, c2 = rng.choice([((196, 64, 52), (240, 232, 214)), ((52, 110, 160), (240, 232, 214)), ((70, 140, 70), (240, 232, 214)), ((226, 176, 60), (150, 60, 40))])
+        for k in range(10):
+            d.polygon([(k * s, 0.6 * s), ((k + 1) * s, 0.6 * s), ((k + 1) * s, 2.6 * s), (k * s, 2.6 * s)], fill=(c1 if k % 2 else c2) + (255,))
+            d.polygon([(k * s, 2.6 * s), ((k + 1) * s, 2.6 * s), ((k + 0.5) * s, 3.3 * s)], fill=_mul((c1 if k % 2 else c2) + (255,), 0.85))
+        d.line([0, 0.6 * s, 10 * s, 0.6 * s], fill=_mul(c1 + (255,), 1.2))
+        for x in (0.3, 9.4): d.rectangle([x * s, 2.6 * s, (x + 0.3) * s, 5 * s - 1], fill=WOOD_LO)
+        return _outline(im), (5 * s, 5 * s - 1)
+    if kind == 'lean_to':
+        im, d = _canvas(9 * s, 6 * s)
+        thatch = rng.random() < 0.6
+        top = (196, 164, 92, 255) if thatch else (150, 140, 120, 255)
+        d.polygon([(0, 1.6 * s), (9 * s - 1, 0.4 * s), (9 * s - 1, 3.4 * s), (0, 4 * s)], fill=top)
+        for k in range(1, 9): d.line([k * s, 1.5 * s - k * 0.13 * s, k * s, 3.9 * s - k * 0.07 * s], fill=_mul(top, 0.82))
+        for x in (0.3, 8.3): d.rectangle([x * s, 3.4 * s, (x + 0.4) * s, 6 * s - 1], fill=WOOD_LO)
+        d.rectangle([2 * s, 4.4 * s, 4 * s, 5.8 * s], fill=(150, 104, 60, 255))
+        return _outline(im), (4.5 * s, 6 * s - 1)
+    if kind == 'laundry_line':
+        im, d = _canvas(12 * s, 3 * s)
+        d.line([0, 0.4 * s, 6 * s, 0.9 * s, 12 * s - 1, 0.4 * s], fill=(210, 200, 180, 255))
+        for k in range(1, 11, 2):
+            c = rng.choice([(236, 232, 220), (196, 70, 60), (70, 120, 170), (226, 196, 90)])
+            y0 = 0.4 * s + (0.5 - abs(k - 6) / 12) * s
+            d.rectangle([k * s, y0, (k + 1.2) * s, y0 + rng.uniform(1.2, 2.2) * s], fill=c + (255,))
+        return im, (6 * s, 3 * s - 1)
+    if kind == 'loot_crates':
+        im, d = _canvas(6 * s, 4.6 * s)
+        for x, y in ((0, 1.4), (2.6, 1.6), (1.3, 0)):
+            d.rectangle([x * s, y * s, (x + 3) * s, (y + 2.8) * s], fill=(150, 104, 60, 255)); d.line([x * s, y * s, (x + 3) * s, (y + 2.8) * s], fill=(110, 74, 42, 255))
+        d.rectangle([1.8 * s, 0.6 * s, 3.6 * s, 1.2 * s], fill=(236, 200, 80, 255)); d.point([(2.2 * s, 0.4 * s), (3 * s, 0.5 * s)], fill=(255, 240, 160, 255))
+        return _outline(im), (3 * s, 4.6 * s - 1)
+    if kind == 'dead_tree':
+        im, d = _canvas(12 * s, 14 * s)
+        c = (96, 84, 76, 255)
+        d.line([6 * s, 14 * s, 6 * s, 5 * s], fill=c, width=max(4, int(s * 1.4)))
+        def br(x, y, a, L, w):
+            if L < 1.2: return
+            x2, y2 = x + math.cos(a) * L * s, y - math.sin(a) * L * s
+            d.line([x, y, x2, y2], fill=c, width=max(1, w)); br(x2, y2, a + rng.uniform(0.3, 0.7), L * 0.65, w - 1); br(x2, y2, a - rng.uniform(0.3, 0.7), L * 0.6, w - 1)
+        br(6 * s, 5.5 * s, math.pi / 2, 4.6, max(3, s // 2 + 2))
+        return _outline(im, (30, 24, 22, 255)), (6 * s, 14 * s - 1)
+    if kind == 'fog':
+        im, d = _canvas(16 * s, 6 * s)
+        for _ in range(6):
+            x, y, r = rng.uniform(3, 13) * s, rng.uniform(2, 4) * s, rng.uniform(1.6, 3) * s
+            d.ellipse([x - r * 1.6, y - r * 0.7, x + r * 1.6, y + r * 0.7], fill=(214, 222, 228, 110))
+        return im, (8 * s, 4 * s)
+    if kind == 'vines':
+        im, d = _canvas(5 * s, 4 * s)
+        for _ in range(26):
+            x, y = rng.uniform(0.2, 4.6) * s, rng.uniform(0.6, 3.8) * s
+            d.rectangle([x, y, x + 1, y + 1], fill=rng.choice([(48, 104, 44, 255), (70, 132, 54, 255), (40, 84, 40, 255), (200, 70, 110, 255)]))
+        return im, (2.5 * s, 4 * s - 1)
+    if kind == 'rubble_stones':
+        im, d = _canvas(6 * s, 3 * s)
+        for _ in range(5):
+            x, y, w = rng.uniform(0, 4.4) * s, rng.uniform(0.6, 1.8) * s, rng.uniform(1, 1.6) * s
+            d.rectangle([x, y, x + w, y + w * 0.7], fill=rng.choice([(156, 146, 128, 255), (132, 124, 110, 255), (176, 166, 146, 255)]))
+        return _outline(im), (3 * s, 3 * s - 1)
+    if kind == 'tide_pool':
+        im, d = _canvas(6 * s, 3.6 * s)
+        d.ellipse([0, 0, 6 * s - 1, 3.6 * s - 1], fill=(96, 92, 86, 255)); d.ellipse([0.6 * s, 0.5 * s, 5.4 * s, 3.1 * s], fill=(40, 150, 160, 255))
+        d.ellipse([1.4 * s, 0.9 * s, 3 * s, 1.6 * s], fill=(130, 214, 210, 255)); d.point([(3.6 * s, 2.2 * s), (4.2 * s, 1.6 * s)], fill=(236, 120, 70, 255))
+        return _outline(im), (3 * s, 3.4 * s)
+    if kind == 'nest':
+        im, d = _canvas(4 * s, 2.6 * s)
+        d.ellipse([0, 0.8 * s, 4 * s - 1, 2.6 * s - 1], fill=(124, 96, 60, 255)); d.ellipse([0.8 * s, 0.8 * s, 3.2 * s, 1.8 * s], fill=(78, 58, 36, 255))
+        for x in (1.2, 2.1): d.ellipse([x * s, 0.7 * s, (x + 0.8) * s, 1.5 * s], fill=(236, 230, 214, 255))
+        return _outline(im), (2 * s, 2.6 * s - 1)
+    if kind == 'mangrove_roots':
+        im, d = _canvas(6 * s, 3.4 * s)
+        for k in range(6):
+            x = rng.uniform(0.4, 5.6) * s
+            d.arc([x - 1.4 * s, 0.4 * s, x + 1.4 * s, 4.2 * s], 180, 360, fill=(104, 84, 60, 255), width=max(1, s // 2))
+        d.ellipse([1 * s, 0, 5 * s, 1.6 * s], fill=(50, 104, 60, 255))
+        return _outline(im), (3 * s, 3.3 * s)
     if kind in ('goat', 'pig', 'chicken', 'crow', 'parrot', 'crab', 'turtle', 'gull'):
         body = {'goat': (226, 220, 206), 'pig': (236, 170, 160), 'chicken': (246, 242, 230), 'crow': (40, 40, 48),
                 'parrot': (214, 52, 44), 'crab': (220, 86, 52), 'turtle': (86, 120, 62), 'gull': (242, 242, 238)}[kind]

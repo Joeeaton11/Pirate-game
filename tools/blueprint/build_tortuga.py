@@ -349,8 +349,10 @@ extra_terraces = (terrace_walls, terrace_stairs)
 import dressing
 dress_props = dressing.dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms)
 for k_, x_, y_ in dress_props:
-    if k_ in dressing.SOLID_KINDS and not town_box.contains(Point(x_, y_)): burn(Point(x_, y_).buffer(1.4))
+    if k_ in dressing.SOLID_KINDS: burn(Point(x_, y_).buffer(1.4))
 print('  dressing', len(dress_props))
+import life_sprites
+print('  life', life_sprites.build(ROOT, P, dress_props, coast, beach, unary_union([box(l, t, r, b) for kk in ('wood', 'water') for l, r, t, b in town_rects.get(kk, [])] + [g for *_, g in dock_geoms]).buffer(4)))
 sol_rects = [(X0 + i * C, X0 + k * C, Y0 + j * C, Y0 + jj * C) for i, k, j, jj in merge(sol)]
 
 # ---------------------------------------------------------------- write TS
