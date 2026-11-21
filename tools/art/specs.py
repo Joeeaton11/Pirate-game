@@ -3,9 +3,9 @@ SIGNS = {'tortuga_counting_house': 'coin', 'tortuga_apothecary': 'bottle', 'tort
          'tortuga_powder_magazine': 'keg', 'tortuga_gunsmith': 'pistol', 'tortuga_tobacco_warehouse': 'leaf', 'tortuga_netmenders_shed': 'fish',
          'tortuga_lucky_draw': 'tankard', 'tortuga_wayside_tavern': 'tankard', 'tortuga_crossroads_shop': 'bread', 'tortuga_shipyard': 'anchor',
          'tortuga_shipwrights_slip': 'anchor', 'tortuga_boatbuilder': 'boat', 'tortuga_sugar_mill': 'cane', 'tortuga_smuggler_cache': 'skull'}
-WALL_CYCLE = ['plaster', 'plaster_blue', 'plaster_ochre', 'plaster_rose', 'plaster_white']
-ROOF_CYCLE = ['tile', 'thatch', 'tile_orange', 'tile', 'slate']
-SHUT = ['#3f6f8f', '#5f8a4a', '#8e3b2a', '#6b5a8e', '#2f5d5a']
+WALL_CYCLE = ['plaster', 'plaster_white', 'plaster', 'plaster_ochre', 'plaster_white']
+ROOF_CYCLE = ['tile', 'tile_orange', 'tile', 'thatch', 'tile']
+SHUT = ['#3f6f8f', '#3f6f8f', '#5f8a4a', '#3f6f8f', '#8e3b2a']
 
 
 def spec_for(b, n):

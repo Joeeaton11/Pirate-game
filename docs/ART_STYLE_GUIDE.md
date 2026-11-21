@@ -12,6 +12,11 @@ never a grid, catalogue sheet or collage to be cut up later (see `AGENTS.md`).
 
 ## Reference images (match these)
 
+- **Target style for the whole island: `docs/style/target_style.png`** — dense top-down pixel art,
+  turquoise sea with foam and submerged rocks, dark jagged coastal rocks, palms and flowering
+  bushes everywhere, grey cobbles, red-tiled cream buildings, heavy timber docks on pilings.
+  Its palette is sampled into `tools/art/palette_target.png`, and every coded layer snaps to it.
+
 - Camera and building style: `assets/sprites/tortuga_v2/buildings/tortuga_gunsmith.png` and
   `tortuga_v2/buildings/tortuga_lucky_draw.png`.
 - Palette and light: the painted town, `assets/sprites/tortuga_town/` (the harbour core).

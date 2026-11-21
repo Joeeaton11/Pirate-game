@@ -665,8 +665,10 @@ art_bldgs += [(l, t, r, b, 'town') for l, r, t, b in town_bldgs]
 class _PP: pass
 _P2 = _PP(); _P2.__dict__.update({k: getattr(P, k) for k in dir(P) if not k.startswith('__')})
 _P2.PROPS = list(P.PROPS)
-art.draw('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, _P2, art_bldgs, trees,
-         bridges, dock_geoms, breakwater, sea_zones)
+import art_layers
+_avoid = unary_union([ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), town_box.buffer(4), dock_area.buffer(2)]
+                     + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock')])
+art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid)
 # cut the base into tiles so phones never need one huge texture, and the game loads only nearby ones
 from PIL import Image as _Im
 _full = _Im.open('/tmp/plan_art_full.png'); _TW, _TH = _full.size[0] // 4, _full.size[1] // 4
