@@ -345,6 +345,12 @@ for tcx, tcy, trx, try_ in P.TERRACES:
             if piece.geom_type == 'LineString' and piece.length > 1: terrace_stairs.append(list(piece.coords))
 for tw in terrace_walls: burn(LineString(tw).buffer(1.2))
 extra_terraces = (terrace_walls, terrace_stairs)
+# set dressing: clutter, cargo, boats, animals, flowers and name boards (art only; bulky ones are solid)
+import dressing
+dress_props = dressing.dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms)
+for k_, x_, y_ in dress_props:
+    if k_ in dressing.SOLID_KINDS and not town_box.contains(Point(x_, y_)): burn(Point(x_, y_).buffer(1.4))
+print('  dressing', len(dress_props))
 sol_rects = [(X0 + i * C, X0 + k * C, Y0 + j * C, Y0 + jj * C) for i, k, j, jj in merge(sol)]
 
 # ---------------------------------------------------------------- write TS
@@ -386,6 +392,9 @@ code = {'jungle': 0, 'tree': 1, 'palm': 2, 'rock': 3, 'mangrove': 4}
 out.append('export const BP_TREES: number[] = [' + ','.join(f'{x:g},{y:g},{code[k]}' for x, y, k in trees) + '];')
 out.append('export const BP_PROPS: [string, number, number][] = [' + ', '.join(f"['{k}', {x:g}, {y:g}]" for k, x, y in P.PROPS) + '];')
 out.append('/** Stable edit keys (the plan original positions) for props and trees, same order as BP_PROPS / BP_TREES. */')
+_lamps = [(x, y - 4) for k, x, y in list(P.PROPS) + list(dress_props) if k in ('lamp', 'lantern', 'lantern_post', 'signal_lamp', 'harbour_light', 'campfire')]
+out.append('/** Lamp heads in Art mode (plan and set dressing), lit at night by DayNight. */')
+out.append('export const BP_LAMPS: [number, number][] = [' + ', '.join(f'[{x:g}, {y:g}]' for x, y in _lamps) + '];')
 out.append('export const BP_PROP_KEYS: string[] = [' + ', '.join(repr(pkey(p)) for p in PROPS_ORIG) + '];')
 out.append('export const BP_TREE_KEYS: string[] = [' + ', '.join(repr(tkey(t)) for t in TREES_ORIG) + '];')
 out.append('export const BP_LABELS: [number, number, string, string][] = [' + ', '.join(f"[{x}, {y}, {t!r}, '{s}']" for x, y, t, s in P.LABELS) + '];')
@@ -519,6 +528,7 @@ extra['town_walls'] = town_walls
 wild = [(k, Polygon(p).buffer(0)) for k, p in P.WILDLIFE]
 extra['wildlife'] = wild
 extra['terraces'] = extra_terraces
+extra['dressing'] = dress_props
 extra['life'] = dict(fishing=fishing, digs=digs, collect=collect, views=views, notices=notices, events=events, shelters=shelters, people=people)
 rng2 = random.Random(21)
 def spots(area, n, spacing):

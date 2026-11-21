@@ -54,7 +54,7 @@ import {
   resizeItem,
   saveEdits,
 } from '../blueprint/planEditing';
-import { BP_DOORS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
+import { BP_DOORS, BP_LAMPS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
 import { ArtSprites } from '../blueprint/ArtSprites';
 import { ArtTiles } from '../blueprint/ArtTiles';
@@ -3813,7 +3813,7 @@ export default function MapScreen({ navigation }: Props) {
         )}
 
         {viewport.width > 0 && !planMode && (
-          <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} />
+          <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : BP_LAMPS} />
         )}
 
         {viewport.width > 0 && merchantShipFlash && (() => {

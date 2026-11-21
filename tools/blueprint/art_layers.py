@@ -462,7 +462,6 @@ def plants(trees, coast, zones, avoid):
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sd = ImageDraw.Draw(sh)
     items = []
     for x, y, k in trees:
-        if k == 'rock': continue
         items.append((y, x, k))
     # bushes: dense in woodland, scattered on grass, never on roads, water, buildings or the town
     free = coast.buffer(-2).difference(avoid)
@@ -477,7 +476,7 @@ def plants(trees, coast, zones, avoid):
     items.sort()
     for y, x, k in items:
         X, Y = T(x, y)
-        r = {'jungle': 4, 'tree': 5, 'palm': 3, 'mangrove': 3.5, 'bush': 1.6}[k] * S
+        r = {'jungle': 4, 'tree': 5, 'palm': 3, 'mangrove': 3.5, 'bush': 1.6, 'rock': 3}[k] * S
         sd.ellipse([X - r + 4, Y - r * 0.4 + 2, X + r + 4, Y + r * 0.4 + 2], fill=(10, 30, 10, 80))
     im.alpha_composite(sh)
     for y, x, k in items:
@@ -508,6 +507,37 @@ def props(P, footprints=()):
     return im
 
 
+def name_board(text):
+    from PIL import ImageFont
+    f = ImageFont.load_default()
+    w = int(f.getlength(text)) + 8
+    im = Image.new('RGBA', (w * 2, 34), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    small = Image.new('RGBA', (w, 13), (0, 0, 0, 0)); sd = ImageDraw.Draw(small)
+    sd.rectangle([0, 0, w - 1, 12], fill=(118, 80, 48, 255)); sd.line([0, 0, w - 1, 0], fill=(158, 114, 72, 255))
+    sd.line([0, 12, w - 1, 12], fill=(78, 50, 30, 255))
+    sd.text((4, 1), text, font=f, fill=(244, 226, 180, 255))
+    big = small.resize((w * 2, 26), Image.NEAREST)
+    d.rectangle([8, 24, 11, 33], fill=(78, 50, 30, 255)); d.rectangle([w * 2 - 12, 24, w * 2 - 9, 33], fill=(78, 50, 30, 255))
+    im.alpha_composite(big, (0, 0))
+    return pp._outline(im), (w, 33)
+
+
+def dressing_layer(items):
+    im, T = new_layer(); d = ImageDraw.Draw(im)
+    for k, x, y in sorted(items, key=lambda p: p[2]):
+        X, Y = T(x, y)
+        if k.startswith('name_board:'):
+            spr, anc = name_board(k.split(':', 1)[1])
+        else:
+            got = pp.get(S, k, int(abs(x * 13 + y * 7)) % 3)
+            if not got: continue
+            spr, anc = got
+            if k not in ('flowers', 'tall_grass', 'shells', 'mushrooms', 'rowboat_moored', 'fishing_boat', 'gull'):
+                d.ellipse([X - spr.size[0] * 0.4 + 2, Y - 2, X + spr.size[0] * 0.4 + 2, Y + 2], fill=(10, 20, 10, 60))
+        pp.stamp(im, spr, anc, X, Y)
+    return im
+
+
 # ---------------------------------------------------------------- stack
 def quantise(im):
     a = im.getchannel('A')
@@ -533,7 +563,8 @@ def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, b
              ('06_docks', lambda: docks(P, dock_geoms, breakwater, bridges)),
              ('07_cliffs', lambda: cliffs(coast, zones, no_rocks)),
              ('08_plants', lambda: plants(trees, coast, zones, avoid)),
-             ('09_props', lambda: props(P, footprints))]
+             ('09_props', lambda: props(P, footprints)),
+             ('10_dressing', lambda: dressing_layer(extra.get('dressing', [])))]
     for name, fn in steps:
         layer = fn()
         layer.resize((W, H), Image.NEAREST).save(os.path.join(HERE, 'art_layers', f'{name}.png'))  # 1 px/unit review copy

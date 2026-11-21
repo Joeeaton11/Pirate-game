@@ -54,15 +54,17 @@ interface Props {
   origin: { x: number; y: number };
   /** Interiors are lit by their own lamps; pass false to skip the lamp glows. */
   lamps?: boolean;
+  /** More lamp heads (island-relative) to light, e.g. Art mode's street lamps. */
+  extraLamps?: [number, number][];
 }
 
-export function DayNight({ cam, zoom, viewport, origin, lamps = true }: Props) {
+export function DayNight({ cam, zoom, viewport, origin, lamps = true, extraLamps }: Props) {
   const { dark, warm } = useNight();
   if (dark < 0.01 && warm < 0.01) return null;
   const flicker = Date.now() / 1000;
   const glows =
     lamps && dark > 0.35
-      ? DOOR_LAMPS.map(([x, y], i) => {
+      ? (extraLamps ? [...DOOR_LAMPS, ...extraLamps] : DOOR_LAMPS).map(([x, y], i) => {
           const sx = viewport.width / 2 + (origin.x + x - cam.x) * zoom;
           const sy = viewport.height / 2 + (origin.y + y - cam.y) * zoom;
           if (sx < -80 || sy < -80 || sx > viewport.width + 80 || sy > viewport.height + 80) return null;

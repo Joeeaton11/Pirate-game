@@ -358,6 +358,108 @@ def prop(S, kind, seed):
     return None
 
 
+def critter(S, kind, seed):
+    """Dressing sprites: sacks, pots, rope, flowers, grass, stones, logs, shells, boats and animals."""
+    rng = random.Random(seed); s = S
+    if kind == 'sacks':
+        im, d = _canvas(5 * s, 3.6 * s)
+        for k, (x, y) in enumerate(((0, 1), (2.2, 1.2), (1.1, 0))):
+            c = (196, 172, 124, 255) if k != 1 else (176, 150, 104, 255)
+            d.rounded_rectangle([x * s, y * s, (x + 2.6) * s, (y + 2.3) * s], radius=s * 0.8, fill=c)
+            d.line([(x + 0.6) * s, (y + 0.5) * s, (x + 2) * s, (y + 0.5) * s], fill=_mul(c, 0.75))
+        return _outline(im), (im.size[0] / 2, im.size[1] - 1)
+    if kind == 'potted_palm':
+        im, d = _canvas(5 * s, 6 * s)
+        d.rectangle([1.6 * s, 4 * s, 3.4 * s, 6 * s - 1], fill=(176, 92, 58, 255)); d.line([1.6 * s, 4.3 * s, 3.4 * s, 4.3 * s], fill=(206, 122, 82, 255))
+        for a in range(7):
+            ang = math.radians(-180 + a * 30 + rng.uniform(-8, 8))
+            d.line([2.5 * s, 4 * s, 2.5 * s + math.cos(ang) * 2.4 * s, 4 * s + math.sin(ang) * 3.4 * s], fill=(70, 140, 56, 255) if a % 2 else (96, 166, 64, 255), width=max(2, s // 2))
+        return _outline(im), (2.5 * s, 6 * s - 1)
+    if kind == 'rope_pile':
+        im, d = _canvas(4 * s, 2.6 * s)
+        for r in (1.8, 1.2, 0.6): d.ellipse([(2 - r) * s, (1.3 - r * 0.6) * s, (2 + r) * s, (1.3 + r * 0.6) * s], outline=(196, 160, 104, 255), width=max(1, s // 2))
+        return _outline(im), (2 * s, 2.4 * s)
+    if kind == 'flowers':
+        im, d = _canvas(4 * s, 2.4 * s)
+        col = rng.choice([(232, 84, 120), (246, 204, 76), (240, 240, 232), (186, 96, 200), (246, 132, 60)])
+        for _ in range(7):
+            x, y = rng.uniform(0.3, 3.4) * s, rng.uniform(0.3, 1.8) * s
+            d.line([x, y, x, y + 0.6 * s], fill=(52, 120, 44, 255)); d.rectangle([x - 1, y - 1, x + 1, y + 1], fill=col + (255,))
+        return im, (2 * s, 2.2 * s)
+    if kind == 'tall_grass':
+        im, d = _canvas(4 * s, 3 * s)
+        for _ in range(9):
+            x = rng.uniform(0.3, 3.6) * s
+            d.line([x, 3 * s - 1, x + rng.uniform(-0.6, 0.6) * s, rng.uniform(0, 1.2) * s], fill=rng.choice([(58, 128, 48, 255), (86, 152, 58, 255), (122, 168, 70, 255)]), width=max(1, s // 3))
+        return im, (2 * s, 3 * s - 1)
+    if kind == 'stone':
+        im, d = _canvas(3 * s, 2 * s)
+        d.ellipse([0, 0.2 * s, 3 * s - 1, 2 * s - 1], fill=(128, 124, 116, 255)); d.ellipse([0.4 * s, 0.3 * s, 1.6 * s, 0.9 * s], fill=(164, 160, 150, 255))
+        return _outline(im), (1.5 * s, 1.9 * s)
+    if kind in ('log', 'driftwood'):
+        c = (120, 84, 52, 255) if kind == 'log' else (178, 160, 136, 255)
+        im, d = _canvas(6 * s, 2 * s)
+        d.rounded_rectangle([0, 0.3 * s, 6 * s - 1, 1.7 * s], radius=0.6 * s, fill=c); d.line([0.4 * s, 0.6 * s, 5.4 * s, 0.6 * s], fill=_mul(c, 1.25))
+        d.ellipse([5 * s, 0.3 * s, 6 * s - 1, 1.7 * s], fill=_mul(c, 1.3) if kind == 'log' else _mul(c, 0.9))
+        return _outline(im), (3 * s, 1.8 * s)
+    if kind == 'mushrooms':
+        im, d = _canvas(3 * s, 2 * s)
+        for x in (0.5, 1.6):
+            d.rectangle([(x + 0.3) * s, 1 * s, (x + 0.6) * s, 2 * s - 1], fill=(232, 222, 200, 255)); d.ellipse([x * s, 0.4 * s, (x + 0.9) * s, 1.2 * s], fill=(196, 56, 44, 255))
+        return _outline(im), (1.5 * s, 1.9 * s)
+    if kind == 'shells':
+        im, d = _canvas(3 * s, 1.4 * s)
+        for _ in range(3):
+            x = rng.uniform(0.2, 2.4) * s; d.ellipse([x, 0.3 * s, x + 0.6 * s, 0.9 * s], fill=rng.choice([(246, 222, 210, 255), (238, 176, 150, 255)]))
+        return im, (1.5 * s, 1.2 * s)
+    if kind in ('rowboat_moored', 'beached_rowboat'):
+        im, d = _canvas(8 * s, 4 * s)
+        hull = (122, 78, 46, 255) if rng.random() < 0.6 else (60, 96, 130, 255)
+        d.polygon([(0, 1.2 * s), (8 * s - 1, 1.2 * s), (7 * s, 3.4 * s), (1 * s, 3.4 * s)], fill=hull)
+        d.polygon([(0.6 * s, 0.8 * s), (7.4 * s, 0.8 * s), (7 * s, 2.2 * s), (1 * s, 2.2 * s)], fill=(168, 124, 80, 255))
+        for x in (2.6, 5.2): d.line([x * s, 0.9 * s, x * s, 2.1 * s], fill=(110, 72, 44, 255), width=max(1, s // 2))
+        im = _outline(im)
+        if kind == 'rowboat_moored':
+            d = ImageDraw.Draw(im); d.line([0.6 * s, 3.8 * s, 7.4 * s, 3.8 * s], fill=(214, 236, 236, 200))
+        return im, (4 * s, 3.9 * s)
+    if kind == 'fishing_boat':
+        im, d = _canvas(14 * s, 14 * s)
+        d.polygon([(0, 9 * s), (14 * s - 1, 9 * s), (12 * s, 12.6 * s), (2 * s, 12.6 * s)], fill=(108, 66, 40, 255))
+        d.line([0, 9.4 * s, 14 * s, 9.4 * s], fill=(196, 64, 48, 255), width=max(1, s // 2))
+        d.rectangle([1.4 * s, 8.2 * s, 12.6 * s, 9 * s], fill=(160, 116, 74, 255))
+        d.line([6.5 * s, 0.5 * s, 6.5 * s, 8.4 * s], fill=(80, 54, 34, 255), width=max(2, s // 2))
+        d.polygon([(6.9 * s, 1 * s), (12 * s, 7.6 * s), (6.9 * s, 7.6 * s)], fill=(238, 228, 204, 255))
+        d.polygon([(6.1 * s, 2 * s), (2.4 * s, 7.6 * s), (6.1 * s, 7.6 * s)], fill=(216, 204, 178, 255))
+        im = _outline(im); d = ImageDraw.Draw(im)
+        d.line([0, 13.2 * s, 14 * s, 13.2 * s], fill=(214, 236, 236, 220), width=max(1, s // 3))
+        return im, (7 * s, 13 * s)
+    if kind in ('goat', 'pig', 'chicken', 'crow', 'parrot', 'crab', 'turtle', 'gull'):
+        body = {'goat': (226, 220, 206), 'pig': (236, 170, 160), 'chicken': (246, 242, 230), 'crow': (40, 40, 48),
+                'parrot': (214, 52, 44), 'crab': (220, 86, 52), 'turtle': (86, 120, 62), 'gull': (242, 242, 238)}[kind]
+        big = kind in ('goat', 'pig', 'turtle')
+        w, h = (5.2, 3.6) if big else (2.6, 2.4)
+        im, d = _canvas(w * s, h * s); B = body + (255,)
+        if kind in ('goat', 'pig'):
+            d.ellipse([0.6 * s, 0.6 * s, 4.2 * s, 2.8 * s], fill=B)
+            for x in (1.1, 3.4): d.rectangle([x * s, 2.4 * s, (x + 0.4) * s, 3.5 * s], fill=_mul(B, 0.6))
+            d.ellipse([3.6 * s, 0.2 * s, 5.1 * s, 1.6 * s], fill=B); d.rectangle([4.6 * s, 0.6 * s, 4.7 * s, 0.7 * s], fill=(20, 20, 20, 255))
+            if kind == 'goat': d.line([3.9 * s, 0.3 * s, 3.5 * s, 0], fill=(110, 96, 80, 255), width=max(1, s // 3))
+        elif kind == 'turtle':
+            d.ellipse([0.8 * s, 0.4 * s, 4.2 * s, 3.2 * s], fill=B); d.ellipse([1.4 * s, 0.9 * s, 3.6 * s, 2.7 * s], fill=_mul(B, 1.25))
+            d.ellipse([4 * s, 1.2 * s, 5.1 * s, 2.3 * s], fill=(150, 170, 110, 255))
+        elif kind == 'crab':
+            d.ellipse([0.5 * s, 0.8 * s, 2.1 * s, 2 * s], fill=B)
+            for x in (0.1, 2.1): d.rectangle([x * s, 0.4 * s, (x + 0.5) * s, 0.9 * s], fill=B)
+        else:
+            d.ellipse([0.3 * s, 0.7 * s, 2.1 * s, 2.1 * s], fill=B); d.ellipse([1.4 * s, 0.1 * s, 2.4 * s, 1.1 * s], fill=B)
+            beak = (240, 180, 50, 255) if kind != 'parrot' else (60, 60, 60, 255)
+            d.rectangle([2.3 * s, 0.5 * s, 2.6 * s - 1, 0.8 * s], fill=beak)
+            if kind == 'parrot': d.rectangle([0.3 * s, 1.2 * s, 1.2 * s, 2.1 * s], fill=(52, 110, 200, 255))
+            if kind == 'chicken': d.rectangle([1.7 * s, 0, 2 * s, 0.3 * s], fill=(220, 40, 40, 255))
+        return _outline(im), (w * s / 2, h * s - 1)
+    return None
+
+
 def stamp(base, sprite, anchor, x, y):
     """Paste sprite so its anchor lands on pixel (x, y)."""
     base.alpha_composite(sprite, (int(round(x - anchor[0])), int(round(y - anchor[1]))))
@@ -369,5 +471,5 @@ def get(S, kind, variant):
         if kind in ('jungle', 'tree', 'mangrove'): _cache[key] = crown_tree(S, kind, variant * 31 + 7)
         elif kind == 'palm': _cache[key] = palm(S, variant * 17 + 3)
         elif kind == 'rock': _cache[key] = rock(S, variant * 13 + 5)
-        else: _cache[key] = prop(S, kind, variant)
+        else: _cache[key] = critter(S, kind, variant * 7 + 1) or prop(S, kind, variant)
     return _cache[key]
