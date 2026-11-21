@@ -5,6 +5,7 @@ STANDINS (or dropping new files in), never re-placing anything.
 
 Writes src/blueprint/tortugaArtSlots.generated.ts and docs/ART_LIST_TORTUGA.md (the master art list).
 """
+import shutil
 import glob, json, os
 from PIL import Image
 
@@ -61,6 +62,14 @@ TREE_W = {'jungle': 11, 'tree': 13, 'palm': 11, 'mangrove': 10, 'rock': 8}
 def slug(s): return ''.join(c if c.isalnum() else '_' for c in s.lower()).strip('_').replace('__', '_')
 
 
+def painted_over(root, aid, out):
+    """If a painted version of this building exists, it replaces the code-drawn file (same slot and width)."""
+    p = f'{root}/assets/art_painted/buildings/{aid}.png'
+    os.makedirs(f'{root}/docs/art_reference/buildings', exist_ok=True)
+    shutil.copy(out, f'{root}/docs/art_reference/buildings/{aid}.png')
+    if os.path.exists(p): shutil.copy(p, out)
+
+
 def build(root, P, trees, town_box, town=None):
     global WINDOWS, CHIMNEYS
     WINDOWS, CHIMNEYS = [], []
@@ -92,9 +101,11 @@ def build(root, P, trees, town_box, town=None):
         sp = specs.spec_for(b, n)
         rel = f'plan_art/{aid}.png'
         sw = houses.render(sp, f'{root}/{SPR}/{rel}')
+        _w, _c = houses.features(cx, cy + h / 2 + 1.2)
+        painted_over(root, aid, f'{root}/{SPR}/{rel}')
         asset(aid, rel, 'building' if bid else 'home', f'{label} — {kind}, footprint {w:g}×{h:g}, door {side or "none"} (pixel art drawn in code)', sw)
         slots.append((aid, cx, cy + h / 2 + 1.2, round(sw, 2)))
-        _w, _c = houses.features(cx, cy + h / 2 + 1.2); WINDOWS.extend(_w); CHIMNEYS.extend(_c)
+        WINDOWS.extend(_w); CHIMNEYS.extend(_c)
         drawn.add(n)
     # the town core (Basse-Terre): one sprite per house of each terrace, kind from the game's building type
     if town:
@@ -114,9 +125,11 @@ def build(root, P, trees, town_box, town=None):
             aid = f'town_{n}'
             rel = f'plan_art/{aid}.png'
             sw = houses.render(sp, f'{root}/{SPR}/{rel}')
+            _w, _c = houses.features((l + r) / 2, b + 1.2)
+            painted_over(root, aid, f'{root}/{SPR}/{rel}')
             asset(aid, rel, 'building', f'Basse-Terre {bid or "house"} — {kind}, footprint {w:g}×{h:g}', sw)
             slots.append((aid, (l + r) / 2, b + 1.2, round(sw, 2)))
-            _w, _c = houses.features((l + r) / 2, b + 1.2); WINDOWS.extend(_w); CHIMNEYS.extend(_c)
+            WINDOWS.extend(_w); CHIMNEYS.extend(_c)
     for i, (x, y, k) in enumerate(trees):
         if town_box.contains(Point(x, y)): continue
         opts = TREE_STANDIN[k]

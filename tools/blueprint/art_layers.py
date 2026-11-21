@@ -7,7 +7,7 @@ Each layer is painted on its own transparent canvas, saved to tools/blueprint/ar
 review, then stacked into the map base. Layer order (bottom to top):
   01 sea · 02 terrain · 03 rivers · 04 roads · 05 walls · 06 docks · 07 cliffs · 08 plants · 09 props
 """
-import math, os, random, sys
+import math, os, random, re, sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 from shapely.geometry import LineString, Point, Polygon
@@ -485,6 +485,15 @@ def bush(seed):
     return pp._outline(im, (22, 48, 24, 255)), (cx, h - 2)
 
 
+OBJECTS = []  # (asset id, sprite, anchor, x, y): standalone sprites the game draws, not baked into the ground
+GROUND_COVER = {'flowers', 'tall_grass', 'shells', 'stone', 'mushrooms', 'vines', 'rubble_stones', 'fog', 'tide_pool',
+                'mangrove_roots', 'nest', 'driftwood', 'log', 'rope_pile'}
+
+
+def obj(aid, spr, anc, x, y):
+    OBJECTS.append((aid, spr, anc, x, y))
+
+
 def plants(trees, coast, zones, avoid):
     im, T = new_layer(); rng = random.Random(9)
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sd = ImageDraw.Draw(sh)
@@ -503,14 +512,17 @@ def plants(trees, coast, zones, avoid):
     for x, y in gp.scatter(beach_band, 0.9): items.append((y, x, 'palm'))
     items.sort()
     for y, x, k in items:
+        if k != 'bush': continue
         X, Y = T(x, y)
         r = {'jungle': 4, 'tree': 5, 'palm': 3, 'mangrove': 3.5, 'bush': 1.6, 'rock': 3}[k] * S
         sd.ellipse([X - r + 4, Y - r * 0.4 + 2, X + r + 4, Y + r * 0.4 + 2], fill=(10, 30, 10, 80))
     im.alpha_composite(sh)
     for y, x, k in items:
-        if k == 'bush': spr, anc = bush(rng.randrange(10 ** 6))
-        else: spr, anc = pp.get(S, k, int(abs(x * 7 + y * 3)) % 4)
-        pp.stamp(im, spr, anc, *T(x, y))
+        if k == 'bush':
+            spr, anc = bush(rng.randrange(10 ** 6)); pp.stamp(im, spr, anc, *T(x, y))
+        else:
+            v = int(abs(x * 7 + y * 3)) % 4
+            spr, anc = pp.get(S, k, v); obj(f'{k}_{v}', spr, anc, x, y)
     return im
 
 
@@ -529,9 +541,7 @@ def props(P, footprints=()):
         got = pp.get(S, k, 0)
         if not got: continue
         spr, anc = got
-        X, Y = T(x, y)
-        ImageDraw.Draw(im).ellipse([X - spr.size[0] * 0.4 + 3, Y - 3, X + spr.size[0] * 0.4 + 3, Y + 3], fill=(10, 20, 10, 70))
-        pp.stamp(im, spr, anc, X, Y)
+        obj(f'{k}_0', spr, anc, x, y)
     return im
 
 
@@ -558,14 +568,14 @@ def dressing_layer(items):
         X, Y = T(x, y)
         if k in ANIM_KINDS: continue
         if k.startswith('name_board:'):
-            spr, anc = name_board(k.split(':', 1)[1])
-        else:
-            got = pp.get(S, k, int(abs(x * 13 + y * 7)) % 3)
-            if not got: continue
-            spr, anc = got
-            if k not in ('flowers', 'tall_grass', 'shells', 'mushrooms', 'rowboat_moored', 'fishing_boat', 'gull'):
-                d.ellipse([X - spr.size[0] * 0.4 + 2, Y - 2, X + spr.size[0] * 0.4 + 2, Y + 2], fill=(10, 20, 10, 60))
-        pp.stamp(im, spr, anc, X, Y)
+            text = k.split(':', 1)[1]
+            spr, anc = name_board(text); obj('board_' + re.sub(r'[^a-z0-9]+', '_', text.lower()).strip('_'), spr, anc, x, y); continue
+        v = int(abs(x * 13 + y * 7)) % 3
+        got = pp.get(S, k, v)
+        if not got: continue
+        spr, anc = got
+        if k in GROUND_COVER: pp.stamp(im, spr, anc, X, Y)
+        else: obj(f'{k}_{v}', spr, anc, x, y)
     return im
 
 
@@ -599,8 +609,54 @@ def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, b
     for name, fn in steps:
         layer = fn()
         layer.resize((W, H), Image.NEAREST).save(os.path.join(HERE, 'art_layers', f'{name}.png'))  # 1 px/unit review copy
+        if name == '09_props':  # building shadows: their own overlay, so a painted ground never has to include them
+            layer.save('/tmp/plan_art_shadow.png'); del layer; print('  layer', name, '(shadow overlay)'); continue
         if base is None: base = layer
         else: base.alpha_composite(layer)
         del layer
         print('  layer', name)
     quantise(base).save(out_path)
+    export_objects()
+
+
+def export_objects():
+    """Each distinct object look is saved once (with its own soft contact shadow, padded so its foot
+    sits at the bottom centre) and every placement becomes a slot the game draws back to front."""
+    root = os.path.abspath(os.path.join(HERE, '..', '..'))
+    rel = 'assets/sprites/plan_art/obj'
+    os.makedirs(f'{root}/{rel}', exist_ok=True)
+    for f in os.listdir(f'{root}/{rel}'): os.remove(f'{root}/{rel}/{f}')
+    assets, slots = {}, []
+    for aid, spr, (ax, ay), x, y in OBJECTS:
+        Wd, Ht = spr.size
+        if aid not in assets:
+            half = int(math.ceil(max(ax, Wd - ax))) + 3
+            below = Ht - ay
+            pad_b = 4
+            im = Image.new('RGBA', (half * 2, int(math.ceil(Ht + pad_b))), (0, 0, 0, 0))
+            ImageDraw.Draw(im).ellipse([half - Wd * 0.42 + 2, ay - 2.5, half + Wd * 0.42 + 2, ay + 2.5], fill=(10, 20, 10, 70))
+            q = quantise(spr)
+            im.alpha_composite(q, (int(round(half - ax)), 0))
+            ref = f'{root}/docs/art_reference/obj'; os.makedirs(ref, exist_ok=True)
+            im.resize((im.size[0] * 4, im.size[1] * 4), Image.NEAREST).save(f'{ref}/{aid}.png')  # brief reference, 16 px/unit
+            painted = f'{root}/assets/art_painted/obj/{aid}.png'
+            if os.path.exists(painted):  # a painted look replaces the code one at the same footprint
+                pim = Image.open(painted).convert('RGBA')
+                pim.save(f'{root}/{rel}/{aid}.png')
+                assets[aid] = (im.size[0] / S, pim.size[1] / pim.size[0], (im.size[1] - ay) / S)
+            else:
+                im.save(f'{root}/{rel}/{aid}.png')
+                assets[aid] = (im.size[0] / S, im.size[1] / im.size[0], (im.size[1] - ay) / S)
+        w, aspect, below_u = assets[aid]
+        slots.append((aid, round(x, 1), round(y + below_u, 1), round(w, 2)))
+    ts = ['// GENERATED by tools/blueprint/art_layers.py — every tree, rock, prop and piece of set dressing on',
+          "// Tortuga as its own sprite. One image per look in assets/sprites/plan_art/obj; swap a file to restyle every copy.",
+          "import type { ImageSourcePropType } from 'react-native';", '',
+          'export const OBJ_ASSETS: Record<string, { src: ImageSourcePropType; aspect: number }> = {']
+    for aid, (w, aspect, _) in sorted(assets.items()):
+        ts.append(f"  {aid}: {{ src: require('../../{rel}/{aid}.png'), aspect: {aspect:.3f} }},")
+    ts.append('};')
+    ts.append('/** [asset id, x, ground y, width in world units] island-relative. */')
+    ts.append('export const OBJ_SLOTS: [string, number, number, number][] = [' + ', '.join(f"['{a}', {x:g}, {y:g}, {w:g}]" for a, x, y, w in slots) + '];')
+    open(f'{root}/src/blueprint/artObjects.generated.ts', 'w').write('\n'.join(ts) + '\n')
+    print('  objects', len(slots), 'looks', len(assets))

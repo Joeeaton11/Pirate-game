@@ -68,7 +68,10 @@ def build(root, P, dress_props, coast, beach, no_foam=None):
         fr = frames(k)
         reqs = []
         for i, (im, anc) in enumerate(fr):
-            im.save(f'{root}/{REL}/{k}_{i}.png'); reqs.append(f"require('../../{REL}/{k}_{i}.png')")
+            painted = f'{root}/assets/art_painted/life/{k}_{i}.png'
+            os.makedirs(f'{root}/docs/art_reference/life', exist_ok=True)
+            im.resize((im.size[0] * 4, im.size[1] * 4), Image.NEAREST).save(f'{root}/docs/art_reference/life/{k}_{i}.png')
+            (Image.open(painted).convert('RGBA') if os.path.exists(painted) else im).save(f'{root}/{REL}/{k}_{i}.png'); reqs.append(f"require('../../{REL}/{k}_{i}.png')")
         im, anc = fr[0]
         ts.append(f"  {k}: {{ frames: [{', '.join(reqs)}], w: {im.size[0] / S:g}, h: {im.size[1] / S:g}, ax: {anc[0] / im.size[0]:.3f}, ay: {anc[1] / im.size[1]:.3f} }},")
     ts.append('};')

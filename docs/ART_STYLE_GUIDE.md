@@ -1,6 +1,6 @@
 # Scallywag Isles — art style guide
 
-Every new map asset follows this page, so the whole island reads as one painting. The list of what
+Every new map asset follows this page, so the whole island reads as one painting. To replace the code-drawn art with painted art, follow `docs/PAINTED_ART_BRIEF.md`. The list of what
 to make is `docs/ART_LIST_TORTUGA.md` (generated from the plan). When an asset is finished, drop
 the file in and point its asset id at it in `tools/blueprint/art_slots.py` — nothing on the map
 moves.

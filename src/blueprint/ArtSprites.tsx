@@ -6,9 +6,20 @@
 import React from 'react';
 import { Image } from 'react-native';
 import { ART_ASSETS, ART_SLOTS } from './tortugaArtSlots.generated';
+import { OBJ_ASSETS, OBJ_SLOTS } from './artObjects.generated';
 
 const MARGIN_X = 420;
 const MARGIN_Y = 520;
+// trees, rocks and props are many and small: mount only those within reach of the (coarse) camera
+const OBJ_MARGIN_X = 160;
+const OBJ_MARGIN_Y = 200;
+
+const ASSETS = { ...ART_ASSETS, ...OBJ_ASSETS };
+/** Buildings and objects in one back-to-front list: [asset, x, ground y, width, isObject]. */
+const SLOTS: [string, number, number, number, boolean][] = [
+  ...ART_SLOTS.map(([a, x, y, w]) => [a, x, y, w, false] as [string, number, number, number, boolean]),
+  ...OBJ_SLOTS.map(([a, x, y, w]) => [a, x, y, w, true] as [string, number, number, number, boolean]),
+].sort((p, q) => p[2] - q[2]);
 
 export const ArtSprites = React.memo(function ArtSprites({
   origin,
@@ -26,12 +37,13 @@ export const ArtSprites = React.memo(function ArtSprites({
 }) {
   return (
     <>
-      {ART_SLOTS.map(([aid, x, y, w], i) => {
-        const a = ART_ASSETS[aid];
+      {SLOTS.map(([aid, x, y, w, isObj], i) => {
+        const a = ASSETS[aid];
         if (!a) return null;
         const wx = origin.x + x;
         const wy = origin.y + y;
-        if (!all && (Math.abs(wx - cam.x) > MARGIN_X || Math.abs(wy - cam.y) > MARGIN_Y)) return null;
+        if (isObj && all && !/^(jungle|tree|palm|mangrove|rock|dead_tree)_/.test(aid)) return null; // the overview shows trees, not every barrel
+        if (!all && (Math.abs(wx - cam.x) > (isObj ? OBJ_MARGIN_X : MARGIN_X) || Math.abs(wy - cam.y) > (isObj ? OBJ_MARGIN_Y : MARGIN_Y))) return null;
         const h = w * a.aspect;
         if (occludeFor) {
           const p = occludeFor;
