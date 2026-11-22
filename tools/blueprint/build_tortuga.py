@@ -419,6 +419,7 @@ for tw in terrace_walls: burn(LineString(tw).buffer(1.2), 'terrace')
 extra_terraces = (terrace_walls, terrace_stairs)
 # set dressing: clutter, cargo, boats, animals, flowers and name boards (art only; bulky ones are solid)
 import dressing
+dressing.TOWN_WALLS = unary_union([box(l, t - 1, r, b + 1) for l, r, t, b, gaps in town_walls] or [box(0, 0, 0, 0)])
 dress_props = dressing.dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms)
 for k_, x_, y_ in dress_props:
     if k_ in dressing.SOLID_KINDS: burn(Point(x_, y_).buffer(0.9), 'dress:' + k_)
@@ -800,14 +801,13 @@ class _PP: pass
 _P2 = _PP(); _P2.__dict__.update({k: getattr(P, k) for k in dir(P) if not k.startswith('__')})
 _P2.PROPS = list(P.PROPS)
 import art_layers
-_avoid = unary_union([LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), town_box.buffer(4), dock_area.buffer(2)]
+_avoid = unary_union([box(l, t - 3, r, b + 3) for l, r, t, b, gaps in town_walls] + [LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), town_box.buffer(4), dock_area.buffer(2)]
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock')])
 _no_rocks = unary_union([dock_area.buffer(6), town_box.buffer(2)] + [LineString(pts).buffer(w / 2 + 3) for n_, k_, w, pts in P.ROADS])
 _fp = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2) for b in P.BUILDINGS]
 _town_open = unary_union([box(l, t, r, b) for k_ in ('street', 'wood', 'water', 'sand') for l, r, t, b in town_rects.get(k_, [])] + [box(l, t, r, b) for l, r, t, b in blocks])
-_avoid = unary_union([LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), _town_open.buffer(1.5), dock_area.buffer(2)]
+_avoid = unary_union([box(l, t - 3, r, b + 3) for l, r, t, b, gaps in town_walls] + [LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), _town_open.buffer(1.5), dock_area.buffer(2)]
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock', 'quarry', 'orchard')])
-_fp = _fp + [(l, t, r, b) for l, r, t, b in town_bldgs]
 art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid, _no_rocks, _fp, town_rects, town_walls)
 # cut the base into tiles so phones never need one huge texture, and the game loads only nearby ones
 from PIL import Image as _Im

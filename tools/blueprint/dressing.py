@@ -15,6 +15,9 @@ GRASS_DECOR = ['flowers', 'flowers', 'tall_grass', 'tall_grass', 'stone', 'log',
 SOLID_KINDS = {'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
 
 
+TOWN_WALLS = box(0, 0, 0, 0)
+
+
 def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms, seed=21):
     rng = random.Random(seed)
     out = []
@@ -49,6 +52,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
             y = b + rng.uniform(1.6, 2.6)
             if walk_p.contains(Point(x, y)) or coast.contains(Point(x, y)):
                 if rng.random() < 0.55: put(rng.choice(FRONT_CLUTTER), x, y)
+        if town_box.contains(Point((l + r) / 2, b)): continue  # town houses stand shoulder to shoulder
         for x in (l - 2.0, r + 2.0):  # gable ends
             for y in (t + (b - t) * 0.4, t + (b - t) * 0.8):
                 if rng.random() < 0.5 and coast.contains(Point(x, y)) and not bl_all.contains(Point(x, y)):
@@ -68,10 +72,10 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         for _ in range(900):
             x, y = rng.uniform(l, r), rng.uniform(t, b)
             if not sp.contains(Point(x, y)) or bl_all.distance(Point(x, y)) < 1.2: continue
-            near = bl_all.distance(Point(x, y)) < 4
-            if not near: continue  # the middle of the street stays open
+            front = any(abs(y - (b_ + 2.0)) < 0.9 and l_ + 1 < x < r_ - 1 for l_, r_, t_, b_ in town_bldgs)
+            if not front: continue  # only along a house front; the street itself stays clear
             k = rng.choice(['lamp', 'barrels', 'crates', 'bench', 'potted_palm', 'lamp'])
-            put(k, x, y, 7 if not near else 4.5)
+            put(k, x, y, 4.5)
 
     # 3. quays and docks: cargo, nets, rope, cranes
     wood = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('wood', [])] + [g for *_, g in dock_geoms])
@@ -140,7 +144,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         for l, t, r, b in fronts:
             if rng.random() < 0.18:
                 x, y = rng.uniform(l + 2, r - 2), t - 2
-                if sp.contains(Point(x, y - 3)): put('laundry_line', x, y - 3, 7)
+                pass  # (washing lines across streets read as floating confetti from above; houses carry their own washing)
 
     # 8. district character
     def around(cx, cy, rad, kinds, n, gap=4):
@@ -173,6 +177,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     # 6. grass decor: flowers, tall grass, stones, logs, mushrooms
     hard = unary_union([box(l, t, r, b) for kk in ('wood', 'water', 'sand') for l, r, t, b in town_rects.get(kk, [])] + [g for *_, g in dock_geoms])
     open_grass = coast.buffer(-3).difference(unary_union([beach, ways.buffer(1.5), bl_all.buffer(2.5), water.buffer(1.5), st.buffer(1), hard.buffer(2)] + [g.buffer(1) for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'graveyard', 'quarry', 'rock', 'pen', 'paddock')]))
+    open_grass = open_grass.difference(town_box.buffer(3))
     og = prep(open_grass); l, t, r, b = open_grass.bounds
     for _ in range(9000):
         x, y = rng.uniform(l, r), rng.uniform(t, b)
@@ -182,7 +187,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     gdn = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('garden', [])])
     for poly in getattr(gdn, 'geoms', [gdn]):
         if poly.area < 40: continue
-        inner = poly.buffer(-2.2, join_style=2).difference(bl_all.buffer(1.5))
+        inner = poly.buffer(-4.0, join_style=2).difference(bl_all.buffer(3.0)).difference(st.buffer(3.0)).difference(TOWN_WALLS.buffer(4))
         if inner.is_empty: continue
         ip = prep(inner); l, t, r, b = inner.bounds
         n = max(1, int(inner.area / 55))

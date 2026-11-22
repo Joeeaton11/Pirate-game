@@ -26,7 +26,6 @@ export const ART_SHADOW_TILES: { src: number; l: number; t: number; w: number; h
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/shadow_0_3.png'), l: 310, t: -580, w: 310, h: 280 },
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/shadow_1_0.png'), l: -620, t: -300, w: 310, h: 280 },
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/shadow_1_1.png'), l: -310, t: -300, w: 310, h: 280 },
-  { src: require('../../assets/sprites/tortuga_town/plan_tiles/shadow_1_2.png'), l: 0, t: -300, w: 310, h: 280 },
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/shadow_1_3.png'), l: 310, t: -300, w: 310, h: 280 },
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/shadow_2_0.png'), l: -620, t: -20, w: 310, h: 280 },
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/shadow_2_1.png'), l: -310, t: -20, w: 310, h: 280 },

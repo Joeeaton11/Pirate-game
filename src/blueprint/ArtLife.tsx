@@ -176,9 +176,9 @@ export const ArtLife = React.memo(function ArtLife({
             top: wy - age * 12 - r,
             width: r * 2,
             height: r * 2,
-            borderRadius: r * 0.35,
-            backgroundColor: '#e4e6e6',
-            opacity: 0.38 * (1 - age),
+            borderRadius: r,
+            backgroundColor: '#eceeee',
+            opacity: 0.28 * (1 - age),
           }}
         />,
       );
