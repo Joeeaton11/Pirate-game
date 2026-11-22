@@ -30,7 +30,7 @@ class Painter:
         for pts, w in lines:
             d.line([self.T(*p) for p in pts], fill=255, width=max(1, int(w * self.S)), joint='curve')
             r = w * self.S / 2
-            for p in pts:
+            for p in pts[1:-1]:  # round the bends only; the ends stay square, never bulbous
                 x, y = self.T(*p); d.ellipse([x - r, y - r, x + r, y + r], fill=255)
         for l, t, r, b in rects:
             d.rectangle([self.T(l, t), self.T(r, b)], fill=255)

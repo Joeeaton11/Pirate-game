@@ -241,8 +241,8 @@ def roads(P):
     for name, k, w, pts in P.ROADS:
         if k in ('secret', 'lane', 'ruinlane'): continue
         ln = LineString(pts)
-        edge = ln.buffer(w / 2 + 0.9).difference(ln.buffer(w / 2 - 0.9))
-        inner = ln.buffer(w / 2)
+        edge = ln.buffer(w / 2 + 0.9, cap_style=2).difference(ln.buffer(w / 2 - 0.9, cap_style=2))
+        inner = ln.buffer(w / 2, cap_style=2)
         for x, y in gp.scatter(edge, 4.5):
             X, Y = T(x, y)
             if inner.contains(Point(x, y)):
