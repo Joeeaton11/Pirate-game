@@ -402,7 +402,7 @@ def burn(g, tag='other'):
             if g.contains(Point(X0 + (i + .5) * C, Y0 + (j + .5) * C)): sol[j, i] = True
 for g, b in zip(bldg_geoms, P.BUILDINGS):
     burn(g.buffer(-1), 'building')
-burn(water, 'water')
+burn(water.buffer(1.2), 'water')  # the whole river and its muddy bank: Scally's feet stop at the edge, not mid-stream
 for x, y, k in trees:
     burn(Point(x, y).buffer(2.6 if k == 'rock' else 1.6), 'tree')  # trunks and boulders, not the crowns
 for g_, wdt in ((fence_geom, 0.7), (hedge_geom, 1.1), (wall_geom, 1.1)):
