@@ -292,6 +292,28 @@ for j in range(ny):
         wet = 100 < h < 155 and s_ > 80
         if not blk[j, i]: cls[j, i] = 1 if (y < -286 and x > -100) else 4 if (x <= -100 and y < -200) else 0
         else: cls[j, i] = 2 if wet else 3
+# tidy the leftovers of the old painted map: garden scraps and ponds that no longer belong to a house
+# become street, and the gardens that stay lose their stair-stepped edges
+from scipy.ndimage import binary_opening as _bo, label as _lab
+_house = np.zeros((ny, nx), bool)
+for l, r, t, b in town_bldgs:
+    _house[max(0, int((t - TOWN[2]) / CELL) - 1):int(math.ceil((b - TOWN[2]) / CELL)) + 1,
+           max(0, int((l - TOWN[0]) / CELL) - 1):int(math.ceil((r - TOWN[0]) / CELL)) + 1] = True
+_wl, _wn = _lab(cls == 2)
+for k in range(1, _wn + 1):
+    if (_wl == k).sum() * CELL * CELL < 300: cls[_wl == k] = 3  # garden ponds: not drawn, so not kept
+_g = cls == 3
+_free = _bo(_g & ~_house, structure=np.ones((3, 3)), iterations=2)
+_fl, _fn = _lab(_free)
+_keepg = np.zeros_like(_g)
+for k in range(1, _fn + 1):
+    if (_fl == k).sum() >= 90: _keepg |= _fl == k
+from scipy.ndimage import binary_dilation as _bd
+_harb = _bd(cls == 2, iterations=6)
+_gone = _g & ~(_house | _keepg)
+cls[_gone & _harb] = 2   # scraps out in the harbour are water
+cls[_gone & ~_harb] = 0  # scraps in town are street
+print('  town tidy: garden cells removed', int(_gone.sum()))
 
 def merge(mask):
     """Greedy rectangles covering a boolean grid (row runs merged downwards)."""
