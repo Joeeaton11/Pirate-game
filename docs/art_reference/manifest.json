@@ -4556,7 +4556,7 @@
    "variant": 3,
    "hero": false,
    "w": 24.0,
-   "count": 345,
+   "count": 344,
    "places": [
     [
      316,
@@ -4689,10 +4689,6 @@
     [
      -204,
      -172
-    ],
-    [
-     -443,
-     -168
     ],
     [
      -153,
@@ -5941,7 +5937,7 @@
    ],
    "ref": "docs/art_reference/obj/palm_3.png",
    "painted": false,
-   "score": 435.8,
+   "score": 435.4,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_3.png"

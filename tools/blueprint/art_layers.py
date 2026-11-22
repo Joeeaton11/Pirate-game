@@ -268,28 +268,90 @@ def roads(P):
 
 
 # ---------------------------------------------------------------- 05 walls, fences, hedges
-def retaining(d, T, pts, rng, height=3.2):
-    """A stone retaining wall seen from the south: grassy lip on top, block face below, shadow at its foot."""
+ALLEYS, DOORSTEPS = [], []
+FACE = 4.5  # how tall a retaining wall face reads from above (units)
+
+
+def retaining(d, T, pts, rng, height=FACE, ends=True):
+    """A stone retaining wall seen from the south, so the ground above reads as a higher level:
+    a dark coping with a grassy lip, a face of big irregular blocks lit at the top and darker at the
+    foot, moss and ivy, a cast shadow on the lower ground, and squared piers at both ends."""
     ln = LineString(pts)
-    for i in range(int(ln.length / 0.8) + 1):
-        p = ln.interpolate(i * 0.8); X, Y = T(p.x, p.y)
-        d.rectangle([X, Y + height * S, X + 0.8 * S + 1, Y + height * S + 3], fill=(16, 40, 14, 110))
-        for r in range(int(height / 0.8)):
+    if ln.length < 0.5: return
+    H = min(height, FACE) * S
+    step = 0.8
+    for i in range(int(ln.length / step) + 1):
+        p = ln.interpolate(i * step); X, Y = T(p.x, p.y); w = step * S + 1
+        d.rectangle([X, Y + H, X + w, Y + H + 0.9 * S], fill=(12, 30, 12, 120))          # shadow at the foot
+        rows = max(2, int(H / (1.1 * S)))
+        for r in range(rows):
+            yy = Y + r * H / rows; f = 1.12 - 0.35 * r / rows                          # lit top, dark foot
             c = rng.choice([(150, 144, 132), (136, 130, 120), (164, 158, 146), (124, 118, 110)])
-            yy = Y + r * 0.8 * S
-            d.rectangle([X, yy, X + 0.8 * S, yy + 0.8 * S - 1], fill=c + (255,))
-            d.line([X, yy, X + 0.8 * S - 1, yy], fill=(190, 184, 170, 255))
-        d.line([X, Y - 1, X + 0.8 * S, Y - 1], fill=(72, 132, 48, 255), width=2)
+            c = tuple(min(255, int(v * f)) for v in c)
+            off = (0.4 * S) if r % 2 else 0
+            d.rectangle([X, yy, X + w, yy + H / rows - 1], fill=c + (255,))
+            d.line([X + off, yy, X + off, yy + H / rows - 1], fill=(84, 78, 70, 255))      # staggered joints
+            d.line([X, yy + H / rows - 1, X + w, yy + H / rows - 1], fill=(92, 86, 78, 255))
+        if rng.random() < 0.18:                                                           # moss and ivy down the face
+            for _ in range(int(H / 2)): d.point((X + rng.uniform(0, w), Y + rng.uniform(0, H)), fill=rng.choice([(56, 110, 44, 255), (82, 140, 56, 255)]))
+        d.rectangle([X, Y - 0.7 * S, X + w, Y], fill=(110, 104, 96, 255))               # coping
+        d.line([X, Y - 0.7 * S, X + w, Y - 0.7 * S], fill=(196, 190, 176, 255))
+        d.line([X, Y - 0.7 * S - 1, X + w, Y - 0.7 * S - 1], fill=(70, 126, 46, 255), width=2)  # grassy lip
+    if ends:
+        for q in (ln.coords[0], ln.coords[-1]):
+            pier(d, T, q[0], q[1], H)
 
 
-def stairs(d, T, pts, rng, height=3.2):
+def pier(d, T, x, y, H):
+    X, Y = T(x, y); w = 1.6 * S
+    d.rectangle([X - w / 2, Y - 1.4 * S, X + w / 2, Y + H], fill=(146, 140, 128, 255), outline=(60, 56, 50, 255))
+    d.line([X - w / 2 + 1, Y - 1.4 * S + 1, X - w / 2 + 1, Y + H - 1], fill=(190, 184, 170, 255))
+    d.line([X + w / 2 - 1, Y - 1.4 * S + 1, X + w / 2 - 1, Y + H - 1], fill=(96, 90, 82, 255))
+    d.rectangle([X - w / 2 - 1, Y - 1.9 * S, X + w / 2 + 1, Y - 1.3 * S], fill=(176, 170, 156, 255), outline=(60, 56, 50, 255))
+    d.rectangle([X - w / 2, Y + H, X + w / 2 + 0.6 * S, Y + H + 0.8 * S], fill=(12, 30, 12, 120))
+
+
+def stairs(d, T, pts, rng, height=FACE):
+    """A flight of steps down the wall: one tread per 0.8 units of drop, each lit on its nose with a
+    dark riser, between low cheek walls, landing on the lower ground."""
     ln = LineString(pts)
-    for i in range(int(ln.length / 0.8) + 1):
-        p = ln.interpolate(i * 0.8); X, Y = T(p.x, p.y)
-        for r in range(int(height / 0.8)):
-            yy = Y + r * 0.8 * S
-            d.rectangle([X, yy, X + 0.8 * S, yy + 0.8 * S - 1], fill=(184, 176, 160, 255))
-            d.line([X, yy + 0.8 * S - 1, X + 0.8 * S, yy + 0.8 * S - 1], fill=(112, 104, 92, 255))
+    if ln.length < 0.5: return
+    H = min(height, FACE) * S
+    (x0, y0), (x1, y1) = ln.coords[0], ln.coords[-1]
+    L, R = T(min(x0, x1), y0)[0], T(max(x0, x1), y0)[0]; Y = T(x0, y0)[1]
+    n = max(3, int(H / (0.7 * S)))
+    for k in range(n):
+        yy = Y + k * H / n
+        d.rectangle([L, yy, R, yy + H / n], fill=(196, 188, 172, 255) if k % 2 == 0 else (182, 174, 158, 255))
+        d.line([L, yy, R, yy], fill=(226, 220, 206, 255))                                 # lit nose
+        d.line([L, yy + H / n - 1, R, yy + H / n - 1], fill=(110, 102, 90, 255))          # riser shadow
+    d.rectangle([L, Y + H, R, Y + H + 0.5 * S], fill=(30, 40, 30, 70))
+    for xx in (L - 0.9 * S, R):                                                          # cheek walls
+        d.rectangle([xx, Y - 0.8 * S, xx + 0.9 * S, Y + H], fill=(138, 132, 120, 255), outline=(60, 56, 50, 255))
+        d.line([xx + 1, Y - 0.8 * S, xx + 1, Y + H], fill=(186, 180, 166, 255))
+
+
+def alley(d, T, l, r, t, b, rng):
+    """A narrow passage between two houses: darker worn paving in shade, a gutter, and a few steps."""
+    X0_, Y0_ = T(l, t); X1_, Y1_ = T(r, b)
+    d.rectangle([X0_, Y0_, X1_, Y1_], fill=(108, 100, 90, 255))
+    for y in range(int(Y0_), int(Y1_), int(0.9 * S)):
+        for x in range(int(X0_), int(X1_), int(1.1 * S)):
+            c = rng.choice([(126, 118, 106), (116, 108, 96), (136, 128, 116)])
+            d.rectangle([x + 1, y + 1, x + 1.1 * S - 1, y + 0.9 * S - 1], fill=c + (255,))
+    cx = (X0_ + X1_) / 2
+    d.line([cx, Y0_, cx, Y1_], fill=(72, 66, 60, 255), width=2)                           # gutter
+    d.rectangle([X0_, Y0_, X1_, Y0_ + (Y1_ - Y0_) * 0.35], fill=(20, 20, 30, 70))       # shade from the eaves
+    for k in range(3):                                                                    # steps up into the passage
+        yy = Y1_ - (k + 1) * 0.7 * S
+        d.line([X0_, yy, X1_, yy], fill=(206, 198, 182, 255)); d.line([X0_, yy + 2, X1_, yy + 2], fill=(96, 88, 78, 255))
+
+
+def doorstep(d, T, x, y):
+    X, Y = T(x, y); w = 1.7 * S
+    d.rectangle([X - w, Y - 0.2 * S, X + w, Y + 0.9 * S], fill=(170, 164, 150, 255), outline=(78, 72, 64, 255))
+    d.line([X - w + 1, Y - 0.2 * S + 1, X + w - 1, Y - 0.2 * S + 1], fill=(214, 208, 194, 255))
+    d.rectangle([X - w + 2, Y + 0.9 * S, X + w + 2, Y + 1.3 * S], fill=(20, 30, 20, 80))
 
 
 def walls(fence, hedge, wall, terraces=None, town_walls=()):
@@ -297,10 +359,13 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
     if terraces:
         for tw in terraces[0]: retaining(d, T, tw, rng)
         for st in terraces[1]: stairs(d, T, st, rng)
-    for l, r, t, b, gaps in town_walls:
+    for l, r, t, b, gaps in town_walls:  # the town's terraces: wall face at the foot of the step, flights in the gaps
+        yt = b - FACE
         xs = [l] + [v for g in sorted(gaps) for v in g] + [r]
-        for a, c in zip(xs[0::2], xs[1::2]): retaining(d, T, [(a, t), (c, t)], rng, height=b - t)
-        for g0, g1 in gaps: stairs(d, T, [(g0, t), (g1, t)], rng, height=b - t)
+        for a, c in zip(xs[0::2], xs[1::2]): retaining(d, T, [(a, yt), (c, yt)], rng)
+        for g0, g1 in gaps: stairs(d, T, [(g0, yt), (g1, yt)], rng)
+    for l, r, t, b in ALLEYS: alley(d, T, l, r, t, b, rng)
+    for x, y in DOORSTEPS: doorstep(d, T, x, y)
     def segs(g):
         for ln in (getattr(g, 'geoms', [g]) if g is not None and not g.is_empty else []):
             if ln.geom_type == 'LineString': yield ln
@@ -317,6 +382,11 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
             p = ln.interpolate(i * 1.2); X, Y = T(p.x, p.y)
             d.rectangle([X - 2, Y - 3, X + 2, Y - 1], fill=rng.choice([(176, 168, 152, 255), (160, 152, 138, 255)]))
             d.line([X - 2, Y + 1, X + 2, Y + 1], fill=(96, 90, 80, 255))
+    for ln in segs(wall):  # every stone wall ends in a squared pier, so it never just stops
+        for q in (ln.coords[0], ln.coords[-1]): pier(d, T, q[0], q[1] - 0.6, 1.2 * S)
+    for ln in segs(fence):  # and every fence in a stout gate post
+        for q in (ln.coords[0], ln.coords[-1]):
+            X, Y = T(*q); d.rectangle([X - 3, Y - 11, X + 3, Y + 2], fill=(110, 74, 42, 255), outline=(44, 28, 14, 255)); d.rectangle([X - 4, Y - 13, X + 4, Y - 10], fill=(140, 100, 62, 255), outline=(44, 28, 14, 255))
     for ln in segs(fence):
         cs = [T(*c) for c in ln.coords]
         d.line([(x, y - 4) for x, y in cs], fill=(52, 34, 20, 255), width=4)  # rails: bold enough to read as a barrier

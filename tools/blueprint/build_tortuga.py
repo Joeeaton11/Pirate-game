@@ -402,7 +402,7 @@ for x, y, k in trees:
 for g_, wdt in ((fence_geom, 0.7), (hedge_geom, 1.1), (wall_geom, 1.1)):
     if not g_.is_empty: burn(g_.buffer(wdt), 'fence/hedge/wall')
 # terraces: retaining walls along the south half of each high-ground ellipse, cut where roads climb
-_road_cut = unary_union([LineString(pts).buffer(w / 2 + 1.5) for n_, k_, w, pts in P.ROADS])
+_road_cut = unary_union([LineString(pts).buffer(w / 2 + 1.5) for n_, k_, w, pts in P.ROADS if k_ != 'secret'])
 terrace_walls, terrace_stairs = [], []
 for tcx, tcy, trx, try_ in P.TERRACES:
     arc = LineString([(tcx + math.cos(a) * trx, tcy + math.sin(a) * try_) for a in [math.radians(d) for d in range(15, 166, 3)]])
@@ -434,7 +434,20 @@ for _g in getattr(_tw, 'geoms', [_tw]):
     if _g.area > 300:  # only the harbour the Art town draws, not old garden ponds, and never under drawn ground
         _drawn = unary_union([box(l, t, r, b) for kk in ('street', 'wood', 'sand') for l, r, t, b in town_rects.get(kk, [])] + [ways])
         burn(_g.difference(_drawn.buffer(0.6)).buffer(-0.4), 'water')
-# (the town's terrace walls are drawn as a broad paved step and read as walkable, so they are left walkable)
+import art_layers
+# the town's terrace walls: the drawn wall face is solid, the flights of steps in its gaps are open
+for l, r, t, b, gaps in town_walls:
+    xs = [l] + [v for g in sorted(gaps) for v in g] + [r]
+    for a, c in zip(xs[0::2], xs[1::2]): burn(box(a - 0.8, b - 4.5 - 0.6, c + 0.8, b - 0.2), 'town wall')
+# alleys between neighbouring town houses and a doorstep at every door, for the art
+_rows = {}
+for l, r, t, b in town_bldgs: _rows.setdefault(round(b), []).append((l, r, t, b))
+art_layers.ALLEYS[:] = []
+for _, row in _rows.items():
+    row.sort()
+    for (l1, r1, t1, b1), (l2, r2, t2, b2) in zip(row, row[1:]):
+        if 1.5 <= l2 - r1 <= 7: art_layers.ALLEYS.append((r1, l2, max(t1, t2) + 2, min(b1, b2)))
+art_layers.DOORSTEPS[:] = [(x, y + 0.6) for _, x, y in doors] + [(b[3], b[4] + b[6] / 2 + 0.4) for b in P.BUILDINGS if b[7] == 'S']
 # every path, lane, walk and square is walkable end to end: clear anything solid left on them
 # (except real buildings and water), so nothing invisible ever blocks the way
 _keep = unary_union(list(bldg_geoms) + [water] + [box(l, t, r, b) for l, r, t, b in town_bldgs] + [g for g in getattr(_tw, 'geoms', [_tw]) if g.area > 300])

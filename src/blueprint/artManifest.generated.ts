@@ -5,7 +5,7 @@ export const ART_MANIFEST: Record<string, [string, string, boolean, number, numb
   "palm_2": ["objects", "palm", false, 23.0, 397, 1, false, "docs/art_reference/guides/objects/palm_2.png"],
   "palm_0": ["objects", "palm", false, 23.5, 368, 1, false, "docs/art_reference/guides/objects/palm_0.png"],
   "palm_1": ["objects", "palm", false, 24.0, 354, 1, false, "docs/art_reference/guides/objects/palm_1.png"],
-  "palm_3": ["objects", "palm", false, 24.0, 345, 1, false, "docs/art_reference/guides/objects/palm_3.png"],
+  "palm_3": ["objects", "palm", false, 24.0, 344, 1, false, "docs/art_reference/guides/objects/palm_3.png"],
   "barrels_0": ["objects", "barrels", false, 9.0, 84, 1, false, "docs/art_reference/guides/objects/barrels_0.png"],
   "crates_0": ["objects", "crates", false, 5.5, 82, 1, false, "docs/art_reference/guides/objects/crates_0.png"],
   "gull_0": ["life", "gull \u2014 frame 1 of 2", false, 5.0, 70, 1, false, "docs/art_reference/guides/life/gull_0.png"],

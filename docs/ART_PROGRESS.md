@@ -17,7 +17,7 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `palm_2` | palm | kit | 23.0 | 397 | code placeholder |
 | `palm_0` | palm | kit | 23.5 | 368 | code placeholder |
 | `palm_1` | palm | kit | 24.0 | 354 | code placeholder |
-| `palm_3` | palm | kit | 24.0 | 345 | code placeholder |
+| `palm_3` | palm | kit | 24.0 | 344 | code placeholder |
 | `barrels_0` | barrels | kit | 9.0 | 84 | code placeholder |
 | `crates_0` | crates | kit | 5.5 | 82 | code placeholder |
 | `gull_0` | gull — frame 1 of 2 | kit | 5.0 | 70 | code placeholder |
