@@ -1,7 +1,7 @@
 {
  "progress": {
   "done": 0,
-  "total": 275
+  "total": 272
  },
  "items": [
   {
@@ -1585,37 +1585,37 @@
      466
     ],
     [
-     278,
-     -408
+     305,
+     -410
     ],
     [
-     295,
-     -346
+     284,
+     -371
     ],
     [
-     288,
-     -308
+     279,
+     -347
     ],
     [
-     55,
-     -252
+     302,
+     -68
     ],
     [
-     274,
-     -157
+     296,
+     34
     ],
     [
-     63,
-     -83
+     74,
+     36
     ],
     [
-     -11,
-     9
+     266,
+     38
     ]
    ],
    "ref": "docs/art_reference/obj/palm_2.png",
    "painted": false,
-   "score": 525.1999999999999,
+   "score": 513.4,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_2.png"
@@ -1628,7 +1628,7 @@
    "variant": 0,
    "hero": false,
    "w": 23.5,
-   "count": 368,
+   "count": 376,
    "places": [
     [
      -257,
@@ -3067,45 +3067,77 @@
      485
     ],
     [
-     276,
-     -383
+     289,
+     -415
     ],
     [
-     291,
-     -371
+     274,
+     -388
     ],
     [
-     265,
-     -358
+     272,
+     -373
     ],
     [
-     280,
-     -335
+     275,
+     -356
     ],
     [
-     262,
-     -306
+     282,
+     -330
     ],
     [
-     270,
-     -306
+     289,
+     -308
+    ],
+    [
+     307,
+     -232
+    ],
+    [
+     -155,
+     -204
     ],
     [
      266,
-     -298
+     -165
     ],
     [
-     45,
-     -261
+     257,
+     -162
     ],
     [
-     266,
-     -161
+     257,
+     -147
+    ],
+    [
+     -156,
+     -105
+    ],
+    [
+     302,
+     -85
+    ],
+    [
+     29,
+     -82
+    ],
+    [
+     -156,
+     -46
+    ],
+    [
+     -152,
+     -37
+    ],
+    [
+     277,
+     23
     ]
    ],
    "ref": "docs/art_reference/obj/palm_0.png",
    "painted": false,
-   "score": 485.6,
+   "score": 500.6,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_0.png"
@@ -3118,7 +3150,7 @@
    "variant": 1,
    "hero": false,
    "w": 24.0,
-   "count": 356,
+   "count": 351,
    "places": [
     [
      -273,
@@ -4505,49 +4537,29 @@
      474
     ],
     [
-     289,
-     -416
-    ],
-    [
-     282,
-     -377
-    ],
-    [
-     280,
-     -362
-    ],
-    [
      288,
      -328
     ],
     [
-     56,
-     -265
-    ],
-    [
-     18,
-     -254
-    ],
-    [
-     46,
-     -254
+     302,
+     -310
     ],
     [
      52,
-     -81
+     -111
     ],
     [
-     -19,
-     -12
+     289,
+     18
     ],
     [
-     268,
-     14
+     -30,
+     37
     ]
    ],
    "ref": "docs/art_reference/obj/palm_1.png",
    "painted": false,
-   "score": 483.8,
+   "score": 464.2,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_1.png"
@@ -6241,10 +6253,6 @@
      -309
     ],
     [
-     -63,
-     -305
-    ],
-    [
      83,
      -290
     ],
@@ -6255,6 +6263,10 @@
     [
      -296,
      -165
+    ],
+    [
+     -318,
+     -146
     ],
     [
      -105,
@@ -6299,356 +6311,10 @@
    ],
    "ref": "docs/art_reference/obj/barrels_0.png",
    "painted": false,
-   "score": 174,
+   "score": 173,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/barrels_0.png"
-  },
-  {
-   "id": "crates_0",
-   "group": "objects",
-   "label": "crates",
-   "kind": "crates",
-   "variant": 0,
-   "hero": false,
-   "w": 5.5,
-   "count": 82,
-   "places": [
-    [
-     -190,
-     -372
-    ],
-    [
-     -238,
-     -274
-    ],
-    [
-     356,
-     -256
-    ],
-    [
-     -182,
-     -212
-    ],
-    [
-     339,
-     -208
-    ],
-    [
-     332,
-     -196
-    ],
-    [
-     468,
-     -190
-    ],
-    [
-     458,
-     -186
-    ],
-    [
-     486,
-     -183
-    ],
-    [
-     -370,
-     -174
-    ],
-    [
-     486,
-     -169
-    ],
-    [
-     500,
-     -164
-    ],
-    [
-     480,
-     -157
-    ],
-    [
-     508,
-     -153
-    ],
-    [
-     410,
-     -141
-    ],
-    [
-     480,
-     -133
-    ],
-    [
-     -310,
-     -122
-    ],
-    [
-     -362,
-     -98
-    ],
-    [
-     -212,
-     -75
-    ],
-    [
-     -474,
-     -52
-    ],
-    [
-     -412,
-     -46
-    ],
-    [
-     508,
-     -38
-    ],
-    [
-     -418,
-     -13
-    ],
-    [
-     -382,
-     -13
-    ],
-    [
-     -458,
-     -8
-    ],
-    [
-     -386,
-     -6
-    ],
-    [
-     -418,
-     -6
-    ],
-    [
-     -302,
-     -2
-    ],
-    [
-     -345,
-     18
-    ],
-    [
-     -297,
-     26
-    ],
-    [
-     -336,
-     32
-    ],
-    [
-     -288,
-     33
-    ],
-    [
-     -336,
-     39
-    ],
-    [
-     -322,
-     40
-    ],
-    [
-     179,
-     54
-    ],
-    [
-     147,
-     56
-    ],
-    [
-     -301,
-     58
-    ],
-    [
-     156,
-     66
-    ],
-    [
-     154,
-     73
-    ],
-    [
-     126,
-     73
-    ],
-    [
-     -318,
-     75
-    ],
-    [
-     239,
-     172
-    ],
-    [
-     284,
-     179
-    ],
-    [
-     -285,
-     188
-    ],
-    [
-     22,
-     219
-    ],
-    [
-     296,
-     304
-    ],
-    [
-     -222,
-     331
-    ],
-    [
-     -218,
-     335
-    ],
-    [
-     -250,
-     341
-    ],
-    [
-     238,
-     358
-    ],
-    [
-     -196,
-     412
-    ],
-    [
-     -191,
-     412
-    ],
-    [
-     -184,
-     426
-    ],
-    [
-     -114,
-     457
-    ],
-    [
-     -54,
-     476
-    ],
-    [
-     -52,
-     482
-    ],
-    [
-     -186,
-     -396
-    ],
-    [
-     374,
-     -334
-    ],
-    [
-     384,
-     -334
-    ],
-    [
-     349,
-     -318
-    ],
-    [
-     55,
-     -313
-    ],
-    [
-     27,
-     -289
-    ],
-    [
-     139,
-     -209
-    ],
-    [
-     98,
-     -208
-    ],
-    [
-     208,
-     -208
-    ],
-    [
-     -324,
-     -165
-    ],
-    [
-     -301,
-     -165
-    ],
-    [
-     502,
-     -144
-    ],
-    [
-     -123,
-     -134
-    ],
-    [
-     -234,
-     -71
-    ],
-    [
-     -52,
-     -63
-    ],
-    [
-     221,
-     -61
-    ],
-    [
-     138,
-     -11
-    ],
-    [
-     183,
-     14
-    ],
-    [
-     -103,
-     14
-    ],
-    [
-     190,
-     34
-    ],
-    [
-     139,
-     34
-    ],
-    [
-     204,
-     114
-    ],
-    [
-     -183,
-     343
-    ],
-    [
-     -48,
-     409
-    ],
-    [
-     163,
-     418
-    ],
-    [
-     165,
-     424
-    ]
-   ],
-   "ref": "docs/art_reference/obj/crates_0.png",
-   "painted": false,
-   "score": 160.4,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/crates_0.png"
   },
   {
    "id": "gull_0",
@@ -7249,6 +6915,328 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/gull_1.png"
+  },
+  {
+   "id": "crates_0",
+   "group": "objects",
+   "label": "crates",
+   "kind": "crates",
+   "variant": 0,
+   "hero": false,
+   "w": 5.5,
+   "count": 76,
+   "places": [
+    [
+     -190,
+     -372
+    ],
+    [
+     -238,
+     -274
+    ],
+    [
+     356,
+     -256
+    ],
+    [
+     -182,
+     -212
+    ],
+    [
+     339,
+     -208
+    ],
+    [
+     332,
+     -196
+    ],
+    [
+     468,
+     -190
+    ],
+    [
+     458,
+     -186
+    ],
+    [
+     486,
+     -183
+    ],
+    [
+     -370,
+     -174
+    ],
+    [
+     486,
+     -169
+    ],
+    [
+     500,
+     -164
+    ],
+    [
+     480,
+     -157
+    ],
+    [
+     508,
+     -153
+    ],
+    [
+     410,
+     -141
+    ],
+    [
+     480,
+     -133
+    ],
+    [
+     -310,
+     -122
+    ],
+    [
+     -362,
+     -98
+    ],
+    [
+     -212,
+     -75
+    ],
+    [
+     -474,
+     -52
+    ],
+    [
+     -412,
+     -46
+    ],
+    [
+     508,
+     -38
+    ],
+    [
+     -418,
+     -13
+    ],
+    [
+     -382,
+     -13
+    ],
+    [
+     -458,
+     -8
+    ],
+    [
+     -386,
+     -6
+    ],
+    [
+     -418,
+     -6
+    ],
+    [
+     -302,
+     -2
+    ],
+    [
+     -345,
+     18
+    ],
+    [
+     -297,
+     26
+    ],
+    [
+     -336,
+     32
+    ],
+    [
+     -288,
+     33
+    ],
+    [
+     -336,
+     39
+    ],
+    [
+     -322,
+     40
+    ],
+    [
+     179,
+     54
+    ],
+    [
+     147,
+     56
+    ],
+    [
+     -301,
+     58
+    ],
+    [
+     156,
+     66
+    ],
+    [
+     154,
+     73
+    ],
+    [
+     126,
+     73
+    ],
+    [
+     -318,
+     75
+    ],
+    [
+     239,
+     172
+    ],
+    [
+     284,
+     179
+    ],
+    [
+     -285,
+     188
+    ],
+    [
+     22,
+     219
+    ],
+    [
+     296,
+     304
+    ],
+    [
+     -222,
+     331
+    ],
+    [
+     -218,
+     335
+    ],
+    [
+     -250,
+     341
+    ],
+    [
+     238,
+     358
+    ],
+    [
+     -196,
+     412
+    ],
+    [
+     -191,
+     412
+    ],
+    [
+     -184,
+     426
+    ],
+    [
+     -114,
+     457
+    ],
+    [
+     -54,
+     476
+    ],
+    [
+     -52,
+     482
+    ],
+    [
+     -186,
+     -396
+    ],
+    [
+     374,
+     -334
+    ],
+    [
+     384,
+     -334
+    ],
+    [
+     349,
+     -318
+    ],
+    [
+     55,
+     -313
+    ],
+    [
+     208,
+     -208
+    ],
+    [
+     -324,
+     -165
+    ],
+    [
+     -301,
+     -165
+    ],
+    [
+     502,
+     -144
+    ],
+    [
+     -123,
+     -134
+    ],
+    [
+     -234,
+     -71
+    ],
+    [
+     221,
+     -61
+    ],
+    [
+     138,
+     -11
+    ],
+    [
+     -103,
+     14
+    ],
+    [
+     190,
+     34
+    ],
+    [
+     139,
+     34
+    ],
+    [
+     -183,
+     343
+    ],
+    [
+     -48,
+     409
+    ],
+    [
+     163,
+     418
+    ],
+    [
+     165,
+     424
+    ]
+   ],
+   "ref": "docs/art_reference/obj/crates_0.png",
+   "painted": false,
+   "score": 143.4,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/crates_0.png"
   },
   {
    "id": "jungle_1",
@@ -9007,298 +8995,6 @@
    "guide": "docs/art_reference/guides/objects/rubble_0.png"
   },
   {
-   "id": "crates_1",
-   "group": "objects",
-   "label": "crates",
-   "kind": "crates",
-   "variant": 1,
-   "hero": false,
-   "w": 5.5,
-   "count": 30,
-   "places": [
-    [
-     298,
-     -453
-    ],
-    [
-     230,
-     -450
-    ],
-    [
-     230,
-     -422
-    ],
-    [
-     -251,
-     -407
-    ],
-    [
-     199,
-     -369
-    ],
-    [
-     -7,
-     -362
-    ],
-    [
-     369,
-     -334
-    ],
-    [
-     81,
-     -323
-    ],
-    [
-     115,
-     -314
-    ],
-    [
-     182,
-     -308
-    ],
-    [
-     -8,
-     -267
-    ],
-    [
-     28,
-     -267
-    ],
-    [
-     -26,
-     -267
-    ],
-    [
-     117,
-     -209
-    ],
-    [
-     451,
-     -178
-    ],
-    [
-     -351,
-     -165
-    ],
-    [
-     -305,
-     -165
-    ],
-    [
-     -354,
-     -164
-    ],
-    [
-     -78,
-     -138
-    ],
-    [
-     338,
-     -134
-    ],
-    [
-     -447,
-     -45
-    ],
-    [
-     -54,
-     15
-    ],
-    [
-     515,
-     127
-    ],
-    [
-     305,
-     185
-    ],
-    [
-     222,
-     226
-    ],
-    [
-     -82,
-     403
-    ],
-    [
-     97,
-     420
-    ],
-    [
-     -206,
-     426
-    ],
-    [
-     -77,
-     427
-    ],
-    [
-     -232,
-     442
-    ]
-   ],
-   "ref": "docs/art_reference/obj/crates_1.png",
-   "painted": false,
-   "score": 74,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/crates_1.png"
-  },
-  {
-   "id": "bench_0",
-   "group": "objects",
-   "label": "bench",
-   "kind": "bench",
-   "variant": 0,
-   "hero": false,
-   "w": 6.5,
-   "count": 34,
-   "places": [
-    [
-     -236,
-     -470
-    ],
-    [
-     -278,
-     -340
-    ],
-    [
-     402,
-     -335
-    ],
-    [
-     -288,
-     -334
-    ],
-    [
-     -288,
-     -326
-    ],
-    [
-     402,
-     -325
-    ],
-    [
-     424,
-     -262
-    ],
-    [
-     392,
-     -232
-    ],
-    [
-     -352,
-     -142
-    ],
-    [
-     -370,
-     -128
-    ],
-    [
-     -370,
-     -121
-    ],
-    [
-     40,
-     -104
-    ],
-    [
-     66,
-     -104
-    ],
-    [
-     -352,
-     -84
-    ],
-    [
-     -345,
-     -84
-    ],
-    [
-     -312,
-     -52
-    ],
-    [
-     -350,
-     -18
-    ],
-    [
-     -330,
-     -14
-    ],
-    [
-     -358,
-     -2
-    ],
-    [
-     -358,
-     8
-    ],
-    [
-     -344,
-     59
-    ],
-    [
-     -150,
-     232
-    ],
-    [
-     -170,
-     266
-    ],
-    [
-     -230,
-     366
-    ],
-    [
-     76,
-     452
-    ],
-    [
-     -3,
-     -267
-    ],
-    [
-     -50,
-     -209
-    ],
-    [
-     487,
-     -143
-    ],
-    [
-     140,
-     -133
-    ],
-    [
-     -299,
-     -130
-    ],
-    [
-     335,
-     -112
-    ],
-    [
-     134,
-     34
-    ],
-    [
-     224,
-     34
-    ],
-    [
-     -289,
-     403
-    ]
-   ],
-   "ref": "docs/art_reference/obj/bench_0.png",
-   "painted": false,
-   "score": 70.4,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bench_0.png"
-  },
-  {
    "id": "tree_2",
    "group": "objects",
    "label": "tree",
@@ -9561,110 +9257,146 @@
    "guide": "docs/art_reference/guides/objects/tree_2.png"
   },
   {
-   "id": "potted_palm_1",
+   "id": "bench_0",
    "group": "objects",
-   "label": "potted palm",
-   "kind": "potted_palm",
-   "variant": 1,
+   "label": "bench",
+   "kind": "bench",
+   "variant": 0,
    "hero": false,
    "w": 6.5,
-   "count": 22,
+   "count": 31,
    "places": [
     [
-     284,
-     -388
+     -236,
+     -470
     ],
     [
-     258,
-     -387
+     -278,
+     -340
     ],
     [
-     290,
-     -376
+     402,
+     -335
     ],
     [
-     265,
-     -374
+     -288,
+     -334
     ],
     [
-     287,
-     -365
+     -288,
+     -326
     ],
     [
-     277,
-     -360
+     402,
+     -325
     ],
     [
-     275,
-     -320
+     424,
+     -262
     ],
     [
-     186,
-     -209
+     392,
+     -232
     ],
     [
-     38,
-     -209
+     -352,
+     -142
     ],
     [
-     112,
-     -209
+     -370,
+     -128
     ],
     [
-     261,
-     -155
+     -370,
+     -121
     ],
     [
-     265,
-     -148
+     40,
+     -104
     ],
     [
-     -47,
-     -138
+     66,
+     -104
     ],
     [
-     42,
-     -136
+     -352,
+     -84
+    ],
+    [
+     -345,
+     -84
+    ],
+    [
+     -312,
+     -52
+    ],
+    [
+     -350,
+     -18
+    ],
+    [
+     -330,
+     -14
+    ],
+    [
+     -358,
+     -2
+    ],
+    [
+     -358,
+     8
+    ],
+    [
+     -344,
+     59
+    ],
+    [
+     -150,
+     232
+    ],
+    [
+     -170,
+     266
+    ],
+    [
+     -230,
+     366
+    ],
+    [
+     76,
+     452
+    ],
+    [
+     487,
+     -143
+    ],
+    [
+     140,
+     -133
+    ],
+    [
+     335,
+     -112
+    ],
+    [
+     134,
+     34
     ],
     [
      224,
-     -135
+     34
     ],
     [
-     188,
-     -103
-    ],
-    [
-     -272,
-     -26
-    ],
-    [
-     -11,
-     -20
-    ],
-    [
-     -29,
-     -6
-    ],
-    [
-     -29,
-     4
-    ],
-    [
-     72,
-     18
-    ],
-    [
-     270,
-     24
+     -289,
+     403
     ]
    ],
-   "ref": "docs/art_reference/obj/potted_palm_1.png",
+   "ref": "docs/art_reference/obj/bench_0.png",
    "painted": false,
-   "score": 65,
+   "score": 62.4,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/potted_palm_1.png"
+   "guide": "docs/art_reference/guides/objects/bench_0.png"
   },
   {
    "id": "tree_3",
@@ -9853,146 +9585,122 @@
    "guide": "docs/art_reference/guides/objects/tree_3.png"
   },
   {
-   "id": "woodpile_0",
+   "id": "crates_1",
    "group": "objects",
-   "label": "woodpile",
-   "kind": "woodpile",
-   "variant": 0,
+   "label": "crates",
+   "kind": "crates",
+   "variant": 1,
    "hero": false,
-   "w": 7.5,
-   "count": 31,
+   "w": 5.5,
+   "count": 25,
    "places": [
     [
-     344,
-     -298
+     298,
+     -453
     ],
     [
-     -244,
-     -274
+     230,
+     -450
     ],
     [
-     -252,
-     -267
+     230,
+     -422
     ],
     [
-     339,
-     -236
+     -251,
+     -407
     ],
     [
-     -176,
-     -207
+     199,
+     -369
     ],
     [
-     -196,
-     -204
+     -7,
+     -362
     ],
     [
-     343,
-     -180
+     369,
+     -334
     ],
     [
-     336,
-     -166
+     81,
+     -323
     ],
     [
-     -301,
-     -152
+     115,
+     -314
     ],
     [
-     404,
-     -100
+     182,
+     -308
     ],
     [
-     -233,
-     -90
+     117,
+     -209
     ],
     [
-     -448,
-     -55
+     451,
+     -178
     ],
     [
-     -474,
-     -44
+     -351,
+     -165
     ],
     [
-     492,
-     -38
+     -305,
+     -165
     ],
     [
-     -294,
-     -25
+     -354,
+     -164
     ],
     [
-     165,
-     54
+     -78,
+     -138
     ],
     [
-     513,
-     108
+     -447,
+     -45
     ],
     [
-     520,
-     122
+     -54,
+     15
     ],
     [
-     -302,
-     188
+     515,
+     127
     ],
     [
-     8,
-     202
+     305,
+     185
     ],
     [
-     -190,
-     330
+     222,
+     226
     ],
     [
-     -166,
-     334
-    ],
-    [
-     246,
-     358
-    ],
-    [
-     -184,
-     418
-    ],
-    [
-     355,
-     -191
-    ],
-    [
-     -274,
-     -168
-    ],
-    [
-     -293,
-     -22
-    ],
-    [
-     217,
-     22
+     97,
+     420
     ],
     [
      -206,
-     421
+     426
     ],
     [
-     -33,
-     438
+     -77,
+     427
     ],
     [
-     0,
-     467
+     -232,
+     442
     ]
    ],
-   "ref": "docs/art_reference/obj/woodpile_0.png",
+   "ref": "docs/art_reference/obj/crates_1.png",
    "painted": false,
-   "score": 60,
+   "score": 61,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/woodpile_0.png"
+   "guide": "docs/art_reference/guides/objects/crates_1.png"
   },
   {
    "id": "parrot_0",
@@ -10120,8 +9828,8 @@
      239
     ],
     [
-     -294,
-     201
+     -281,
+     210
     ]
    ],
    "frames_have": 2,
@@ -10260,8 +9968,8 @@
      239
     ],
     [
-     -294,
-     201
+     -281,
+     210
     ]
    ],
    "frames_have": 2,
@@ -10273,6 +9981,148 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/parrot_1.png"
+  },
+  {
+   "id": "woodpile_0",
+   "group": "objects",
+   "label": "woodpile",
+   "kind": "woodpile",
+   "variant": 0,
+   "hero": false,
+   "w": 7.5,
+   "count": 31,
+   "places": [
+    [
+     344,
+     -298
+    ],
+    [
+     -244,
+     -274
+    ],
+    [
+     -252,
+     -267
+    ],
+    [
+     339,
+     -236
+    ],
+    [
+     -176,
+     -207
+    ],
+    [
+     -196,
+     -204
+    ],
+    [
+     343,
+     -180
+    ],
+    [
+     336,
+     -166
+    ],
+    [
+     -301,
+     -152
+    ],
+    [
+     404,
+     -100
+    ],
+    [
+     -233,
+     -90
+    ],
+    [
+     -448,
+     -55
+    ],
+    [
+     -474,
+     -44
+    ],
+    [
+     492,
+     -38
+    ],
+    [
+     -294,
+     -25
+    ],
+    [
+     165,
+     54
+    ],
+    [
+     513,
+     108
+    ],
+    [
+     520,
+     122
+    ],
+    [
+     -302,
+     188
+    ],
+    [
+     8,
+     202
+    ],
+    [
+     -190,
+     330
+    ],
+    [
+     -166,
+     334
+    ],
+    [
+     246,
+     358
+    ],
+    [
+     -184,
+     418
+    ],
+    [
+     355,
+     -191
+    ],
+    [
+     -274,
+     -168
+    ],
+    [
+     -283,
+     -131
+    ],
+    [
+     -293,
+     -22
+    ],
+    [
+     -206,
+     421
+    ],
+    [
+     -33,
+     438
+    ],
+    [
+     0,
+     467
+    ]
+   ],
+   "ref": "docs/art_reference/obj/woodpile_0.png",
+   "painted": false,
+   "score": 59,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/woodpile_0.png"
   },
   {
    "id": "tree_0",
@@ -10513,120 +10363,6 @@
    "guide": "docs/art_reference/guides/objects/tree_0.png"
   },
   {
-   "id": "crates_2",
-   "group": "objects",
-   "label": "crates",
-   "kind": "crates",
-   "variant": 2,
-   "hero": false,
-   "w": 5.5,
-   "count": 24,
-   "places": [
-    [
-     222,
-     -369
-    ],
-    [
-     108,
-     -350
-    ],
-    [
-     255,
-     -336
-    ],
-    [
-     198,
-     -320
-    ],
-    [
-     337,
-     -276
-    ],
-    [
-     -68,
-     -267
-    ],
-    [
-     10,
-     -267
-    ],
-    [
-     338,
-     -245
-    ],
-    [
-     354,
-     -222
-    ],
-    [
-     172,
-     -209
-    ],
-    [
-     -2,
-     -135
-    ],
-    [
-     104,
-     -135
-    ],
-    [
-     -364,
-     -115
-    ],
-    [
-     397,
-     -78
-    ],
-    [
-     -63,
-     -63
-    ],
-    [
-     191,
-     14
-    ],
-    [
-     230,
-     34
-    ],
-    [
-     29,
-     79
-    ],
-    [
-     209,
-     125
-    ],
-    [
-     -186,
-     421
-    ],
-    [
-     93,
-     426
-    ],
-    [
-     -56,
-     433
-    ],
-    [
-     -33,
-     433
-    ],
-    [
-     174,
-     437
-    ]
-   ],
-   "ref": "docs/art_reference/obj/crates_2.png",
-   "painted": false,
-   "score": 56.4,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/crates_2.png"
-  },
-  {
    "id": "tree_1",
    "group": "objects",
    "label": "tree",
@@ -10819,12 +10555,8 @@
    "kind": "crab",
    "hero": false,
    "w": 2.5,
-   "count": 27,
+   "count": 25,
    "places": [
-    [
-     -255,
-     -463
-    ],
     [
      -420,
      104
@@ -10912,10 +10644,6 @@
     [
      545,
      -128
-    ],
-    [
-     -32,
-     486
     ],
     [
      113,
@@ -10935,7 +10663,7 @@
    "fps": 8,
    "ref": "docs/art_reference/life/crab_0.png",
    "painted": false,
-   "score": 53.7,
+   "score": 47.7,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/crab_0.png"
@@ -10947,12 +10675,8 @@
    "kind": "crab",
    "hero": false,
    "w": 2.5,
-   "count": 27,
+   "count": 25,
    "places": [
-    [
-     -255,
-     -463
-    ],
     [
      -420,
      104
@@ -11042,10 +10766,6 @@
      -128
     ],
     [
-     -32,
-     486
-    ],
-    [
      113,
      404
     ],
@@ -11063,7 +10783,7 @@
    "fps": 8,
    "ref": "docs/art_reference/life/crab_1.png",
    "painted": false,
-   "score": 53.7,
+   "score": 47.7,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/crab_1.png"
@@ -11076,7 +10796,7 @@
    "variant": 1,
    "hero": false,
    "w": 9.0,
-   "count": 24,
+   "count": 21,
    "places": [
     [
      -87,
@@ -11123,10 +10843,6 @@
      -165
     ],
     [
-     240,
-     -136
-    ],
-    [
      162,
      -134
     ],
@@ -11135,16 +10851,8 @@
      -131
     ],
     [
-     -395,
-     -119
-    ],
-    [
      -341,
      -99
-    ],
-    [
-     -282,
-     -33
     ],
     [
      -267,
@@ -11177,7 +10885,7 @@
    ],
    "ref": "docs/art_reference/obj/barrels_1.png",
    "painted": false,
-   "score": 53,
+   "score": 47,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/barrels_1.png"
@@ -11251,102 +10959,94 @@
    "guide": "docs/art_reference/guides/life/rowboat_moored_0.png"
   },
   {
-   "id": "barrel_1",
+   "id": "crates_2",
    "group": "objects",
-   "label": "barrel",
-   "kind": "barrel",
-   "variant": 1,
+   "label": "crates",
+   "kind": "crates",
+   "variant": 2,
    "hero": false,
    "w": 5.5,
-   "count": 20,
+   "count": 18,
    "places": [
     [
-     106,
-     -376
+     222,
+     -369
     ],
     [
-     325,
-     -296
+     108,
+     -350
     ],
     [
-     -1,
-     -288
-    ],
-    [
-     22,
-     -288
-    ],
-    [
-     184,
-     -135
-    ],
-    [
-     473,
-     -127
-    ],
-    [
-     203,
-     -60
-    ],
-    [
-     -386,
-     -40
-    ],
-    [
-     -267,
-     -15
-    ],
-    [
-     566,
-     9
-    ],
-    [
-     215,
-     24
-    ],
-    [
-     115,
-     34
-    ],
-    [
-     157,
-     34
-    ],
-    [
-     67,
-     69
-    ],
-    [
-     -295,
-     75
+     255,
+     -336
     ],
     [
      198,
-     115
+     -320
     ],
     [
-     -284,
-     206
+     338,
+     -245
     ],
     [
-     -195,
-     345
+     354,
+     -222
     ],
     [
-     -213,
-     350
+     -2,
+     -135
     ],
     [
-     -53,
-     479
+     104,
+     -135
+    ],
+    [
+     -364,
+     -115
+    ],
+    [
+     397,
+     -78
+    ],
+    [
+     230,
+     34
+    ],
+    [
+     29,
+     79
+    ],
+    [
+     209,
+     125
+    ],
+    [
+     -186,
+     421
+    ],
+    [
+     93,
+     426
+    ],
+    [
+     -56,
+     433
+    ],
+    [
+     -33,
+     433
+    ],
+    [
+     174,
+     437
     ]
    ],
-   "ref": "docs/art_reference/obj/barrel_1.png",
+   "ref": "docs/art_reference/obj/crates_2.png",
    "painted": false,
-   "score": 43,
+   "score": 39.4,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/barrel_1.png"
+   "guide": "docs/art_reference/guides/objects/crates_2.png"
   },
   {
    "id": "water_butt_0",
@@ -11356,7 +11056,7 @@
    "variant": 0,
    "hero": false,
    "w": 5.5,
-   "count": 22,
+   "count": 20,
    "places": [
     [
      332,
@@ -11419,16 +11119,8 @@
      -45
     ],
     [
-     -282,
-     -30
-    ],
-    [
      553,
      -1
-    ],
-    [
-     194,
-     110
     ],
     [
      -4,
@@ -11449,7 +11141,7 @@
    ],
    "ref": "docs/art_reference/obj/water_butt_0.png",
    "painted": false,
-   "score": 42,
+   "score": 38,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/water_butt_0.png"
@@ -11461,7 +11153,7 @@
    "kind": "crow",
    "hero": false,
    "w": 2.5,
-   "count": 15,
+   "count": 14,
    "places": [
     [
      60,
@@ -11470,14 +11162,6 @@
     [
      101,
      443
-    ],
-    [
-     -28,
-     314
-    ],
-    [
-     -7,
-     248
     ],
     [
      13,
@@ -11522,6 +11206,10 @@
     [
      22,
      244
+    ],
+    [
+     -84,
+     216
     ]
    ],
    "frames_have": 2,
@@ -11529,7 +11217,7 @@
    "fps": 6,
    "ref": "docs/art_reference/life/crow_0.png",
    "painted": false,
-   "score": 40.5,
+   "score": 36.0,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/crow_0.png"
@@ -11541,7 +11229,7 @@
    "kind": "crow",
    "hero": false,
    "w": 2.5,
-   "count": 15,
+   "count": 14,
    "places": [
     [
      60,
@@ -11550,14 +11238,6 @@
     [
      101,
      443
-    ],
-    [
-     -28,
-     314
-    ],
-    [
-     -7,
-     248
     ],
     [
      13,
@@ -11602,6 +11282,10 @@
     [
      22,
      244
+    ],
+    [
+     -84,
+     216
     ]
    ],
    "frames_have": 2,
@@ -11609,7 +11293,7 @@
    "fps": 6,
    "ref": "docs/art_reference/life/crow_1.png",
    "painted": false,
-   "score": 40.5,
+   "score": 36.0,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/crow_1.png"
@@ -11622,7 +11306,7 @@
    "variant": 1,
    "hero": false,
    "w": 6.5,
-   "count": 17,
+   "count": 15,
    "places": [
     [
      -183,
@@ -11639,14 +11323,6 @@
     [
      166,
      -289
-    ],
-    [
-     144,
-     -208
-    ],
-    [
-     455,
-     -163
     ],
     [
      343,
@@ -11695,334 +11371,10 @@
    ],
    "ref": "docs/art_reference/obj/sacks_1.png",
    "painted": false,
-   "score": 39.4,
+   "score": 34.4,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/sacks_1.png"
-  },
-  {
-   "id": "sacks_2",
-   "group": "objects",
-   "label": "sacks",
-   "kind": "sacks",
-   "variant": 2,
-   "hero": false,
-   "w": 6.5,
-   "count": 16,
-   "places": [
-    [
-     369,
-     -318
-    ],
-    [
-     66,
-     -315
-    ],
-    [
-     375,
-     -282
-    ],
-    [
-     5,
-     -209
-    ],
-    [
-     32,
-     -208
-    ],
-    [
-     398,
-     -201
-    ],
-    [
-     358,
-     -166
-    ],
-    [
-     -147,
-     -156
-    ],
-    [
-     -295,
-     -135
-    ],
-    [
-     -369,
-     -130
-    ],
-    [
-     -335,
-     -121
-    ],
-    [
-     -275,
-     -65
-    ],
-    [
-     188,
-     15
-    ],
-    [
-     2,
-     15
-    ],
-    [
-     166,
-     28
-    ],
-    [
-     -249,
-     334
-    ]
-   ],
-   "ref": "docs/art_reference/obj/sacks_2.png",
-   "painted": false,
-   "score": 39,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/sacks_2.png"
-  },
-  {
-   "id": "lamp_0",
-   "group": "objects",
-   "label": "lamp",
-   "kind": "lamp",
-   "variant": 0,
-   "hero": false,
-   "w": 4.0,
-   "count": 17,
-   "places": [
-    [
-     346,
-     -324
-    ],
-    [
-     382,
-     -324
-    ],
-    [
-     -300,
-     -60
-    ],
-    [
-     -362,
-     -60
-    ],
-    [
-     -300,
-     -10
-    ],
-    [
-     -362,
-     -10
-    ],
-    [
-     347,
-     -335
-    ],
-    [
-     381,
-     -249
-    ],
-    [
-     381,
-     -231
-    ],
-    [
-     8,
-     -136
-    ],
-    [
-     245,
-     -135
-    ],
-    [
-     198,
-     -59
-    ],
-    [
-     -367,
-     45
-    ],
-    [
-     296,
-     185
-    ],
-    [
-     -217,
-     349
-    ],
-    [
-     -255,
-     375
-    ],
-    [
-     247,
-     376
-    ]
-   ],
-   "ref": "docs/art_reference/obj/lamp_0.png",
-   "painted": false,
-   "score": 37,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/lamp_0.png"
-  },
-  {
-   "id": "barrels_2",
-   "group": "objects",
-   "label": "barrels",
-   "kind": "barrels",
-   "variant": 2,
-   "hero": false,
-   "w": 9.0,
-   "count": 16,
-   "places": [
-    [
-     -210,
-     -491
-    ],
-    [
-     -215,
-     -470
-    ],
-    [
-     298,
-     -443
-    ],
-    [
-     -249,
-     -411
-    ],
-    [
-     -16,
-     -382
-    ],
-    [
-     -14,
-     -365
-    ],
-    [
-     125,
-     -308
-    ],
-    [
-     234,
-     -291
-    ],
-    [
-     405,
-     -246
-    ],
-    [
-     -371,
-     -197
-    ],
-    [
-     -304,
-     -193
-    ],
-    [
-     -312,
-     -155
-    ],
-    [
-     -25,
-     -137
-    ],
-    [
-     -456,
-     -39
-    ],
-    [
-     -108,
-     15
-    ],
-    [
-     194,
-     107
-    ]
-   ],
-   "ref": "docs/art_reference/obj/barrels_2.png",
-   "painted": false,
-   "score": 36,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/barrels_2.png"
-  },
-  {
-   "id": "bench_1",
-   "group": "objects",
-   "label": "bench",
-   "kind": "bench",
-   "variant": 1,
-   "hero": false,
-   "w": 6.5,
-   "count": 14,
-   "places": [
-    [
-     180,
-     -209
-    ],
-    [
-     190,
-     -209
-    ],
-    [
-     354,
-     -161
-    ],
-    [
-     -30,
-     -138
-    ],
-    [
-     230,
-     -135
-    ],
-    [
-     460,
-     -127
-    ],
-    [
-     -335,
-     -61
-    ],
-    [
-     156,
-     -60
-    ],
-    [
-     118,
-     -11
-    ],
-    [
-     21,
-     15
-    ],
-    [
-     454,
-     39
-    ],
-    [
-     -347,
-     45
-    ],
-    [
-     57,
-     69
-    ],
-    [
-     204,
-     130
-    ]
-   ],
-   "ref": "docs/art_reference/obj/bench_1.png",
-   "painted": false,
-   "score": 35,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bench_1.png"
   },
   {
    "id": "signpost_0",
@@ -12111,78 +11463,288 @@
    "guide": "docs/art_reference/guides/objects/signpost_0.png"
   },
   {
-   "id": "bench_2",
+   "id": "lamp_0",
    "group": "objects",
-   "label": "bench",
-   "kind": "bench",
-   "variant": 2,
+   "label": "lamp",
+   "kind": "lamp",
+   "variant": 0,
    "hero": false,
-   "w": 6.5,
-   "count": 14,
+   "w": 4.0,
+   "count": 15,
    "places": [
     [
-     10,
-     -209
+     346,
+     -324
     ],
     [
-     -181,
-     -197
+     382,
+     -324
     ],
     [
-     16,
+     -300,
+     -60
+    ],
+    [
+     -362,
+     -60
+    ],
+    [
+     -300,
+     -10
+    ],
+    [
+     -362,
+     -10
+    ],
+    [
+     347,
+     -335
+    ],
+    [
+     381,
+     -249
+    ],
+    [
+     381,
+     -231
+    ],
+    [
+     8,
      -136
     ],
     [
-     -32,
-     -62
+     -367,
+     45
     ],
     [
-     185,
-     -59
+     296,
+     185
     ],
     [
-     -239,
-     -27
+     -217,
+     349
     ],
     [
-     -50,
-     14
+     -255,
+     375
     ],
     [
-     474,
-     39
+     247,
+     376
+    ]
+   ],
+   "ref": "docs/art_reference/obj/lamp_0.png",
+   "painted": false,
+   "score": 31,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/lamp_0.png"
+  },
+  {
+   "id": "barrels_2",
+   "group": "objects",
+   "label": "barrels",
+   "kind": "barrels",
+   "variant": 2,
+   "hero": false,
+   "w": 9.0,
+   "count": 13,
+   "places": [
+    [
+     -210,
+     -491
     ],
     [
-     -294,
-     53
+     -215,
+     -470
     ],
     [
-     -173,
-     330
+     298,
+     -443
     ],
     [
-     314,
-     330
+     -249,
+     -411
     ],
     [
-     -301,
-     402
+     -16,
+     -382
+    ],
+    [
+     -14,
+     -365
+    ],
+    [
+     125,
+     -308
+    ],
+    [
+     234,
+     -291
+    ],
+    [
+     405,
+     -246
+    ],
+    [
+     -371,
+     -197
     ],
     [
      -25,
-     442
+     -137
     ],
     [
-     -220,
-     442
+     -456,
+     -39
+    ],
+    [
+     -108,
+     15
     ]
    ],
-   "ref": "docs/art_reference/obj/bench_2.png",
+   "ref": "docs/art_reference/obj/barrels_2.png",
    "painted": false,
-   "score": 33,
+   "score": 31,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bench_2.png"
+   "guide": "docs/art_reference/guides/objects/barrels_2.png"
+  },
+  {
+   "id": "potted_palm_2",
+   "group": "objects",
+   "label": "potted palm",
+   "kind": "potted_palm",
+   "variant": 2,
+   "hero": false,
+   "w": 6.5,
+   "count": 12,
+   "places": [
+    [
+     267,
+     -390
+    ],
+    [
+     270,
+     -381
+    ],
+    [
+     295,
+     -339
+    ],
+    [
+     275,
+     -336
+    ],
+    [
+     266,
+     -315
+    ],
+    [
+     294,
+     -312
+    ],
+    [
+     -310,
+     -165
+    ],
+    [
+     -25,
+     -24
+    ],
+    [
+     -8,
+     -11
+    ],
+    [
+     195,
+     34
+    ],
+    [
+     99,
+     37
+    ],
+    [
+     60,
+     37
+    ]
+   ],
+   "ref": "docs/art_reference/obj/potted_palm_2.png",
+   "painted": false,
+   "score": 30,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/potted_palm_2.png"
+  },
+  {
+   "id": "sacks_2",
+   "group": "objects",
+   "label": "sacks",
+   "kind": "sacks",
+   "variant": 2,
+   "hero": false,
+   "w": 6.5,
+   "count": 13,
+   "places": [
+    [
+     369,
+     -318
+    ],
+    [
+     66,
+     -315
+    ],
+    [
+     375,
+     -282
+    ],
+    [
+     398,
+     -201
+    ],
+    [
+     358,
+     -166
+    ],
+    [
+     -147,
+     -156
+    ],
+    [
+     -295,
+     -135
+    ],
+    [
+     -369,
+     -130
+    ],
+    [
+     -335,
+     -121
+    ],
+    [
+     -275,
+     -65
+    ],
+    [
+     2,
+     15
+    ],
+    [
+     166,
+     28
+    ],
+    [
+     -249,
+     334
+    ]
+   ],
+   "ref": "docs/art_reference/obj/sacks_2.png",
+   "painted": false,
+   "score": 30,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/sacks_2.png"
   },
   {
    "id": "potted_palm_0",
@@ -12195,16 +11757,28 @@
    "count": 12,
    "places": [
     [
-     289,
-     -387
+     266,
+     -374
     ],
     [
-     274,
-     -308
+     262,
+     -332
     ],
     [
-     37,
-     -267
+     287,
+     -323
+    ],
+    [
+     279,
+     -306
+    ],
+    [
+     63,
+     -263
+    ],
+    [
+     258,
+     -158
     ],
     [
      404,
@@ -12215,24 +11789,12 @@
      -28
     ],
     [
-     -24,
-     -18
-    ],
-    [
-     269,
-     8
-    ],
-    [
-     274,
-     8
-    ],
-    [
      6,
      14
     ],
     [
-     279,
-     19
+     240,
+     37
     ],
     [
      228,
@@ -12245,212 +11807,88 @@
    ],
    "ref": "docs/art_reference/obj/potted_palm_0.png",
    "painted": false,
-   "score": 32,
+   "score": 29.4,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/potted_palm_0.png"
   },
   {
-   "id": "potted_palm_2",
+   "id": "barrel_1",
    "group": "objects",
-   "label": "potted palm",
-   "kind": "potted_palm",
-   "variant": 2,
+   "label": "barrel",
+   "kind": "barrel",
+   "variant": 1,
    "hero": false,
-   "w": 6.5,
-   "count": 11,
+   "w": 5.5,
+   "count": 15,
    "places": [
     [
-     264,
-     -394
+     106,
+     -376
     ],
     [
-     296,
-     -386
+     325,
+     -296
     ],
     [
-     295,
-     -363
+     184,
+     -135
     ],
     [
-     295,
-     -339
+     473,
+     -127
     ],
     [
-     275,
-     -336
+     -386,
+     -40
     ],
     [
-     293,
-     -331
+     -267,
+     -15
     ],
     [
-     280,
-     -324
+     566,
+     9
     ],
     [
-     -31,
-     -267
-    ],
-    [
-     28,
-     -257
-    ],
-    [
-     -310,
-     -165
-    ],
-    [
-     195,
-     34
-    ]
-   ],
-   "ref": "docs/art_reference/obj/potted_palm_2.png",
-   "painted": false,
-   "score": 30,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/potted_palm_2.png"
-  },
-  {
-   "id": "lamp_2",
-   "group": "objects",
-   "label": "lamp",
-   "kind": "lamp",
-   "variant": 2,
-   "hero": false,
-   "w": 4.0,
-   "count": 12,
-   "places": [
-    [
-     347,
-     -321
-    ],
-    [
-     383,
-     -321
-    ],
-    [
-     380,
-     -269
-    ],
-    [
-     -17,
-     -267
-    ],
-    [
-     103,
-     -208
-    ],
-    [
-     1,
-     -208
-    ],
-    [
-     -293,
-     -146
-    ],
-    [
-     -58,
-     -137
-    ],
-    [
-     -82,
-     15
-    ],
-    [
-     -78,
-     15
-    ],
-    [
-     203,
+     115,
      34
     ],
     [
-     -255,
-     349
+     157,
+     34
+    ],
+    [
+     67,
+     69
+    ],
+    [
+     -295,
+     75
+    ],
+    [
+     -284,
+     206
+    ],
+    [
+     -195,
+     345
+    ],
+    [
+     -213,
+     350
+    ],
+    [
+     -53,
+     479
     ]
    ],
-   "ref": "docs/art_reference/obj/lamp_2.png",
+   "ref": "docs/art_reference/obj/barrel_1.png",
    "painted": false,
    "score": 29,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/lamp_2.png"
-  },
-  {
-   "id": "barrel_2",
-   "group": "objects",
-   "label": "barrel",
-   "kind": "barrel",
-   "variant": 2,
-   "hero": false,
-   "w": 5.5,
-   "count": 14,
-   "places": [
-    [
-     214,
-     -371
-    ],
-    [
-     -15,
-     -328
-    ],
-    [
-     171,
-     -291
-    ],
-    [
-     -76,
-     -266
-    ],
-    [
-     333,
-     -191
-    ],
-    [
-     -287,
-     -150
-    ],
-    [
-     178,
-     -134
-    ],
-    [
-     -218,
-     -92
-    ],
-    [
-     -390,
-     -40
-    ],
-    [
-     125,
-     34
-    ],
-    [
-     -363,
-     84
-    ],
-    [
-     209,
-     118
-    ],
-    [
-     -217,
-     338
-    ],
-    [
-     170,
-     482
-    ]
-   ],
-   "ref": "docs/art_reference/obj/barrel_2.png",
-   "painted": false,
-   "score": 28.4,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/barrel_2.png"
+   "guide": "docs/art_reference/guides/objects/barrel_1.png"
   },
   {
    "id": "lantern_0",
@@ -12523,252 +11961,194 @@
    "guide": "docs/art_reference/guides/objects/lantern_0.png"
   },
   {
-   "id": "barrel_0",
+   "id": "barrel_2",
    "group": "objects",
    "label": "barrel",
    "kind": "barrel",
-   "variant": 0,
+   "variant": 2,
    "hero": false,
    "w": 5.5,
-   "count": 11,
+   "count": 13,
    "places": [
     [
-     -7,
-     -386
+     214,
+     -371
+    ],
+    [
+     -15,
+     -328
+    ],
+    [
+     171,
+     -291
     ],
     [
      333,
-     -251
+     -191
     ],
     [
-     334,
-     -222
+     -287,
+     -150
     ],
     [
-     409,
-     -138
-    ],
-    [
-     147,
-     -61
-    ],
-    [
-     143,
-     -10
-    ],
-    [
-     -271,
-     -10
-    ],
-    [
-     -139,
-     14
-    ],
-    [
-     11,
-     85
-    ],
-    [
-     -223,
-     334
-    ],
-    [
-     -245,
-     401
-    ]
-   ],
-   "ref": "docs/art_reference/obj/barrel_0.png",
-   "painted": false,
-   "score": 26,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/barrel_0.png"
-  },
-  {
-   "id": "jolly_roger_0",
-   "group": "life",
-   "label": "jolly roger \u2014 frame 1 of 2",
-   "kind": "jolly_roger",
-   "hero": false,
-   "w": 7.0,
-   "count": 10,
-   "places": [
-    [
-     -305,
-     -92
-    ],
-    [
-     -290,
-     -176
-    ],
-    [
-     -381,
-     -160
-    ],
-    [
-     -338,
-     -202
-    ],
-    [
-     -366,
-     64
-    ],
-    [
-     -254,
-     398
-    ],
-    [
-     -404,
-     310
-    ],
-    [
-     -530,
-     -30
-    ],
-    [
-     316,
-     306
-    ],
-    [
-     -228,
-     426
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 6,
-   "ref": "docs/art_reference/life/jolly_roger_0.png",
-   "painted": false,
-   "score": 25.5,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/jolly_roger_0.png"
-  },
-  {
-   "id": "jolly_roger_1",
-   "group": "life",
-   "label": "jolly roger \u2014 frame 2 of 2",
-   "kind": "jolly_roger",
-   "hero": false,
-   "w": 7.0,
-   "count": 10,
-   "places": [
-    [
-     -305,
-     -92
-    ],
-    [
-     -290,
-     -176
-    ],
-    [
-     -381,
-     -160
-    ],
-    [
-     -338,
-     -202
-    ],
-    [
-     -366,
-     64
-    ],
-    [
-     -254,
-     398
-    ],
-    [
-     -404,
-     310
-    ],
-    [
-     -530,
-     -30
-    ],
-    [
-     316,
-     306
-    ],
-    [
-     -228,
-     426
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 6,
-   "ref": "docs/art_reference/life/jolly_roger_1.png",
-   "painted": false,
-   "score": 25.5,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/jolly_roger_1.png"
-  },
-  {
-   "id": "sacks_0",
-   "group": "objects",
-   "label": "sacks",
-   "kind": "sacks",
-   "variant": 0,
-   "hero": false,
-   "w": 6.5,
-   "count": 12,
-   "places": [
-    [
-     230,
-     -395
-    ],
-    [
-     176,
-     -209
-    ],
-    [
-     -195,
-     -201
-    ],
-    [
-     -363,
-     -165
-    ],
-    [
-     12,
-     -136
-    ],
-    [
-     -317,
-     -135
-    ],
-    [
-     -92,
+     178,
      -134
     ],
     [
-     -119,
-     -133
+     -218,
+     -92
     ],
     [
-     -207,
-     -70
+     -390,
+     -40
     ],
     [
-     245,
+     125,
      34
     ],
     [
-     120,
-     34
+     -363,
+     84
     ],
     [
-     -209,
-     459
+     209,
+     118
+    ],
+    [
+     -217,
+     338
+    ],
+    [
+     170,
+     482
     ]
    ],
-   "ref": "docs/art_reference/obj/sacks_0.png",
+   "ref": "docs/art_reference/obj/barrel_2.png",
    "painted": false,
    "score": 25.4,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/sacks_0.png"
+   "guide": "docs/art_reference/guides/objects/barrel_2.png"
+  },
+  {
+   "id": "bench_2",
+   "group": "objects",
+   "label": "bench",
+   "kind": "bench",
+   "variant": 2,
+   "hero": false,
+   "w": 6.5,
+   "count": 11,
+   "places": [
+    [
+     -181,
+     -197
+    ],
+    [
+     16,
+     -136
+    ],
+    [
+     -32,
+     -62
+    ],
+    [
+     -239,
+     -27
+    ],
+    [
+     -50,
+     14
+    ],
+    [
+     474,
+     39
+    ],
+    [
+     -294,
+     53
+    ],
+    [
+     314,
+     330
+    ],
+    [
+     -301,
+     402
+    ],
+    [
+     -25,
+     442
+    ],
+    [
+     -220,
+     442
+    ]
+   ],
+   "ref": "docs/art_reference/obj/bench_2.png",
+   "painted": false,
+   "score": 25,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/bench_2.png"
+  },
+  {
+   "id": "potted_palm_1",
+   "group": "objects",
+   "label": "potted palm",
+   "kind": "potted_palm",
+   "variant": 1,
+   "hero": false,
+   "w": 6.5,
+   "count": 10,
+   "places": [
+    [
+     277,
+     -398
+    ],
+    [
+     284,
+     -388
+    ],
+    [
+     266,
+     -346
+    ],
+    [
+     112,
+     -209
+    ],
+    [
+     42,
+     -136
+    ],
+    [
+     -155,
+     -125
+    ],
+    [
+     -25,
+     -4
+    ],
+    [
+     72,
+     18
+    ],
+    [
+     -126,
+     38
+    ],
+    [
+     51,
+     38
+    ]
+   ],
+   "ref": "docs/art_reference/obj/potted_palm_1.png",
+   "painted": false,
+   "score": 24.4,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/potted_palm_1.png"
   },
   {
    "id": "notice_0",
@@ -12837,6 +12217,184 @@
    "guide": "docs/art_reference/guides/objects/notice_0.png"
   },
   {
+   "id": "barrel_0",
+   "group": "objects",
+   "label": "barrel",
+   "kind": "barrel",
+   "variant": 0,
+   "hero": false,
+   "w": 5.5,
+   "count": 10,
+   "places": [
+    [
+     -7,
+     -386
+    ],
+    [
+     333,
+     -251
+    ],
+    [
+     334,
+     -222
+    ],
+    [
+     409,
+     -138
+    ],
+    [
+     143,
+     -10
+    ],
+    [
+     -271,
+     -10
+    ],
+    [
+     -139,
+     14
+    ],
+    [
+     11,
+     85
+    ],
+    [
+     -223,
+     334
+    ],
+    [
+     -245,
+     401
+    ]
+   ],
+   "ref": "docs/art_reference/obj/barrel_0.png",
+   "painted": false,
+   "score": 23,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/barrel_0.png"
+  },
+  {
+   "id": "bench_1",
+   "group": "objects",
+   "label": "bench",
+   "kind": "bench",
+   "variant": 1,
+   "hero": false,
+   "w": 6.5,
+   "count": 10,
+   "places": [
+    [
+     354,
+     -161
+    ],
+    [
+     460,
+     -127
+    ],
+    [
+     -335,
+     -61
+    ],
+    [
+     156,
+     -60
+    ],
+    [
+     118,
+     -11
+    ],
+    [
+     21,
+     15
+    ],
+    [
+     454,
+     39
+    ],
+    [
+     -347,
+     45
+    ],
+    [
+     57,
+     69
+    ],
+    [
+     204,
+     130
+    ]
+   ],
+   "ref": "docs/art_reference/obj/bench_1.png",
+   "painted": false,
+   "score": 23,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/bench_1.png"
+  },
+  {
+   "id": "sacks_0",
+   "group": "objects",
+   "label": "sacks",
+   "kind": "sacks",
+   "variant": 0,
+   "hero": false,
+   "w": 6.5,
+   "count": 11,
+   "places": [
+    [
+     230,
+     -395
+    ],
+    [
+     -195,
+     -201
+    ],
+    [
+     -363,
+     -165
+    ],
+    [
+     12,
+     -136
+    ],
+    [
+     -317,
+     -135
+    ],
+    [
+     -92,
+     -134
+    ],
+    [
+     -119,
+     -133
+    ],
+    [
+     -207,
+     -70
+    ],
+    [
+     245,
+     34
+    ],
+    [
+     120,
+     34
+    ],
+    [
+     -209,
+     459
+    ]
+   ],
+   "ref": "docs/art_reference/obj/sacks_0.png",
+   "painted": false,
+   "score": 22.4,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/sacks_0.png"
+  },
+  {
    "id": "cart_0",
    "group": "objects",
    "label": "cart",
@@ -12903,121 +12461,13 @@
    "guide": "docs/art_reference/guides/objects/cart_0.png"
   },
   {
-   "id": "cargo_0",
-   "group": "objects",
-   "label": "cargo",
-   "kind": "cargo",
-   "variant": 0,
-   "hero": false,
-   "w": 5.5,
-   "count": 7,
-   "places": [
-    [
-     40,
-     -299
-    ],
-    [
-     118,
-     -296
-    ],
-    [
-     205,
-     -296
-    ],
-    [
-     230,
-     -392
-    ],
-    [
-     -64,
-     -340
-    ],
-    [
-     198,
-     -313
-    ],
-    [
-     -64,
-     -309
-    ]
-   ],
-   "ref": "docs/art_reference/obj/cargo_0.png",
-   "painted": false,
-   "score": 21,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cargo_0.png"
-  },
-  {
-   "id": "dead_tree_1",
-   "group": "objects",
-   "label": "dead tree",
-   "kind": "dead_tree",
-   "variant": 1,
-   "hero": false,
-   "w": 13.5,
-   "count": 11,
-   "places": [
-    [
-     -6,
-     204
-    ],
-    [
-     -41,
-     207
-    ],
-    [
-     -1,
-     235
-    ],
-    [
-     -45,
-     260
-    ],
-    [
-     -39,
-     265
-    ],
-    [
-     49,
-     267
-    ],
-    [
-     13,
-     278
-    ],
-    [
-     -42,
-     281
-    ],
-    [
-     -68,
-     298
-    ],
-    [
-     5,
-     299
-    ],
-    [
-     -27,
-     302
-    ]
-   ],
-   "ref": "docs/art_reference/obj/dead_tree_1.png",
-   "painted": false,
-   "score": 21,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/dead_tree_1.png"
-  },
-  {
    "id": "stall_0",
    "group": "objects",
    "label": "stall",
    "kind": "stall",
    "variant": 0,
    "hero": false,
-   "w": 8.5,
+   "w": 12.5,
    "count": 8,
    "places": [
     [
@@ -13061,230 +12511,266 @@
    "guide": "docs/art_reference/guides/objects/stall_0.png"
   },
   {
-   "id": "woodpile_2",
-   "group": "objects",
-   "label": "woodpile",
-   "kind": "woodpile",
-   "variant": 2,
-   "hero": false,
-   "w": 7.5,
-   "count": 12,
-   "places": [
-    [
-     -215,
-     -475
-    ],
-    [
-     -381,
-     -173
-    ],
-    [
-     338,
-     -171
-    ],
-    [
-     -399,
-     -132
-    ],
-    [
-     -277,
-     -125
-    ],
-    [
-     -230,
-     -92
-    ],
-    [
-     393,
-     -83
-    ],
-    [
-     -452,
-     -49
-    ],
-    [
-     -180,
-     325
-    ],
-    [
-     233,
-     372
-    ],
-    [
-     -115,
-     427
-    ],
-    [
-     -20,
-     472
-    ]
-   ],
-   "ref": "docs/art_reference/obj/woodpile_2.png",
-   "painted": false,
-   "score": 20,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/woodpile_2.png"
-  },
-  {
-   "id": "lamp_1",
+   "id": "lamp_2",
    "group": "objects",
    "label": "lamp",
    "kind": "lamp",
-   "variant": 1,
+   "variant": 2,
    "hero": false,
    "w": 4.0,
    "count": 9,
    "places": [
     [
-     -245,
-     -252
+     347,
+     -321
     ],
     [
-     423,
-     -234
+     383,
+     -321
     ],
     [
-     403,
-     -231
+     380,
+     -269
     ],
     [
-     24,
-     -209
+     -17,
+     -267
     ],
     [
-     100,
-     -135
+     -293,
+     -146
     ],
     [
-     148,
-     -11
+     -82,
+     15
     ],
     [
-     186,
+     -78,
+     15
+    ],
+    [
+     203,
      34
     ],
     [
-     163,
-     77
-    ],
-    [
-     -217,
-     375
+     -255,
+     349
     ]
    ],
-   "ref": "docs/art_reference/obj/lamp_1.png",
+   "ref": "docs/art_reference/obj/lamp_2.png",
    "painted": false,
    "score": 20,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/lamp_1.png"
+   "guide": "docs/art_reference/guides/objects/lamp_2.png"
   },
   {
-   "id": "flowerpot_1",
+   "id": "dead_tree_2",
    "group": "objects",
-   "label": "flowerpot",
-   "kind": "flowerpot",
-   "variant": 1,
+   "label": "dead tree",
+   "kind": "dead_tree",
+   "variant": 2,
    "hero": false,
-   "w": 4.0,
-   "count": 7,
+   "w": 17.5,
+   "count": 11,
    "places": [
     [
-     42,
-     -267
+     0,
+     189
     ],
     [
-     -191,
-     -197
+     -30,
+     206
     ],
     [
-     -142,
-     -156
+     -61,
+     212
     ],
     [
-     127,
-     -133
+     -53,
+     220
     ],
     [
-     -110,
-     -61
+     -66,
+     222
     ],
     [
-     -313,
-     82
+     -20,
+     236
     ],
     [
-     -191,
-     430
+     -16,
+     246
+    ],
+    [
+     -47,
+     266
+    ],
+    [
+     -43,
+     267
+    ],
+    [
+     43,
+     268
+    ],
+    [
+     35,
+     283
     ]
    ],
-   "ref": "docs/art_reference/obj/flowerpot_1.png",
+   "ref": "docs/art_reference/obj/dead_tree_2.png",
+   "painted": false,
+   "score": 20,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/dead_tree_2.png"
+  },
+  {
+   "id": "campfire_0",
+   "group": "life",
+   "label": "campfire \u2014 frame 1 of 2",
+   "kind": "campfire",
+   "hero": false,
+   "w": 4.0,
+   "count": 8,
+   "places": [
+    [
+     -352,
+     -198
+    ],
+    [
+     -380,
+     -144
+    ],
+    [
+     -373,
+     -115
+    ],
+    [
+     -322,
+     -201
+    ],
+    [
+     -2,
+     228
+    ],
+    [
+     -536,
+     -60
+    ],
+    [
+     -408,
+     332
+    ],
+    [
+     -102,
+     463
+    ]
+   ],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 10,
+   "ref": "docs/art_reference/life/campfire_0.png",
+   "painted": false,
+   "score": 19.5,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/campfire_0.png"
+  },
+  {
+   "id": "campfire_1",
+   "group": "life",
+   "label": "campfire \u2014 frame 2 of 2",
+   "kind": "campfire",
+   "hero": false,
+   "w": 4.0,
+   "count": 8,
+   "places": [
+    [
+     -352,
+     -198
+    ],
+    [
+     -380,
+     -144
+    ],
+    [
+     -373,
+     -115
+    ],
+    [
+     -322,
+     -201
+    ],
+    [
+     -2,
+     228
+    ],
+    [
+     -536,
+     -60
+    ],
+    [
+     -408,
+     332
+    ],
+    [
+     -102,
+     463
+    ]
+   ],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 10,
+   "ref": "docs/art_reference/life/campfire_1.png",
+   "painted": false,
+   "score": 19.5,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/campfire_1.png"
+  },
+  {
+   "id": "cargo_0",
+   "group": "objects",
+   "label": "cargo",
+   "kind": "cargo",
+   "variant": 0,
+   "hero": false,
+   "w": 5.5,
+   "count": 6,
+   "places": [
+    [
+     40,
+     -299
+    ],
+    [
+     118,
+     -296
+    ],
+    [
+     205,
+     -296
+    ],
+    [
+     230,
+     -392
+    ],
+    [
+     -64,
+     -340
+    ],
+    [
+     198,
+     -313
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cargo_0.png",
    "painted": false,
    "score": 18,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/flowerpot_1.png"
-  },
-  {
-   "id": "goat_0",
-   "group": "life",
-   "label": "goat \u2014 frame 1 of 1",
-   "kind": "goat",
-   "hero": false,
-   "w": 5.0,
-   "count": 10,
-   "places": [
-    [
-     111,
-     60
-    ],
-    [
-     85,
-     49
-    ],
-    [
-     109,
-     51
-    ],
-    [
-     105,
-     46
-    ],
-    [
-     99,
-     56
-    ],
-    [
-     325,
-     160
-    ],
-    [
-     314,
-     159
-    ],
-    [
-     322,
-     159
-    ],
-    [
-     67,
-     119
-    ],
-    [
-     81,
-     125
-    ]
-   ],
-   "frames_have": 1,
-   "frames_target": 4,
-   "fps": 4,
-   "ref": "docs/art_reference/life/goat_0.png",
-   "painted": false,
-   "score": 18.0,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/goat_0.png"
+   "guide": "docs/art_reference/guides/objects/cargo_0.png"
   },
   {
    "id": "turtle_0",
@@ -13335,116 +12821,262 @@
    "guide": "docs/art_reference/guides/life/turtle_0.png"
   },
   {
-   "id": "dead_tree_0",
+   "id": "woodpile_2",
    "group": "objects",
-   "label": "dead tree",
-   "kind": "dead_tree",
-   "variant": 0,
+   "label": "woodpile",
+   "kind": "woodpile",
+   "variant": 2,
    "hero": false,
-   "w": 13.5,
+   "w": 7.5,
    "count": 10,
    "places": [
     [
-     -31,
-     191
+     -215,
+     -475
     ],
     [
-     8,
-     232
+     -381,
+     -173
     ],
     [
-     23,
-     236
+     338,
+     -171
     ],
     [
-     -64,
-     246
+     -399,
+     -132
     ],
     [
-     -77,
-     271
+     -277,
+     -125
     ],
     [
-     -76,
-     285
+     393,
+     -83
     ],
     [
-     -51,
-     286
+     -452,
+     -49
     ],
     [
-     -4,
-     295
+     233,
+     372
     ],
     [
-     14,
-     316
+     -115,
+     427
     ],
     [
-     -11,
-     321
+     -20,
+     472
     ]
    ],
-   "ref": "docs/art_reference/obj/dead_tree_0.png",
+   "ref": "docs/art_reference/obj/woodpile_2.png",
    "painted": false,
    "score": 17,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/dead_tree_0.png"
+   "guide": "docs/art_reference/guides/objects/woodpile_2.png"
   },
   {
-   "id": "dead_tree_2",
+   "id": "lamp_1",
+   "group": "objects",
+   "label": "lamp",
+   "kind": "lamp",
+   "variant": 1,
+   "hero": false,
+   "w": 4.0,
+   "count": 8,
+   "places": [
+    [
+     -245,
+     -252
+    ],
+    [
+     423,
+     -234
+    ],
+    [
+     403,
+     -231
+    ],
+    [
+     100,
+     -135
+    ],
+    [
+     148,
+     -11
+    ],
+    [
+     186,
+     34
+    ],
+    [
+     163,
+     77
+    ],
+    [
+     -217,
+     375
+    ]
+   ],
+   "ref": "docs/art_reference/obj/lamp_1.png",
+   "painted": false,
+   "score": 17,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/lamp_1.png"
+  },
+  {
+   "id": "dead_tree_1",
    "group": "objects",
    "label": "dead tree",
    "kind": "dead_tree",
-   "variant": 2,
+   "variant": 1,
    "hero": false,
-   "w": 13.5,
+   "w": 17.5,
    "count": 9,
    "places": [
     [
-     -30,
-     206
+     22,
+     196
     ],
     [
-     -61,
-     212
+     -41,
+     207
     ],
     [
-     -66,
-     222
+     -45,
+     260
     ],
     [
-     -20,
-     236
+     -39,
+     265
     ],
     [
-     -16,
-     246
-    ],
-    [
-     -43,
+     49,
      267
     ],
     [
-     1,
-     279
+     13,
+     278
     ],
     [
-     35,
-     283
+     -42,
+     281
     ],
     [
-     14,
-     290
+     5,
+     299
+    ],
+    [
+     -27,
+     302
     ]
    ],
-   "ref": "docs/art_reference/obj/dead_tree_2.png",
+   "ref": "docs/art_reference/obj/dead_tree_1.png",
    "painted": false,
-   "score": 16,
+   "score": 17,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/dead_tree_2.png"
+   "guide": "docs/art_reference/guides/objects/dead_tree_1.png"
+  },
+  {
+   "id": "jolly_roger_0",
+   "group": "life",
+   "label": "jolly roger \u2014 frame 1 of 2",
+   "kind": "jolly_roger",
+   "hero": false,
+   "w": 7.0,
+   "count": 7,
+   "places": [
+    [
+     -381,
+     -160
+    ],
+    [
+     -338,
+     -202
+    ],
+    [
+     -393,
+     -115
+    ],
+    [
+     -366,
+     64
+    ],
+    [
+     -254,
+     398
+    ],
+    [
+     -404,
+     310
+    ],
+    [
+     -530,
+     -30
+    ]
+   ],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 6,
+   "ref": "docs/art_reference/life/jolly_roger_0.png",
+   "painted": false,
+   "score": 16.5,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/jolly_roger_0.png"
+  },
+  {
+   "id": "jolly_roger_1",
+   "group": "life",
+   "label": "jolly roger \u2014 frame 2 of 2",
+   "kind": "jolly_roger",
+   "hero": false,
+   "w": 7.0,
+   "count": 7,
+   "places": [
+    [
+     -381,
+     -160
+    ],
+    [
+     -338,
+     -202
+    ],
+    [
+     -393,
+     -115
+    ],
+    [
+     -366,
+     64
+    ],
+    [
+     -254,
+     398
+    ],
+    [
+     -404,
+     310
+    ],
+    [
+     -530,
+     -30
+    ]
+   ],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 6,
+   "ref": "docs/art_reference/life/jolly_roger_1.png",
+   "painted": false,
+   "score": 16.5,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/jolly_roger_1.png"
   },
   {
    "id": "water_butt_2",
@@ -13497,92 +13129,58 @@
    "guide": "docs/art_reference/guides/objects/water_butt_2.png"
   },
   {
-   "id": "campfire_0",
-   "group": "life",
-   "label": "campfire \u2014 frame 1 of 2",
-   "kind": "campfire",
+   "id": "dead_tree_0",
+   "group": "objects",
+   "label": "dead tree",
+   "kind": "dead_tree",
+   "variant": 0,
    "hero": false,
-   "w": 4.0,
-   "count": 6,
+   "w": 17.5,
+   "count": 9,
    "places": [
     [
-     -272,
-     -120
+     8,
+     232
     ],
     [
-     -380,
-     -144
+     23,
+     236
     ],
     [
-     -2,
-     228
+     27,
+     241
     ],
     [
-     -536,
-     -60
+     -64,
+     246
     ],
     [
-     -408,
-     332
+     -76,
+     285
     ],
     [
-     -102,
-     463
+     -51,
+     286
+    ],
+    [
+     -4,
+     295
+    ],
+    [
+     14,
+     316
+    ],
+    [
+     -11,
+     321
     ]
    ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 10,
-   "ref": "docs/art_reference/life/campfire_0.png",
+   "ref": "docs/art_reference/obj/dead_tree_0.png",
    "painted": false,
-   "score": 15.0,
+   "score": 15,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/campfire_0.png"
-  },
-  {
-   "id": "campfire_1",
-   "group": "life",
-   "label": "campfire \u2014 frame 2 of 2",
-   "kind": "campfire",
-   "hero": false,
-   "w": 4.0,
-   "count": 6,
-   "places": [
-    [
-     -272,
-     -120
-    ],
-    [
-     -380,
-     -144
-    ],
-    [
-     -2,
-     228
-    ],
-    [
-     -536,
-     -60
-    ],
-    [
-     -408,
-     332
-    ],
-    [
-     -102,
-     463
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 10,
-   "ref": "docs/art_reference/life/campfire_1.png",
-   "painted": false,
-   "score": 15.0,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/campfire_1.png"
+   "guide": "docs/art_reference/guides/objects/dead_tree_0.png"
   },
   {
    "id": "nets_0",
@@ -13629,52 +13227,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/nets_0.png"
-  },
-  {
-   "id": "flowerpot_2",
-   "group": "objects",
-   "label": "flowerpot",
-   "kind": "flowerpot",
-   "variant": 2,
-   "hero": false,
-   "w": 4.0,
-   "count": 7,
-   "places": [
-    [
-     354,
-     -312
-    ],
-    [
-     -31,
-     -209
-    ],
-    [
-     -359,
-     -165
-    ],
-    [
-     -63,
-     -138
-    ],
-    [
-     -86,
-     -61
-    ],
-    [
-     256,
-     34
-    ],
-    [
-     -299,
-     81
-    ]
-   ],
-   "ref": "docs/art_reference/obj/flowerpot_2.png",
-   "painted": false,
-   "score": 14.4,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/flowerpot_2.png"
   },
   {
    "id": "cannon_0",
@@ -13787,7 +13339,7 @@
    "kind": "stall",
    "variant": 1,
    "hero": false,
-   "w": 8.5,
+   "w": 12.5,
    "count": 6,
    "places": [
     [
@@ -13823,46 +13375,94 @@
    "guide": "docs/art_reference/guides/objects/stall_1.png"
   },
   {
-   "id": "woodpile_1",
+   "id": "flowerpot_1",
    "group": "objects",
-   "label": "woodpile",
-   "kind": "woodpile",
+   "label": "flowerpot",
+   "kind": "flowerpot",
    "variant": 1,
    "hero": false,
-   "w": 7.5,
-   "count": 6,
+   "w": 4.0,
+   "count": 5,
    "places": [
     [
-     337,
-     -296
+     -191,
+     -197
     ],
     [
-     482,
-     -154
+     -142,
+     -156
     ],
     [
-     -230,
-     -89
+     127,
+     -133
     ],
     [
-     -189,
-     -82
+     -313,
+     82
     ],
     [
-     -189,
-     -75
-    ],
-    [
-     -133,
-     354
+     -191,
+     430
     ]
    ],
-   "ref": "docs/art_reference/obj/woodpile_1.png",
+   "ref": "docs/art_reference/obj/flowerpot_1.png",
    "painted": false,
-   "score": 11,
+   "score": 12,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/woodpile_1.png"
+   "guide": "docs/art_reference/guides/objects/flowerpot_1.png"
+  },
+  {
+   "id": "goat_0",
+   "group": "life",
+   "label": "goat \u2014 frame 1 of 1",
+   "kind": "goat",
+   "hero": false,
+   "w": 5.0,
+   "count": 8,
+   "places": [
+    [
+     85,
+     49
+    ],
+    [
+     109,
+     51
+    ],
+    [
+     105,
+     46
+    ],
+    [
+     99,
+     56
+    ],
+    [
+     95,
+     61
+    ],
+    [
+     157,
+     45
+    ],
+    [
+     329,
+     160
+    ],
+    [
+     326,
+     158
+    ]
+   ],
+   "frames_have": 1,
+   "frames_target": 4,
+   "fps": 4,
+   "ref": "docs/art_reference/life/goat_0.png",
+   "painted": false,
+   "score": 12.0,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/goat_0.png"
   },
   {
    "id": "chicken_0",
@@ -13871,35 +13471,31 @@
    "kind": "chicken",
    "hero": false,
    "w": 2.5,
-   "count": 7,
+   "count": 6,
    "places": [
     [
-     162,
-     49
+     81,
+     116
     ],
     [
-     326,
-     156
+     64,
+     122
     ],
     [
-     67,
-     125
+     77,
+     115
     ],
     [
-     72,
-     119
+     -126,
+     61
     ],
     [
-     -97,
-     51
+     -121,
+     53
     ],
     [
      -109,
-     78
-    ],
-    [
-     -106,
-     82
+     76
     ]
    ],
    "frames_have": 2,
@@ -13919,35 +13515,31 @@
    "kind": "chicken",
    "hero": false,
    "w": 2.5,
-   "count": 7,
+   "count": 6,
    "places": [
     [
-     162,
-     49
+     81,
+     116
     ],
     [
-     326,
-     156
+     64,
+     122
     ],
     [
-     67,
-     125
+     77,
+     115
     ],
     [
-     72,
-     119
+     -126,
+     61
     ],
     [
-     -97,
-     51
+     -121,
+     53
     ],
     [
      -109,
-     78
-    ],
-    [
-     -106,
-     82
+     76
     ]
    ],
    "frames_have": 2,
@@ -14117,6 +13709,46 @@
    "guide": "docs/art_reference/guides/objects/water_butt_1.png"
   },
   {
+   "id": "pig_0",
+   "group": "life",
+   "label": "pig \u2014 frame 1 of 1",
+   "kind": "pig",
+   "hero": false,
+   "w": 5.0,
+   "count": 5,
+   "places": [
+    [
+     158,
+     52
+    ],
+    [
+     152,
+     48
+    ],
+    [
+     329,
+     154
+    ],
+    [
+     317,
+     160
+    ],
+    [
+     76,
+     125
+    ]
+   ],
+   "frames_have": 1,
+   "frames_target": 4,
+   "fps": 4,
+   "ref": "docs/art_reference/life/pig_0.png",
+   "painted": false,
+   "score": 9.0,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/pig_0.png"
+  },
+  {
    "id": "home_cottage_18x16_3",
    "group": "buildings",
    "label": "Cottage",
@@ -14253,6 +13885,40 @@
    "guide": "docs/art_reference/guides/objects/well_0.png"
   },
   {
+   "id": "woodpile_1",
+   "group": "objects",
+   "label": "woodpile",
+   "kind": "woodpile",
+   "variant": 1,
+   "hero": false,
+   "w": 7.5,
+   "count": 4,
+   "places": [
+    [
+     482,
+     -154
+    ],
+    [
+     -189,
+     -82
+    ],
+    [
+     -189,
+     -75
+    ],
+    [
+     -133,
+     354
+    ]
+   ],
+   "ref": "docs/art_reference/obj/woodpile_1.png",
+   "painted": false,
+   "score": 8,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/woodpile_1.png"
+  },
+  {
    "id": "crane_0",
    "group": "objects",
    "label": "crane",
@@ -14312,43 +13978,9 @@
    "ref": "docs/art_reference/obj/ruin_wall_0.png",
    "painted": false,
    "score": 7,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/ruin_wall_0.png"
-  },
-  {
-   "id": "lean_to_2",
-   "group": "objects",
-   "label": "lean to",
-   "kind": "lean_to",
-   "variant": 2,
-   "hero": false,
-   "w": 10.5,
-   "count": 4,
-   "places": [
-    [
-     -286,
-     -100
-    ],
-    [
-     262,
-     196
-    ],
-    [
-     330,
-     202
-    ],
-    [
-     385,
-     224
-    ]
-   ],
-   "ref": "docs/art_reference/obj/lean_to_2.png",
-   "painted": false,
-   "score": 7,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/lean_to_2.png"
+   "guide": "docs/art_reference/guides/objects/ruin_wall_0.png"
   },
   {
    "id": "home_cottage_22x16_1",
@@ -14591,44 +14223,6 @@
    "guide": "docs/art_reference/guides/objects/chest_0.png"
   },
   {
-   "id": "tent_0",
-   "group": "objects",
-   "label": "tent",
-   "kind": "tent",
-   "variant": 0,
-   "hero": false,
-   "w": 9.5,
-   "count": 5,
-   "places": [
-    [
-     -112,
-     458
-    ],
-    [
-     -279,
-     -171
-    ],
-    [
-     -274,
-     -149
-    ],
-    [
-     -388,
-     -134
-    ],
-    [
-     -281,
-     -112
-    ]
-   ],
-   "ref": "docs/art_reference/obj/tent_0.png",
-   "painted": false,
-   "score": 6,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/tent_0.png"
-  },
-  {
    "id": "crane_2",
    "group": "objects",
    "label": "crane",
@@ -14655,60 +14249,42 @@
    "guide": "docs/art_reference/guides/objects/crane_2.png"
   },
   {
-   "id": "cargo_2",
+   "id": "tent_2",
    "group": "objects",
-   "label": "cargo",
-   "kind": "cargo",
+   "label": "tent",
+   "kind": "tent",
    "variant": 2,
    "hero": false,
-   "w": 5.5,
-   "count": 2,
+   "w": 9.5,
+   "count": 5,
    "places": [
     [
-     -82,
-     -441
+     -350,
+     -208
     ],
     [
-     -78,
-     -288
+     -363,
+     -200
+    ],
+    [
+     -297,
+     -196
+    ],
+    [
+     -378,
+     -120
+    ],
+    [
+     -338,
+     -105
     ]
    ],
-   "ref": "docs/art_reference/obj/cargo_2.png",
+   "ref": "docs/art_reference/obj/tent_2.png",
    "painted": false,
    "score": 6,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cargo_2.png"
-  },
-  {
-   "id": "canopy_1",
-   "group": "objects",
-   "label": "canopy",
-   "kind": "canopy",
-   "variant": 1,
-   "hero": false,
-   "w": 11.5,
-   "count": 3,
-   "places": [
-    [
-     393,
-     -250
-    ],
-    [
-     -320,
-     -60
-    ],
-    [
-     -238,
-     348
-    ]
-   ],
-   "ref": "docs/art_reference/obj/canopy_1.png",
-   "painted": false,
-   "score": 6,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/canopy_1.png"
+   "guide": "docs/art_reference/guides/objects/tent_2.png"
   },
   {
    "id": "beach_cannon_0",
@@ -14807,6 +14383,40 @@
    "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/nets_1.png"
+  },
+  {
+   "id": "flowerpot_2",
+   "group": "objects",
+   "label": "flowerpot",
+   "kind": "flowerpot",
+   "variant": 2,
+   "hero": false,
+   "w": 4.0,
+   "count": 4,
+   "places": [
+    [
+     354,
+     -312
+    ],
+    [
+     -359,
+     -165
+    ],
+    [
+     256,
+     34
+    ],
+    [
+     -299,
+     81
+    ]
+   ],
+   "ref": "docs/art_reference/obj/flowerpot_2.png",
+   "painted": false,
+   "score": 5.4,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/flowerpot_2.png"
   },
   {
    "id": "beached_rowboat_2",
@@ -14911,6 +14521,40 @@
    "guide": "docs/art_reference/guides/objects/pirate_grave_0.png"
   },
   {
+   "id": "tent_0",
+   "group": "objects",
+   "label": "tent",
+   "kind": "tent",
+   "variant": 0,
+   "hero": false,
+   "w": 9.5,
+   "count": 4,
+   "places": [
+    [
+     -112,
+     458
+    ],
+    [
+     -279,
+     -171
+    ],
+    [
+     -274,
+     -149
+    ],
+    [
+     -281,
+     -112
+    ]
+   ],
+   "ref": "docs/art_reference/obj/tent_0.png",
+   "painted": false,
+   "score": 5,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/tent_0.png"
+  },
+  {
    "id": "pilings_0",
    "group": "objects",
    "label": "pilings",
@@ -14939,94 +14583,6 @@
    "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/pilings_0.png"
-  },
-  {
-   "id": "flag_0",
-   "group": "life",
-   "label": "flag \u2014 frame 1 of 2",
-   "kind": "flag",
-   "hero": false,
-   "w": 7.0,
-   "count": 2,
-   "places": [
-    [
-     364,
-     -366
-    ],
-    [
-     562,
-     -8
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 6,
-   "ref": "docs/art_reference/life/flag_0.png",
-   "painted": false,
-   "score": 4.5,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/flag_0.png"
-  },
-  {
-   "id": "flag_1",
-   "group": "life",
-   "label": "flag \u2014 frame 2 of 2",
-   "kind": "flag",
-   "hero": false,
-   "w": 7.0,
-   "count": 2,
-   "places": [
-    [
-     364,
-     -366
-    ],
-    [
-     562,
-     -8
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 6,
-   "ref": "docs/art_reference/life/flag_1.png",
-   "painted": false,
-   "score": 4.5,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/flag_1.png"
-  },
-  {
-   "id": "pig_0",
-   "group": "life",
-   "label": "pig \u2014 frame 1 of 1",
-   "kind": "pig",
-   "hero": false,
-   "w": 5.0,
-   "count": 3,
-   "places": [
-    [
-     158,
-     52
-    ],
-    [
-     168,
-     48
-    ],
-    [
-     152,
-     52
-    ]
-   ],
-   "frames_have": 1,
-   "frames_target": 4,
-   "fps": 4,
-   "ref": "docs/art_reference/life/pig_0.png",
-   "painted": false,
-   "score": 4.5,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/pig_0.png"
   },
   {
    "id": "rowboat_0",
@@ -15061,36 +14617,6 @@
    "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/rowboat_0.png"
-  },
-  {
-   "id": "lean_to_0",
-   "group": "objects",
-   "label": "lean to",
-   "kind": "lean_to",
-   "variant": 0,
-   "hero": false,
-   "w": 10.5,
-   "count": 3,
-   "places": [
-    [
-     380,
-     178
-    ],
-    [
-     5,
-     229
-    ],
-    [
-     380,
-     234
-    ]
-   ],
-   "ref": "docs/art_reference/obj/lean_to_0.png",
-   "painted": false,
-   "score": 4.4,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/lean_to_0.png"
   },
   {
    "id": "home_gate_tower",
@@ -15387,34 +14913,30 @@
    "guide": "docs/art_reference/guides/objects/kiln_0.png"
   },
   {
-   "id": "tent_2",
+   "id": "lean_to_1",
    "group": "objects",
-   "label": "tent",
-   "kind": "tent",
-   "variant": 2,
+   "label": "lean to",
+   "kind": "lean_to",
+   "variant": 1,
    "hero": false,
-   "w": 9.5,
-   "count": 3,
+   "w": 10.5,
+   "count": 2,
    "places": [
     [
-     -350,
-     -208
+     250,
+     233
     ],
     [
-     -297,
-     -196
-    ],
-    [
-     -338,
-     -105
+     372,
+     254
     ]
    ],
-   "ref": "docs/art_reference/obj/tent_2.png",
+   "ref": "docs/art_reference/obj/lean_to_1.png",
    "painted": false,
    "score": 4,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/tent_2.png"
+   "guide": "docs/art_reference/guides/objects/lean_to_1.png"
   },
   {
    "id": "fishing_rack_0",
@@ -16435,6 +15957,28 @@
    "guide": "docs/art_reference/guides/objects/scarecrow_0.png"
   },
   {
+   "id": "cargo_2",
+   "group": "objects",
+   "label": "cargo",
+   "kind": "cargo",
+   "variant": 2,
+   "hero": false,
+   "w": 5.5,
+   "count": 1,
+   "places": [
+    [
+     -82,
+     -441
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cargo_2.png",
+   "painted": false,
+   "score": 3,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cargo_2.png"
+  },
+  {
    "id": "nets_2",
    "group": "objects",
    "label": "nets",
@@ -16479,30 +16023,56 @@
    "guide": "docs/art_reference/guides/objects/cargo_1.png"
   },
   {
-   "id": "lean_to_1",
+   "id": "tent_1",
+   "group": "objects",
+   "label": "tent",
+   "kind": "tent",
+   "variant": 1,
+   "hero": false,
+   "w": 9.5,
+   "count": 2,
+   "places": [
+    [
+     -296,
+     -127
+    ],
+    [
+     -387,
+     -119
+    ]
+   ],
+   "ref": "docs/art_reference/obj/tent_1.png",
+   "painted": false,
+   "score": 3,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/tent_1.png"
+  },
+  {
+   "id": "lean_to_2",
    "group": "objects",
    "label": "lean to",
    "kind": "lean_to",
-   "variant": 1,
+   "variant": 2,
    "hero": false,
    "w": 10.5,
    "count": 2,
    "places": [
     [
-     -128,
-     48
+     -290,
+     -100
     ],
     [
-     319,
-     196
+     388,
+     178
     ]
    ],
-   "ref": "docs/art_reference/obj/lean_to_1.png",
+   "ref": "docs/art_reference/obj/lean_to_2.png",
    "painted": false,
    "score": 2.4,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/lean_to_1.png"
+   "guide": "docs/art_reference/guides/objects/lean_to_2.png"
   },
   {
    "id": "bld_tortuga_counting_house",
@@ -17072,7 +16642,7 @@
    "ref": "docs/art_reference/buildings/bld_tortuga_old_landing_dock.png",
    "painted": false,
    "score": 2,
-   "priority": 3,
+   "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/buildings/bld_tortuga_old_landing_dock.png"
   },
@@ -18243,32 +17813,6 @@
    "guide": "docs/art_reference/guides/objects/board_rocher_row.png"
   },
   {
-   "id": "tent_1",
-   "group": "objects",
-   "label": "tent",
-   "kind": "tent",
-   "variant": 1,
-   "hero": false,
-   "w": 9.5,
-   "count": 2,
-   "places": [
-    [
-     -399,
-     -141
-    ],
-    [
-     -387,
-     -119
-    ]
-   ],
-   "ref": "docs/art_reference/obj/tent_1.png",
-   "painted": false,
-   "score": 2,
-   "priority": 3,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/tent_1.png"
-  },
-  {
    "id": "board_cayonne",
    "group": "objects",
    "label": "Name board: Cayonne",
@@ -18289,28 +17833,6 @@
    "priority": 3,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/board_cayonne.png"
-  },
-  {
-   "id": "canopy_0",
-   "group": "objects",
-   "label": "canopy",
-   "kind": "canopy",
-   "variant": 0,
-   "hero": false,
-   "w": 11.5,
-   "count": 1,
-   "places": [
-    [
-     -348,
-     -60
-    ]
-   ],
-   "ref": "docs/art_reference/obj/canopy_0.png",
-   "painted": false,
-   "score": 2,
-   "priority": 3,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/canopy_0.png"
   },
   {
    "id": "board_the_high_woods",
@@ -18699,28 +18221,6 @@
    "guide": "docs/art_reference/guides/objects/board_fort_de_rocher.png"
   },
   {
-   "id": "loot_crates_0",
-   "group": "objects",
-   "label": "loot crates",
-   "kind": "loot_crates",
-   "variant": 0,
-   "hero": false,
-   "w": 7.5,
-   "count": 1,
-   "places": [
-    [
-     -377,
-     -120
-    ]
-   ],
-   "ref": "docs/art_reference/obj/loot_crates_0.png",
-   "painted": false,
-   "score": 1,
-   "priority": 3,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/loot_crates_0.png"
-  },
-  {
    "id": "harbour_light_0",
    "group": "objects",
    "label": "harbour light",
@@ -18885,6 +18385,66 @@
    "priority": 3,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/skull_rock_0.png"
+  },
+  {
+   "id": "lean_to_0",
+   "group": "objects",
+   "label": "lean to",
+   "kind": "lean_to",
+   "variant": 0,
+   "hero": false,
+   "w": 10.5,
+   "count": 1,
+   "places": [
+    [
+     362,
+     178
+    ]
+   ],
+   "ref": "docs/art_reference/obj/lean_to_0.png",
+   "painted": false,
+   "score": 0.4,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/lean_to_0.png"
+  },
+  {
+   "id": "flag_0",
+   "group": "life",
+   "label": "flag \u2014 frame 1 of 2",
+   "kind": "flag",
+   "hero": false,
+   "w": 7.0,
+   "count": 0,
+   "places": [],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 6,
+   "ref": "docs/art_reference/life/flag_0.png",
+   "painted": false,
+   "score": 0.0,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/flag_0.png"
+  },
+  {
+   "id": "flag_1",
+   "group": "life",
+   "label": "flag \u2014 frame 2 of 2",
+   "kind": "flag",
+   "hero": false,
+   "w": 7.0,
+   "count": 0,
+   "places": [],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 6,
+   "ref": "docs/art_reference/life/flag_1.png",
+   "painted": false,
+   "score": 0.0,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/flag_1.png"
   }
  ],
  "variety": {
@@ -18935,10 +18495,6 @@
   "stall": {
    "have": 2,
    "target": 3
-  },
-  "canopy": {
-   "have": 2,
-   "target": 4
   },
   "cart": {
    "have": 1,
@@ -19023,18 +18579,6 @@
   {
    "id": "stall_2",
    "kind": "stall",
-   "group": "objects",
-   "status": "missing variant"
-  },
-  {
-   "id": "canopy_2",
-   "kind": "canopy",
-   "group": "objects",
-   "status": "missing variant"
-  },
-  {
-   "id": "canopy_3",
-   "kind": "canopy",
    "group": "objects",
    "status": "missing variant"
   },

@@ -34,11 +34,15 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
                                 [box(l + 6, t + 6, r - 6, b - 6) for _, l, r, t, b in P.PLAZAS if r - l > 14 and b - t > 14]))
     def put(k, x, y, gap=2.6):
         if k in SOLID_KINDS and corridor.contains(Point(x, y)): return False
+        if k not in ('rowboat_moored', 'fishing_boat', 'gull') and bl_near.contains(Point(x, y)): return False  # never on or behind a roof
         if free(x, y, gap):
             out.append((k, round(x, 1), round(y, 1))); taken.append(Point(x, y)); return True
         return False
 
     bl_all = unary_union(bldg_geoms + [box(l, t, r, b) for l, r, t, b in town_bldgs])
+    # the space each building's sprite covers: its footprint plus the roof rising above it
+    bl_near = prep(unary_union([box(g.bounds[0] - 0.8, g.bounds[1] - (g.bounds[3] - g.bounds[1]) * 0.9, g.bounds[2] + 0.8, g.bounds[3] + 1.0) for g in bldg_geoms] +
+                               [box(l - 0.8, t - (b - t) * 0.9, r + 0.8, b + 1.0) for l, r, t, b in town_bldgs]))
     st = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('street', [])])
     walkable = unary_union([st, ways]).difference(bl_all.buffer(0.8))
     walk_p = prep(walkable)
@@ -128,7 +132,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
 
     # 7. canopies: striped market awnings over the squares' stalls, lean-tos at farms and camps
     for k, x, y in list(out):
-        if k == 'stall' and rng.random() < 0.7: put('canopy', x + rng.uniform(-3, 3), y - 3.5, 3)
+        pass  # stalls carry their own awning now; no separate canopies
     for t_, g in zone_geoms:
         if t_ in ('fields', 'sugarcane', 'pen', 'paddock', 'allotment', 'orchard') and g.area > 400:
             e = g.exterior if g.geom_type == 'Polygon' else max(g.geoms, key=lambda q: q.area).exterior
@@ -197,6 +201,13 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
             if ip.contains(Point(x, y)):
                 k = rng.choice(['palm', 'palm', 'flowers', 'flowers', 'tall_grass', 'potted_palm', 'flowers'])
                 if put(k, x, y, 3.2 if k != 'palm' else 6): n -= 1
+
+    # 11. soften the town's edge: a broken band of palms, shrubs and flowers just outside it
+    edge = town_box.buffer(7).difference(town_box.buffer(1)).difference(ways.buffer(2)).intersection(coast.buffer(-3))
+    ep = prep(edge); l, t, r, b = edge.bounds
+    for _ in range(2500):
+        x, y = rng.uniform(l, r), rng.uniform(t, b)
+        if ep.contains(Point(x, y)): put(rng.choice(['palm', 'palm', 'tall_grass', 'flowers', 'flowers', 'potted_palm']), x, y, 5.5)
 
     # 9. a carved name board at each district label
     for x, y, text, size in P.LABELS:

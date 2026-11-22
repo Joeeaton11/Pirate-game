@@ -268,7 +268,7 @@ def roads(P):
 
 
 # ---------------------------------------------------------------- 05 walls, fences, hedges
-ALLEYS, DOORSTEPS, BRIDGE_SPANS = [], [], []
+ALLEYS, DOORSTEPS, BRIDGE_SPANS, PLOTS = [], [], [], []
 FACE = 4.5  # how tall a retaining wall face reads from above (units)
 
 
@@ -331,6 +331,36 @@ def stairs(d, T, pts, rng, height=FACE):
         d.line([xx + 1, Y - 0.8 * S, xx + 1, Y + H], fill=(186, 180, 166, 255))
 
 
+def road_stairs(d, T, pts, ang, w):
+    """Steps where a road climbs a terrace wall, laid square to the road (so they follow its angle),
+    with stone cheeks on both sides."""
+    ln = LineString(pts); m = ln.interpolate(0.5, normalized=True)
+    ux, uy = math.cos(ang), math.sin(ang)               # along the road
+    vx, vy = -uy, ux                                     # across the road
+    half = w / 2 + 0.3; n = 6
+    for k in range(n):
+        t0 = -FACE / 2 + k * FACE / n; t1 = t0 + FACE / n
+        q = [(m.x + ux * t0 + vx * half, m.y + uy * t0 + vy * half), (m.x + ux * t1 + vx * half, m.y + uy * t1 + vy * half),
+             (m.x + ux * t1 - vx * half, m.y + uy * t1 - vy * half), (m.x + ux * t0 - vx * half, m.y + uy * t0 - vy * half)]
+        d.polygon([T(*c) for c in q], fill=(196, 188, 172, 255) if k % 2 == 0 else (178, 170, 154, 255))
+        d.line([T(*q[0]), T(*q[3])], fill=(226, 220, 206, 255))
+        d.line([T(*q[1]), T(*q[2])], fill=(110, 102, 90, 255))
+    for sgn in (1, -1):                                  # cheek walls
+        a0 = (m.x - ux * FACE / 2 + vx * (half + 0.45) * sgn, m.y - uy * FACE / 2 + vy * (half + 0.45) * sgn)
+        a1 = (m.x + ux * FACE / 2 + vx * (half + 0.45) * sgn, m.y + uy * FACE / 2 + vy * (half + 0.45) * sgn)
+        d.line([T(*a0), T(*a1)], fill=(70, 64, 58, 255), width=int(0.9 * S) + 2)
+        d.line([T(*a0), T(*a1)], fill=(150, 144, 132, 255), width=int(0.9 * S) - 1)
+
+
+def plot_pad(d, T, l, t, r, b, rng):
+    """The beaten ground a building stands on: packed earth with a stone kerb, so on the ground
+    alone every path visibly leads to a plot."""
+    d.rectangle([*T(l - 0.4, t), *T(r + 0.4, b + 1.4)], fill=(150, 140, 100, 255), outline=(112, 104, 72, 255))
+    for _ in range(int((r - l) * (b - t) / 3)):
+        X, Y = T(rng.uniform(l - 0.3, r + 0.3), rng.uniform(t, b + 1.3))
+        d.point((X, Y), fill=rng.choice([(128, 118, 84, 255), (176, 162, 120, 255), (104, 140, 70, 255)]))
+
+
 def alley(d, T, l, r, t, b, rng):
     """A narrow passage between two houses: darker worn paving in shade, a gutter, and a few steps."""
     X0_, Y0_ = T(l, t); X1_, Y1_ = T(r, b)
@@ -358,12 +388,13 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
     im, T = new_layer(); d = ImageDraw.Draw(im); rng = random.Random(5)
     if terraces:
         for tw in terraces[0]: retaining(d, T, tw, rng)
-        for st in terraces[1]: stairs(d, T, st, rng)
+        for st, ang_, w_ in terraces[1]: road_stairs(d, T, st, ang_, w_)
     for l, r, t, b, gaps in town_walls:  # the town's terraces: wall face at the foot of the step, flights in the gaps
         yt = b - FACE
         xs = [l] + [v for g in sorted(gaps) for v in g] + [r]
         for a, c in zip(xs[0::2], xs[1::2]): retaining(d, T, [(a, yt), (c, yt)], rng)
         for g0, g1 in gaps: stairs(d, T, [(g0, yt), (g1, yt)], rng)
+    for l, t, r, b in PLOTS: plot_pad(d, T, l, t, r, b, rng)
     for l, r, t, b in ALLEYS: alley(d, T, l, r, t, b, rng)
     for x, y in DOORSTEPS: doorstep(d, T, x, y)
     def segs(g):
@@ -515,6 +546,23 @@ def town(rects):
         gp.fill(gp.mask([st.buffer(0.6)]), '#6e6458', 0.03)
         m = gp.mask([st]); gp.fill(m, '#a49a88', 0.03); cobble_pattern(gp, st, m, 1.6)
     if not sd.is_empty: gp.sand(sd)
+    # soften the town's hard rectangle: grass and verge creep over the outer cobbles in broken bays
+    if not st.is_empty:
+        l_, t_, r_, b_ = st.bounds
+        outer = _bx(l_, t_, r_, b_).difference(_bx(l_ + 6, t_ + 6, r_ - 6, b_ - 6)).intersection(st)
+        rng_ = random.Random(77); d_ = ImageDraw.Draw(im)
+        from shapely.prepared import prep as _prep
+        op_ = _prep(outer); _pts = []
+        while len(_pts) < 340:
+            side = rng_.randrange(4); u = rng_.random(); v = rng_.uniform(0, 5.5)
+            x, y = [(l_ + u * (r_ - l_), t_ + v), (l_ + u * (r_ - l_), b_ - v), (l_ + v, t_ + u * (b_ - t_)), (r_ - v, t_ + u * (b_ - t_))][side]
+            if op_.contains(Point(x, y)): _pts.append((x, y))
+        for x, y in _pts:
+            depth = min(x - l_, r_ - x, y - t_, b_ - y)
+            if depth > 5 or rng_.random() < depth / 5.5: continue
+            X, Y = T(x, y); rr = rng_.uniform(1.0, 2.6) * S
+            d_.ellipse([X - rr, Y - rr * 0.7, X + rr, Y + rr * 0.7], fill=rng_.choice([(120, 168, 80, 255), (134, 178, 94, 255), (110, 156, 72, 255)]))
+            for _ in range(4): d_.line([X + rng_.uniform(-rr, rr), Y, X + rng_.uniform(-rr, rr), Y - rng_.uniform(2, 5)], fill=(84, 140, 56, 255))
     wt = geom('water')
     if not wd.is_empty:
         deck(im, T, gp, wd, math.pi / 2, water=wt.buffer(0.5))

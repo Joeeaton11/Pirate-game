@@ -420,7 +420,16 @@ for tcx, tcy, trx, try_ in P.TERRACES:
             if piece.geom_type == 'LineString' and piece.length > 2: terrace_walls.append(list(piece.coords))
         st = seg.intersection(_road_cut)
         for piece in getattr(st, 'geoms', [st]):
-            if piece.geom_type == 'LineString' and piece.length > 1: terrace_stairs.append(list(piece.coords))
+            if piece.geom_type == 'LineString' and piece.length > 1:
+                # the flight runs along the road that climbs here, whatever angle it takes
+                mid = piece.interpolate(0.5, normalized=True); best = None
+                for n_, k_, w_, pts_ in P.ROADS:
+                    if k_ == 'secret': continue
+                    rl = LineString(pts_); dd = rl.distance(mid)
+                    if best is None or dd < best[0]:
+                        pr = rl.project(mid); a_ = rl.interpolate(max(0, pr - 1)); b_ = rl.interpolate(min(rl.length, pr + 1))
+                        best = (dd, math.atan2(b_.y - a_.y, b_.x - a_.x), w_)
+                terrace_stairs.append((list(piece.coords), best[1], best[2]))
 for tw in terrace_walls: burn(LineString(tw).buffer(1.2), 'terrace')
 extra_terraces = (terrace_walls, terrace_stairs)
 # set dressing: clutter, cargo, boats, animals, flowers and name boards (art only; bulky ones are solid)
@@ -431,6 +440,8 @@ for k_, x_, y_ in dress_props:
     if k_ in dressing.SOLID_KINDS: burn(Point(x_, y_).buffer(0.9), 'dress:' + k_)
 print('  dressing', len(dress_props))
 import life_sprites
+life_sprites.ROOFS[:] = [(b[3] - b[5] / 2 - 1, b[4] - b[6] / 2 - b[6] * 0.9, b[3] + b[5] / 2 + 1, b[4] + b[6] / 2 + 1.5) for b in P.BUILDINGS] + \
+                        [(l - 1, t - (b - t) * 0.9, r + 1, b + 1.5) for l, r, t, b in town_bldgs]
 print('  life', life_sprites.build(ROOT, P, dress_props, coast, beach, unary_union([box(l, t, r, b) for kk in ('wood', 'water') for l, r, t, b in town_rects.get(kk, [])] + [g for *_, g in dock_geoms]).buffer(4)))
 # the town core: houses, harbour water and retaining walls exactly as the Art town draws them
 # a town house blocks only where its walls stand: the lower part of its sprite, never the garden behind it
@@ -451,6 +462,7 @@ for _, row in _rows.items():
     row.sort()
     for (l1, r1, t1, b1), (l2, r2, t2, b2) in zip(row, row[1:]):
         if 1.5 <= l2 - r1 <= 7: art_layers.ALLEYS.append((r1, l2, max(t1, t2) + 2, min(b1, b2)))
+art_layers.PLOTS[:] = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2) for b in P.BUILDINGS if not town_box.contains(Point(b[3], b[4]))]
 art_layers.DOORSTEPS[:] = [(x, y + 0.6) for _, x, y in doors] + [(b[3], b[4] + b[6] / 2 + 0.4) for b in P.BUILDINGS if b[7] == 'S']
 # every path, lane, walk and square is walkable end to end: clear anything solid left on them
 # (except real buildings and water), so nothing invisible ever blocks the way

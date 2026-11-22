@@ -62,6 +62,9 @@ LIFE_PLACES = {}
 LIFE_KINDS = {}
 
 
+ROOFS = []
+
+
 def build(root, P, dress_props, coast, beach, no_foam=None):
     os.makedirs(f'{root}/{REL}', exist_ok=True)
     kinds = sorted({k for k, *_ in list(dress_props) + list(P.PROPS) if k in ANIM} | {'gull'})
@@ -86,6 +89,11 @@ def build(root, P, dress_props, coast, beach, no_foam=None):
         ts.append(f"  {k}: {{ frames: [{', '.join(reqs)}], {code}w: {im.size[0] / S:g}, h: {im.size[1] / S:g}, ax: {anc[0] / im.size[0]:.3f}, ay: {anc[1] / im.size[1]:.3f} }},")
     ts.append('};')
     crit = [(k, x, y) for k, x, y in list(dress_props) + list(P.PROPS) if k in ANIM]
+    # nothing that walks may stand where a roof is drawn (the life layer draws above the buildings)
+    from shapely.geometry import box as _b
+    from shapely.ops import unary_union as _u
+    roofs = _u([_b(*r) for r in ROOFS]) if ROOFS else None
+    crit = [c for c in crit if c[0] in ('rowboat_moored', 'fishing_boat', 'gull') or roofs is None or not roofs.contains(Point(c[1], c[2]))]
     # gulls: over every shore and the harbour, a few flocks
     rng = random.Random(5)
     ring = coast.exterior if coast.geom_type == 'Polygon' else max(coast.geoms, key=lambda g: g.area).exterior

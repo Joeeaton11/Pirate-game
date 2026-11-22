@@ -147,10 +147,20 @@ def prop(S, kind, seed):
         d.ellipse([1.0 * s, 1.8 * s, 2.8 * s, 3.8 * s], fill=(80, 56, 36, 255)); d.ellipse([3.4 * s, 1.8 * s, 5.2 * s, 3.8 * s], fill=(80, 56, 36, 255))
         return _outline(im), (3 * s, 3.8 * s)
     if kind in ('stall',):
-        im, d = _canvas(7 * s, 5 * s)
-        d.rectangle([0.6 * s, 2.6 * s, 6.4 * s, 4.6 * s], fill=WOOD)
-        for k in range(6): d.rectangle([k * 1.16 * s, 0.4 * s, (k + 1) * 1.16 * s - 1, 2.2 * s], fill=(176, 64, 52, 255) if k % 2 else (236, 222, 196, 255))
-        return _outline(im), (3.5 * s, 4.6 * s)
+        # a full market stall: striped awning on posts over a counter piled with goods, crates beside
+        im, d = _canvas(11 * s, 8 * s)
+        cols = rng.choice([((176, 64, 52), (236, 222, 196)), ((52, 110, 160), (236, 222, 196)), ((70, 140, 70), (236, 222, 196))])
+        for x in (1.0, 9.6): d.rectangle([x * s, 2.4 * s, (x + 0.45) * s, 7.6 * s], fill=WOOD_LO)
+        d.rectangle([1.4 * s, 4.6 * s, 9.6 * s, 7.4 * s], fill=WOOD); d.line([1.4 * s, 4.6 * s, 9.6 * s, 4.6 * s], fill=WOOD_HI)
+        goods = [(220, 160, 50), (200, 60, 50), (120, 170, 60), (240, 210, 120), (150, 90, 160)]
+        for k in range(7):
+            gx = (1.9 + k * 1.1) * s; c = rng.choice(goods)
+            d.ellipse([gx, 3.8 * s, gx + 0.9 * s, 4.7 * s], fill=c + (255,))
+        for k in range(9):
+            d.rectangle([(0.4 + k * 1.14) * s, 0.4 * s, (0.4 + (k + 1) * 1.14) * s - 1, 2.4 * s], fill=(cols[k % 2] + (255,)))
+            d.polygon([((0.4 + k * 1.14) * s, 2.4 * s), ((0.4 + (k + 1) * 1.14) * s - 1, 2.4 * s), ((0.97 + k * 1.14) * s, 3.0 * s)], fill=(cols[k % 2] + (255,)))
+        d.line([0.4 * s, 0.4 * s, 10.6 * s, 0.4 * s], fill=tuple(min(255, int(v * 1.2)) for v in cols[0]) + (255,))
+        return _outline(im), (5.5 * s, 7.6 * s)
     if kind in ('signpost', 'notice'):
         im, d = _canvas(4 * s, 5 * s)
         d.line([2 * s, 5 * s, 2 * s, 0.6 * s], fill=WOOD_LO, width=max(1, s // 2))
@@ -409,8 +419,8 @@ def critter(S, kind, seed):
         return _outline(im), (1.5 * s, 1.9 * s)
     if kind == 'shells':
         im, d = _canvas(3 * s, 1.4 * s)
-        for _ in range(3):
-            x = rng.uniform(0.2, 2.4) * s; d.ellipse([x, 0.3 * s, x + 0.6 * s, 0.9 * s], fill=rng.choice([(246, 222, 210, 255), (238, 176, 150, 255)]))
+        for _ in range(4):
+            x = rng.uniform(0.2, 2.2) * s; d.ellipse([x, 0.2 * s, x + 0.9 * s, 1.0 * s], fill=rng.choice([(246, 222, 210, 255), (238, 176, 150, 255)]))
         return im, (1.5 * s, 1.2 * s)
     if kind in ('rowboat_moored', 'beached_rowboat'):
         im, d = _canvas(8 * s, 4 * s)
@@ -466,15 +476,31 @@ def critter(S, kind, seed):
         d.rectangle([1.8 * s, 0.6 * s, 3.6 * s, 1.2 * s], fill=(236, 200, 80, 255)); d.point([(2.2 * s, 0.4 * s), (3 * s, 0.5 * s)], fill=(255, 240, 160, 255))
         return _outline(im), (3 * s, 4.6 * s - 1)
     if kind == 'dead_tree':
-        im, d = _canvas(12 * s, 14 * s)
-        c = (96, 84, 76, 255)
-        d.line([6 * s, 14 * s, 6 * s, 5 * s], fill=c, width=max(4, int(s * 1.4)))
-        def br(x, y, a, L, w):
-            if L < 1.2: return
+        # a gnarled, leafless swamp tree: flared roots, a twisting trunk, a few thick spreading limbs
+        # that fork into twigs, hanging grey moss, so it reads as a tree (not a post) at play size
+        im, d = _canvas(16 * s, 16 * s)
+        bark, hi, lo = (104, 90, 78, 255), (140, 124, 108, 255), (64, 54, 48, 255)
+        cx, base = 8 * s, 15.6 * s
+        d.polygon([(cx - 2.2 * s, base), (cx - 0.9 * s, base - 1.6 * s), (cx - 0.7 * s, base - 7 * s), (cx + 0.7 * s, base - 7.4 * s),
+                   (cx + 1.0 * s, base - 1.6 * s), (cx + 2.4 * s, base)], fill=bark)
+        d.line([cx - 0.5 * s, base - 1 * s, cx - 0.4 * s, base - 7 * s], fill=hi, width=max(1, s // 3))
+        tips = []
+        def br(x, y, a, L, w, depth):
             x2, y2 = x + math.cos(a) * L * s, y - math.sin(a) * L * s
-            d.line([x, y, x2, y2], fill=c, width=max(1, w)); br(x2, y2, a + rng.uniform(0.3, 0.7), L * 0.65, w - 1); br(x2, y2, a - rng.uniform(0.3, 0.7), L * 0.6, w - 1)
-        br(6 * s, 5.5 * s, math.pi / 2, 4.6, max(3, s // 2 + 2))
-        return _outline(im, (30, 24, 22, 255)), (6 * s, 14 * s - 1)
+            d.line([x, y, x2, y2], fill=bark, width=max(1, int(w)))
+            if w > 2: d.line([x - 1, y, x2 - 1, y2], fill=hi, width=1)
+            if depth == 0: tips.append((x2, y2)); return
+            for da in (rng.uniform(0.35, 0.7), -rng.uniform(0.35, 0.7)):
+                br(x2, y2, a + da, L * rng.uniform(0.55, 0.7), w * 0.6, depth - 1)
+        top = base - 7 * s
+        for a0 in (math.radians(150), math.radians(105), math.radians(70), math.radians(30)):
+            br(cx, top, a0 + rng.uniform(-0.15, 0.15), rng.uniform(3.2, 4.4), max(2, s * 0.9), 2)
+        for x, y in tips:  # twig flicks and hanging moss
+            d.line([x, y, x + rng.uniform(-3, 3), y - rng.uniform(2, 5)], fill=lo, width=1)
+            if rng.random() < 0.45:
+                L = rng.uniform(4, 10); d.line([x, y, x + rng.uniform(-1, 1), y + L], fill=(150, 160, 140, 255), width=max(1, s // 3))
+        im = _outline(im, (30, 24, 22, 255)); d = ImageDraw.Draw(im)
+        return im, (cx, base)
     if kind == 'fog':
         im, d = _canvas(16 * s, 6 * s)
         for _ in range(6):
