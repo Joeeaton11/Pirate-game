@@ -774,7 +774,9 @@ os.makedirs(f'{ROOT}/docs/art_reference', exist_ok=True)
 _full.convert('RGB').resize((_full.size[0] // 2, _full.size[1] // 2), _Im.NEAREST).save(f'{ROOT}/docs/art_reference/ground_reference.png')
 # a painted ground (one image of the whole island, same framing) replaces the code-drawn one when present
 _painted = f'{ROOT}/assets/art_painted/ground.png'
+_code_full = None
 if os.path.exists(_painted):
+    _code_full = _full
     _full = _Im.open(_painted).convert('RGBA').resize(_full.size, _Im.LANCZOS); print('  using painted ground', _painted)
 _TW, _TH = _full.size[0] // 4, _full.size[1] // 4
 _tdir = f'{ROOT}/assets/sprites/tortuga_town/plan_tiles'; os.makedirs(_tdir, exist_ok=True)
@@ -787,6 +789,16 @@ for _r in range(4):
         if not _t.getbbox(): continue
         _t.save(f'{_tdir}/tile_{_r}_{_c}.png', optimize=True)
         _tl.append(f"  {{ src: require('../../assets/sprites/tortuga_town/plan_tiles/tile_{_r}_{_c}.png'), l: {-620 + _c * _TW / _ppu:g}, t: {-580 + _r * _TH / _ppu:g}, w: {_TW / _ppu:g}, h: {_TH / _ppu:g} }},")
+_tl.append('];')
+# the code-drawn ground, kept for the painted/code switch when a painted ground is in use
+_tl.append('/** The code-drawn ground, only when a painted ground has replaced it (for the painted/code switch). */')
+_tl.append('export const ART_TILES_CODE: { src: number; l: number; t: number; w: number; h: number }[] = [')
+for _r in range(4):
+    for _c in range(4):
+        if _code_full is None: break
+        _t = _code_full.crop((_c * _TW, _r * _TH, (_c + 1) * _TW, (_r + 1) * _TH))
+        _t.save(f'{_tdir}/code_tile_{_r}_{_c}.png', optimize=True)
+        _tl.append(f"  {{ src: require('../../assets/sprites/tortuga_town/plan_tiles/code_tile_{_r}_{_c}.png'), l: {-620 + _c * _TW / _ppu:g}, t: {-580 + _r * _TH / _ppu:g}, w: {_TW / _ppu:g}, h: {_TH / _ppu:g} }},")
 _tl.append('];')
 # building shadows as a second, mostly empty tile set drawn over the ground
 _sh = _Im.open('/tmp/plan_art_shadow.png')
@@ -801,3 +813,5 @@ for _r in range(4):
 _tl.append('];')
 open(f'{ROOT}/src/blueprint/tortugaArtTiles.generated.ts', 'w').write('\n'.join(_tl) + '\n')
 print('art base written')
+import art_spec
+art_spec.build(ROOT, P, coast, beach, zone_geoms, water, town_rects, town_box, ways, dock_geoms, bridges, breakwater, art_slots, art_layers, life_sprites)

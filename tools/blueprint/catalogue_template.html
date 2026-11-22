@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scallywag Isles — Tortuga art catalogue</title>
+<style>
+  :root { --bg:#f6f1e4; --card:#fffdf7; --ink:#2b2118; --mute:#7a6a58; --line:#e3d8c2; --gold:#c9a227; --red:#b4523a; --green:#5f8a4a; --blue:#3f6f8f; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { position:sticky; top:0; z-index:5; background:#2b2118; color:#f6f1e4; padding:14px 16px 12px; }
+  h1 { margin:0 0 6px; font-size:19px; letter-spacing:.2px; }
+  .bar { height:10px; background:#4a3b2c; border-radius:6px; overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--gold); }
+  .prog { font-size:13px; color:#e6dcc6; margin-top:5px; }
+  .filters { display:flex; flex-wrap:wrap; gap:6px; padding:10px 16px; background:#efe6d2; border-bottom:1px solid var(--line); position:sticky; top:84px; z-index:4; }
+  .filters select, .filters input { font:inherit; font-size:14px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink); }
+  .filters input { flex:1; min-width:140px; }
+  main { padding:14px 16px 60px; max-width:1200px; margin:0 auto; }
+  section h2 { font-size:16px; margin:18px 0 8px; }
+  .note { color:var(--mute); font-size:13px; margin:0 0 10px; }
+  .ground { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
+  .ground img { width:100%; border-radius:8px; display:block; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:10px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; cursor:pointer; display:flex; flex-direction:column; }
+  .card .pic { background:#f0e9d8; height:150px; display:flex; align-items:center; justify-content:center; }
+  .card .pic img { max-width:100%; max-height:150px; image-rendering:pixelated; }
+  .card .body { padding:8px 10px 10px; }
+  .card .id { font-family:ui-monospace, Menlo, monospace; font-size:12px; color:var(--mute); word-break:break-all; }
+  .card .lbl { font-weight:600; margin:2px 0 6px; text-transform:capitalize; }
+  .badges { display:flex; flex-wrap:wrap; gap:4px; }
+  .b { font-size:11px; padding:2px 7px; border-radius:20px; background:#efe6d2; color:var(--ink); }
+  .b.p1 { background:var(--red); color:#fff; } .b.p2 { background:var(--gold); color:#2b2118; } .b.p3 { background:#cfc3a8; }
+  .b.hero { background:var(--blue); color:#fff; } .b.done { background:var(--green); color:#fff; }
+  .meta { font-size:12px; color:var(--mute); margin-top:6px; }
+  svg.map { width:100%; max-height:150px; display:block; margin-top:6px; background:#dfeef0; border-radius:6px; }
+  .sheet svg.map { max-height:none; }
+  .detail { position:fixed; inset:0; background:rgba(30,22,14,.6); display:none; align-items:flex-end; justify-content:center; z-index:10; }
+  .detail.on { display:flex; }
+  .sheet { background:var(--card); width:100%; max-width:720px; max-height:92vh; overflow:auto; border-radius:16px 16px 0 0; padding:16px; }
+  .sheet img { width:100%; image-rendering:pixelated; border-radius:8px; background:#f0e9d8; }
+  .sheet code { font-size:12px; background:#efe6d2; padding:2px 5px; border-radius:5px; word-break:break-all; }
+  .sheet .close { float:right; font-size:15px; border:0; background:#efe6d2; border-radius:8px; padding:6px 10px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; background:var(--card); border-radius:10px; overflow:hidden; }
+  td, th { border-bottom:1px solid var(--line); padding:6px 8px; text-align:left; }
+  .miss { display:flex; flex-wrap:wrap; gap:6px; }
+  .miss span { font-family:ui-monospace, Menlo, monospace; font-size:12px; border:1px dashed var(--red); color:var(--red); padding:3px 7px; border-radius:7px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tortuga — art catalogue</h1>
+  <div class="bar"><i style="width:calc(__DONE__ / __TOTAL__ * 100%)"></i></div>
+  <div class="prog"><b>__DONE__ of __TOTAL__</b> assets painted · one painting per asset, never a sheet</div>
+</header>
+<div class="filters">
+  <input id="q" placeholder="Search name or id…">
+  <select id="g"><option value="">All groups</option><option value="buildings">Buildings</option><option value="objects">Objects</option><option value="life">Moving life</option></select>
+  <select id="p"><option value="">All priorities</option><option value="1">Priority 1</option><option value="2">Priority 2</option><option value="3">Priority 3</option></select>
+  <select id="s"><option value="">Any status</option><option value="code placeholder">To paint</option><option value="painted">Painted</option></select>
+  <select id="h"><option value="">Hero and kit</option><option value="hero">Hero only</option><option value="kit">Kit only</option></select>
+</div>
+<main>
+  <section>
+    <h2>The ground — one image</h2>
+    <p class="note">Paint the whole island ground as one picture: no buildings, trees or props. Send the reference together with the colour-key map below, so the coastline, roads and docks stay exactly where they are. Files: <code>docs/art_reference/ground_reference.png</code>, <code>ground_layout_key.png</code> and <code>ground_layout_lines.png</code>.</p>
+    <div class="ground"><img src="img/ground_key.jpg" alt="Ground colour-key map with legend"></div>
+  </section>
+  <section>
+    <h2>Variety</h2>
+    <p class="note">How many looks each kind has now, against how many it should have so repeats aren't obvious. The dashed ids are the missing looks to add.</p>
+    <table id="var"><tr><th>Kind</th><th>Now</th><th>Target</th></tr></table>
+    <div class="miss" id="miss" style="margin-top:8px"></div>
+  </section>
+  <section>
+    <h2 id="count">Assets</h2>
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+<div class="detail" id="detail"><div class="sheet" id="sheet"></div></div>
+<script>
+const DATA = __DATA__;
+const OUTLINE = "__OUTLINE__";
+const VARIETY = __VARIETY__;
+const MISSING = __MISSING__;
+const $ = (id) => document.getElementById(id);
+function map(pl) {
+  const dots = pl.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3" fill="#b4523a"/>`).join('');
+  return `<svg class="map" viewBox="0 0 310 280"><path d="${OUTLINE}" fill="#86b25e" stroke="#5f7a40" stroke-width="1"/>${dots}</svg>`;
+}
+function badges(a) {
+  return `<span class="b p${a.p}">Priority ${a.p}</span>` + (a.h ? '<span class="b hero">Hero</span>' : '<span class="b">Kit</span>') +
+    (a.s === 'painted' ? '<span class="b done">Painted</span>' : '<span class="b">To paint</span>');
+}
+function render() {
+  const q = $('q').value.toLowerCase(), g = $('g').value, p = $('p').value, s = $('s').value, h = $('h').value;
+  const list = DATA.filter((a) => a.g !== 'ground' && (!g || a.g === g) && (!p || String(a.p) === p) && (!s || a.s === s) &&
+    (!h || (h === 'hero') === a.h) && (!q || a.id.toLowerCase().includes(q) || a.l.toLowerCase().includes(q)));
+  $('count').textContent = `Assets (${list.length})`;
+  $('grid').innerHTML = list.map((a) => `<div class="card" data-id="${a.id}">
+    <div class="pic">${a.t ? `<img loading="lazy" src="${a.t}" alt="">` : ''}</div>
+    <div class="body"><div class="id">${a.id}</div><div class="lbl">${a.l}</div><div class="badges">${badges(a)}</div>
+    <div class="meta">${a.w} units wide · ${a.c} on the map${a.win ? ` · ${a.win} windows lit at night` : ''}${a.fr ? ` · frames ${a.fr} → ${a.ft} at ${a.fps} fps` : ''}</div>
+    ${a.pl.length ? map(a.pl) : ''}</div></div>`).join('');
+}
+function open(id) {
+  const a = DATA.find((x) => x.id === id); if (!a) return;
+  $('sheet').innerHTML = `<button class="close" onclick="document.getElementById('detail').classList.remove('on')">Close</button>
+    <h2 style="margin:0 0 4px;text-transform:capitalize">${a.l}</h2><div class="badges" style="margin-bottom:10px">${badges(a)}</div>
+    ${a.t ? `<img src="${a.t}" alt="">` : ''}
+    <p><b>Asset id:</b> <code>${a.id}</code><br><b>Size:</b> ${a.w} units wide (the player is 8.5 tall) · <b>Copies:</b> ${a.c}
+    ${a.win ? `<br><b>Night:</b> ${a.win} windows glow` : ''}${a.fr ? `<br><b>Animation:</b> ${a.fr} frames now, ${a.ft} wanted at ${a.fps} fps` : ''}</p>
+    <p><b>Send with the generation:</b> <code>${a.ref}</code> plus <code>docs/style/target_style.png</code><br>
+    <b>Guide (scale, ground dot, sun):</b> <code>${a.r}</code><br>
+    <b>Save the painting as:</b> <code>assets/art_painted/${a.g === 'buildings' ? 'buildings' : a.g === 'objects' ? 'obj' : 'life'}/${a.id}.png</code></p>
+    ${a.pl.length ? map(a.pl) : ''}`;
+  $('detail').classList.add('on');
+}
+$('grid').addEventListener('click', (e) => { const c = e.target.closest('.card'); if (c) open(c.dataset.id); });
+$('detail').addEventListener('click', (e) => { if (e.target.id === 'detail') $('detail').classList.remove('on'); });
+['q', 'g', 'p', 's', 'h'].forEach((id) => $(id).addEventListener('input', render));
+$('var').innerHTML += Object.entries(VARIETY).map(([k, v]) => `<tr><td>${k}</td><td>${v.have}</td><td>${v.target}</td></tr>`).join('');
+$('miss').innerHTML = MISSING.map((m) => `<span>${m.id}</span>`).join('');
+render();
+</script>
+</body>
+</html>

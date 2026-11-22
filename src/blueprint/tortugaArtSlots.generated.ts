@@ -3,7 +3,7 @@
 import type { ImageSourcePropType } from 'react-native';
 
 /** Asset id -> image and its height/width ratio. Assets without an image are not drawn yet. */
-export const ART_ASSETS: Record<string, { src: ImageSourcePropType; aspect: number }> = {
+export const ART_ASSETS: Record<string, { src: ImageSourcePropType; aspect: number; code?: ImageSourcePropType; codeAspect?: number }> = {
   bld_tortuga_almshouse: { src: require('../../assets/sprites/plan_art/bld_tortuga_almshouse.png'), aspect: 1.188 },
   bld_tortuga_apothecary: { src: require('../../assets/sprites/plan_art/bld_tortuga_apothecary.png'), aspect: 1.107 },
   bld_tortuga_boatbuilder: { src: require('../../assets/sprites/plan_art/bld_tortuga_boatbuilder.png'), aspect: 0.623 },

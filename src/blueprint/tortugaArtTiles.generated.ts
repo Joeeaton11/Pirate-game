@@ -17,6 +17,9 @@ export const ART_TILES: { src: number; l: number; t: number; w: number; h: numbe
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/tile_3_2.png'), l: 0, t: 260, w: 310, h: 280 },
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/tile_3_3.png'), l: 310, t: 260, w: 310, h: 280 },
 ];
+/** The code-drawn ground, only when a painted ground has replaced it (for the painted/code switch). */
+export const ART_TILES_CODE: { src: number; l: number; t: number; w: number; h: number }[] = [
+];
 /** Building cast shadows, drawn over the ground (kept apart so a painted ground needs none). */
 export const ART_SHADOW_TILES: { src: number; l: number; t: number; w: number; h: number }[] = [
   { src: require('../../assets/sprites/tortuga_town/plan_tiles/shadow_0_1.png'), l: -310, t: -580, w: 310, h: 280 },

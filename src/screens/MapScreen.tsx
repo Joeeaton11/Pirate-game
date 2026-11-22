@@ -58,6 +58,7 @@ import { BP_DOORS, BP_LAMPS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.gen
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
 import { ArtSprites } from '../blueprint/ArtSprites';
 import { ArtLife } from '../blueprint/ArtLife';
+import { ArtInspector } from '../blueprint/ArtInspector';
 import { ART_WINDOWS } from '../blueprint/tortugaArtSlots.generated';
 import { ArtTiles } from '../blueprint/ArtTiles';
 import { autoTarget, JournalPanel, TrackerArrow, TrackTarget, targetDone } from '../town/Journal';
@@ -957,6 +958,9 @@ export default function MapScreen({ navigation }: Props) {
   const [overview, setOverview] = useState(false);
   // Ship's journal and the guidance arrow (null = follow the nearest errand automatically).
   const [showJournal, setShowJournal] = useState(false);
+  const [showInspector, setShowInspector] = useState(
+    () => typeof window !== 'undefined' && typeof window.location !== 'undefined' && /[?&]inspect=1/.test(window.location.search ?? '')
+  );
   const [tracked, setTracked] = useState<TrackTarget | null>(null);
   const dugSpots = useGameStore((s) => s.dugSpots);
   const seenClues = useGameStore((s) => s.seenClues);
@@ -4271,6 +4275,22 @@ export default function MapScreen({ navigation }: Props) {
           >
             <Text style={styles.planToggleText}>📖 Journal</Text>
           </Pressable>
+        )}
+        {!editMode && !planMode && SHOW_TORTUGA_V2 && (
+          <Pressable
+            style={[styles.planToggle, { top: 220 }]}
+            onPress={() => {
+              directionRef.current = null;
+              setShowJournal(false);
+              setShowInspector((v) => !v);
+            }}
+            hitSlop={6}
+          >
+            <Text style={styles.planToggleText}>🔍 Art</Text>
+          </Pressable>
+        )}
+        {showInspector && !planMode && !showJournal && (
+          <ArtInspector origin={ISLANDS.tortuga_cove.position} player={player} onClose={() => setShowInspector(false)} />
         )}
         {showJournal && (
           <JournalPanel

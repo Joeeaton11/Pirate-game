@@ -2,7 +2,7 @@
 // Tortuga as its own sprite. One image per look in assets/sprites/plan_art/obj; swap a file to restyle every copy.
 import type { ImageSourcePropType } from 'react-native';
 
-export const OBJ_ASSETS: Record<string, { src: ImageSourcePropType; aspect: number }> = {
+export const OBJ_ASSETS: Record<string, { src: ImageSourcePropType; aspect: number; code?: ImageSourcePropType; codeAspect?: number }> = {
   anchor_0: { src: require('../../assets/sprites/plan_art/obj/anchor_0.png'), aspect: 1.091 },
   barrel_0: { src: require('../../assets/sprites/plan_art/obj/barrel_0.png'), aspect: 0.909 },
   barrel_1: { src: require('../../assets/sprites/plan_art/obj/barrel_1.png'), aspect: 0.909 },

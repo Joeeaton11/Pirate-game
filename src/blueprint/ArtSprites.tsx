@@ -7,6 +7,7 @@ import React from 'react';
 import { Image } from 'react-native';
 import { ART_ASSETS, ART_SLOTS } from './tortugaArtSlots.generated';
 import { OBJ_ASSETS, OBJ_SLOTS } from './artObjects.generated';
+import { useArtShowsCode } from './artLook';
 
 const MARGIN_X = 420;
 const MARGIN_Y = 520;
@@ -35,6 +36,7 @@ export const ArtSprites = React.memo(function ArtSprites({
    *  drawn again above the player so walking behind a building or tower hides them. */
   occludeFor?: { x: number; y: number };
 }) {
+  const code = useArtShowsCode();
   return (
     <>
       {SLOTS.map(([aid, x, y, w, isObj], i) => {
@@ -44,7 +46,8 @@ export const ArtSprites = React.memo(function ArtSprites({
         const wy = origin.y + y;
         if (isObj && all && !/^(jungle|tree|palm|mangrove|rock|dead_tree)_/.test(aid)) return null; // the overview shows trees, not every barrel
         if (!all && (Math.abs(wx - cam.x) > (isObj ? OBJ_MARGIN_X : MARGIN_X) || Math.abs(wy - cam.y) > (isObj ? OBJ_MARGIN_Y : MARGIN_Y))) return null;
-        const h = w * a.aspect;
+        const useCode = code && !!a.code;
+        const h = w * (useCode ? a.codeAspect ?? a.aspect : a.aspect);
         if (occludeFor) {
           const p = occludeFor;
           if (!(wy > p.y + 0.5 && wy - h < p.y + 4 && Math.abs(p.x - wx) < w / 2 + 2)) return null;
@@ -52,7 +55,7 @@ export const ArtSprites = React.memo(function ArtSprites({
         return (
           <Image
             key={i}
-            source={a.src}
+            source={useCode ? a.code : a.src}
             resizeMode="stretch"
             style={{ position: 'absolute', left: wx - w / 2, top: wy - h, width: w, height: h, opacity: occludeFor ? 0.72 : 1 }}
           />

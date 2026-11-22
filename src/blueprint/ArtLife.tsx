@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Image, View } from 'react-native';
 import { LIFE_CRITTERS, LIFE_SHORE, LIFE_SPARKLES, LIFE_SPRITES } from './artLife.generated';
 import { ART_CHIMNEYS } from './tortugaArtSlots.generated';
+import { useArtShowsCode } from './artLook';
 
 const MX = 300;
 const MY = 420;
@@ -29,6 +30,7 @@ export const ArtLife = React.memo(function ArtLife({
   player?: { x: number; y: number };
 }) {
   const [t, setT] = useState(0);
+  const showCode = useArtShowsCode();
   useEffect(() => {
     const start = Date.now();
     const id = setInterval(() => setT((Date.now() - start) / 1000), TICK_MS);
@@ -142,7 +144,8 @@ export const ArtLife = React.memo(function ArtLife({
         }
       }
     }
-    const src = sp.frames[Math.min(frame, sp.frames.length - 1)];
+    const frames = showCode && sp.code && sp.code.length === sp.frames.length ? sp.code : sp.frames;
+    const src = frames[Math.min(frame, frames.length - 1)];
     const transform: any[] = [];
     if (flip) transform.push({ scaleX: -1 });
     if (rot) transform.push({ rotate: `${rot}deg` });

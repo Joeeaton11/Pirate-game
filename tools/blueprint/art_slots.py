@@ -67,12 +67,15 @@ def painted_over(root, aid, out):
     p = f'{root}/assets/art_painted/buildings/{aid}.png'
     os.makedirs(f'{root}/docs/art_reference/buildings', exist_ok=True)
     shutil.copy(out, f'{root}/docs/art_reference/buildings/{aid}.png')
-    if os.path.exists(p): shutil.copy(p, out)
+    if os.path.exists(p):
+        shutil.copy(out, out.replace('.png', '__code.png'))  # kept for the painted/code switch
+        shutil.copy(p, out); PAINTED.add(aid)
+    elif os.path.exists(out.replace('.png', '__code.png')): os.remove(out.replace('.png', '__code.png'))
 
 
 def build(root, P, trees, town_box, town=None):
-    global WINDOWS, CHIMNEYS, TOWN_BOXES
-    WINDOWS, CHIMNEYS, TOWN_BOXES = [], [], []
+    global WINDOWS, CHIMNEYS, TOWN_BOXES, PAINTED, PLACES, FEATS
+    WINDOWS, CHIMNEYS, TOWN_BOXES, PAINTED, PLACES, FEATS = [], [], [], set(), {}, {}
     global ROOT
     ROOT = root
     from shapely.geometry import Point
@@ -102,6 +105,7 @@ def build(root, P, trees, town_box, town=None):
         rel = f'plan_art/{aid}.png'
         sw = houses.render(sp, f'{root}/{SPR}/{rel}')
         _w, _c = houses.features(cx, cy + h / 2 + 1.2)
+        PLACES.setdefault(aid, []).append((cx, cy + h / 2 + 1.2)); FEATS[aid] = ([(round(x - cx, 1), round(y - cy - h / 2 - 1.2, 1)) for x, y in _w], [(round(x - cx, 1), round(y - cy - h / 2 - 1.2, 1)) for x, y in _c])
         painted_over(root, aid, f'{root}/{SPR}/{rel}')
         asset(aid, rel, 'building' if bid else 'home', f'{label} — {kind}, footprint {w:g}×{h:g}, door {side or "none"} (pixel art drawn in code)', sw)
         slots.append((aid, cx, cy + h / 2 + 1.2, round(sw, 2)))
@@ -126,6 +130,7 @@ def build(root, P, trees, town_box, town=None):
             rel = f'plan_art/{aid}.png'
             sw = houses.render(sp, f'{root}/{SPR}/{rel}')
             _w, _c = houses.features((l + r) / 2, b + 1.2)
+            PLACES.setdefault(aid, []).append(((l + r) / 2, b + 1.2)); FEATS[aid] = ([(round(x - (l + r) / 2, 1), round(y - b - 1.2, 1)) for x, y in _w], [(round(x - (l + r) / 2, 1), round(y - b - 1.2, 1)) for x, y in _c])
             painted_over(root, aid, f'{root}/{SPR}/{rel}')
             asset(aid, rel, 'building', f'Basse-Terre {bid or "house"} — {kind}, footprint {w:g}×{h:g}', sw)
             slots.append((aid, (l + r) / 2, b + 1.2, round(sw, 2)))
@@ -151,11 +156,15 @@ def build(root, P, trees, town_box, town=None):
           '// To swap in new art: change STANDINS in art_slots.py (or replace the file) and rebuild. Never hand-edit.',
           "import type { ImageSourcePropType } from 'react-native';", '',
           '/** Asset id -> image and its height/width ratio. Assets without an image are not drawn yet. */',
-          'export const ART_ASSETS: Record<string, { src: ImageSourcePropType; aspect: number }> = {']
+          'export const ART_ASSETS: Record<string, { src: ImageSourcePropType; aspect: number; code?: ImageSourcePropType; codeAspect?: number }> = {']
     for aid, a in sorted(assets.items()):
         if not a['file']: continue
         im = Image.open(f'{root}/{SPR}/{a["file"]}'); bb = im.getbbox() or (0, 0, *im.size)
-        ts.append(f"  {aid}: {{ src: require('../../{SPR}/{a['file']}'), aspect: {round(im.size[1] / im.size[0], 3)} }},")
+        code = ''
+        if aid in PAINTED:
+            cf = a['file'].replace('.png', '__code.png'); ci = Image.open(f'{root}/{SPR}/{cf}')
+            code = f", code: require('../../{SPR}/{cf}'), codeAspect: {round(ci.size[1] / ci.size[0], 3)}"
+        ts.append(f"  {aid}: {{ src: require('../../{SPR}/{a['file']}'), aspect: {round(im.size[1] / im.size[0], 3)}{code} }},")
     ts.append('};')
     ts.append('/** Window centres and chimney tops of the drawn buildings (island-relative): lit and smoking in Art mode. */')
     ts.append('export const ART_WINDOWS: [number, number][] = [' + ', '.join(f'[{x:g}, {y:g}]' for x, y in WINDOWS) + '];')
@@ -185,4 +194,6 @@ def build(root, P, trees, town_box, town=None):
         md.append('')
     os.makedirs(f'{root}/docs', exist_ok=True)
     open(f'{root}/docs/ART_LIST_TORTUGA.md', 'w').write('\n'.join(md) + '\n')
+    global LAST_ASSETS
+    LAST_ASSETS = assets
     return assets, drawn, (len(slots), len(assets), sum(1 for a in assets.values() if not a['file']))

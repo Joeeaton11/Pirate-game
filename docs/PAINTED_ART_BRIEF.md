@@ -63,6 +63,30 @@ map. For example, `palm_2.png` restyles every palm that uses variant 2.
 - **Life frames are pairs.** Frame 0 and frame 1 are the two poses of the animation, such as wings
   up and down, or a flag waving. Paint both with the same proportions.
 
+## Tools for doing it
+
+- **Guides:** `docs/art_reference/guides/<group>/<id>.png` show each asset with:
+  - the player beside it for scale
+  - a red dot where it stands
+  - the sun in the upper left
+  - for buildings: blue boxes on the windows that light at night, and grey rings on the chimneys
+  Use guides to check scale and lighting, and send the plain reference with the generation.
+- **Ground maps:** send these with the ground reference so the layout can't drift.
+  - `docs/art_reference/ground_layout_key.png` is a flat colour key; the legend is in `ground_layout_key_legend.png`.
+  - `ground_layout_lines.png` is the outline version.
+- **Priority and progress:** `docs/ART_PROGRESS.md` covers:
+  - every asset ordered by how much the player sees it
+  - hero or kit for each asset
+  - the variety targets, and the animation frames and speeds wanted
+  - the painted counter
+  The same data is in `docs/art_reference/manifest.json`.
+- **Art catalogue page:** a browsable page of every asset, with filters, copies, a map of where each one is used and the
+  file names to use.
+- **In the game:** in Art mode, tap **🔍 Art** to open the inspector, or add `?inspect=1` to the web address. It lists the
+  assets right around the player, with their id, size, copies, priority and status. It also flips between the painted
+  look and the code look, so you can judge a new painting in place. Add `?look=code` to the web address to start on the
+  code look.
+
 ## Applying painted art
 
 1. Save the painted files into `assets/art_painted/...`, using the paths in the table above.

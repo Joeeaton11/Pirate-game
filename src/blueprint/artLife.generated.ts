@@ -2,7 +2,7 @@
 import type { ImageSourcePropType } from 'react-native';
 
 /** kind -> frames, size in world units and anchor (fraction of width/height). */
-export const LIFE_SPRITES: Record<string, { frames: ImageSourcePropType[]; w: number; h: number; ax: number; ay: number }> = {
+export const LIFE_SPRITES: Record<string, { frames: ImageSourcePropType[]; code?: ImageSourcePropType[]; w: number; h: number; ax: number; ay: number }> = {
   campfire: { frames: [require('../../assets/sprites/plan_art/life/campfire_0.png'), require('../../assets/sprites/plan_art/life/campfire_1.png')], w: 4, h: 4, ax: 0.500, ay: 0.850 },
   chicken: { frames: [require('../../assets/sprites/plan_art/life/chicken_0.png'), require('../../assets/sprites/plan_art/life/chicken_1.png')], w: 2.5, h: 2.25, ax: 0.520, ay: 0.956 },
   crab: { frames: [require('../../assets/sprites/plan_art/life/crab_0.png'), require('../../assets/sprites/plan_art/life/crab_1.png')], w: 2.5, h: 2.25, ax: 0.520, ay: 0.956 },
