@@ -202,6 +202,15 @@ def build(root, P, coast, beach, zones, water, town_rects, town_box, ways, dock_
     print(f'  art lint: {len(frags)} tiny ground fragments' + ('' if not frags else ' e.g. ' + ', '.join(f'{a} at {x},{y}' for a, _, x, y in [(f[0], 0, f[1], f[2]) for f in frags[:6]])))
     LINT[:] = frags
     key.save(f'{ref}/ground_layout_key.png')  # clean colour key (no legend) for image tools
+    # the in-game minimap: the clean key with every building on it as a roof-coloured block
+    mm = key.copy(); md = ImageDraw.Draw(mm)
+    blds = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2) for b in P.BUILDINGS]
+    blds += [(l, t, r, b) for l, r, t, b, *_ in art_slots.TOWN_BOXES]
+    for l, t, r, b in blds:
+        md.rectangle([*T(l + 0.5, t + 0.5), *T(r - 0.5, b - 0.5)], fill=(176, 86, 58), outline=(70, 36, 24), width=2)
+    mm = mm.resize((W, H), Image.LANCZOS)
+    os.makedirs(f'{root}/assets/sprites/tortuga_town', exist_ok=True)
+    mm.save(f'{root}/assets/sprites/tortuga_town/minimap.png', optimize=True)
     out.paste(key, (0, 0)); out.save(f'{ref}/ground_layout_key_legend.png')
     # outline version: every edge between two materials, dark on white
     from PIL import ImageFilter
