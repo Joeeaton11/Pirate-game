@@ -14,6 +14,10 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | Asset | What | Hero/kit | Width (units) | Copies | Status |
 |---|---|---|---|---|---|
 | `ground` | The whole island ground (one image) | hero | 1240 | 1 | code placeholder |
+| `palm_2` | palm | kit | 23.0 | 394 | code placeholder |
+| `palm_1` | palm | kit | 24.0 | 354 | code placeholder |
+| `palm_0` | palm | kit | 23.5 | 364 | code placeholder |
+| `palm_3` | palm | kit | 24.0 | 344 | code placeholder |
 | `barrels_0` | barrels | kit | 9.0 | 82 | code placeholder |
 | `gull_0` | gull — frame 1 of 2 | kit | 5.0 | 70 | code placeholder |
 | `gull_1` | gull — frame 2 of 2 | kit | 5.0 | 70 | code placeholder |
@@ -29,6 +33,7 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `barrel_2` | barrel | kit | 5.5 | 28 | code placeholder |
 | `crates_2` | crates | kit | 5.5 | 28 | code placeholder |
 | `tree_2` | tree | kit | 17.0 | 61 | code placeholder |
+| `potted_palm_2` | potted palm | kit | 6.5 | 23 | code placeholder |
 | `parrot_0` | parrot — frame 1 of 2 | kit | 2.5 | 30 | code placeholder |
 | `parrot_1` | parrot — frame 2 of 2 | kit | 2.5 | 30 | code placeholder |
 | `sacks_2` | sacks | kit | 6.5 | 24 | code placeholder |
@@ -41,11 +46,13 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `tree_1` | tree | kit | 17.0 | 42 | code placeholder |
 | `barrel_0` | barrel | kit | 5.5 | 22 | code placeholder |
 | `barrels_1` | barrels | kit | 9.0 | 20 | code placeholder |
+| `potted_palm_0` | potted palm | kit | 6.5 | 17 | code placeholder |
 | `crab_0` | crab — frame 1 of 2 | kit | 2.5 | 25 | code placeholder |
 | `crab_1` | crab — frame 2 of 2 | kit | 2.5 | 25 | code placeholder |
 | `sacks_1` | sacks | kit | 6.5 | 20 | code placeholder |
 | `lamp_0` | lamp | kit | 4.0 | 24 | code placeholder |
 | `barrel_1` | barrel | kit | 5.5 | 19 | code placeholder |
+| `potted_palm_1` | potted palm | kit | 6.5 | 13 | code placeholder |
 | `crow_0` | crow — frame 1 of 2 | kit | 2.5 | 14 | code placeholder |
 | `crow_1` | crow — frame 2 of 2 | kit | 2.5 | 14 | code placeholder |
 | `woodpile_1` | woodpile | kit | 7.5 | 16 | code placeholder |
@@ -56,7 +63,6 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `dead_tree_2` | dead tree | kit | 13.5 | 15 | code placeholder |
 | `bench_1` | bench | kit | 6.5 | 11 | code placeholder |
 | `lantern_0` | lantern | kit | 4.0 | 13 | code placeholder |
-| `palm_1` | palm | kit | 24.0 | 17 | code placeholder |
 | `flowerpot_2` | flowerpot | kit | 4.0 | 12 | code placeholder |
 | `notice_0` | notice | kit | 5.5 | 12 | code placeholder |
 | `water_butt_2` | water butt | kit | 5.5 | 10 | code placeholder |
@@ -64,22 +70,17 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `cart_0` | cart | kit | 7.5 | 12 | code placeholder |
 | `cargo_0` | cargo | kit | 5.5 | 7 | code placeholder |
 | `bench_2` | bench | kit | 6.5 | 10 | code placeholder |
-| `potted_palm_2` | potted palm | kit | 6.5 | 8 | code placeholder |
-| `potted_palm_0` | potted palm | kit | 6.5 | 8 | code placeholder |
 | `nets_0` | nets | kit | 9.5 | 10 | code placeholder |
 | `stall_0` | stall | kit | 8.5 | 8 | code placeholder |
 | `lamp_2` | lamp | kit | 4.0 | 8 | code placeholder |
 | `lamp_1` | lamp | kit | 4.0 | 8 | code placeholder |
-| `potted_palm_1` | potted palm | kit | 6.5 | 6 | code placeholder |
 | `dead_tree_1` | dead tree | kit | 13.5 | 9 | code placeholder |
 | `goat_0` | goat — frame 1 of 1 | kit | 5.0 | 10 | code placeholder |
 | `dead_tree_0` | dead tree | kit | 13.5 | 10 | code placeholder |
 | `laundry_line_0` | laundry line | kit | 13.5 | 5 | code placeholder |
 | `beached_rowboat_1` | beached rowboat | kit | 9.5 | 10 | code placeholder |
-| `palm_0` | palm | kit | 23.5 | 9 | code placeholder |
 | `cannon_0` | cannon | kit | 7.5 | 9 | code placeholder |
 | `flowerpot_1` | flowerpot | kit | 4.0 | 6 | code placeholder |
-| `palm_2` | palm | kit | 23.0 | 11 | code placeholder |
 | `crane_0` | crane | hero | 20.5 | 5 | code placeholder |
 | `grave_0` | grave | kit | 4.5 | 8 | code placeholder |
 | `water_butt_1` | water butt | kit | 5.5 | 6 | code placeholder |
@@ -89,7 +90,6 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `mangrove_3` | mangrove | kit | 13.5 | 6 | code placeholder |
 | `washing_0` | washing | kit | 9.5 | 5 | code placeholder |
 | `rum_barrels_0` | rum barrels | kit | 12.0 | 5 | code placeholder |
-| `palm_3` | palm | kit | 24.0 | 9 | code placeholder |
 | `chicken_0` | chicken — frame 1 of 2 | kit | 2.5 | 6 | code placeholder |
 | `chicken_1` | chicken — frame 2 of 2 | kit | 2.5 | 6 | code placeholder |
 | `cargo_2` | cargo | kit | 5.5 | 3 | code placeholder |

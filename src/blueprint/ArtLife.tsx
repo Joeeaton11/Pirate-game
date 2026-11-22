@@ -56,7 +56,7 @@ export const ArtLife = React.memo(function ArtLife({
     out.push(
       <View
         key={`f${i}`}
-        style={{ position: 'absolute', left: wx + nx * off - 1.6, top: wy + ny * off - 0.25, width: 3.2, height: 0.5, backgroundColor: '#f4fbf8', opacity: op }}
+        style={{ position: 'absolute', left: wx + nx * off - 0.9, top: wy + ny * off - 0.15, width: 1.8, height: 0.3, backgroundColor: '#f4fbf8', opacity: op * 0.7 }}
       />,
     );
     if (i % 2 === 0) {
@@ -64,7 +64,7 @@ export const ArtLife = React.memo(function ArtLife({
       out.push(
         <View
           key={`g${i}`}
-          style={{ position: 'absolute', left: wx + nx * off2 - 1.2, top: wy + ny * off2 - 0.2, width: 2.4, height: 0.4, backgroundColor: '#c8f0ea', opacity: 0.35 * op }}
+          style={{ position: 'absolute', left: wx + nx * off2 - 0.7, top: wy + ny * off2 - 0.12, width: 1.4, height: 0.25, backgroundColor: '#c8f0ea', opacity: 0.35 * op }}
         />,
       );
     }

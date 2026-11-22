@@ -74,12 +74,17 @@ def sea(coast, town_water=None):
     im = Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8), 'RGB').convert('RGBA')
     d = ImageDraw.Draw(im)
     # submerged rocks in the shallows
-    pts = np.argwhere((dist > 3) & (dist < 14))
-    for _ in range(260):
+    pts = np.argwhere((dist > 3) & (dist < 22))
+    for _ in range(420):  # submerged rock clusters: lumpy, lit on top, darker underwater skirt
         y, x = pts[rng.randrange(len(pts))]
-        X, Y = x * S, y * S; r = rng.uniform(1.5, 4) * S
-        d.ellipse([X - r, Y - r * 0.7, X + r, Y + r * 0.7], fill=(10, 104, 120, 255))
-        d.ellipse([X - r * 0.7, Y - r * 0.6, X + r * 0.2, Y], fill=(26, 132, 140, 255))
+        X, Y = x * S, y * S
+        deep = dist[y, x] > 10
+        for k in range(rng.randint(2, 5)):
+            bx, by, r = X + rng.uniform(-3, 3) * S, Y + rng.uniform(-2, 2) * S, rng.uniform(1.2, 3.2) * S
+            poly = [(bx + math.cos(a) * r * rng.uniform(0.7, 1.1), by + math.sin(a) * r * 0.75 * rng.uniform(0.7, 1.1)) for a in np.linspace(0, 6.28, 9)[:-1]]
+            d.polygon([(px_ + 2, py_ + 3) for px_, py_ in poly], fill=(6, 74, 96, 255) if deep else (14, 112, 128, 255))
+            d.polygon(poly, fill=(18, 96, 112, 255) if deep else (34, 138, 146, 255))
+            d.polygon([(px_ * 0.6 + bx * 0.4 - r * 0.15, py_ * 0.6 + by * 0.4 - r * 0.2) for px_, py_ in poly], fill=(40, 124, 134, 255) if deep else (70, 176, 176, 255))
     # sandbars: pale shoals just offshore, showing through the shallows
     sb = np.argwhere((dist > 9) & (dist < 16))
     sand = Image.new('RGBA', im.size, (0, 0, 0, 0)); sdr = ImageDraw.Draw(sand)
@@ -323,6 +328,60 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
     return im
 
 
+
+def deck(im, T, gp, geom, angle=0.0, water=None):
+    """Heavy timber decking like the target harbour: individual boards in three tones with staggered
+    ends and nail pairs, a dark rim, and thick round pilings standing in the water along every edge."""
+    d = ImageDraw.Draw(im); rng = random.Random(int(abs(geom.bounds[0] * 7 + geom.bounds[1])))
+    m = gp.mask([geom]); gp.fill(m, '#7a5230', 0.04)
+    l, t, r, b = geom.bounds
+    ca, sa = math.cos(angle), math.sin(angle)
+    cx, cy = (l + r) / 2, (t + b) / 2; L = math.hypot(r - l, b - t) + 8
+    tones = [(150, 102, 60), (134, 90, 52), (164, 114, 68), (122, 82, 48)]
+    def boards(dd):
+        k = -L / 2
+        while k < L / 2:  # one strip of boards across the travel direction, ends staggered
+            j = -L / 2 + rng.uniform(0, 6)
+            while j < L / 2:
+                ln = rng.uniform(5, 11)
+                pts = []
+                for (u, v) in ((k, j), (k, j + ln), (k + 1.05, j + ln), (k + 1.05, j)):
+                    pts.append(T(cx + ca * u - sa * v, cy + sa * u + ca * v))
+                c = rng.choice(tones)
+                dd.polygon(pts, fill=c + (255,))
+                dd.line([pts[0], pts[1]], fill=tuple(min(255, int(v * 1.18)) for v in c) + (255,))
+                dd.line([pts[2], pts[3]], fill=(64, 40, 22, 255))
+                dd.line([pts[1], pts[2]], fill=(70, 46, 26, 255))
+                for f in (0.25, 0.75):  # nail pairs at the board ends
+                    q = (pts[0][0] + (pts[3][0] - pts[0][0]) * f, pts[0][1] + (pts[3][1] - pts[0][1]) * f)
+                    dd.point(q, fill=(52, 44, 40, 255))
+                if rng.random() < 0.08:  # a knot or a wet stain
+                    mx, my = (pts[0][0] + pts[2][0]) / 2, (pts[0][1] + pts[2][1]) / 2
+                    dd.ellipse([mx - 2, my - 1, mx + 2, my + 1], fill=(96, 64, 38, 255))
+                j += ln
+            k += 1.05
+    gp.pattern(m, boards)
+    rim = ImageChops.subtract(gp.mask([geom.buffer(0.45)]), m)
+    gp.pattern(rim, lambda dd: dd.rectangle([0, 0, *im.size], fill=(52, 32, 16, 255)))
+    # pilings: thick round posts just outside the edge, every few units, where the edge meets water
+    for poly in getattr(geom, 'geoms', [geom]):
+        ring = poly.exterior
+        for i in range(int(ring.length / 2.6)):
+            p = ring.interpolate(i * 2.6 + 0.6)
+            if water is not None and not water.contains(Point(p.x, p.y + 1.2)) and not water.contains(Point(p.x + 1.2, p.y)) \
+               and not water.contains(Point(p.x - 1.2, p.y)) and not water.contains(Point(p.x, p.y - 1.2)): continue
+            X, Y = T(p.x, p.y)
+            d.ellipse([X - 7, Y + 4, X + 7, Y + 10], fill=(6, 70, 92, 170))            # dark water ring
+            d.rectangle([X - 4, Y - 9, X + 4, Y + 7], fill=(86, 58, 34, 255), outline=(34, 22, 12, 255))
+            d.line([X - 3, Y - 8, X - 3, Y + 6], fill=(140, 100, 62, 255))
+            d.line([X + 2, Y - 8, X + 2, Y + 6], fill=(58, 38, 22, 255))
+            d.rectangle([X - 4, Y + 2, X + 4, Y + 7], fill=(44, 64, 58, 255))         # weed/wet band
+            d.ellipse([X - 4, Y - 12, X + 4, Y - 7], fill=(132, 96, 60, 255), outline=(34, 22, 12, 255))
+            if i % 5 == 0: d.line([X - 4, Y - 4, X + 4, Y - 3], fill=(200, 172, 120, 255), width=2)  # rope lashing
+            if i % 2 == 0:
+                for _ in range(3): d.point((X + rng.randint(-8, 8), Y + rng.randint(6, 10)), fill=(240, 250, 248, 255))  # foam
+
+
 # ---------------------------------------------------------------- 02b the town (Basse-Terre), from the walk map
 def town(rects):
     im, T = new_layer(); gp = ground.Painter(im, T, S, seed=12)
@@ -334,15 +393,24 @@ def town(rects):
         gp.fill(gp.mask([st.buffer(0.6)]), '#6e6458', 0.03)
         m = gp.mask([st]); gp.fill(m, '#a49a88', 0.03); cobble_pattern(gp, st, m, 1.6)
     if not sd.is_empty: gp.sand(sd)
+    wt = geom('water')
     if not wd.is_empty:
-        gp.planks(wd, 0, '#8e6236')
-        d = ImageDraw.Draw(im)
-        for poly in getattr(wd, 'geoms', [wd]):
-            ring = poly.exterior
-            for i in range(int(ring.length / 3)):
-                p = ring.interpolate(i * 3); X, Y = T(p.x, p.y)
-                d.rectangle([X - 3, Y - 6, X + 3, Y + 5], fill=(92, 62, 36, 255), outline=(40, 26, 14, 255))
-                d.ellipse([X - 3, Y - 8, X + 3, Y - 5], fill=(120, 86, 52, 255), outline=(40, 26, 14, 255))
+        deck(im, T, gp, wd, math.pi / 2, water=wt.buffer(0.5))
+    # walled gardens like the target: a low stone wall with ivy round each garden, dense planting inside
+    if not gd.is_empty:
+        d = ImageDraw.Draw(im); rng = random.Random(31)
+        for poly in getattr(gd, 'geoms', [gd]):
+            if poly.area < 40: continue
+            ring = poly.buffer(-0.4, join_style=2).exterior
+            cs = [T(*c) for c in ring.coords]
+            d.line(cs, fill=(70, 66, 60, 255), width=int(1.4 * S) + 2)
+            d.line(cs, fill=(150, 142, 128, 255), width=int(1.4 * S) - 1)
+            for i in range(int(ring.length / 1.3)):
+                p = ring.interpolate(i * 1.3); X, Y = T(p.x, p.y)
+                d.line([X - 2, Y, X + 2, Y], fill=(110, 104, 94, 255))
+                if rng.random() < 0.45:  # ivy and flowers spilling over the wall
+                    for _ in range(4):
+                        d.point((X + rng.randint(-3, 3), Y + rng.randint(-3, 3)), fill=rng.choice([(46, 104, 40, 255), (74, 140, 56, 255), (220, 60, 80, 255)]))
     return im
 
 
@@ -363,8 +431,7 @@ def docks(P, dock_geoms, breakwater, bridges):
         pts = [pt for nm, kk, ww, pp_ in P.DOCKS if nm == name for pt in pp_]
         ang = math.atan2(pts[-1][1] - pts[0][1], pts[-1][0] - pts[0][0]) if len(pts) > 1 else 0
         shadow = gp.mask([g.buffer(1.2).difference(g)]); gp.pattern(shadow, lambda dd: dd.rectangle([0, 0, *im.size], fill=(6, 58, 78, 150)))
-        gp.planks(g, ang, '#8e6236')
-        pilings(g)
+        deck(im, T, gp, g, ang + math.pi / 2, water=None)
         # rails along the long sides
         ring = g.exterior
         d.line([T(*c) for c in ring.coords], fill=(64, 42, 24, 255), width=2)
@@ -411,8 +478,10 @@ def jagged_rock(seed, size):
         d.polygon([(px_ + 2, top + 2), (px_ + hw * 0.7, top + h * 0.35), (px_ + hw, base), (px_ + 3, base)], fill=(52, 50, 54, 255))
     im = pp._outline(im, (28, 26, 30, 255))
     d = ImageDraw.Draw(im)
-    for k in range(int(w / 2)):  # foam skirt
-        x = rng.uniform(2, w + 6); d.point((x, base + rng.uniform(-1, 3)), fill=(245, 252, 250, 255))
+    for k in range(int(w * 1.4)):  # foam skirt hugging the waterline
+        x = rng.uniform(0, w + 8); y = base + rng.uniform(-2, 4)
+        if im.getpixel((int(min(w + 7, x)), int(min(im.size[1] - 1, max(0, y)))))[3] == 0:
+            d.point((x, y), fill=(245, 252, 250, 255) if rng.random() < 0.75 else (190, 236, 232, 255))
     return im, (cx, base)
 
 
@@ -457,6 +526,24 @@ def cliffs(coast, zones, no_rocks):
     for g in rocky:  # outcrops inland on the crags
         for x, y in gp.scatter(g.intersection(coast).difference(no_rocks), 4):
             stamps.append((y, x, rng.uniform(2.4, 4.6), rng.randrange(10 ** 6)))
+    # sea stacks: clusters of big dark rocks standing offshore along the rocky runs and headlands
+    for i, p in enumerate(shore[::7]):
+        q = ring.interpolate(ring.project(p) + 0.5); nx, ny = q.y - p.y, -(q.x - p.x); L = math.hypot(nx, ny) or 1
+        if coast.contains(Point(p.x + nx / L, p.y + ny / L)): nx, ny = -nx, -ny
+        if rng.random() < 0.6:
+            off = rng.uniform(5, 14)
+            cx_, cy_ = p.x + nx / L * off, p.y + ny / L * off
+            if no_rocks.contains(Point(cx_, cy_)): continue
+            for k in range(rng.randint(2, 5)):
+                stamps.append((cy_ + rng.uniform(-3, 3), cx_ + rng.uniform(-4, 4), rng.uniform(3.5, 7.5), rng.randrange(10 ** 6)))
+    for dd_ in range(0, int(ring.length), 32):  # and the odd stack off the sandy shores too
+        if rng.random() > 0.55: continue
+        p = ring.interpolate(dd_); q = ring.interpolate(dd_ + 0.5); nx, ny = q.y - p.y, -(q.x - p.x); L = math.hypot(nx, ny) or 1
+        if coast.contains(Point(p.x + nx / L, p.y + ny / L)): nx, ny = -nx, -ny
+        off = rng.uniform(7, 16); cx_, cy_ = p.x + nx / L * off, p.y + ny / L * off
+        if no_rocks.buffer(10).contains(Point(cx_, cy_)): continue
+        for k in range(rng.randint(1, 4)):
+            stamps.append((cy_ + rng.uniform(-2.5, 2.5), cx_ + rng.uniform(-3.5, 3.5), rng.uniform(3, 6.5), rng.randrange(10 ** 6)))
     stamps.sort()
     for y, x, size, seed in stamps:
         spr, anc = jagged_rock(seed, size)
@@ -510,7 +597,8 @@ def plants(trees, coast, zones, avoid):
     for x, y in gp.scatter(free, 1.6): items.append((y, x, 'bush'))
     # extra palms along the beaches, like the target's tropical shores
     beach_band = coast.difference(coast.buffer(-12)).intersection(free)
-    for x, y in gp.scatter(beach_band, 0.9): items.append((y, x, 'palm'))
+    for x, y in gp.scatter(beach_band, 2.4): items.append((y, x, 'palm'))
+    for x, y in gp.scatter(free.difference(beach_band), 0.35): items.append((y, x, 'palm'))
     items.sort()
     for y, x, k in items:
         if k != 'bush': continue

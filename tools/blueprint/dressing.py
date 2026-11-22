@@ -178,6 +178,21 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         x, y = rng.uniform(l, r), rng.uniform(t, b)
         if og.contains(Point(x, y)): put(rng.choice(GRASS_DECOR), x, y, 4.2)
 
+    # 10. planted town gardens: palms, flower beds and greenery inside the walls, like the target
+    gdn = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('garden', [])])
+    for poly in getattr(gdn, 'geoms', [gdn]):
+        if poly.area < 40: continue
+        inner = poly.buffer(-2.2, join_style=2).difference(bl_all.buffer(1.5))
+        if inner.is_empty: continue
+        ip = prep(inner); l, t, r, b = inner.bounds
+        n = max(1, int(inner.area / 55))
+        for _ in range(n * 10):
+            if n <= 0: break
+            x, y = rng.uniform(l, r), rng.uniform(t, b)
+            if ip.contains(Point(x, y)):
+                k = rng.choice(['palm', 'palm', 'flowers', 'flowers', 'tall_grass', 'potted_palm', 'flowers'])
+                if put(k, x, y, 3.2 if k != 'palm' else 6): n -= 1
+
     # 9. a carved name board at each district label
     for x, y, text, size in P.LABELS:
         if size == 'district' and 'painted' not in text:
