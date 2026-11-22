@@ -206,7 +206,7 @@ PROPS = [
     # Washing lines in Cayonne, the Crossroads and Rocher Row.
     ('washing', -245, -80), ('washing', -449, -48), ('washing', -192, 340), ('washing', 344, -241), ('washing', 344, -271),
     # High Woods: the falls and the lookout.
-    ('falls', 446, -30), ('lookout', 500, -36),
+    ('falls', 434, -12), ('lookout', 500, -36),
     # River sources.
     ('spring', -160, 46), ('spring', 474, -64),
     # Farmstead, charcoal clearing, sugar mill, boat-builder.

@@ -51,6 +51,12 @@ lagoon = Polygon([(_lc[0] + _mth.cos(a) * _lr * (1 + 0.16 * _mth.sin(3 * a + 1) 
                   for a in [k * 2 * _mth.pi / 48 for k in range(48)]])  # an organic pool, not a circle
 rivers = unary_union([LineString(r['pts']).buffer(r['w'] / 2) for r in P.RIVERS])
 bridges = unary_union(road_geoms).intersection(rivers.buffer(1.5))
+# every road that crosses a river gets a proper bridge spanning bank to bank
+BRIDGE_SPANS = []
+for _n, _k, _w, _pts in P.ROADS:
+    _x = LineString(_pts).intersection(rivers.buffer(3.2))
+    for _seg in getattr(_x, 'geoms', [_x]):
+        if _seg.geom_type == 'LineString' and _seg.length > 1: BRIDGE_SPANS.append((_n, _k, _w, list(_seg.coords)))
 water = unary_union([lagoon, rivers]).difference(ways)
 sea_zones = [(t, Polygon(p).buffer(0).difference(coast)) for t, p in P.SEA_ZONES]
 zone_geoms = [(t, Polygon(p).buffer(0).intersection(coast).difference(town_box)) for t, p in P.ZONES]
@@ -275,7 +281,7 @@ for l, r, t, b, dxs in terraces:
         # stagger the frontage a little so a row reads as separate houses
         k = len(town_bldgs)
         town_bldgs.append((a, c, t + (0, 1.5, 0.8)[k % 3], b))
-town_walls = list(md.WALLS)
+town_walls = []  # the old painted town's terrace strips: town streets meet as plain junctions now
 hsv = np.asarray(Image.open(sys.argv[1]).convert('HSV')).astype(int)
 CELL = 2
 nx, ny = int((TOWN[1] - TOWN[0]) / CELL), int((TOWN[3] - TOWN[2]) / CELL)
@@ -435,10 +441,8 @@ for _g in getattr(_tw, 'geoms', [_tw]):
         _drawn = unary_union([box(l, t, r, b) for kk in ('street', 'wood', 'sand') for l, r, t, b in town_rects.get(kk, [])] + [ways])
         burn(_g.difference(_drawn.buffer(0.6)).buffer(-0.4), 'water')
 import art_layers
+art_layers.BRIDGE_SPANS[:] = BRIDGE_SPANS
 # the town's terrace walls: the drawn wall face is solid, the flights of steps in its gaps are open
-for l, r, t, b, gaps in town_walls:
-    xs = [l] + [v for g in sorted(gaps) for v in g] + [r]
-    for a, c in zip(xs[0::2], xs[1::2]): burn(box(a - 0.8, b - 4.5 - 0.6, c + 0.8, b - 0.2), 'town wall')
 # alleys between neighbouring town houses and a doorstep at every door, for the art
 _rows = {}
 for l, r, t, b in town_bldgs: _rows.setdefault(round(b), []).append((l, r, t, b))

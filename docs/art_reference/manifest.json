@@ -26,7 +26,7 @@
    "variant": 2,
    "hero": false,
    "w": 23.0,
-   "count": 397,
+   "count": 396,
    "places": [
     [
      316,
@@ -1589,14 +1589,6 @@
      -408
     ],
     [
-     265,
-     -384
-    ],
-    [
-     284,
-     -378
-    ],
-    [
      295,
      -346
     ],
@@ -1605,21 +1597,25 @@
      -308
     ],
     [
-     36,
-     -278
+     55,
+     -252
     ],
     [
-     257,
-     -142
+     274,
+     -157
     ],
     [
-     285,
-     23
+     63,
+     -83
+    ],
+    [
+     -11,
+     9
     ]
    ],
    "ref": "docs/art_reference/obj/palm_2.png",
    "painted": false,
-   "score": 528.1999999999999,
+   "score": 525.1999999999999,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_2.png"
@@ -3071,16 +3067,8 @@
      485
     ],
     [
-     283,
-     -398
-    ],
-    [
      276,
      -383
-    ],
-    [
-     274,
-     -376
     ],
     [
      291,
@@ -3092,19 +3080,27 @@
     ],
     [
      280,
-     -356
+     -335
     ],
     [
-     292,
-     -297
+     262,
+     -306
     ],
     [
-     271,
-     -162
+     270,
+     -306
     ],
     [
-     188,
-     -108
+     266,
+     -298
+    ],
+    [
+     45,
+     -261
+    ],
+    [
+     266,
+     -161
     ]
    ],
    "ref": "docs/art_reference/obj/palm_0.png",
@@ -3122,7 +3118,7 @@
    "variant": 1,
    "hero": false,
    "w": 24.0,
-   "count": 354,
+   "count": 356,
    "places": [
     [
      -273,
@@ -4513,37 +4509,45 @@
      -416
     ],
     [
-     291,
-     -388
+     282,
+     -377
     ],
     [
-     264,
-     -306
+     280,
+     -362
+    ],
+    [
+     288,
+     -328
+    ],
+    [
+     56,
+     -265
+    ],
+    [
+     18,
+     -254
+    ],
+    [
+     46,
+     -254
+    ],
+    [
+     52,
+     -81
+    ],
+    [
+     -19,
+     -12
     ],
     [
      268,
-     -294
-    ],
-    [
-     48,
-     -115
-    ],
-    [
-     199,
-     -108
-    ],
-    [
-     -10,
-     -7
-    ],
-    [
-     294,
-     23
+     14
     ]
    ],
    "ref": "docs/art_reference/obj/palm_1.png",
    "painted": false,
-   "score": 477.8,
+   "score": 483.8,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_1.png"
@@ -4556,7 +4560,7 @@
    "variant": 3,
    "hero": false,
    "w": 24.0,
-   "count": 344,
+   "count": 345,
    "places": [
     [
      316,
@@ -4689,6 +4693,10 @@
     [
      -204,
      -172
+    ],
+    [
+     -443,
+     -168
     ],
     [
      -153,
@@ -5937,7 +5945,7 @@
    ],
    "ref": "docs/art_reference/obj/palm_3.png",
    "painted": false,
-   "score": 435.4,
+   "score": 435.8,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_3.png"
@@ -9553,6 +9561,112 @@
    "guide": "docs/art_reference/guides/objects/tree_2.png"
   },
   {
+   "id": "potted_palm_1",
+   "group": "objects",
+   "label": "potted palm",
+   "kind": "potted_palm",
+   "variant": 1,
+   "hero": false,
+   "w": 6.5,
+   "count": 22,
+   "places": [
+    [
+     284,
+     -388
+    ],
+    [
+     258,
+     -387
+    ],
+    [
+     290,
+     -376
+    ],
+    [
+     265,
+     -374
+    ],
+    [
+     287,
+     -365
+    ],
+    [
+     277,
+     -360
+    ],
+    [
+     275,
+     -320
+    ],
+    [
+     186,
+     -209
+    ],
+    [
+     38,
+     -209
+    ],
+    [
+     112,
+     -209
+    ],
+    [
+     261,
+     -155
+    ],
+    [
+     265,
+     -148
+    ],
+    [
+     -47,
+     -138
+    ],
+    [
+     42,
+     -136
+    ],
+    [
+     224,
+     -135
+    ],
+    [
+     188,
+     -103
+    ],
+    [
+     -272,
+     -26
+    ],
+    [
+     -11,
+     -20
+    ],
+    [
+     -29,
+     -6
+    ],
+    [
+     -29,
+     4
+    ],
+    [
+     72,
+     18
+    ],
+    [
+     270,
+     24
+    ]
+   ],
+   "ref": "docs/art_reference/obj/potted_palm_1.png",
+   "painted": false,
+   "score": 65,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/potted_palm_1.png"
+  },
+  {
    "id": "tree_3",
    "group": "objects",
    "label": "tree",
@@ -10511,100 +10625,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/crates_2.png"
-  },
-  {
-   "id": "potted_palm_1",
-   "group": "objects",
-   "label": "potted palm",
-   "kind": "potted_palm",
-   "variant": 1,
-   "hero": false,
-   "w": 6.5,
-   "count": 19,
-   "places": [
-    [
-     266,
-     -399
-    ],
-    [
-     290,
-     -376
-    ],
-    [
-     265,
-     -374
-    ],
-    [
-     287,
-     -365
-    ],
-    [
-     277,
-     -360
-    ],
-    [
-     293,
-     -327
-    ],
-    [
-     273,
-     -323
-    ],
-    [
-     275,
-     -320
-    ],
-    [
-     186,
-     -209
-    ],
-    [
-     38,
-     -209
-    ],
-    [
-     112,
-     -209
-    ],
-    [
-     263,
-     -159
-    ],
-    [
-     -47,
-     -138
-    ],
-    [
-     42,
-     -136
-    ],
-    [
-     224,
-     -135
-    ],
-    [
-     -272,
-     -26
-    ],
-    [
-     -23,
-     -9
-    ],
-    [
-     272,
-     17
-    ],
-    [
-     72,
-     18
-    ]
-   ],
-   "ref": "docs/art_reference/obj/potted_palm_1.png",
-   "painted": false,
-   "score": 56,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/potted_palm_1.png"
   },
   {
    "id": "tree_1",
@@ -12165,6 +12185,134 @@
    "guide": "docs/art_reference/guides/objects/bench_2.png"
   },
   {
+   "id": "potted_palm_0",
+   "group": "objects",
+   "label": "potted palm",
+   "kind": "potted_palm",
+   "variant": 0,
+   "hero": false,
+   "w": 6.5,
+   "count": 12,
+   "places": [
+    [
+     289,
+     -387
+    ],
+    [
+     274,
+     -308
+    ],
+    [
+     37,
+     -267
+    ],
+    [
+     404,
+     -126
+    ],
+    [
+     -199,
+     -28
+    ],
+    [
+     -24,
+     -18
+    ],
+    [
+     269,
+     8
+    ],
+    [
+     274,
+     8
+    ],
+    [
+     6,
+     14
+    ],
+    [
+     279,
+     19
+    ],
+    [
+     228,
+     226
+    ],
+    [
+     -173,
+     343
+    ]
+   ],
+   "ref": "docs/art_reference/obj/potted_palm_0.png",
+   "painted": false,
+   "score": 32,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/potted_palm_0.png"
+  },
+  {
+   "id": "potted_palm_2",
+   "group": "objects",
+   "label": "potted palm",
+   "kind": "potted_palm",
+   "variant": 2,
+   "hero": false,
+   "w": 6.5,
+   "count": 11,
+   "places": [
+    [
+     264,
+     -394
+    ],
+    [
+     296,
+     -386
+    ],
+    [
+     295,
+     -363
+    ],
+    [
+     295,
+     -339
+    ],
+    [
+     275,
+     -336
+    ],
+    [
+     293,
+     -331
+    ],
+    [
+     280,
+     -324
+    ],
+    [
+     -31,
+     -267
+    ],
+    [
+     28,
+     -257
+    ],
+    [
+     -310,
+     -165
+    ],
+    [
+     195,
+     34
+    ]
+   ],
+   "ref": "docs/art_reference/obj/potted_palm_2.png",
+   "painted": false,
+   "score": 30,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/potted_palm_2.png"
+  },
+  {
    "id": "lamp_2",
    "group": "objects",
    "label": "lamp",
@@ -12687,60 +12835,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/notice_0.png"
-  },
-  {
-   "id": "potted_palm_0",
-   "group": "objects",
-   "label": "potted palm",
-   "kind": "potted_palm",
-   "variant": 0,
-   "hero": false,
-   "w": 6.5,
-   "count": 9,
-   "places": [
-    [
-     260,
-     -392
-    ],
-    [
-     273,
-     -366
-    ],
-    [
-     404,
-     -126
-    ],
-    [
-     -199,
-     -28
-    ],
-    [
-     -25,
-     -21
-    ],
-    [
-     -26,
-     3
-    ],
-    [
-     6,
-     14
-    ],
-    [
-     228,
-     226
-    ],
-    [
-     -173,
-     343
-    ]
-   ],
-   "ref": "docs/art_reference/obj/potted_palm_0.png",
-   "painted": false,
-   "score": 23,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/potted_palm_0.png"
   },
   {
    "id": "cart_0",
@@ -13351,48 +13445,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/dead_tree_2.png"
-  },
-  {
-   "id": "potted_palm_2",
-   "group": "objects",
-   "label": "potted palm",
-   "kind": "potted_palm",
-   "variant": 2,
-   "hero": false,
-   "w": 6.5,
-   "count": 6,
-   "places": [
-    [
-     264,
-     -394
-    ],
-    [
-     263,
-     -344
-    ],
-    [
-     293,
-     -331
-    ],
-    [
-     -31,
-     -267
-    ],
-    [
-     -310,
-     -165
-    ],
-    [
-     195,
-     34
-    ]
-   ],
-   "ref": "docs/art_reference/obj/potted_palm_2.png",
-   "painted": false,
-   "score": 15,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/potted_palm_2.png"
   },
   {
    "id": "water_butt_2",
@@ -18025,8 +18077,8 @@
    "count": 1,
    "places": [
     [
-     446,
-     -30
+     434,
+     -12
     ]
    ],
    "ref": "docs/art_reference/obj/falls_0.png",

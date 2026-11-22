@@ -268,7 +268,7 @@ def roads(P):
 
 
 # ---------------------------------------------------------------- 05 walls, fences, hedges
-ALLEYS, DOORSTEPS = [], []
+ALLEYS, DOORSTEPS, BRIDGE_SPANS = [], [], []
 FACE = 4.5  # how tall a retaining wall face reads from above (units)
 
 
@@ -399,7 +399,54 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
 
 
 
-def deck(im, T, gp, geom, angle=0.0, water=None):
+def bridge(im, d, T, gp, name, kind, w, pts, rng):
+    """A proper river bridge: stone abutments on both banks, a deck a little wider than the road,
+    rails with posts on both sides, and its shadow on the water. Lanes and main roads get a stone
+    arch bridge; paths a timber footbridge; the Rope Bridge planks on ropes."""
+    ln = LineString(pts)
+    (x0, y0), (x1, y1) = pts[0], pts[-1]
+    ang = math.atan2(y1 - y0, x1 - x0)
+    half = w / 2 + 0.8
+    deck_g = ln.buffer(half, cap_style=2)
+    stone = kind in ('lane', 'main')
+    # shadow on the water, down and to the right
+    sh = [T(x + 1.0, y + 1.6) for x, y in deck_g.exterior.coords]
+    d.polygon(sh, fill=(6, 60, 80, 150))
+    # abutments on both banks
+    for (ax, ay), sgn in (((x0, y0), 1), ((x1, y1), -1)):
+        ab = LineString([(ax - math.cos(ang) * 1.2 * sgn, ay - math.sin(ang) * 1.2 * sgn), (ax + math.cos(ang) * 0.8 * sgn, ay + math.sin(ang) * 0.8 * sgn)]).buffer(half + 0.3, cap_style=2)
+        cs = [T(*c) for c in ab.exterior.coords]
+        d.polygon(cs, fill=(136, 130, 118, 255), outline=(62, 58, 52, 255))
+
+    if stone:  # stone arch bridge: dressed deck, parapets
+        cs = [T(*c) for c in deck_g.exterior.coords]
+        d.polygon(cs, fill=(150, 144, 132, 255), outline=(62, 58, 52, 255))
+        L = ln.length
+        for i in range(int(L / 1.1) + 1):
+            p = ln.interpolate(i * 1.1); nx, ny = -math.sin(ang), math.cos(ang)
+            a_ = T(p.x + nx * half * 0.8, p.y + ny * half * 0.8); b_ = T(p.x - nx * half * 0.8, p.y - ny * half * 0.8)
+            d.line([a_, b_], fill=(118, 112, 102, 255))
+        for side in (1, -1):
+            o = ln.parallel_offset(half - 0.4, 'left' if side > 0 else 'right')
+            for g in getattr(o, 'geoms', [o]):
+                c = [T(*q) for q in g.coords]
+                d.line(c, fill=(84, 78, 70, 255), width=int(1.0 * S) + 2); d.line(c, fill=(186, 180, 166, 255), width=int(0.6 * S))
+    else:
+        deck(im, T, gp, deck_g, ang + math.pi / 2, water=None, pilings=False)
+        rope = name == 'Rope Bridge'
+        for side in (1, -1):
+            o = ln.parallel_offset(half - 0.2, 'left' if side > 0 else 'right')
+            for g in getattr(o, 'geoms', [o]):
+                c = [T(*q) for q in g.coords]
+                d.line(c, fill=(196, 168, 112, 255) if rope else (92, 62, 36, 255), width=2 if rope else 4)
+                if not rope: d.line(c, fill=(150, 106, 62, 255), width=1)
+                n_ = max(2, int(g.length / 3.2) + 1)
+                for i in range(n_):
+                    p = g.interpolate(i / (n_ - 1), normalized=True); X, Y = T(p.x, p.y)
+                    d.rectangle([X - 1, Y - 4, X + 1, Y + 1], fill=(96, 64, 36, 255), outline=(40, 26, 14, 255))
+
+
+def deck(im, T, gp, geom, angle=0.0, water=None, pilings=True):
     """Heavy timber decking like the target harbour: individual boards in three tones with staggered
     ends and nail pairs, a dark rim, and thick round pilings standing in the water along every edge."""
     d = ImageDraw.Draw(im); rng = random.Random(int(abs(geom.bounds[0] * 7 + geom.bounds[1])))
@@ -434,7 +481,7 @@ def deck(im, T, gp, geom, angle=0.0, water=None):
     rim = ImageChops.subtract(gp.mask([geom.buffer(0.45)]), m)
     gp.pattern(rim, lambda dd: dd.rectangle([0, 0, *im.size], fill=(52, 32, 16, 255)))
     # pilings: thick round posts just outside the edge, every few units, where the edge meets water
-    for poly in getattr(geom, 'geoms', [geom]):
+    for poly in (getattr(geom, 'geoms', [geom]) if pilings else []):
         ring = poly.exterior
         for i in range(int(ring.length / 2.6)):
             p = ring.interpolate(i * 2.6 + 0.6)
@@ -522,14 +569,8 @@ def docks(P, dock_geoms, breakwater, bridges):
         gp.pattern(m, blocks)
         sur = gp.mask([breakwater.buffer(1.6).difference(breakwater)])
         gp.pattern(sur, lambda dd: [dd.point((rng.randrange(im.size[0]), rng.randrange(im.size[1])), fill=(240, 250, 250, 255)) for _ in range(160000)])
-    if bridges is not None and not bridges.is_empty:
-        for bg in getattr(bridges, 'geoms', [bridges]):
-            ang = 0
-            for name, k, w, pts in P.ROADS:
-                for a, b in zip(pts, pts[1:]):
-                    if LineString([a, b]).intersects(bg): ang = math.atan2(b[1] - a[1], a[0] - b[0]) * -1
-            gp.planks(bg.buffer(0.6), ang, '#8e6236')
-            d.line([T(*c) for c in bg.buffer(0.6).exterior.coords], fill=(64, 42, 24, 255), width=3)
+    for name, kind, w, pts in BRIDGE_SPANS:
+        bridge(im, d, T, gp, name, kind, w, pts, rng)
     return im
 
 
