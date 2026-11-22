@@ -468,7 +468,19 @@ art_layers.DOORSTEPS[:] = [(x, y + 0.6) for _, x, y in doors] + [(b[3], b[4] + b
 # (except real buildings and water), so nothing invisible ever blocks the way
 _keep = unary_union(list(bldg_geoms) + [water] + [box(l, t, r, b) for l, r, t, b in town_bldgs] + [g for g in getattr(_tw, 'geoms', [_tw]) if g.area > 300])
 for n_, k_, w, pts in P.ROADS:
-    _g = LineString(pts).buffer(max(0.9, w / 2 - 0.2)).difference(_keep)
+    _g = LineString(pts).buffer(max(2.1, w / 2 + 0.4)).difference(_keep)  # room for the player (radius 1.5) on every path
+    minx, miny, maxx, maxy = _g.bounds
+    for j in range(max(0, int((miny - Y0) / C)), min(H_, int((maxy - Y0) / C) + 1)):
+        for i in range(max(0, int((minx - X0) / C)), min(W_, int((maxx - X0) / C) + 1)):
+            if sol[j, i] and _g.contains(Point(X0 + (i + .5) * C, Y0 + (j + .5) * C)): sol[j, i] = False
+# bridges: the whole drawn deck is walkable, river included, so the player (radius 1.5) fits easily
+for _n, _k, _w, _pts in BRIDGE_SPANS:
+    _g = LineString(_pts).buffer(_w / 2 + 0.8, cap_style=2).union(LineString(_pts).buffer(_w / 2 + 0.8).intersection(LineString(_pts).buffer(3)))
+    _g = LineString(_pts).buffer(_w / 2 + 0.8, cap_style=2).buffer(0.01)
+    # extend past both banks so the way on and off is open too
+    (_x0, _y0), (_x1, _y1) = _pts[0], _pts[-1]; _L = math.hypot(_x1 - _x0, _y1 - _y0) or 1
+    _ux, _uy = (_x1 - _x0) / _L, (_y1 - _y0) / _L
+    _g = LineString([(_x0 - _ux * 3, _y0 - _uy * 3), (_x1 + _ux * 3, _y1 + _uy * 3)]).buffer(_w / 2 + 1.4, cap_style=2)
     minx, miny, maxx, maxy = _g.bounds
     for j in range(max(0, int((miny - Y0) / C)), min(H_, int((maxy - Y0) / C) + 1)):
         for i in range(max(0, int((minx - X0) / C)), min(W_, int((maxx - X0) / C) + 1)):
