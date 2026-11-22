@@ -387,7 +387,12 @@ def town(rects):
     im, T = new_layer(); gp = ground.Painter(im, T, S, seed=12)
     from shapely.geometry import box as _bx
     from shapely.ops import unary_union as _uu
-    def geom(k): return _uu([_bx(l, t, r, b) for l, r, t, b in rects.get(k, [])])
+    def geom(k):  # union of the grid rects, then round off stair steps into straight edges
+        g = _uu([_bx(l, t, r, b) for l, r, t, b in rects.get(k, [])])
+        if g.is_empty: return g
+        rr = 2.6 if k in ('wood', 'sand', 'water') else 1.2
+        g = g.buffer(rr, join_style=2).buffer(-2 * rr, join_style=2).buffer(rr, join_style=2).simplify(2.2 if k != 'garden' else 1.4, preserve_topology=True)
+        return _uu([p for p in getattr(g, 'geoms', [g]) if p.area > 60])
     st, wd, sd, gd = geom('street'), geom('wood'), geom('sand'), geom('garden')
     if not st.is_empty:
         gp.fill(gp.mask([st.buffer(0.6)]), '#6e6458', 0.03)
@@ -684,6 +689,7 @@ def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, b
     from shapely.ops import unary_union as _uu
     tw = _uu([_bx(l, t, r, b) for l, r, t, b in (town_rects or {}).get('water', [])]).buffer(0.5).buffer(-0.5)
     tw = _uu([g for g in getattr(tw, 'geoms', [tw]) if g.area > 300])  # the harbour, not garden ponds
+    tw = tw.buffer(2.6, join_style=2).buffer(-5.2, join_style=2).buffer(2.6, join_style=2).simplify(2.2)  # clean edges, no steps
     steps = [('01_sea', lambda: sea(coast, tw)),
              ('02_terrain', lambda: terrain(coast, beach, zones, tw)),
              ('02b_town', lambda: town(town_rects or {})),

@@ -314,6 +314,49 @@ _gone = _g & ~(_house | _keepg)
 cls[_gone & _harb] = 2   # scraps out in the harbour are water
 cls[_gone & ~_harb] = 0  # scraps in town are street
 print('  town tidy: garden cells removed', int(_gone.sum()))
+# clean ground: the old painting's pixel noise must not survive into the reference the artist copies.
+# 1) every patch smaller than a small yard is absorbed by whatever surrounds it
+# 2) a majority filter smooths stair-stepped and ragged edges into clean runs
+from scipy.ndimage import uniform_filter as _uf
+def _absorb(cls, min_cells):
+    changed = 0
+    for c in range(5):
+        lab, n = _lab(cls == c)
+        for k in range(1, n + 1):
+            blob = lab == k
+            if blob.sum() >= min_cells: continue
+            ring = _bd(blob, iterations=1) & ~blob
+            if not ring.any(): continue
+            vals = np.bincount(cls[ring], minlength=5); vals[c] = 0
+            cls[blob] = int(vals.argmax()); changed += int(blob.sum())
+    return changed
+_n1 = _absorb(cls, 30)
+for _it in range(3):
+    _cnt = np.stack([_uf((cls == c).astype(float), size=5, mode='nearest') for c in range(5)])
+    _maj = _cnt.argmax(0).astype(np.uint8)
+    _strong = _cnt.max(0) > 0.6
+    cls = np.where(_strong, _maj, cls).astype(np.uint8)
+_n2 = _absorb(cls, 30)
+# per-material rules: no cobble islands on the beach or wharf, no gardens or ponds cut off in the harbour
+def _absorb_class(cls, c, min_cells, into=None):
+    lab, n = _lab(cls == c); moved = 0
+    sizes = np.bincount(lab.ravel())
+    big = sizes[1:].argmax() + 1 if n else 0
+    for k in range(1, n + 1):
+        blob = lab == k
+        if k == big and c == 2: continue          # the harbour itself
+        if blob.sum() >= min_cells: continue
+        ring = _bd(blob, iterations=1) & ~blob
+        vals = np.bincount(cls[ring], minlength=5); vals[c] = 0
+        cls[blob] = into if into is not None else int(vals.argmax()); moved += int(blob.sum())
+    return moved
+_n3 = _absorb_class(cls, 0, 400) + _absorb_class(cls, 2, 600)
+_lg, _ng = _lab(cls == 3)
+for k in range(1, _ng + 1):
+    blob = _lg == k
+    if (_bd(blob, iterations=2) & (cls == 2)).any() and not (blob & _house).any(): cls[blob] = 2; _n3 += int(blob.sum())
+_n2 += _n3
+print('  ground clean-up: fragment cells absorbed', _n1 + _n2)
 
 def merge(mask):
     """Greedy rectangles covering a boolean grid (row runs merged downwards)."""

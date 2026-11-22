@@ -18,6 +18,7 @@ from shapely.prepared import prep
 
 X0, Y0, W, H = -620, -580, 1240, 1120
 GUIDE_PPU = 16
+LINT = []
 PLAYER_UNITS = 8.5
 HERO_OBJ = {'wreck_ship', 'harbour_light', 'skull_rock', 'careened_ship', 'whale_bones', 'kraken_bones', 'gibbet', 'crane',
             'falls', 'cave', 'statue', 'windmill', 'kiln'}
@@ -173,8 +174,35 @@ def build(root, P, coast, beach, zones, water, town_rects, town_box, ways, dock_
         x, y = 16 + (i % 3) * (key.size[0] // 3), 10 + (i // 3) * 44
         ld.rectangle([x, y, x + 26, y + 26], fill=col, outline=(60, 50, 40)); ld.text((x + 36, y - 2), nm, font=big, fill=(40, 30, 20))
     out = Image.new('RGB', (key.size[0], key.size[1] + lg.size[1])); out.paste(key, (0, 0)); out.paste(lg, (0, key.size[1]))
+    # lint: any patch of ground material smaller than a small yard is a leftover the artist would copy
+    import numpy as _np
+    from scipy.ndimage import label as _label
+    arr = _np.asarray(key).astype(_np.int32); code = arr[..., 0] * 65536 + arr[..., 1] * 256 + arr[..., 2]
+    from scipy.ndimage import binary_dilation as _bd
+    for _pass in range(3):  # absorb slivers into their surroundings so the key is clean to copy
+        for nm, col in KEY:
+            cc = col[0] * 65536 + col[1] * 256 + col[2]
+            lab, n = _label(code == cc)
+            if not n: continue
+            sizes = _np.bincount(lab.ravel())[1:]
+            for k in _np.nonzero(sizes < 4 * 40)[0]:
+                blob = lab == k + 1
+                ring = _bd(blob, iterations=1) & ~blob
+                vals, cnts = _np.unique(code[ring], return_counts=True)
+                if len(vals): code[blob] = vals[cnts.argmax()]
+    key = Image.fromarray(_np.stack([(code >> 16) & 255, (code >> 8) & 255, code & 255], -1).astype(_np.uint8), 'RGB'); kd = ImageDraw.Draw(key)
+    frags = []
+    for nm, col in KEY:
+        lab, n = _label(code == col[0] * 65536 + col[1] * 256 + col[2])
+        if not n: continue
+        sizes = _np.bincount(lab.ravel())[1:]
+        for k in _np.nonzero(sizes < 4 * 40)[0]:  # under 40 square units
+            ys, xs = _np.nonzero(lab == k + 1)
+            frags.append((nm, round(xs.mean() / PX + X0), round(ys.mean() / PX + Y0), int(sizes[k] / 4)))
+    print(f'  art lint: {len(frags)} tiny ground fragments' + ('' if not frags else ' e.g. ' + ', '.join(f'{a} at {x},{y}' for a, _, x, y in [(f[0], 0, f[1], f[2]) for f in frags[:6]])))
+    LINT[:] = frags
     key.save(f'{ref}/ground_layout_key.png')  # clean colour key (no legend) for image tools
-    out.save(f'{ref}/ground_layout_key_legend.png')
+    out.paste(key, (0, 0)); out.save(f'{ref}/ground_layout_key_legend.png')
     # outline version: every edge between two materials, dark on white
     from PIL import ImageFilter
     edges = key.convert('L').filter(ImageFilter.FIND_EDGES).point(lambda v: 0 if v > 6 else 255)
