@@ -24,14 +24,14 @@ EXTRA_BUILDINGS = [
     (None, 'Gatehouse Ruin', 'ruin_tower', -77, 404, 7, 7, None),
     (None, 'Gatehouse Ruin', 'ruin_tower', -47, 404, 7, 7, None),
     # New places on the empty land.
-    (None, 'Windmill', 'windmill', -205, 14, 12, 12, 'S'),
+    (None, 'Windmill', 'windmill', -196, 14, 12, 12, 'S'),
     (None, 'Quarry Hut', 'shed', -186, -204, 14, 10, 'S'),
 ]
 
 EXTRA_ROADS = [
     ('Old Landing Street', 'ruinlane', 5, [(-66, 450), (-30, 452), (10, 450), (54, 444)]),
     ('Chapel Lane', 'ruinlane', 4, [(10, 450), (40, 432), (72, 426)]),
-    ('Mill Track', 'path', 4, [(-232, -58), (-222, -20), (-214, 26), (-205, 26)]),
+    ('Mill Track', 'path', 4, [(-232, -58), (-222, -20), (-214, 26), (-196, 26)]),
     ('Quarry Road', 'path', 4, [(-150, -222), (-170, -196), (-186, -196)]),
     ('Duelling Path', 'path', 3, [(-140, 342), (-150, 300), (-160, 262)]),
     ('Gibbet Path', 'path', 3, [(-266, -372), (-246, -384)]),

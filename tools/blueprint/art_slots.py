@@ -126,9 +126,20 @@ def build(root, P, trees, town_box, town=None):
             w, h = r - l, b - t
             sp = specs.spec_for((bid, 'Town house', kind, (l + r) / 2, (t + b) / 2, w, h, 'S' if ids else None), n + 300)
             sp['door'] = bool(ids)
+            # terraced: a neighbour wall to wall on either side means no eave overhang or side shadow
+            if any(abs(l2 - r) < 1.5 or abs(r2 - l) < 1.5 for l2, r2, t2, b2 in town_bldgs if (l2, r2, t2, b2) != (l, r, t, b) and abs(b2 - b) < 4):
+                sp['tight'] = True
+            # the house in front must not hide the front of the one behind it: cap its drawn height
+            lim = min([b - b2 - 0.3 for l2, r2, t2, b2 in town_bldgs if b2 < b - 2 and min(r, r2) - max(l, l2) > 1] or [99])
             aid = f'town_{n}'
             rel = f'plan_art/{aid}.png'
             sw = houses.render(sp, f'{root}/{SPR}/{rel}')
+            for _try in range(6):
+                _im = Image.open(f'{root}/{SPR}/{rel}')
+                if sw * _im.size[1] / _im.size[0] <= lim: break
+                if sp.get('storeys', 1) > 1: sp['storeys'] = 1
+                else: sp['d'] = max(4, sp['d'] * 0.75); sp['massing'] = 'hip'
+                sw = houses.render(sp, f'{root}/{SPR}/{rel}')
             _w, _c = houses.features((l + r) / 2, b + 1.2)
             PLACES.setdefault(aid, []).append(((l + r) / 2, b + 1.2)); FEATS[aid] = ([(round(x - (l + r) / 2, 1), round(y - b - 1.2, 1)) for x, y in _w], [(round(x - (l + r) / 2, 1), round(y - b - 1.2, 1)) for x, y in _c])
             painted_over(root, aid, f'{root}/{SPR}/{rel}')
@@ -171,6 +182,11 @@ def build(root, P, trees, town_box, town=None):
     ts.append('export const ART_CHIMNEYS: [number, number][] = [' + ', '.join(f'[{x:g}, {y:g}]' for x, y in CHIMNEYS) + '];')
     ts.append('/** [asset id, x, ground y (island-relative), width in world units], sorted back to front. */')
     slots.sort(key=lambda s: s[2])
+    global SLOT_RECTS
+    SLOT_RECTS = []
+    for a_, x_, y_, w_ in slots:
+        if assets.get(a_, {}).get('file'):
+            _i = Image.open(f'{root}/{SPR}/{assets[a_]["file"]}'); SLOT_RECTS.append((x_ - w_ / 2, y_ - w_ * _i.size[1] / _i.size[0], x_ + w_ / 2, y_))
     ts.append('export const ART_SLOTS: [string, number, number, number][] = [' + ', '.join(f"['{a}', {x:g}, {round(y, 1):g}, {w:g}]" for a, x, y, w in slots) + '];')
     open(f'{root}/src/blueprint/tortugaArtSlots.generated.ts', 'w').write('\n'.join(ts) + '\n')
 

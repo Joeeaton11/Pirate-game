@@ -463,3 +463,25 @@ for _i, _b in enumerate(BUILDINGS):
         _pts = [(_cx, _by + 1), (_cx, _by + 4), (round(_sx, 1), _by + 4), (round(_sx, 1), round(_rp.y, 1)), (round(_rp.x, 1), round(_rp.y, 1))]
     ROADS.append((f'{_lab} Walk', 'path', 3, _pts))
 BUILDINGS = _fixed
+
+# ---- Wings sit beside their cottage (an L seen from the south), never hidden behind or in front of it
+from shapely.geometry import box as _box, LineString as _LS
+from shapely.ops import unary_union as _uu
+_roads_g = _uu([_LS(p).buffer(w / 2 + 1) for n, k, w, p in ROADS if k != 'secret'])
+_fixed = []
+_others = [b for b in BUILDINGS if b[1] != 'Wing']
+for _b in BUILDINGS:
+    if _b[1] != 'Wing':
+        _fixed.append(_b); continue
+    _par = min((b for b in _others if b[1] == 'Cottage'), key=lambda b: (b[3] - _b[3]) ** 2 + (b[4] - _b[4]) ** 2)
+    _, _, _, px, py, pw, ph, _ = _par
+    ww, wh = 8, max(8, ph - 4)
+    placed = None
+    for sgn in (1, -1):
+        cx, cy = px + sgn * (pw / 2 + ww / 2), py - 2
+        g = _box(cx - ww / 2, cy - wh / 2, cx + ww / 2, cy + wh / 2)
+        clash = g.intersects(_roads_g) or any(g.intersects(_box(b[3] - b[5] / 2 - 0.5, b[4] - b[6] / 2 - 0.5, b[3] + b[5] / 2 + 0.5, b[4] + b[6] / 2 + 0.5))
+                                              for b in _others if b is not _par)
+        if not clash: placed = (None, 'Wing', 'home', cx, cy, ww, wh, None); break
+    if placed: _fixed.append(placed)   # no room either side: the cottage stands alone
+BUILDINGS = _fixed

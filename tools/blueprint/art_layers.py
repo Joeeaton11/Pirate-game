@@ -885,7 +885,13 @@ def export_objects():
     for f in os.listdir(f'{root}/{rel}'): os.remove(f'{root}/{rel}/{f}')
     assets, slots = {}, []
     PAINTED_OBJ.clear(); OBJ_PLACES.clear(); OBJ_SIZE.clear()
+    import art_slots as _as
+    rects = getattr(_as, 'SLOT_RECTS', [])
+    TREES_OK = ('palm', 'tree', 'jungle', 'mangrove', 'dead_tree')
+    dropped = 0
     for aid, spr, (ax, ay), x, y in OBJECTS:
+        if not aid.startswith(TREES_OK) and any(l + 1 < x < r - 1 and t + 1 < y < b - 1.5 for l, t, r, b in rects):
+            dropped += 1; continue  # would stand inside a building (hidden behind or poking through its walls)
         Wd, Ht = spr.size
         if aid not in assets:
             half = int(math.ceil(max(ax, Wd - ax))) + 3
@@ -921,4 +927,4 @@ def export_objects():
     ts.append('/** [asset id, x, ground y, width in world units] island-relative. */')
     ts.append('export const OBJ_SLOTS: [string, number, number, number][] = [' + ', '.join(f"['{a}', {x:g}, {y:g}, {w:g}]" for a, x, y, w in slots) + '];')
     open(f'{root}/src/blueprint/artObjects.generated.ts', 'w').write('\n'.join(ts) + '\n')
-    print('  objects', len(slots), 'looks', len(assets))
+    print('  objects', len(slots), 'looks', len(assets), 'dropped inside buildings', dropped)

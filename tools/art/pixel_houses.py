@@ -454,7 +454,8 @@ def building(s):
     if s.get('shape') == 'ruin': return ruin(s)
     if s.get('shape') == 'windmill': return windmill(s)
     w, d = s['w'], s['d']; st = s.get('storeys', 1)
-    eave = 4
+    eave = 1 if s.get('tight') else 4
+    META['tight'] = bool(s.get('tight'))
     WW = int(w * PPU)
     W = WW + 2 * eave
     storey = int(6.2 * PPU)
@@ -696,8 +697,9 @@ def finish(im, base_px):
     META['top'] = top
     im = im.crop((0, top, im.size[0], min(im.size[1], base_px + 3)))
     W, H = im.size
-    sh = Image.new('RGBA', (W + 8, H + 4), (0, 0, 0, 0))
-    ImageDraw.Draw(sh).ellipse([6, H - 6, W + 6, H + 2], fill=(20, 14, 8, 70))
+    pad = 0 if META.get('tight') else 8
+    sh = Image.new('RGBA', (W + pad, H + 4), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).ellipse([min(6, pad), H - 6, W + min(6, pad), H + 2], fill=(20, 14, 8, 70))
     sh.alpha_composite(im, (0, 0))
     out = sh.resize((sh.size[0] * UPSCALE, sh.size[1] * UPSCALE), Image.NEAREST)
     META['size'] = sh.size
