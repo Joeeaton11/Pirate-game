@@ -22,7 +22,14 @@ function pinned(): number | null {
 }
 
 /** 0 = full day, 1 = full night; 0..1 through dusk/dawn. Also how orange the light is. */
-export function nightAmount(nowS = Date.now() / 1000): { dark: number; warm: number } {
+let timeOffsetS = 0;
+/** Move the island clock on (resting on a bench). */
+export function addTimeOffset(seconds: number) {
+  timeOffsetS += seconds;
+}
+export const CYCLE_SECONDS = CYCLE_S;
+
+export function nightAmount(nowS = Date.now() / 1000 + timeOffsetS): { dark: number; warm: number } {
   const pin = pinned();
   if (pin !== null) return { dark: pin, warm: pin === 0.5 ? 1 : 0 };
   const f = (nowS % CYCLE_S) / CYCLE_S;

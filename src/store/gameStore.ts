@@ -100,6 +100,8 @@ interface GameState {
   /** Buried treasure already dug up, and carved skulls found (Tortuga). */
   dugSpots: string[];
   foundSkulls: string[];
+  /** Shortcuts on Tortuga opened from their far side (a fallen log, a rope ladder). */
+  unlockedShortcuts: string[];
   /** Messages in bottles already read. */
   readBottles: string[];
   /** Dig-spot clues already read (so the journal and tracker can show them). */
@@ -178,6 +180,7 @@ interface GameState {
   /** Dig up a buried treasure (once): adds its gold. */
   digSpot: (id: string, gold: number) => boolean;
   findSkull: (district: string) => boolean;
+  unlockShortcut: (id: string) => boolean;
   readBottle: (id: string) => boolean;
   seeClue: (id: string) => void;
   /** Pay for something with gold; false if you can't afford it. */
@@ -224,6 +227,7 @@ type InitialState = Pick<
   | 'ferryUnlocked'
   | 'dugSpots'
   | 'foundSkulls'
+  | 'unlockedShortcuts'
   | 'readBottles'
   | 'seenClues'
   | 'currentBlackfinStageId'
@@ -272,6 +276,7 @@ function createInitialState(): InitialState {
     ferryUnlocked: false,
     dugSpots: [],
     foundSkulls: [],
+    unlockedShortcuts: [],
     readBottles: [],
     seenClues: [],
     currentBlackfinStageId: null,
@@ -534,6 +539,11 @@ export const useGameStore = create<GameState>()(
       readBottle: (id) => {
         if (get().readBottles.includes(id)) return false;
         set({ readBottles: [...get().readBottles, id] });
+        return true;
+      },
+      unlockShortcut: (id) => {
+        if ((get().unlockedShortcuts ?? []).includes(id)) return false;
+        set({ unlockedShortcuts: [...(get().unlockedShortcuts ?? []), id] });
         return true;
       },
       findSkull: (district) => {
@@ -894,6 +904,7 @@ export const useGameStore = create<GameState>()(
         ferryUnlocked: state.ferryUnlocked,
         dugSpots: state.dugSpots,
         foundSkulls: state.foundSkulls,
+        unlockedShortcuts: state.unlockedShortcuts,
         readBottles: state.readBottles,
         seenClues: state.seenClues,
         completedBlackfinStageIds: state.completedBlackfinStageIds,

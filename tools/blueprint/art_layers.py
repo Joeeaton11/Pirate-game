@@ -268,7 +268,7 @@ def roads(P):
 
 
 # ---------------------------------------------------------------- 05 walls, fences, hedges
-ALLEYS, DOORSTEPS, BRIDGE_SPANS, PLOTS = [], [], [], []
+ALLEYS, DOORSTEPS, BRIDGE_SPANS, PLOTS, STONES = [], [], [], [], []
 FACE = 4.5  # how tall a retaining wall face reads from above (units)
 
 
@@ -395,6 +395,13 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
         for a, c in zip(xs[0::2], xs[1::2]): retaining(d, T, [(a, yt), (c, yt)], rng)
         for g0, g1 in gaps: stairs(d, T, [(g0, yt), (g1, yt)], rng)
     for l, t, r, b in PLOTS: plot_pad(d, T, l, t, r, b, rng)
+    for pts in STONES:  # stepping stones across the water: flat, lit tops, a ring of foam
+        ln = LineString(pts)
+        for k in range(1, 7):
+            p = ln.interpolate(k / 7, normalized=True); X, Y = T(p.x + rng.uniform(-0.4, 0.4), p.y + rng.uniform(-0.4, 0.4)); r = rng.uniform(1.0, 1.3) * S
+            d.ellipse([X - r - 2, Y - r * 0.6 - 1, X + r + 2, Y + r * 0.6 + 3], fill=(230, 248, 246, 200))
+            d.ellipse([X - r, Y - r * 0.6, X + r, Y + r * 0.6 + 2], fill=(92, 88, 84, 255))
+            d.ellipse([X - r, Y - r * 0.6, X + r * 0.8, Y + r * 0.4], fill=(150, 146, 138, 255))
     for l, r, t, b in ALLEYS: alley(d, T, l, r, t, b, rng)
     for x, y in DOORSTEPS: doorstep(d, T, x, y)
     def segs(g):

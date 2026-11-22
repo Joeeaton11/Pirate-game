@@ -1,7 +1,7 @@
 """Build the Tortuga blueprint: plan_tortuga.py (authored, outside the town) + the painted town's
 walk map (derived) -> src/blueprint/tortugaBlueprint.generated.ts and a preview image.
 Usage: python3 build_tortuga.py <town.png> [preview.png]"""
-import sys, random, math
+import sys, random, math, json
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from shapely.geometry import Polygon, LineString, Point, box
@@ -499,6 +499,60 @@ for n_, k_, w, pts in P.ROADS:
         p_ = _ln.interpolate(d_); i, j = int((p_.x - X0) / C), int((p_.y - Y0) / C)
         if 0 <= i < W_ and 0 <= j < H_ and sol[j, i] and not _keep.buffer(1).contains(p_):
             print(f'  BLOCKED PATH {n_} at {p_.x:.0f},{p_.y:.0f}'); break
+# ---------------------------------------------------------------- world extras: stepping stones, shortcuts, walkers
+def _clear(g):
+    minx, miny, maxx, maxy = g.bounds
+    for j in range(max(0, int((miny - Y0) / C)), min(H_, int((maxy - Y0) / C) + 1)):
+        for i in range(max(0, int((minx - X0) / C)), min(W_, int((maxx - X0) / C) + 1)):
+            if sol[j, i] and g.contains(Point(X0 + (i + .5) * C, Y0 + (j + .5) * C)): sol[j, i] = False
+def _river_cross(ri, frac):
+    """A crossing line square to river `ri` at fraction `frac` of its length, bank to bank."""
+    rv = P.RIVERS[ri]; ln = LineString(rv['pts']); p = ln.interpolate(frac, normalized=True)
+    a, b = ln.interpolate(max(0, ln.project(p) - 1)), ln.interpolate(min(ln.length, ln.project(p) + 1))
+    ux, uy = b.x - a.x, b.y - a.y; L = math.hypot(ux, uy) or 1; nx, ny = -uy / L, ux / L
+    half = rv['w'] / 2 + 2.6
+    return LineString([(p.x - nx * half, p.y - ny * half), (p.x + nx * half, p.y + ny * half)]), (nx, ny)
+_bridge_pts = [LineString(pts).interpolate(0.5, normalized=True) for *_, pts in BRIDGE_SPANS]
+def _good_cross(ri, fracs):
+    for f in fracs:
+        ln_, n_ = _river_cross(ri, f)
+        m = ln_.interpolate(0.5, normalized=True)
+        if min((m.distance(q) for q in _bridge_pts), default=99) > 25 and ways.distance(m) > 8 and all(m.distance(LineString(st_).interpolate(0.5, normalized=True)) > 30 for st_ in STONES) and coast.buffer(-6).contains(m): return ln_, n_
+    return None
+STONES = []
+for _ri, _fr in ((2, (0.35, 0.3, 0.45, 0.25)), (0, (0.55, 0.6, 0.5, 0.7))):
+    _c = _good_cross(_ri, _fr)
+    if _c:
+        STONES.append(list(_c[0].coords)); _clear(_c[0].buffer(1.9, cap_style=2))
+SHORTCUTS = []
+_c = _good_cross(2, (0.7, 0.75, 0.65, 0.8, 0.85, 0.6, 0.55, 0.9, 0.15, 0.1)) or _good_cross(0, (0.3, 0.25, 0.35, 0.2, 0.8, 0.85))
+if _c:
+    _ln, (_nx, _ny) = _c; (_ax, _ay), (_bx, _by) = _ln.coords
+    if _ay < _by: (_ax, _ay), (_bx, _by) = (_bx, _by), (_ax, _ay)   # b is the north (far) bank
+    _clear(_ln.buffer(1.9, cap_style=2))
+    _bl = _ln.buffer(1.9, cap_style=2).bounds
+    SHORTCUTS.append(dict(id='log_brook', name='Fallen-log crossing', kind='log', a=(_ax, _ay), b=(_bx, _by), block=_bl, line=list(_ln.coords)))
+# a rope ladder up the High Woods terrace wall, away from the roads
+for _tw in terrace_walls:
+    _L = LineString(_tw)
+    if _L.length < 20: continue
+    _m = _L.interpolate(0.5, normalized=True)
+    if math.hypot(_m.x - 500, _m.y + 30) > 120 or ways.distance(_m) < 12: continue
+    _blk = box(_m.x - 1.9, _m.y - 2.5, _m.x + 1.9, _m.y + 5.5)
+    _clear(_blk)
+    SHORTCUTS.append(dict(id='ladder_highwoods', name='Rope ladder', kind='ladder', a=(_m.x, _m.y + 8), b=(_m.x, _m.y - 6), block=_blk.bounds, line=[(_m.x, _m.y), (_m.x, _m.y + 4.5)]))
+    break
+# townsfolk routes: down the long town streets and along the main roads
+WALKS = []
+_st = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('street', [])])
+for _l, _r, _t, _b in town_rects.get('street', []):
+    if _r - _l > 40 and _b - _t >= 5: WALKS.append([((_l + 4), (_t + _b) / 2), ((_r - 4), (_t + _b) / 2)])
+    elif _b - _t > 40 and _r - _l >= 5: WALKS.append([((_l + _r) / 2, _t + 4), ((_l + _r) / 2, _b - 4)])
+WALKS = sorted(WALKS, key=lambda w_: -math.hypot(w_[1][0] - w_[0][0], w_[1][1] - w_[0][1]))[:10]
+for _n, _k, _w, _pts in P.ROADS:
+    if _k in ('main', 'lane') and LineString(_pts).length > 60: WALKS.append([tuple(p_) for p_ in _pts])
+FISHERS = [tuple(pts[-1]) for n_, k_, w_, pts in P.DOCKS][:6]
+BRIDGE_MIDS = [(round(q.x, 1), round(q.y, 1)) for q in _bridge_pts]
 sol_rects = [(X0 + i * C, X0 + k * C, Y0 + j * C, Y0 + jj * C) for i, k, j, jj in merge(sol)]
 
 # ---------------------------------------------------------------- write TS
@@ -849,6 +903,7 @@ _fp = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2) for 
 _town_open = unary_union([box(l, t, r, b) for k_ in ('street', 'wood', 'water', 'sand') for l, r, t, b in town_rects.get(k_, [])] + [box(l, t, r, b) for l, r, t, b in blocks])
 _avoid = unary_union([box(l, t - 3, r, b + 3) for l, r, t, b, gaps in town_walls] + [LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), _town_open.buffer(1.5), dock_area.buffer(2)]
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock', 'quarry', 'orchard')])
+art_layers.STONES[:] = STONES
 art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid, _no_rocks, _fp, town_rects, town_walls)
 # cut the base into tiles so phones never need one huge texture, and the game loads only nearby ones
 from PIL import Image as _Im
@@ -897,5 +952,15 @@ for _r in range(4):
 _tl.append('];')
 open(f'{ROOT}/src/blueprint/tortugaArtTiles.generated.ts', 'w').write('\n'.join(_tl) + '\n')
 print('art base written')
+_w = ['// GENERATED by build_tortuga.py — Art mode world extras: shortcuts, bridge fishing, townsfolk routes. Never hand-edit.',
+      'export interface Shortcut { id: string; name: string; kind: string; a: [number, number]; b: [number, number]; block: [number, number, number, number]; line: [number, number][] }',
+      'export const WORLD_SHORTCUTS: Shortcut[] = ' + json.dumps([dict(id=c['id'], name=c['name'], kind=c['kind'], a=[round(v, 1) for v in c['a']], b=[round(v, 1) for v in c['b']],
+                                                                   block=[round(c['block'][0], 1), round(c['block'][2], 1), round(c['block'][1], 1), round(c['block'][3], 1)],
+                                                                   line=[[round(x, 1), round(y, 1)] for x, y in c['line']]) for c in SHORTCUTS]) + ';',
+      'export const WORLD_BRIDGE_FISHING: [number, number][] = ' + json.dumps([list(p) for p in BRIDGE_MIDS]) + ';',
+      'export const WORLD_WALKS: [number, number][][] = ' + json.dumps([[[round(x, 1), round(y, 1)] for x, y in w] for w in WALKS]) + ';',
+      'export const WORLD_FISHERS: [number, number][] = ' + json.dumps([[round(x, 1), round(y, 1)] for x, y in FISHERS]) + ';']
+open(f'{ROOT}/src/blueprint/artWorld.generated.ts', 'w').write('\n'.join(_w) + '\n')
+print('  world extras: stones', len(STONES), 'shortcuts', [c['id'] for c in SHORTCUTS], 'walks', len(WALKS))
 import art_spec
 art_spec.build(ROOT, P, coast, beach, zone_geoms, water, town_rects, town_box, ways, dock_geoms, bridges, breakwater, art_slots, art_layers, life_sprites)

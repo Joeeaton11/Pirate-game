@@ -59,6 +59,10 @@ import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } fr
 import { ArtSprites } from '../blueprint/ArtSprites';
 import { ArtLife } from '../blueprint/ArtLife';
 import { ArtInspector } from '../blueprint/ArtInspector';
+import { FullMap, Interact, lockedShortcutRects, nearestInteract, ShortcutSprites, Townsfolk, WeatherMood } from '../blueprint/ArtWorld';
+import { WORLD_SHORTCUTS } from '../blueprint/artWorld.generated';
+import { LIFE_SHORE } from '../blueprint/artLife.generated';
+import { addTimeOffset, CYCLE_SECONDS } from '../town/DayNight';
 import { ART_WINDOWS } from '../blueprint/tortugaArtSlots.generated';
 import { ArtTiles } from '../blueprint/ArtTiles';
 import { autoTarget, JournalPanel, TrackerArrow, TrackTarget, targetDone } from '../town/Journal';
@@ -967,6 +971,9 @@ export default function MapScreen({ navigation }: Props) {
   const dugSpots = useGameStore((s) => s.dugSpots);
   const seenClues = useGameStore((s) => s.seenClues);
   const foundSkulls = useGameStore((s) => s.foundSkulls);
+  const unlockedShortcuts = useGameStore((s) => s.unlockedShortcuts ?? []);
+  const [showFullMap, setShowFullMap] = useState(false);
+  const searchedRef = useRef<Map<string, number>>(new Map());
   const readBottles = useGameStore((s) => s.readBottles);
   const overviewRef = useRef(false);
   overviewRef.current = overview;
@@ -1621,8 +1628,16 @@ export default function MapScreen({ navigation }: Props) {
     : inTortugaTown
     ? 0.08 + 0.5 * Math.max(0, Math.min(1, (-200 - relY) / 140))
     : 0.12;
-  useAmbientLoop(SFX.harbour, harbourVolume);
-  useRandomCalls(SFX.gull, harbourVolume > 0.25, 6, 14, 0.35);
+  // waves and gulls on every shore of Tortuga, not just the harbour
+  let shoreD = 999;
+  if (Math.abs(relX) < 640 && Math.abs(relY) < 600)
+    for (let i = 0; i < LIFE_SHORE.length; i += 3) {
+      const d = Math.abs(LIFE_SHORE[i][0] - relX) + Math.abs(LIFE_SHORE[i][1] - relY);
+      if (d < shoreD) shoreD = d;
+    }
+  const shoreVolume = blackPearlBoarded ? 0 : 0.4 * Math.max(0, Math.min(1, 1 - (shoreD - 10) / 50));
+  useAmbientLoop(SFX.harbour, Math.max(harbourVolume, shoreVolume));
+  useRandomCalls(SFX.gull, Math.max(harbourVolume, shoreVolume) > 0.25, 6, 14, 0.35);
   // Footsteps follow the blueprint's ground-surface layer: planks, cobbles, or soft ground.
   const surface = inTortugaTown || relX < 640 ? surfaceAt(player) : 'none';
   const stepKind = distanceToNearestPier(player) < 4 || surface === 'plank' ? 'wood' : surface === 'cobble' ? 'cobble' : 'soft';
@@ -2056,10 +2071,11 @@ export default function MapScreen({ navigation }: Props) {
         BUILDING_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
       );
       if (SHOW_TORTUGA_V2 && currentIsland?.id === 'tortuga_cove') {
+        const locked = lockedShortcutRects(ISLANDS.tortuga_cove.position, useGameStore.getState().unlockedShortcuts ?? []);
         nextPosition = slideAroundRects(
           playerRef.current,
           nextPosition,
-          BLUEPRINT_SOLID_RECTS,
+          locked.length ? BLUEPRINT_SOLID_RECTS.concat(locked) : BLUEPRINT_SOLID_RECTS,
           1.5
         );
       } else if (planModeRef.current && currentIsland && PLAN_SOLIDS[currentIsland.id]) {
@@ -2153,8 +2169,19 @@ export default function MapScreen({ navigation }: Props) {
             showResourceToast(`🍾 ${first ? 'A message in a bottle!' : 'The bottle again:'}\n${bt.text}`, 5000);
           })
         );
+        WORLD_SHORTCUTS.forEach((sc) =>
+          enter(`shortcut:${sc.id}`, Math.hypot(rx - sc.b[0], ry - sc.b[1]) <= 5, () => {
+            if (useGameStore.getState().unlockShortcut(sc.id))
+              showResourceToast(sc.kind === 'log' ? '🪵 You push the dead tree over the brook — a shortcut home!' : '🪢 You drop the rope ladder down the wall — a shortcut!', 3400);
+          })
+        );
         BP_VIEWPOINTS.forEach((v) =>
           enter(`view:${v.name}`, Math.hypot(rx - v.x, ry - v.y) <= 8, () => {
+            // a scenic moment: the view pulls back to the whole island for a few seconds
+            if (!planModeRef.current) {
+              setOverview(true);
+              setTimeout(() => setOverview(false), 3200);
+            }
             const fresh = v.districts.filter((d) => !discoveredRef.current.includes(d));
             fresh.forEach((d) => discoverDistrict(d));
             discoveredRef.current = [...discoveredRef.current, ...fresh];
@@ -3199,6 +3226,8 @@ export default function MapScreen({ navigation }: Props) {
                 {/* The town core is now drawn from the plan too (ground in the tiles, houses as sprites). */}
                 <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
                 {!overview && <ArtLife origin={ISLANDS.tortuga_cove.position} cam={camCoarse} player={player} />}
+                <ShortcutSprites origin={ISLANDS.tortuga_cove.position} unlocked={unlockedShortcuts} />
+                {!overview && <Townsfolk origin={ISLANDS.tortuga_cove.position} cam={camCoarse} />}
               </View>
             )}
             {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} visible={planLayers} />}
@@ -3832,6 +3861,10 @@ export default function MapScreen({ navigation }: Props) {
         {viewport.width > 0 && !planMode && (
           <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : BP_LAMPS} windows={planMode ? undefined : ART_WINDOWS} />
         )}
+        {viewport.width > 0 && !planMode && SHOW_TORTUGA_V2 && !blackPearlBoarded &&
+          Math.abs(player.x - ISLANDS.tortuga_cove.position.x) < 640 && Math.abs(player.y - ISLANDS.tortuga_cove.position.y) < 600 && (
+            <WeatherMood rel={{ x: player.x - ISLANDS.tortuga_cove.position.x, y: player.y - ISLANDS.tortuga_cove.position.y }} viewport={viewport} />
+          )}
 
         {viewport.width > 0 && merchantShipFlash && (() => {
           const source = merchantShipSpriteSource(merchantShipFlash.templateId, merchantShipFlash.heading);
@@ -3947,6 +3980,12 @@ export default function MapScreen({ navigation }: Props) {
           ].join(' ');
 
           return (
+            <>
+            <Pressable
+              style={[styles.miniMap, { borderWidth: 0, backgroundColor: 'transparent', zIndex: 5 }]}
+              onPress={() => onTortuga && setShowFullMap(true)}
+              hitSlop={4}
+            />
             <View pointerEvents="none" style={styles.miniMap}>
               <Svg width={MINIMAP_SIZE} height={MINIMAP_SIZE} viewBox={`${minX} ${minY} ${span} ${span}`}>
                 <Rect x={minX} y={minY} width={span} height={span} fill="#124d73" />
@@ -4134,6 +4173,7 @@ export default function MapScreen({ navigation }: Props) {
                 />
               </Svg>
             </View>
+            </>
           );
         })()}
 
@@ -4156,6 +4196,48 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
+        {!nearbyBuildingPrompt && !planMode && SHOW_TORTUGA_V2 && !blackPearlBoarded && (() => {
+          const o = ISLANDS.tortuga_cove.position;
+          const it = nearestInteract({ x: player.x - o.x, y: player.y - o.y });
+          if (!it) return null;
+          const act = (i: Interact) => {
+            const st = useGameStore.getState();
+            const last = searchedRef.current.get(i.id) ?? 0;
+            const nowS = Date.now() / 1000;
+            if (i.kind === 'barrel') {
+              if (last) return showResourceToast('🛢️ Already searched — just rope and salt fish.', 2000);
+              searchedRef.current.set(i.id, nowS);
+              const r = Math.random();
+              if (r < 0.35) { const g = 1 + Math.floor(Math.random() * 3); st.addGold(g); showResourceToast(`🪙 Tucked between the staves: ${g} gold!`, 2400); }
+              else if (r < 0.5) { st.addResource('rum', 1); showResourceToast('🍶 A forgotten bottle of rum!', 2400); }
+              else showResourceToast('🛢️ Nothing but salted herring and old rope.', 2000);
+            } else if (i.kind === 'palm') {
+              if (last && nowS - last < 120) return showResourceToast('🌴 No more coconuts up there for now.', 2000);
+              searchedRef.current.set(i.id, nowS);
+              if (Math.random() < 0.6) { st.addResource('coconut', 1); showResourceToast('🥥 Thunk! A coconut drops.', 2200); }
+              else showResourceToast('🌴 The fronds rustle. Nothing falls.', 1800);
+            } else if (i.kind === 'bench') {
+              addTimeOffset(CYCLE_SECONDS / 4);
+              showResourceToast('🪑 You sit and watch the island go by… the hours slip past.', 2600);
+            } else if (i.kind === 'well') {
+              if (last) return showResourceToast('🪙 One wish per well, matey.', 2000);
+              searchedRef.current.set(i.id, nowS);
+              if (Math.random() < 0.25) { st.addGold(2); showResourceToast('✨ The well glints back — 2 gold on the bucket!', 2600); }
+              else showResourceToast('🪙 You toss in a wish. Somewhere, a parrot laughs.', 2400);
+            } else {
+              if (last && nowS - last < 45) return showResourceToast('🎣 Nothing biting yet — give it a moment.', 1800);
+              searchedRef.current.set(i.id, nowS);
+              if (Math.random() < 0.6) { st.addResource('fish', 1); showResourceToast('🐟 A fat fish off the bridge!', 2200); }
+              else showResourceToast('🎣 A nibble… and it got away.', 1800);
+            }
+          };
+          return (
+            <Pressable style={styles.buildingPrompt} onPress={() => act(it)}>
+              <Text style={styles.buildingPromptText}>{it.label}</Text>
+            </Pressable>
+          );
+        })()}
+
         {nearbyBuildingPrompt && (
           <Pressable style={styles.buildingPrompt} onPress={confirmEnterBuilding}>
             <Text style={styles.buildingPromptEmoji}>{nearbyBuildingPrompt.emoji}</Text>
@@ -4164,7 +4246,7 @@ export default function MapScreen({ navigation }: Props) {
         )}
 
         {(() => {
-          if (overview || editMode || showJournal || !viewport.width) return null;
+          if (overview || editMode || showJournal || showFullMap || !viewport.width) return null;
           const o = ISLANDS.tortuga_cove.position;
           const rel = { x: player.x - o.x, y: player.y - o.y };
           if (Math.abs(rel.x) > 620 || Math.abs(rel.y) > 580) return null;
@@ -4358,6 +4440,15 @@ export default function MapScreen({ navigation }: Props) {
             onClose={() => setShowJournal(false)}
           />
         )}
+        {showFullMap && (() => {
+          const o = ISLANDS.tortuga_cove.position;
+          const rel = { x: player.x - o.x, y: player.y - o.y };
+          const prog = { completedErrands, dugSpots, seenClues, foundSkulls, readBottles, discoveredDistricts, resources: resourcesHeld, ferryUnlocked };
+          const live = tracked && !targetDone(tracked, prog) ? tracked : autoTarget(prog, rel);
+          return (
+            <FullMap rel={rel} target={live ? { x: live.x, y: live.y, label: live.label } : null} discovered={discoveredDistricts} viewport={viewport} onClose={() => setShowFullMap(false)} />
+          );
+        })()}
         {planMode && editMode && (
           <View style={styles.editBar}>
             <Text style={styles.editBarText}>
