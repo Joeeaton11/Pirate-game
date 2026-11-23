@@ -12,7 +12,7 @@ from shapely.prepared import prep
 FRONT_CLUTTER = ['barrels', 'crates', 'sacks', 'flowerpot', 'potted_palm', 'barrel', 'crates', 'bench', 'lamp', 'wanted_poster', 'rum_barrels', 'flowerpot', 'potted_palm']
 QUAY_CARGO = ['cargo', 'barrels', 'crates', 'sacks', 'nets', 'barrels', 'crates', 'rope_coil', 'barrel', 'lobster_pot', 'crab_trap_stack', 'rope_coil', 'rum_barrels', 'anchor', 'powder_keg']
 GRASS_DECOR = ['flowers', 'flowers', 'flowers', 'tall_grass', 'tall_grass', 'tall_grass', 'stone']
-SOLID_KINDS = {'planter', 'planter_palm', 'hay_bale', 'hay_stack', 'cannon', 'rum_cart', 'cannonballs', 'figurehead', 'ship_bell', 'crab_trap_stack', 'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
+SOLID_KINDS = {'fountain', 'planter', 'planter_palm', 'hay_bale', 'hay_stack', 'cannon', 'rum_cart', 'cannonballs', 'figurehead', 'ship_bell', 'crab_trap_stack', 'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
 
 
 TOWN_WALLS = box(0, 0, 0, 0)
@@ -294,7 +294,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         p = Point(x, y)
         if road_lines.contains(p): continue
         on_wharf = wood_p is not None and wood_p.contains(p)
-        if not (on_wharf or otp.contains(p)): continue
+        if not on_wharf: continue  # the town is laid out street by street now: only the wharves get cargo groups
         if gap_at(p) < (6.5 if on_wharf else 11.0): continue
         grp = rng.choice(CARGO_GROUPS if on_wharf else TOWN_GROUPS)
         for i, k in enumerate(grp):
@@ -336,11 +336,21 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         for f in (0.35, 0.75):
             q = L.interpolate(f, normalized=True)
             if free(q.x, q.y, 3): out.append(('laundry_line', round(q.x, 1), round(q.y, 1))); taken.append(q); lines_ += 1
-    sl, st_, sr, sb = _tp.SQUARE.bounds
-    for k in range(int((sr - sl - 8) / 8)):
-        for yy in (sb - 3.5,):
-            x = sl + 6 + k * 8
-            if _tp.SQUARE.buffer(-2).contains(Point(x, yy)): put(rng.choice(['stall', 'stall', 'cart', 'crates']), x, yy, 4)
+    # the market square, laid out on purpose: one statue in the middle with four benches round it, a
+    # neat row of market stalls along the south side with their goods beside them, a lamp at each corner,
+    # and the rest left as open cobbles so it reads as a square, not a junk yard
+    sq = _tp.SQUARE; c = sq.centroid
+    for k, x, y in [('fountain', c.x, c.y - 2)] + [('bench', c.x + dx, c.y - 2 + dy) for dx, dy in ((-9, -4), (9, -4), (-9, 5), (9, 5))] + [('planter_palm', c.x + dx, c.y - 2) for dx in (-17, 17)]:
+        out.append((k, round(x, 1), round(y, 1))); taken.append(Point(x, y))
+    for (x, y) in list(sq.buffer(-3, join_style=2).exterior.coords)[:-1]:
+        out.append(('lamp', round(x, 1), round(y, 1))); taken.append(Point(x, y))
+    sl, st_, sr, sb = sq.bounds
+    for k in range(int((sr - sl - 16) / 11) + 1):
+        x = sl + 10 + k * 11; y = sb - 6.5
+        if sq.buffer(-3).contains(Point(x, y)):
+            out.append(('stall', round(x, 1), round(y, 1))); taken.append(Point(x, y))
+            g = ['crates', 'barrels', 'sacks'][k % 3]
+            out.append((g, round(x + 4.6, 1), round(y + 0.4, 1))); taken.append(Point(x + 4.6, y))
     print('  town signs', signs, 'lamps', lamps_, 'washing lines', lines_)
 
     # 9. a carved name board at each district label

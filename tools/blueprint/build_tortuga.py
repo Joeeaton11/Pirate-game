@@ -62,7 +62,8 @@ def _wind(pts, w, seed):
 import random
 P.ROADS = [(n_, k_, w_, _wind(p_, w_, i_) if k_ in ('main', 'lane', 'path') else p_) for i_, (n_, k_, w_, p_) in enumerate(P.ROADS)]
 import town_plan
-P.ROADS = list(P.ROADS) + town_plan.STREETS  # the town's own streets: walkable and checked like any road
+P.ROADS = list(P.ROADS) + town_plan.STREETS
+P.PROPS = [q for q in P.PROPS if not town_plan.SQUARE.buffer(3).contains(Point(q[1], q[2]))]  # the square is dressed by dressing.py  # the town's own streets: walkable and checked like any road
 # Flat road ends (no rounded caps): the plan is what the artwork copies.
 road_geoms = [LineString(pts).buffer(w / 2, cap_style=2, join_style=1) for _, _, w, pts in P.ROADS]
 dock_geoms = [(n, k, w, LineString(pts).buffer(w / 2, cap_style=2, join_style=2)) for n, k, w, pts in P.DOCKS]

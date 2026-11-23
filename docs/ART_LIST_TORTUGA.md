@@ -268,7 +268,7 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 | `prop_signpost` | signpost | 4 | 17× | **missing** | 1 |
 | `prop_lantern` | lantern | 3 | 13× | **missing** | 1 |
 | `prop_cart` | cart | 9 | 12× | **missing** | 1 |
-| `prop_notice` | notice | 5 | 12× | **missing** | 1 |
+| `prop_notice` | notice | 5 | 11× | **missing** | 1 |
 | `prop_water_butt` | water butt | 4 | 10× | **missing** | 1 |
 | `prop_cannon` | cannon | 5 | 9× | **missing** | 1 |
 | `prop_grave` | grave | 4 | 8× | **missing** | 1 |

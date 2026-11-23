@@ -506,6 +506,16 @@ def critter(S, kind, seed):
         elif icon == 'needle': d.line([cx - 2 * u, cy + 1.6 * u, cx + 2 * u, cy - 1.6 * u], fill=ink, width=max(1, int(u * 0.6))); d.ellipse([cx + 1.2 * u, cy - 2.2 * u, cx + 2.4 * u, cy - 1.0 * u], outline=ink)
         else: d.polygon([(cx - 2 * u, cy + 1.6 * u), (cx, cy - 2 * u), (cx + 2 * u, cy + 1.6 * u)], fill=ink)  # a ship's sail
         return _outline(im), (0.65 * s, H - 1)
+    if kind == 'fountain':  # the square's centrepiece: a round stone basin with a pillar and a spout
+        im, d = _canvas(10 * s, 9 * s); W, H = im.size
+        d.ellipse([0.3 * s, H - 5.2 * s, W - 0.3 * s, H - 0.3 * s], fill=(150, 142, 128, 255))              # basin wall
+        d.ellipse([0.3 * s, H - 5.2 * s, W - 0.3 * s, H - 2.2 * s], fill=(186, 178, 160, 255))              # lit rim
+        d.ellipse([1.1 * s, H - 4.8 * s, W - 1.1 * s, H - 2.6 * s], fill=(60, 150, 170, 255))               # water
+        d.ellipse([2.2 * s, H - 4.3 * s, W - 3.4 * s, H - 3.4 * s], fill=(120, 200, 214, 255))              # light on it
+        d.rectangle([4.3 * s, 1.6 * s, 5.7 * s, H - 3.6 * s], fill=(160, 152, 138, 255)); d.line([4.4 * s, 1.8 * s, 4.4 * s, H - 3.8 * s], fill=(200, 192, 176, 255))
+        d.ellipse([3.4 * s, 0.6 * s, 6.6 * s, 2.2 * s], fill=(176, 168, 152, 255))                          # top bowl
+        for dx in (-1.2, 1.2): d.line([5 * s, 1.6 * s, 5 * s + dx * s, 3.8 * s], fill=(170, 226, 236, 255), width=max(1, int(0.3 * s)))
+        return _outline(im), (W / 2, H - 1)
     if kind in ('planter', 'planter_palm'):  # a raised stone bed on the cobbles, planted up
         im, d = _canvas(7 * s, (7.5 if kind == 'planter_palm' else 4.4) * s)
         H = im.size[1]
