@@ -544,6 +544,29 @@ for seg in getattr(_seam, 'geoms', [_seam]):
     for sp in span:
         terrace_stairs.append((list(sp.coords), math.pi / 2, max(4, sp.length))); _qs += 1
 print('  quay wall pieces', _qw, 'flights', _qs)
+# terraces inside the town: the main cross streets run along raised terraces, with a stone retaining
+# wall dropping to the gardens and lower rows on their south side, and flights of steps wherever a lane
+# or alley crosses down through the wall
+_tst = {n_: (w_, p_) for n_, k_, w_, p_ in town_plan.STREETS}
+_tw_n = _ts_n = 0
+for _name in ("Chandlers' Row", "Ropewalk", "Tanners' Row", "Salt Row", "Chapel Lane"):
+    _w, _pts = _tst[_name]
+    _pts = sorted(_pts) if _pts[0][0] > _pts[-1][0] else list(_pts)
+    _ln = LineString(_pts).offset_curve(_w / 2 + 1.0, join_style=2)
+    if _ln.is_empty: continue
+    _cross = [(n_, w_, p_) for n_, (w_, p_) in _tst.items() if n_ != _name and LineString(p_).buffer(w_ / 2 + 2).intersects(_ln)]
+    _cut = unary_union([LineString(p_).buffer(w_ / 2 + 2.0, cap_style=2) for n_, w_, p_ in _cross] + [town_plan.SQUARE.buffer(2)])
+    _wall = _ln.difference(_cut)
+    for _pc in getattr(_wall, 'geoms', [_wall]):
+        if _pc.geom_type == 'LineString' and _pc.length > 3: terrace_walls.append(list(_pc.coords)); _tw_n += 1
+    for n_, w_, p_ in _cross:
+        _x = _ln.intersection(LineString(p_).buffer(w_ / 2 + 0.3, cap_style=2))
+        for _g in getattr(_x, 'geoms', [_x]):
+            if _g.geom_type != 'LineString' or _g.length < 1: continue
+            _L2 = LineString(p_); _mm = _L2.interpolate(_L2.project(_g.interpolate(0.5, normalized=True)))
+            _a2 = _L2.interpolate(max(0, _L2.project(_mm) - 1)); _b2 = _L2.interpolate(min(_L2.length, _L2.project(_mm) + 1))
+            terrace_stairs.append((list(_g.coords), math.atan2(_b2.y - _a2.y, _b2.x - _a2.x), w_)); _ts_n += 1
+print('  town terraces: wall pieces', _tw_n, 'flights', _ts_n)
 # stepped alleys: flights of steps where the ginnels climb the hill
 for _n, _k, _w, _pts in town_plan.STREETS:
     if _n not in town_plan.STEPPED: continue

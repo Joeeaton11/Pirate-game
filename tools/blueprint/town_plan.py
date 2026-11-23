@@ -43,6 +43,7 @@ STREETS = [
     ("Dyer's Yard", 'street', 3.4, [(200, -30), (204, 12)]),
 ]
 STEPPED = {"Cat Steps", "Chapel Steps", "Kipper Ginnel", "Widow's Walk"}  # alleys that climb in flights of steps
+YARDS = []  # filled by layout(): paved yards and gaps, drawn as cobbles with the streets
 SQUARE = Polygon([(4, -128), (100, -132), (110, -84), (92, -70), (2, -74)])  # the market square
 
 # named buildings: id -> (street it fronts, preferred x). Shops, taverns and quest buildings.
@@ -198,6 +199,20 @@ def layout(cls, TOWN, CELL, types, seed=7):
         add(x, y - d, x + w, y, d); courts += 1
         if courts >= 18: break
 
+    # paved yards: a cobbled yard in front of every house that faces a garden, and the narrow gaps
+    # between neighbouring houses, so the town reads as a stone port with gardens behind, not a suburb
+    yards = []
+    for (l, r, t, b) in houses:
+        yards.append(box(l - 2.0, b - 0.2, r + 2.0, b + 6.0))
+    rows = {}
+    for h in houses: rows.setdefault(round(h[3] / 3), []).append(h)
+    for row in rows.values():
+        row.sort()
+        for (l1, r1, t1, b1), (l2, r2, t2, b2) in zip(row, row[1:]):
+            if 0 < l2 - r1 < 8: yards.append(box(r1 - 0.2, max(t1, t2), l2 + 0.2, min(b1, b2) + 4))
+    bl = unary_union([box(l, t, r, b) for l, r, t, b in houses])
+    YARDS[:] = [unary_union(yards).difference(bl)]
+    streets = unary_union([streets, YARDS[0]])
     # cells: street where the streets and square are, garden for the rest of the land
     out = cls.copy()
     sp = prep(streets)

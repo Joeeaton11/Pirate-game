@@ -573,7 +573,7 @@ def town(rects):
     try:  # the town's streets drawn from their true curving outlines, not the 2-unit cell grid
         import town_plan as _tp
         _land = _uu([st, gd]).buffer(0.5)
-        _true = _uu([LineString(p_).buffer(w_ / 2, cap_style=2, join_style=1) for n_, k_, w_, p_ in _tp.STREETS] + [_tp.SQUARE]).intersection(_land)
+        _true = _uu([LineString(p_).buffer(w_ / 2, cap_style=2, join_style=1) for n_, k_, w_, p_ in _tp.STREETS] + [_tp.SQUARE] + list(_tp.YARDS)).intersection(_land)
         if not _true.is_empty:
             st = _true; gd = gd.difference(_true.buffer(0.3))
     except ImportError:
@@ -607,7 +607,9 @@ def town(rects):
         d = ImageDraw.Draw(im); rng = random.Random(31)
         for poly in getattr(gd, 'geoms', [gd]):
             if poly.area < 40: continue
-            ring = poly.buffer(-0.4, join_style=2).exterior
+            _sh = poly.buffer(-0.4, join_style=2)
+            if _sh.is_empty: continue
+            ring = max(getattr(_sh, 'geoms', [_sh]), key=lambda q: q.area).exterior
             cs = [T(*c) for c in ring.coords]
             d.line(cs, fill=(70, 66, 60, 255), width=int(1.4 * S) + 2)
             d.line(cs, fill=(150, 142, 128, 255), width=int(1.4 * S) - 1)
