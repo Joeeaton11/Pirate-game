@@ -25,3 +25,8 @@ Every art brief and every generation request (Weave, Figma or an artist) uses th
 style reference. Do not switch the world to smooth cartoon, painterly or any other style, and do not
 change or replace the target image, unless the user explicitly asks to change the locked style.
 Characters' look for map sprites vs portraits is a separate decision and is not covered by this lock.
+
+**Pixel scale (locked 2026-11-23 by the user): 6 art pixels per world unit** for everything drawn on the
+map (ground, buildings, trees, props, animals, and any future pixel character sprites). Painted art is
+snapped onto this grid by `tools/art/key_magenta.py` (shrunk to exactly 6 px per unit, limited palette,
+hard edges, stored 3x nearest). Do not change the scale unless the user asks.

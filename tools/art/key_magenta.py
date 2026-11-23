@@ -32,8 +32,22 @@ top = max(0, im.size[1] - int(round(bb * f)))
 W, H = int(round(R.size[0] * f)), int(round(R.size[1] * f)) + top
 canvas = Image.new('RGBA', (W, H), (0, 0, 0, 0))
 canvas.alpha_composite(im, (int(round(l * f)), top + int(round(bb * f)) - im.size[1]))
-# no bigger than 1.5x the 16 px/unit reference: plenty for the game, and keeps the web bundle small
-cap = 1.5 * R.size[0] / canvas.size[0]
-if cap < 1: canvas = canvas.resize((max(1, int(canvas.size[0] * cap)), max(1, int(canvas.size[1] * cap))), Image.LANCZOS)
+# snap onto the locked pixel grid (6 px per world unit, docs/ART_STYLE_GUIDE.md): shrink to exactly the
+# code sprite's pixel size, limit the palette, make edges hard, then store it 3x (nearest) so it stays crisp
+import os, re
+PPU = 6
+aid = os.path.splitext(os.path.basename(ref))[0]
+here = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'src', 'blueprint')
+width_units = None
+for f in ('artObjects.generated.ts', 'tortugaArtSlots.generated.ts'):
+    m = re.search(r"\['" + re.escape(aid) + r"', [-\d.]+, [-\d.]+, ([\d.]+)\]", open(os.path.join(here, f)).read())
+    if m: width_units = float(m.group(1)); break
+if width_units is None: width_units = R.size[0] / (4 * PPU)  # life frames: references are 4x the game's pixels
+gw = max(1, round(width_units * PPU)); gh = max(1, round(gw * canvas.size[1] / canvas.size[0]))
+small = canvas.resize((gw, gh), Image.LANCZOS)
+alpha = small.getchannel('A').point(lambda v: 255 if v > 110 else 0)
+pal = small.convert('RGB').quantize(64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert('RGBA')
+pal.putalpha(alpha)
+canvas = pal.resize((gw * 3, gh * 3), Image.NEAREST)
 canvas.save(out)
-print(out, canvas.size, 'ref', R.size)
+print(out, (gw, gh), 'game px', canvas.size, 'stored')

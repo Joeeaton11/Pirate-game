@@ -20,7 +20,7 @@ import pixel_props as pp
 import pixel_houses as ph
 
 X0, Y0, W, H = -620, -580, 1240, 1120
-S = 4  # pixels per world unit
+S = 6  # pixels per world unit: the locked pixel scale (docs/ART_STYLE_GUIDE.md)
 GAME_SEA = (18, 77, 115)
 
 
@@ -933,7 +933,7 @@ def export_objects():
             q = quantise(spr)
             im.alpha_composite(q, (int(round(half - ax)), 0))
             ref = f'{root}/docs/art_reference/obj'; os.makedirs(ref, exist_ok=True)
-            im.resize((im.size[0] * 4, im.size[1] * 4), Image.NEAREST).save(f'{ref}/{aid}.png')  # brief reference, 16 px/unit
+            im.resize((im.size[0] * 4, im.size[1] * 4), Image.NEAREST).save(f'{ref}/{aid}.png')  # brief reference, 4x the game's pixels
             painted = f'{root}/assets/art_painted/obj/{aid}.png'
             if os.path.exists(painted):  # a painted look replaces the code one at the same footprint
                 pim = Image.open(painted).convert('RGBA')

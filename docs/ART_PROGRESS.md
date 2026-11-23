@@ -14,144 +14,144 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | Asset | What | Hero/kit | Width (units) | Copies | Status |
 |---|---|---|---|---|---|
 | `ground` | The whole island ground (one image) | hero | 1240 | 1 | code placeholder |
-| `palm_2` | palm | kit | 23.0 | 408 | code placeholder |
-| `palm_1` | palm | kit | 24.0 | 363 | code placeholder |
-| `palm_0` | palm | kit | 23.5 | 368 | painted |
-| `palm_3` | palm | kit | 24.0 | 344 | code placeholder |
+| `palm_2` | palm | kit | 22.7 | 408 | code placeholder |
+| `palm_1` | palm | kit | 23.3 | 363 | code placeholder |
+| `palm_0` | palm | kit | 23.0 | 368 | painted |
+| `palm_3` | palm | kit | 23.3 | 344 | code placeholder |
 | `gull_0` | gull — frame 1 of 2 | kit | 5.0 | 70 | code placeholder |
 | `gull_1` | gull — frame 2 of 2 | kit | 5.0 | 70 | code placeholder |
-| `barrels_0` | barrels | kit | 9.0 | 75 | painted |
-| `crates_0` | crates | kit | 5.5 | 68 | painted |
-| `jungle_1` | jungle | kit | 16.0 | 85 | code placeholder |
-| `jungle_2` | jungle | kit | 16.0 | 89 | code placeholder |
-| `jungle_0` | jungle | kit | 16.0 | 73 | code placeholder |
-| `flowerpot_0` | flowerpot | kit | 4.0 | 47 | code placeholder |
-| `bollard_0` | bollard | kit | 4.5 | 36 | painted |
-| `jungle_3` | jungle | kit | 16.0 | 76 | code placeholder |
-| `rubble_0` | rubble | kit | 7.5 | 42 | code placeholder |
-| `bollard_1` | bollard | kit | 4.5 | 27 | code placeholder |
-| `tree_2` | tree | kit | 17.0 | 61 | code placeholder |
-| `tree_3` | tree | kit | 17.0 | 42 | code placeholder |
-| `bollard_2` | bollard | kit | 4.5 | 25 | code placeholder |
-| `tree_0` | tree | kit | 17.0 | 55 | painted |
-| `bench_0` | bench | kit | 6.5 | 28 | code placeholder |
+| `barrels_0` | barrels | kit | 8.0 | 75 | painted |
+| `crates_0` | crates | kit | 5.3 | 68 | painted |
+| `jungle_1` | jungle | kit | 15.3 | 85 | code placeholder |
+| `jungle_2` | jungle | kit | 15.3 | 89 | code placeholder |
+| `jungle_0` | jungle | kit | 15.3 | 73 | code placeholder |
+| `flowerpot_0` | flowerpot | kit | 3.3 | 47 | code placeholder |
+| `bollard_0` | bollard | kit | 4.0 | 36 | painted |
+| `jungle_3` | jungle | kit | 15.3 | 76 | code placeholder |
+| `rubble_0` | rubble | kit | 7.0 | 42 | code placeholder |
+| `bollard_1` | bollard | kit | 4.0 | 27 | code placeholder |
+| `tree_2` | tree | kit | 16.3 | 61 | code placeholder |
+| `tree_3` | tree | kit | 16.3 | 42 | code placeholder |
+| `bollard_2` | bollard | kit | 4.0 | 25 | code placeholder |
+| `tree_0` | tree | kit | 16.3 | 55 | painted |
+| `bench_0` | bench | kit | 6.0 | 28 | code placeholder |
 | `parrot_0` | parrot — frame 1 of 2 | kit | 2.5 | 30 | code placeholder |
 | `parrot_1` | parrot — frame 2 of 2 | kit | 2.5 | 30 | code placeholder |
-| `tree_1` | tree | kit | 17.0 | 42 | code placeholder |
-| `woodpile_0` | woodpile | kit | 7.5 | 29 | code placeholder |
+| `tree_1` | tree | kit | 16.3 | 42 | code placeholder |
+| `woodpile_0` | woodpile | kit | 7.0 | 29 | code placeholder |
 | `rowboat_moored_0` | rowboat moored — frame 1 of 1 | kit | 8.0 | 12 | code placeholder |
 | `crab_0` | crab — frame 1 of 2 | kit | 2.5 | 23 | code placeholder |
 | `crab_1` | crab — frame 2 of 2 | kit | 2.5 | 23 | code placeholder |
-| `cannon_0` | cannon | kit | 7.5 | 20 | code placeholder |
+| `cannon_0` | cannon | kit | 7.0 | 20 | code placeholder |
 | `crow_0` | crow — frame 1 of 2 | kit | 2.5 | 15 | code placeholder |
 | `crow_1` | crow — frame 2 of 2 | kit | 2.5 | 15 | code placeholder |
-| `crates_2` | crates | kit | 5.5 | 18 | code placeholder |
-| `crates_1` | crates | kit | 5.5 | 17 | code placeholder |
-| `sacks_2` | sacks | kit | 6.5 | 17 | code placeholder |
-| `signpost_0` | signpost | kit | 5.5 | 17 | code placeholder |
-| `cannonballs_0` | cannonballs | kit | 5.5 | 13 | code placeholder |
-| `lamp_0` | lamp | kit | 4.0 | 15 | code placeholder |
-| `water_butt_0` | water butt | kit | 5.5 | 16 | code placeholder |
-| `barrel_1` | barrel | kit | 5.5 | 12 | code placeholder |
-| `barrel_2` | barrel | kit | 5.5 | 12 | code placeholder |
-| `rum_barrels_0` | rum barrels | kit | 12.0 | 13 | code placeholder |
-| `lantern_0` | lantern | kit | 4.0 | 13 | code placeholder |
-| `rum_barrels_1` | rum barrels | kit | 12.0 | 10 | code placeholder |
-| `notice_0` | notice | kit | 5.5 | 12 | code placeholder |
-| `cannon_1` | cannon | kit | 7.5 | 8 | code placeholder |
-| `cannonballs_2` | cannonballs | kit | 5.5 | 8 | code placeholder |
-| `barrels_1` | barrels | kit | 9.0 | 10 | code placeholder |
-| `dead_tree_1` | dead tree | kit | 17.5 | 12 | code placeholder |
-| `sacks_1` | sacks | kit | 6.5 | 10 | code placeholder |
-| `lamp_2` | lamp | kit | 4.0 | 10 | code placeholder |
-| `wanted_poster_1` | wanted poster | kit | 4.5 | 10 | code placeholder |
-| `cart_0` | cart | kit | 7.5 | 12 | code placeholder |
-| `cannon_2` | cannon | kit | 7.5 | 8 | code placeholder |
-| `bench_2` | bench | kit | 6.5 | 9 | code placeholder |
+| `crates_2` | crates | kit | 5.3 | 18 | code placeholder |
+| `crates_1` | crates | kit | 5.3 | 17 | code placeholder |
+| `sacks_2` | sacks | kit | 6.0 | 17 | code placeholder |
+| `signpost_0` | signpost | kit | 5.0 | 17 | code placeholder |
+| `cannonballs_0` | cannonballs | kit | 5.0 | 13 | code placeholder |
+| `lamp_0` | lamp | kit | 3.7 | 15 | code placeholder |
+| `water_butt_0` | water butt | kit | 4.7 | 16 | code placeholder |
+| `barrel_1` | barrel | kit | 4.7 | 12 | code placeholder |
+| `barrel_2` | barrel | kit | 4.7 | 12 | code placeholder |
+| `rum_barrels_0` | rum barrels | kit | 11.7 | 13 | code placeholder |
+| `lantern_0` | lantern | kit | 3.7 | 13 | code placeholder |
+| `rum_barrels_1` | rum barrels | kit | 11.7 | 10 | code placeholder |
+| `notice_0` | notice | kit | 5.0 | 12 | code placeholder |
+| `cannon_1` | cannon | kit | 7.0 | 8 | code placeholder |
+| `cannonballs_2` | cannonballs | kit | 5.0 | 8 | code placeholder |
+| `barrels_1` | barrels | kit | 8.0 | 10 | code placeholder |
+| `dead_tree_1` | dead tree | kit | 17.0 | 12 | code placeholder |
+| `sacks_1` | sacks | kit | 6.0 | 10 | code placeholder |
+| `lamp_2` | lamp | kit | 3.7 | 10 | code placeholder |
+| `wanted_poster_1` | wanted poster | kit | 4.0 | 10 | code placeholder |
+| `cart_0` | cart | kit | 7.0 | 12 | code placeholder |
+| `cannon_2` | cannon | kit | 7.0 | 8 | code placeholder |
+| `bench_2` | bench | kit | 6.0 | 9 | code placeholder |
 | `campfire_0` | campfire — frame 1 of 2 | kit | 4.0 | 9 | code placeholder |
 | `campfire_1` | campfire — frame 2 of 2 | kit | 4.0 | 9 | code placeholder |
-| `barrels_2` | barrels | kit | 9.0 | 10 | code placeholder |
-| `sacks_0` | sacks | kit | 6.5 | 8 | code placeholder |
-| `stall_0` | stall | kit | 12.5 | 7 | code placeholder |
-| `dead_tree_2` | dead tree | kit | 17.5 | 10 | code placeholder |
+| `barrels_2` | barrels | kit | 8.0 | 10 | code placeholder |
+| `sacks_0` | sacks | kit | 6.0 | 8 | code placeholder |
+| `stall_0` | stall | kit | 12.0 | 7 | code placeholder |
+| `dead_tree_2` | dead tree | kit | 17.0 | 10 | code placeholder |
 | `jolly_roger_0` | jolly roger — frame 1 of 2 | kit | 7.0 | 8 | code placeholder |
 | `jolly_roger_1` | jolly roger — frame 2 of 2 | kit | 7.0 | 8 | code placeholder |
-| `flowerpot_2` | flowerpot | kit | 4.0 | 8 | code placeholder |
-| `potted_palm_1` | potted palm | kit | 6.5 | 8 | code placeholder |
-| `dead_tree_0` | dead tree | kit | 17.5 | 10 | code placeholder |
-| `rope_coil_0` | rope coil | kit | 5.5 | 9 | code placeholder |
-| `rope_coil_1` | rope coil | kit | 5.5 | 7 | code placeholder |
-| `cargo_0` | cargo | kit | 5.5 | 6 | code placeholder |
-| `wanted_poster_2` | wanted poster | kit | 4.5 | 7 | code placeholder |
-| `flowerpot_1` | flowerpot | kit | 4.0 | 7 | code placeholder |
-| `barrel_0` | barrel | kit | 5.5 | 7 | code placeholder |
-| `woodpile_1` | woodpile | kit | 7.5 | 7 | code placeholder |
-| `goat_0` | goat — frame 1 of 1 | kit | 5.0 | 9 | code placeholder |
-| `potted_palm_0` | potted palm | kit | 6.5 | 7 | code placeholder |
-| `potted_palm_2` | potted palm | kit | 6.5 | 7 | code placeholder |
-| `grave_0` | grave | kit | 4.5 | 8 | code placeholder |
-| `water_butt_1` | water butt | kit | 5.5 | 6 | code placeholder |
-| `powder_keg_0` | powder keg | kit | 5.5 | 6 | code placeholder |
-| `lobster_pot_1` | lobster pot | kit | 5.0 | 4 | code placeholder |
-| `mangrove_3` | mangrove | kit | 13.5 | 6 | code placeholder |
-| `washing_0` | washing | kit | 9.5 | 5 | code placeholder |
-| `parrot_perch_0` | parrot perch | kit | 4.5 | 5 | code placeholder |
-| `lamp_1` | lamp | kit | 4.0 | 6 | code placeholder |
-| `anchor_0` | anchor | kit | 5.5 | 4 | code placeholder |
-| `rum_barrels_2` | rum barrels | kit | 12.0 | 4 | code placeholder |
-| `woodpile_2` | woodpile | kit | 7.5 | 5 | code placeholder |
-| `bench_1` | bench | kit | 6.5 | 4 | code placeholder |
-| `pig_0` | pig — frame 1 of 1 | kit | 5.0 | 4 | code placeholder |
-| `lobster_pot_0` | lobster pot | kit | 5.0 | 6 | code placeholder |
+| `flowerpot_2` | flowerpot | kit | 3.3 | 8 | code placeholder |
+| `potted_palm_1` | potted palm | kit | 6.0 | 8 | code placeholder |
+| `dead_tree_0` | dead tree | kit | 17.0 | 10 | code placeholder |
+| `rope_coil_0` | rope coil | kit | 4.7 | 9 | code placeholder |
+| `rope_coil_1` | rope coil | kit | 4.7 | 7 | code placeholder |
+| `cargo_0` | cargo | kit | 5.3 | 6 | code placeholder |
+| `wanted_poster_2` | wanted poster | kit | 4.0 | 7 | code placeholder |
+| `flowerpot_1` | flowerpot | kit | 3.3 | 7 | code placeholder |
+| `barrel_0` | barrel | kit | 4.7 | 7 | code placeholder |
+| `woodpile_1` | woodpile | kit | 7.0 | 7 | code placeholder |
+| `goat_0` | goat — frame 1 of 1 | kit | 5.2 | 9 | code placeholder |
+| `potted_palm_0` | potted palm | kit | 6.0 | 7 | code placeholder |
+| `potted_palm_2` | potted palm | kit | 6.0 | 7 | code placeholder |
+| `grave_0` | grave | kit | 3.7 | 8 | code placeholder |
+| `water_butt_1` | water butt | kit | 4.7 | 6 | code placeholder |
+| `powder_keg_0` | powder keg | kit | 4.7 | 6 | code placeholder |
+| `lobster_pot_1` | lobster pot | kit | 4.7 | 4 | code placeholder |
+| `mangrove_3` | mangrove | kit | 12.7 | 6 | code placeholder |
+| `washing_0` | washing | kit | 9.0 | 5 | code placeholder |
+| `parrot_perch_0` | parrot perch | kit | 4.0 | 5 | code placeholder |
+| `lamp_1` | lamp | kit | 3.7 | 6 | code placeholder |
+| `anchor_0` | anchor | kit | 5.0 | 4 | code placeholder |
+| `rum_barrels_2` | rum barrels | kit | 11.7 | 4 | code placeholder |
+| `woodpile_2` | woodpile | kit | 7.0 | 5 | code placeholder |
+| `bench_1` | bench | kit | 6.0 | 4 | code placeholder |
+| `pig_0` | pig — frame 1 of 1 | kit | 5.2 | 4 | code placeholder |
+| `lobster_pot_0` | lobster pot | kit | 4.7 | 6 | code placeholder |
 | `home_cottage_18x16_3` | Cottage | kit | 21.0 | 4 | painted |
-| `lantern_post_0` | lantern post | kit | 4.0 | 4 | code placeholder |
-| `well_0` | well | kit | 6.5 | 4 | code placeholder |
-| `figurehead_0` | figurehead | kit | 6.0 | 3 | code placeholder |
-| `water_butt_2` | water butt | kit | 5.5 | 4 | code placeholder |
-| `stall_1` | stall | kit | 12.5 | 4 | code placeholder |
-| `beach_cannon_0` | beach cannon | kit | 7.5 | 5 | code placeholder |
-| `nets_0` | nets | kit | 9.5 | 4 | code placeholder |
-| `crane_0` | crane | hero | 20.5 | 3 | code placeholder |
-| `ruin_wall_0` | ruin wall | kit | 17.5 | 4 | code placeholder |
+| `lantern_post_0` | lantern post | kit | 3.7 | 4 | code placeholder |
+| `well_0` | well | kit | 6.0 | 4 | code placeholder |
+| `figurehead_0` | figurehead | kit | 5.7 | 3 | code placeholder |
+| `water_butt_2` | water butt | kit | 4.7 | 4 | code placeholder |
+| `stall_1` | stall | kit | 12.0 | 4 | code placeholder |
+| `beach_cannon_0` | beach cannon | kit | 7.0 | 5 | code placeholder |
+| `nets_0` | nets | kit | 9.0 | 4 | code placeholder |
+| `crane_0` | crane | hero | 20.0 | 3 | code placeholder |
+| `ruin_wall_0` | ruin wall | kit | 17.0 | 4 | code placeholder |
 
 ## Priority 2
 
 | Asset | What | Hero/kit | Width (units) | Copies | Status |
 |---|---|---|---|---|---|
-| `crab_trap_stack_0` | crab trap stack | kit | 6.0 | 3 | code placeholder |
-| `ship_bell_0` | ship bell | kit | 4.5 | 3 | code placeholder |
-| `lean_to_2` | lean to | kit | 10.5 | 4 | code placeholder |
-| `wanted_poster_0` | wanted poster | kit | 4.5 | 3 | code placeholder |
-| `cannonballs_1` | cannonballs | kit | 5.5 | 3 | code placeholder |
-| `ship_wheel_1` | ship wheel | kit | 5.5 | 3 | code placeholder |
+| `crab_trap_stack_0` | crab trap stack | kit | 5.3 | 3 | code placeholder |
+| `ship_bell_0` | ship bell | kit | 4.0 | 3 | code placeholder |
+| `lean_to_2` | lean to | kit | 10.0 | 4 | code placeholder |
+| `wanted_poster_0` | wanted poster | kit | 4.0 | 3 | code placeholder |
+| `cannonballs_1` | cannonballs | kit | 5.0 | 3 | code placeholder |
+| `ship_wheel_1` | ship wheel | kit | 5.0 | 3 | code placeholder |
 | `chicken_0` | chicken — frame 1 of 2 | kit | 2.5 | 6 | code placeholder |
 | `chicken_1` | chicken — frame 2 of 2 | kit | 2.5 | 6 | code placeholder |
 | `home_cottage_22x16_1` | Cottage | kit | 25.0 | 3 | code placeholder |
 | `home_wing_8x12_0` | Wing | kit | 11.0 | 3 | code placeholder |
 | `home_cottage_18x16_4` | Cottage | kit | 21.0 | 3 | code placeholder |
-| `boat_0` | boat | kit | 9.5 | 3 | code placeholder |
-| `spyglass_0` | spyglass | kit | 5.5 | 4 | code placeholder |
-| `sea_chest_0` | sea chest | kit | 5.5 | 3 | code placeholder |
-| `statue_0` | statue | hero | 5.5 | 3 | code placeholder |
-| `chest_0` | chest | kit | 5.5 | 3 | code placeholder |
-| `tent_0` | tent | kit | 9.5 | 5 | code placeholder |
-| `crane_2` | crane | hero | 20.5 | 2 | code placeholder |
-| `spyglass_1` | spyglass | kit | 5.5 | 2 | code placeholder |
-| `cargo_2` | cargo | kit | 5.5 | 2 | code placeholder |
-| `crab_trap_stack_1` | crab trap stack | kit | 6.0 | 2 | code placeholder |
-| `parrot_perch_1` | parrot perch | kit | 4.5 | 4 | code placeholder |
-| `nets_1` | nets | kit | 9.5 | 2 | code placeholder |
-| `stool_0` | stool | kit | 6.5 | 4 | code placeholder |
-| `turtle_0` | turtle — frame 1 of 1 | kit | 5.0 | 3 | code placeholder |
-| `rock_3` | rock | kit | 10.0 | 3 | code placeholder |
-| `hammock_0` | hammock | kit | 10.5 | 3 | code placeholder |
-| `pirate_grave_0` | pirate grave | kit | 4.5 | 3 | code placeholder |
-| `pilings_0` | pilings | kit | 11.5 | 3 | code placeholder |
-| `hammock_2` | hammock | kit | 10.5 | 4 | code placeholder |
-| `anchor_1` | anchor | kit | 5.5 | 2 | code placeholder |
-| `hay_bale_0` | hay bale | kit | 6.5 | 4 | code placeholder |
-| `beached_rowboat_2` | beached rowboat | kit | 9.5 | 5 | code placeholder |
-| `rowboat_0` | rowboat | kit | 9.5 | 4 | code placeholder |
+| `boat_0` | boat | kit | 9.0 | 3 | code placeholder |
+| `spyglass_0` | spyglass | kit | 5.0 | 4 | code placeholder |
+| `sea_chest_0` | sea chest | kit | 5.3 | 3 | code placeholder |
+| `statue_0` | statue | hero | 5.0 | 3 | code placeholder |
+| `chest_0` | chest | kit | 5.3 | 3 | code placeholder |
+| `tent_0` | tent | kit | 9.0 | 5 | code placeholder |
+| `crane_2` | crane | hero | 20.0 | 2 | code placeholder |
+| `spyglass_1` | spyglass | kit | 5.0 | 2 | code placeholder |
+| `cargo_2` | cargo | kit | 5.3 | 2 | code placeholder |
+| `crab_trap_stack_1` | crab trap stack | kit | 5.3 | 2 | code placeholder |
+| `parrot_perch_1` | parrot perch | kit | 4.0 | 4 | code placeholder |
+| `nets_1` | nets | kit | 9.0 | 2 | code placeholder |
+| `stool_0` | stool | kit | 6.0 | 4 | code placeholder |
+| `turtle_0` | turtle — frame 1 of 1 | kit | 5.2 | 3 | code placeholder |
+| `rock_3` | rock | kit | 9.7 | 3 | code placeholder |
+| `hammock_0` | hammock | kit | 10.0 | 3 | code placeholder |
+| `pirate_grave_0` | pirate grave | kit | 3.7 | 3 | code placeholder |
+| `pilings_0` | pilings | kit | 11.0 | 3 | code placeholder |
+| `hammock_2` | hammock | kit | 10.0 | 4 | code placeholder |
+| `anchor_1` | anchor | kit | 5.0 | 2 | code placeholder |
+| `hay_bale_0` | hay bale | kit | 6.0 | 4 | code placeholder |
+| `beached_rowboat_2` | beached rowboat | kit | 9.0 | 5 | code placeholder |
+| `rowboat_0` | rowboat | kit | 9.0 | 4 | code placeholder |
 | `home_gate_tower` | Gate Tower | kit | 8.3 | 2 | code placeholder |
 | `home_cottage_16x14_4` | Cottage | kit | 19.0 | 2 | code placeholder |
 | `home_wing_8x10_0` | Wing | kit | 11.0 | 2 | code placeholder |
@@ -159,20 +159,20 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `home_cottage_18x16_1` | Cottage | kit | 21.0 | 2 | code placeholder |
 | `home_cottage_22x16_3` | Cottage | kit | 25.0 | 2 | code placeholder |
 | `home_cottage_16x13_1` | Cottage | kit | 19.0 | 2 | code placeholder |
-| `mangrove_0` | mangrove | kit | 13.5 | 3 | code placeholder |
-| `mangrove_1` | mangrove | kit | 13.5 | 3 | code placeholder |
-| `mangrove_2` | mangrove | kit | 13.5 | 2 | code placeholder |
-| `wheelbarrow_0` | wheelbarrow | kit | 7.5 | 2 | code placeholder |
-| `kiln_0` | kiln | hero | 9.5 | 2 | code placeholder |
-| `cargo_1` | cargo | kit | 5.5 | 2 | code placeholder |
-| `nets_2` | nets | kit | 9.5 | 2 | code placeholder |
-| `rope_coil_2` | rope coil | kit | 5.5 | 2 | code placeholder |
-| `powder_keg_2` | powder keg | kit | 5.5 | 2 | code placeholder |
-| `tent_2` | tent | kit | 9.5 | 4 | code placeholder |
-| `skull_post_2` | skull post | kit | 4.5 | 2 | code placeholder |
-| `hay_bale_1` | hay bale | kit | 6.5 | 3 | code placeholder |
-| `fishing_rack_0` | fishing rack | kit | 9.5 | 3 | code placeholder |
-| `treasure_open_0` | treasure open | kit | 6.5 | 3 | code placeholder |
+| `mangrove_0` | mangrove | kit | 12.7 | 3 | code placeholder |
+| `mangrove_1` | mangrove | kit | 12.7 | 3 | code placeholder |
+| `mangrove_2` | mangrove | kit | 12.7 | 2 | code placeholder |
+| `wheelbarrow_0` | wheelbarrow | kit | 7.0 | 2 | code placeholder |
+| `kiln_0` | kiln | hero | 9.0 | 2 | code placeholder |
+| `cargo_1` | cargo | kit | 5.3 | 2 | code placeholder |
+| `nets_2` | nets | kit | 9.0 | 2 | code placeholder |
+| `rope_coil_2` | rope coil | kit | 4.7 | 2 | code placeholder |
+| `powder_keg_2` | powder keg | kit | 4.7 | 2 | code placeholder |
+| `tent_2` | tent | kit | 9.0 | 4 | code placeholder |
+| `skull_post_2` | skull post | kit | 3.7 | 2 | code placeholder |
+| `hay_bale_1` | hay bale | kit | 6.0 | 3 | code placeholder |
+| `fishing_rack_0` | fishing rack | kit | 9.0 | 3 | code placeholder |
+| `treasure_open_0` | treasure open | kit | 5.7 | 3 | code placeholder |
 | `town_0` | Basse-Terre tortuga_fishermens_guildhall | kit | 20.7 | 1 | code placeholder |
 | `town_1` | Basse-Terre tortuga_quayside_trading_post | kit | 17.8 | 1 | code placeholder |
 | `town_2` | Basse-Terre tortuga_ships_provisioner | kit | 24.3 | 1 | code placeholder |
@@ -214,16 +214,16 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `town_38` | Basse-Terre tortuga_timber_yard | kit | 36.0 | 1 | code placeholder |
 | `town_39` | Basse-Terre tortuga_warehouse | kit | 53.0 | 1 | code placeholder |
 | `town_40` | Basse-Terre house | kit | 26.0 | 1 | code placeholder |
-| `beehive_0` | beehive | kit | 4.5 | 3 | code placeholder |
-| `scarecrow_0` | scarecrow | kit | 6.5 | 2 | code placeholder |
-| `ship_bell_2` | ship bell | kit | 4.5 | 1 | code placeholder |
-| `anchor_2` | anchor | kit | 5.5 | 1 | code placeholder |
-| `parrot_perch_2` | parrot perch | kit | 4.5 | 2 | code placeholder |
-| `treasure_open_2` | treasure open | kit | 6.5 | 3 | code placeholder |
-| `hay_stack_0` | hay stack | kit | 6.0 | 2 | code placeholder |
-| `beached_rowboat_1` | beached rowboat | kit | 9.5 | 3 | code placeholder |
-| `hammock_1` | hammock | kit | 10.5 | 2 | code placeholder |
-| `lean_to_1` | lean to | kit | 10.5 | 2 | code placeholder |
+| `beehive_0` | beehive | kit | 3.7 | 3 | code placeholder |
+| `scarecrow_0` | scarecrow | kit | 6.0 | 2 | code placeholder |
+| `ship_bell_2` | ship bell | kit | 4.0 | 1 | code placeholder |
+| `anchor_2` | anchor | kit | 5.0 | 1 | code placeholder |
+| `parrot_perch_2` | parrot perch | kit | 4.0 | 2 | code placeholder |
+| `treasure_open_2` | treasure open | kit | 5.7 | 3 | code placeholder |
+| `hay_stack_0` | hay stack | kit | 5.3 | 2 | code placeholder |
+| `beached_rowboat_1` | beached rowboat | kit | 9.0 | 3 | code placeholder |
+| `hammock_1` | hammock | kit | 10.0 | 2 | code placeholder |
+| `lean_to_1` | lean to | kit | 10.0 | 2 | code placeholder |
 | `bld_tortuga_counting_house` | Counting House | hero | 27.0 | 1 | code placeholder |
 | `bld_tortuga_apothecary` | Apothecary | hero | 25.0 | 1 | code placeholder |
 | `bld_tortuga_almshouse` | Almshouse | hero | 23.0 | 1 | code placeholder |
@@ -293,66 +293,66 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `home_gatehouse_ruin_7x7_3` | Gatehouse Ruin | kit | 9.3 | 1 | code placeholder |
 | `home_windmill_12x12_4` | Windmill | kit | 35.3 | 1 | code placeholder |
 | `home_quarry_hut_14x10_0` | Quarry Hut | kit | 17.0 | 1 | code placeholder |
-| `rock_2` | rock | kit | 10.0 | 1 | code placeholder |
-| `signal_fire_0` | signal fire | kit | 5.5 | 1 | code placeholder |
-| `careened_ship_0` | careened ship | hero | 35.5 | 1 | code placeholder |
-| `gibbet_0` | gibbet | hero | 14.5 | 1 | code placeholder |
-| `ship_wheel_0` | ship wheel | kit | 5.5 | 1 | code placeholder |
-| `timber_0` | timber | kit | 7.5 | 1 | code placeholder |
-| `signal_lamp_0` | signal lamp | kit | 4.0 | 1 | code placeholder |
-| `falls_0` | falls | hero | 17.5 | 1 | code placeholder |
-| `mermaid_statue_0` | mermaid statue | kit | 5.5 | 1 | code placeholder |
-| `wreck_0` | wreck | kit | 11.5 | 1 | code placeholder |
-| `treasure_pile_0` | treasure pile | kit | 5.5 | 1 | code placeholder |
-| `cave_0` | cave | hero | 13.5 | 1 | code placeholder |
-| `dry_well_0` | dry well | kit | 6.5 | 1 | code placeholder |
-| `board_lighthouse_head` | Name board: Lighthouse Head | hero | 24.0 | 1 | code placeholder |
-| `figurehead_2` | figurehead | kit | 6.0 | 1 | code placeholder |
-| `board_rocher_row` | Name board: Rocher Row | hero | 17.0 | 1 | code placeholder |
-| `lantern_string_2` | lantern string | kit | 11.5 | 1 | code placeholder |
-| `ship_bell_1` | ship bell | kit | 4.5 | 2 | code placeholder |
-| `rum_cart_1` | rum cart | kit | 9.0 | 2 | code placeholder |
-| `board_cayonne` | Name board: Cayonne | hero | 14.0 | 1 | code placeholder |
-| `skull_post_1` | skull post | kit | 4.5 | 1 | code placeholder |
-| `skull_post_0` | skull post | kit | 4.5 | 1 | code placeholder |
-| `loot_crates_0` | loot crates | kit | 7.5 | 1 | code placeholder |
-| `rum_cart_0` | rum cart | kit | 9.0 | 1 | code placeholder |
-| `lantern_string_0` | lantern string | kit | 11.5 | 1 | code placeholder |
-| `board_the_high_woods` | Name board: The High Woods | hero | 23.0 | 1 | code placeholder |
-| `hay_stack_1` | hay stack | kit | 6.0 | 1 | code placeholder |
-| `hay_bale_2` | hay bale | kit | 6.5 | 1 | code placeholder |
-| `board_blackwood_s_hollow` | Name board: Blackwood S Hollow | hero | 25.5 | 1 | code placeholder |
-| `board_la_ringot_fields` | Name board: La Ringot Fields | hero | 22.0 | 1 | code placeholder |
-| `board_crossroads` | Name board: Crossroads | hero | 15.5 | 1 | code placeholder |
-| `lantern_string_1` | lantern string | kit | 11.5 | 1 | code placeholder |
-| `figurehead_1` | figurehead | kit | 6.0 | 1 | code placeholder |
-| `board_ruins_of_the_old_landing` | Name board: Ruins Of The Old Landing | hero | 33.5 | 1 | code placeholder |
-| `haystack_0` | haystack | kit | 6.5 | 2 | code placeholder |
-| `beached_rowboat_0` | beached rowboat | kit | 9.5 | 2 | code placeholder |
-| `beach_cannon_1` | beach cannon | kit | 7.5 | 2 | code placeholder |
-| `buoy_0` | buoy | kit | 4.5 | 3 | code placeholder |
+| `rock_2` | rock | kit | 9.7 | 1 | code placeholder |
+| `signal_fire_0` | signal fire | kit | 5.0 | 1 | code placeholder |
+| `careened_ship_0` | careened ship | hero | 35.0 | 1 | code placeholder |
+| `gibbet_0` | gibbet | hero | 14.0 | 1 | code placeholder |
+| `ship_wheel_0` | ship wheel | kit | 5.0 | 1 | code placeholder |
+| `timber_0` | timber | kit | 7.0 | 1 | code placeholder |
+| `signal_lamp_0` | signal lamp | kit | 3.7 | 1 | code placeholder |
+| `falls_0` | falls | hero | 17.0 | 1 | code placeholder |
+| `mermaid_statue_0` | mermaid statue | kit | 5.0 | 1 | code placeholder |
+| `wreck_0` | wreck | kit | 11.0 | 1 | code placeholder |
+| `treasure_pile_0` | treasure pile | kit | 5.3 | 1 | code placeholder |
+| `cave_0` | cave | hero | 13.0 | 1 | code placeholder |
+| `dry_well_0` | dry well | kit | 6.0 | 1 | code placeholder |
+| `board_lighthouse_head` | Name board: Lighthouse Head | hero | 16.0 | 1 | code placeholder |
+| `figurehead_2` | figurehead | kit | 5.7 | 1 | code placeholder |
+| `board_rocher_row` | Name board: Rocher Row | hero | 11.3 | 1 | code placeholder |
+| `lantern_string_2` | lantern string | kit | 11.0 | 1 | code placeholder |
+| `ship_bell_1` | ship bell | kit | 4.0 | 2 | code placeholder |
+| `rum_cart_1` | rum cart | kit | 8.3 | 2 | code placeholder |
+| `board_cayonne` | Name board: Cayonne | hero | 9.3 | 1 | code placeholder |
+| `skull_post_1` | skull post | kit | 3.7 | 1 | code placeholder |
+| `skull_post_0` | skull post | kit | 3.7 | 1 | code placeholder |
+| `loot_crates_0` | loot crates | kit | 7.0 | 1 | code placeholder |
+| `rum_cart_0` | rum cart | kit | 8.3 | 1 | code placeholder |
+| `lantern_string_0` | lantern string | kit | 11.0 | 1 | code placeholder |
+| `board_the_high_woods` | Name board: The High Woods | hero | 15.3 | 1 | code placeholder |
+| `hay_stack_1` | hay stack | kit | 5.3 | 1 | code placeholder |
+| `hay_bale_2` | hay bale | kit | 6.0 | 1 | code placeholder |
+| `board_blackwood_s_hollow` | Name board: Blackwood S Hollow | hero | 17.0 | 1 | code placeholder |
+| `board_la_ringot_fields` | Name board: La Ringot Fields | hero | 14.7 | 1 | code placeholder |
+| `board_crossroads` | Name board: Crossroads | hero | 10.3 | 1 | code placeholder |
+| `lantern_string_1` | lantern string | kit | 11.0 | 1 | code placeholder |
+| `figurehead_1` | figurehead | kit | 5.7 | 1 | code placeholder |
+| `board_ruins_of_the_old_landing` | Name board: Ruins Of The Old Landing | hero | 22.3 | 1 | code placeholder |
+| `haystack_0` | haystack | kit | 6.0 | 2 | code placeholder |
+| `beached_rowboat_0` | beached rowboat | kit | 9.0 | 2 | code placeholder |
+| `beach_cannon_1` | beach cannon | kit | 7.0 | 2 | code placeholder |
+| `buoy_0` | buoy | kit | 4.0 | 3 | code placeholder |
 | `town_41` | Basse-Terre house | kit | 19.3 | 1 | code placeholder |
 | `town_42` | Basse-Terre house | kit | 19.2 | 1 | code placeholder |
 | `town_43` | Basse-Terre house | kit | 19.3 | 1 | code placeholder |
 | `town_44` | Basse-Terre house | kit | 18.7 | 1 | code placeholder |
 | `town_45` | Basse-Terre house | kit | 18.7 | 1 | code placeholder |
-| `rock_1` | rock | kit | 10.0 | 1 | code placeholder |
-| `whale_bones_0` | whale bones | hero | 35.5 | 1 | code placeholder |
-| `buried_chest_0` | buried chest | kit | 5.5 | 1 | code placeholder |
-| `kraken_bones_0` | kraken bones | hero | 31.5 | 1 | code placeholder |
-| `board_fort_de_rocher` | Name board: Fort De Rocher | hero | 20.5 | 1 | code placeholder |
-| `powder_keg_1` | powder keg | kit | 5.5 | 1 | code placeholder |
-| `tent_1` | tent | kit | 9.5 | 1 | code placeholder |
-| `treasure_open_1` | treasure open | kit | 6.5 | 1 | code placeholder |
-| `beach_cannon_2` | beach cannon | kit | 7.5 | 1 | code placeholder |
-| `hay_stack_2` | hay stack | kit | 6.0 | 1 | code placeholder |
-| `lobster_pot_2` | lobster pot | kit | 5.0 | 1 | code placeholder |
-| `harbour_light_0` | harbour light | hero | 9.5 | 2 | code placeholder |
-| `wreck_mast_0` | wreck mast | kit | 11.5 | 2 | code placeholder |
+| `rock_1` | rock | kit | 9.7 | 1 | code placeholder |
+| `whale_bones_0` | whale bones | hero | 35.0 | 1 | code placeholder |
+| `buried_chest_0` | buried chest | kit | 5.3 | 1 | code placeholder |
+| `kraken_bones_0` | kraken bones | hero | 31.0 | 1 | code placeholder |
+| `board_fort_de_rocher` | Name board: Fort De Rocher | hero | 13.7 | 1 | code placeholder |
+| `powder_keg_1` | powder keg | kit | 4.7 | 1 | code placeholder |
+| `tent_1` | tent | kit | 9.0 | 1 | code placeholder |
+| `treasure_open_1` | treasure open | kit | 5.7 | 1 | code placeholder |
+| `beach_cannon_2` | beach cannon | kit | 7.0 | 1 | code placeholder |
+| `hay_stack_2` | hay stack | kit | 5.3 | 1 | code placeholder |
+| `lobster_pot_2` | lobster pot | kit | 4.7 | 1 | code placeholder |
+| `harbour_light_0` | harbour light | hero | 9.0 | 2 | code placeholder |
+| `wreck_mast_0` | wreck mast | kit | 11.0 | 2 | code placeholder |
 | `town_46` | Basse-Terre house | kit | 21.2 | 1 | code placeholder |
 | `town_47` | Basse-Terre house | kit | 21.2 | 1 | code placeholder |
-| `wreck_ship_0` | wreck ship | hero | 41.5 | 1 | code placeholder |
-| `skull_rock_0` | skull rock | hero | 31.5 | 1 | code placeholder |
+| `wreck_ship_0` | wreck ship | hero | 41.0 | 1 | code placeholder |
+| `skull_rock_0` | skull rock | hero | 31.0 | 1 | code placeholder |
 | `flag_0` | flag — frame 1 of 2 | kit | 7.0 | 0 | code placeholder |
 | `flag_1` | flag — frame 2 of 2 | kit | 7.0 | 0 | code placeholder |
 

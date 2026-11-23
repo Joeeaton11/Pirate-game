@@ -16,6 +16,13 @@ never a grid, catalogue sheet or collage to be cut up later (see `AGENTS.md`).
 else (see `AGENTS.md`). Weave tests on 2026-11-23 (palm, barrels, crates, bollard, tree, cottage in
 `assets/art_painted/`) confirmed it can be matched.
 
+## Pixel scale (locked)
+
+**6 art pixels per world unit** (chosen 2026-11-23), for the whole map: code-drawn ground, buildings,
+trees and props are drawn at 6, and every painting is snapped onto the same grid when it is dropped in,
+so nothing has finer or chunkier pixels than its neighbours. Scally is about 8.5 units tall, so a pixel
+character sprite would be about 50 pixels tall.
+
 ## Reference images (match these)
 
 - **Target style for the whole island: `docs/style/target_style.png`** — dense top-down pixel art,

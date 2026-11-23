@@ -9,7 +9,7 @@ from shapely.prepared import prep
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'art'))
 import pixel_props as pp
 
-S = 4  # px per world unit, same as the base
+S = 6  # px per world unit, same as the base (the locked pixel scale)
 ANIM = ('goat', 'pig', 'chicken', 'crow', 'parrot', 'crab', 'turtle', 'gull', 'rowboat_moored', 'fishing_boat', 'jolly_roger', 'flag', 'campfire')
 REL = 'assets/sprites/plan_art/life'
 
