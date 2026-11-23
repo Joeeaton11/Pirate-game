@@ -48,7 +48,7 @@ export const ART_ASSETS: Record<string, { src: ImageSourcePropType; aspect: numb
   home_cottage_16x14_4: { src: require('../../assets/sprites/plan_art/home_cottage_16x14_4.png'), aspect: 1.404 },
   home_cottage_18x16_1: { src: require('../../assets/sprites/plan_art/home_cottage_18x16_1.png'), aspect: 1.063 },
   home_cottage_18x16_2: { src: require('../../assets/sprites/plan_art/home_cottage_18x16_2.png'), aspect: 1.063 },
-  home_cottage_18x16_3: { src: require('../../assets/sprites/plan_art/home_cottage_18x16_3.png'), aspect: 1.063 },
+  home_cottage_18x16_3: { src: require('../../assets/sprites/plan_art/home_cottage_18x16_3.png'), aspect: 1.063, code: require('../../assets/sprites/plan_art/home_cottage_18x16_3__code.png'), codeAspect: 1.063 },
   home_cottage_18x16_4: { src: require('../../assets/sprites/plan_art/home_cottage_18x16_4.png'), aspect: 1.063 },
   home_cottage_18x18_2: { src: require('../../assets/sprites/plan_art/home_cottage_18x18_2.png'), aspect: 1.413 },
   home_cottage_18x18_3: { src: require('../../assets/sprites/plan_art/home_cottage_18x18_3.png'), aspect: 1.119 },
