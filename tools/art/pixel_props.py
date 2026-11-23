@@ -375,10 +375,12 @@ def pirate(S, kind, seed):
     """Pirate-port paraphernalia, each its own small sprite."""
     rng = random.Random(seed); s = S
     if kind == 'bollard':
-        im, d = _canvas(2.2 * s, 3.2 * s)
-        d.rectangle([0.4 * s, 1 * s, 1.8 * s, 3.1 * s], fill=IRON); d.ellipse([0.1 * s, 0.4 * s, 2.1 * s, 1.5 * s], fill=IRON_HI)
-        d.line([0.6 * s, 1.4 * s, 0.6 * s, 2.9 * s], fill=IRON_HI); d.line([0.2 * s, 2 * s, 2 * s, 2.3 * s], fill=ROPE, width=max(1, s // 3))
-        return _outline(im), (1.1 * s, 3.1 * s)
+        im, d = _canvas(3 * s, 3.2 * s)
+        d.rectangle([0.9 * s, 1.2 * s, 2.1 * s, 3.1 * s], fill=(30, 30, 34, 255))
+        d.ellipse([0.3 * s, 0.5 * s, 2.7 * s, 1.7 * s], fill=(40, 40, 46, 255)); d.ellipse([0.6 * s, 0.6 * s, 1.8 * s, 1.1 * s], fill=(96, 96, 108, 255))
+        d.line([1.1 * s, 1.4 * s, 1.1 * s, 2.9 * s], fill=(84, 84, 96, 255))
+        d.ellipse([0.5 * s, 1.8 * s, 2.5 * s, 2.6 * s], outline=ROPE, width=max(2, s // 2)); d.line([2.4 * s, 2.2 * s, 3 * s - 1, 3 * s], fill=ROPE, width=max(1, s // 3))
+        return _outline(im), (1.5 * s, 3.1 * s)
     if kind == 'cannonballs':
         im, d = _canvas(4 * s, 3.2 * s)
         for row, n in ((2, 3), (1, 2), (0, 1)):

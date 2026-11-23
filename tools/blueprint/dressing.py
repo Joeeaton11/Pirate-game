@@ -224,7 +224,8 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
                 if g.contains(Point(p.x + nx / L, p.y + ny / L)): nx, ny = -nx, -ny
                 out_ = Point(p.x + nx / L * 2.5, p.y + ny / L * 2.5)
                 if lw.intersects(out_): continue          # only where the deck meets open water
-                ix, iy = p.x - nx / L * 2.4, p.y - ny / L * 2.4
+                ix, iy = p.x - nx / L * 4.5, p.y - ny / L * 4.5
+                if g.area < 400: continue
                 if i % 3 == 1 and g.area > 400:
                     if put('cannon', ix - nx / L * 1.2, iy - ny / L * 1.2, 5): put('cannonballs', ix - nx / L * 3 + 2, iy - ny / L * 3, 2.5)
                 else: put('bollard', ix, iy, 2.2)

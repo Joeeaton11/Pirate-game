@@ -1,7 +1,7 @@
 {
  "progress": {
   "done": 0,
-  "total": 323
+  "total": 324
  },
  "items": [
   {
@@ -7851,184 +7851,6 @@
    "guide": "docs/art_reference/guides/objects/jungle_2.png"
   },
   {
-   "id": "bollard_0",
-   "group": "objects",
-   "label": "bollard",
-   "kind": "bollard",
-   "variant": 0,
-   "hero": false,
-   "w": 4.0,
-   "count": 40,
-   "places": [
-    [
-     -40,
-     -305
-    ],
-    [
-     0,
-     -305
-    ],
-    [
-     60,
-     -305
-    ],
-    [
-     120,
-     -297
-    ],
-    [
-     180,
-     -297
-    ],
-    [
-     240,
-     -297
-    ],
-    [
-     -204,
-     -496
-    ],
-    [
-     278,
-     -453
-    ],
-    [
-     241,
-     -453
-    ],
-    [
-     230,
-     -432
-    ],
-    [
-     230,
-     -420
-    ],
-    [
-     -38,
-     -401
-    ],
-    [
-     -78,
-     -400
-    ],
-    [
-     32,
-     -391
-    ],
-    [
-     247,
-     -389
-    ],
-    [
-     3,
-     -389
-    ],
-    [
-     -216,
-     -379
-    ],
-    [
-     -236,
-     -377
-    ],
-    [
-     -183,
-     -374
-    ],
-    [
-     106,
-     -372
-    ],
-    [
-     215,
-     -371
-    ],
-    [
-     203,
-     -371
-    ],
-    [
-     -6,
-     -370
-    ],
-    [
-     81,
-     -369
-    ],
-    [
-     120,
-     -368
-    ],
-    [
-     -185,
-     -363
-    ],
-    [
-     99,
-     -363
-    ],
-    [
-     -6,
-     -358
-    ],
-    [
-     -16,
-     -350
-    ],
-    [
-     72,
-     -347
-    ],
-    [
-     -6,
-     -333
-    ],
-    [
-     -62,
-     -332
-    ],
-    [
-     198,
-     -320
-    ],
-    [
-     64,
-     -315
-    ],
-    [
-     133,
-     -309
-    ],
-    [
-     487,
-     -207
-    ],
-    [
-     176,
-     447
-    ],
-    [
-     -211,
-     452
-    ],
-    [
-     176,
-     460
-    ],
-    [
-     168,
-     495
-    ]
-   ],
-   "ref": "docs/art_reference/obj/bollard_0.png",
-   "painted": false,
-   "score": 99.0,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bollard_0.png"
-  },
-  {
    "id": "jungle_0",
    "group": "objects",
    "label": "jungle",
@@ -8337,6 +8159,160 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/jungle_0.png"
+  },
+  {
+   "id": "bollard_0",
+   "group": "objects",
+   "label": "bollard",
+   "kind": "bollard",
+   "variant": 0,
+   "hero": false,
+   "w": 4.5,
+   "count": 34,
+   "places": [
+    [
+     -40,
+     -305
+    ],
+    [
+     0,
+     -305
+    ],
+    [
+     60,
+     -305
+    ],
+    [
+     120,
+     -297
+    ],
+    [
+     180,
+     -297
+    ],
+    [
+     240,
+     -297
+    ],
+    [
+     278,
+     -450
+    ],
+    [
+     241,
+     -450
+    ],
+    [
+     232,
+     -432
+    ],
+    [
+     232,
+     -420
+    ],
+    [
+     -80,
+     -400
+    ],
+    [
+     247,
+     -392
+    ],
+    [
+     3,
+     -392
+    ],
+    [
+     -236,
+     -379
+    ],
+    [
+     -212,
+     -379
+    ],
+    [
+     -185,
+     -374
+    ],
+    [
+     215,
+     -368
+    ],
+    [
+     203,
+     -368
+    ],
+    [
+     118,
+     -368
+    ],
+    [
+     81,
+     -366
+    ],
+    [
+     -183,
+     -363
+    ],
+    [
+     99,
+     -360
+    ],
+    [
+     -8,
+     -358
+    ],
+    [
+     200,
+     -356
+    ],
+    [
+     118,
+     -356
+    ],
+    [
+     -14,
+     -350
+    ],
+    [
+     -8,
+     -333
+    ],
+    [
+     -8,
+     -321
+    ],
+    [
+     200,
+     -320
+    ],
+    [
+     64,
+     -312
+    ],
+    [
+     51,
+     -312
+    ],
+    [
+     133,
+     -306
+    ],
+    [
+     186,
+     456
+    ],
+    [
+     167,
+     494
+    ]
+   ],
+   "ref": "docs/art_reference/obj/bollard_0.png",
+   "painted": false,
+   "score": 88.6,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/bollard_0.png"
   },
   {
    "id": "jungle_3",
@@ -9291,134 +9267,146 @@
    "guide": "docs/art_reference/guides/objects/tree_2.png"
   },
   {
-   "id": "bollard_2",
+   "id": "bollard_1",
    "group": "objects",
    "label": "bollard",
    "kind": "bollard",
-   "variant": 2,
+   "variant": 1,
    "hero": false,
-   "w": 4.0,
-   "count": 28,
+   "w": 4.5,
+   "count": 31,
    "places": [
     [
-     230,
-     -453
+     296,
+     -454
     ],
     [
-     298,
-     -442
+     -77,
+     -430
     ],
     [
-     -185,
+     -183,
      -401
     ],
     [
-     -3,
-     -401
+     -38,
+     -398
     ],
     [
-     -27,
-     -401
-    ],
-    [
-     -54,
+     232,
      -397
     ],
     [
-     -185,
-     -389
-    ],
-    [
      -54,
+     -392
+    ],
+    [
+     15,
+     -392
+    ],
+    [
+     30,
+     -391
+    ],
+    [
+     -183,
      -389
     ],
     [
-     -247,
-     -389
+     109,
+     -386
     ],
     [
-     -204,
+     -185,
+     -386
+    ],
+    [
+     -200,
      -379
     ],
     [
-     -16,
+     -216,
+     -377
+    ],
+    [
+     -8,
+     -370
+    ],
+    [
+     -73,
      -362
     ],
     [
-     -72,
-     -357
+     -14,
+     -362
     ],
     [
-     198,
-     -356
+     -184,
+     -358
     ],
     [
-     120,
-     -356
+     199,
+     -352
     ],
     [
-     106,
-     -349
+     95,
+     -352
     ],
     [
-     72,
+     74,
      -335
     ],
     [
-     82,
-     -334
+     -64,
+     -332
     ],
     [
-     -6,
-     -321
-    ],
-    [
-     103,
-     -315
-    ],
-    [
-     51,
-     -315
+     15,
+     -312
     ],
     [
      170,
-     -309
+     -306
     ],
     [
-     150,
-     393
+     145,
+     -306
     ],
     [
-     187,
-     454
+     492,
+     -217
     ],
     [
-     203,
-     466
+     488,
+     -212
     ],
     [
-     -38,
-     498
+     162,
+     413
     ],
     [
-     -38,
-     502
+     168,
+     425
     ],
     [
-     -37,
-     510
+     176,
+     447
     ],
     [
-     -36,
-     514
+     172,
+     484
+    ],
+    [
+     170,
+     496
     ]
    ],
-   "ref": "docs/art_reference/obj/bollard_2.png",
+   "ref": "docs/art_reference/obj/bollard_1.png",
    "painted": false,
-   "score": 65.6,
+   "score": 63.8,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bollard_2.png"
+   "guide": "docs/art_reference/guides/objects/bollard_1.png"
   },
   {
    "id": "tree_3",
@@ -10437,6 +10425,214 @@
    "guide": "docs/art_reference/guides/objects/tree_1.png"
   },
   {
+   "id": "bollard_2",
+   "group": "objects",
+   "label": "bollard",
+   "kind": "bollard",
+   "variant": 2,
+   "hero": false,
+   "w": 4.5,
+   "count": 22,
+   "places": [
+    [
+     296,
+     -442
+    ],
+    [
+     10,
+     -398
+    ],
+    [
+     -3,
+     -398
+    ],
+    [
+     -27,
+     -398
+    ],
+    [
+     -80,
+     -388
+    ],
+    [
+     -241,
+     -377
+    ],
+    [
+     108,
+     -372
+    ],
+    [
+     71,
+     -364
+    ],
+    [
+     -74,
+     -357
+    ],
+    [
+     106,
+     -352
+    ],
+    [
+     -251,
+     -348
+    ],
+    [
+     74,
+     -347
+    ],
+    [
+     -64,
+     -343
+    ],
+    [
+     -252,
+     -336
+    ],
+    [
+     80,
+     -334
+    ],
+    [
+     103,
+     -312
+    ],
+    [
+     27,
+     -312
+    ],
+    [
+     181,
+     -306
+    ],
+    [
+     486,
+     -208
+    ],
+    [
+     152,
+     392
+    ],
+    [
+     178,
+     460
+    ],
+    [
+     204,
+     464
+    ]
+   ],
+   "ref": "docs/art_reference/obj/bollard_2.png",
+   "painted": false,
+   "score": 54.8,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/bollard_2.png"
+  },
+  {
+   "id": "cannon_0",
+   "group": "objects",
+   "label": "cannon",
+   "kind": "cannon",
+   "variant": 0,
+   "hero": false,
+   "w": 7.5,
+   "count": 21,
+   "places": [
+    [
+     352,
+     -374
+    ],
+    [
+     376,
+     -374
+    ],
+    [
+     346,
+     -362
+    ],
+    [
+     382,
+     -362
+    ],
+    [
+     338,
+     -352
+    ],
+    [
+     390,
+     -352
+    ],
+    [
+     554,
+     -6
+    ],
+    [
+     570,
+     6
+    ],
+    [
+     556,
+     12
+    ],
+    [
+     254,
+     -449
+    ],
+    [
+     234,
+     -409
+    ],
+    [
+     -14,
+     -397
+    ],
+    [
+     116,
+     -379
+    ],
+    [
+     -12,
+     -375
+    ],
+    [
+     76,
+     -359
+    ],
+    [
+     85,
+     -351
+    ],
+    [
+     76,
+     -322
+    ],
+    [
+     92,
+     -311
+    ],
+    [
+     3,
+     -311
+    ],
+    [
+     193,
+     -305
+    ],
+    [
+     158,
+     402
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cannon_0.png",
+   "painted": false,
+   "score": 49,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cannon_0.png"
+  },
+  {
    "id": "rowboat_moored_0",
    "group": "life",
    "label": "rowboat moored \u2014 frame 1 of 1",
@@ -10503,124 +10699,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/rowboat_moored_0.png"
-  },
-  {
-   "id": "bollard_1",
-   "group": "objects",
-   "label": "bollard",
-   "kind": "bollard",
-   "variant": 1,
-   "hero": false,
-   "w": 4.0,
-   "count": 25,
-   "places": [
-    [
-     10,
-     -401
-    ],
-    [
-     109,
-     -389
-    ],
-    [
-     -183,
-     -386
-    ],
-    [
-     -241,
-     -379
-    ],
-    [
-     -212,
-     -377
-    ],
-    [
-     -200,
-     -377
-    ],
-    [
-     71,
-     -367
-    ],
-    [
-     -73,
-     -365
-    ],
-    [
-     -184,
-     -356
-    ],
-    [
-     199,
-     -349
-    ],
-    [
-     95,
-     -349
-    ],
-    [
-     -249,
-     -348
-    ],
-    [
-     -62,
-     -343
-    ],
-    [
-     198,
-     -333
-    ],
-    [
-     15,
-     -315
-    ],
-    [
-     145,
-     -309
-    ],
-    [
-     489,
-     -221
-    ],
-    [
-     494,
-     -216
-    ],
-    [
-     485,
-     -213
-    ],
-    [
-     162,
-     413
-    ],
-    [
-     168,
-     424
-    ],
-    [
-     166,
-     426
-    ],
-    [
-     178,
-     446
-    ],
-    [
-     -209,
-     464
-    ],
-    [
-     -209,
-     472
-    ]
-   ],
-   "ref": "docs/art_reference/obj/bollard_1.png",
-   "painted": false,
-   "score": 47.199999999999996,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bollard_1.png"
   },
   {
    "id": "woodpile_0",
@@ -10959,100 +11037,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/crab_1.png"
-  },
-  {
-   "id": "cannon_0",
-   "group": "objects",
-   "label": "cannon",
-   "kind": "cannon",
-   "variant": 0,
-   "hero": false,
-   "w": 7.5,
-   "count": 19,
-   "places": [
-    [
-     352,
-     -374
-    ],
-    [
-     376,
-     -374
-    ],
-    [
-     346,
-     -362
-    ],
-    [
-     382,
-     -362
-    ],
-    [
-     338,
-     -352
-    ],
-    [
-     390,
-     -352
-    ],
-    [
-     554,
-     -6
-    ],
-    [
-     570,
-     6
-    ],
-    [
-     556,
-     12
-    ],
-    [
-     254,
-     -451
-    ],
-    [
-     -14,
-     -399
-    ],
-    [
-     27,
-     -391
-    ],
-    [
-     118,
-     -379
-    ],
-    [
-     -14,
-     -375
-    ],
-    [
-     74,
-     -359
-    ],
-    [
-     -14,
-     -338
-    ],
-    [
-     -252,
-     -325
-    ],
-    [
-     92,
-     -313
-    ],
-    [
-     193,
-     -307
-    ]
-   ],
-   "ref": "docs/art_reference/obj/cannon_0.png",
-   "painted": false,
-   "score": 43,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannon_0.png"
   },
   {
    "id": "crates_2",
@@ -11625,68 +11609,6 @@
    "guide": "docs/art_reference/guides/objects/lamp_0.png"
   },
   {
-   "id": "cannon_1",
-   "group": "objects",
-   "label": "cannon",
-   "kind": "cannon",
-   "variant": 1,
-   "hero": false,
-   "w": 7.5,
-   "count": 11,
-   "places": [
-    [
-     289,
-     -451
-    ],
-    [
-     296,
-     -430
-    ],
-    [
-     -248,
-     -401
-    ],
-    [
-     -50,
-     -399
-    ],
-    [
-     -228,
-     -378
-    ],
-    [
-     118,
-     -351
-    ],
-    [
-     85,
-     -349
-    ],
-    [
-     74,
-     -322
-    ],
-    [
-     -64,
-     -320
-    ],
-    [
-     40,
-     -313
-    ],
-    [
-     156,
-     403
-    ]
-   ],
-   "ref": "docs/art_reference/obj/cannon_1.png",
-   "painted": false,
-   "score": 30,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannon_1.png"
-  },
-  {
    "id": "barrel_1",
    "group": "objects",
    "label": "barrel",
@@ -12071,28 +11993,28 @@
      -334
     ],
     [
-     235,
+     238,
      -444
     ],
     [
+     24,
+     -396
+    ],
+    [
      -12,
-     -398
+     -396
     ],
     [
      94,
-     -312
+     -310
     ],
     [
      5,
-     -312
+     -310
     ],
     [
-     195,
-     -306
-    ],
-    [
-     178,
-     472
+     180,
+     473
     ]
    ],
    "ref": "docs/art_reference/obj/cannonballs_0.png",
@@ -12227,106 +12149,6 @@
    "guide": "docs/art_reference/guides/objects/notice_0.png"
   },
   {
-   "id": "cannonballs_2",
-   "group": "objects",
-   "label": "cannonballs",
-   "kind": "cannonballs",
-   "variant": 2,
-   "hero": false,
-   "w": 5.5,
-   "count": 8,
-   "places": [
-    [
-     256,
-     -450
-    ],
-    [
-     24,
-     -398
-    ],
-    [
-     -48,
-     -398
-    ],
-    [
-     -11,
-     -375
-    ],
-    [
-     77,
-     -359
-    ],
-    [
-     120,
-     -352
-    ],
-    [
-     87,
-     -350
-    ],
-    [
-     77,
-     -322
-    ]
-   ],
-   "ref": "docs/art_reference/obj/cannonballs_2.png",
-   "painted": false,
-   "score": 24,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannonballs_2.png"
-  },
-  {
-   "id": "cannonballs_1",
-   "group": "objects",
-   "label": "cannonballs",
-   "kind": "cannonballs",
-   "variant": 1,
-   "hero": false,
-   "w": 5.5,
-   "count": 8,
-   "places": [
-    [
-     291,
-     -450
-    ],
-    [
-     235,
-     -409
-    ],
-    [
-     -38,
-     -392
-    ],
-    [
-     29,
-     -392
-    ],
-    [
-     -226,
-     -376
-    ],
-    [
-     -11,
-     -338
-    ],
-    [
-     202,
-     -336
-    ],
-    [
-     42,
-     -312
-    ]
-   ],
-   "ref": "docs/art_reference/obj/cannonballs_1.png",
-   "painted": false,
-   "score": 23,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannonballs_1.png"
-  },
-  {
    "id": "barrels_1",
    "group": "objects",
    "label": "barrels",
@@ -12383,6 +12205,56 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/barrels_1.png"
+  },
+  {
+   "id": "cannonballs_2",
+   "group": "objects",
+   "label": "cannonballs",
+   "kind": "cannonballs",
+   "variant": 2,
+   "hero": false,
+   "w": 5.5,
+   "count": 8,
+   "places": [
+    [
+     256,
+     -448
+    ],
+    [
+     -48,
+     -396
+    ],
+    [
+     -226,
+     -374
+    ],
+    [
+     80,
+     -359
+    ],
+    [
+     120,
+     -354
+    ],
+    [
+     87,
+     -352
+    ],
+    [
+     195,
+     -304
+    ],
+    [
+     162,
+     402
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cannonballs_2.png",
+   "painted": false,
+   "score": 22,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cannonballs_2.png"
   },
   {
    "id": "sacks_1",
@@ -12625,54 +12497,50 @@
    "guide": "docs/art_reference/guides/objects/cart_0.png"
   },
   {
-   "id": "cannon_2",
+   "id": "cannonballs_1",
    "group": "objects",
-   "label": "cannon",
-   "kind": "cannon",
-   "variant": 2,
+   "label": "cannonballs",
+   "kind": "cannonballs",
+   "variant": 1,
    "hero": false,
-   "w": 7.5,
-   "count": 8,
+   "w": 5.5,
+   "count": 7,
    "places": [
     [
-     232,
-     -444
+     291,
+     -448
     ],
     [
-     232,
+     238,
      -409
     ],
     [
-     22,
-     -399
-    ],
-    [
-     -40,
-     -391
+     -38,
+     -394
     ],
     [
      -8,
-     -346
+     -375
     ],
     [
-     200,
-     -337
+     -8,
+     -338
     ],
     [
-     3,
-     -313
+     202,
+     -334
     ],
     [
-     174,
-     472
+     42,
+     -310
     ]
    ],
-   "ref": "docs/art_reference/obj/cannon_2.png",
+   "ref": "docs/art_reference/obj/cannonballs_1.png",
    "painted": false,
-   "score": 21.4,
+   "score": 21,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannon_2.png"
+   "guide": "docs/art_reference/guides/objects/cannonballs_1.png"
   },
   {
    "id": "bench_2",
@@ -12727,6 +12595,106 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/bench_2.png"
+  },
+  {
+   "id": "cannon_2",
+   "group": "objects",
+   "label": "cannon",
+   "kind": "cannon",
+   "variant": 2,
+   "hero": false,
+   "w": 7.5,
+   "count": 9,
+   "places": [
+    [
+     -250,
+     -401
+    ],
+    [
+     22,
+     -397
+    ],
+    [
+     -50,
+     -397
+    ],
+    [
+     -40,
+     -393
+    ],
+    [
+     -10,
+     -346
+    ],
+    [
+     -12,
+     -338
+    ],
+    [
+     -66,
+     -320
+    ],
+    [
+     171,
+     471
+    ],
+    [
+     176,
+     473
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cannon_2.png",
+   "painted": false,
+   "score": 20.799999999999997,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cannon_2.png"
+  },
+  {
+   "id": "cannon_1",
+   "group": "objects",
+   "label": "cannon",
+   "kind": "cannon",
+   "variant": 1,
+   "hero": false,
+   "w": 7.5,
+   "count": 7,
+   "places": [
+    [
+     289,
+     -449
+    ],
+    [
+     234,
+     -444
+    ],
+    [
+     294,
+     -430
+    ],
+    [
+     -228,
+     -376
+    ],
+    [
+     118,
+     -353
+    ],
+    [
+     200,
+     -335
+    ],
+    [
+     40,
+     -311
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cannon_1.png",
+   "painted": false,
+   "score": 20,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cannon_1.png"
   },
   {
    "id": "sacks_0",
@@ -14622,7 +14590,7 @@
    "ref": "docs/art_reference/obj/nets_0.png",
    "painted": false,
    "score": 7.4,
-   "priority": 2,
+   "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/nets_0.png"
   },
@@ -20049,6 +20017,28 @@
    "priority": 3,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/skull_rock_0.png"
+  },
+  {
+   "id": "spyglass_1",
+   "group": "objects",
+   "label": "spyglass",
+   "kind": "spyglass",
+   "variant": 1,
+   "hero": false,
+   "w": 5.5,
+   "count": 1,
+   "places": [
+    [
+     173,
+     476
+    ]
+   ],
+   "ref": "docs/art_reference/obj/spyglass_1.png",
+   "painted": false,
+   "score": 0.4,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/spyglass_1.png"
   },
   {
    "id": "flag_0",

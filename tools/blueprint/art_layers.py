@@ -147,14 +147,18 @@ def terrain(coast, beach, zones, town_water=None):
                 ring = gp.mask([inner.boundary.buffer(0.4)])
                 gp.pattern(ring, lambda d: d.rectangle([0, 0, *im.size], fill=(220, 214, 200, 255)))
         elif t in ('fields', 'sugarcane', 'allotment'):
-            gp.fill(gp.mask([g]), {'fields': '#c9a04e', 'sugarcane': '#9cbf4a', 'allotment': '#7a5a36'}[t], 0.05, (10, 3))
+            gp.fill(gp.mask([g]), {'fields': '#c9a04e', 'sugarcane': '#9cbf4a', 'allotment': '#7a5a36'}[t], 0.012, (40, 20))  # even tone, no blotches
             l, tp, r, b = g.bounds
             def rows(d, g=g, t=t, l=l, tp=tp, r=r, b=b):
                 step = 3 if t != 'fields' else 4
                 for y in np.arange(tp, b, step):
                     for x in np.arange(l, r, 1.6 if t != 'fields' else 99):
                         X, Y = T(x, y)
-                        if t == 'fields': d.line([T(l, y), T(r, y)], fill=(150, 112, 50, 255), width=2); d.line([(T(l, y)[0], T(l, y)[1] - 2), (T(r, y)[0], T(r, y)[1] - 2)], fill=(222, 186, 98, 255)); break
+                        if t == 'fields':  # neat furrows with a row of wheat ears along each ridge
+                            d.line([T(l, y), T(r, y)], fill=(150, 112, 50, 255), width=2); d.line([(T(l, y)[0], T(l, y)[1] - 2), (T(r, y)[0], T(r, y)[1] - 2)], fill=(222, 186, 98, 255))
+                            for xx in np.arange(l, r, 1.2):
+                                X2, Y2 = T(xx, y - 1.6); d.line([X2, Y2, X2, Y2 - 3], fill=(196, 150, 60, 255)); d.point((X2, Y2 - 4), fill=(236, 204, 112, 255))
+                            break
                         col = (70, 140, 50, 255) if t == 'sugarcane' else (96, 150, 58, 255)
                         d.line([X, Y, X, Y - (6 if t == 'sugarcane' else 3)], fill=col, width=2); d.point((X - 1, Y - 3), fill=(150, 200, 90, 255))
             gp.pattern(gp.mask([g]), rows)

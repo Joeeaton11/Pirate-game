@@ -150,11 +150,11 @@ export function lockedShortcutRects(origin: { x: number; y: number }, unlocked: 
 }
 
 // ---------------------------------------------------------------- weather and mood (screen space)
-const RAIN_CYCLE = 540; // seconds
+const RAIN_CYCLE = 900; // seconds
 export function rainAmount(t = Date.now() / 1000) {
   const f = (t % RAIN_CYCLE) / RAIN_CYCLE;
-  if (f < 0.72) return 0;
-  const k = (f - 0.72) / 0.28;
+  if (f < 0.88) return 0;  // a short shower now and then, not a quarter of the time
+  const k = (f - 0.88) / 0.12;
   return Math.min(1, Math.min(k, 1 - k) * 6);
 }
 
