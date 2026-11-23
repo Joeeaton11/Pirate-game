@@ -69,6 +69,19 @@ SIZE = {'tavern': (26, 17), 'shop': (16, 14), 'market': (18, 14), 'warehouse': (
 ROOF = 1.45  # a sprite rises about this many depths above its footprint's base
 
 
+def size_at(rng, y):
+    """House width and depth by how far up the hill it stands: cramped huts on the waterfront, middling
+    terraces mid-town, broad merchants' houses at the top (the town climbs south, away from the harbour)."""
+    if y < -225: return rng.choice([10, 11, 12, 13]), rng.choice([11, 12])
+    if y < -90: return rng.choice([13, 14, 15, 16, 17]), rng.choice([13, 14, 15])
+    return rng.choice([16, 18, 20, 22]), rng.choice([15, 16, 17])
+
+
+def wealth(b):
+    """'hut' by the harbour, 'home' mid-town, 'grand' up the hill: picks how a scenery house is built."""
+    return 'hut' if b < -225 else 'home' if b < -60 else 'grand'
+
+
 def layout(cls, TOWN, CELL, types, seed=7):
     """cls: the painted town's cells (0 street, 1 wood, 2 water, 3 garden, 4 sand). Rewrites the land
     (0/3) as street or garden and returns (cls, houses [(l, r, t, b)], doors [(id, x, y)], scenery set)."""
@@ -96,7 +109,10 @@ def layout(cls, TOWN, CELL, types, seed=7):
         if not on_land(l, max(t0, b - ROOF * d), r, t + 0.1): return False
         if st_p.intersects(box(l + 0.2, b - ROOF * d, r - 0.2, b - 0.4)): return False
         rb = box(l + 0.25, b - ROOF * d, r - 0.25, b - 0.1)
-        return not any(rb.intersects(o) for o in roofs)
+        if any(rb.intersects(o) for o in roofs): return False
+        for (l2, r2, t2, b2), o in zip(houses, roofs):  # a neighbour standing higher or lower: leave room for the eaves
+            if abs(b2 - b) >= 1.5 and min(r, r2) - max(l, l2) > -3.0 and o.bounds[1] < b and b - ROOF * d < b2: return False
+        return True
 
     def add(l, t, r, b, d, door_id=None, scen=True):
         houses.append((round(l, 1), round(r, 1), round(t, 1), round(b, 1)))
@@ -142,7 +158,7 @@ def layout(cls, TOWN, CELL, types, seed=7):
         if hi - lo < 10: continue
         x = lo
         while x < hi - 10:
-            w = rng.choice([13, 14, 15, 16, 17, 18, 20]); d = rng.choice([13, 14, 15, 16])
+            w, d = size_at(rng, front_base(name, x, x + 14) or 0)
             b = front_base(name, x, x + w)
             if b is not None and fits(x, b - d, x + w, b, d):
                 add(x, b - d, x + w, b, d); x += w
@@ -159,7 +175,7 @@ def layout(cls, TOWN, CELL, types, seed=7):
         xs = [p[0] for p in pts]; lo, hi = min(xs), max(xs)
         x = lo
         while x < hi - 10:
-            w = rng.choice([13, 14, 15, 16, 18]); d = rng.choice([13, 14, 15])
+            w, d = size_at(rng, (pts[0][1] + pts[-1][1]) / 2 + 20)
             ys = []
             for xx in (x + 0.3, x + w / 2, x + w - 0.3):
                 cut = g.intersection(LineString([(xx, t0 - 5), (xx, b0 + 40)]))

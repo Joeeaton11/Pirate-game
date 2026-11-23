@@ -480,6 +480,32 @@ def pirate(S, kind, seed):
 def critter(S, kind, seed):
     """Dressing sprites: sacks, pots, rope, flowers, grass, stones, logs, shells, boats and animals."""
     rng = random.Random(seed); s = S
+    if kind.startswith('sign_'):  # a trade sign hanging from an iron bracket on its post, the trade painted on it
+        icon = kind[5:]
+        im, d = _canvas(5.2 * s, 7 * s); H = im.size[1]
+        d.rectangle([0.4 * s, 1.0 * s, 0.9 * s, H - 1], fill=(70, 48, 30, 255))                      # post
+        d.line([0.6 * s, 1.2 * s, 4.6 * s, 1.2 * s], fill=(40, 40, 46, 255), width=max(1, int(0.35 * s)))  # bracket
+        d.line([0.9 * s, 2.4 * s, 2.4 * s, 1.2 * s], fill=(40, 40, 46, 255), width=max(1, int(0.25 * s)))
+        for xx in (1.6, 4.0): d.line([xx * s, 1.2 * s, xx * s, 2.0 * s], fill=(60, 60, 66, 255))       # chains
+        x0, y0, x1, y1 = 1.1 * s, 2.0 * s, 4.6 * s, 4.9 * s
+        d.rectangle([x0, y0, x1, y1], fill=(132, 92, 54, 255), outline=(60, 40, 22, 255))
+        d.line([x0 + 1, y0 + 1, x1 - 1, y0 + 1], fill=(168, 124, 78, 255))
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2; u = s * 0.45
+        ink, gold = (236, 214, 150, 255), (226, 186, 70, 255)
+        if icon == 'fish': d.ellipse([cx - 2.6 * u, cy - u, cx + 1.4 * u, cy + u], fill=(150, 196, 210, 255)); d.polygon([(cx + 1.2 * u, cy), (cx + 2.6 * u, cy - u), (cx + 2.6 * u, cy + u)], fill=(150, 196, 210, 255))
+        elif icon == 'anchor': d.line([cx, cy - 2 * u, cx, cy + 2 * u], fill=ink, width=max(1, int(u * 0.8))); d.arc([cx - 2 * u, cy - u, cx + 2 * u, cy + 2.4 * u], 20, 160, fill=ink, width=max(1, int(u * 0.7))); d.line([cx - u, cy - 1.2 * u, cx + u, cy - 1.2 * u], fill=ink)
+        elif icon == 'tankard': d.rectangle([cx - 1.4 * u, cy - 1.6 * u, cx + 0.8 * u, cy + 2 * u], fill=gold); d.arc([cx + 0.2 * u, cy - u, cx + 2.2 * u, cy + u], 270, 90, fill=gold, width=max(1, int(u * 0.6))); d.rectangle([cx - 1.4 * u, cy - 2.2 * u, cx + 0.8 * u, cy - 1.4 * u], fill=(250, 248, 236, 255))
+        elif icon == 'bread': d.ellipse([cx - 2.2 * u, cy - 1.2 * u, cx + 2.2 * u, cy + 1.4 * u], fill=(214, 156, 76, 255)); [d.line([cx + k * u, cy - u, cx + k * u + 0.6 * u, cy + 0.4 * u], fill=(150, 96, 40, 255)) for k in (-1, 0, 1)]
+        elif icon == 'barrel': d.ellipse([cx - 1.6 * u, cy - 2 * u, cx + 1.6 * u, cy + 2 * u], fill=(160, 110, 60, 255)); [d.line([cx - 1.6 * u, cy + k * u, cx + 1.6 * u, cy + k * u], fill=(60, 60, 66, 255)) for k in (-1, 1)]
+        elif icon == 'rope': d.ellipse([cx - 2 * u, cy - 1.6 * u, cx + 2 * u, cy + 1.6 * u], outline=ink, width=max(1, int(u * 0.6))); d.ellipse([cx - u, cy - 0.8 * u, cx + u, cy + 0.8 * u], outline=ink)
+        elif icon == 'anvil': d.polygon([(cx - 2.2 * u, cy - u), (cx + 2.2 * u, cy - u), (cx + u, cy), (cx + u, cy + 1.6 * u), (cx - u, cy + 1.6 * u), (cx - u, cy)], fill=(70, 70, 78, 255))
+        elif icon == 'coin': d.ellipse([cx - 1.8 * u, cy - 1.8 * u, cx + 1.8 * u, cy + 1.8 * u], fill=gold, outline=(150, 110, 30, 255)); d.ellipse([cx - 0.7 * u, cy - 0.7 * u, cx + 0.7 * u, cy + 0.7 * u], outline=(150, 110, 30, 255))
+        elif icon == 'bell': d.polygon([(cx - 1.8 * u, cy + 1.6 * u), (cx - u, cy - 1.6 * u), (cx + u, cy - 1.6 * u), (cx + 1.8 * u, cy + 1.6 * u)], fill=gold); d.ellipse([cx - 0.4 * u, cy + 1.4 * u, cx + 0.4 * u, cy + 2.2 * u], fill=gold)
+        elif icon == 'skull': d.ellipse([cx - 1.6 * u, cy - 1.8 * u, cx + 1.6 * u, cy + 1.0 * u], fill=ink); d.rectangle([cx - u, cy + 0.6 * u, cx + u, cy + 1.8 * u], fill=ink); d.ellipse([cx - 1.0 * u, cy - 0.8 * u, cx - 0.2 * u, cy], fill=(40, 30, 20, 255)); d.ellipse([cx + 0.2 * u, cy - 0.8 * u, cx + 1.0 * u, cy], fill=(40, 30, 20, 255))
+        elif icon == 'turtle': d.ellipse([cx - 2 * u, cy - 1.4 * u, cx + 1.6 * u, cy + 1.4 * u], fill=(96, 150, 70, 255)); d.ellipse([cx + 1.2 * u, cy - 0.6 * u, cx + 2.4 * u, cy + 0.6 * u], fill=(120, 170, 90, 255))
+        elif icon == 'needle': d.line([cx - 2 * u, cy + 1.6 * u, cx + 2 * u, cy - 1.6 * u], fill=ink, width=max(1, int(u * 0.6))); d.ellipse([cx + 1.2 * u, cy - 2.2 * u, cx + 2.4 * u, cy - 1.0 * u], outline=ink)
+        else: d.polygon([(cx - 2 * u, cy + 1.6 * u), (cx, cy - 2 * u), (cx + 2 * u, cy + 1.6 * u)], fill=ink)  # a ship's sail
+        return _outline(im), (0.65 * s, H - 1)
     if kind in ('planter', 'planter_palm'):  # a raised stone bed on the cobbles, planted up
         im, d = _canvas(7 * s, (7.5 if kind == 'planter_palm' else 4.4) * s)
         H = im.size[1]

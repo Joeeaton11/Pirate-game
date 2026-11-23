@@ -127,6 +127,9 @@ def build(root, P, trees, town_box, town=None):
             bid = next((i for i in ids if i), None)
             small = (l, r, t, b) in INFILL  # the town's infill houses (scenery, no door of their own to enter)
             kind = KIND.get(types.get(bid, ''), 'home') if bid else ('home' if ids or small else 'warehouse')
+            if small and not bid:  # how well-off the street is, by how far up the hill it stands
+                import town_plan as _tpl
+                kind = {'hut': 'shed', 'home': 'home', 'grand': 'manor'}[_tpl.wealth(b)]
             w, h = r - l, b - t
             sp = specs.spec_for((bid, 'Town house', kind, (l + r) / 2, (t + b) / 2, w, h, 'S' if ids or small else None), n + 300)
             sp['door'] = bool(ids) or small

@@ -303,6 +303,46 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         groups += 1
     print('  open-space groups', groups)
 
+    # 14. the new town: a trade sign at every shop door, lanterns along the lanes, washing strung across
+    #     the alleys, more stalls round the market square, barrels and crates outside the trades
+    import town_plan as _tp
+    ICON = {'fishmonger': 'fish', 'fishermens_guildhall': 'fish', 'chandlery': 'anchor', 'harbourmaster': 'anchor', 'customs': 'anchor',
+            'tavern': 'tankard', 'cockpit': 'tankard', 'brine_barrel': 'tankard', 'boarding_house': 'tankard', 'crews_lodge': 'tankard',
+            'bakery': 'bread', 'coopers_yard': 'barrel', 'distillery': 'barrel', 'salt_works': 'barrel', 'warehouse': 'barrel', 'overflow_warehouse': 'barrel',
+            'dockworkers_bunkhouse': 'barrel', 'rope_and_tackle': 'rope', 'net_loft': 'rope', 'sailmakers_loft': 'needle', 'smithy': 'anvil',
+            'careening_shed': 'anvil', 'shop': 'coin', 'quayside_trading_post': 'coin', 'ships_provisioner': 'coin', 'chapel': 'bell',
+            'sextons_house': 'bell', 'powder_and_shot': 'skull', 'turtle_kraal': 'turtle', 'menagerie': 'turtle', 'tannery': 'needle', 'timber_yard': 'sail'}
+    signs = 0
+    for did, x, y in doors:
+        if not did or not did.startswith('tortuga_'): continue
+        icon = ICON.get(did[len('tortuga_'):], 'sail')
+        out.append(('sign_' + icon, round(x + 3.4, 1), round(y - 0.4, 1))); taken.append(Point(x + 3.4, y - 0.4)); signs += 1
+        for dx in (-4.2, 5.6):  # the trade's own clutter either side of its door
+            if rng.random() < 0.6: put(rng.choice(['barrels', 'crates', 'sacks', 'barrel', 'flowerpot']), x + dx, y - 0.2, 2.2)
+    _tg = {n_: LineString(p_) for n_, k_, w_, p_ in _tp.STREETS}
+    lamps_ = 0
+    for n_, k_, w_, p_ in _tp.STREETS:
+        if w_ < 6: continue
+        L = _tg[n_]
+        for k in range(1, int(L.length // 20)):
+            q = L.interpolate(k * 20); a_ = L.interpolate(max(0, k * 20 - 1)); b_ = L.interpolate(min(L.length, k * 20 + 1))
+            ang = math.atan2(b_.y - a_.y, b_.x - a_.x); side = 1 if k % 2 else -1
+            lx, ly = q.x - math.sin(ang) * (w_ / 2 + 0.6) * side, q.y + math.cos(ang) * (w_ / 2 + 0.6) * side
+            if not bl_near.contains(Point(lx, ly)) and free(lx, ly, 2.0): out.append(('lamp', round(lx, 1), round(ly, 1))); taken.append(Point(lx, ly)); lamps_ += 1
+    lines_ = 0
+    for n_, k_, w_, p_ in _tp.STREETS:
+        if w_ >= 6: continue
+        L = _tg[n_]
+        for f in (0.35, 0.75):
+            q = L.interpolate(f, normalized=True)
+            if free(q.x, q.y, 3): out.append(('laundry_line', round(q.x, 1), round(q.y, 1))); taken.append(q); lines_ += 1
+    sl, st_, sr, sb = _tp.SQUARE.bounds
+    for k in range(int((sr - sl - 8) / 8)):
+        for yy in (sb - 3.5,):
+            x = sl + 6 + k * 8
+            if _tp.SQUARE.buffer(-2).contains(Point(x, yy)): put(rng.choice(['stall', 'stall', 'cart', 'crates']), x, yy, 4)
+    print('  town signs', signs, 'lamps', lamps_, 'washing lines', lines_)
+
     # 9. a carved name board at each district label
     for x, y, text, size in P.LABELS:
         if size == 'district' and 'painted' not in text:

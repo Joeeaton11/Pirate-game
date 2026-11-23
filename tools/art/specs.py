@@ -33,6 +33,10 @@ def spec_for(b, n):
         if bid == 'tortuga_powder_magazine': s.update(wall='stone_dark', roof='slate', big_door=False, base_props=[('L', 'barrel'), ('R', 'barrel')])
     elif kind == 'fort':
         s.update(wall='stone', roof='flat', crenel=True, flag='#1f3b5c', bars=True)
+    elif kind == 'manor' and label == 'Town house':  # a merchant's house up the hill: two storeys, painted, varied
+        s.update(storeys=2, wall=['plaster_rose', 'plaster_ochre', 'plaster_white', 'stone', 'plaster_rose'][n % 5],
+                 roof=['tile', 'slate', 'tile_dark', 'slate_green', 'tile_orange'][(n // 2) % 5], shutters=SHUT[(n * 3) % 5],
+                 chimney=True, flowers=True, porch=(n % 3 == 0), massing='gable')
     elif kind == 'manor':
         s.update(storeys=2, wall='plaster_rose', roof='slate_green', columns=True, shutters='#2f5d5a', chimney=True, flowers=True, porch=True)
     elif kind == 'mill':

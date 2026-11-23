@@ -161,10 +161,17 @@ def build(root, P, coast, beach, zones, water, town_rects, town_box, ways, dock_
     fill(water, C['Fresh water'])
     for name, k, w, pts in P.ROADS:
         if k == 'secret': continue
-        fill(LineString(pts).buffer(w / 2, cap_style=2), C['Cobbles / town street'] if k in ('lane', 'ruinlane') else C['Dirt path'])
+        fill(LineString(pts).buffer(w / 2, cap_style=2), C['Cobbles / town street'] if k in ('lane', 'ruinlane', 'street') else C['Dirt path'])
     for _, l, r, t, b in P.PLAZAS: fill(box(l, t, r, b), C['Cobbles / town street'])
     for kk, col in (('street', 'Cobbles / town street'), ('garden', 'Grass'), ('sand', 'Sand / beach'), ('water', 'Shallows'), ('wood', 'Planks (docks, wharf, bridges)')):
         for l, r, t, b in town_rects.get(kk, []): kd.rectangle([*T(l, t), *T(r, b)], fill=C[col])
+    for name, k, w, pts in P.ROADS:  # the town's winding streets and alleys on top of the cell grid, wide enough to read
+        if k == 'street': fill(LineString(pts).buffer(max(w / 2, 2.4), cap_style=2), C['Cobbles / town street'])
+    try:
+        import town_plan as _tp
+        fill(_tp.SQUARE, C['Cobbles / town street'])
+    except ImportError:
+        pass
     for *_, g in dock_geoms: fill(g, C['Planks (docks, wharf, bridges)'])
     if bridges is not None and not bridges.is_empty: fill(bridges, C['Planks (docks, wharf, bridges)'])
     if breakwater is not None and not breakwater.is_empty: fill(breakwater, C['Stone breakwater'])
