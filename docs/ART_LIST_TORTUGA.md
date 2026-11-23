@@ -41,103 +41,170 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 | `bld_tortuga_vendue_house` | Vendue House — market, footprint 26×20, door S (pixel art drawn in code) | 29 | 1× | drawn in code | 1 |
 | `bld_tortuga_wayside_tavern` | Wayside Tavern — tavern, footprint 26×19, door S (pixel art drawn in code) | 29 | 1× | drawn in code | 1 |
 | `bld_tortuga_west_point` | West Point Shack — home, footprint 20×16, door S (pixel art drawn in code) | 23 | 1× | drawn in code | 1 |
-| `town_0` | Basse-Terre tortuga_fishermens_guildhall — market, footprint 20×57 | 21 | 1× | drawn in code | 1 |
-| `town_1` | Basse-Terre tortuga_quayside_trading_post — shop, footprint 17.2×55.5 | 18 | 1× | drawn in code | 1 |
-| `town_10` | Basse-Terre house — warehouse, footprint 18×12.5 | 21 | 1× | drawn in code | 1 |
-| `town_11` | Basse-Terre tortuga_careening_shed — civic, footprint 26×25.2 | 29 | 1× | drawn in code | 1 |
-| `town_12` | Basse-Terre tortuga_brine_barrel — tavern, footprint 42×31.5 | 45 | 1× | drawn in code | 1 |
-| `town_13` | Basse-Terre tortuga_cockpit — tavern, footprint 19.6×49 | 20 | 1× | drawn in code | 1 |
-| `town_14` | Basse-Terre tortuga_crews_lodge — manor, footprint 16.7×49.7 | 17 | 1× | drawn in code | 1 |
-| `town_15` | Basse-Terre tortuga_boarding_house — tavern, footprint 21.7×50.5 | 22 | 1× | drawn in code | 1 |
-| `town_16` | Basse-Terre tortuga_tavern — tavern, footprint 42.5×46 | 43 | 1× | drawn in code | 1 |
-| `town_17` | Basse-Terre tortuga_shop — shop, footprint 21.5×46.7 | 22 | 1× | drawn in code | 1 |
-| `town_18` | Basse-Terre tortuga_bakery — shop, footprint 14.5×44.5 | 15 | 1× | drawn in code | 1 |
-| `town_19` | Basse-Terre tortuga_dockworkers_bunkhouse — warehouse, footprint 20.5×43 | 21 | 1× | drawn in code | 1 |
-| `town_2` | Basse-Terre tortuga_ships_provisioner — shop, footprint 23.8×56.2 | 24 | 1× | drawn in code | 1 |
-| `town_20` | Basse-Terre tortuga_net_loft — shop, footprint 28×51.7 | 31 | 1× | drawn in code | 1 |
-| `town_21` | Basse-Terre tortuga_chandlery — shop, footprint 21.7×51.5 | 22 | 1× | drawn in code | 1 |
-| `town_22` | Basse-Terre tortuga_rope_and_tackle — shop, footprint 18.3×50 | 19 | 1× | drawn in code | 1 |
-| `town_23` | Basse-Terre tortuga_turtle_kraal — market, footprint 13.6×43.7 | 14 | 1× | drawn in code | 1 |
-| `town_24` | Basse-Terre tortuga_salt_works — warehouse, footprint 26.4×44.5 | 27 | 1× | drawn in code | 1 |
-| `town_25` | Basse-Terre tortuga_smithy — civic, footprint 44×31 | 47 | 1× | drawn in code | 1 |
-| `town_26` | Basse-Terre tortuga_overflow_warehouse — warehouse, footprint 21×58.7 | 22 | 1× | drawn in code | 1 |
-| `town_27` | Basse-Terre house — warehouse, footprint 19×59.5 | 20 | 1× | drawn in code | 1 |
-| `town_28` | Basse-Terre tortuga_distillery — shop, footprint 37×35 | 40 | 1× | drawn in code | 1 |
-| `town_29` | Basse-Terre tortuga_menagerie — market, footprint 32×27.7 | 35 | 1× | drawn in code | 1 |
-| `town_3` | Basse-Terre tortuga_powder_and_shot — market, footprint 37.2×39 | 38 | 1× | drawn in code | 1 |
-| `town_30` | Basse-Terre tortuga_sextons_house — civic, footprint 32×57.5 | 35 | 1× | drawn in code | 1 |
-| `town_31` | Basse-Terre tortuga_tannery — warehouse, footprint 33×52 | 36 | 1× | drawn in code | 1 |
-| `town_32` | Basse-Terre tortuga_chapel — civic, footprint 35×34.5 | 38 | 1× | drawn in code | 1 |
-| `town_33` | Basse-Terre house — warehouse, footprint 23.5×53.3 | 24 | 1× | drawn in code | 1 |
-| `town_34` | Basse-Terre tortuga_sailmakers_loft — shop, footprint 21.8×51.8 | 22 | 1× | drawn in code | 1 |
-| `town_35` | Basse-Terre house — warehouse, footprint 18.8×52.5 | 19 | 1× | drawn in code | 1 |
-| `town_36` | Basse-Terre house — warehouse, footprint 16.7×53.3 | 17 | 1× | drawn in code | 1 |
-| `town_37` | Basse-Terre tortuga_coopers_yard — market, footprint 22.2×51.8 | 23 | 1× | drawn in code | 1 |
-| `town_38` | Basse-Terre tortuga_timber_yard — warehouse, footprint 33×45.5 | 36 | 1× | drawn in code | 1 |
-| `town_39` | Basse-Terre tortuga_warehouse — warehouse, footprint 50×32.4 | 53 | 1× | drawn in code | 1 |
-| `town_4` | Basse-Terre tortuga_harbourmaster — civic, footprint 29.8×37.5 | 30 | 1× | drawn in code | 1 |
-| `town_40` | Basse-Terre house — warehouse, footprint 23×44.8 | 26 | 1× | drawn in code | 1 |
-| `town_41` | Basse-Terre house — warehouse, footprint 18.7×18.2 | 19 | 1× | drawn in code | 1 |
-| `town_42` | Basse-Terre house — warehouse, footprint 18.6×19 | 19 | 1× | drawn in code | 1 |
-| `town_43` | Basse-Terre house — warehouse, footprint 18.7×17.5 | 19 | 1× | drawn in code | 1 |
-| `town_44` | Basse-Terre house — warehouse, footprint 18×16.2 | 19 | 1× | drawn in code | 1 |
-| `town_45` | Basse-Terre house — warehouse, footprint 18×17 | 19 | 1× | drawn in code | 1 |
-| `town_46` | Basse-Terre house — warehouse, footprint 20.5×13.5 | 21 | 1× | drawn in code | 1 |
-| `town_47` | Basse-Terre house — warehouse, footprint 20.5×14.2 | 21 | 1× | drawn in code | 1 |
-| `town_48` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
-| `town_49` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
-| `town_5` | Basse-Terre tortuga_customs — civic, footprint 64×44.2 | 67 | 1× | drawn in code | 1 |
-| `town_50` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
-| `town_51` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
-| `town_52` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
-| `town_53` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_54` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_55` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_56` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_57` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_58` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_59` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_6` | Basse-Terre tortuga_fishmonger — market, footprint 52×34 | 55 | 1× | drawn in code | 1 |
-| `town_60` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_61` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_62` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_63` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_64` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_65` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_66` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_67` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_68` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_69` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_7` | Basse-Terre house — warehouse, footprint 34×16.5 | 37 | 1× | drawn in code | 1 |
-| `town_70` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_71` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_72` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_73` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_74` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_75` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_76` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_77` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_78` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_79` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_8` | Basse-Terre house — warehouse, footprint 27×17.2 | 30 | 1× | drawn in code | 1 |
-| `town_80` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_81` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_82` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_83` | Basse-Terre house — home, footprint 13.3×17 | 14 | 1× | drawn in code | 1 |
-| `town_84` | Basse-Terre house — home, footprint 13.4×15.8 | 14 | 1× | drawn in code | 1 |
-| `town_85` | Basse-Terre house — home, footprint 13.3×16.4 | 14 | 1× | drawn in code | 1 |
-| `town_86` | Basse-Terre house — home, footprint 14×16 | 15 | 1× | drawn in code | 1 |
-| `town_87` | Basse-Terre house — home, footprint 14×14.8 | 15 | 1× | drawn in code | 1 |
-| `town_88` | Basse-Terre house — home, footprint 14×16 | 15 | 1× | drawn in code | 1 |
-| `town_89` | Basse-Terre house — home, footprint 14×14.8 | 15 | 1× | drawn in code | 1 |
-| `town_9` | Basse-Terre house — warehouse, footprint 20×18 | 23 | 1× | drawn in code | 1 |
-| `town_90` | Basse-Terre house — home, footprint 14×16 | 15 | 1× | drawn in code | 1 |
-| `town_91` | Basse-Terre house — home, footprint 14×14.8 | 15 | 1× | drawn in code | 1 |
-| `town_92` | Basse-Terre house — home, footprint 15×15 | 18 | 1× | drawn in code | 1 |
-| `town_93` | Basse-Terre house — home, footprint 15×15 | 18 | 1× | drawn in code | 1 |
-| `town_94` | Basse-Terre house — home, footprint 15×15 | 18 | 1× | drawn in code | 1 |
-| `town_95` | Basse-Terre house — home, footprint 15×15 | 18 | 1× | drawn in code | 1 |
-| `town_96` | Basse-Terre house — home, footprint 15×15 | 18 | 1× | drawn in code | 1 |
+| `town_0` | Basse-Terre tortuga_fishermens_guildhall — market, footprint 18×14 | 21 | 1× | drawn in code | 1 |
+| `town_1` | Basse-Terre tortuga_quayside_trading_post — shop, footprint 16×14 | 19 | 1× | drawn in code | 1 |
+| `town_10` | Basse-Terre tortuga_chandlery — shop, footprint 16×14 | 17 | 1× | drawn in code | 1 |
+| `town_100` | Basse-Terre house — home, footprint 14×13 | 15 | 1× | drawn in code | 1 |
+| `town_101` | Basse-Terre house — home, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_102` | Basse-Terre house — home, footprint 13×15 | 14 | 1× | drawn in code | 1 |
+| `town_103` | Basse-Terre house — home, footprint 15×15 | 16 | 1× | drawn in code | 1 |
+| `town_104` | Basse-Terre house — home, footprint 18×15 | 19 | 1× | drawn in code | 1 |
+| `town_105` | Basse-Terre house — home, footprint 18×13 | 19 | 1× | drawn in code | 1 |
+| `town_106` | Basse-Terre house — home, footprint 18×13 | 19 | 1× | drawn in code | 1 |
+| `town_107` | Basse-Terre house — home, footprint 13×15 | 14 | 1× | drawn in code | 1 |
+| `town_108` | Basse-Terre house — home, footprint 14×15 | 17 | 1× | drawn in code | 1 |
+| `town_109` | Basse-Terre house — home, footprint 16×14 | 19 | 1× | drawn in code | 1 |
+| `town_11` | Basse-Terre tortuga_rope_and_tackle — shop, footprint 16×14 | 17 | 1× | drawn in code | 1 |
+| `town_110` | Basse-Terre house — home, footprint 13×15 | 14 | 1× | drawn in code | 1 |
+| `town_111` | Basse-Terre house — home, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_112` | Basse-Terre house — home, footprint 15×14 | 16 | 1× | drawn in code | 1 |
+| `town_113` | Basse-Terre house — home, footprint 13×15 | 14 | 1× | drawn in code | 1 |
+| `town_114` | Basse-Terre house — home, footprint 16×14 | 17 | 1× | drawn in code | 1 |
+| `town_115` | Basse-Terre house — home, footprint 15×13 | 16 | 1× | drawn in code | 1 |
+| `town_116` | Basse-Terre house — home, footprint 14×15 | 17 | 1× | drawn in code | 1 |
+| `town_117` | Basse-Terre house — home, footprint 13×15 | 16 | 1× | drawn in code | 1 |
+| `town_118` | Basse-Terre house — home, footprint 14×15 | 17 | 1× | drawn in code | 1 |
+| `town_119` | Basse-Terre house — home, footprint 14×13 | 17 | 1× | drawn in code | 1 |
+| `town_12` | Basse-Terre tortuga_turtle_kraal — market, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_120` | Basse-Terre house — home, footprint 15×15 | 16 | 1× | drawn in code | 1 |
+| `town_121` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_122` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_123` | Basse-Terre house — home, footprint 16×15 | 17 | 1× | drawn in code | 1 |
+| `town_124` | Basse-Terre house — home, footprint 16×14 | 16 | 1× | drawn in code | 1 |
+| `town_125` | Basse-Terre house — home, footprint 16×15 | 17 | 1× | drawn in code | 1 |
+| `town_126` | Basse-Terre house — home, footprint 13×13 | 14 | 1× | drawn in code | 1 |
+| `town_127` | Basse-Terre house — home, footprint 16×13 | 17 | 1× | drawn in code | 1 |
+| `town_128` | Basse-Terre house — home, footprint 13×15 | 16 | 1× | drawn in code | 1 |
+| `town_129` | Basse-Terre house — home, footprint 18×14 | 21 | 1× | drawn in code | 1 |
+| `town_13` | Basse-Terre tortuga_cockpit — tavern, footprint 26×17 | 27 | 1× | drawn in code | 1 |
+| `town_130` | Basse-Terre house — home, footprint 15×15 | 16 | 1× | drawn in code | 1 |
+| `town_131` | Basse-Terre house — home, footprint 13×15 | 14 | 1× | drawn in code | 1 |
+| `town_132` | Basse-Terre house — home, footprint 13×13 | 14 | 1× | drawn in code | 1 |
+| `town_133` | Basse-Terre house — home, footprint 16×13 | 17 | 1× | drawn in code | 1 |
+| `town_134` | Basse-Terre house — home, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_135` | Basse-Terre house — home, footprint 14×15 | 15 | 1× | drawn in code | 1 |
+| `town_136` | Basse-Terre house — home, footprint 15×15 | 18 | 1× | drawn in code | 1 |
+| `town_137` | Basse-Terre house — home, footprint 15×14 | 16 | 1× | drawn in code | 1 |
+| `town_138` | Basse-Terre house — home, footprint 14×15 | 15 | 1× | drawn in code | 1 |
+| `town_139` | Basse-Terre house — home, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_14` | Basse-Terre tortuga_tavern — tavern, footprint 26×17 | 27 | 1× | drawn in code | 1 |
+| `town_140` | Basse-Terre house — home, footprint 16×13 | 17 | 1× | drawn in code | 1 |
+| `town_141` | Basse-Terre house — home, footprint 12×13 | 15 | 1× | drawn in code | 1 |
+| `town_142` | Basse-Terre house — home, footprint 14×13 | 17 | 1× | drawn in code | 1 |
+| `town_143` | Basse-Terre house — home, footprint 16×12 | 19 | 1× | drawn in code | 1 |
+| `town_144` | Basse-Terre house — home, footprint 13×14 | 16 | 1× | drawn in code | 1 |
+| `town_145` | Basse-Terre house — home, footprint 13×14 | 16 | 1× | drawn in code | 1 |
+| `town_146` | Basse-Terre house — home, footprint 13×12 | 16 | 1× | drawn in code | 1 |
+| `town_147` | Basse-Terre house — home, footprint 13×12 | 16 | 1× | drawn in code | 1 |
+| `town_148` | Basse-Terre house — home, footprint 14×14 | 17 | 1× | drawn in code | 1 |
+| `town_149` | Basse-Terre house — home, footprint 13×14 | 16 | 1× | drawn in code | 1 |
+| `town_15` | Basse-Terre tortuga_shop — shop, footprint 16×14 | 17 | 1× | drawn in code | 1 |
+| `town_150` | Basse-Terre house — home, footprint 14×14 | 17 | 1× | drawn in code | 1 |
+| `town_151` | Basse-Terre house — home, footprint 13×12 | 16 | 1× | drawn in code | 1 |
+| `town_152` | Basse-Terre house — home, footprint 14×12 | 17 | 1× | drawn in code | 1 |
+| `town_153` | Basse-Terre house — home, footprint 16×14 | 19 | 1× | drawn in code | 1 |
+| `town_154` | Basse-Terre house — home, footprint 14×13 | 17 | 1× | drawn in code | 1 |
+| `town_155` | Basse-Terre house — home, footprint 13×12 | 16 | 1× | drawn in code | 1 |
+| `town_156` | Basse-Terre house — home, footprint 16×12 | 19 | 1× | drawn in code | 1 |
+| `town_157` | Basse-Terre house — home, footprint 14×12 | 17 | 1× | drawn in code | 1 |
+| `town_158` | Basse-Terre house — home, footprint 16×13 | 19 | 1× | drawn in code | 1 |
+| `town_159` | Basse-Terre house — home, footprint 13×12 | 16 | 1× | drawn in code | 1 |
+| `town_16` | Basse-Terre tortuga_crews_lodge — manor, footprint 20×15 | 21 | 1× | drawn in code | 1 |
+| `town_160` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
+| `town_161` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
+| `town_162` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
+| `town_163` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
+| `town_17` | Basse-Terre tortuga_boarding_house — tavern, footprint 26×17 | 27 | 1× | drawn in code | 1 |
+| `town_18` | Basse-Terre tortuga_smithy — civic, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_19` | Basse-Terre tortuga_bakery — shop, footprint 16×14 | 17 | 1× | drawn in code | 1 |
+| `town_2` | Basse-Terre tortuga_ships_provisioner — shop, footprint 16×14 | 19 | 1× | drawn in code | 1 |
+| `town_20` | Basse-Terre tortuga_dockworkers_bunkhouse — warehouse, footprint 22×16 | 25 | 1× | drawn in code | 1 |
+| `town_21` | Basse-Terre tortuga_salt_works — warehouse, footprint 22×16 | 25 | 1× | drawn in code | 1 |
+| `town_22` | Basse-Terre tortuga_distillery — shop, footprint 16×14 | 19 | 1× | drawn in code | 1 |
+| `town_23` | Basse-Terre tortuga_overflow_warehouse — warehouse, footprint 22×16 | 25 | 1× | drawn in code | 1 |
+| `town_24` | Basse-Terre tortuga_sailmakers_loft — shop, footprint 16×14 | 17 | 1× | drawn in code | 1 |
+| `town_25` | Basse-Terre tortuga_coopers_yard — market, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_26` | Basse-Terre tortuga_chapel — civic, footprint 20×18 | 21 | 1× | drawn in code | 1 |
+| `town_27` | Basse-Terre tortuga_sextons_house — civic, footprint 20×18 | 21 | 1× | drawn in code | 1 |
+| `town_28` | Basse-Terre tortuga_menagerie — market, footprint 18×14 | 21 | 1× | drawn in code | 1 |
+| `town_29` | Basse-Terre tortuga_tannery — warehouse, footprint 22×16 | 25 | 1× | drawn in code | 1 |
+| `town_3` | Basse-Terre tortuga_powder_and_shot — market, footprint 18×14 | 21 | 1× | drawn in code | 1 |
+| `town_30` | Basse-Terre tortuga_timber_yard — warehouse, footprint 22×16 | 25 | 1× | drawn in code | 1 |
+| `town_31` | Basse-Terre tortuga_warehouse — warehouse, footprint 22×16 | 25 | 1× | drawn in code | 1 |
+| `town_32` | Basse-Terre house — home, footprint 18×15 | 19 | 1× | drawn in code | 1 |
+| `town_33` | Basse-Terre house — home, footprint 13×15 | 16 | 1× | drawn in code | 1 |
+| `town_34` | Basse-Terre house — home, footprint 14×14 | 17 | 1× | drawn in code | 1 |
+| `town_35` | Basse-Terre house — home, footprint 18×14 | 21 | 1× | drawn in code | 1 |
+| `town_36` | Basse-Terre house — home, footprint 20×13 | 23 | 1× | drawn in code | 1 |
+| `town_37` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_38` | Basse-Terre house — home, footprint 16×13 | 17 | 1× | drawn in code | 1 |
+| `town_39` | Basse-Terre house — home, footprint 13×14 | 16 | 1× | drawn in code | 1 |
+| `town_4` | Basse-Terre tortuga_harbourmaster — civic, footprint 20×15 | 23 | 1× | drawn in code | 1 |
+| `town_40` | Basse-Terre house — home, footprint 15×13 | 18 | 1× | drawn in code | 1 |
+| `town_41` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_42` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_43` | Basse-Terre house — home, footprint 16×16 | 17 | 1× | drawn in code | 1 |
+| `town_44` | Basse-Terre house — home, footprint 13×13 | 14 | 1× | drawn in code | 1 |
+| `town_45` | Basse-Terre house — home, footprint 14×14 | 15 | 1× | drawn in code | 1 |
+| `town_46` | Basse-Terre house — home, footprint 14×15 | 15 | 1× | drawn in code | 1 |
+| `town_47` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_48` | Basse-Terre house — home, footprint 14×13 | 15 | 1× | drawn in code | 1 |
+| `town_49` | Basse-Terre house — home, footprint 14×16 | 15 | 1× | drawn in code | 1 |
+| `town_5` | Basse-Terre tortuga_customs — civic, footprint 20×15 | 23 | 1× | drawn in code | 1 |
+| `town_50` | Basse-Terre house — home, footprint 14×14 | 15 | 1× | drawn in code | 1 |
+| `town_51` | Basse-Terre house — home, footprint 14×16 | 15 | 1× | drawn in code | 1 |
+| `town_52` | Basse-Terre house — home, footprint 13×15 | 16 | 1× | drawn in code | 1 |
+| `town_53` | Basse-Terre house — home, footprint 17×13 | 20 | 1× | drawn in code | 1 |
+| `town_54` | Basse-Terre house — home, footprint 13×16 | 14 | 1× | drawn in code | 1 |
+| `town_55` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_56` | Basse-Terre house — home, footprint 16×14 | 19 | 1× | drawn in code | 1 |
+| `town_57` | Basse-Terre house — home, footprint 13×16 | 14 | 1× | drawn in code | 1 |
+| `town_58` | Basse-Terre house — home, footprint 14×16 | 15 | 1× | drawn in code | 1 |
+| `town_59` | Basse-Terre house — home, footprint 15×14 | 16 | 1× | drawn in code | 1 |
+| `town_6` | Basse-Terre tortuga_fishmonger — market, footprint 18×14 | 21 | 1× | drawn in code | 1 |
+| `town_60` | Basse-Terre house — home, footprint 14×14 | 15 | 1× | drawn in code | 1 |
+| `town_61` | Basse-Terre house — home, footprint 20×15 | 21 | 1× | drawn in code | 1 |
+| `town_62` | Basse-Terre house — home, footprint 16×13 | 17 | 1× | drawn in code | 1 |
+| `town_63` | Basse-Terre house — home, footprint 17×16 | 18 | 1× | drawn in code | 1 |
+| `town_64` | Basse-Terre house — home, footprint 13×13 | 14 | 1× | drawn in code | 1 |
+| `town_65` | Basse-Terre house — home, footprint 16×13 | 17 | 1× | drawn in code | 1 |
+| `town_66` | Basse-Terre house — home, footprint 14×14 | 17 | 1× | drawn in code | 1 |
+| `town_67` | Basse-Terre house — home, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_68` | Basse-Terre house — home, footprint 15×15 | 16 | 1× | drawn in code | 1 |
+| `town_69` | Basse-Terre house — home, footprint 15×15 | 16 | 1× | drawn in code | 1 |
+| `town_7` | Basse-Terre tortuga_careening_shed — civic, footprint 18×14 | 19 | 1× | drawn in code | 1 |
+| `town_70` | Basse-Terre house — home, footprint 16×15 | 17 | 1× | drawn in code | 1 |
+| `town_71` | Basse-Terre house — home, footprint 18×14 | 21 | 1× | drawn in code | 1 |
+| `town_72` | Basse-Terre house — home, footprint 14×13 | 17 | 1× | drawn in code | 1 |
+| `town_73` | Basse-Terre house — home, footprint 15×14 | 18 | 1× | drawn in code | 1 |
+| `town_74` | Basse-Terre house — home, footprint 15×13 | 18 | 1× | drawn in code | 1 |
+| `town_75` | Basse-Terre house — home, footprint 13×13 | 14 | 1× | drawn in code | 1 |
+| `town_76` | Basse-Terre house — home, footprint 15×15 | 16 | 1× | drawn in code | 1 |
+| `town_77` | Basse-Terre house — home, footprint 16×13 | 19 | 1× | drawn in code | 1 |
+| `town_78` | Basse-Terre house — home, footprint 18×13 | 21 | 1× | drawn in code | 1 |
+| `town_79` | Basse-Terre house — home, footprint 13×13 | 14 | 1× | drawn in code | 1 |
+| `town_8` | Basse-Terre tortuga_brine_barrel — tavern, footprint 26×17 | 29 | 1× | drawn in code | 1 |
+| `town_80` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_81` | Basse-Terre house — home, footprint 14×14 | 15 | 1× | drawn in code | 1 |
+| `town_82` | Basse-Terre house — home, footprint 15×13 | 16 | 1× | drawn in code | 1 |
+| `town_83` | Basse-Terre house — home, footprint 15×15 | 16 | 1× | drawn in code | 1 |
+| `town_84` | Basse-Terre house — home, footprint 15×14 | 16 | 1× | drawn in code | 1 |
+| `town_85` | Basse-Terre house — home, footprint 13×15 | 14 | 1× | drawn in code | 1 |
+| `town_86` | Basse-Terre house — home, footprint 14×14 | 15 | 1× | drawn in code | 1 |
+| `town_87` | Basse-Terre house — home, footprint 14×15 | 15 | 1× | drawn in code | 1 |
+| `town_88` | Basse-Terre house — home, footprint 18×13 | 19 | 1× | drawn in code | 1 |
+| `town_89` | Basse-Terre house — home, footprint 18×13 | 19 | 1× | drawn in code | 1 |
+| `town_9` | Basse-Terre tortuga_net_loft — shop, footprint 16×14 | 17 | 1× | drawn in code | 1 |
+| `town_90` | Basse-Terre house — home, footprint 18×15 | 19 | 1× | drawn in code | 1 |
+| `town_91` | Basse-Terre house — home, footprint 13×13 | 16 | 1× | drawn in code | 1 |
+| `town_92` | Basse-Terre house — home, footprint 13×13 | 16 | 1× | drawn in code | 1 |
+| `town_93` | Basse-Terre house — home, footprint 13×14 | 14 | 1× | drawn in code | 1 |
+| `town_94` | Basse-Terre house — home, footprint 16×15 | 17 | 1× | drawn in code | 1 |
+| `town_95` | Basse-Terre house — home, footprint 15×14 | 16 | 1× | drawn in code | 1 |
+| `town_96` | Basse-Terre house — home, footprint 13×13 | 14 | 1× | drawn in code | 1 |
+| `town_97` | Basse-Terre house — home, footprint 15×15 | 16 | 1× | drawn in code | 1 |
+| `town_98` | Basse-Terre house — home, footprint 16×14 | 17 | 1× | drawn in code | 1 |
+| `town_99` | Basse-Terre house — home, footprint 14×14 | 17 | 1× | drawn in code | 1 |
 
 ## Homes, huts and outbuildings
 
@@ -192,18 +259,18 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 
 | Asset id | What | Size on map (units wide) | Used | Status | Priority |
 |---|---|---|---|---|---|
-| `tree_jungle_2` | Jungle tree (variant 2) | 11 | 113× | **missing** | 1 |
-| `tree_jungle_3` | Jungle tree (variant 3) | 11 | 109× | **missing** | 1 |
-| `tree_jungle_1` | Jungle tree (variant 1) | 11 | 101× | **missing** | 1 |
+| `tree_jungle_2` | Jungle tree (variant 2) | 11 | 112× | **missing** | 1 |
+| `tree_jungle_3` | Jungle tree (variant 3) | 11 | 110× | **missing** | 1 |
+| `tree_jungle_1` | Jungle tree (variant 1) | 11 | 103× | **missing** | 1 |
 | `tree_tree_1` | Broadleaf tree (variant 1) | 13 | 81× | **missing** | 1 |
 | `tree_tree_2` | Broadleaf tree (variant 2) | 13 | 60× | **missing** | 1 |
 | `tree_tree_3` | Broadleaf tree (variant 3) | 13 | 59× | **missing** | 1 |
-| `tree_mangrove_2` | Mangrove (variant 2) | 10 | 9× | **missing** | 1 |
 | `tree_palm_2` | Palm (variant 2) | 11 | 9× | **missing** | 1 |
-| `tree_palm_4` | Palm (variant 4) | 11 | 8× | **missing** | 1 |
-| `tree_palm_3` | Palm (variant 3) | 11 | 7× | **missing** | 1 |
-| `tree_mangrove_1` | Mangrove (variant 1) | 10 | 5× | **missing** | 1 |
-| `tree_palm_1` | Palm (variant 1) | 11 | 5× | **missing** | 1 |
+| `tree_palm_4` | Palm (variant 4) | 11 | 9× | **missing** | 1 |
+| `tree_mangrove_2` | Mangrove (variant 2) | 10 | 8× | **missing** | 1 |
+| `tree_palm_3` | Palm (variant 3) | 11 | 8× | **missing** | 1 |
+| `tree_mangrove_1` | Mangrove (variant 1) | 10 | 6× | **missing** | 1 |
+| `tree_palm_1` | Palm (variant 1) | 11 | 6× | **missing** | 1 |
 | `tree_rock_1` | Boulder (variant 1) | 8 | 2× | **missing** | 1 |
 | `tree_rock_2` | Boulder (variant 2) | 8 | 2× | **missing** | 1 |
 | `tree_rock_3` | Boulder (variant 3) | 8 | 1× | **missing** | 1 |

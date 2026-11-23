@@ -219,12 +219,12 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         inner = poly.buffer(-2.2, join_style=2).difference(bl_all.buffer(2.0)).difference(st.buffer(2.0)).difference(TOWN_WALLS.buffer(4))
         if inner.is_empty: continue
         ip = prep(inner); l, t, r, b = inner.bounds
-        n = max(3, int(inner.area / 16))  # back yards as busy as the target's: trees, beds, a washing line, a woodpile
+        n = max(1, int(inner.area / 45))  # back yards as busy as the target's: trees, beds, a washing line, a woodpile
         for _ in range(n * 12):
             if n <= 0: break
             x, y = rng.uniform(l, r), rng.uniform(t, b)
             if ip.contains(Point(x, y)):
-                k = rng.choice(['palm', 'palm', 'palm', 'tree', 'tree', 'flowers', 'flowers', 'tall_grass', 'washing', 'woodpile', 'water_butt', 'flowerpot', 'chicken'])
+                k = rng.choice(['palm', 'tree', 'flowers', 'flowers', 'tall_grass', 'washing', 'washing', 'woodpile', 'water_butt', 'flowerpot', 'chicken'])
                 if put(k, x, y, 3.0 if k not in ('palm', 'tree') else 4.2): n -= 1
 
     print('  town gardens', _gp, 'planted', len(out) - _g0)

@@ -11,7 +11,7 @@ import plan_tortuga as P
 
 ROOT = S.ROOT
 # ---- edits made in the game's Plan editor (exported JSON pasted into edits_tortuga.json)
-import json as _json, os as _os
+import json as _json, os as _os, re as _re0
 EDITS = _json.load(open(_os.path.join(_os.path.dirname(__file__), 'edits_tortuga.json')))
 def bkey(b): return b[0] or f'{b[1]}@{b[3]:g},{b[4]:g}'
 P_ORIG = list(P.BUILDINGS); PROPS_ORIG = list(P.PROPS)
@@ -38,6 +38,31 @@ def door_point(b):
     _, _, _, cx, cy, w, h, side = b
     return {'N': (cx, cy - h / 2), 'S': (cx, cy + h / 2), 'E': (cx + w / 2, cy), 'W': (cx - w / 2, cy), None: None}[side]
 
+# the island's roads wind with the land instead of running ruler-straight: long straight stretches
+# get a gentle meander, kept straight near buildings, rivers, junctions and their ends
+def _wind(pts, w, seed):
+    from shapely.geometry import box as _bx2
+    rr = random.Random(seed)
+    blds = unary_union([_bx2(b[3] - b[5] / 2 - w / 2 - 3, b[4] - b[6] / 2 - w / 2 - 3, b[3] + b[5] / 2 + w / 2 + 3, b[4] + b[6] / 2 + w / 2 + 3) for b in P.BUILDINGS])
+    wet = unary_union([LineString(r_['pts']).buffer(r_['w'] / 2 + 14) for r_ in P.RIVERS])
+    out = [pts[0]]
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        L = math.hypot(x1 - x0, y1 - y0)
+        n = int(L // 22)
+        if n >= 2:
+            nx_, ny_ = -(y1 - y0) / L, (x1 - x0) / L
+            ph = rr.uniform(0, 6.28); amp = min(5.5, L / 14)
+            for k in range(1, n):
+                f = k / n
+                o = amp * math.sin(ph + f * math.pi * rr.choice([1.5, 2, 2.5])) * math.sin(math.pi * f)
+                q = (x0 + (x1 - x0) * f + nx_ * o, y0 + (y1 - y0) * f + ny_ * o)
+                if not blds.contains(Point(*q)) and not wet.contains(Point(*q)): out.append((round(q[0], 1), round(q[1], 1)))
+        out.append((x1, y1))
+    return out
+import random
+P.ROADS = [(n_, k_, w_, _wind(p_, w_, i_) if k_ in ('main', 'lane', 'path') else p_) for i_, (n_, k_, w_, p_) in enumerate(P.ROADS)]
+import town_plan
+P.ROADS = list(P.ROADS) + town_plan.STREETS  # the town's own streets: walkable and checked like any road
 # Flat road ends (no rounded caps): the plan is what the artwork copies.
 road_geoms = [LineString(pts).buffer(w / 2, cap_style=2, join_style=1) for _, _, w, pts in P.ROADS]
 dock_geoms = [(n, k, w, LineString(pts).buffer(w / 2, cap_style=2, join_style=2)) for n, k, w, pts in P.DOCKS]
@@ -364,30 +389,25 @@ for k in range(1, _ng + 1):
 _n2 += _n3
 print('  ground clean-up: fragment cells absorbed', _n1 + _n2)
 
-# infill: the painted town left wide open cobbled yards between its terraces. Fill the biggest of them
-# with extra terraced houses (no doors: they are scenery) so the streets close in like the target
-# picture, always leaving a proper street round each new row, every door's forecourt and the roads clear.
-_street = cls == 0
+# the town plan: Basse-Terre redrawn as a harbour town of winding streets and alleys (town_plan.py)
+_bts = open(f'{ROOT}/src/data/buildings.ts').read()
+_types = dict(_re0.findall(r"id: '(tortuga_[a-z0-9_]+)',\s*\n\s*islandId: 'tortuga_cove',\s*\n\s*name: [^\n]+\n\s*type: '([a-z]+)'", _bts))
+cls, town_bldgs, doors, INFILL = town_plan.layout(cls, TOWN, CELL, _types)
+# townsfolk routes and door lamps for the town life layer follow the new streets
+_life_p = f'{ROOT}/src/town/townLife.generated.ts'; _life = open(_life_p).read()
+_routes = []
+for _n, _k, _w, _pts in town_plan.STREETS:
+    if _w < 6: continue
+    _routes.append(list(_pts) + list(reversed(_pts[:-1])))
+_life = _re0.sub(r'export const WALKER_ROUTES: \[number, number\]\[\]\[\] = \[.*?\n\];',
+                 'export const WALKER_ROUTES: [number, number][][] = [\n' + ''.join('  [' + ', '.join(f'[{x:g}, {y:g}]' for x, y in r) + '],\n' for r in _routes) + '];', _life, flags=_re0.S)
+_life = _re0.sub(r'export const DOOR_LAMPS: \[number, number\]\[\] = \[.*?\];',
+                 'export const DOOR_LAMPS: [number, number][] = [' + ', '.join(f'[{x:g}, {y - 7:g}]' for i, x, y in doors if i) + '];', _life, flags=_re0.S)
+open(_life_p, 'w').write(_life)
 _keep_open = unary_union([LineString(pts).buffer(w / 2 + 5) for n_, k_, w, pts in P.ROADS] +
                          [Point(x, y).buffer(9) for _, x, y in doors] +
                          [box(l - 6, t - 6, r + 6, b + 9) for l, r, t, b in town_bldgs] +
                          [box(l - 4, t - 4, r + 4, b + 4) for _, l, r, t, b in P.PLAZAS])
-_infill = []
-INFILL = set()  # the scenery houses added here: drawn as homes with a door, but no way in
-for _w, _d in ((40, 17), (28, 16), (15, 15)):
-    for _j in range(0, ny):
-        for _i in range(0, nx):
-            l, t = TOWN[0] + _i * CELL, TOWN[2] + _j * CELL
-            r, b = l + _w, t + _d
-            i1, j1 = int(math.ceil((r - TOWN[0]) / CELL)), int(math.ceil((b - TOWN[2]) / CELL))
-            # the row and a street at least 6 wide on every side must all be open cobbles today
-            mi0, mj0, mi1, mj1 = _i - 3, _j - 3, i1 + 4, j1 + 4
-            if mi0 < 0 or mj0 < 0 or mi1 > nx or mj1 > ny: continue
-            if not _street[mj0:mj1, mi0:mi1].all(): continue
-            g = box(l, t, r, b)
-            if _keep_open.intersects(g.buffer(1)): continue
-            _infill.append((l, r, t, b)); _keep_open = _keep_open.union(box(l - 6, t - 6, r + 6, b + 9))
-            _street[mj0:mj1, mi0:mi1] = False
 # slips: the solid wharves get berths of open water cut into their seaward edge, so they read as piers
 # on pilings with water between them (like the target), not one great plank floor
 _slips = 0
@@ -423,13 +443,6 @@ for _w, _d in ((26, 13), (18, 11)):
             _wood[mj0:mj1, mi0:mi1] = False
 town_bldgs.extend([(round(l, 1), round(r, 1), round(t, 1), round(b, 1)) for l, r, t, b in _wh])
 print('  wharf sheds', len(_wh))
-for l, r, t, b in _infill:  # split each row into houses 7-10 wide, staggered like the rest
-    n = max(1, int(round((r - l) / 14)))
-    for k in range(n):
-        a, c = l + (r - l) * k / n, l + (r - l) * (k + 1) / n
-        town_bldgs.append((round(a, 1), round(c, 1), round(t + (0, 1.2, 0.6)[k % 3], 1), round(b, 1)))
-        INFILL.add(town_bldgs[-1])
-print('  town infill rows', len(_infill))
 
 def merge(mask):
     """Greedy rectangles covering a boolean grid (row runs merged downwards)."""
@@ -503,7 +516,7 @@ for tcx, tcy, trx, try_ in P.TERRACES:
 _wood_u = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('wood', [])]).buffer(0.01)
 _st_u = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('street', [])]).buffer(0.01)
 _seam = _wood_u.boundary.intersection(_st_u.buffer(0.6))
-_road_c = unary_union([LineString(pts).buffer(w / 2 + 1.2) for n_, k_, w, pts in P.ROADS])
+_road_c = unary_union([LineString(pts).buffer(w / 2 + 1.2) for n_, k_, w, pts in P.ROADS if n_ != 'Front Street'])
 from shapely.ops import linemerge as _lm
 _seam = _lm([g for g in getattr(_seam, 'geoms', [_seam]) if g.geom_type == 'LineString']) if not _seam.is_empty else _seam
 _qw = _qs = 0
@@ -531,6 +544,14 @@ for seg in getattr(_seam, 'geoms', [_seam]):
     for sp in span:
         terrace_stairs.append((list(sp.coords), math.pi / 2, max(4, sp.length))); _qs += 1
 print('  quay wall pieces', _qw, 'flights', _qs)
+# stepped alleys: flights of steps where the ginnels climb the hill
+for _n, _k, _w, _pts in town_plan.STREETS:
+    if _n not in town_plan.STEPPED: continue
+    _L = LineString(_pts)
+    for _f in (0.3, 0.7):
+        _m = _L.interpolate(_f, normalized=True); _a = _L.interpolate(max(0, _L.project(_m) - 1)); _b = _L.interpolate(min(_L.length, _L.project(_m) + 1))
+        _ang = math.atan2(_b.y - _a.y, _b.x - _a.x); _vx, _vy = -math.sin(_ang), math.cos(_ang)
+        terrace_stairs.append(([(_m.x - _vx * _w / 2, _m.y - _vy * _w / 2), (_m.x + _vx * _w / 2, _m.y + _vy * _w / 2)], _ang, _w))
 for tw in terrace_walls: burn(LineString(tw).buffer(1.2), 'terrace')
 extra_terraces = (terrace_walls, terrace_stairs)
 # set dressing: clutter, cargo, boats, animals, flowers and name boards (art only; bulky ones are solid)
@@ -653,12 +674,7 @@ for _tw in terrace_walls:
     SHORTCUTS.append(dict(id='ladder_highwoods', name='Rope ladder', kind='ladder', a=(_m.x, _m.y + 8), b=(_m.x, _m.y - 6), block=_blk.bounds, line=[(_m.x, _m.y), (_m.x, _m.y + 4.5)]))
     break
 # townsfolk routes: down the long town streets and along the main roads
-WALKS = []
-_st = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('street', [])])
-for _l, _r, _t, _b in town_rects.get('street', []):
-    if _r - _l > 40 and _b - _t >= 5: WALKS.append([((_l + 4), (_t + _b) / 2), ((_r - 4), (_t + _b) / 2)])
-    elif _b - _t > 40 and _r - _l >= 5: WALKS.append([((_l + _r) / 2, _t + 4), ((_l + _r) / 2, _b - 4)])
-WALKS = sorted(WALKS, key=lambda w_: -math.hypot(w_[1][0] - w_[0][0], w_[1][1] - w_[0][1]))[:10]
+WALKS = [[tuple(p_) for p_ in _pts] for _n, _k, _w, _pts in town_plan.STREETS if _w >= 6]
 for _n, _k, _w, _pts in P.ROADS:
     if _k in ('main', 'lane') and LineString(_pts).length > 60: WALKS.append([tuple(p_) for p_ in _pts])
 FISHERS = [tuple(pts[-1]) for n_, k_, w_, pts in P.DOCKS][:6]
@@ -734,7 +750,8 @@ out.append('/** Enterable doors outside the painted town (the town keeps its own
 LANDMARK_DOORS = [('tortuga_grotto', -411, 322), ('tortuga_wreck', -438, 298)]
 out.append('export const BP_DOORS: { id: string; x: number; y: number }[] = [' + ', '.join(
     [f"{{ id: '{b[0]}', x: {door_point(b)[0]:g}, y: {door_point(b)[1]:g} }}" for b in P.BUILDINGS if b[0]]
-    + [f"{{ id: '{i}', x: {x}, y: {y} }}" for i, x, y in LANDMARK_DOORS]) + '];')
+    + [f"{{ id: '{i}', x: {x}, y: {y} }}" for i, x, y in LANDMARK_DOORS]
+    + [f"{{ id: '{i}', x: {x:g}, y: {y:g} }}" for i, x, y in doors if i]) + '];')
 txt = '\n'.join(out) + '\n'
 open(f'{ROOT}/src/blueprint/tortugaBlueprint.generated.ts', 'w').write(txt)
 

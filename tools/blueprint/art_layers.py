@@ -230,7 +230,7 @@ def roads(P):
     gp = ground.Painter(im, T, S, seed=4)
     order = {'path': 0, 'lane': 1, 'main': 2}
     for name, k, w, pts in sorted(P.ROADS, key=lambda r: order.get(r[1], 0)):
-        if k == 'secret': continue
+        if k in ('secret', 'street'): continue  # town streets are the town's cobbles
         if k == 'ruinlane':  # the Old Landing's streets: broken cobbles swallowed by grass
             m = gp.mask(lines=[(pts, w)]); gp.fill(m, '#7c9a4e', 0.06)
             cobble_pattern(gp, LineString(pts).buffer(w / 2), m, 1.5, keep=0.55)
@@ -570,6 +570,14 @@ def town(rects):
         g = g.buffer(rr, join_style=2).buffer(-2 * rr, join_style=2).buffer(rr, join_style=2).simplify(2.2 if k != 'garden' else 1.4, preserve_topology=True)
         return _uu([p for p in getattr(g, 'geoms', [g]) if p.area > 60])
     st, wd, sd, gd = geom('street'), geom('wood'), geom('sand'), geom('garden')
+    try:  # the town's streets drawn from their true curving outlines, not the 2-unit cell grid
+        import town_plan as _tp
+        _land = _uu([st, gd]).buffer(0.5)
+        _true = _uu([LineString(p_).buffer(w_ / 2, cap_style=2, join_style=1) for n_, k_, w_, p_ in _tp.STREETS] + [_tp.SQUARE]).intersection(_land)
+        if not _true.is_empty:
+            st = _true; gd = gd.difference(_true.buffer(0.3))
+    except ImportError:
+        pass
     if not st.is_empty:
         gp.fill(gp.mask([st.buffer(0.6)]), '#6e6458', 0.03)
         m = gp.mask([st]); gp.fill(m, '#a49a88', 0.03); cobble_pattern(gp, st, m, 1.6)

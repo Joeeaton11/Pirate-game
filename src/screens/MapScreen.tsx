@@ -504,7 +504,8 @@ const BLUEPRINT_SOLID_RECTS = (() => {
 })();
 /** Debug: add ?solids=1 to the web URL to see every collision box. */
 const SHOW_SOLIDS_DEBUG = typeof window !== 'undefined' && typeof window.location !== 'undefined' && /[?&]solids=1/.test(window.location.search ?? '');
-const BLUEPRINT_DOORS = TOWN_DOORS.concat(
+// the town's doors now come with the plan (BP_DOORS); the old painted town's are kept only for ids the plan lacks
+const BLUEPRINT_DOORS = TOWN_DOORS.filter((d) => !BP_DOORS.some((b) => b.id === d.id)).concat(
   BP_DOORS.map((d) => ({ id: d.id, x: ISLANDS.tortuga_cove.position.x + d.x, y: ISLANDS.tortuga_cove.position.y + d.y }))
 );
 /** The map shows the architect's plan by default (art is parked for now); `?art=1` on web shows art. */
