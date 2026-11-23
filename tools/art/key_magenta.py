@@ -1,6 +1,6 @@
 """Key out a flat magenta background and fit the painted object into the code reference's frame:
-the object takes the same width and the same foot position as the code-drawn one, and the canvas keeps
-the reference's size ratio (scaled up so the painting keeps its resolution)."""
+the object takes the same width and the same foot position as the code-drawn one; if its height is within
+15% it is matched exactly too, otherwise it keeps its own shape and grows upwards."""
 import sys
 import numpy as np
 from PIL import Image
@@ -22,16 +22,16 @@ R = Image.open(ref).convert('RGBA')
 ra = np.asarray(R)[..., 3]
 ys, xs = np.where(ra > 120)  # the object itself, not its faint contact shadow
 l, t, rr, bb = xs.min(), ys.min(), xs.max() + 1, ys.max() + 1
-f = im.size[0] / (rr - l)  # painted px per reference px
-W, H = int(round(R.size[0] * f)), int(round(R.size[1] * f))
+f = im.size[0] / (rr - l)  # painted px per reference px: the painting fills the code object's width
+bw, bh = (rr - l) * f, (bb - t) * f  # the code object's box at the painting's scale
+if abs(im.size[1] / bh - 1) <= 0.15:
+    # nearly the same shape: match the box exactly, so no plot or ground shows round the edges
+    im = im.resize((int(round(bw)), int(round(bh))), Image.LANCZOS)
+# a taller painting (a palm with higher fronds) keeps its width and grows upwards from the same foot
+top = max(0, im.size[1] - int(round(bb * f)))
+W, H = int(round(R.size[0] * f)), int(round(R.size[1] * f)) + top
 canvas = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-ox = int(round(l * f))
-oy = int(round(bb * f)) - im.size[1]
-if oy < 0:  # taller than the code one: shrink to fit the frame
-    k = (bb * f) / im.size[1]
-    im = im.resize((int(im.size[0] * k), int(im.size[1] * k)), Image.LANCZOS)
-    ox = int(round((l + rr) / 2 * f - im.size[0] / 2)); oy = int(round(bb * f)) - im.size[1]
-canvas.alpha_composite(im, (max(0, ox), max(0, oy)))
+canvas.alpha_composite(im, (int(round(l * f)), top + int(round(bb * f)) - im.size[1]))
 # no bigger than 1.5x the 16 px/unit reference: plenty for the game, and keeps the web bundle small
 cap = 1.5 * R.size[0] / canvas.size[0]
 if cap < 1: canvas = canvas.resize((max(1, int(canvas.size[0] * cap)), max(1, int(canvas.size[1] * cap))), Image.LANCZOS)
