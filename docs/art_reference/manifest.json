@@ -1,7 +1,7 @@
 {
  "progress": {
   "done": 6,
-  "total": 463
+  "total": 465
  },
  "items": [
   {
@@ -8212,7 +8212,7 @@
    "variant": 0,
    "hero": false,
    "w": 8.0,
-   "count": 93,
+   "count": 91,
    "places": [
     [
      -234,
@@ -8551,14 +8551,6 @@
      -162
     ],
     [
-     61,
-     -76
-    ],
-    [
-     94,
-     -76
-    ],
-    [
      202,
      -68
     ],
@@ -8589,7 +8581,7 @@
    ],
    "ref": "docs/art_reference/obj/barrels_0.png",
    "painted": true,
-   "score": 200,
+   "score": 194,
    "priority": 1,
    "status": "painted",
    "guide": "docs/art_reference/guides/objects/barrels_0.png"
@@ -9185,6 +9177,240 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/washing_1.png"
+  },
+  {
+   "id": "flowerpot_1",
+   "group": "objects",
+   "label": "flowerpot",
+   "kind": "flowerpot",
+   "variant": 1,
+   "hero": false,
+   "w": 3.3,
+   "count": 54,
+   "places": [
+    [
+     291,
+     -403
+    ],
+    [
+     296,
+     -370
+    ],
+    [
+     349,
+     -334
+    ],
+    [
+     282,
+     -328
+    ],
+    [
+     291,
+     -321
+    ],
+    [
+     288,
+     -317
+    ],
+    [
+     -48,
+     -274
+    ],
+    [
+     145,
+     -262
+    ],
+    [
+     -28,
+     -242
+    ],
+    [
+     186,
+     -240
+    ],
+    [
+     422,
+     -234
+    ],
+    [
+     44,
+     -225
+    ],
+    [
+     276,
+     -224
+    ],
+    [
+     141,
+     -206
+    ],
+    [
+     153,
+     -198
+    ],
+    [
+     285,
+     -193
+    ],
+    [
+     393,
+     -192
+    ],
+    [
+     89,
+     -183
+    ],
+    [
+     94,
+     -183
+    ],
+    [
+     154,
+     -182
+    ],
+    [
+     71,
+     -180
+    ],
+    [
+     -12,
+     -180
+    ],
+    [
+     -140,
+     -167
+    ],
+    [
+     254,
+     -166
+    ],
+    [
+     -355,
+     -165
+    ],
+    [
+     -130,
+     -152
+    ],
+    [
+     169,
+     -149
+    ],
+    [
+     -116,
+     -149
+    ],
+    [
+     -84,
+     -147
+    ],
+    [
+     -77,
+     -141
+    ],
+    [
+     -37,
+     -130
+    ],
+    [
+     32,
+     -129
+    ],
+    [
+     144,
+     -122
+    ],
+    [
+     224,
+     -94
+    ],
+    [
+     -138,
+     -88
+    ],
+    [
+     85,
+     -75
+    ],
+    [
+     -119,
+     -66
+    ],
+    [
+     278,
+     -42
+    ],
+    [
+     -113,
+     -33
+    ],
+    [
+     38,
+     -21
+    ],
+    [
+     -115,
+     -20
+    ],
+    [
+     294,
+     -16
+    ],
+    [
+     25,
+     -10
+    ],
+    [
+     173,
+     -5
+    ],
+    [
+     233,
+     -4
+    ],
+    [
+     56,
+     -1
+    ],
+    [
+     80,
+     8
+    ],
+    [
+     -29,
+     10
+    ],
+    [
+     293,
+     22
+    ],
+    [
+     187,
+     27
+    ],
+    [
+     282,
+     28
+    ],
+    [
+     -362,
+     45
+    ],
+    [
+     -347,
+     83
+    ],
+    [
+     -283,
+     402
+    ]
+   ],
+   "ref": "docs/art_reference/obj/flowerpot_1.png",
+   "painted": false,
+   "score": 155,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/flowerpot_1.png"
   },
   {
    "id": "gull_0",
@@ -9785,236 +10011,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/gull_1.png"
-  },
-  {
-   "id": "flowerpot_1",
-   "group": "objects",
-   "label": "flowerpot",
-   "kind": "flowerpot",
-   "variant": 1,
-   "hero": false,
-   "w": 3.3,
-   "count": 53,
-   "places": [
-    [
-     291,
-     -403
-    ],
-    [
-     296,
-     -370
-    ],
-    [
-     349,
-     -334
-    ],
-    [
-     282,
-     -328
-    ],
-    [
-     291,
-     -321
-    ],
-    [
-     288,
-     -317
-    ],
-    [
-     -48,
-     -274
-    ],
-    [
-     145,
-     -262
-    ],
-    [
-     -28,
-     -242
-    ],
-    [
-     186,
-     -240
-    ],
-    [
-     422,
-     -234
-    ],
-    [
-     44,
-     -225
-    ],
-    [
-     276,
-     -224
-    ],
-    [
-     141,
-     -206
-    ],
-    [
-     153,
-     -198
-    ],
-    [
-     285,
-     -193
-    ],
-    [
-     393,
-     -192
-    ],
-    [
-     89,
-     -183
-    ],
-    [
-     94,
-     -183
-    ],
-    [
-     154,
-     -182
-    ],
-    [
-     71,
-     -180
-    ],
-    [
-     -12,
-     -180
-    ],
-    [
-     -140,
-     -167
-    ],
-    [
-     254,
-     -166
-    ],
-    [
-     -355,
-     -165
-    ],
-    [
-     -130,
-     -152
-    ],
-    [
-     169,
-     -149
-    ],
-    [
-     -116,
-     -149
-    ],
-    [
-     -84,
-     -147
-    ],
-    [
-     -77,
-     -141
-    ],
-    [
-     -37,
-     -130
-    ],
-    [
-     32,
-     -129
-    ],
-    [
-     144,
-     -122
-    ],
-    [
-     224,
-     -94
-    ],
-    [
-     -138,
-     -88
-    ],
-    [
-     -119,
-     -66
-    ],
-    [
-     278,
-     -42
-    ],
-    [
-     -113,
-     -33
-    ],
-    [
-     38,
-     -21
-    ],
-    [
-     -115,
-     -20
-    ],
-    [
-     294,
-     -16
-    ],
-    [
-     25,
-     -10
-    ],
-    [
-     173,
-     -5
-    ],
-    [
-     233,
-     -4
-    ],
-    [
-     56,
-     -1
-    ],
-    [
-     80,
-     8
-    ],
-    [
-     -29,
-     10
-    ],
-    [
-     293,
-     22
-    ],
-    [
-     187,
-     27
-    ],
-    [
-     282,
-     28
-    ],
-    [
-     -362,
-     45
-    ],
-    [
-     -347,
-     83
-    ],
-    [
-     -283,
-     402
-    ]
-   ],
-   "ref": "docs/art_reference/obj/flowerpot_1.png",
-   "painted": false,
-   "score": 152,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/flowerpot_1.png"
   },
   {
    "id": "tree_2",
@@ -10799,6 +10795,192 @@
    "guide": "docs/art_reference/guides/objects/woodpile_1.png"
   },
   {
+   "id": "flowerpot_2",
+   "group": "objects",
+   "label": "flowerpot",
+   "kind": "flowerpot",
+   "variant": 2,
+   "hero": false,
+   "w": 3.3,
+   "count": 42,
+   "places": [
+    [
+     287,
+     -388
+    ],
+    [
+     254,
+     -380
+    ],
+    [
+     222,
+     -328
+    ],
+    [
+     -274,
+     -322
+    ],
+    [
+     208,
+     -261
+    ],
+    [
+     94,
+     -243
+    ],
+    [
+     -94,
+     -222
+    ],
+    [
+     202,
+     -211
+    ],
+    [
+     273,
+     -210
+    ],
+    [
+     8,
+     -208
+    ],
+    [
+     -110,
+     -192
+    ],
+    [
+     -118,
+     -187
+    ],
+    [
+     32,
+     -178
+    ],
+    [
+     -319,
+     -165
+    ],
+    [
+     -85,
+     -158
+    ],
+    [
+     150,
+     -139
+    ],
+    [
+     218,
+     -136
+    ],
+    [
+     78,
+     -130
+    ],
+    [
+     101,
+     -117
+    ],
+    [
+     282,
+     -115
+    ],
+    [
+     239,
+     -77
+    ],
+    [
+     -89,
+     -74
+    ],
+    [
+     131,
+     -69
+    ],
+    [
+     164,
+     -66
+    ],
+    [
+     31,
+     -65
+    ],
+    [
+     108,
+     -62
+    ],
+    [
+     -144,
+     -60
+    ],
+    [
+     -401,
+     -40
+    ],
+    [
+     293,
+     -28
+    ],
+    [
+     282,
+     -7
+    ],
+    [
+     228,
+     -4
+    ],
+    [
+     30,
+     3
+    ],
+    [
+     107,
+     8
+    ],
+    [
+     114,
+     10
+    ],
+    [
+     -338,
+     14
+    ],
+    [
+     -138,
+     16
+    ],
+    [
+     117,
+     22
+    ],
+    [
+     -117,
+     24
+    ],
+    [
+     215,
+     24
+    ],
+    [
+     178,
+     27
+    ],
+    [
+     214,
+     28
+    ],
+    [
+     -357,
+     84
+    ]
+   ],
+   "ref": "docs/art_reference/obj/flowerpot_2.png",
+   "painted": false,
+   "score": 121,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/flowerpot_2.png"
+  },
+  {
    "id": "jungle_1",
    "group": "objects",
    "label": "jungle",
@@ -11159,188 +11341,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/jungle_1.png"
-  },
-  {
-   "id": "flowerpot_2",
-   "group": "objects",
-   "label": "flowerpot",
-   "kind": "flowerpot",
-   "variant": 2,
-   "hero": false,
-   "w": 3.3,
-   "count": 41,
-   "places": [
-    [
-     287,
-     -388
-    ],
-    [
-     254,
-     -380
-    ],
-    [
-     222,
-     -328
-    ],
-    [
-     -274,
-     -322
-    ],
-    [
-     208,
-     -261
-    ],
-    [
-     94,
-     -243
-    ],
-    [
-     -94,
-     -222
-    ],
-    [
-     202,
-     -211
-    ],
-    [
-     273,
-     -210
-    ],
-    [
-     8,
-     -208
-    ],
-    [
-     -110,
-     -192
-    ],
-    [
-     -118,
-     -187
-    ],
-    [
-     32,
-     -178
-    ],
-    [
-     -319,
-     -165
-    ],
-    [
-     -85,
-     -158
-    ],
-    [
-     150,
-     -139
-    ],
-    [
-     218,
-     -136
-    ],
-    [
-     78,
-     -130
-    ],
-    [
-     282,
-     -115
-    ],
-    [
-     239,
-     -77
-    ],
-    [
-     -89,
-     -74
-    ],
-    [
-     131,
-     -69
-    ],
-    [
-     164,
-     -66
-    ],
-    [
-     31,
-     -65
-    ],
-    [
-     108,
-     -62
-    ],
-    [
-     -144,
-     -60
-    ],
-    [
-     -401,
-     -40
-    ],
-    [
-     293,
-     -28
-    ],
-    [
-     282,
-     -7
-    ],
-    [
-     228,
-     -4
-    ],
-    [
-     30,
-     3
-    ],
-    [
-     107,
-     8
-    ],
-    [
-     114,
-     10
-    ],
-    [
-     -338,
-     14
-    ],
-    [
-     -138,
-     16
-    ],
-    [
-     117,
-     22
-    ],
-    [
-     -117,
-     24
-    ],
-    [
-     215,
-     24
-    ],
-    [
-     178,
-     27
-    ],
-    [
-     214,
-     28
-    ],
-    [
-     -357,
-     84
-    ]
-   ],
-   "ref": "docs/art_reference/obj/flowerpot_2.png",
-   "painted": false,
-   "score": 118,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/flowerpot_2.png"
   },
   {
    "id": "jungle_2",
@@ -12081,188 +12081,6 @@
    "guide": "docs/art_reference/guides/objects/woodpile_2.png"
   },
   {
-   "id": "crates_1",
-   "group": "objects",
-   "label": "crates",
-   "kind": "crates",
-   "variant": 1,
-   "hero": false,
-   "w": 5.3,
-   "count": 41,
-   "places": [
-    [
-     248,
-     -418
-    ],
-    [
-     -251,
-     -407
-    ],
-    [
-     248,
-     -396
-    ],
-    [
-     230,
-     -370
-    ],
-    [
-     254,
-     -346
-    ],
-    [
-     248,
-     -334
-    ],
-    [
-     81,
-     -323
-    ],
-    [
-     230,
-     -318
-    ],
-    [
-     369,
-     -315
-    ],
-    [
-     115,
-     -314
-    ],
-    [
-     152,
-     -308
-    ],
-    [
-     182,
-     -308
-    ],
-    [
-     130,
-     -308
-    ],
-    [
-     188,
-     -300
-    ],
-    [
-     244,
-     -292
-    ],
-    [
-     293,
-     -206
-    ],
-    [
-     288,
-     -206
-    ],
-    [
-     -104,
-     -176
-    ],
-    [
-     218,
-     -154
-    ],
-    [
-     383,
-     -131
-    ],
-    [
-     50,
-     -76
-    ],
-    [
-     83,
-     -76
-    ],
-    [
-     140,
-     -76
-    ],
-    [
-     168,
-     -76
-    ],
-    [
-     -43,
-     -69
-    ],
-    [
-     212,
-     -69
-    ],
-    [
-     -354,
-     -61
-    ],
-    [
-     -195,
-     -33
-    ],
-    [
-     -267,
-     -15
-    ],
-    [
-     -1,
-     -10
-    ],
-    [
-     3,
-     -10
-    ],
-    [
-     31,
-     -10
-    ],
-    [
-     183,
-     -5
-    ],
-    [
-     286,
-     22
-    ],
-    [
-     -34,
-     25
-    ],
-    [
-     -9,
-     33
-    ],
-    [
-     162,
-     76
-    ],
-    [
-     -195,
-     345
-    ],
-    [
-     -246,
-     402
-    ],
-    [
-     -206,
-     426
-    ],
-    [
-     -15,
-     476
-    ]
-   ],
-   "ref": "docs/art_reference/obj/crates_1.png",
-   "painted": false,
-   "score": 110,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/crates_1.png"
-  },
-  {
    "id": "tree_1",
    "group": "objects",
    "label": "tree",
@@ -12519,220 +12337,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/tree_1.png"
-  },
-  {
-   "id": "bench_0",
-   "group": "objects",
-   "label": "bench",
-   "kind": "bench",
-   "variant": 0,
-   "hero": false,
-   "w": 6.0,
-   "count": 49,
-   "places": [
-    [
-     -236,
-     -470
-    ],
-    [
-     -287,
-     -340
-    ],
-    [
-     402,
-     -335
-    ],
-    [
-     -288,
-     -334
-    ],
-    [
-     -288,
-     -326
-    ],
-    [
-     402,
-     -325
-    ],
-    [
-     424,
-     -262
-    ],
-    [
-     392,
-     -232
-    ],
-    [
-     -352,
-     -142
-    ],
-    [
-     -370,
-     -128
-    ],
-    [
-     -370,
-     -121
-    ],
-    [
-     -360,
-     -84
-    ],
-    [
-     -360,
-     -84
-    ],
-    [
-     -312,
-     -52
-    ],
-    [
-     -350,
-     -18
-    ],
-    [
-     -330,
-     -14
-    ],
-    [
-     -358,
-     -2
-    ],
-    [
-     -358,
-     8
-    ],
-    [
-     -344,
-     59
-    ],
-    [
-     -150,
-     232
-    ],
-    [
-     -170,
-     266
-    ],
-    [
-     -230,
-     366
-    ],
-    [
-     76,
-     452
-    ],
-    [
-     -83,
-     -326
-    ],
-    [
-     227,
-     -296
-    ],
-    [
-     -89,
-     -257
-    ],
-    [
-     -56,
-     -214
-    ],
-    [
-     76,
-     -214
-    ],
-    [
-     260,
-     -189
-    ],
-    [
-     -322,
-     -164
-    ],
-    [
-     353,
-     -162
-    ],
-    [
-     107,
-     -130
-    ],
-    [
-     46,
-     -107
-    ],
-    [
-     46,
-     -98
-    ],
-    [
-     -384,
-     -85
-    ],
-    [
-     -95,
-     -74
-    ],
-    [
-     -234,
-     -70
-    ],
-    [
-     217,
-     -69
-    ],
-    [
-     -288,
-     -10
-    ],
-    [
-     119,
-     1
-    ],
-    [
-     -324,
-     14
-    ],
-    [
-     -170,
-     237
-    ],
-    [
-     -164,
-     237
-    ],
-    [
-     -158,
-     237
-    ],
-    [
-     -152,
-     237
-    ],
-    [
-     -170,
-     261
-    ],
-    [
-     -164,
-     261
-    ],
-    [
-     -158,
-     261
-    ],
-    [
-     -152,
-     261
-    ]
-   ],
-   "ref": "docs/art_reference/obj/bench_0.png",
-   "painted": false,
-   "score": 109,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bench_0.png"
   },
   {
    "id": "water_butt_2",
@@ -13085,6 +12689,184 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/lamp_0.png"
+  },
+  {
+   "id": "crates_1",
+   "group": "objects",
+   "label": "crates",
+   "kind": "crates",
+   "variant": 1,
+   "hero": false,
+   "w": 5.3,
+   "count": 40,
+   "places": [
+    [
+     248,
+     -418
+    ],
+    [
+     -251,
+     -407
+    ],
+    [
+     248,
+     -396
+    ],
+    [
+     230,
+     -370
+    ],
+    [
+     254,
+     -346
+    ],
+    [
+     248,
+     -334
+    ],
+    [
+     81,
+     -323
+    ],
+    [
+     230,
+     -318
+    ],
+    [
+     369,
+     -315
+    ],
+    [
+     115,
+     -314
+    ],
+    [
+     152,
+     -308
+    ],
+    [
+     182,
+     -308
+    ],
+    [
+     130,
+     -308
+    ],
+    [
+     188,
+     -300
+    ],
+    [
+     244,
+     -292
+    ],
+    [
+     293,
+     -206
+    ],
+    [
+     288,
+     -206
+    ],
+    [
+     -104,
+     -176
+    ],
+    [
+     218,
+     -154
+    ],
+    [
+     383,
+     -131
+    ],
+    [
+     89,
+     -91
+    ],
+    [
+     140,
+     -76
+    ],
+    [
+     168,
+     -76
+    ],
+    [
+     -43,
+     -69
+    ],
+    [
+     212,
+     -69
+    ],
+    [
+     -354,
+     -61
+    ],
+    [
+     -195,
+     -33
+    ],
+    [
+     -267,
+     -15
+    ],
+    [
+     -1,
+     -10
+    ],
+    [
+     3,
+     -10
+    ],
+    [
+     31,
+     -10
+    ],
+    [
+     183,
+     -5
+    ],
+    [
+     286,
+     22
+    ],
+    [
+     -34,
+     25
+    ],
+    [
+     -9,
+     33
+    ],
+    [
+     162,
+     76
+    ],
+    [
+     -195,
+     345
+    ],
+    [
+     -246,
+     402
+    ],
+    [
+     -206,
+     426
+    ],
+    [
+     -15,
+     476
+    ]
+   ],
+   "ref": "docs/art_reference/obj/crates_1.png",
+   "painted": false,
+   "score": 107,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/crates_1.png"
   },
   {
    "id": "water_butt_0",
@@ -14055,6 +13837,212 @@
    "guide": "docs/art_reference/guides/objects/tree_0.png"
   },
   {
+   "id": "bench_0",
+   "group": "objects",
+   "label": "bench",
+   "kind": "bench",
+   "variant": 0,
+   "hero": false,
+   "w": 6.0,
+   "count": 47,
+   "places": [
+    [
+     -236,
+     -470
+    ],
+    [
+     -287,
+     -340
+    ],
+    [
+     402,
+     -335
+    ],
+    [
+     -288,
+     -334
+    ],
+    [
+     -288,
+     -326
+    ],
+    [
+     402,
+     -325
+    ],
+    [
+     424,
+     -262
+    ],
+    [
+     392,
+     -232
+    ],
+    [
+     -352,
+     -142
+    ],
+    [
+     -370,
+     -128
+    ],
+    [
+     -370,
+     -121
+    ],
+    [
+     -360,
+     -84
+    ],
+    [
+     -360,
+     -84
+    ],
+    [
+     -312,
+     -52
+    ],
+    [
+     -350,
+     -18
+    ],
+    [
+     -330,
+     -14
+    ],
+    [
+     -358,
+     -2
+    ],
+    [
+     -358,
+     8
+    ],
+    [
+     -344,
+     59
+    ],
+    [
+     -150,
+     232
+    ],
+    [
+     -170,
+     266
+    ],
+    [
+     -230,
+     366
+    ],
+    [
+     76,
+     452
+    ],
+    [
+     -83,
+     -326
+    ],
+    [
+     227,
+     -296
+    ],
+    [
+     -89,
+     -257
+    ],
+    [
+     -56,
+     -214
+    ],
+    [
+     76,
+     -214
+    ],
+    [
+     260,
+     -189
+    ],
+    [
+     -322,
+     -164
+    ],
+    [
+     353,
+     -162
+    ],
+    [
+     107,
+     -130
+    ],
+    [
+     -384,
+     -85
+    ],
+    [
+     -95,
+     -74
+    ],
+    [
+     -234,
+     -70
+    ],
+    [
+     217,
+     -69
+    ],
+    [
+     -288,
+     -10
+    ],
+    [
+     119,
+     1
+    ],
+    [
+     -324,
+     14
+    ],
+    [
+     -170,
+     237
+    ],
+    [
+     -164,
+     237
+    ],
+    [
+     -158,
+     237
+    ],
+    [
+     -152,
+     237
+    ],
+    [
+     -170,
+     261
+    ],
+    [
+     -164,
+     261
+    ],
+    [
+     -158,
+     261
+    ],
+    [
+     -152,
+     261
+    ]
+   ],
+   "ref": "docs/art_reference/obj/bench_0.png",
+   "painted": false,
+   "score": 103,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/bench_0.png"
+  },
+  {
    "id": "crates_2",
    "group": "objects",
    "label": "crates",
@@ -14062,7 +14050,7 @@
    "variant": 2,
    "hero": false,
    "w": 5.3,
-   "count": 36,
+   "count": 37,
    "places": [
     [
      -85,
@@ -14173,6 +14161,10 @@
      -121
     ],
     [
+     19,
+     -118
+    ],
+    [
      -457,
      -3
     ],
@@ -14211,7 +14203,7 @@
    ],
    "ref": "docs/art_reference/obj/crates_2.png",
    "painted": false,
-   "score": 99,
+   "score": 102,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/crates_2.png"
@@ -14971,152 +14963,6 @@
    "guide": "docs/art_reference/guides/objects/bollard_2.png"
   },
   {
-   "id": "barrels_2",
-   "group": "objects",
-   "label": "barrels",
-   "kind": "barrels",
-   "variant": 2,
-   "hero": false,
-   "w": 8.0,
-   "count": 32,
-   "places": [
-    [
-     -210,
-     -491
-    ],
-    [
-     272,
-     -447
-    ],
-    [
-     275,
-     -435
-    ],
-    [
-     260,
-     -426
-    ],
-    [
-     248,
-     -408
-    ],
-    [
-     -88,
-     -406
-    ],
-    [
-     -80,
-     -370
-    ],
-    [
-     -92,
-     -358
-    ],
-    [
-     92,
-     -358
-    ],
-    [
-     -82,
-     -306
-    ],
-    [
-     -16,
-     -298
-    ],
-    [
-     -28,
-     -298
-    ],
-    [
-     130,
-     -298
-    ],
-    [
-     82,
-     -298
-    ],
-    [
-     212,
-     -295
-    ],
-    [
-     154,
-     -292
-    ],
-    [
-     -190,
-     -197
-    ],
-    [
-     450,
-     -140
-    ],
-    [
-     318,
-     -121
-    ],
-    [
-     -297,
-     -105
-    ],
-    [
-     -250,
-     -83
-    ],
-    [
-     28,
-     -76
-    ],
-    [
-     120,
-     -75
-    ],
-    [
-     -103,
-     -73
-    ],
-    [
-     -270,
-     -60
-    ],
-    [
-     -452,
-     -44
-    ],
-    [
-     -254,
-     -37
-    ],
-    [
-     -392,
-     7
-    ],
-    [
-     29,
-     79
-    ],
-    [
-     43,
-     466
-    ],
-    [
-     3,
-     470
-    ],
-    [
-     -20,
-     472
-    ]
-   ],
-   "ref": "docs/art_reference/obj/barrels_2.png",
-   "painted": false,
-   "score": 81,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/barrels_2.png"
-  },
-  {
    "id": "rubble_0",
    "group": "objects",
    "label": "rubble",
@@ -15447,6 +15293,148 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/bollard_1.png"
+  },
+  {
+   "id": "barrels_2",
+   "group": "objects",
+   "label": "barrels",
+   "kind": "barrels",
+   "variant": 2,
+   "hero": false,
+   "w": 8.0,
+   "count": 31,
+   "places": [
+    [
+     -210,
+     -491
+    ],
+    [
+     272,
+     -447
+    ],
+    [
+     275,
+     -435
+    ],
+    [
+     260,
+     -426
+    ],
+    [
+     248,
+     -408
+    ],
+    [
+     -88,
+     -406
+    ],
+    [
+     -80,
+     -370
+    ],
+    [
+     -92,
+     -358
+    ],
+    [
+     92,
+     -358
+    ],
+    [
+     -82,
+     -306
+    ],
+    [
+     -16,
+     -298
+    ],
+    [
+     -28,
+     -298
+    ],
+    [
+     130,
+     -298
+    ],
+    [
+     82,
+     -298
+    ],
+    [
+     212,
+     -295
+    ],
+    [
+     154,
+     -292
+    ],
+    [
+     -190,
+     -197
+    ],
+    [
+     450,
+     -140
+    ],
+    [
+     318,
+     -121
+    ],
+    [
+     -297,
+     -105
+    ],
+    [
+     -250,
+     -83
+    ],
+    [
+     120,
+     -75
+    ],
+    [
+     -103,
+     -73
+    ],
+    [
+     -270,
+     -60
+    ],
+    [
+     -452,
+     -44
+    ],
+    [
+     -254,
+     -37
+    ],
+    [
+     -392,
+     7
+    ],
+    [
+     29,
+     79
+    ],
+    [
+     43,
+     466
+    ],
+    [
+     3,
+     470
+    ],
+    [
+     -20,
+     472
+    ]
+   ],
+   "ref": "docs/art_reference/obj/barrels_2.png",
+   "painted": false,
+   "score": 78,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/barrels_2.png"
   },
   {
    "id": "jungle_3",
@@ -15951,8 +15939,8 @@
      -148
     ],
     [
-     39,
-     -76
+     31,
+     -92
     ],
     [
      -425,
@@ -16167,6 +16155,112 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/tree_3.png"
+  },
+  {
+   "id": "barrels_1",
+   "group": "objects",
+   "label": "barrels",
+   "kind": "barrels",
+   "variant": 1,
+   "hero": false,
+   "w": 8.0,
+   "count": 22,
+   "places": [
+    [
+     286,
+     -438
+    ],
+    [
+     238,
+     -420
+    ],
+    [
+     238,
+     -372
+    ],
+    [
+     248,
+     -370
+    ],
+    [
+     -247,
+     -369
+    ],
+    [
+     86,
+     -364
+    ],
+    [
+     238,
+     -318
+    ],
+    [
+     170,
+     -298
+    ],
+    [
+     68,
+     -290
+    ],
+    [
+     270,
+     -254
+    ],
+    [
+     -292,
+     -175
+    ],
+    [
+     358,
+     -171
+    ],
+    [
+     -277,
+     -111
+    ],
+    [
+     272,
+     -108
+    ],
+    [
+     19,
+     -105
+    ],
+    [
+     135,
+     -76
+    ],
+    [
+     -32,
+     -37
+    ],
+    [
+     9,
+     -11
+    ],
+    [
+     268,
+     -10
+    ],
+    [
+     -195,
+     338
+    ],
+    [
+     -163,
+     339
+    ],
+    [
+     -39,
+     500
+    ]
+   ],
+   "ref": "docs/art_reference/obj/barrels_1.png",
+   "painted": false,
+   "score": 57,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/barrels_1.png"
   },
   {
    "id": "cargo_0",
@@ -16541,108 +16635,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/parrot_1.png"
-  },
-  {
-   "id": "barrels_1",
-   "group": "objects",
-   "label": "barrels",
-   "kind": "barrels",
-   "variant": 1,
-   "hero": false,
-   "w": 8.0,
-   "count": 21,
-   "places": [
-    [
-     286,
-     -438
-    ],
-    [
-     238,
-     -420
-    ],
-    [
-     238,
-     -372
-    ],
-    [
-     248,
-     -370
-    ],
-    [
-     -247,
-     -369
-    ],
-    [
-     86,
-     -364
-    ],
-    [
-     238,
-     -318
-    ],
-    [
-     170,
-     -298
-    ],
-    [
-     68,
-     -290
-    ],
-    [
-     270,
-     -254
-    ],
-    [
-     -292,
-     -175
-    ],
-    [
-     358,
-     -171
-    ],
-    [
-     -277,
-     -111
-    ],
-    [
-     272,
-     -108
-    ],
-    [
-     135,
-     -76
-    ],
-    [
-     -32,
-     -37
-    ],
-    [
-     9,
-     -11
-    ],
-    [
-     268,
-     -10
-    ],
-    [
-     -195,
-     338
-    ],
-    [
-     -163,
-     339
-    ],
-    [
-     -39,
-     500
-    ]
-   ],
-   "ref": "docs/art_reference/obj/barrels_1.png",
-   "painted": false,
-   "score": 54,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/barrels_1.png"
   },
   {
    "id": "rowboat_moored_0",
@@ -17147,8 +17139,8 @@
      -90
     ],
     [
-     72,
-     -76
+     41,
+     -75
     ]
    ],
    "ref": "docs/art_reference/obj/sacks_2.png",
@@ -18269,6 +18261,68 @@
    "guide": "docs/art_reference/guides/objects/potted_palm_1.png"
   },
   {
+   "id": "wanted_poster_1",
+   "group": "objects",
+   "label": "wanted poster",
+   "kind": "wanted_poster",
+   "variant": 1,
+   "hero": false,
+   "w": 4.0,
+   "count": 11,
+   "places": [
+    [
+     382,
+     -240
+    ],
+    [
+     110,
+     -157
+    ],
+    [
+     61,
+     -127
+    ],
+    [
+     405,
+     -126
+    ],
+    [
+     294,
+     -123
+    ],
+    [
+     -360,
+     -35
+    ],
+    [
+     248,
+     -11
+    ],
+    [
+     -60,
+     -2
+    ],
+    [
+     -66,
+     -1
+    ],
+    [
+     109,
+     1
+    ],
+    [
+     -198,
+     350
+    ]
+   ],
+   "ref": "docs/art_reference/obj/wanted_poster_1.png",
+   "painted": false,
+   "score": 29,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/wanted_poster_1.png"
+  },
+  {
    "id": "cargo_1",
    "group": "objects",
    "label": "cargo",
@@ -18641,64 +18695,6 @@
    "guide": "docs/art_reference/guides/objects/barrel_1.png"
   },
   {
-   "id": "wanted_poster_1",
-   "group": "objects",
-   "label": "wanted poster",
-   "kind": "wanted_poster",
-   "variant": 1,
-   "hero": false,
-   "w": 4.0,
-   "count": 10,
-   "places": [
-    [
-     382,
-     -240
-    ],
-    [
-     110,
-     -157
-    ],
-    [
-     405,
-     -126
-    ],
-    [
-     294,
-     -123
-    ],
-    [
-     -360,
-     -35
-    ],
-    [
-     248,
-     -11
-    ],
-    [
-     -60,
-     -2
-    ],
-    [
-     -66,
-     -1
-    ],
-    [
-     109,
-     1
-    ],
-    [
-     -198,
-     350
-    ]
-   ],
-   "ref": "docs/art_reference/obj/wanted_poster_1.png",
-   "painted": false,
-   "score": 26,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/wanted_poster_1.png"
-  },
-  {
    "id": "bench_2",
    "group": "objects",
    "label": "bench",
@@ -18721,12 +18717,12 @@
      -148
     ],
     [
-     64,
-     -107
+     45,
+     -93
     ],
     [
-     64,
-     -98
+     65,
+     -93
     ],
     [
      -134,
@@ -18751,6 +18747,76 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/bench_2.png"
+  },
+  {
+   "id": "cart_0",
+   "group": "objects",
+   "label": "cart",
+   "kind": "cart",
+   "variant": 0,
+   "hero": false,
+   "w": 7.0,
+   "count": 13,
+   "places": [
+    [
+     -190,
+     -190
+    ],
+    [
+     -308,
+     -184
+    ],
+    [
+     -330,
+     -184
+    ],
+    [
+     448,
+     -143
+    ],
+    [
+     -300,
+     -18
+    ],
+    [
+     -382,
+     1
+    ],
+    [
+     156,
+     84
+    ],
+    [
+     -60,
+     100
+    ],
+    [
+     280,
+     196
+    ],
+    [
+     224,
+     200
+    ],
+    [
+     216,
+     220
+    ],
+    [
+     304,
+     304
+    ],
+    [
+     101,
+     -104
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cart_0.png",
+   "painted": false,
+   "score": 24.4,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cart_0.png"
   },
   {
    "id": "potted_palm_2",
@@ -18981,72 +19047,6 @@
    "guide": "docs/art_reference/guides/life/jolly_roger_1.png"
   },
   {
-   "id": "cart_0",
-   "group": "objects",
-   "label": "cart",
-   "kind": "cart",
-   "variant": 0,
-   "hero": false,
-   "w": 7.0,
-   "count": 12,
-   "places": [
-    [
-     -190,
-     -190
-    ],
-    [
-     -308,
-     -184
-    ],
-    [
-     -330,
-     -184
-    ],
-    [
-     448,
-     -143
-    ],
-    [
-     -300,
-     -18
-    ],
-    [
-     -382,
-     1
-    ],
-    [
-     156,
-     84
-    ],
-    [
-     -60,
-     100
-    ],
-    [
-     280,
-     196
-    ],
-    [
-     224,
-     200
-    ],
-    [
-     216,
-     220
-    ],
-    [
-     304,
-     304
-    ]
-   ],
-   "ref": "docs/art_reference/obj/cart_0.png",
-   "painted": false,
-   "score": 21.4,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cart_0.png"
-  },
-  {
    "id": "notice_0",
    "group": "objects",
    "label": "notice",
@@ -19243,12 +19243,12 @@
      -246
     ],
     [
-     45,
-     -76
+     14,
+     -105
     ],
     [
-     78,
-     -76
+     96,
+     -104
     ],
     [
      -356,
@@ -19523,16 +19523,16 @@
      -58
     ],
     [
-     34,
-     -76
+     96,
+     -117
     ],
     [
-     56,
-     -76
+     26,
+     -92
     ],
     [
-     89,
-     -76
+     36,
+     -75
     ],
     [
      -241,
@@ -20067,6 +20067,40 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/bench_1.png"
+  },
+  {
+   "id": "stall_2",
+   "group": "objects",
+   "label": "stall",
+   "kind": "stall",
+   "variant": 2,
+   "hero": false,
+   "w": 12.0,
+   "count": 4,
+   "places": [
+    [
+     14,
+     -118
+    ],
+    [
+     84,
+     -91
+    ],
+    [
+     80,
+     -75
+    ],
+    [
+     68,
+     -75
+    ]
+   ],
+   "ref": "docs/art_reference/obj/stall_2.png",
+   "painted": false,
+   "score": 12,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/stall_2.png"
   },
   {
    "id": "goat_0",
@@ -21045,32 +21079,6 @@
    "guide": "docs/art_reference/guides/objects/sign_rope_1.png"
   },
   {
-   "id": "stall_2",
-   "group": "objects",
-   "label": "stall",
-   "kind": "stall",
-   "variant": 2,
-   "hero": false,
-   "w": 12.0,
-   "count": 2,
-   "places": [
-    [
-     23,
-     -76
-    ],
-    [
-     67,
-     -76
-    ]
-   ],
-   "ref": "docs/art_reference/obj/stall_2.png",
-   "painted": false,
-   "score": 6,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/stall_2.png"
-  },
-  {
    "id": "sign_needle_2",
    "group": "objects",
    "label": "sign needle",
@@ -21160,7 +21168,7 @@
    "ref": "docs/art_reference/obj/stool_0.png",
    "painted": false,
    "score": 5.4,
-   "priority": 2,
+   "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/stool_0.png"
   },
@@ -25470,7 +25478,7 @@
    "ref": "docs/art_reference/obj/sign_fish_0.png",
    "painted": false,
    "score": 3,
-   "priority": 3,
+   "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/sign_fish_0.png"
   },
@@ -25585,6 +25593,28 @@
    "guide": "docs/art_reference/guides/objects/sign_tankard_0.png"
   },
   {
+   "id": "notice_1",
+   "group": "objects",
+   "label": "notice",
+   "kind": "notice",
+   "variant": 1,
+   "hero": false,
+   "w": 5.0,
+   "count": 1,
+   "places": [
+    [
+     49,
+     -127
+    ]
+   ],
+   "ref": "docs/art_reference/obj/notice_1.png",
+   "painted": false,
+   "score": 3,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/notice_1.png"
+  },
+  {
    "id": "sign_bread_1",
    "group": "objects",
    "label": "sign bread",
@@ -25629,28 +25659,6 @@
    "guide": "docs/art_reference/guides/objects/sign_tankard_1.png"
   },
   {
-   "id": "fountain_2",
-   "group": "objects",
-   "label": "fountain",
-   "kind": "fountain",
-   "variant": 2,
-   "hero": false,
-   "w": 11.0,
-   "count": 1,
-   "places": [
-    [
-     55,
-     -103
-    ]
-   ],
-   "ref": "docs/art_reference/obj/fountain_2.png",
-   "painted": false,
-   "score": 3,
-   "priority": 3,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/fountain_2.png"
-  },
-  {
    "id": "planter_palm_1",
    "group": "objects",
    "label": "planter palm",
@@ -25661,8 +25669,8 @@
    "count": 1,
    "places": [
     [
-     38,
-     -103
+     33,
+     -98
     ]
    ],
    "ref": "docs/art_reference/obj/planter_palm_1.png",
@@ -25673,26 +25681,70 @@
    "guide": "docs/art_reference/guides/objects/planter_palm_1.png"
   },
   {
-   "id": "planter_palm_2",
+   "id": "planter_palm_0",
    "group": "objects",
    "label": "planter palm",
    "kind": "planter_palm",
-   "variant": 2,
+   "variant": 0,
    "hero": false,
    "w": 8.0,
    "count": 1,
    "places": [
     [
-     72,
-     -103
+     77,
+     -98
     ]
    ],
-   "ref": "docs/art_reference/obj/planter_palm_2.png",
+   "ref": "docs/art_reference/obj/planter_palm_0.png",
    "painted": false,
    "score": 3,
    "priority": 3,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/planter_palm_2.png"
+   "guide": "docs/art_reference/guides/objects/planter_palm_0.png"
+  },
+  {
+   "id": "fountain_0",
+   "group": "objects",
+   "label": "fountain",
+   "kind": "fountain",
+   "variant": 0,
+   "hero": false,
+   "w": 33.0,
+   "count": 1,
+   "places": [
+    [
+     55,
+     -97
+    ]
+   ],
+   "ref": "docs/art_reference/obj/fountain_0.png",
+   "painted": false,
+   "score": 3,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/fountain_0.png"
+  },
+  {
+   "id": "cart_1",
+   "group": "objects",
+   "label": "cart",
+   "kind": "cart",
+   "variant": 1,
+   "hero": false,
+   "w": 7.0,
+   "count": 1,
+   "places": [
+    [
+     73,
+     -75
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cart_1.png",
+   "painted": false,
+   "score": 3,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cart_1.png"
   },
   {
    "id": "sign_bell_2",
@@ -28589,7 +28641,7 @@
    "target": 3
   },
   "cart": {
-   "have": 2,
+   "have": 3,
    "target": 2
   },
   "tent": {

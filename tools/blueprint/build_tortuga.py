@@ -583,7 +583,8 @@ import dressing
 dressing.TOWN_WALLS = unary_union([box(l, t - 1, r, b + 1) for l, r, t, b, gaps in town_walls] or [box(0, 0, 0, 0)])
 dress_props = dressing.dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms)
 for k_, x_, y_ in dress_props:
-    if k_ in dressing.SOLID_KINDS: burn(Point(x_, y_).buffer(0.9), 'dress:' + k_)
+    if k_ == 'fountain': burn(box(x_ - 15, y_ - 7, x_ + 15, y_ - 0.5), 'dress:fountain')  # the whole basin
+    elif k_ in dressing.SOLID_KINDS: burn(Point(x_, y_).buffer(0.9), 'dress:' + k_)
 for k_, x_, y_ in P.PROPS:  # posts you would otherwise walk straight through (and end up drawn over your face)
     if k_ in ('scarecrow', 'statue', 'mermaid_statue', 'signpost'): burn(Point(x_, y_).buffer(0.8), 'prop:' + k_)
 print('  dressing', len(dress_props))

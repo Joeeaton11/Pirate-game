@@ -506,15 +506,28 @@ def critter(S, kind, seed):
         elif icon == 'needle': d.line([cx - 2 * u, cy + 1.6 * u, cx + 2 * u, cy - 1.6 * u], fill=ink, width=max(1, int(u * 0.6))); d.ellipse([cx + 1.2 * u, cy - 2.2 * u, cx + 2.4 * u, cy - 1.0 * u], outline=ink)
         else: d.polygon([(cx - 2 * u, cy + 1.6 * u), (cx, cy - 2 * u), (cx + 2 * u, cy + 1.6 * u)], fill=ink)  # a ship's sail
         return _outline(im), (0.65 * s, H - 1)
-    if kind == 'fountain':  # the square's centrepiece: a round stone basin with a pillar and a spout
-        im, d = _canvas(10 * s, 9 * s); W, H = im.size
-        d.ellipse([0.3 * s, H - 5.2 * s, W - 0.3 * s, H - 0.3 * s], fill=(150, 142, 128, 255))              # basin wall
-        d.ellipse([0.3 * s, H - 5.2 * s, W - 0.3 * s, H - 2.2 * s], fill=(186, 178, 160, 255))              # lit rim
-        d.ellipse([1.1 * s, H - 4.8 * s, W - 1.1 * s, H - 2.6 * s], fill=(60, 150, 170, 255))               # water
-        d.ellipse([2.2 * s, H - 4.3 * s, W - 3.4 * s, H - 3.4 * s], fill=(120, 200, 214, 255))              # light on it
-        d.rectangle([4.3 * s, 1.6 * s, 5.7 * s, H - 3.6 * s], fill=(160, 152, 138, 255)); d.line([4.4 * s, 1.8 * s, 4.4 * s, H - 3.8 * s], fill=(200, 192, 176, 255))
-        d.ellipse([3.4 * s, 0.6 * s, 6.6 * s, 2.2 * s], fill=(176, 168, 152, 255))                          # top bowl
-        for dx in (-1.2, 1.2): d.line([5 * s, 1.6 * s, 5 * s + dx * s, 3.8 * s], fill=(170, 226, 236, 255), width=max(1, int(0.3 * s)))
+    if kind == 'fountain':  # the square's centrepiece: a wide two-tier stone fountain, about 32 paces across
+        s = s * 1.6
+        im, d = _canvas(20 * s, 17 * s); W, H = im.size
+        st, lit, dk, wat, wl = (150, 142, 128, 255), (190, 182, 164, 255), (108, 100, 90, 255), (54, 140, 166, 255), (140, 210, 224, 255)
+        # big lower basin: an octagonal stone rim, its wall, and the pool
+        def octo(x0, y0, x1, y1, k):
+            return [(x0 + k, y0), (x1 - k, y0), (x1, y0 + k * 0.6), (x1, y1 - k * 0.6), (x1 - k, y1), (x0 + k, y1), (x0, y1 - k * 0.6), (x0, y0 + k * 0.6)]
+        d.polygon(octo(0.3 * s, H - 8.4 * s, W - 0.3 * s, H - 0.4 * s, 3 * s), fill=dk)               # wall face
+        d.polygon(octo(0.3 * s, H - 8.4 * s, W - 0.3 * s, H - 2.6 * s, 3 * s), fill=st)
+        d.polygon(octo(1.2 * s, H - 7.8 * s, W - 1.2 * s, H - 3.3 * s, 2.6 * s), fill=wat)          # pool
+        for k in range(5): d.arc([(3 + k * 2.6) * s, H - 6.6 * s, (5 + k * 2.6) * s, H - 5.6 * s], 200, 340, fill=wl)  # ripples
+        d.line([1.0 * s, H - 8.2 * s, W - 1.0 * s, H - 8.2 * s], fill=lit)
+        for k in range(1, 6): d.line([k * W / 6, H - 2.6 * s, k * W / 6, H - 0.6 * s], fill=(96, 88, 80, 255))  # wall blocks
+        # pillar, upper bowl, finial
+        d.rectangle([8.6 * s, 4.6 * s, 11.4 * s, H - 5.2 * s], fill=st); d.line([8.8 * s, 4.8 * s, 8.8 * s, H - 5.4 * s], fill=lit)
+        d.ellipse([5.2 * s, 3.4 * s, 14.8 * s, 6.6 * s], fill=dk); d.ellipse([5.2 * s, 3.0 * s, 14.8 * s, 5.6 * s], fill=st)
+        d.ellipse([6.2 * s, 3.4 * s, 13.8 * s, 5.0 * s], fill=wat)
+        d.rectangle([9.4 * s, 0.9 * s, 10.6 * s, 3.8 * s], fill=st); d.ellipse([9.0 * s, 0.2 * s, 11.0 * s, 1.6 * s], fill=lit)
+        # water spilling from the upper bowl into the pool
+        for x in (5.6, 7.2, 12.8, 14.4):
+            d.line([x * s, 5.4 * s, (x + (-0.6 if x < 10 else 0.6)) * s, H - 6.4 * s], fill=wl, width=max(1, int(0.3 * s)))
+        for x in (9.6, 10.4): d.arc([(x - 2.4) * s, 0.4 * s, (x + 2.4) * s, 5 * s], 200 if x < 10 else 270, 270 if x < 10 else 340, fill=wl)
         return _outline(im), (W / 2, H - 1)
     if kind in ('planter', 'planter_palm'):  # a raised stone bed on the cobbles, planted up
         im, d = _canvas(7 * s, (7.5 if kind == 'planter_palm' else 4.4) * s)

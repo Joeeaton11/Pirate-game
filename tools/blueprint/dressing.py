@@ -340,17 +340,24 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     # neat row of market stalls along the south side with their goods beside them, a lamp at each corner,
     # and the rest left as open cobbles so it reads as a square, not a junk yard
     sq = _tp.SQUARE; c = sq.centroid
-    for k, x, y in [('fountain', c.x, c.y - 2)] + [('bench', c.x + dx, c.y - 2 + dy) for dx, dy in ((-9, -4), (9, -4), (-9, 5), (9, 5))] + [('planter_palm', c.x + dx, c.y - 2) for dx in (-17, 17)]:
-        out.append((k, round(x, 1), round(y, 1))); taken.append(Point(x, y))
-    for (x, y) in list(sq.buffer(-3, join_style=2).exterior.coords)[:-1]:
-        out.append(('lamp', round(x, 1), round(y, 1))); taken.append(Point(x, y))
     sl, st_, sr, sb = sq.bounds
-    for k in range(int((sr - sl - 16) / 11) + 1):
-        x = sl + 10 + k * 11; y = sb - 6.5
-        if sq.buffer(-3).contains(Point(x, y)):
-            out.append(('stall', round(x, 1), round(y, 1))); taken.append(Point(x, y))
-            g = ['crates', 'barrels', 'sacks'][k % 3]
-            out.append((g, round(x + 4.6, 1), round(y + 0.4, 1))); taken.append(Point(x + 4.6, y))
+    fy = c.y + 4  # the fountain's foot
+    items = [('fountain', c.x, fy)]
+    items += [('bench', c.x + dx, fy + 4) for dx in (-10, 10)]
+    items += [('planter_palm', c.x + dx, fy - 1) for dx in (-22, 22)]
+    # the market: stalls in loose clusters round the fountain, each with its goods, with clear ways
+    # between them in from every street (High Street from the south and north, the rows east and west)
+    stalls = [(sl + 12, st_ + 14), (sl + 12, st_ + 27), (sl + 24, st_ + 40),          # west cluster
+              (sr - 14, st_ + 15), (sr - 14, st_ + 28), (sr - 26, st_ + 41),          # east cluster
+              (sl + 22, sb - 5), (sl + 34, sb - 5), (sr - 30, sb - 5), (sr - 42, sb - 5)]  # south, with a gap for High Street
+    for i, (x, y) in enumerate(stalls):
+        if not sq.buffer(-2.5).contains(Point(x, y)): continue
+        items.append(('stall', x, y))
+        items.append((['crates', 'barrels', 'sacks', 'flowerpot', 'cart'][i % 5], x + 4.8, y + 0.4))
+    items += [('lamp', x, y) for (x, y) in list(sq.buffer(-3, join_style=2).exterior.coords)[:-1]]
+    items += [('notice', c.x - 6, st_ + 5), ('wanted_poster', c.x + 6, st_ + 5)]
+    for k, x, y in items:
+        out.append((k, round(x, 1), round(y, 1))); taken.append(Point(x, y))
     print('  town signs', signs, 'lamps', lamps_, 'washing lines', lines_)
 
     # 9. a carved name board at each district label
