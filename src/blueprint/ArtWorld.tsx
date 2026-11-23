@@ -16,7 +16,8 @@ import { UI_NAMEPLATE_BOARD } from '../data/uiSprites';
 import { NAMEPLATE_LETTER_GAP_FRACTION, NAMEPLATE_SPACE_FRACTION, nameplateChars } from '../data/bitmapNameplateFont';
 import { BP_DOORS } from './tortugaBlueprint.generated';
 import { OBJ_ASSETS, OBJ_SLOTS } from './artObjects.generated';
-import { WORLD_BRIDGE_FISHING, WORLD_FISHERS, WORLD_SHORTCUTS, WORLD_SPANS, WORLD_STEPS, WORLD_WALKS, WORLD_WORK } from './artWorld.generated';
+import { WORLD_BRIDGE_FISHING, WORLD_FISHERS, WORLD_SHORTCUTS, WORLD_SPANS, WORLD_SQUARE, WORLD_STEPS, WORLD_WALKS, WORLD_WORK } from './artWorld.generated';
+import { CYCLE_SECONDS } from '../town/DayNight';
 import { BP_DISTRICT_CENTRES } from './tortugaGameplay.generated';
 
 const MINIMAP = require('../../assets/sprites/tortuga_town/minimap.png');
@@ -181,6 +182,111 @@ export function footingAt(rel: { x: number; y: number }): { bridge: 'wood' | 'st
   const steps = WORLD_STEPS.some(([x, y, r]) => Math.hypot(rel.x - x, rel.y - y) < r);
   return { bridge, steps };
 }
+
+// ---------------------------------------------------------------- the market square's life
+// Traders behind the stalls and shoppers browsing, pigeons that scatter when you run through, water
+// splashing in the fountain, bunting strung between the lamps, a town crier with a tip for you, and
+// once every seven days a market day: extra stalls and a crowd.
+const PIGEON = [require('../../assets/sprites/plan_art/fx/pigeon_0.png'), require('../../assets/sprites/plan_art/fx/pigeon_1.png')];
+const SPLASH = require('../../assets/sprites/plan_art/fx/splash.png');
+const BUNTING = require('../../assets/sprites/plan_art/fx/bunting.png');
+const CRIER_LINES = [
+  "Hear ye! The Salty Parrot pours the best grog on Tortuga!",
+  "Search the barrels on the wharf - sailors drop all sorts.",
+  "Cat Steps is the quickest way down to the harbour!",
+  "Rumour says there's treasure buried past the Old Landing...",
+  "Wanted! Pirates with a ship of their own - ask at the docks.",
+  "Market day comes round every seventh day. Bargains aplenty!",
+  "Mind the cliffs past the lighthouse after dark.",
+  "The smithy on Tanners' Row sharpens a cutlass for a few coins.",
+];
+const TRADERS = ['tortuga_amb_cook', 'patron_tortuga_local', 'tortuga_amb_lass', 'patron_tortuga_mystic', 'tortuga_amb_sailor', 'patron_tortuga_drunk'];
+export function isMarketDay(t = Date.now() / 1000) {
+  return Math.floor(t / CYCLE_SECONDS) % 7 === 3 || (typeof window !== 'undefined' && /[?&]market=1/.test(window.location?.search ?? ''));
+}
+export const SquareLife = React.memo(function SquareLife({ origin, cam, player }: { origin: { x: number; y: number }; cam: { x: number; y: number }; player: { x: number; y: number } }) {
+  const t = useClock(120);
+  const ox = origin.x;
+  const oy = origin.y;
+  const [bl, bt, br, bb] = WORLD_SQUARE.bounds;
+  if (cam.x < ox + bl - 160 || cam.x > ox + br + 160 || cam.y < oy + bt - 200 || cam.y > oy + bb + 200) return null;
+  const market = isMarketDay(t);
+  const out: React.ReactNode[] = [];
+  const person = (key: string, id: string, x: number, y: number, bob = 0) => {
+    const sp = NPC_SPRITES[id] ?? FOLK[0];
+    if (!sp) return;
+    const h = FOLK_H;
+    const w = h * sp.aspect;
+    out.push(<Image key={key} source={sp.src} resizeMode="stretch" style={{ position: 'absolute', left: ox + x - w / 2, top: oy + y - h + bob, width: w, height: h }} />);
+  };
+  // bunting: strung corner to corner round the square, and across it on market day
+  const L = WORLD_SQUARE.lamps;
+  const pairs: [number[], number[]][] = L.map((p, i) => [p, L[(i + 1) % L.length]] as [number[], number[]]);
+  if (market && L.length >= 4) pairs.push([L[0], L[2]], [L[1], L[3]]);
+  pairs.forEach(([a, b], i) => {
+    const ax = a[0], ay = a[1] - 7, bx = b[0], by = b[1] - 7;
+    const len = Math.hypot(bx - ax, by - ay);
+    const ang = (Math.atan2(by - ay, bx - ax) * 180) / Math.PI;
+    out.push(<Image key={`bn${i}`} source={BUNTING} resizeMode="repeat"
+      style={{ position: 'absolute', left: ox + (ax + bx) / 2 - len / 2, top: oy + (ay + by) / 2 - 0.5 + Math.sin(t * 2 + i) * 0.15, width: len, height: 1.6, transform: [{ rotate: `${ang}deg` }] }} />);
+  });
+  // traders behind every stall, shoppers drifting from stall to stall
+  const stalls = [...WORLD_SQUARE.stalls];
+  if (market) {
+    const [fx, fy] = WORLD_SQUARE.fountain;
+    for (const [dx, dy] of [[-30, 14], [30, 14], [-34, -12], [34, -12]]) stalls.push([fx + dx, fy + dy]);
+    const stall = OBJ_ASSETS['stall_0'];
+    stalls.slice(WORLD_SQUARE.stalls.length).forEach(([x, y], i) => {
+      if (!stall) return;
+      const w = 9;
+      const h = w * stall.aspect;
+      out.push(<Image key={`ms${i}`} source={stall.src} resizeMode="stretch" style={{ position: 'absolute', left: ox + x - w / 2, top: oy + y - h, width: w, height: h }} />);
+    });
+  }
+  stalls.forEach(([x, y], i) => person(`tr${i}`, TRADERS[i % TRADERS.length], x + 1.5, y - 3.2, Math.sin(t * 1.6 + i) * 0.15));
+  const shoppers = market ? 9 : 4;
+  for (let k = 0; k < shoppers; k++) {
+    const s0 = stalls[(Math.floor(t / 9 + k * 1.7) + k) % stalls.length];
+    if (!s0) continue;
+    person(`sh${k}`, FOLK_IDS[(k + 2) % FOLK_IDS.length], s0[0] + (k % 2 ? -2.5 : 2.5), s0[1] + 4.5, 0);
+  }
+  // the fountain: splashes where the water falls, and a town crier beside it with a tip when you're near
+  const [fx, fy] = WORLD_SQUARE.fountain;
+  for (let i = 0; i < 6; i++) {
+    const ph = (t * 1.4 + i * 0.37) % 1;
+    const x = fx + [-8, -5, 5, 8, -2, 2][i];
+    out.push(<Image key={`sp${i}`} source={SPLASH} resizeMode="stretch"
+      style={{ position: 'absolute', left: ox + x - 1.4, top: oy + fy - 8.5 - ph * 1.2, width: 2.8, height: 1.4, opacity: 1 - ph }} />);
+  }
+  const cx = fx + 19, cy = fy + 3;
+  person('crier', 'tortuga_tavern:main', cx, cy, Math.abs(Math.sin(t * 3)) * -0.4);
+  let say: React.ReactNode = null;
+  if (Math.hypot(player.x - (ox + cx), player.y - (oy + cy)) < 18) {
+    const line = CRIER_LINES[Math.floor(t / 7) % CRIER_LINES.length];
+    say = (
+      <View key="crierSay" pointerEvents="none"
+        style={{ position: 'absolute', left: ox + cx - 160, top: oy + cy - FOLK_H - 6 - 60, width: 320, height: 120, justifyContent: 'flex-end', transform: [{ scale: 0.065 }] }}>
+        <View style={{ backgroundColor: 'rgba(250,240,214,0.95)', borderRadius: 14, borderWidth: 3, borderColor: '#5a3a1e', padding: 12 }}>
+          <Text style={{ fontSize: 26, color: '#2a1a0c', fontWeight: '700', textAlign: 'center' }}>{line}</Text>
+        </View>
+      </View>
+    );
+  }
+  // pigeons pecking on the cobbles; they burst away when Scally comes close, and settle again later
+  for (let i = 0; i < (market ? 6 : 12); i++) {
+    const hx = bl + 10 + ((i * 37) % Math.max(1, br - bl - 20));
+    const hy = bt + 12 + ((i * 23) % Math.max(1, bb - bt - 24));
+    const d = Math.hypot(player.x - (ox + hx), player.y - (oy + hy));
+    const flying = d < 9;
+    const fx2 = flying ? hx + (hx - (player.x - ox)) * 2.5 : hx + Math.sin(t * 0.7 + i) * 1.2;
+    const fy2 = flying ? hy - 14 : hy;
+    const fr = PIGEON[flying ? Math.floor(t * 10 + i) % 2 : Math.floor(t * 1.5 + i) % 4 === 0 ? 1 : 0];
+    out.push(<Image key={`pg${i}`} source={fr} resizeMode="stretch" style={{ position: 'absolute', left: ox + fx2 - 1.2, top: oy + fy2 - 1.9, width: 2.4, height: 1.9, opacity: flying ? 0.85 : 1 }} />);
+  }
+  if (say) out.push(say);
+  return <>{out}</>;
+});
+const FOLK_IDS = ['tortuga_amb_sailor', 'tortuga_amb_cook', 'tortuga_amb_lass', 'patron_tortuga_local', 'patron_tortuga_drunk', 'patron_tortuga_rival', 'patron_tortuga_mystic'];
 
 // ---------------------------------------------------------------- name boards
 // A carved board with the building's name over its door, shown only when Scally is close (the hanging
