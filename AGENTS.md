@@ -14,3 +14,14 @@ convenience, that's a checklist grouping only — the accompanying prompt text m
 each item is its own separate image generation, not a panel in one packed canvas. This is a
 standing rule, not a one-off preference — do not reintroduce grid/sheet delivery language into any
 brief without the user explicitly asking for it again.
+
+# 🔒 World art style: locked to docs/style/target_style.png
+
+Locked in 2026-11-23 by the user. All island and world art (ground, buildings, trees, props, boats,
+animals) is dense, detailed top-down pixel art matching `docs/style/target_style.png`: bright turquoise
+sea with foam and submerged rocks, dark jagged coastal rocks, palms and flowering bushes everywhere,
+grey cobbles, red-tiled cream buildings, heavy timber docks on pilings, sun from the upper left.
+Every art brief and every generation request (Weave, Figma or an artist) uses this image as the
+style reference. Do not switch the world to smooth cartoon, painterly or any other style, and do not
+change or replace the target image, unless the user explicitly asks to change the locked style.
+Characters' look for map sprites vs portraits is a separate decision and is not covered by this lock.

@@ -9,7 +9,7 @@ the next build.
 
 1. **One asset per image.** Every generation request produces exactly one item on its own canvas.
    Never use a grid, sheet or collage (see `AGENTS.md`). The ground is one asset, so it is one image.
-2. **Match the target style.** The look is `docs/style/target_style.png`. Read
+2. **Match the target style (locked 2026-11-23).** The look is `docs/style/target_style.png`, and only that. Read
    `docs/ART_STYLE_GUIDE.md` for the camera, light, outline and palette rules.
 3. **Use the code version as the reference.** For every asset, send its reference image from
    `docs/art_reference/` alongside the target style. Ask for the same shape, size, footprint and
@@ -27,6 +27,15 @@ the next build.
 For the ground, drop "transparent background, single object only". Add: "the whole island seen from
 above, same coastline, roads, rivers, fields and docks as the reference, no buildings, no trees,
 no props".
+
+### Getting it into the game
+
+Ask for a solid flat magenta (#FF00FF) background instead of transparency, then run
+`python3 tools/art/key_magenta.py <download.png> <reference.png> <assets/art_painted/...png>`. It keys out
+the magenta, fits the painting to the reference's width and foot position, and caps the size at 1.5x the
+reference so the web build stays small. Lessons from the first test: say "standing upright" for
+barrels, "seen from above at three-quarter view" for buildings, and "same width as the reference" for
+trees.
 
 ## What to make
 

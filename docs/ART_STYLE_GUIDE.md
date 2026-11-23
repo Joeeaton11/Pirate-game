@@ -10,6 +10,12 @@ moves.
 **One asset per image.** Every generation request produces exactly one item on its own canvas —
 never a grid, catalogue sheet or collage to be cut up later (see `AGENTS.md`).
 
+## Locked style
+
+**Locked 2026-11-23:** the island is drawn in the style of `docs/style/target_style.png` and nothing
+else (see `AGENTS.md`). Weave tests on 2026-11-23 (palm, barrels, crates, bollard, tree, cottage in
+`assets/art_painted/`) confirmed it can be matched.
+
 ## Reference images (match these)
 
 - **Target style for the whole island: `docs/style/target_style.png`** — dense top-down pixel art,
