@@ -138,7 +138,7 @@ def build(root, P, trees, town_box, town=None):
                 _im = Image.open(f'{root}/{SPR}/{rel}')
                 if sw * _im.size[1] / _im.size[0] <= lim: break
                 if sp.get('storeys', 1) > 1: sp['storeys'] = 1
-                else: sp['d'] = max(4, sp['d'] * 0.75); sp['massing'] = 'hip'
+                else: sp['d'] = max(4, sp['d'] * 0.75)
                 sw = houses.render(sp, f'{root}/{SPR}/{rel}')
             _w, _c = houses.features((l + r) / 2, b + 1.2)
             PLACES.setdefault(aid, []).append(((l + r) / 2, b + 1.2)); FEATS[aid] = ([(round(x - (l + r) / 2, 1), round(y - b - 1.2, 1)) for x, y in _w], [(round(x - (l + r) / 2, 1), round(y - b - 1.2, 1)) for x, y in _c])

@@ -460,9 +460,10 @@ def building(s):
     W = WW + 2 * eave
     storey = int(6.2 * PPU)
     wall_h = storey * st
-    gable = s.get('massing') == 'gable'
+    gable = s.get('massing') == 'gable' and w <= 24  # a very wide building keeps its ridge across the front
     if gable:
-        gable_h = int(WW * 0.4); depth = int(max(3.0, d * 0.32) * PPU)
+        # seen from high up (docs/ART_STYLE_GUIDE.md): a short gable, and the roof running well back
+        gable_h = int(WW * 0.3); depth = int(max(5.0, d * 0.6) * PPU)
         roof_h = gable_h + depth + 3
     else:
         roof_h = int(max(4.6, d * 0.5) * PPU) + (6 if st > 1 else 0)

@@ -91,7 +91,7 @@ export const ART_MANIFEST: Record<string, [string, string, boolean, number, numb
   "bench_1": ["objects", "bench", false, 6.5, 4, 1, false, "docs/art_reference/guides/objects/bench_1.png"],
   "pig_0": ["life", "pig \u2014 frame 1 of 1", false, 5.0, 4, 1, false, "docs/art_reference/guides/life/pig_0.png"],
   "lobster_pot_0": ["objects", "lobster pot", false, 5.0, 6, 1, false, "docs/art_reference/guides/objects/lobster_pot_0.png"],
-  "home_cottage_18x16_3": ["buildings", "Cottage", false, 21.0, 4, 1, true, "docs/art_reference/guides/buildings/home_cottage_18x16_3.png"],
+  "home_cottage_18x16_3": ["buildings", "Cottage", false, 21.0, 4, 1, false, "docs/art_reference/guides/buildings/home_cottage_18x16_3.png"],
   "lantern_post_0": ["objects", "lantern post", false, 4.0, 4, 1, false, "docs/art_reference/guides/objects/lantern_post_0.png"],
   "well_0": ["objects", "well", false, 6.5, 4, 1, false, "docs/art_reference/guides/objects/well_0.png"],
   "figurehead_0": ["objects", "figurehead", false, 6.0, 3, 1, false, "docs/art_reference/guides/objects/figurehead_0.png"],
@@ -334,4 +334,4 @@ export const ART_MANIFEST: Record<string, [string, string, boolean, number, numb
   "flag_0": ["life", "flag \u2014 frame 1 of 2", false, 7.0, 0, 3, false, "docs/art_reference/guides/life/flag_0.png"],
   "flag_1": ["life", "flag \u2014 frame 2 of 2", false, 7.0, 0, 3, false, "docs/art_reference/guides/life/flag_1.png"],
 };
-export const ART_PROGRESS = { done: 6, total: 332 };
+export const ART_PROGRESS = { done: 5, total: 332 };

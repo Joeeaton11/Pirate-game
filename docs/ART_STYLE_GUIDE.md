@@ -32,6 +32,11 @@ Attach the camera reference and one palette reference to **every** generation.
 
 ## Camera
 
+- **Houses: face-on, pointed gable facing you, seen from high up** (chosen by the user 2026-11-23,
+  like the houses in `docs/style/house_angle_example.png`): the front wall is square to the screen with
+  no side walls showing, the gable end faces the viewer, and the roof's two slopes run well back into
+  the picture so lots of tiles show. Very wide buildings (over 24 units) keep their ridge across the
+  front instead of one giant gable.
 - **High three-quarter view, looking down at about 50-60 degrees** (chosen 2026-11-23): the same
   angle as the houses in `docs/style/target_style.png`. A building is roughly **half roof, half front
   wall**: enough roof to read the shape of the town from above, and enough front wall to see the door
