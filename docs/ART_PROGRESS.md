@@ -14,9 +14,9 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | Asset | What | Hero/kit | Width (units) | Copies | Status |
 |---|---|---|---|---|---|
 | `ground` | The whole island ground (one image) | hero | 1240 | 1 | code placeholder |
-| `palm_2` | palm | kit | 23.0 | 400 | code placeholder |
-| `palm_0` | palm | kit | 23.5 | 371 | code placeholder |
-| `palm_1` | palm | kit | 24.0 | 355 | code placeholder |
+| `palm_2` | palm | kit | 23.0 | 412 | code placeholder |
+| `palm_1` | palm | kit | 24.0 | 364 | code placeholder |
+| `palm_0` | palm | kit | 23.5 | 367 | code placeholder |
 | `palm_3` | palm | kit | 24.0 | 344 | code placeholder |
 | `gull_0` | gull — frame 1 of 2 | kit | 5.0 | 70 | code placeholder |
 | `gull_1` | gull — frame 2 of 2 | kit | 5.0 | 70 | code placeholder |
@@ -24,50 +24,49 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `crates_0` | crates | kit | 5.5 | 61 | code placeholder |
 | `jungle_1` | jungle | kit | 16.0 | 85 | code placeholder |
 | `jungle_2` | jungle | kit | 16.0 | 89 | code placeholder |
+| `bollard_0` | bollard | kit | 4.0 | 40 | code placeholder |
 | `jungle_0` | jungle | kit | 16.0 | 73 | code placeholder |
-| `bollard_0` | bollard | kit | 4.0 | 38 | code placeholder |
 | `jungle_3` | jungle | kit | 16.0 | 76 | code placeholder |
 | `flowerpot_0` | flowerpot | kit | 4.0 | 41 | code placeholder |
 | `rubble_0` | rubble | kit | 7.5 | 42 | code placeholder |
-| `bollard_2` | bollard | kit | 4.0 | 33 | code placeholder |
 | `tree_2` | tree | kit | 17.0 | 61 | code placeholder |
+| `bollard_2` | bollard | kit | 4.0 | 28 | code placeholder |
 | `tree_3` | tree | kit | 17.0 | 42 | code placeholder |
-| `bollard_1` | bollard | kit | 4.0 | 25 | code placeholder |
 | `tree_0` | tree | kit | 17.0 | 55 | code placeholder |
 | `parrot_0` | parrot — frame 1 of 2 | kit | 2.5 | 30 | code placeholder |
 | `parrot_1` | parrot — frame 2 of 2 | kit | 2.5 | 30 | code placeholder |
 | `bench_0` | bench | kit | 6.5 | 27 | code placeholder |
 | `tree_1` | tree | kit | 17.0 | 42 | code placeholder |
-| `crab_0` | crab — frame 1 of 2 | kit | 2.5 | 26 | code placeholder |
-| `crab_1` | crab — frame 2 of 2 | kit | 2.5 | 26 | code placeholder |
-| `potted_palm_2` | potted palm | kit | 6.5 | 21 | code placeholder |
 | `rowboat_moored_0` | rowboat moored — frame 1 of 1 | kit | 8.0 | 12 | code placeholder |
+| `bollard_1` | bollard | kit | 4.0 | 25 | code placeholder |
 | `woodpile_0` | woodpile | kit | 7.5 | 24 | code placeholder |
-| `cannonballs_0` | cannonballs | kit | 5.5 | 17 | code placeholder |
+| `crab_0` | crab — frame 1 of 2 | kit | 2.5 | 23 | code placeholder |
+| `crab_1` | crab — frame 2 of 2 | kit | 2.5 | 23 | code placeholder |
 | `cannon_0` | cannon | kit | 7.5 | 19 | code placeholder |
 | `crates_2` | crates | kit | 5.5 | 18 | code placeholder |
 | `crates_1` | crates | kit | 5.5 | 17 | code placeholder |
 | `sacks_2` | sacks | kit | 6.5 | 17 | code placeholder |
-| `potted_palm_0` | potted palm | kit | 6.5 | 14 | code placeholder |
 | `crow_0` | crow — frame 1 of 2 | kit | 2.5 | 13 | code placeholder |
 | `crow_1` | crow — frame 2 of 2 | kit | 2.5 | 13 | code placeholder |
 | `signpost_0` | signpost | kit | 5.5 | 17 | code placeholder |
-| `potted_palm_1` | potted palm | kit | 6.5 | 15 | code placeholder |
 | `lamp_0` | lamp | kit | 4.0 | 15 | code placeholder |
+| `cannon_1` | cannon | kit | 7.5 | 11 | code placeholder |
 | `barrel_1` | barrel | kit | 5.5 | 12 | code placeholder |
 | `barrel_2` | barrel | kit | 5.5 | 12 | code placeholder |
 | `water_butt_0` | water butt | kit | 5.5 | 15 | code placeholder |
 | `rum_barrels_0` | rum barrels | kit | 12.0 | 13 | code placeholder |
-| `cannon_2` | cannon | kit | 7.5 | 9 | code placeholder |
 | `dead_tree_1` | dead tree | kit | 17.5 | 14 | code placeholder |
-| `rum_barrels_1` | rum barrels | kit | 12.0 | 11 | code placeholder |
+| `cannonballs_0` | cannonballs | kit | 5.5 | 11 | code placeholder |
+| `rum_barrels_1` | rum barrels | kit | 12.0 | 10 | code placeholder |
 | `notice_0` | notice | kit | 5.5 | 12 | code placeholder |
-| `cannon_1` | cannon | kit | 7.5 | 8 | code placeholder |
+| `cannonballs_2` | cannonballs | kit | 5.5 | 8 | code placeholder |
+| `cannonballs_1` | cannonballs | kit | 5.5 | 8 | code placeholder |
 | `barrels_1` | barrels | kit | 9.0 | 10 | code placeholder |
 | `sacks_1` | sacks | kit | 6.5 | 10 | code placeholder |
 | `lamp_2` | lamp | kit | 4.0 | 10 | code placeholder |
 | `wanted_poster_1` | wanted poster | kit | 4.5 | 10 | code placeholder |
 | `cart_0` | cart | kit | 7.5 | 12 | code placeholder |
+| `cannon_2` | cannon | kit | 7.5 | 8 | code placeholder |
 | `bench_2` | bench | kit | 6.5 | 9 | code placeholder |
 | `sacks_0` | sacks | kit | 6.5 | 8 | code placeholder |
 | `jolly_roger_0` | jolly roger — frame 1 of 2 | kit | 7.0 | 9 | code placeholder |
@@ -78,29 +77,30 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `campfire_0` | campfire — frame 1 of 2 | kit | 4.0 | 7 | code placeholder |
 | `campfire_1` | campfire — frame 2 of 2 | kit | 4.0 | 7 | code placeholder |
 | `flowerpot_2` | flowerpot | kit | 4.0 | 8 | code placeholder |
+| `potted_palm_1` | potted palm | kit | 6.5 | 8 | code placeholder |
 | `rope_coil_0` | rope coil | kit | 5.5 | 9 | code placeholder |
 | `rope_coil_1` | rope coil | kit | 5.5 | 7 | code placeholder |
 | `lantern_0` | lantern | kit | 4.0 | 8 | code placeholder |
 | `cargo_0` | cargo | kit | 5.5 | 6 | code placeholder |
 | `wanted_poster_2` | wanted poster | kit | 4.5 | 7 | code placeholder |
 | `flowerpot_1` | flowerpot | kit | 4.0 | 7 | code placeholder |
-| `cannonballs_2` | cannonballs | kit | 5.5 | 5 | code placeholder |
 | `barrel_0` | barrel | kit | 5.5 | 7 | code placeholder |
 | `woodpile_1` | woodpile | kit | 7.5 | 7 | code placeholder |
 | `goat_0` | goat — frame 1 of 1 | kit | 5.0 | 9 | code placeholder |
-| `turtle_0` | turtle — frame 1 of 1 | kit | 5.0 | 6 | code placeholder |
+| `potted_palm_0` | potted palm | kit | 6.5 | 7 | code placeholder |
+| `potted_palm_2` | potted palm | kit | 6.5 | 7 | code placeholder |
 | `grave_0` | grave | kit | 4.5 | 8 | code placeholder |
 | `dead_tree_0` | dead tree | kit | 17.5 | 8 | code placeholder |
-| `cannonballs_1` | cannonballs | kit | 5.5 | 6 | code placeholder |
+| `powder_keg_0` | powder keg | kit | 5.5 | 7 | code placeholder |
+| `parrot_perch_0` | parrot perch | kit | 4.5 | 7 | code placeholder |
 | `water_butt_1` | water butt | kit | 5.5 | 6 | code placeholder |
-| `powder_keg_0` | powder keg | kit | 5.5 | 6 | code placeholder |
 | `lobster_pot_1` | lobster pot | kit | 5.0 | 4 | code placeholder |
-| `rum_barrels_2` | rum barrels | kit | 12.0 | 5 | code placeholder |
-| `parrot_perch_0` | parrot perch | kit | 4.5 | 6 | code placeholder |
 | `mangrove_3` | mangrove | kit | 13.5 | 6 | code placeholder |
 | `washing_0` | washing | kit | 9.5 | 5 | code placeholder |
+| `hammock_0` | hammock | kit | 10.5 | 6 | code placeholder |
 | `lamp_1` | lamp | kit | 4.0 | 6 | code placeholder |
 | `anchor_0` | anchor | kit | 5.5 | 4 | code placeholder |
+| `rum_barrels_2` | rum barrels | kit | 12.0 | 4 | code placeholder |
 | `woodpile_2` | woodpile | kit | 7.5 | 5 | code placeholder |
 | `bench_1` | bench | kit | 6.5 | 4 | code placeholder |
 | `pig_0` | pig — frame 1 of 1 | kit | 5.0 | 4 | code placeholder |
@@ -108,21 +108,23 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `home_cottage_18x16_3` | Cottage | kit | 21.0 | 4 | code placeholder |
 | `lantern_post_0` | lantern post | kit | 4.0 | 4 | code placeholder |
 | `well_0` | well | kit | 6.5 | 4 | code placeholder |
-| `ship_wheel_0` | ship wheel | kit | 5.5 | 3 | code placeholder |
 | `water_butt_2` | water butt | kit | 5.5 | 4 | code placeholder |
+| `stall_1` | stall | kit | 12.5 | 4 | code placeholder |
 
 ## Priority 2
 
 | Asset | What | Hero/kit | Width (units) | Copies | Status |
 |---|---|---|---|---|---|
-| `stall_1` | stall | kit | 12.5 | 4 | code placeholder |
 | `nets_0` | nets | kit | 9.5 | 4 | code placeholder |
 | `crane_0` | crane | hero | 20.5 | 3 | code placeholder |
+| `spyglass_0` | spyglass | kit | 5.5 | 4 | code placeholder |
+| `figurehead_0` | figurehead | kit | 6.0 | 3 | code placeholder |
 | `ruin_wall_0` | ruin wall | kit | 17.5 | 4 | code placeholder |
 | `crab_trap_stack_0` | crab trap stack | kit | 6.0 | 3 | code placeholder |
 | `wanted_poster_0` | wanted poster | kit | 4.5 | 3 | code placeholder |
 | `lean_to_2` | lean to | kit | 10.5 | 4 | code placeholder |
-| `beach_cannon_0` | beach cannon | kit | 7.5 | 5 | code placeholder |
+| `hammock_2` | hammock | kit | 10.5 | 4 | code placeholder |
+| `ship_bell_2` | ship bell | kit | 4.5 | 3 | code placeholder |
 | `chicken_0` | chicken — frame 1 of 2 | kit | 2.5 | 6 | code placeholder |
 | `chicken_1` | chicken — frame 2 of 2 | kit | 2.5 | 6 | code placeholder |
 | `home_cottage_22x16_1` | Cottage | kit | 25.0 | 3 | code placeholder |
@@ -136,18 +138,17 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `crane_2` | crane | hero | 20.5 | 2 | code placeholder |
 | `cargo_2` | cargo | kit | 5.5 | 2 | code placeholder |
 | `crab_trap_stack_1` | crab trap stack | kit | 6.0 | 2 | code placeholder |
-| `powder_keg_2` | powder keg | kit | 5.5 | 3 | code placeholder |
-| `spyglass_2` | spyglass | kit | 5.5 | 3 | code placeholder |
 | `nets_1` | nets | kit | 9.5 | 2 | code placeholder |
+| `skull_post_1` | skull post | kit | 4.5 | 5 | code placeholder |
+| `beach_cannon_0` | beach cannon | kit | 7.5 | 4 | code placeholder |
 | `stool_0` | stool | kit | 6.5 | 4 | code placeholder |
-| `skull_post_2` | skull post | kit | 4.5 | 4 | code placeholder |
-| `beached_rowboat_2` | beached rowboat | kit | 9.5 | 6 | code placeholder |
-| `figurehead_0` | figurehead | kit | 6.0 | 2 | code placeholder |
+| `turtle_0` | turtle — frame 1 of 1 | kit | 5.0 | 3 | code placeholder |
+| `ship_wheel_0` | ship wheel | kit | 5.5 | 2 | code placeholder |
 | `pirate_grave_0` | pirate grave | kit | 4.5 | 3 | code placeholder |
 | `pilings_0` | pilings | kit | 11.5 | 3 | code placeholder |
-| `ship_bell_1` | ship bell | kit | 4.5 | 2 | code placeholder |
 | `anchor_1` | anchor | kit | 5.5 | 2 | code placeholder |
-| `ship_bell_0` | ship bell | kit | 4.5 | 3 | code placeholder |
+| `skull_post_2` | skull post | kit | 4.5 | 3 | code placeholder |
+| `beached_rowboat_2` | beached rowboat | kit | 9.5 | 5 | code placeholder |
 | `rowboat_0` | rowboat | kit | 9.5 | 4 | code placeholder |
 | `home_gate_tower` | Gate Tower | kit | 8.3 | 2 | code placeholder |
 | `home_cottage_16x14_4` | Cottage | kit | 19.0 | 2 | code placeholder |
@@ -161,20 +162,17 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `mangrove_1` | mangrove | kit | 13.5 | 3 | code placeholder |
 | `mangrove_2` | mangrove | kit | 13.5 | 2 | code placeholder |
 | `wheelbarrow_0` | wheelbarrow | kit | 7.5 | 2 | code placeholder |
-| `hammock_0` | hammock | kit | 10.5 | 2 | code placeholder |
 | `kiln_0` | kiln | hero | 9.5 | 2 | code placeholder |
 | `cargo_1` | cargo | kit | 5.5 | 2 | code placeholder |
 | `nets_2` | nets | kit | 9.5 | 2 | code placeholder |
 | `rope_coil_2` | rope coil | kit | 5.5 | 2 | code placeholder |
-| `ship_wheel_1` | ship wheel | kit | 5.5 | 2 | code placeholder |
-| `spyglass_1` | spyglass | kit | 5.5 | 2 | code placeholder |
+| `powder_keg_2` | powder keg | kit | 5.5 | 2 | code placeholder |
 | `tent_2` | tent | kit | 9.5 | 4 | code placeholder |
-| `treasure_open_1` | treasure open | kit | 6.5 | 3 | code placeholder |
+| `treasure_open_0` | treasure open | kit | 6.5 | 3 | code placeholder |
 | `loot_crates_0` | loot crates | kit | 7.5 | 2 | code placeholder |
-| `hammock_1` | hammock | kit | 10.5 | 2 | code placeholder |
-| `beached_rowboat_1` | beached rowboat | kit | 9.5 | 4 | code placeholder |
+| `ship_bell_0` | ship bell | kit | 4.5 | 2 | code placeholder |
 | `fishing_rack_0` | fishing rack | kit | 9.5 | 3 | code placeholder |
-| `beached_rowboat_0` | beached rowboat | kit | 9.5 | 3 | code placeholder |
+| `treasure_open_2` | treasure open | kit | 6.5 | 4 | code placeholder |
 | `town_0` | Basse-Terre tortuga_fishermens_guildhall | kit | 20.7 | 1 | code placeholder |
 | `town_1` | Basse-Terre tortuga_quayside_trading_post | kit | 17.8 | 1 | code placeholder |
 | `town_2` | Basse-Terre tortuga_ships_provisioner | kit | 24.3 | 1 | code placeholder |
@@ -218,11 +216,13 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `town_40` | Basse-Terre house | kit | 26.0 | 1 | code placeholder |
 | `beehive_0` | beehive | kit | 4.5 | 3 | code placeholder |
 | `scarecrow_0` | scarecrow | kit | 6.5 | 2 | code placeholder |
-| `powder_keg_1` | powder keg | kit | 5.5 | 2 | code placeholder |
-| `ship_bell_2` | ship bell | kit | 4.5 | 1 | code placeholder |
 | `figurehead_2` | figurehead | kit | 6.0 | 1 | code placeholder |
-| `beach_cannon_2` | beach cannon | kit | 7.5 | 2 | code placeholder |
+| `powder_keg_1` | powder keg | kit | 5.5 | 3 | code placeholder |
+| `ship_wheel_2` | ship wheel | kit | 5.5 | 1 | code placeholder |
+| `spyglass_2` | spyglass | kit | 5.5 | 1 | code placeholder |
 | `anchor_2` | anchor | kit | 5.5 | 1 | code placeholder |
+| `beached_rowboat_1` | beached rowboat | kit | 9.5 | 3 | code placeholder |
+| `parrot_perch_1` | parrot perch | kit | 4.5 | 2 | code placeholder |
 | `lean_to_1` | lean to | kit | 10.5 | 2 | code placeholder |
 | `bld_tortuga_counting_house` | Counting House | hero | 27.0 | 1 | code placeholder |
 | `bld_tortuga_apothecary` | Apothecary | hero | 25.0 | 1 | code placeholder |
@@ -299,7 +299,6 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `gibbet_0` | gibbet | hero | 14.5 | 1 | code placeholder |
 | `timber_0` | timber | kit | 7.5 | 1 | code placeholder |
 | `signal_lamp_0` | signal lamp | kit | 4.0 | 1 | code placeholder |
-| `spyglass_0` | spyglass | kit | 5.5 | 1 | code placeholder |
 | `falls_0` | falls | hero | 17.5 | 1 | code placeholder |
 | `mermaid_statue_0` | mermaid statue | kit | 5.5 | 1 | code placeholder |
 | `wreck_0` | wreck | kit | 11.5 | 1 | code placeholder |
@@ -309,17 +308,16 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `board_lighthouse_head` | Name board: Lighthouse Head | hero | 24.0 | 1 | code placeholder |
 | `board_rocher_row` | Name board: Rocher Row | hero | 17.0 | 1 | code placeholder |
 | `lantern_string_2` | lantern string | kit | 11.5 | 1 | code placeholder |
-| `treasure_open_2` | treasure open | kit | 6.5 | 2 | code placeholder |
 | `board_cayonne` | Name board: Cayonne | hero | 14.0 | 1 | code placeholder |
 | `lantern_string_0` | lantern string | kit | 11.5 | 1 | code placeholder |
 | `board_the_high_woods` | Name board: The High Woods | hero | 23.0 | 1 | code placeholder |
 | `board_blackwood_s_hollow` | Name board: Blackwood S Hollow | hero | 25.5 | 1 | code placeholder |
 | `board_la_ringot_fields` | Name board: La Ringot Fields | hero | 22.0 | 1 | code placeholder |
 | `lantern_string_1` | lantern string | kit | 11.5 | 1 | code placeholder |
-| `beach_cannon_1` | beach cannon | kit | 7.5 | 1 | code placeholder |
 | `board_ruins_of_the_old_landing` | Name board: Ruins Of The Old Landing | hero | 33.5 | 1 | code placeholder |
-| `parrot_perch_1` | parrot perch | kit | 4.5 | 1 | code placeholder |
 | `haystack_0` | haystack | kit | 6.5 | 2 | code placeholder |
+| `beached_rowboat_0` | beached rowboat | kit | 9.5 | 2 | code placeholder |
+| `hammock_1` | hammock | kit | 10.5 | 2 | code placeholder |
 | `buoy_0` | buoy | kit | 4.5 | 3 | code placeholder |
 | `town_41` | Basse-Terre house | kit | 19.3 | 1 | code placeholder |
 | `town_42` | Basse-Terre house | kit | 19.2 | 1 | code placeholder |
@@ -331,11 +329,14 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `buried_chest_0` | buried chest | kit | 5.5 | 1 | code placeholder |
 | `kraken_bones_0` | kraken bones | hero | 31.5 | 1 | code placeholder |
 | `board_fort_de_rocher` | Name board: Fort De Rocher | hero | 20.5 | 1 | code placeholder |
+| `beach_cannon_2` | beach cannon | kit | 7.5 | 1 | code placeholder |
 | `tent_1` | tent | kit | 9.5 | 1 | code placeholder |
+| `rum_cart_2` | rum cart | kit | 9.0 | 1 | code placeholder |
 | `loot_crates_2` | loot crates | kit | 7.5 | 1 | code placeholder |
 | `loot_crates_1` | loot crates | kit | 7.5 | 1 | code placeholder |
+| `rum_cart_1` | rum cart | kit | 9.0 | 1 | code placeholder |
+| `ship_bell_1` | ship bell | kit | 4.5 | 1 | code placeholder |
 | `parrot_perch_2` | parrot perch | kit | 4.5 | 1 | code placeholder |
-| `skull_post_1` | skull post | kit | 4.5 | 1 | code placeholder |
 | `lobster_pot_2` | lobster pot | kit | 5.0 | 1 | code placeholder |
 | `harbour_light_0` | harbour light | hero | 9.5 | 2 | code placeholder |
 | `wreck_mast_0` | wreck mast | kit | 11.5 | 2 | code placeholder |
@@ -343,7 +344,6 @@ to send alongside its reference so the coastline, roads and docks stay put.
 | `town_47` | Basse-Terre house | kit | 21.2 | 1 | code placeholder |
 | `wreck_ship_0` | wreck ship | hero | 41.5 | 1 | code placeholder |
 | `skull_rock_0` | skull rock | hero | 31.5 | 1 | code placeholder |
-| `hammock_2` | hammock | kit | 10.5 | 1 | code placeholder |
 | `flag_0` | flag — frame 1 of 2 | kit | 7.0 | 0 | code placeholder |
 | `flag_1` | flag — frame 2 of 2 | kit | 7.0 | 0 | code placeholder |
 

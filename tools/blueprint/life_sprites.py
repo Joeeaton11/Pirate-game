@@ -115,9 +115,10 @@ def build(root, P, dress_props, coast, beach, no_foam=None):
         shore.append((a.x, a.y, nx, ny))
     ts.append('/** Shore foam: [x, y, outward nx, ny] every few units round the island. */')
     ts.append('export const LIFE_SHORE: [number, number, number, number][] = [' + ', '.join(f'[{x:.1f}, {y:.1f}, {nx:.2f}, {ny:.2f}]' for x, y, nx, ny in shore) + '];')
-    sea_band = coast.buffer(70).difference(coast.buffer(4)); sp = prep(sea_band); l, t, r, b = sea_band.bounds
+    sea_band = coast.buffer(80).difference(coast.buffer(20))  # open water only, never over rocks or the shallows
+    sp = prep(sea_band); l, t, r, b = sea_band.bounds
     spark = []
-    while len(spark) < 900:
+    while len(spark) < 500:
         x, y = rng.uniform(l, r), rng.uniform(t, b)
         if sp.contains(Point(x, y)): spark.append((x, y))
     ts.append('/** Sea sparkles: points that glint in turn. */')

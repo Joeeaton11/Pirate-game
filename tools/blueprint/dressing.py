@@ -11,7 +11,7 @@ from shapely.prepared import prep
 
 FRONT_CLUTTER = ['barrels', 'crates', 'sacks', 'flowerpot', 'potted_palm', 'barrel', 'crates', 'bench', 'lamp', 'wanted_poster', 'rum_barrels', 'flowerpot', 'potted_palm']
 QUAY_CARGO = ['cargo', 'barrels', 'crates', 'sacks', 'nets', 'barrels', 'crates', 'rope_coil', 'barrel', 'lobster_pot', 'crab_trap_stack', 'rope_coil', 'rum_barrels', 'anchor', 'powder_keg']
-GRASS_DECOR = ['flowers', 'flowers', 'tall_grass', 'tall_grass', 'stone', 'log', 'mushrooms', 'flowers']
+GRASS_DECOR = ['flowers', 'flowers', 'flowers', 'tall_grass', 'tall_grass', 'tall_grass', 'stone']
 SOLID_KINDS = {'cannon', 'rum_cart', 'cannonballs', 'figurehead', 'ship_bell', 'crab_trap_stack', 'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
 
 
@@ -128,7 +128,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         x, y = rng.uniform(l, r), rng.uniform(t, b)
         if bp.contains(Point(x, y)):
             k = rng.random()
-            put('crab' if k < 0.25 else 'turtle' if k < 0.33 else 'shells' if k < 0.65 else 'driftwood' if k < 0.85 else 'beached_rowboat', x, y, 6)
+            put('crab' if k < 0.25 else 'turtle' if k < 0.33 else 'shells' if k < 0.65 else 'driftwood' if k < 0.85 else 'beached_rowboat', x, y, 10)
 
     # 7. canopies: striped market awnings over the squares' stalls, lean-tos at farms and camps
     for k, x, y in list(out):
@@ -183,9 +183,12 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     open_grass = coast.buffer(-3).difference(unary_union([beach, ways.buffer(1.5), bl_all.buffer(2.5), water.buffer(1.5), st.buffer(1), hard.buffer(2)] + [g.buffer(1) for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'graveyard', 'quarry', 'rock', 'pen', 'paddock')]))
     open_grass = open_grass.difference(town_box.buffer(3))
     og = prep(open_grass); l, t, r, b = open_grass.bounds
-    for _ in range(9000):
+    woodsy = prep(unary_union([g for t_, g in zone_geoms if t_ in ('jungle', 'forest', 'swamp')]))
+    for _ in range(5000):
         x, y = rng.uniform(l, r), rng.uniform(t, b)
-        if og.contains(Point(x, y)): put(rng.choice(GRASS_DECOR), x, y, 4.2)
+        if og.contains(Point(x, y)):
+            k = rng.choice(['mushrooms', 'log', 'tall_grass']) if woodsy.contains(Point(x, y)) else rng.choice(GRASS_DECOR)
+            put(k, x, y, 6)
 
     # 10. planted town gardens: palms, flower beds and greenery inside the walls, like the target
     gdn = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('garden', [])])
@@ -199,7 +202,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
             if n <= 0: break
             x, y = rng.uniform(l, r), rng.uniform(t, b)
             if ip.contains(Point(x, y)):
-                k = rng.choice(['palm', 'palm', 'flowers', 'flowers', 'tall_grass', 'potted_palm', 'flowers'])
+                k = rng.choice(['palm', 'palm', 'flowers', 'flowers', 'tall_grass', 'flowers'])
                 if put(k, x, y, 3.2 if k != 'palm' else 6): n -= 1
 
     # 11. soften the town's edge: a broken band of palms, shrubs and flowers just outside it
@@ -207,7 +210,7 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     ep = prep(edge); l, t, r, b = edge.bounds
     for _ in range(2500):
         x, y = rng.uniform(l, r), rng.uniform(t, b)
-        if ep.contains(Point(x, y)): put(rng.choice(['palm', 'palm', 'tall_grass', 'flowers', 'flowers', 'potted_palm']), x, y, 5.5)
+        if ep.contains(Point(x, y)): put(rng.choice(['palm', 'palm', 'tall_grass', 'flowers', 'flowers']), x, y, 5.5)
 
     # 12. the pirate port: bollards along every quay edge, cannons on the seaward edges with shot beside
     #     them, figureheads and ship's wheels from broken-up ships, a bell on the wharf

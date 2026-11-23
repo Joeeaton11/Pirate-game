@@ -44,7 +44,8 @@ export const ArtLife = React.memo(function ArtLife({
   const out: React.ReactNode[] = [];
 
   // shore foam: a broken white line that washes up the beach and slides back
-  for (let i = 0; i < LIFE_SHORE.length; i++) {
+  // (shore foam and sparkles are painted into the base; live ones rendered as blocky squares)
+  for (let i = 0; i < 0 && LIFE_SHORE.length; i++) {
     const [x, y, nx, ny] = LIFE_SHORE[i];
     const wx = ox + x;
     const wy = oy + y;
@@ -70,7 +71,7 @@ export const ArtLife = React.memo(function ArtLife({
     }
   }
   // sea sparkles: a few glint at a time
-  for (let i = 0; i < LIFE_SPARKLES.length; i++) {
+  for (let i = 0; i < 0 && LIFE_SPARKLES.length; i++) {
     const [x, y] = LIFE_SPARKLES[i];
     const wx = ox + x;
     const wy = oy + y;
@@ -78,8 +79,7 @@ export const ArtLife = React.memo(function ArtLife({
     const k = Math.sin(t * 1.7 + hash(i + 9) * 40);
     if (k < 0.82) continue;
     const a = (k - 0.82) / 0.18;
-    out.push(<View key={`s${i}`} style={{ position: 'absolute', left: wx - 1, top: wy - 0.25, width: 2, height: 0.5, backgroundColor: '#ffffff', opacity: a }} />);
-    out.push(<View key={`t${i}`} style={{ position: 'absolute', left: wx - 0.25, top: wy - 0.8, width: 0.5, height: 1.6, backgroundColor: '#ffffff', opacity: a * 0.7 }} />);
+    out.push(<View key={`s${i}`} style={{ position: 'absolute', left: wx - 0.9, top: wy - 0.15, width: 1.8, height: 0.3, borderRadius: 0.15, backgroundColor: '#e8fbff', opacity: a * 0.7 }} />);
   }
   // critters, boats, flags, fires
   for (let i = 0; i < LIFE_CRITTERS.length; i++) {
