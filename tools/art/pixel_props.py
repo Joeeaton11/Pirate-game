@@ -367,6 +367,113 @@ def prop(S, kind, seed):
         return _outline(im), (4 * s, 5.8 * s)
     return None
 
+IRON, IRON_HI, IRON_LO = (64, 64, 70, 255), (112, 112, 122, 255), (36, 36, 42, 255)
+ROPE, ROPE_LO = (200, 170, 112, 255), (150, 120, 72, 255)
+
+
+def pirate(S, kind, seed):
+    """Pirate-port paraphernalia, each its own small sprite."""
+    rng = random.Random(seed); s = S
+    if kind == 'bollard':
+        im, d = _canvas(2.2 * s, 3.2 * s)
+        d.rectangle([0.4 * s, 1 * s, 1.8 * s, 3.1 * s], fill=IRON); d.ellipse([0.1 * s, 0.4 * s, 2.1 * s, 1.5 * s], fill=IRON_HI)
+        d.line([0.6 * s, 1.4 * s, 0.6 * s, 2.9 * s], fill=IRON_HI); d.line([0.2 * s, 2 * s, 2 * s, 2.3 * s], fill=ROPE, width=max(1, s // 3))
+        return _outline(im), (1.1 * s, 3.1 * s)
+    if kind == 'cannonballs':
+        im, d = _canvas(4 * s, 3.2 * s)
+        for row, n in ((2, 3), (1, 2), (0, 1)):
+            for k in range(n):
+                x = (0.4 + k * 1.1 + (3 - n) * 0.55) * s; y = (0.4 + row * 0.9) * s
+                d.ellipse([x, y, x + 1.1 * s, y + 1.1 * s], fill=IRON); d.point((x + 0.3 * s, y + 0.3 * s), fill=IRON_HI)
+        return _outline(im), (2 * s, 3.1 * s)
+    if kind == 'rope_coil':
+        im, d = _canvas(3.6 * s, 2.4 * s)
+        for r in (1.6, 1.1, 0.6): d.ellipse([(1.8 - r) * s, (1.2 - r * 0.6) * s, (1.8 + r) * s, (1.2 + r * 0.6) * s], outline=ROPE, width=max(2, s // 2))
+        d.line([3.2 * s, 1.2 * s, 3.5 * s, 2.2 * s], fill=ROPE, width=max(1, s // 3))
+        return _outline(im), (1.8 * s, 2.2 * s)
+    if kind == 'ship_wheel':
+        im, d = _canvas(4 * s, 4.6 * s)
+        c = (2 * s, 2 * s); r = 1.4 * s
+        for a in range(8):
+            ang = a * math.pi / 4
+            d.line([c[0], c[1], c[0] + math.cos(ang) * 1.9 * s, c[1] + math.sin(ang) * 1.9 * s], fill=WOOD_LO, width=max(1, s // 3))
+        d.ellipse([c[0] - r, c[1] - r, c[0] + r, c[1] + r], outline=WOOD, width=max(2, s // 2)); d.ellipse([c[0] - 0.4 * s, c[1] - 0.4 * s, c[0] + 0.4 * s, c[1] + 0.4 * s], fill=(200, 170, 80, 255))
+        d.rectangle([1.8 * s, 3.4 * s, 2.2 * s, 4.5 * s], fill=WOOD_LO)
+        return _outline(im), (2 * s, 4.5 * s)
+    if kind == 'lobster_pot':
+        im, d = _canvas(3.4 * s, 2.6 * s)
+        d.chord([0.2 * s, 0.2 * s, 3.2 * s, 3.6 * s], 180, 360, fill=(168, 128, 80, 255)); d.rectangle([0.2 * s, 1.9 * s, 3.2 * s, 2.5 * s], fill=(130, 96, 56, 255))
+        for k in range(1, 5): d.line([k * 0.65 * s, 0.4 * s, k * 0.65 * s, 2.4 * s], fill=(110, 80, 46, 255))
+        d.ellipse([2.3 * s, 0.8 * s, 2.9 * s, 1.3 * s], fill=(210, 70, 50, 255))
+        return _outline(im), (1.7 * s, 2.5 * s)
+    if kind == 'figurehead':
+        im, d = _canvas(4 * s, 6 * s)
+        d.polygon([(1.2 * s, 6 * s - 1), (1.6 * s, 2 * s), (2.6 * s, 0.8 * s), (3.0 * s, 2.2 * s), (2.4 * s, 6 * s - 1)], fill=(176, 120, 72, 255))
+        d.ellipse([2.0 * s, 0.4 * s, 3.2 * s, 1.6 * s], fill=(214, 170, 120, 255)); d.line([2.4 * s, 0.6 * s, 1.6 * s, 2.6 * s], fill=(200, 160, 60, 255), width=max(1, s // 2))
+        d.rectangle([1.4 * s, 3.2 * s, 2.6 * s, 3.6 * s], fill=(176, 52, 44, 255))
+        return _outline(im), (1.8 * s, 6 * s - 1)
+    if kind == 'wanted_poster':
+        im, d = _canvas(3 * s, 4.6 * s)
+        d.rectangle([1.3 * s, 2.2 * s, 1.7 * s, 4.6 * s - 1], fill=WOOD_LO)
+        d.rectangle([0.2 * s, 0.2 * s, 2.8 * s, 3 * s], fill=(232, 214, 168, 255)); d.line([0.6 * s, 0.6 * s, 2.4 * s, 0.6 * s], fill=(90, 50, 30, 255), width=max(1, s // 3))
+        d.ellipse([1 * s, 1 * s, 2 * s, 2 * s], fill=(160, 120, 90, 255)); d.line([0.6 * s, 2.5 * s, 2.4 * s, 2.5 * s], fill=(90, 50, 30, 255))
+        return _outline(im), (1.5 * s, 4.6 * s - 1)
+    if kind == 'skull_post':
+        im, d = _canvas(2.6 * s, 6 * s)
+        d.rectangle([1.1 * s, 1.6 * s, 1.5 * s, 6 * s - 1], fill=WOOD_LO)
+        d.ellipse([0.4 * s, 0.2 * s, 2.2 * s, 1.8 * s], fill=(230, 224, 206, 255))
+        for x in (0.8, 1.4): d.rectangle([x * s, 0.8 * s, (x + 0.4) * s, 1.2 * s], fill=(30, 30, 30, 255))
+        d.line([0.3 * s, 2.6 * s, 2.3 * s, 2.4 * s], fill=(176, 52, 44, 255), width=max(1, s // 2))
+        return _outline(im), (1.3 * s, 6 * s - 1)
+    if kind == 'treasure_open':
+        im, d = _canvas(4.6 * s, 4 * s)
+        d.rectangle([0.3 * s, 2 * s, 4.3 * s, 3.8 * s], fill=(130, 84, 44, 255)); d.line([0.3 * s, 2.9 * s, 4.3 * s, 2.9 * s], fill=(232, 196, 90, 255))
+        d.polygon([(0.3 * s, 2 * s), (4.3 * s, 2 * s), (4.0 * s, 0.4 * s), (0.6 * s, 0.4 * s)], fill=(110, 70, 36, 255))
+        for _ in range(14):
+            x, y = rng.uniform(0.6, 4.0) * s, rng.uniform(1.5, 2.3) * s
+            d.ellipse([x, y, x + 0.5 * s, y + 0.4 * s], fill=rng.choice([(246, 210, 80, 255), (255, 236, 140, 255), (200, 60, 60, 255)]))
+        return _outline(im), (2.3 * s, 3.8 * s)
+    if kind == 'hammock':
+        im, d = _canvas(9 * s, 4 * s)
+        for x in (0.4, 8.2): d.rectangle([x * s, 0.2 * s, (x + 0.4) * s, 3.9 * s], fill=WOOD_LO)
+        d.chord([0.8 * s, -1.6 * s, 8.2 * s, 3.2 * s], 0, 180, fill=(220, 190, 140, 255))
+        for k in range(1, 6): d.line([(0.8 + k * 1.2) * s, 1.0 * s, (0.8 + k * 1.2) * s, 2.8 * s], fill=(176, 52, 44, 255))
+        return _outline(im), (4.5 * s, 3.9 * s)
+    if kind == 'spyglass':
+        im, d = _canvas(4 * s, 5 * s)
+        for a, b in ((0.6, 3.4), (3.4, 3.4), (2, 1.4)): d.line([2 * s, 1.6 * s, a * s, 5 * s - 1], fill=WOOD_LO, width=max(1, s // 3))
+        d.line([0.6 * s, 1.4 * s, 3.6 * s, 0.6 * s], fill=(200, 170, 80, 255), width=max(2, s // 2 + 1))
+        return _outline(im), (2 * s, 5 * s - 1)
+    if kind == 'ship_bell':
+        im, d = _canvas(3 * s, 5 * s)
+        for x in (0.3, 2.3): d.rectangle([x * s, 0.4 * s, (x + 0.4) * s, 5 * s - 1], fill=WOOD_LO)
+        d.rectangle([0.3 * s, 0.4 * s, 2.7 * s, 0.8 * s], fill=WOOD)
+        d.polygon([(1.1 * s, 1 * s), (1.9 * s, 1 * s), (2.3 * s, 2.6 * s), (0.7 * s, 2.6 * s)], fill=(200, 160, 60, 255)); d.line([1.2 * s, 1.2 * s, 1.0 * s, 2.4 * s], fill=(250, 220, 120, 255))
+        return _outline(im), (1.5 * s, 5 * s - 1)
+    if kind == 'rum_cart':
+        im, d = _canvas(7 * s, 4.4 * s)
+        d.rectangle([0.4 * s, 1.6 * s, 6.4 * s, 3 * s], fill=WOOD); d.ellipse([1 * s, 2.6 * s, 2.6 * s, 4.2 * s], fill=WOOD_LO); d.ellipse([4.2 * s, 2.6 * s, 5.8 * s, 4.2 * s], fill=WOOD_LO)
+        for x in (0.8, 2.6, 4.4): d.rounded_rectangle([x * s, 0.2 * s, (x + 1.6) * s, 1.8 * s], radius=s * 0.5, fill=(110, 72, 44, 255))
+        return _outline(im), (3.4 * s, 4.2 * s)
+    if kind == 'lantern_string':
+        im, d = _canvas(10 * s, 3 * s)
+        d.line([0, 0.6 * s, 5 * s, 1.6 * s, 10 * s - 1, 0.6 * s], fill=(80, 60, 40, 255))
+        for k in range(1, 9):
+            x = k * 1.1 * s; y = 0.6 * s + (1 - abs(k - 4.5) / 4.5) * s
+            d.rectangle([x - 0.3 * s, y, x + 0.3 * s, y + 0.7 * s], fill=rng.choice([(246, 196, 80, 255), (230, 110, 60, 255), (250, 230, 140, 255)]))
+        return im, (5 * s, 3 * s - 1)
+    if kind == 'crab_trap_stack':
+        spr, _ = pirate(S, 'lobster_pot', seed)
+        im = Image.new('RGBA', (spr.size[0] + int(1 * s), spr.size[1] + int(1.6 * s)), (0, 0, 0, 0))
+        im.alpha_composite(spr, (0, int(1.6 * s))); im.alpha_composite(spr, (int(1 * s), 0))
+        return im, (im.size[0] / 2, im.size[1] - 1)
+    if kind == 'parrot_perch':
+        im, d = _canvas(3 * s, 6 * s)
+        d.rectangle([1.3 * s, 1 * s, 1.7 * s, 6 * s - 1], fill=WOOD_LO); d.line([0.2 * s, 1.2 * s, 2.8 * s, 1.2 * s], fill=WOOD, width=max(1, s // 2))
+        d.ellipse([0.8 * s, 0, 2 * s, 1.2 * s], fill=(214, 52, 44, 255)); d.rectangle([1.6 * s, 0.3 * s, 2.1 * s, 0.6 * s], fill=(240, 190, 50, 255))
+        return _outline(im), (1.5 * s, 6 * s - 1)
+    return None
+
 
 def critter(S, kind, seed):
     """Dressing sprites: sacks, pots, rope, flowers, grass, stones, logs, shells, boats and animals."""
@@ -574,5 +681,5 @@ def get(S, kind, variant):
         if kind in ('jungle', 'tree', 'mangrove'): _cache[key] = crown_tree(S, kind, variant * 31 + 7)
         elif kind == 'palm': _cache[key] = palm(S, variant * 17 + 3)
         elif kind == 'rock': _cache[key] = rock(S, variant * 13 + 5)
-        else: _cache[key] = critter(S, kind, variant * 7 + 1) or prop(S, kind, variant)
+        else: _cache[key] = pirate(S, kind, variant * 5 + 2) or critter(S, kind, variant * 7 + 1) or prop(S, kind, variant)
     return _cache[key]

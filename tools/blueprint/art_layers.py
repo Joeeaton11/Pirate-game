@@ -787,8 +787,7 @@ def plants(trees, coast, zones, avoid):
 
 
 # ---------------------------------------------------------------- 09 props
-SKIP_PROPS = {'spring', 'lookout', 'x_mark', 'bottle', 'bollard', 'grave_marker', 'tavern_sign', 'shop_sign', 'parrot_perch',
-              'plank', 'hammock', 'rope_coil', 'ship_wheel', 'spyglass', 'cannonballs', 'trough', 'figurehead', 'cane_press', 'hull', 'lobster_pot'}
+SKIP_PROPS = {'spring', 'lookout', 'x_mark', 'bottle', 'grave_marker', 'tavern_sign', 'shop_sign', 'plank', 'trough', 'cane_press', 'hull'}
 
 
 def props(P, footprints=()):

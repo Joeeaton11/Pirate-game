@@ -9,10 +9,10 @@ from shapely.geometry import Point, LineString, box
 from shapely.ops import unary_union
 from shapely.prepared import prep
 
-FRONT_CLUTTER = ['barrels', 'crates', 'sacks', 'flowerpot', 'potted_palm', 'barrel', 'crates', 'bench', 'lamp']
-QUAY_CARGO = ['cargo', 'barrels', 'crates', 'sacks', 'nets', 'barrels', 'crates', 'rope_pile', 'barrel']
+FRONT_CLUTTER = ['barrels', 'crates', 'sacks', 'flowerpot', 'potted_palm', 'barrel', 'crates', 'bench', 'lamp', 'wanted_poster', 'rum_barrels', 'flowerpot', 'potted_palm']
+QUAY_CARGO = ['cargo', 'barrels', 'crates', 'sacks', 'nets', 'barrels', 'crates', 'rope_coil', 'barrel', 'lobster_pot', 'crab_trap_stack', 'rope_coil', 'rum_barrels', 'anchor', 'powder_keg']
 GRASS_DECOR = ['flowers', 'flowers', 'tall_grass', 'tall_grass', 'stone', 'log', 'mushrooms', 'flowers']
-SOLID_KINDS = {'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
+SOLID_KINDS = {'cannon', 'rum_cart', 'cannonballs', 'figurehead', 'ship_bell', 'crab_trap_stack', 'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
 
 
 TOWN_WALLS = box(0, 0, 0, 0)
@@ -208,6 +208,42 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     for _ in range(2500):
         x, y = rng.uniform(l, r), rng.uniform(t, b)
         if ep.contains(Point(x, y)): put(rng.choice(['palm', 'palm', 'tall_grass', 'flowers', 'flowers', 'potted_palm']), x, y, 5.5)
+
+    # 12. the pirate port: bollards along every quay edge, cannons on the seaward edges with shot beside
+    #     them, figureheads and ship's wheels from broken-up ships, a bell on the wharf
+    if not wood.is_empty:
+        sea_side = prep(unary_union([coast.difference(tw)]).buffer(-0.5)) if not tw.is_empty else prep(coast)
+        for g in getattr(wood, 'geoms', [wood]):
+            ring = g.exterior
+            for i in range(int(ring.length / 12)):
+                p = ring.interpolate(i * 12 + rng.uniform(0, 1.5))
+                q = ring.interpolate(i * 12 + 0.5); nx, ny = q.y - p.y, -(q.x - p.x); L = math.hypot(nx, ny) or 1
+                if g.contains(Point(p.x + nx / L, p.y + ny / L)): nx, ny = -nx, -ny
+                out_ = Point(p.x + nx / L * 2.5, p.y + ny / L * 2.5)
+                if lw.intersects(out_): continue          # only where the deck meets open water
+                ix, iy = p.x - nx / L * 2.4, p.y - ny / L * 2.4
+                if i % 3 == 1 and g.area > 400:
+                    if put('cannon', ix - nx / L * 1.2, iy - ny / L * 1.2, 5): put('cannonballs', ix - nx / L * 3 + 2, iy - ny / L * 3, 2.5)
+                else: put('bollard', ix, iy, 2.2)
+            if g.area > 900:
+                c = g.centroid
+                for k_ in ('ship_bell', 'figurehead', 'ship_wheel', 'spyglass'):
+                    for _ in range(20):
+                        x, y = rng.uniform(g.bounds[0], g.bounds[2]), rng.uniform(g.bounds[1], g.bounds[3])
+                        if g.buffer(-2).contains(Point(x, y)) and put(k_, x, y, 4): break
+    # beaches: hammocks, skull posts, a half-dug chest, parrot perches
+    l, t, r, b = beach.bounds
+    inner_c = prep(coast.buffer(-2.5))
+    for k_, n_ in (('skull_post', 8), ('hammock', 10), ('treasure_open', 3), ('parrot_perch', 6), ('beach_cannon', 4)):
+        for _ in range(n_ * 30):
+            if n_ <= 0: break
+            x, y = rng.uniform(l, r), rng.uniform(t, b)
+            if bp.contains(Point(x, y)) and inner_c.contains(Point(x, y)) and put(k_, x, y, 4.5): n_ -= 1
+    # Cayonne's pirate camp and the town squares get the good stuff
+    around(-330, -142, 70, ['rum_cart', 'skull_post', 'treasure_open', 'spyglass', 'ship_bell', 'rum_barrels', 'powder_keg', 'cannonballs'], 18, 6)
+    for name, l2, r2, t2, b2 in P.PLAZAS:
+        if name in ('Duelling Ground', 'Old Landing Square'): continue
+        put('lantern_string', (l2 + r2) / 2, t2 + 1, 3); put('wanted_poster', l2 + 2.5, (t2 + b2) / 2, 3)
 
     # 9. a carved name board at each district label
     for x, y, text, size in P.LABELS:
