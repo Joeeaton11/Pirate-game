@@ -32,8 +32,13 @@ Attach the camera reference and one palette reference to **every** generation.
 
 ## Camera
 
-- Top-down three-quarter view: you see the roof and the front face, as if from a low hill to the
-  south.
+- **High three-quarter view, looking down at about 50-60 degrees** (chosen 2026-11-23): the same
+  angle as the houses in `docs/style/target_style.png`. A building is roughly **half roof, half front
+  wall**: enough roof to read the shape of the town from above, and enough front wall to see the door
+  and windows clearly. Never face-on (gable end towards the viewer, little roof visible) and never
+  straight down (no front wall, so no doors).
+- The ground, trees, props and characters are all drawn from this same angle: round things (barrels,
+  wells, tree canopies) show their tops as ovals, and upright things show their front.
 - Fronts are parallel to the screen and roof ridges run left to right. **Never isometric**, never
   rotated.
 - Doors are drawn on the front, the side facing the bottom of the image. If a building's door faces

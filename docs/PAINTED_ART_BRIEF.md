@@ -34,7 +34,7 @@ Ask for a solid flat magenta (#FF00FF) background instead of transparency, then 
 `python3 tools/art/key_magenta.py <download.png> <reference.png> <assets/art_painted/...png>`. It keys out
 the magenta, fits the painting to the reference's width and foot position, and caps the size at 1.5x the
 reference so the web build stays small. Lessons from the first test: say "standing upright" for
-barrels, "seen from above at three-quarter view" for buildings, and "same width as the reference" for
+barrels, "high three-quarter view looking down, about half roof and half front wall, like the attached style picture" for buildings, sending a crop of a house from the style picture as the angle example, and "same width as the reference" for
 trees.
 
 ## What to make
