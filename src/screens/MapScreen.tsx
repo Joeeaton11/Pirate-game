@@ -59,7 +59,7 @@ import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } fr
 import { ArtSprites } from '../blueprint/ArtSprites';
 import { ArtLife } from '../blueprint/ArtLife';
 import { ArtInspector } from '../blueprint/ArtInspector';
-import { FullMap, Interact, lockedShortcutRects, nearestInteract, ShortcutSprites, Townsfolk, WeatherMood } from '../blueprint/ArtWorld';
+import { footingAt, FullMap, Interact, lockedShortcutRects, nearestInteract, ShortcutSprites, Townsfolk, WeatherMood } from '../blueprint/ArtWorld';
 import { WORLD_SHORTCUTS } from '../blueprint/artWorld.generated';
 import { LIFE_SHORE } from '../blueprint/artLife.generated';
 import { addTimeOffset, CYCLE_SECONDS } from '../town/DayNight';
@@ -1214,6 +1214,7 @@ export default function MapScreen({ navigation }: Props) {
   const shipIdleSway = useRef(new Animated.Value(0)).current;
   const shipIdleLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const walkBounce = useRef(new Animated.Value(0)).current;
+  const onStepsRef = useRef(false); // climbing a flight of steps: a little extra lift on each stride
   // Raw, ever-incrementing (wrapped at 60) walk-cycle tick — see the doc comment on the
   // walk/bounce-sync effect below for why this needs to be a ref rather than a plain local counter.
   const walkTickRef = useRef(0);
@@ -1640,8 +1641,10 @@ export default function MapScreen({ navigation }: Props) {
   useRandomCalls(SFX.gull, Math.max(harbourVolume, shoreVolume) > 0.25, 6, 14, 0.35);
   // Footsteps follow the blueprint's ground-surface layer: planks, cobbles, or soft ground.
   const surface = inTortugaTown || relX < 640 ? surfaceAt(player) : 'none';
-  const stepKind = distanceToNearestPier(player) < 4 || surface === 'plank' ? 'wood' : surface === 'cobble' ? 'cobble' : 'soft';
-  useFootsteps(isMoving && !blackPearlBoarded, stepKind, 290, 0.45);
+  const footing = footingAt({ x: relX, y: relY });
+  const stepKind = footing.bridge === 'wood' || distanceToNearestPier(player) < 4 || surface === 'plank' ? 'wood' : footing.bridge === 'stone' || footing.steps || surface === 'cobble' ? 'cobble' : 'soft';
+  useFootsteps(isMoving && !blackPearlBoarded, stepKind, footing.steps ? 240 : 290, 0.45);
+  onStepsRef.current = footing.steps;
 
   const isRunning =
     isMoving &&
@@ -1708,6 +1711,8 @@ export default function MapScreen({ navigation }: Props) {
       lastStep = now;
       walkTickRef.current = (walkTickRef.current + 1) % 120;
       setWalkSpriteFrame(walkTickRef.current);
+      if (onStepsRef.current) walkBounce.setValue(walkTickRef.current % 2 ? -3 : 0);
+      else walkBounce.setValue(0);
     }, 33);
     return () => clearInterval(id);
   }, [isMoving, isRunning, walkBounce]);

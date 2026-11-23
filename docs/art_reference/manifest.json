@@ -1,7 +1,7 @@
 {
  "progress": {
   "done": 0,
-  "total": 324
+  "total": 332
  },
  "items": [
   {
@@ -26,7 +26,7 @@
    "variant": 2,
    "hero": false,
    "w": 23.0,
-   "count": 412,
+   "count": 408,
    "places": [
     [
      316,
@@ -1561,7 +1561,7 @@
      421
     ],
     [
-     -218,
+     -215,
      425
     ],
     [
@@ -1597,10 +1597,6 @@
      -343
     ],
     [
-     280,
-     -335
-    ],
-    [
      291,
      -301
     ],
@@ -1627,11 +1623,15 @@
     [
      306,
      -111
+    ],
+    [
+     -153,
+     -96
     ]
    ],
    "ref": "docs/art_reference/obj/palm_2.png",
    "painted": false,
-   "score": 550.4,
+   "score": 538.4,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_2.png"
@@ -1644,7 +1644,7 @@
    "variant": 1,
    "hero": false,
    "w": 24.0,
-   "count": 364,
+   "count": 363,
    "places": [
     [
      -273,
@@ -1999,7 +1999,7 @@
      -39
     ],
     [
-     -272,
+     -266,
      -32
     ],
     [
@@ -3091,12 +3091,8 @@
      -4
     ],
     [
-     296,
-     16
-    ],
-    [
-     289,
-     17
+     -16,
+     9
     ],
     [
      107,
@@ -3105,7 +3101,7 @@
    ],
    "ref": "docs/art_reference/obj/palm_1.png",
    "painted": false,
-   "score": 497.8,
+   "score": 494.8,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_1.png"
@@ -3118,7 +3114,7 @@
    "variant": 0,
    "hero": false,
    "w": 23.5,
-   "count": 367,
+   "count": 368,
    "places": [
     [
      -257,
@@ -4581,8 +4577,12 @@
      -35
     ],
     [
-     -19,
-     -5
+     273,
+     6
+    ],
+    [
+     274,
+     18
     ],
     [
      293,
@@ -4591,7 +4591,7 @@
    ],
    "ref": "docs/art_reference/obj/palm_0.png",
    "painted": false,
-   "score": 475.6,
+   "score": 478.6,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/palm_0.png"
@@ -4811,7 +4811,7 @@
      -112
     ],
     [
-     -352,
+     -362,
      -108
     ],
     [
@@ -4895,7 +4895,7 @@
      -84
     ],
     [
-     -306,
+     -302,
      -84
     ],
     [
@@ -6598,7 +6598,7 @@
    "variant": 0,
    "hero": false,
    "w": 9.0,
-   "count": 62,
+   "count": 75,
    "places": [
     [
      -234,
@@ -6613,12 +6613,20 @@
      -230
     ],
     [
+     -196,
+     -212
+    ],
+    [
      400,
      -196
     ],
     [
      477,
      -190
+    ],
+    [
+     450,
+     -174
     ],
     [
      -290,
@@ -6637,7 +6645,7 @@
      -131
     ],
     [
-     -255,
+     -248,
      -82
     ],
     [
@@ -6653,6 +6661,10 @@
      -52
     ],
     [
+     494,
+     -44
+    ],
+    [
      -218,
      -43
     ],
@@ -6665,12 +6677,32 @@
      -34
     ],
     [
+     -177,
+     4
+    ],
+    [
      -386,
      6
     ],
     [
+     -177,
+     10
+    ],
+    [
      -363,
      18
+    ],
+    [
+     -206,
+     21
+    ],
+    [
+     -186,
+     21
+    ],
+    [
+     -372,
+     32
     ],
     [
      -288,
@@ -6681,7 +6713,7 @@
      47
     ],
     [
-     62,
+     51,
      50
     ],
     [
@@ -6693,16 +6725,28 @@
      66
     ],
     [
-     508,
+     496,
      108
     ],
     [
-     503,
+     496,
      108
     ],
     [
      316,
      179
+    ],
+    [
+     -301,
+     188
+    ],
+    [
+     -301,
+     188
+    ],
+    [
+     21,
+     202
     ],
     [
      214,
@@ -6713,6 +6757,10 @@
      214
     ],
     [
+     320,
+     318
+    ],
+    [
      288,
      324
     ],
@@ -6721,12 +6769,16 @@
      368
     ],
     [
-     -75,
+     -71,
      397
     ],
     [
-     -45,
+     -41,
      397
+    ],
+    [
+     94,
+     406
     ],
     [
      -84,
@@ -6765,7 +6817,7 @@
      420
     ],
     [
-     -221,
+     -215,
      424
     ],
     [
@@ -6851,7 +6903,7 @@
    ],
    "ref": "docs/art_reference/obj/barrels_0.png",
    "painted": false,
-   "score": 124,
+   "score": 150,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/barrels_0.png"
@@ -6864,19 +6916,23 @@
    "variant": 0,
    "hero": false,
    "w": 5.5,
-   "count": 61,
+   "count": 68,
    "places": [
     [
      -190,
      -372
     ],
     [
-     -238,
+     -251,
      -274
     ],
     [
      356,
      -256
+    ],
+    [
+     -176,
+     -212
     ],
     [
      339,
@@ -6927,6 +6983,10 @@
      -133
     ],
     [
+     -324,
+     -122
+    ],
+    [
      -362,
      -98
     ],
@@ -6957,6 +7017,10 @@
     [
      -458,
      -8
+    ],
+    [
+     -382,
+     -6
     ],
     [
      -418,
@@ -6991,6 +7055,18 @@
      40
     ],
     [
+     187,
+     54
+    ],
+    [
+     154,
+     56
+    ],
+    [
+     -294,
+     58
+    ],
+    [
      156,
      66
     ],
@@ -7015,6 +7091,10 @@
      179
     ],
     [
+     -279,
+     188
+    ],
+    [
      22,
      219
     ],
@@ -7035,15 +7115,15 @@
      341
     ],
     [
-     238,
+     232,
      358
     ],
     [
-     -196,
+     -207,
      412
     ],
     [
-     -191,
+     -185,
      412
     ],
     [
@@ -7113,7 +7193,7 @@
    ],
    "ref": "docs/art_reference/obj/crates_0.png",
    "painted": false,
-   "score": 119,
+   "score": 132,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/crates_0.png"
@@ -7973,7 +8053,7 @@
      195
     ],
     [
-     4,
+     -5,
      197
     ],
     [
@@ -8161,6 +8241,212 @@
    "guide": "docs/art_reference/guides/objects/jungle_0.png"
   },
   {
+   "id": "flowerpot_0",
+   "group": "objects",
+   "label": "flowerpot",
+   "kind": "flowerpot",
+   "variant": 0,
+   "hero": false,
+   "w": 4.0,
+   "count": 47,
+   "places": [
+    [
+     397,
+     -342
+    ],
+    [
+     -268,
+     -334
+    ],
+    [
+     402,
+     -330
+    ],
+    [
+     344,
+     -298
+    ],
+    [
+     402,
+     -285
+    ],
+    [
+     402,
+     -275
+    ],
+    [
+     -252,
+     -257
+    ],
+    [
+     416,
+     -256
+    ],
+    [
+     428,
+     -239
+    ],
+    [
+     377,
+     -210
+    ],
+    [
+     -370,
+     -135
+    ],
+    [
+     329,
+     -132
+    ],
+    [
+     -340,
+     -108
+    ],
+    [
+     416,
+     -88
+    ],
+    [
+     -330,
+     -84
+    ],
+    [
+     -360,
+     -77
+    ],
+    [
+     -302,
+     -77
+    ],
+    [
+     -276,
+     -70
+    ],
+    [
+     -436,
+     -62
+    ],
+    [
+     -249,
+     -46
+    ],
+    [
+     -437,
+     -20
+    ],
+    [
+     -294,
+     -15
+    ],
+    [
+     571,
+     -10
+    ],
+    [
+     553,
+     -10
+    ],
+    [
+     -358,
+     3
+    ],
+    [
+     -302,
+     3
+    ],
+    [
+     475,
+     12
+    ],
+    [
+     470,
+     40
+    ],
+    [
+     482,
+     40
+    ],
+    [
+     13,
+     62
+    ],
+    [
+     126,
+     68
+    ],
+    [
+     182,
+     115
+    ],
+    [
+     284,
+     169
+    ],
+    [
+     316,
+     169
+    ],
+    [
+     256,
+     184
+    ],
+    [
+     -278,
+     198
+    ],
+    [
+     -6,
+     209
+    ],
+    [
+     -250,
+     324
+    ],
+    [
+     -194,
+     335
+    ],
+    [
+     -110,
+     361
+    ],
+    [
+     -278,
+     387
+    ],
+    [
+     -278,
+     392
+    ],
+    [
+     -91,
+     -133
+    ],
+    [
+     261,
+     -61
+    ],
+    [
+     -3,
+     15
+    ],
+    [
+     162,
+     76
+    ],
+    [
+     238,
+     376
+    ]
+   ],
+   "ref": "docs/art_reference/obj/flowerpot_0.png",
+   "painted": false,
+   "score": 94,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/flowerpot_0.png"
+  },
+  {
    "id": "bollard_0",
    "group": "objects",
    "label": "bollard",
@@ -8168,7 +8454,7 @@
    "variant": 0,
    "hero": false,
    "w": 4.5,
-   "count": 34,
+   "count": 36,
    "places": [
     [
      -40,
@@ -8199,28 +8485,32 @@
      -450
     ],
     [
-     241,
-     -450
-    ],
-    [
-     232,
-     -432
-    ],
-    [
      232,
      -420
     ],
     [
-     -80,
-     -400
+     28,
+     -402
     ],
     [
-     247,
+     10,
+     -398
+    ],
+    [
+     -27,
+     -398
+    ],
+    [
+     2,
      -392
     ],
     [
-     3,
-     -392
+     -183,
+     -388
+    ],
+    [
+     -185,
+     -386
     ],
     [
      -236,
@@ -8231,19 +8521,19 @@
      -379
     ],
     [
-     -185,
-     -374
+     -200,
+     -379
     ],
     [
-     215,
-     -368
+     -217,
+     -377
+    ],
+    [
+     -241,
+     -377
     ],
     [
      203,
-     -368
-    ],
-    [
-     118,
      -368
     ],
     [
@@ -8251,20 +8541,16 @@
      -366
     ],
     [
-     -183,
-     -363
+     71,
+     -364
     ],
     [
-     99,
-     -360
-    ],
-    [
-     -8,
-     -358
+     -72,
+     -362
     ],
     [
      200,
-     -356
+     -357
     ],
     [
      118,
@@ -8272,27 +8558,27 @@
     ],
     [
      -14,
-     -350
+     -351
     ],
     [
-     -8,
-     -333
+     74,
+     -347
+    ],
+    [
+     -252,
+     -337
+    ],
+    [
+     80,
+     -334
     ],
     [
      -8,
      -321
     ],
     [
-     200,
-     -320
-    ],
-    [
-     64,
-     -312
-    ],
-    [
-     51,
-     -312
+     144,
+     -306
     ],
     [
      133,
@@ -8303,13 +8589,21 @@
      456
     ],
     [
-     167,
-     494
+     178,
+     460
+    ],
+    [
+     204,
+     464
+    ],
+    [
+     166,
+     495
     ]
    ],
    "ref": "docs/art_reference/obj/bollard_0.png",
    "painted": false,
-   "score": 88.6,
+   "score": 83.4,
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/bollard_0.png"
@@ -8637,188 +8931,6 @@
    "guide": "docs/art_reference/guides/objects/jungle_3.png"
   },
   {
-   "id": "flowerpot_0",
-   "group": "objects",
-   "label": "flowerpot",
-   "kind": "flowerpot",
-   "variant": 0,
-   "hero": false,
-   "w": 4.0,
-   "count": 41,
-   "places": [
-    [
-     397,
-     -342
-    ],
-    [
-     -268,
-     -334
-    ],
-    [
-     402,
-     -330
-    ],
-    [
-     344,
-     -298
-    ],
-    [
-     402,
-     -285
-    ],
-    [
-     402,
-     -275
-    ],
-    [
-     -252,
-     -257
-    ],
-    [
-     416,
-     -256
-    ],
-    [
-     428,
-     -239
-    ],
-    [
-     -370,
-     -135
-    ],
-    [
-     416,
-     -88
-    ],
-    [
-     -338,
-     -84
-    ],
-    [
-     -360,
-     -77
-    ],
-    [
-     -302,
-     -77
-    ],
-    [
-     -276,
-     -70
-    ],
-    [
-     -436,
-     -62
-    ],
-    [
-     -249,
-     -46
-    ],
-    [
-     -437,
-     -20
-    ],
-    [
-     -294,
-     -15
-    ],
-    [
-     -358,
-     3
-    ],
-    [
-     -302,
-     3
-    ],
-    [
-     475,
-     12
-    ],
-    [
-     470,
-     40
-    ],
-    [
-     482,
-     40
-    ],
-    [
-     13,
-     62
-    ],
-    [
-     126,
-     68
-    ],
-    [
-     182,
-     115
-    ],
-    [
-     284,
-     169
-    ],
-    [
-     316,
-     169
-    ],
-    [
-     256,
-     184
-    ],
-    [
-     -278,
-     198
-    ],
-    [
-     -6,
-     209
-    ],
-    [
-     -194,
-     335
-    ],
-    [
-     -110,
-     361
-    ],
-    [
-     -278,
-     387
-    ],
-    [
-     -278,
-     392
-    ],
-    [
-     -91,
-     -133
-    ],
-    [
-     261,
-     -61
-    ],
-    [
-     -3,
-     15
-    ],
-    [
-     162,
-     76
-    ],
-    [
-     238,
-     376
-    ]
-   ],
-   "ref": "docs/art_reference/obj/flowerpot_0.png",
-   "painted": false,
-   "score": 82,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/flowerpot_0.png"
-  },
-  {
    "id": "rubble_0",
    "group": "objects",
    "label": "rubble",
@@ -9003,6 +9115,132 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/rubble_0.png"
+  },
+  {
+   "id": "bollard_1",
+   "group": "objects",
+   "label": "bollard",
+   "kind": "bollard",
+   "variant": 1,
+   "hero": false,
+   "w": 4.5,
+   "count": 27,
+   "places": [
+    [
+     296,
+     -454
+    ],
+    [
+     242,
+     -450
+    ],
+    [
+     296,
+     -441
+    ],
+    [
+     -183,
+     -400
+    ],
+    [
+     -80,
+     -400
+    ],
+    [
+     -39,
+     -398
+    ],
+    [
+     232,
+     -396
+    ],
+    [
+     15,
+     -392
+    ],
+    [
+     -20,
+     -390
+    ],
+    [
+     -80,
+     -387
+    ],
+    [
+     -185,
+     -374
+    ],
+    [
+     215,
+     -368
+    ],
+    [
+     -14,
+     -362
+    ],
+    [
+     -184,
+     -358
+    ],
+    [
+     -74,
+     -357
+    ],
+    [
+     199,
+     -352
+    ],
+    [
+     95,
+     -352
+    ],
+    [
+     -251,
+     -349
+    ],
+    [
+     -8,
+     -334
+    ],
+    [
+     74,
+     -334
+    ],
+    [
+     -14,
+     -326
+    ],
+    [
+     200,
+     -320
+    ],
+    [
+     103,
+     -312
+    ],
+    [
+     26,
+     -312
+    ],
+    [
+     16,
+     -312
+    ],
+    [
+     169,
+     -306
+    ],
+    [
+     485,
+     -207
+    ]
+   ],
+   "ref": "docs/art_reference/obj/bollard_1.png",
+   "painted": false,
+   "score": 70.19999999999999,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/bollard_1.png"
   },
   {
    "id": "tree_2",
@@ -9267,148 +9505,6 @@
    "guide": "docs/art_reference/guides/objects/tree_2.png"
   },
   {
-   "id": "bollard_1",
-   "group": "objects",
-   "label": "bollard",
-   "kind": "bollard",
-   "variant": 1,
-   "hero": false,
-   "w": 4.5,
-   "count": 31,
-   "places": [
-    [
-     296,
-     -454
-    ],
-    [
-     -77,
-     -430
-    ],
-    [
-     -183,
-     -401
-    ],
-    [
-     -38,
-     -398
-    ],
-    [
-     232,
-     -397
-    ],
-    [
-     -54,
-     -392
-    ],
-    [
-     15,
-     -392
-    ],
-    [
-     30,
-     -391
-    ],
-    [
-     -183,
-     -389
-    ],
-    [
-     109,
-     -386
-    ],
-    [
-     -185,
-     -386
-    ],
-    [
-     -200,
-     -379
-    ],
-    [
-     -216,
-     -377
-    ],
-    [
-     -8,
-     -370
-    ],
-    [
-     -73,
-     -362
-    ],
-    [
-     -14,
-     -362
-    ],
-    [
-     -184,
-     -358
-    ],
-    [
-     199,
-     -352
-    ],
-    [
-     95,
-     -352
-    ],
-    [
-     74,
-     -335
-    ],
-    [
-     -64,
-     -332
-    ],
-    [
-     15,
-     -312
-    ],
-    [
-     170,
-     -306
-    ],
-    [
-     145,
-     -306
-    ],
-    [
-     492,
-     -217
-    ],
-    [
-     488,
-     -212
-    ],
-    [
-     162,
-     413
-    ],
-    [
-     168,
-     425
-    ],
-    [
-     176,
-     447
-    ],
-    [
-     172,
-     484
-    ],
-    [
-     170,
-     496
-    ]
-   ],
-   "ref": "docs/art_reference/obj/bollard_1.png",
-   "painted": false,
-   "score": 63.8,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bollard_1.png"
-  },
-  {
    "id": "tree_3",
    "group": "objects",
    "label": "tree",
@@ -9455,7 +9551,7 @@
      -101
     ],
     [
-     -312,
+     -302,
      -92
     ],
     [
@@ -9593,6 +9689,124 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/tree_3.png"
+  },
+  {
+   "id": "bollard_2",
+   "group": "objects",
+   "label": "bollard",
+   "kind": "bollard",
+   "variant": 2,
+   "hero": false,
+   "w": 4.5,
+   "count": 25,
+   "places": [
+    [
+     -82,
+     -438
+    ],
+    [
+     232,
+     -433
+    ],
+    [
+     -3,
+     -398
+    ],
+    [
+     -53,
+     -392
+    ],
+    [
+     246,
+     -392
+    ],
+    [
+     30,
+     -391
+    ],
+    [
+     109,
+     -386
+    ],
+    [
+     108,
+     -372
+    ],
+    [
+     -8,
+     -370
+    ],
+    [
+     118,
+     -368
+    ],
+    [
+     -183,
+     -362
+    ],
+    [
+     99,
+     -360
+    ],
+    [
+     -8,
+     -358
+    ],
+    [
+     106,
+     -352
+    ],
+    [
+     -64,
+     -344
+    ],
+    [
+     -64,
+     -332
+    ],
+    [
+     80,
+     -322
+    ],
+    [
+     64,
+     -312
+    ],
+    [
+     51,
+     -312
+    ],
+    [
+     493,
+     -217
+    ],
+    [
+     487,
+     -212
+    ],
+    [
+     166,
+     425
+    ],
+    [
+     176,
+     446
+    ],
+    [
+     172,
+     485
+    ],
+    [
+     170,
+     495
+    ]
+   ],
+   "ref": "docs/art_reference/obj/bollard_2.png",
+   "painted": false,
+   "score": 59.199999999999996,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/bollard_2.png"
   },
   {
    "id": "tree_0",
@@ -9831,6 +10045,136 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/tree_0.png"
+  },
+  {
+   "id": "bench_0",
+   "group": "objects",
+   "label": "bench",
+   "kind": "bench",
+   "variant": 0,
+   "hero": false,
+   "w": 6.5,
+   "count": 28,
+   "places": [
+    [
+     -236,
+     -470
+    ],
+    [
+     -287,
+     -340
+    ],
+    [
+     402,
+     -335
+    ],
+    [
+     -288,
+     -334
+    ],
+    [
+     -288,
+     -326
+    ],
+    [
+     402,
+     -325
+    ],
+    [
+     424,
+     -262
+    ],
+    [
+     392,
+     -232
+    ],
+    [
+     -352,
+     -142
+    ],
+    [
+     -370,
+     -128
+    ],
+    [
+     -370,
+     -121
+    ],
+    [
+     40,
+     -104
+    ],
+    [
+     66,
+     -104
+    ],
+    [
+     -360,
+     -84
+    ],
+    [
+     -360,
+     -84
+    ],
+    [
+     -312,
+     -52
+    ],
+    [
+     -350,
+     -18
+    ],
+    [
+     -330,
+     -14
+    ],
+    [
+     -358,
+     -2
+    ],
+    [
+     -358,
+     8
+    ],
+    [
+     -336,
+     59
+    ],
+    [
+     -150,
+     232
+    ],
+    [
+     -170,
+     266
+    ],
+    [
+     -230,
+     366
+    ],
+    [
+     76,
+     452
+    ],
+    [
+     480,
+     -163
+    ],
+    [
+     473,
+     39
+    ],
+    [
+     -235,
+     402
+    ]
+   ],
+   "ref": "docs/art_reference/obj/bench_0.png",
+   "painted": false,
+   "score": 58,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/bench_0.png"
   },
   {
    "id": "parrot_0",
@@ -10113,132 +10457,6 @@
    "guide": "docs/art_reference/guides/life/parrot_1.png"
   },
   {
-   "id": "bench_0",
-   "group": "objects",
-   "label": "bench",
-   "kind": "bench",
-   "variant": 0,
-   "hero": false,
-   "w": 6.5,
-   "count": 27,
-   "places": [
-    [
-     -236,
-     -470
-    ],
-    [
-     402,
-     -335
-    ],
-    [
-     -288,
-     -334
-    ],
-    [
-     -288,
-     -326
-    ],
-    [
-     402,
-     -325
-    ],
-    [
-     424,
-     -262
-    ],
-    [
-     392,
-     -232
-    ],
-    [
-     -352,
-     -142
-    ],
-    [
-     -370,
-     -128
-    ],
-    [
-     -370,
-     -121
-    ],
-    [
-     40,
-     -104
-    ],
-    [
-     66,
-     -104
-    ],
-    [
-     -352,
-     -84
-    ],
-    [
-     -345,
-     -84
-    ],
-    [
-     -312,
-     -52
-    ],
-    [
-     -350,
-     -18
-    ],
-    [
-     -330,
-     -14
-    ],
-    [
-     -358,
-     -2
-    ],
-    [
-     -358,
-     8
-    ],
-    [
-     -344,
-     59
-    ],
-    [
-     -150,
-     232
-    ],
-    [
-     -170,
-     266
-    ],
-    [
-     -230,
-     366
-    ],
-    [
-     76,
-     452
-    ],
-    [
-     480,
-     -163
-    ],
-    [
-     473,
-     39
-    ],
-    [
-     -235,
-     402
-    ]
-   ],
-   "ref": "docs/art_reference/obj/bench_0.png",
-   "painted": false,
-   "score": 56,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bench_0.png"
-  },
-  {
    "id": "tree_1",
    "group": "objects",
    "label": "tree",
@@ -10425,212 +10643,138 @@
    "guide": "docs/art_reference/guides/objects/tree_1.png"
   },
   {
-   "id": "bollard_2",
+   "id": "woodpile_0",
    "group": "objects",
-   "label": "bollard",
-   "kind": "bollard",
-   "variant": 2,
-   "hero": false,
-   "w": 4.5,
-   "count": 22,
-   "places": [
-    [
-     296,
-     -442
-    ],
-    [
-     10,
-     -398
-    ],
-    [
-     -3,
-     -398
-    ],
-    [
-     -27,
-     -398
-    ],
-    [
-     -80,
-     -388
-    ],
-    [
-     -241,
-     -377
-    ],
-    [
-     108,
-     -372
-    ],
-    [
-     71,
-     -364
-    ],
-    [
-     -74,
-     -357
-    ],
-    [
-     106,
-     -352
-    ],
-    [
-     -251,
-     -348
-    ],
-    [
-     74,
-     -347
-    ],
-    [
-     -64,
-     -343
-    ],
-    [
-     -252,
-     -336
-    ],
-    [
-     80,
-     -334
-    ],
-    [
-     103,
-     -312
-    ],
-    [
-     27,
-     -312
-    ],
-    [
-     181,
-     -306
-    ],
-    [
-     486,
-     -208
-    ],
-    [
-     152,
-     392
-    ],
-    [
-     178,
-     460
-    ],
-    [
-     204,
-     464
-    ]
-   ],
-   "ref": "docs/art_reference/obj/bollard_2.png",
-   "painted": false,
-   "score": 54.8,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/bollard_2.png"
-  },
-  {
-   "id": "cannon_0",
-   "group": "objects",
-   "label": "cannon",
-   "kind": "cannon",
+   "label": "woodpile",
+   "kind": "woodpile",
    "variant": 0,
    "hero": false,
    "w": 7.5,
-   "count": 21,
+   "count": 29,
    "places": [
     [
-     352,
-     -374
+     356,
+     -286
     ],
     [
-     376,
-     -374
+     -244,
+     -274
     ],
     [
-     346,
-     -362
+     -252,
+     -267
     ],
     [
-     382,
-     -362
+     333,
+     -236
     ],
     [
-     338,
-     -352
+     -176,
+     -207
     ],
     [
-     390,
-     -352
+     -196,
+     -204
     ],
     [
-     554,
-     -6
+     343,
+     -180
     ],
     [
-     570,
-     6
+     336,
+     -166
     ],
     [
-     556,
-     12
+     -301,
+     -152
     ],
     [
-     254,
-     -449
+     404,
+     -100
     ],
     [
-     234,
-     -409
+     -239,
+     -90
     ],
     [
-     -14,
-     -397
+     -448,
+     -55
     ],
     [
-     116,
-     -379
+     -474,
+     -44
     ],
     [
-     -12,
-     -375
+     492,
+     -38
     ],
     [
-     76,
-     -359
+     -294,
+     -25
     ],
     [
-     85,
-     -351
+     157,
+     54
     ],
     [
-     76,
-     -322
+     520,
+     108
     ],
     [
-     92,
-     -311
+     520,
+     122
     ],
     [
-     3,
-     -311
+     -302,
+     188
     ],
     [
-     193,
-     -305
+     -5,
+     202
     ],
     [
-     158,
-     402
+     -167,
+     324
+    ],
+    [
+     -190,
+     330
+    ],
+    [
+     252,
+     358
+    ],
+    [
+     -184,
+     418
+    ],
+    [
+     333,
+     -251
+    ],
+    [
+     -274,
+     -168
+    ],
+    [
+     -265,
+     -145
+    ],
+    [
+     -317,
+     -135
+    ],
+    [
+     -392,
+     -132
     ]
    ],
-   "ref": "docs/art_reference/obj/cannon_0.png",
+   "ref": "docs/art_reference/obj/woodpile_0.png",
    "painted": false,
-   "score": 49,
+   "score": 53,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannon_0.png"
+   "guide": "docs/art_reference/guides/objects/woodpile_0.png"
   },
   {
    "id": "rowboat_moored_0",
@@ -10699,120 +10843,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/rowboat_moored_0.png"
-  },
-  {
-   "id": "woodpile_0",
-   "group": "objects",
-   "label": "woodpile",
-   "kind": "woodpile",
-   "variant": 0,
-   "hero": false,
-   "w": 7.5,
-   "count": 24,
-   "places": [
-    [
-     356,
-     -286
-    ],
-    [
-     -244,
-     -274
-    ],
-    [
-     -252,
-     -267
-    ],
-    [
-     339,
-     -236
-    ],
-    [
-     -176,
-     -207
-    ],
-    [
-     -196,
-     -204
-    ],
-    [
-     343,
-     -180
-    ],
-    [
-     336,
-     -166
-    ],
-    [
-     -301,
-     -152
-    ],
-    [
-     404,
-     -100
-    ],
-    [
-     -448,
-     -55
-    ],
-    [
-     -474,
-     -44
-    ],
-    [
-     492,
-     -38
-    ],
-    [
-     -294,
-     -25
-    ],
-    [
-     513,
-     108
-    ],
-    [
-     520,
-     122
-    ],
-    [
-     -302,
-     188
-    ],
-    [
-     -190,
-     330
-    ],
-    [
-     246,
-     358
-    ],
-    [
-     -184,
-     418
-    ],
-    [
-     333,
-     -251
-    ],
-    [
-     -265,
-     -145
-    ],
-    [
-     -317,
-     -135
-    ],
-    [
-     -392,
-     -132
-    ]
-   ],
-   "ref": "docs/art_reference/obj/woodpile_0.png",
-   "painted": false,
-   "score": 46,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/woodpile_0.png"
   },
   {
    "id": "crab_0",
@@ -11037,6 +11067,264 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/life/crab_1.png"
+  },
+  {
+   "id": "cannon_0",
+   "group": "objects",
+   "label": "cannon",
+   "kind": "cannon",
+   "variant": 0,
+   "hero": false,
+   "w": 7.5,
+   "count": 20,
+   "places": [
+    [
+     352,
+     -374
+    ],
+    [
+     376,
+     -374
+    ],
+    [
+     346,
+     -362
+    ],
+    [
+     382,
+     -362
+    ],
+    [
+     338,
+     -352
+    ],
+    [
+     390,
+     -352
+    ],
+    [
+     554,
+     -6
+    ],
+    [
+     570,
+     6
+    ],
+    [
+     556,
+     12
+    ],
+    [
+     -96,
+     -450
+    ],
+    [
+     294,
+     -429
+    ],
+    [
+     -250,
+     -401
+    ],
+    [
+     -15,
+     -397
+    ],
+    [
+     -41,
+     -393
+    ],
+    [
+     -12,
+     -374
+    ],
+    [
+     76,
+     -358
+    ],
+    [
+     199,
+     -335
+    ],
+    [
+     -66,
+     -320
+    ],
+    [
+     159,
+     403
+    ],
+    [
+     176,
+     473
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cannon_0.png",
+   "painted": false,
+   "score": 42.4,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cannon_0.png"
+  },
+  {
+   "id": "crow_0",
+   "group": "life",
+   "label": "crow \u2014 frame 1 of 2",
+   "kind": "crow",
+   "hero": false,
+   "w": 2.5,
+   "count": 15,
+   "places": [
+    [
+     83,
+     445
+    ],
+    [
+     69,
+     442
+    ],
+    [
+     20,
+     249
+    ],
+    [
+     -6,
+     277
+    ],
+    [
+     34,
+     204
+    ],
+    [
+     -7,
+     248
+    ],
+    [
+     13,
+     240
+    ],
+    [
+     20,
+     301
+    ],
+    [
+     -71,
+     204
+    ],
+    [
+     -20,
+     314
+    ],
+    [
+     31,
+     275
+    ],
+    [
+     42,
+     249
+    ],
+    [
+     -22,
+     307
+    ],
+    [
+     19,
+     291
+    ],
+    [
+     13,
+     262
+    ]
+   ],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 6,
+   "ref": "docs/art_reference/life/crow_0.png",
+   "painted": false,
+   "score": 40.5,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/crow_0.png"
+  },
+  {
+   "id": "crow_1",
+   "group": "life",
+   "label": "crow \u2014 frame 2 of 2",
+   "kind": "crow",
+   "hero": false,
+   "w": 2.5,
+   "count": 15,
+   "places": [
+    [
+     83,
+     445
+    ],
+    [
+     69,
+     442
+    ],
+    [
+     20,
+     249
+    ],
+    [
+     -6,
+     277
+    ],
+    [
+     34,
+     204
+    ],
+    [
+     -7,
+     248
+    ],
+    [
+     13,
+     240
+    ],
+    [
+     20,
+     301
+    ],
+    [
+     -71,
+     204
+    ],
+    [
+     -20,
+     314
+    ],
+    [
+     31,
+     275
+    ],
+    [
+     42,
+     249
+    ],
+    [
+     -22,
+     307
+    ],
+    [
+     19,
+     291
+    ],
+    [
+     13,
+     262
+    ]
+   ],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 6,
+   "ref": "docs/art_reference/life/crow_1.png",
+   "painted": false,
+   "score": 40.5,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/crow_1.png"
   },
   {
    "id": "crates_2",
@@ -11301,150 +11589,6 @@
    "guide": "docs/art_reference/guides/objects/sacks_2.png"
   },
   {
-   "id": "crow_0",
-   "group": "life",
-   "label": "crow \u2014 frame 1 of 2",
-   "kind": "crow",
-   "hero": false,
-   "w": 2.5,
-   "count": 13,
-   "places": [
-    [
-     83,
-     445
-    ],
-    [
-     69,
-     442
-    ],
-    [
-     20,
-     249
-    ],
-    [
-     -6,
-     277
-    ],
-    [
-     34,
-     204
-    ],
-    [
-     -7,
-     248
-    ],
-    [
-     13,
-     240
-    ],
-    [
-     20,
-     301
-    ],
-    [
-     -71,
-     204
-    ],
-    [
-     31,
-     275
-    ],
-    [
-     42,
-     249
-    ],
-    [
-     -22,
-     307
-    ],
-    [
-     13,
-     262
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 6,
-   "ref": "docs/art_reference/life/crow_0.png",
-   "painted": false,
-   "score": 34.5,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/crow_0.png"
-  },
-  {
-   "id": "crow_1",
-   "group": "life",
-   "label": "crow \u2014 frame 2 of 2",
-   "kind": "crow",
-   "hero": false,
-   "w": 2.5,
-   "count": 13,
-   "places": [
-    [
-     83,
-     445
-    ],
-    [
-     69,
-     442
-    ],
-    [
-     20,
-     249
-    ],
-    [
-     -6,
-     277
-    ],
-    [
-     34,
-     204
-    ],
-    [
-     -7,
-     248
-    ],
-    [
-     13,
-     240
-    ],
-    [
-     20,
-     301
-    ],
-    [
-     -71,
-     204
-    ],
-    [
-     31,
-     275
-    ],
-    [
-     42,
-     249
-    ],
-    [
-     -22,
-     307
-    ],
-    [
-     13,
-     262
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 6,
-   "ref": "docs/art_reference/life/crow_1.png",
-   "painted": false,
-   "score": 34.5,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/crow_1.png"
-  },
-  {
    "id": "signpost_0",
    "group": "objects",
    "label": "signpost",
@@ -11531,6 +11675,76 @@
    "guide": "docs/art_reference/guides/objects/signpost_0.png"
   },
   {
+   "id": "cannonballs_0",
+   "group": "objects",
+   "label": "cannonballs",
+   "kind": "cannonballs",
+   "variant": 0,
+   "hero": false,
+   "w": 5.5,
+   "count": 13,
+   "places": [
+    [
+     351,
+     -368
+    ],
+    [
+     338,
+     -358
+    ],
+    [
+     338,
+     -342
+    ],
+    [
+     352,
+     -334
+    ],
+    [
+     378,
+     -334
+    ],
+    [
+     238,
+     -444
+    ],
+    [
+     238,
+     -408
+    ],
+    [
+     -13,
+     -396
+    ],
+    [
+     120,
+     -354
+    ],
+    [
+     -8,
+     -338
+    ],
+    [
+     201,
+     -334
+    ],
+    [
+     93,
+     -310
+    ],
+    [
+     162,
+     402
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cannonballs_0.png",
+   "painted": false,
+   "score": 32,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cannonballs_0.png"
+  },
+  {
    "id": "lamp_0",
    "group": "objects",
    "label": "lamp",
@@ -11607,6 +11821,88 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/lamp_0.png"
+  },
+  {
+   "id": "water_butt_0",
+   "group": "objects",
+   "label": "water butt",
+   "kind": "water_butt",
+   "variant": 0,
+   "hero": false,
+   "w": 5.5,
+   "count": 16,
+   "places": [
+    [
+     332,
+     -256
+    ],
+    [
+     -318,
+     -140
+    ],
+    [
+     329,
+     -132
+    ],
+    [
+     -205,
+     -92
+    ],
+    [
+     -256,
+     -32
+    ],
+    [
+     152,
+     60
+    ],
+    [
+     23,
+     62
+    ],
+    [
+     210,
+     108
+    ],
+    [
+     -110,
+     356
+    ],
+    [
+     232,
+     364
+    ],
+    [
+     -195,
+     -201
+    ],
+    [
+     330,
+     -118
+    ],
+    [
+     52,
+     59
+    ],
+    [
+     -337,
+     78
+    ],
+    [
+     217,
+     122
+    ],
+    [
+     -279,
+     397
+    ]
+   ],
+   "ref": "docs/art_reference/obj/water_butt_0.png",
+   "painted": false,
+   "score": 30,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/water_butt_0.png"
   },
   {
    "id": "barrel_1",
@@ -11741,84 +12037,6 @@
    "guide": "docs/art_reference/guides/objects/barrel_2.png"
   },
   {
-   "id": "water_butt_0",
-   "group": "objects",
-   "label": "water butt",
-   "kind": "water_butt",
-   "variant": 0,
-   "hero": false,
-   "w": 5.5,
-   "count": 15,
-   "places": [
-    [
-     332,
-     -256
-    ],
-    [
-     -318,
-     -140
-    ],
-    [
-     -205,
-     -92
-    ],
-    [
-     -256,
-     -32
-    ],
-    [
-     152,
-     60
-    ],
-    [
-     23,
-     62
-    ],
-    [
-     203,
-     108
-    ],
-    [
-     -110,
-     356
-    ],
-    [
-     232,
-     364
-    ],
-    [
-     -195,
-     -201
-    ],
-    [
-     330,
-     -118
-    ],
-    [
-     52,
-     59
-    ],
-    [
-     -337,
-     78
-    ],
-    [
-     217,
-     122
-    ],
-    [
-     -279,
-     397
-    ]
-   ],
-   "ref": "docs/art_reference/obj/water_butt_0.png",
-   "painted": false,
-   "score": 28,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/water_butt_0.png"
-  },
-  {
    "id": "rum_barrels_0",
    "group": "objects",
    "label": "rum barrels",
@@ -11889,140 +12107,74 @@
    "guide": "docs/art_reference/guides/objects/rum_barrels_0.png"
   },
   {
-   "id": "dead_tree_1",
+   "id": "lantern_0",
    "group": "objects",
-   "label": "dead tree",
-   "kind": "dead_tree",
-   "variant": 1,
+   "label": "lantern",
+   "kind": "lantern",
+   "variant": 0,
    "hero": false,
-   "w": 17.5,
-   "count": 14,
+   "w": 4.0,
+   "count": 13,
    "places": [
     [
-     -6,
-     204
+     -234,
+     -484
     ],
     [
-     -41,
-     207
+     -234,
+     -478
     ],
     [
-     40,
-     224
+     -214,
+     -478
     ],
     [
-     -1,
-     235
+     -296,
+     -122
     ],
     [
-     40,
-     245
+     -324,
+     -115
     ],
     [
-     -45,
-     260
+     -296,
+     -110
     ],
     [
-     -39,
-     265
+     -302,
+     -84
     ],
     [
-     49,
-     267
+     -330,
+     -84
     ],
     [
-     13,
-     278
+     -302,
+     -67
     ],
     [
-     -42,
-     281
+     572,
+     0
     ],
     [
-     -68,
-     298
+     -302,
+     8
     ],
     [
-     5,
-     299
+     484,
+     33
     ],
     [
-     -27,
-     302
-    ],
-    [
-     -28,
-     313
+     -250,
+     324
     ]
    ],
-   "ref": "docs/art_reference/obj/dead_tree_1.png",
+   "ref": "docs/art_reference/obj/lantern_0.png",
    "painted": false,
    "score": 26,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/dead_tree_1.png"
-  },
-  {
-   "id": "cannonballs_0",
-   "group": "objects",
-   "label": "cannonballs",
-   "kind": "cannonballs",
-   "variant": 0,
-   "hero": false,
-   "w": 5.5,
-   "count": 11,
-   "places": [
-    [
-     351,
-     -368
-    ],
-    [
-     338,
-     -358
-    ],
-    [
-     338,
-     -342
-    ],
-    [
-     352,
-     -334
-    ],
-    [
-     378,
-     -334
-    ],
-    [
-     238,
-     -444
-    ],
-    [
-     24,
-     -396
-    ],
-    [
-     -12,
-     -396
-    ],
-    [
-     94,
-     -310
-    ],
-    [
-     5,
-     -310
-    ],
-    [
-     180,
-     473
-    ]
-   ],
-   "ref": "docs/art_reference/obj/cannonballs_0.png",
-   "painted": false,
-   "score": 24.4,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannonballs_0.png"
+   "guide": "docs/art_reference/guides/objects/lantern_0.png"
   },
   {
    "id": "rum_barrels_1",
@@ -12149,6 +12301,106 @@
    "guide": "docs/art_reference/guides/objects/notice_0.png"
   },
   {
+   "id": "cannon_1",
+   "group": "objects",
+   "label": "cannon",
+   "kind": "cannon",
+   "variant": 1,
+   "hero": false,
+   "w": 7.5,
+   "count": 8,
+   "places": [
+    [
+     289,
+     -449
+    ],
+    [
+     234,
+     -444
+    ],
+    [
+     234,
+     -408
+    ],
+    [
+     21,
+     -397
+    ],
+    [
+     -228,
+     -376
+    ],
+    [
+     -12,
+     -338
+    ],
+    [
+     38,
+     -311
+    ],
+    [
+     4,
+     -311
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cannon_1.png",
+   "painted": false,
+   "score": 23,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cannon_1.png"
+  },
+  {
+   "id": "cannonballs_2",
+   "group": "objects",
+   "label": "cannonballs",
+   "kind": "cannonballs",
+   "variant": 2,
+   "hero": false,
+   "w": 5.5,
+   "count": 8,
+   "places": [
+    [
+     256,
+     -448
+    ],
+    [
+     23,
+     -396
+    ],
+    [
+     -49,
+     -396
+    ],
+    [
+     -39,
+     -394
+    ],
+    [
+     -226,
+     -374
+    ],
+    [
+     -8,
+     -374
+    ],
+    [
+     80,
+     -358
+    ],
+    [
+     40,
+     -310
+    ]
+   ],
+   "ref": "docs/art_reference/obj/cannonballs_2.png",
+   "painted": false,
+   "score": 23,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/cannonballs_2.png"
+  },
+  {
    "id": "barrels_1",
    "group": "objects",
    "label": "barrels",
@@ -12207,54 +12459,70 @@
    "guide": "docs/art_reference/guides/objects/barrels_1.png"
   },
   {
-   "id": "cannonballs_2",
+   "id": "dead_tree_1",
    "group": "objects",
-   "label": "cannonballs",
-   "kind": "cannonballs",
-   "variant": 2,
+   "label": "dead tree",
+   "kind": "dead_tree",
+   "variant": 1,
    "hero": false,
-   "w": 5.5,
-   "count": 8,
+   "w": 17.5,
+   "count": 12,
    "places": [
     [
-     256,
-     -448
+     -6,
+     204
     ],
     [
-     -48,
-     -396
+     -41,
+     207
     ],
     [
-     -226,
-     -374
+     -1,
+     235
     ],
     [
-     80,
-     -359
+     -45,
+     260
     ],
     [
-     120,
-     -354
+     -39,
+     265
     ],
     [
-     87,
-     -352
+     49,
+     267
     ],
     [
-     195,
-     -304
+     13,
+     278
     ],
     [
-     162,
-     402
+     -42,
+     281
+    ],
+    [
+     -68,
+     298
+    ],
+    [
+     5,
+     299
+    ],
+    [
+     -27,
+     302
+    ],
+    [
+     -28,
+     313
     ]
    ],
-   "ref": "docs/art_reference/obj/cannonballs_2.png",
+   "ref": "docs/art_reference/obj/dead_tree_1.png",
    "painted": false,
-   "score": 22,
+   "score": 23,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannonballs_2.png"
+   "guide": "docs/art_reference/guides/objects/dead_tree_1.png"
   },
   {
    "id": "sacks_1",
@@ -12497,50 +12765,54 @@
    "guide": "docs/art_reference/guides/objects/cart_0.png"
   },
   {
-   "id": "cannonballs_1",
+   "id": "cannon_2",
    "group": "objects",
-   "label": "cannonballs",
-   "kind": "cannonballs",
-   "variant": 1,
+   "label": "cannon",
+   "kind": "cannon",
+   "variant": 2,
    "hero": false,
-   "w": 5.5,
-   "count": 7,
+   "w": 7.5,
+   "count": 8,
    "places": [
     [
-     291,
-     -448
+     254,
+     -449
     ],
     [
-     238,
-     -409
+     -51,
+     -397
     ],
     [
-     -38,
-     -394
+     -10,
+     -381
     ],
     [
-     -8,
-     -375
+     116,
+     -380
     ],
     [
-     -8,
-     -338
+     118,
+     -353
     ],
     [
-     202,
-     -334
+     -10,
+     -346
     ],
     [
-     42,
-     -310
+     91,
+     -311
+    ],
+    [
+     171,
+     472
     ]
    ],
-   "ref": "docs/art_reference/obj/cannonballs_1.png",
+   "ref": "docs/art_reference/obj/cannon_2.png",
    "painted": false,
-   "score": 21,
+   "score": 21.4,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannonballs_1.png"
+   "guide": "docs/art_reference/guides/objects/cannon_2.png"
   },
   {
    "id": "bench_2",
@@ -12597,104 +12869,174 @@
    "guide": "docs/art_reference/guides/objects/bench_2.png"
   },
   {
-   "id": "cannon_2",
-   "group": "objects",
-   "label": "cannon",
-   "kind": "cannon",
-   "variant": 2,
+   "id": "campfire_0",
+   "group": "life",
+   "label": "campfire \u2014 frame 1 of 2",
+   "kind": "campfire",
    "hero": false,
-   "w": 7.5,
+   "w": 4.0,
    "count": 9,
    "places": [
     [
-     -250,
-     -401
+     -324,
+     -206
     ],
     [
-     22,
-     -397
+     -386,
+     -181
     ],
     [
-     -50,
-     -397
+     -278,
+     -177
     ],
     [
-     -40,
-     -393
+     -337,
+     -106
     ],
     [
-     -10,
-     -346
+     -352,
+     -198
     ],
     [
-     -12,
-     -338
+     -2,
+     228
     ],
     [
-     -66,
-     -320
+     -536,
+     -60
     ],
     [
-     171,
-     471
+     -408,
+     332
     ],
     [
-     176,
-     473
+     -102,
+     463
     ]
    ],
-   "ref": "docs/art_reference/obj/cannon_2.png",
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 10,
+   "ref": "docs/art_reference/life/campfire_0.png",
    "painted": false,
-   "score": 20.799999999999997,
+   "score": 21.0,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannon_2.png"
+   "guide": "docs/art_reference/guides/life/campfire_0.png"
   },
   {
-   "id": "cannon_1",
-   "group": "objects",
-   "label": "cannon",
-   "kind": "cannon",
-   "variant": 1,
+   "id": "campfire_1",
+   "group": "life",
+   "label": "campfire \u2014 frame 2 of 2",
+   "kind": "campfire",
    "hero": false,
-   "w": 7.5,
-   "count": 7,
+   "w": 4.0,
+   "count": 9,
    "places": [
     [
-     289,
-     -449
+     -324,
+     -206
     ],
     [
-     234,
-     -444
+     -386,
+     -181
     ],
     [
-     294,
-     -430
+     -278,
+     -177
     ],
     [
-     -228,
-     -376
+     -337,
+     -106
     ],
     [
-     118,
-     -353
+     -352,
+     -198
     ],
     [
-     200,
-     -335
+     -2,
+     228
     ],
     [
-     40,
-     -311
+     -536,
+     -60
+    ],
+    [
+     -408,
+     332
+    ],
+    [
+     -102,
+     463
     ]
    ],
-   "ref": "docs/art_reference/obj/cannon_1.png",
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 10,
+   "ref": "docs/art_reference/life/campfire_1.png",
+   "painted": false,
+   "score": 21.0,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/campfire_1.png"
+  },
+  {
+   "id": "barrels_2",
+   "group": "objects",
+   "label": "barrels",
+   "kind": "barrels",
+   "variant": 2,
+   "hero": false,
+   "w": 9.0,
+   "count": 10,
+   "places": [
+    [
+     -210,
+     -491
+    ],
+    [
+     -16,
+     -382
+    ],
+    [
+     -14,
+     -365
+    ],
+    [
+     325,
+     -284
+    ],
+    [
+     -371,
+     -197
+    ],
+    [
+     393,
+     -90
+    ],
+    [
+     -383,
+     -8
+    ],
+    [
+     -250,
+     402
+    ],
+    [
+     82,
+     426
+    ],
+    [
+     -28,
+     442
+    ]
+   ],
+   "ref": "docs/art_reference/obj/barrels_2.png",
    "painted": false,
    "score": 20,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/cannon_1.png"
+   "guide": "docs/art_reference/guides/objects/barrels_2.png"
   },
   {
    "id": "sacks_0",
@@ -12747,234 +13089,6 @@
    "guide": "docs/art_reference/guides/objects/sacks_0.png"
   },
   {
-   "id": "jolly_roger_0",
-   "group": "life",
-   "label": "jolly roger \u2014 frame 1 of 2",
-   "kind": "jolly_roger",
-   "hero": false,
-   "w": 7.0,
-   "count": 9,
-   "places": [
-    [
-     -274,
-     -161
-    ],
-    [
-     -378,
-     -136
-    ],
-    [
-     -287,
-     -153
-    ],
-    [
-     -381,
-     -160
-    ],
-    [
-     -338,
-     -202
-    ],
-    [
-     -366,
-     64
-    ],
-    [
-     -254,
-     398
-    ],
-    [
-     -404,
-     310
-    ],
-    [
-     -530,
-     -30
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 6,
-   "ref": "docs/art_reference/life/jolly_roger_0.png",
-   "painted": false,
-   "score": 19.5,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/jolly_roger_0.png"
-  },
-  {
-   "id": "jolly_roger_1",
-   "group": "life",
-   "label": "jolly roger \u2014 frame 2 of 2",
-   "kind": "jolly_roger",
-   "hero": false,
-   "w": 7.0,
-   "count": 9,
-   "places": [
-    [
-     -274,
-     -161
-    ],
-    [
-     -378,
-     -136
-    ],
-    [
-     -287,
-     -153
-    ],
-    [
-     -381,
-     -160
-    ],
-    [
-     -338,
-     -202
-    ],
-    [
-     -366,
-     64
-    ],
-    [
-     -254,
-     398
-    ],
-    [
-     -404,
-     310
-    ],
-    [
-     -530,
-     -30
-    ]
-   ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 6,
-   "ref": "docs/art_reference/life/jolly_roger_1.png",
-   "painted": false,
-   "score": 19.5,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/jolly_roger_1.png"
-  },
-  {
-   "id": "barrels_2",
-   "group": "objects",
-   "label": "barrels",
-   "kind": "barrels",
-   "variant": 2,
-   "hero": false,
-   "w": 9.0,
-   "count": 9,
-   "places": [
-    [
-     -210,
-     -491
-    ],
-    [
-     -16,
-     -382
-    ],
-    [
-     -14,
-     -365
-    ],
-    [
-     325,
-     -284
-    ],
-    [
-     393,
-     -90
-    ],
-    [
-     -383,
-     -8
-    ],
-    [
-     -250,
-     402
-    ],
-    [
-     82,
-     426
-    ],
-    [
-     -28,
-     442
-    ]
-   ],
-   "ref": "docs/art_reference/obj/barrels_2.png",
-   "painted": false,
-   "score": 19,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/barrels_2.png"
-  },
-  {
-   "id": "dead_tree_2",
-   "group": "objects",
-   "label": "dead tree",
-   "kind": "dead_tree",
-   "variant": 2,
-   "hero": false,
-   "w": 17.5,
-   "count": 11,
-   "places": [
-    [
-     -52,
-     208
-    ],
-    [
-     -61,
-     212
-    ],
-    [
-     -66,
-     222
-    ],
-    [
-     -20,
-     236
-    ],
-    [
-     -16,
-     246
-    ],
-    [
-     49,
-     247
-    ],
-    [
-     -74,
-     251
-    ],
-    [
-     -43,
-     267
-    ],
-    [
-     1,
-     279
-    ],
-    [
-     35,
-     283
-    ],
-    [
-     14,
-     290
-    ]
-   ],
-   "ref": "docs/art_reference/obj/dead_tree_2.png",
-   "painted": false,
-   "score": 19,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/dead_tree_2.png"
-  },
-  {
    "id": "stall_0",
    "group": "objects",
    "label": "stall",
@@ -13021,100 +13135,166 @@
    "guide": "docs/art_reference/guides/objects/stall_0.png"
   },
   {
-   "id": "campfire_0",
-   "group": "life",
-   "label": "campfire \u2014 frame 1 of 2",
-   "kind": "campfire",
+   "id": "dead_tree_2",
+   "group": "objects",
+   "label": "dead tree",
+   "kind": "dead_tree",
+   "variant": 2,
    "hero": false,
-   "w": 4.0,
-   "count": 7,
+   "w": 17.5,
+   "count": 10,
    "places": [
     [
-     -278,
-     -177
+     -61,
+     212
     ],
     [
-     -337,
-     -106
+     -66,
+     222
     ],
     [
-     -352,
-     -198
+     -20,
+     236
     ],
     [
-     -2,
-     228
+     -16,
+     246
     ],
     [
-     -536,
-     -60
+     49,
+     247
     ],
     [
-     -408,
-     332
+     -74,
+     251
     ],
     [
-     -102,
-     463
+     -43,
+     267
+    ],
+    [
+     1,
+     279
+    ],
+    [
+     35,
+     283
+    ],
+    [
+     14,
+     290
     ]
    ],
-   "frames_have": 2,
-   "frames_target": 4,
-   "fps": 10,
-   "ref": "docs/art_reference/life/campfire_0.png",
+   "ref": "docs/art_reference/obj/dead_tree_2.png",
    "painted": false,
-   "score": 18.0,
+   "score": 18,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/campfire_0.png"
+   "guide": "docs/art_reference/guides/objects/dead_tree_2.png"
   },
   {
-   "id": "campfire_1",
+   "id": "jolly_roger_0",
    "group": "life",
-   "label": "campfire \u2014 frame 2 of 2",
-   "kind": "campfire",
+   "label": "jolly roger \u2014 frame 1 of 2",
+   "kind": "jolly_roger",
    "hero": false,
-   "w": 4.0,
-   "count": 7,
+   "w": 7.0,
+   "count": 8,
    "places": [
     [
-     -278,
-     -177
+     -378,
+     -136
     ],
     [
-     -337,
-     -106
+     -287,
+     -153
     ],
     [
-     -352,
-     -198
+     -381,
+     -160
     ],
     [
-     -2,
-     228
+     -338,
+     -202
     ],
     [
-     -536,
-     -60
+     -366,
+     64
     ],
     [
-     -408,
-     332
+     -254,
+     398
     ],
     [
-     -102,
-     463
+     -404,
+     310
+    ],
+    [
+     -530,
+     -30
     ]
    ],
    "frames_have": 2,
    "frames_target": 4,
-   "fps": 10,
-   "ref": "docs/art_reference/life/campfire_1.png",
+   "fps": 6,
+   "ref": "docs/art_reference/life/jolly_roger_0.png",
    "painted": false,
    "score": 18.0,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/life/campfire_1.png"
+   "guide": "docs/art_reference/guides/life/jolly_roger_0.png"
+  },
+  {
+   "id": "jolly_roger_1",
+   "group": "life",
+   "label": "jolly roger \u2014 frame 2 of 2",
+   "kind": "jolly_roger",
+   "hero": false,
+   "w": 7.0,
+   "count": 8,
+   "places": [
+    [
+     -378,
+     -136
+    ],
+    [
+     -287,
+     -153
+    ],
+    [
+     -381,
+     -160
+    ],
+    [
+     -338,
+     -202
+    ],
+    [
+     -366,
+     64
+    ],
+    [
+     -254,
+     398
+    ],
+    [
+     -404,
+     310
+    ],
+    [
+     -530,
+     -30
+    ]
+   ],
+   "frames_have": 2,
+   "frames_target": 4,
+   "fps": 6,
+   "ref": "docs/art_reference/life/jolly_roger_1.png",
+   "painted": false,
+   "score": 18.0,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/life/jolly_roger_1.png"
   },
   {
    "id": "flowerpot_2",
@@ -13217,6 +13397,64 @@
    "guide": "docs/art_reference/guides/objects/potted_palm_1.png"
   },
   {
+   "id": "dead_tree_0",
+   "group": "objects",
+   "label": "dead tree",
+   "kind": "dead_tree",
+   "variant": 0,
+   "hero": false,
+   "w": 17.5,
+   "count": 10,
+   "places": [
+    [
+     -31,
+     191
+    ],
+    [
+     -74,
+     219
+    ],
+    [
+     8,
+     232
+    ],
+    [
+     23,
+     236
+    ],
+    [
+     -64,
+     246
+    ],
+    [
+     37,
+     272
+    ],
+    [
+     -76,
+     285
+    ],
+    [
+     -51,
+     286
+    ],
+    [
+     -4,
+     295
+    ],
+    [
+     -11,
+     321
+    ]
+   ],
+   "ref": "docs/art_reference/obj/dead_tree_0.png",
+   "painted": false,
+   "score": 17,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/dead_tree_0.png"
+  },
+  {
    "id": "rope_coil_0",
    "group": "objects",
    "label": "rope coil",
@@ -13315,56 +13553,6 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/rope_coil_1.png"
-  },
-  {
-   "id": "lantern_0",
-   "group": "objects",
-   "label": "lantern",
-   "kind": "lantern",
-   "variant": 0,
-   "hero": false,
-   "w": 4.0,
-   "count": 8,
-   "places": [
-    [
-     -234,
-     -478
-    ],
-    [
-     -214,
-     -478
-    ],
-    [
-     -324,
-     -115
-    ],
-    [
-     -296,
-     -110
-    ],
-    [
-     -302,
-     -67
-    ],
-    [
-     572,
-     0
-    ],
-    [
-     -302,
-     8
-    ],
-    [
-     484,
-     33
-    ]
-   ],
-   "ref": "docs/art_reference/obj/lantern_0.png",
-   "painted": false,
-   "score": 16,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/lantern_0.png"
   },
   {
    "id": "cargo_0",
@@ -13791,148 +13979,6 @@
    "guide": "docs/art_reference/guides/objects/grave_0.png"
   },
   {
-   "id": "dead_tree_0",
-   "group": "objects",
-   "label": "dead tree",
-   "kind": "dead_tree",
-   "variant": 0,
-   "hero": false,
-   "w": 17.5,
-   "count": 8,
-   "places": [
-    [
-     -31,
-     191
-    ],
-    [
-     -74,
-     219
-    ],
-    [
-     8,
-     232
-    ],
-    [
-     37,
-     272
-    ],
-    [
-     -51,
-     284
-    ],
-    [
-     -4,
-     295
-    ],
-    [
-     -18,
-     311
-    ],
-    [
-     -11,
-     321
-    ]
-   ],
-   "ref": "docs/art_reference/obj/dead_tree_0.png",
-   "painted": false,
-   "score": 13,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/dead_tree_0.png"
-  },
-  {
-   "id": "powder_keg_0",
-   "group": "objects",
-   "label": "powder keg",
-   "kind": "powder_keg",
-   "variant": 0,
-   "hero": false,
-   "w": 5.5,
-   "count": 7,
-   "places": [
-    [
-     -412,
-     -18
-    ],
-    [
-     -388,
-     -18
-    ],
-    [
-     296,
-     330
-    ],
-    [
-     232,
-     -384
-    ],
-    [
-     -222,
-     -379
-    ],
-    [
-     -282,
-     -113
-    ],
-    [
-     197,
-     460
-    ]
-   ],
-   "ref": "docs/art_reference/obj/powder_keg_0.png",
-   "painted": false,
-   "score": 12.4,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/powder_keg_0.png"
-  },
-  {
-   "id": "parrot_perch_0",
-   "group": "objects",
-   "label": "parrot perch",
-   "kind": "parrot_perch",
-   "variant": 0,
-   "hero": false,
-   "w": 4.5,
-   "count": 7,
-   "places": [
-    [
-     -360,
-     59
-    ],
-    [
-     -368,
-     72
-    ],
-    [
-     -224,
-     384
-    ],
-    [
-     -224,
-     390
-    ],
-    [
-     -256,
-     390
-    ],
-    [
-     344,
-     -394
-    ],
-    [
-     -432,
-     233
-    ]
-   ],
-   "ref": "docs/art_reference/obj/parrot_perch_0.png",
-   "painted": false,
-   "score": 12,
-   "priority": 1,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/parrot_perch_0.png"
-  },
-  {
    "id": "water_butt_1",
    "group": "objects",
    "label": "water butt",
@@ -13973,6 +14019,48 @@
    "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/water_butt_1.png"
+  },
+  {
+   "id": "powder_keg_0",
+   "group": "objects",
+   "label": "powder keg",
+   "kind": "powder_keg",
+   "variant": 0,
+   "hero": false,
+   "w": 5.5,
+   "count": 6,
+   "places": [
+    [
+     -412,
+     -18
+    ],
+    [
+     -388,
+     -18
+    ],
+    [
+     296,
+     330
+    ],
+    [
+     232,
+     -384
+    ],
+    [
+     -222,
+     -379
+    ],
+    [
+     197,
+     460
+    ]
+   ],
+   "ref": "docs/art_reference/obj/powder_keg_0.png",
+   "painted": false,
+   "score": 11.4,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/powder_keg_0.png"
   },
   {
    "id": "lobster_pot_1",
@@ -14089,46 +14177,42 @@
    "guide": "docs/art_reference/guides/objects/washing_0.png"
   },
   {
-   "id": "hammock_0",
+   "id": "parrot_perch_0",
    "group": "objects",
-   "label": "hammock",
-   "kind": "hammock",
+   "label": "parrot perch",
+   "kind": "parrot_perch",
    "variant": 0,
    "hero": false,
-   "w": 10.5,
-   "count": 6,
+   "w": 4.5,
+   "count": 5,
    "places": [
     [
-     -546,
-     -70
+     -368,
+     59
     ],
     [
-     -428,
-     150
+     -368,
+     72
     ],
     [
-     -250,
-     -418
+     -224,
+     384
     ],
     [
-     -251,
-     -308
+     -224,
+     390
     ],
     [
-     551,
-     -136
-    ],
-    [
-     -484,
-     32
+     -256,
+     390
     ]
    ],
-   "ref": "docs/art_reference/obj/hammock_0.png",
+   "ref": "docs/art_reference/obj/parrot_perch_0.png",
    "painted": false,
    "score": 10,
    "priority": 1,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/hammock_0.png"
+   "guide": "docs/art_reference/guides/objects/parrot_perch_0.png"
   },
   {
    "id": "lamp_1",
@@ -14493,6 +14577,36 @@
    "guide": "docs/art_reference/guides/objects/well_0.png"
   },
   {
+   "id": "figurehead_0",
+   "group": "objects",
+   "label": "figurehead",
+   "kind": "figurehead",
+   "variant": 0,
+   "hero": false,
+   "w": 6.0,
+   "count": 3,
+   "places": [
+    [
+     -334,
+     84
+    ],
+    [
+     -79,
+     -367
+    ],
+    [
+     236,
+     -319
+    ]
+   ],
+   "ref": "docs/art_reference/obj/figurehead_0.png",
+   "painted": false,
+   "score": 8,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/figurehead_0.png"
+  },
+  {
    "id": "water_butt_2",
    "group": "objects",
    "label": "water butt",
@@ -14561,6 +14675,44 @@
    "guide": "docs/art_reference/guides/objects/stall_1.png"
   },
   {
+   "id": "beach_cannon_0",
+   "group": "objects",
+   "label": "beach cannon",
+   "kind": "beach_cannon",
+   "variant": 0,
+   "hero": false,
+   "w": 7.5,
+   "count": 5,
+   "places": [
+    [
+     -262,
+     -452
+    ],
+    [
+     -562,
+     -111
+    ],
+    [
+     584,
+     40
+    ],
+    [
+     196,
+     392
+    ],
+    [
+     -197,
+     -240
+    ]
+   ],
+   "ref": "docs/art_reference/obj/beach_cannon_0.png",
+   "painted": false,
+   "score": 7.4,
+   "priority": 1,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/beach_cannon_0.png"
+  },
+  {
    "id": "nets_0",
    "group": "objects",
    "label": "nets",
@@ -14620,73 +14772,9 @@
    "ref": "docs/art_reference/obj/crane_0.png",
    "painted": false,
    "score": 7,
-   "priority": 2,
+   "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/crane_0.png"
-  },
-  {
-   "id": "spyglass_0",
-   "group": "objects",
-   "label": "spyglass",
-   "kind": "spyglass",
-   "variant": 0,
-   "hero": false,
-   "w": 5.5,
-   "count": 4,
-   "places": [
-    [
-     506,
-     -32
-    ],
-    [
-     -89,
-     -319
-    ],
-    [
-     -317,
-     -199
-    ],
-    [
-     -378,
-     -127
-    ]
-   ],
-   "ref": "docs/art_reference/obj/spyglass_0.png",
-   "painted": false,
-   "score": 7,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/spyglass_0.png"
-  },
-  {
-   "id": "figurehead_0",
-   "group": "objects",
-   "label": "figurehead",
-   "kind": "figurehead",
-   "variant": 0,
-   "hero": false,
-   "w": 6.0,
-   "count": 3,
-   "places": [
-    [
-     -334,
-     84
-    ],
-    [
-     275,
-     -445
-    ],
-    [
-     -245,
-     -378
-    ]
-   ],
-   "ref": "docs/art_reference/obj/figurehead_0.png",
-   "painted": false,
-   "score": 7,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/figurehead_0.png"
   },
   {
    "id": "ruin_wall_0",
@@ -14718,7 +14806,7 @@
    "ref": "docs/art_reference/obj/ruin_wall_0.png",
    "painted": false,
    "score": 7,
-   "priority": 2,
+   "priority": 1,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/ruin_wall_0.png"
   },
@@ -14753,6 +14841,70 @@
    "guide": "docs/art_reference/guides/objects/crab_trap_stack_0.png"
   },
   {
+   "id": "ship_bell_0",
+   "group": "objects",
+   "label": "ship bell",
+   "kind": "ship_bell",
+   "variant": 0,
+   "hero": false,
+   "w": 4.5,
+   "count": 3,
+   "places": [
+    [
+     148,
+     -301
+    ],
+    [
+     -366,
+     -105
+    ],
+    [
+     -339,
+     -100
+    ]
+   ],
+   "ref": "docs/art_reference/obj/ship_bell_0.png",
+   "painted": false,
+   "score": 7,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/ship_bell_0.png"
+  },
+  {
+   "id": "lean_to_2",
+   "group": "objects",
+   "label": "lean to",
+   "kind": "lean_to",
+   "variant": 2,
+   "hero": false,
+   "w": 10.5,
+   "count": 4,
+   "places": [
+    [
+     -530,
+     -62
+    ],
+    [
+     307,
+     196
+    ],
+    [
+     250,
+     277
+    ],
+    [
+     336,
+     288
+    ]
+   ],
+   "ref": "docs/art_reference/obj/lean_to_2.png",
+   "painted": false,
+   "score": 7,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/lean_to_2.png"
+  },
+  {
    "id": "wanted_poster_0",
    "group": "objects",
    "label": "wanted poster",
@@ -14783,102 +14935,64 @@
    "guide": "docs/art_reference/guides/objects/wanted_poster_0.png"
   },
   {
-   "id": "lean_to_2",
+   "id": "cannonballs_1",
    "group": "objects",
-   "label": "lean to",
-   "kind": "lean_to",
-   "variant": 2,
+   "label": "cannonballs",
+   "kind": "cannonballs",
+   "variant": 1,
    "hero": false,
-   "w": 10.5,
-   "count": 4,
-   "places": [
-    [
-     307,
-     196
-    ],
-    [
-     250,
-     277
-    ],
-    [
-     336,
-     288
-    ],
-    [
-     -94,
-     460
-    ]
-   ],
-   "ref": "docs/art_reference/obj/lean_to_2.png",
-   "painted": false,
-   "score": 7,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/lean_to_2.png"
-  },
-  {
-   "id": "hammock_2",
-   "group": "objects",
-   "label": "hammock",
-   "kind": "hammock",
-   "variant": 2,
-   "hero": false,
-   "w": 10.5,
-   "count": 4,
-   "places": [
-    [
-     273,
-     387
-    ],
-    [
-     131,
-     390
-    ],
-    [
-     -246,
-     432
-    ],
-    [
-     -91,
-     466
-    ]
-   ],
-   "ref": "docs/art_reference/obj/hammock_2.png",
-   "painted": false,
-   "score": 7,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/hammock_2.png"
-  },
-  {
-   "id": "ship_bell_2",
-   "group": "objects",
-   "label": "ship bell",
-   "kind": "ship_bell",
-   "variant": 2,
-   "hero": false,
-   "w": 4.5,
+   "w": 5.5,
    "count": 3,
    "places": [
     [
-     283,
-     -425
+     291,
+     -448
     ],
     [
-     -102,
-     -422
+     6,
+     -310
     ],
     [
      180,
-     450
+     473
     ]
    ],
-   "ref": "docs/art_reference/obj/ship_bell_2.png",
+   "ref": "docs/art_reference/obj/cannonballs_1.png",
    "painted": false,
    "score": 6.4,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/ship_bell_2.png"
+   "guide": "docs/art_reference/guides/objects/cannonballs_1.png"
+  },
+  {
+   "id": "ship_wheel_1",
+   "group": "objects",
+   "label": "ship wheel",
+   "kind": "ship_wheel",
+   "variant": 1,
+   "hero": false,
+   "w": 5.5,
+   "count": 3,
+   "places": [
+    [
+     274,
+     -422
+    ],
+    [
+     -88,
+     -380
+    ],
+    [
+     177,
+     455
+    ]
+   ],
+   "ref": "docs/art_reference/obj/ship_wheel_1.png",
+   "painted": false,
+   "score": 6.4,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/ship_wheel_1.png"
   },
   {
    "id": "chicken_0",
@@ -15089,6 +15203,40 @@
    "guide": "docs/art_reference/guides/objects/boat_0.png"
   },
   {
+   "id": "spyglass_0",
+   "group": "objects",
+   "label": "spyglass",
+   "kind": "spyglass",
+   "variant": 0,
+   "hero": false,
+   "w": 5.5,
+   "count": 4,
+   "places": [
+    [
+     506,
+     -32
+    ],
+    [
+     -249,
+     -355
+    ],
+    [
+     -317,
+     -199
+    ],
+    [
+     -378,
+     -127
+    ]
+   ],
+   "ref": "docs/art_reference/obj/spyglass_0.png",
+   "painted": false,
+   "score": 6,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/spyglass_0.png"
+  },
+  {
    "id": "sea_chest_0",
    "group": "objects",
    "label": "sea chest",
@@ -15193,16 +15341,16 @@
      458
     ],
     [
-     -326,
-     -212
-    ],
-    [
      -363,
      -196
     ],
     [
-     -269,
-     -154
+     -274,
+     -149
+    ],
+    [
+     -281,
+     -112
     ],
     [
      -275,
@@ -15241,6 +15389,32 @@
    "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/crane_2.png"
+  },
+  {
+   "id": "spyglass_1",
+   "group": "objects",
+   "label": "spyglass",
+   "kind": "spyglass",
+   "variant": 1,
+   "hero": false,
+   "w": 5.5,
+   "count": 2,
+   "places": [
+    [
+     -93,
+     -444
+    ],
+    [
+     69,
+     -314
+    ]
+   ],
+   "ref": "docs/art_reference/obj/spyglass_1.png",
+   "painted": false,
+   "score": 6,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/spyglass_1.png"
   },
   {
    "id": "cargo_2",
@@ -15295,6 +15469,40 @@
    "guide": "docs/art_reference/guides/objects/crab_trap_stack_1.png"
   },
   {
+   "id": "parrot_perch_1",
+   "group": "objects",
+   "label": "parrot perch",
+   "kind": "parrot_perch",
+   "variant": 1,
+   "hero": false,
+   "w": 4.5,
+   "count": 4,
+   "places": [
+    [
+     -260,
+     -359
+    ],
+    [
+     543,
+     170
+    ],
+    [
+     -426,
+     208
+    ],
+    [
+     -197,
+     434
+    ]
+   ],
+   "ref": "docs/art_reference/obj/parrot_perch_1.png",
+   "painted": false,
+   "score": 6,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/parrot_perch_1.png"
+  },
+  {
    "id": "nets_1",
    "group": "objects",
    "label": "nets",
@@ -15319,78 +15527,6 @@
    "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/nets_1.png"
-  },
-  {
-   "id": "skull_post_1",
-   "group": "objects",
-   "label": "skull post",
-   "kind": "skull_post",
-   "variant": 1,
-   "hero": false,
-   "w": 4.5,
-   "count": 5,
-   "places": [
-    [
-     -297,
-     -195
-    ],
-    [
-     -291,
-     -122
-    ],
-    [
-     -431,
-     228
-    ],
-    [
-     472,
-     258
-    ],
-    [
-     363,
-     362
-    ]
-   ],
-   "ref": "docs/art_reference/obj/skull_post_1.png",
-   "painted": false,
-   "score": 6,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/skull_post_1.png"
-  },
-  {
-   "id": "beach_cannon_0",
-   "group": "objects",
-   "label": "beach cannon",
-   "kind": "beach_cannon",
-   "variant": 0,
-   "hero": false,
-   "w": 7.5,
-   "count": 4,
-   "places": [
-    [
-     -262,
-     -452
-    ],
-    [
-     -562,
-     -111
-    ],
-    [
-     584,
-     40
-    ],
-    [
-     196,
-     392
-    ]
-   ],
-   "ref": "docs/art_reference/obj/beach_cannon_0.png",
-   "painted": false,
-   "score": 5.4,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/beach_cannon_0.png"
   },
   {
    "id": "stool_0",
@@ -15459,30 +15595,64 @@
    "guide": "docs/art_reference/guides/life/turtle_0.png"
   },
   {
-   "id": "ship_wheel_0",
+   "id": "rock_3",
    "group": "objects",
-   "label": "ship wheel",
-   "kind": "ship_wheel",
-   "variant": 0,
+   "label": "rock",
+   "kind": "rock",
+   "variant": 3,
    "hero": false,
-   "w": 5.5,
-   "count": 2,
+   "w": 10.0,
+   "count": 3,
    "places": [
     [
-     505,
-     -161
+     -214,
+     -491
     ],
     [
-     -78,
-     -338
+     -248,
+     -458
+    ],
+    [
+     333,
+     -347
     ]
    ],
-   "ref": "docs/art_reference/obj/ship_wheel_0.png",
+   "ref": "docs/art_reference/obj/rock_3.png",
    "painted": false,
    "score": 5,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/ship_wheel_0.png"
+   "guide": "docs/art_reference/guides/objects/rock_3.png"
+  },
+  {
+   "id": "hammock_0",
+   "group": "objects",
+   "label": "hammock",
+   "kind": "hammock",
+   "variant": 0,
+   "hero": false,
+   "w": 10.5,
+   "count": 3,
+   "places": [
+    [
+     -546,
+     -70
+    ],
+    [
+     -428,
+     150
+    ],
+    [
+     -426,
+     196
+    ]
+   ],
+   "ref": "docs/art_reference/obj/hammock_0.png",
+   "painted": false,
+   "score": 5,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/hammock_0.png"
   },
   {
    "id": "pirate_grave_0",
@@ -15545,6 +15715,40 @@
    "guide": "docs/art_reference/guides/objects/pilings_0.png"
   },
   {
+   "id": "hammock_2",
+   "group": "objects",
+   "label": "hammock",
+   "kind": "hammock",
+   "variant": 2,
+   "hero": false,
+   "w": 10.5,
+   "count": 4,
+   "places": [
+    [
+     353,
+     -390
+    ],
+    [
+     547,
+     -135
+    ],
+    [
+     -442,
+     259
+    ],
+    [
+     -363,
+     375
+    ]
+   ],
+   "ref": "docs/art_reference/obj/hammock_2.png",
+   "painted": false,
+   "score": 5,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/hammock_2.png"
+  },
+  {
    "id": "anchor_1",
    "group": "objects",
    "label": "anchor",
@@ -15571,34 +15775,38 @@
    "guide": "docs/art_reference/guides/objects/anchor_1.png"
   },
   {
-   "id": "skull_post_2",
+   "id": "hay_bale_0",
    "group": "objects",
-   "label": "skull post",
-   "kind": "skull_post",
-   "variant": 2,
+   "label": "hay bale",
+   "kind": "hay_bale",
+   "variant": 0,
    "hero": false,
-   "w": 4.5,
-   "count": 3,
+   "w": 6.5,
+   "count": 4,
    "places": [
     [
-     -290,
-     -103
+     271,
+     223
     ],
     [
-     -571,
-     -69
+     302,
+     243
     ],
     [
-     -424,
-     107
+     278,
+     245
+    ],
+    [
+     273,
+     290
     ]
    ],
-   "ref": "docs/art_reference/obj/skull_post_2.png",
+   "ref": "docs/art_reference/obj/hay_bale_0.png",
    "painted": false,
    "score": 5,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/skull_post_2.png"
+   "guide": "docs/art_reference/guides/objects/hay_bale_0.png"
   },
   {
    "id": "beached_rowboat_2",
@@ -15853,32 +16061,6 @@
    "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/buildings/home_cottage_16x13_1.png"
-  },
-  {
-   "id": "rock_3",
-   "group": "objects",
-   "label": "rock",
-   "kind": "rock",
-   "variant": 3,
-   "hero": false,
-   "w": 10.0,
-   "count": 2,
-   "places": [
-    [
-     -248,
-     -458
-    ],
-    [
-     333,
-     -347
-    ]
-   ],
-   "ref": "docs/art_reference/obj/rock_3.png",
-   "painted": false,
-   "score": 4,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/rock_3.png"
   },
   {
    "id": "mangrove_0",
@@ -16137,12 +16319,12 @@
      -208
     ],
     [
-     -280,
-     -182
+     -297,
+     -196
     ],
     [
-     -366,
-     -159
+     -280,
+     -182
     ],
     [
      -378,
@@ -16157,86 +16339,60 @@
    "guide": "docs/art_reference/guides/objects/tent_2.png"
   },
   {
-   "id": "treasure_open_0",
+   "id": "skull_post_2",
    "group": "objects",
-   "label": "treasure open",
-   "kind": "treasure_open",
-   "variant": 0,
-   "hero": false,
-   "w": 6.5,
-   "count": 3,
-   "places": [
-    [
-     -285,
-     -126
-    ],
-    [
-     -270,
-     -111
-    ],
-    [
-     576,
-     -25
-    ]
-   ],
-   "ref": "docs/art_reference/obj/treasure_open_0.png",
-   "painted": false,
-   "score": 4,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/treasure_open_0.png"
-  },
-  {
-   "id": "loot_crates_0",
-   "group": "objects",
-   "label": "loot crates",
-   "kind": "loot_crates",
-   "variant": 0,
-   "hero": false,
-   "w": 7.5,
-   "count": 2,
-   "places": [
-    [
-     -296,
-     -117
-    ],
-    [
-     -324,
-     -105
-    ]
-   ],
-   "ref": "docs/art_reference/obj/loot_crates_0.png",
-   "painted": false,
-   "score": 4,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/loot_crates_0.png"
-  },
-  {
-   "id": "ship_bell_0",
-   "group": "objects",
-   "label": "ship bell",
-   "kind": "ship_bell",
-   "variant": 0,
+   "label": "skull post",
+   "kind": "skull_post",
+   "variant": 2,
    "hero": false,
    "w": 4.5,
    "count": 2,
    "places": [
     [
-     -366,
-     -105
+     -290,
+     -103
     ],
     [
-     -339,
-     -100
+     -349,
+     395
     ]
    ],
-   "ref": "docs/art_reference/obj/ship_bell_0.png",
+   "ref": "docs/art_reference/obj/skull_post_2.png",
    "painted": false,
    "score": 4,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/ship_bell_0.png"
+   "guide": "docs/art_reference/guides/objects/skull_post_2.png"
+  },
+  {
+   "id": "hay_bale_1",
+   "group": "objects",
+   "label": "hay bale",
+   "kind": "hay_bale",
+   "variant": 1,
+   "hero": false,
+   "w": 6.5,
+   "count": 3,
+   "places": [
+    [
+     278,
+     222
+    ],
+    [
+     282,
+     251
+    ],
+    [
+     300,
+     279
+    ]
+   ],
+   "ref": "docs/art_reference/obj/hay_bale_1.png",
+   "painted": false,
+   "score": 4,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/hay_bale_1.png"
   },
   {
    "id": "fishing_rack_0",
@@ -16269,38 +16425,34 @@
    "guide": "docs/art_reference/guides/objects/fishing_rack_0.png"
   },
   {
-   "id": "treasure_open_2",
+   "id": "treasure_open_0",
    "group": "objects",
    "label": "treasure open",
    "kind": "treasure_open",
-   "variant": 2,
+   "variant": 0,
    "hero": false,
    "w": 6.5,
-   "count": 4,
+   "count": 3,
    "places": [
     [
-     -313,
-     -336
-    ],
-    [
-     -393,
-     -159
-    ],
-    [
-     -274,
+     -285,
      -126
     ],
     [
+     -270,
+     -111
+    ],
+    [
      580,
-     -83
+     -104
     ]
    ],
-   "ref": "docs/art_reference/obj/treasure_open_2.png",
+   "ref": "docs/art_reference/obj/treasure_open_0.png",
    "painted": false,
    "score": 3.4,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/treasure_open_2.png"
+   "guide": "docs/art_reference/guides/objects/treasure_open_0.png"
   },
   {
    "id": "town_0",
@@ -17261,100 +17413,26 @@
    "guide": "docs/art_reference/guides/objects/scarecrow_0.png"
   },
   {
-   "id": "figurehead_2",
+   "id": "ship_bell_2",
    "group": "objects",
-   "label": "figurehead",
-   "kind": "figurehead",
+   "label": "ship bell",
+   "kind": "ship_bell",
    "variant": 2,
    "hero": false,
-   "w": 6.0,
+   "w": 4.5,
    "count": 1,
    "places": [
     [
-     -92,
-     -412
+     -96,
+     -343
     ]
    ],
-   "ref": "docs/art_reference/obj/figurehead_2.png",
+   "ref": "docs/art_reference/obj/ship_bell_2.png",
    "painted": false,
    "score": 3,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/figurehead_2.png"
-  },
-  {
-   "id": "powder_keg_1",
-   "group": "objects",
-   "label": "powder keg",
-   "kind": "powder_keg",
-   "variant": 1,
-   "hero": false,
-   "w": 5.5,
-   "count": 3,
-   "places": [
-    [
-     -198,
-     -376
-    ],
-    [
-     -325,
-     -205
-    ],
-    [
-     -280,
-     -152
-    ]
-   ],
-   "ref": "docs/art_reference/obj/powder_keg_1.png",
-   "painted": false,
-   "score": 3,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/powder_keg_1.png"
-  },
-  {
-   "id": "ship_wheel_2",
-   "group": "objects",
-   "label": "ship wheel",
-   "kind": "ship_wheel",
-   "variant": 2,
-   "hero": false,
-   "w": 5.5,
-   "count": 1,
-   "places": [
-    [
-     231,
-     -369
-    ]
-   ],
-   "ref": "docs/art_reference/obj/ship_wheel_2.png",
-   "painted": false,
-   "score": 3,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/ship_wheel_2.png"
-  },
-  {
-   "id": "spyglass_2",
-   "group": "objects",
-   "label": "spyglass",
-   "kind": "spyglass",
-   "variant": 2,
-   "hero": false,
-   "w": 5.5,
-   "count": 1,
-   "places": [
-    [
-     188,
-     -298
-    ]
-   ],
-   "ref": "docs/art_reference/obj/spyglass_2.png",
-   "painted": false,
-   "score": 3,
-   "priority": 2,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/spyglass_2.png"
+   "guide": "docs/art_reference/guides/objects/ship_bell_2.png"
   },
   {
    "id": "anchor_2",
@@ -17377,6 +17455,88 @@
    "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/anchor_2.png"
+  },
+  {
+   "id": "parrot_perch_2",
+   "group": "objects",
+   "label": "parrot perch",
+   "kind": "parrot_perch",
+   "variant": 2,
+   "hero": false,
+   "w": 4.5,
+   "count": 2,
+   "places": [
+    [
+     -172,
+     -214
+    ],
+    [
+     47,
+     480
+    ]
+   ],
+   "ref": "docs/art_reference/obj/parrot_perch_2.png",
+   "painted": false,
+   "score": 3,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/parrot_perch_2.png"
+  },
+  {
+   "id": "treasure_open_2",
+   "group": "objects",
+   "label": "treasure open",
+   "kind": "treasure_open",
+   "variant": 2,
+   "hero": false,
+   "w": 6.5,
+   "count": 3,
+   "places": [
+    [
+     -393,
+     -159
+    ],
+    [
+     -267,
+     -153
+    ],
+    [
+     -274,
+     -126
+    ]
+   ],
+   "ref": "docs/art_reference/obj/treasure_open_2.png",
+   "painted": false,
+   "score": 3,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/treasure_open_2.png"
+  },
+  {
+   "id": "hay_stack_0",
+   "group": "objects",
+   "label": "hay stack",
+   "kind": "hay_stack",
+   "variant": 0,
+   "hero": false,
+   "w": 6.0,
+   "count": 2,
+   "places": [
+    [
+     255,
+     230
+    ],
+    [
+     274,
+     269
+    ]
+   ],
+   "ref": "docs/art_reference/obj/hay_stack_0.png",
+   "painted": false,
+   "score": 3,
+   "priority": 2,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/hay_stack_0.png"
   },
   {
    "id": "beached_rowboat_1",
@@ -17409,30 +17569,30 @@
    "guide": "docs/art_reference/guides/objects/beached_rowboat_1.png"
   },
   {
-   "id": "parrot_perch_1",
+   "id": "hammock_1",
    "group": "objects",
-   "label": "parrot perch",
-   "kind": "parrot_perch",
+   "label": "hammock",
+   "kind": "hammock",
    "variant": 1,
    "hero": false,
-   "w": 4.5,
+   "w": 10.5,
    "count": 2,
    "places": [
     [
-     581,
-     94
+     -241,
+     -291
     ],
     [
-     223,
-     391
+     380,
+     361
     ]
    ],
-   "ref": "docs/art_reference/obj/parrot_perch_1.png",
+   "ref": "docs/art_reference/obj/hammock_1.png",
    "painted": false,
    "score": 2.4,
    "priority": 2,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/parrot_perch_1.png"
+   "guide": "docs/art_reference/guides/objects/hammock_1.png"
   },
   {
    "id": "lean_to_1",
@@ -17940,7 +18100,7 @@
    "ref": "docs/art_reference/buildings/bld_tortuga_old_watchtower.png",
    "painted": false,
    "score": 2,
-   "priority": 3,
+   "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/buildings/bld_tortuga_old_watchtower.png"
   },
@@ -17962,7 +18122,7 @@
    "ref": "docs/art_reference/buildings/bld_tortuga_trapper_camp.png",
    "painted": false,
    "score": 2,
-   "priority": 3,
+   "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/buildings/bld_tortuga_trapper_camp.png"
   },
@@ -17984,7 +18144,7 @@
    "ref": "docs/art_reference/buildings/bld_tortuga_smuggler_cache.png",
    "painted": false,
    "score": 2,
-   "priority": 3,
+   "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/buildings/bld_tortuga_smuggler_cache.png"
   },
@@ -18006,7 +18166,7 @@
    "ref": "docs/art_reference/buildings/bld_tortuga_ruins.png",
    "painted": false,
    "score": 2,
-   "priority": 3,
+   "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/buildings/bld_tortuga_ruins.png"
   },
@@ -18028,7 +18188,7 @@
    "ref": "docs/art_reference/buildings/bld_tortuga_old_landing_dock.png",
    "painted": false,
    "score": 2,
-   "priority": 3,
+   "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/buildings/bld_tortuga_old_landing_dock.png"
   },
@@ -18050,7 +18210,7 @@
    "ref": "docs/art_reference/buildings/bld_tortuga_wayside_tavern.png",
    "painted": false,
    "score": 2,
-   "priority": 3,
+   "priority": 2,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/buildings/bld_tortuga_wayside_tavern.png"
   },
@@ -18957,6 +19117,28 @@
    "guide": "docs/art_reference/guides/objects/gibbet_0.png"
   },
   {
+   "id": "ship_wheel_0",
+   "group": "objects",
+   "label": "ship wheel",
+   "kind": "ship_wheel",
+   "variant": 0,
+   "hero": false,
+   "w": 5.5,
+   "count": 1,
+   "places": [
+    [
+     505,
+     -161
+    ]
+   ],
+   "ref": "docs/art_reference/obj/ship_wheel_0.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/ship_wheel_0.png"
+  },
+  {
    "id": "timber_0",
    "group": "objects",
    "label": "timber",
@@ -19033,7 +19215,7 @@
    "count": 1,
    "places": [
     [
-     452,
+     448,
      14
     ]
    ],
@@ -19155,6 +19337,28 @@
    "guide": "docs/art_reference/guides/objects/board_lighthouse_head.png"
   },
   {
+   "id": "figurehead_2",
+   "group": "objects",
+   "label": "figurehead",
+   "kind": "figurehead",
+   "variant": 2,
+   "hero": false,
+   "w": 6.0,
+   "count": 1,
+   "places": [
+    [
+     -248,
+     -396
+    ]
+   ],
+   "ref": "docs/art_reference/obj/figurehead_2.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/figurehead_2.png"
+  },
+  {
    "id": "board_rocher_row",
    "group": "objects",
    "label": "Name board: Rocher Row",
@@ -19199,6 +19403,58 @@
    "guide": "docs/art_reference/guides/objects/lantern_string_2.png"
   },
   {
+   "id": "ship_bell_1",
+   "group": "objects",
+   "label": "ship bell",
+   "kind": "ship_bell",
+   "variant": 1,
+   "hero": false,
+   "w": 4.5,
+   "count": 2,
+   "places": [
+    [
+     -288,
+     -196
+    ],
+    [
+     -384,
+     -105
+    ]
+   ],
+   "ref": "docs/art_reference/obj/ship_bell_1.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/ship_bell_1.png"
+  },
+  {
+   "id": "rum_cart_1",
+   "group": "objects",
+   "label": "rum cart",
+   "kind": "rum_cart",
+   "variant": 1,
+   "hero": false,
+   "w": 9.0,
+   "count": 2,
+   "places": [
+    [
+     -378,
+     -176
+    ],
+    [
+     -398,
+     -155
+    ]
+   ],
+   "ref": "docs/art_reference/obj/rum_cart_1.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/rum_cart_1.png"
+  },
+  {
    "id": "board_cayonne",
    "group": "objects",
    "label": "Name board: Cayonne",
@@ -19219,6 +19475,94 @@
    "priority": 3,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/board_cayonne.png"
+  },
+  {
+   "id": "skull_post_1",
+   "group": "objects",
+   "label": "skull post",
+   "kind": "skull_post",
+   "variant": 1,
+   "hero": false,
+   "w": 4.5,
+   "count": 1,
+   "places": [
+    [
+     -291,
+     -122
+    ]
+   ],
+   "ref": "docs/art_reference/obj/skull_post_1.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/skull_post_1.png"
+  },
+  {
+   "id": "skull_post_0",
+   "group": "objects",
+   "label": "skull post",
+   "kind": "skull_post",
+   "variant": 0,
+   "hero": false,
+   "w": 4.5,
+   "count": 1,
+   "places": [
+    [
+     -372,
+     -110
+    ]
+   ],
+   "ref": "docs/art_reference/obj/skull_post_0.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/skull_post_0.png"
+  },
+  {
+   "id": "loot_crates_0",
+   "group": "objects",
+   "label": "loot crates",
+   "kind": "loot_crates",
+   "variant": 0,
+   "hero": false,
+   "w": 7.5,
+   "count": 1,
+   "places": [
+    [
+     -324,
+     -105
+    ]
+   ],
+   "ref": "docs/art_reference/obj/loot_crates_0.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/loot_crates_0.png"
+  },
+  {
+   "id": "rum_cart_0",
+   "group": "objects",
+   "label": "rum cart",
+   "kind": "rum_cart",
+   "variant": 0,
+   "hero": false,
+   "w": 9.0,
+   "count": 1,
+   "places": [
+    [
+     -300,
+     -87
+    ]
+   ],
+   "ref": "docs/art_reference/obj/rum_cart_0.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/rum_cart_0.png"
   },
   {
    "id": "lantern_string_0",
@@ -19265,6 +19609,50 @@
    "guide": "docs/art_reference/guides/objects/board_the_high_woods.png"
   },
   {
+   "id": "hay_stack_1",
+   "group": "objects",
+   "label": "hay stack",
+   "kind": "hay_stack",
+   "variant": 1,
+   "hero": false,
+   "w": 6.0,
+   "count": 1,
+   "places": [
+    [
+     282,
+     212
+    ]
+   ],
+   "ref": "docs/art_reference/obj/hay_stack_1.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/hay_stack_1.png"
+  },
+  {
+   "id": "hay_bale_2",
+   "group": "objects",
+   "label": "hay bale",
+   "kind": "hay_bale",
+   "variant": 2,
+   "hero": false,
+   "w": 6.5,
+   "count": 1,
+   "places": [
+    [
+     265,
+     246
+    ]
+   ],
+   "ref": "docs/art_reference/obj/hay_bale_2.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/hay_bale_2.png"
+  },
+  {
    "id": "board_blackwood_s_hollow",
    "group": "objects",
    "label": "Name board: Blackwood S Hollow",
@@ -19309,6 +19697,28 @@
    "guide": "docs/art_reference/guides/objects/board_la_ringot_fields.png"
   },
   {
+   "id": "board_crossroads",
+   "group": "objects",
+   "label": "Name board: Crossroads",
+   "kind": "board_crossroads",
+   "variant": 0,
+   "hero": true,
+   "w": 15.5,
+   "count": 1,
+   "places": [
+    [
+     -250,
+     324
+    ]
+   ],
+   "ref": "docs/art_reference/obj/board_crossroads.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/board_crossroads.png"
+  },
+  {
    "id": "lantern_string_1",
    "group": "objects",
    "label": "lantern string",
@@ -19329,6 +19739,28 @@
    "priority": 3,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/lantern_string_1.png"
+  },
+  {
+   "id": "figurehead_1",
+   "group": "objects",
+   "label": "figurehead",
+   "kind": "figurehead",
+   "variant": 1,
+   "hero": false,
+   "w": 6.0,
+   "count": 1,
+   "places": [
+    [
+     154,
+     398
+    ]
+   ],
+   "ref": "docs/art_reference/obj/figurehead_1.png",
+   "painted": false,
+   "score": 2,
+   "priority": 3,
+   "status": "code placeholder",
+   "guide": "docs/art_reference/guides/objects/figurehead_1.png"
   },
   {
    "id": "board_ruins_of_the_old_landing",
@@ -19405,30 +19837,30 @@
    "guide": "docs/art_reference/guides/objects/beached_rowboat_0.png"
   },
   {
-   "id": "hammock_1",
+   "id": "beach_cannon_1",
    "group": "objects",
-   "label": "hammock",
-   "kind": "hammock",
+   "label": "beach cannon",
+   "kind": "beach_cannon",
    "variant": 1,
    "hero": false,
-   "w": 10.5,
+   "w": 7.5,
    "count": 2,
    "places": [
     [
-     437,
-     300
+     -335,
+     -249
     ],
     [
-     -165,
-     419
+     -530,
+     11
     ]
    ],
-   "ref": "docs/art_reference/obj/hammock_1.png",
+   "ref": "docs/art_reference/obj/beach_cannon_1.png",
    "painted": false,
    "score": 1.4,
    "priority": 3,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/hammock_1.png"
+   "guide": "docs/art_reference/guides/objects/beach_cannon_1.png"
   },
   {
    "id": "buoy_0",
@@ -19681,26 +20113,26 @@
    "guide": "docs/art_reference/guides/objects/board_fort_de_rocher.png"
   },
   {
-   "id": "beach_cannon_2",
+   "id": "powder_keg_1",
    "group": "objects",
-   "label": "beach cannon",
-   "kind": "beach_cannon",
-   "variant": 2,
+   "label": "powder keg",
+   "kind": "powder_keg",
+   "variant": 1,
    "hero": false,
-   "w": 7.5,
+   "w": 5.5,
    "count": 1,
    "places": [
     [
-     -306,
-     -337
+     -198,
+     -376
     ]
    ],
-   "ref": "docs/art_reference/obj/beach_cannon_2.png",
+   "ref": "docs/art_reference/obj/powder_keg_1.png",
    "painted": false,
    "score": 1,
    "priority": 3,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/beach_cannon_2.png"
+   "guide": "docs/art_reference/guides/objects/powder_keg_1.png"
   },
   {
    "id": "tent_1",
@@ -19725,136 +20157,70 @@
    "guide": "docs/art_reference/guides/objects/tent_1.png"
   },
   {
-   "id": "rum_cart_2",
+   "id": "treasure_open_1",
    "group": "objects",
-   "label": "rum cart",
-   "kind": "rum_cart",
-   "variant": 2,
+   "label": "treasure open",
+   "kind": "treasure_open",
+   "variant": 1,
    "hero": false,
-   "w": 9.0,
+   "w": 6.5,
    "count": 1,
    "places": [
     [
-     -376,
-     -173
+     538,
+     -148
     ]
    ],
-   "ref": "docs/art_reference/obj/rum_cart_2.png",
+   "ref": "docs/art_reference/obj/treasure_open_1.png",
    "painted": false,
    "score": 1,
    "priority": 3,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/rum_cart_2.png"
+   "guide": "docs/art_reference/guides/objects/treasure_open_1.png"
   },
   {
-   "id": "loot_crates_2",
+   "id": "beach_cannon_2",
    "group": "objects",
-   "label": "loot crates",
-   "kind": "loot_crates",
+   "label": "beach cannon",
+   "kind": "beach_cannon",
    "variant": 2,
    "hero": false,
    "w": 7.5,
    "count": 1,
    "places": [
     [
-     -289,
-     -164
+     559,
+     150
     ]
    ],
-   "ref": "docs/art_reference/obj/loot_crates_2.png",
+   "ref": "docs/art_reference/obj/beach_cannon_2.png",
    "painted": false,
    "score": 1,
    "priority": 3,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/loot_crates_2.png"
+   "guide": "docs/art_reference/guides/objects/beach_cannon_2.png"
   },
   {
-   "id": "loot_crates_1",
+   "id": "hay_stack_2",
    "group": "objects",
-   "label": "loot crates",
-   "kind": "loot_crates",
-   "variant": 1,
-   "hero": false,
-   "w": 7.5,
-   "count": 1,
-   "places": [
-    [
-     -386,
-     -163
-    ]
-   ],
-   "ref": "docs/art_reference/obj/loot_crates_1.png",
-   "painted": false,
-   "score": 1,
-   "priority": 3,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/loot_crates_1.png"
-  },
-  {
-   "id": "rum_cart_1",
-   "group": "objects",
-   "label": "rum cart",
-   "kind": "rum_cart",
-   "variant": 1,
-   "hero": false,
-   "w": 9.0,
-   "count": 1,
-   "places": [
-    [
-     -398,
-     -155
-    ]
-   ],
-   "ref": "docs/art_reference/obj/rum_cart_1.png",
-   "painted": false,
-   "score": 1,
-   "priority": 3,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/rum_cart_1.png"
-  },
-  {
-   "id": "ship_bell_1",
-   "group": "objects",
-   "label": "ship bell",
-   "kind": "ship_bell",
-   "variant": 1,
-   "hero": false,
-   "w": 4.5,
-   "count": 1,
-   "places": [
-    [
-     -384,
-     -105
-    ]
-   ],
-   "ref": "docs/art_reference/obj/ship_bell_1.png",
-   "painted": false,
-   "score": 1,
-   "priority": 3,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/ship_bell_1.png"
-  },
-  {
-   "id": "parrot_perch_2",
-   "group": "objects",
-   "label": "parrot perch",
-   "kind": "parrot_perch",
+   "label": "hay stack",
+   "kind": "hay_stack",
    "variant": 2,
    "hero": false,
-   "w": 4.5,
+   "w": 6.0,
    "count": 1,
    "places": [
     [
-     546,
-     162
+     292,
+     245
     ]
    ],
-   "ref": "docs/art_reference/obj/parrot_perch_2.png",
+   "ref": "docs/art_reference/obj/hay_stack_2.png",
    "painted": false,
    "score": 1,
    "priority": 3,
    "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/parrot_perch_2.png"
+   "guide": "docs/art_reference/guides/objects/hay_stack_2.png"
   },
   {
    "id": "lobster_pot_2",
@@ -20017,28 +20383,6 @@
    "priority": 3,
    "status": "code placeholder",
    "guide": "docs/art_reference/guides/objects/skull_rock_0.png"
-  },
-  {
-   "id": "spyglass_1",
-   "group": "objects",
-   "label": "spyglass",
-   "kind": "spyglass",
-   "variant": 1,
-   "hero": false,
-   "w": 5.5,
-   "count": 1,
-   "places": [
-    [
-     173,
-     476
-    ]
-   ],
-   "ref": "docs/art_reference/obj/spyglass_1.png",
-   "painted": false,
-   "score": 0.4,
-   "priority": 3,
-   "status": "code placeholder",
-   "guide": "docs/art_reference/guides/objects/spyglass_1.png"
   },
   {
    "id": "flag_0",

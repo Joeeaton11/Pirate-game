@@ -11,8 +11,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { NPC_SPRITES } from '../data/npcSprites';
-import { OBJ_SLOTS } from './artObjects.generated';
-import { WORLD_BRIDGE_FISHING, WORLD_FISHERS, WORLD_SHORTCUTS, WORLD_WALKS } from './artWorld.generated';
+import { OBJ_ASSETS, OBJ_SLOTS } from './artObjects.generated';
+import { WORLD_BRIDGE_FISHING, WORLD_FISHERS, WORLD_SHORTCUTS, WORLD_SPANS, WORLD_STEPS, WORLD_WALKS, WORLD_WORK } from './artWorld.generated';
 import { BP_DISTRICT_CENTRES } from './tortugaGameplay.generated';
 
 const MINIMAP = require('../../assets/sprites/tortuga_town/minimap.png');
@@ -92,8 +92,91 @@ export const Townsfolk = React.memo(function Townsfolk({ origin, cam }: { origin
         <Image key={`fs${i}`} source={sailor.src} resizeMode="stretch" style={{ position: 'absolute', left: wx - w / 2, top: wy - h, width: w, height: h }} />
       );
     });
+  // workers: a farmer hoeing along the furrows, dockhands rolling barrels down the wharf
+  const barrel = OBJ_ASSETS['barrel_0'];
+  WORK_ROUTES.forEach((r, i) => {
+    const sp = r.kind === 'farm' ? NPC_SPRITES['patron_tortuga_local'] ?? FOLK[0] : NPC_SPRITES['tortuga_amb_sailor'] ?? FOLK[0];
+    if (!sp || !sp.walk || !sp.walkLeft) return;
+    const speed = r.kind === 'farm' ? 1.1 : 2.4;
+    let d = (t * speed + hash(i + 40) * r.len) % (2 * r.len);
+    const back = d > r.len;
+    if (back) d = 2 * r.len - d;
+    // the farmer stops to hoe every few paces
+    const working = r.kind === 'farm' && Math.floor(t / 2.5 + i) % 3 === 0;
+    const p = along(r, d);
+    const wx = origin.x + p.x;
+    const wy = origin.y + p.y;
+    if (Math.abs(wx - cam.x) > 220 || Math.abs(wy - cam.y) > 280) return;
+    const dirX = r.pts[r.pts.length - 1][0] - r.pts[0][0];
+    const dirY = r.pts[r.pts.length - 1][1] - r.pts[0][1];
+    const right = Math.abs(dirX) > Math.abs(dirY) ? (back ? dirX < 0 : dirX >= 0) : !back;
+    const frames = right ? sp.walk! : sp.walkLeft!;
+    const f = working ? sp.src : frames[Math.floor(t * 8 + i) % frames.length];
+    const h = FOLK_H * (working ? 1 : sp.walkScale ?? 1);
+    const w = h * (working ? sp.aspect : sp.walkAspect ?? 0.8);
+    if (r.kind === 'barrel' && barrel) {
+      // the barrel rolls ahead of him
+      const bw = 3.2;
+      const bh = bw * barrel.aspect;
+      const ahead = Math.abs(dirX) > Math.abs(dirY) ? { x: right ? 3 : -3, y: 0 } : { x: 0, y: back ? -2.5 : 2.5 };
+      out.push(
+        <Image key={`wb${i}`} source={barrel.src} resizeMode="stretch"
+          style={{ position: 'absolute', left: wx + ahead.x - bw / 2, top: wy + ahead.y - bh, width: bw, height: bh, transform: [{ rotate: `${Math.round(((t * speed * 60) % 360) / 90) * 90}deg` }] }} />
+      );
+    }
+    out.push(<Image key={`w${i}`} source={f} resizeMode="stretch" style={{ position: 'absolute', left: wx - w / 2, top: wy - h, width: w, height: h }} />);
+    if (working)
+      out.push(
+        <View key={`wh${i}`} style={{ position: 'absolute', left: wx + (right ? 1 : -4), top: wy - 3 + Math.abs(Math.sin(t * 6)) * 1.5, width: 3, height: 1, backgroundColor: '#6e4c2c', transform: [{ rotate: right ? '35deg' : '-35deg' }] }} />
+      );
+  });
+  // cargo swinging from the harbour cranes, hoisted up and lowered in turn
+  const crate = OBJ_ASSETS['crates_0'];
+  if (crate)
+    CRANES.forEach(([x, y], i) => {
+      const wx = origin.x + x;
+      const wy = origin.y + y;
+      if (Math.abs(wx - cam.x) > 220 || Math.abs(wy - cam.y) > 280) return;
+      const phase = (t / 9 + hash(i + 77)) % 1;
+      const lift = Math.sin(phase * Math.PI) * 6; // up and down once a cycle
+      const sway = Math.sin(t * 1.3 + i) * 0.8;
+      const cw = 3.4;
+      const ch = cw * crate.aspect;
+      const topY = wy - 15;
+      const cy = wy - 4 - lift;
+      out.push(
+        <View key={`cr${i}`} style={{ position: 'absolute', left: wx + 4 + sway, top: topY, width: 1, height: Math.max(1, cy - ch - topY), backgroundColor: 'rgba(70,50,30,0.9)' }} />,
+        <Image key={`cc${i}`} source={crate.src} resizeMode="stretch" style={{ position: 'absolute', left: wx + 4.5 + sway - cw / 2, top: cy - ch, width: cw, height: ch }} />
+      );
+    });
   return <>{out}</>;
 });
+
+const WORK_ROUTES = WORLD_WORK.map((w) => {
+  const pts = w.pts;
+  const seg: number[] = [0];
+  for (let i = 1; i < pts.length; i++) seg.push(seg[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  return { kind: w.kind, pts, seg, len: seg[seg.length - 1] };
+});
+const CRANES: [number, number][] = OBJ_SLOTS.filter((s) => s[0].startsWith('crane')).map((s) => [s[1], s[2]]);
+
+/** What Scally's feet are on for footsteps: a bridge deck (timber or stone) or a flight of steps. */
+export function footingAt(rel: { x: number; y: number }): { bridge: 'wood' | 'stone' | null; steps: boolean } {
+  let bridge: 'wood' | 'stone' | null = null;
+  for (const b of WORLD_SPANS) {
+    const [a, c] = [b.pts[0], b.pts[b.pts.length - 1]];
+    const dx = c[0] - a[0];
+    const dy = c[1] - a[1];
+    const L2 = dx * dx + dy * dy || 1;
+    const k = Math.max(-0.2, Math.min(1.2, ((rel.x - a[0]) * dx + (rel.y - a[1]) * dy) / L2));
+    if (Math.hypot(a[0] + dx * k - rel.x, a[1] + dy * k - rel.y) < b.w / 2 + 1.5) {
+      bridge = b.kind === 'stone' ? 'stone' : 'wood';
+      break;
+    }
+  }
+  const steps = WORLD_STEPS.some(([x, y, r]) => Math.hypot(rel.x - x, rel.y - y) < r);
+  return { bridge, steps };
+}
 
 // ---------------------------------------------------------------- shortcuts
 export function ShortcutSprites({ origin, unlocked }: { origin: { x: number; y: number }; unlocked: string[] }) {
@@ -158,16 +241,34 @@ export function rainAmount(t = Date.now() / 1000) {
   return Math.min(1, Math.min(k, 1 - k) * 6);
 }
 
+/** Seconds until the next shower starts (0 while it's raining). */
+export function rainIn(t = Date.now() / 1000) {
+  const f = (t % RAIN_CYCLE) / RAIN_CYCLE;
+  return f >= 0.88 ? 0 : (0.88 - f) * RAIN_CYCLE;
+}
+
 export function WeatherMood({ rel, viewport }: { rel: { x: number; y: number }; viewport: { width: number; height: number } }) {
   const t = useClock(90);
   const rain =
-    typeof window !== 'undefined' && typeof window.location !== 'undefined' && /[?&]rain=1/.test(window.location.search ?? '') ? 1 : rainAmount(t);
+    typeof window !== 'undefined' && typeof window.location !== 'undefined' && /[?&]rain=1/.test(window.location.search ?? '') ? 1 : /[?&]rain=soon/.test(window.location.search ?? '') ? 0 : rainAmount(t);
   // district mood, faded by distance from each district's heart
   const near = (x: number, y: number, r: number) => Math.max(0, Math.min(1, 1 - (Math.hypot(rel.x - x, rel.y - y) - r * 0.5) / r));
   const town = rel.x > -150 && rel.x < 300 && rel.y > -460 && rel.y < 30 ? 1 : 0;
   const woods = near(495, 0, 110);
   const hollow = near(-20, 240, 90);
+  // the build-up: the sky greys and the wind picks up in the minute before a shower
+  const forceSoon = typeof window !== 'undefined' && typeof window.location !== 'undefined' && /[?&]rain=soon/.test(window.location.search ?? '');
+  const soon = forceSoon ? 0.1 : rainIn(t);
+  const gloom = rain > 0.02 ? 0 : soon < 60 ? 1 - soon / 60 : 0;
   const drops: React.ReactNode[] = [];
+  if (gloom > 0) {
+    for (let i = 0; i < 10; i++) {
+      // gusts: a few pale streaks blowing across the screen
+      const sx = ((hash(i + 300) * viewport.width + t * 220) % (viewport.width + 80)) - 40;
+      const sy = hash(i + 320) * viewport.height;
+      drops.push(<View key={`g${i}`} style={{ position: 'absolute', left: sx, top: sy, width: 26 + hash(i) * 30, height: 1, backgroundColor: 'rgba(235,240,245,0.35)', opacity: gloom }} />);
+    }
+  }
   if (rain > 0.02) {
     for (let i = 0; i < 70; i++) {
       const sx = (hash(i) * viewport.width + t * 40) % viewport.width;
@@ -188,6 +289,12 @@ export function WeatherMood({ rel, viewport }: { rel: { x: number; y: number }; 
       {woods > 0 && <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgb(60,140,70)', opacity: 0.09 * woods }]} />}
       {hollow > 0 && <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgb(110,120,140)', opacity: 0.16 * hollow }]} />}
       {rain > 0.02 && <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgb(40,60,90)', opacity: 0.22 * rain }]} />}
+      {gloom > 0 && <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgb(60,70,90)', opacity: 0.14 * gloom }]} />}
+      {gloom > 0.15 && (
+        <View style={{ position: 'absolute', bottom: 24, left: 24, right: 24, alignItems: 'center', backgroundColor: 'rgba(30,24,16,0.85)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: '#c9a24a', opacity: Math.min(1, gloom * 2) }}>
+          <Text style={{ color: '#f1e2b8', fontWeight: '700', fontSize: 14, textAlign: 'center' }}>⛈ Storm coming — the wind's picking up</Text>
+        </View>
+      )}
       {drops}
     </View>
   );

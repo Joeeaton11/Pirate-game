@@ -10,6 +10,8 @@ import { LIFE_CRITTERS, LIFE_SHORE, LIFE_SPARKLES, LIFE_SPRITES } from './artLif
 import { ART_CHIMNEYS } from './tortugaArtSlots.generated';
 import { useArtShowsCode } from './artLook';
 
+const FOAM = require('../../assets/sprites/plan_art/fx/foam.png');
+const SPARKLE = require('../../assets/sprites/plan_art/fx/sparkle.png');
 const MX = 300;
 const MY = 420;
 const TICK_MS = 120;
@@ -43,43 +45,33 @@ export const ArtLife = React.memo(function ArtLife({
   const oy = origin.y;
   const out: React.ReactNode[] = [];
 
-  // shore foam: a broken white line that washes up the beach and slides back
-  // (shore foam and sparkles are painted into the base; live ones rendered as blocky squares)
-  for (let i = 0; i < 0 && LIFE_SHORE.length; i++) {
+  // shore foam: a curl of white that washes up the beach and slides back, and sea sparkles that
+  // glint a few at a time. Drawn as little images (a whole-unit box with the thin line inside it):
+  // plain Views thinner than a unit round up to a full unit on web and show as blocky squares.
+  for (let i = 0; i < LIFE_SHORE.length; i += 2) {
     const [x, y, nx, ny] = LIFE_SHORE[i];
     const wx = ox + x;
     const wy = oy + y;
-    if (!near(wx, wy)) continue;
+    if (!near(wx, wy, 160, 220)) continue;
     const ph = t * 0.9 + hash(i) * 6.28;
-    const s = Math.sin(ph);
-    const off = 1.8 + s * 1.2;
+    const off = 1.8 + Math.sin(ph) * 1.2;
     const op = 0.35 + 0.4 * (0.5 + 0.5 * Math.cos(ph));
+    const ang = (Math.atan2(-nx, ny) * 180) / Math.PI;
     out.push(
-      <View
-        key={`f${i}`}
-        style={{ position: 'absolute', left: wx + nx * off - 0.9, top: wy + ny * off - 0.15, width: 1.8, height: 0.3, backgroundColor: '#f4fbf8', opacity: op * 0.7 }}
-      />,
+      <Image key={`f${i}`} source={FOAM} resizeMode="stretch"
+        style={{ position: 'absolute', left: wx + nx * off - 1.5, top: wy + ny * off - 0.5, width: 3, height: 1, opacity: op * 0.85, transform: [{ rotate: `${ang.toFixed(0)}deg` }] }} />,
     );
-    if (i % 2 === 0) {
-      const off2 = 4 + Math.sin(ph - 1.4) * 1.6;
-      out.push(
-        <View
-          key={`g${i}`}
-          style={{ position: 'absolute', left: wx + nx * off2 - 0.7, top: wy + ny * off2 - 0.12, width: 1.4, height: 0.25, backgroundColor: '#c8f0ea', opacity: 0.35 * op }}
-        />,
-      );
-    }
   }
-  // sea sparkles: a few glint at a time
-  for (let i = 0; i < 0 && LIFE_SPARKLES.length; i++) {
+  for (let i = 0; i < LIFE_SPARKLES.length; i++) {
     const [x, y] = LIFE_SPARKLES[i];
     const wx = ox + x;
     const wy = oy + y;
-    if (!near(wx, wy)) continue;
+    if (!near(wx, wy, 160, 220)) continue;
     const k = Math.sin(t * 1.7 + hash(i + 9) * 40);
     if (k < 0.82) continue;
     const a = (k - 0.82) / 0.18;
-    out.push(<View key={`s${i}`} style={{ position: 'absolute', left: wx - 0.9, top: wy - 0.15, width: 1.8, height: 0.3, borderRadius: 0.15, backgroundColor: '#e8fbff', opacity: a * 0.7 }} />);
+    const sz = 1.2 + a * 0.8;
+    out.push(<Image key={`s${i}`} source={SPARKLE} resizeMode="stretch" style={{ position: 'absolute', left: wx - sz / 2, top: wy - sz / 2, width: sz, height: sz, opacity: a * 0.9 }} />);
   }
   // critters, boats, flags, fires
   for (let i = 0; i < LIFE_CRITTERS.length; i++) {

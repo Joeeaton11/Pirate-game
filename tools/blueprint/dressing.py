@@ -12,7 +12,7 @@ from shapely.prepared import prep
 FRONT_CLUTTER = ['barrels', 'crates', 'sacks', 'flowerpot', 'potted_palm', 'barrel', 'crates', 'bench', 'lamp', 'wanted_poster', 'rum_barrels', 'flowerpot', 'potted_palm']
 QUAY_CARGO = ['cargo', 'barrels', 'crates', 'sacks', 'nets', 'barrels', 'crates', 'rope_coil', 'barrel', 'lobster_pot', 'crab_trap_stack', 'rope_coil', 'rum_barrels', 'anchor', 'powder_keg']
 GRASS_DECOR = ['flowers', 'flowers', 'flowers', 'tall_grass', 'tall_grass', 'tall_grass', 'stone']
-SOLID_KINDS = {'cannon', 'rum_cart', 'cannonballs', 'figurehead', 'ship_bell', 'crab_trap_stack', 'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
+SOLID_KINDS = {'hay_bale', 'hay_stack', 'cannon', 'rum_cart', 'cannonballs', 'figurehead', 'ship_bell', 'crab_trap_stack', 'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
 
 
 TOWN_WALLS = box(0, 0, 0, 0)
@@ -141,6 +141,17 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
                 if coast.contains(p) and not ways.buffer(2).contains(p): put('lean_to', p.x, p.y, 10)
             p = e.interpolate(rng.uniform(0, e.length))
             if coast.contains(p) and not ways.buffer(2).contains(p): put('lean_to', p.x, p.y, 10)
+    # farm life: hay bales and stooks scattered in the fields, a hay cart at the field gate
+    for t_, g in zone_geoms:
+        if t_ != 'fields' or g.area < 400: continue
+        l_, t0, r_, b_ = g.bounds
+        for _ in range(int(g.area / 500)):
+            x, y = rng.uniform(l_ + 4, r_ - 4), rng.uniform(t0 + 4, b_ - 4)
+            if g.buffer(-3).contains(Point(x, y)): put('hay_bale' if rng.random() < 0.6 else 'hay_stack', x, y, 7)
+        e = g.exterior if g.geom_type == 'Polygon' else max(g.geoms, key=lambda q: q.area).exterior
+        for _ in range(2):
+            p = e.interpolate(rng.uniform(0, e.length))
+            if coast.contains(p) and not ways.buffer(2.5).contains(p): put('cart', p.x, p.y, 10)
     for k, x, y in P.PROPS:
         if k in ('tent', 'campfire') and rng.random() < 0.6: put('lean_to', x + rng.uniform(-8, 8), y + rng.uniform(-6, 2), 6)
     # washing strung across the narrow town streets

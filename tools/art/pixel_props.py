@@ -480,6 +480,20 @@ def pirate(S, kind, seed):
 def critter(S, kind, seed):
     """Dressing sprites: sacks, pots, rope, flowers, grass, stones, logs, shells, boats and animals."""
     rng = random.Random(seed); s = S
+    if kind == 'hay_bale':  # a round bale of straw, lying on its side
+        im, d = _canvas(5 * s, 3.8 * s)
+        d.rounded_rectangle([0.2 * s, 0.4 * s, 4.8 * s, 3.7 * s], radius=s * 1.4, fill=(214, 178, 92, 255))
+        d.ellipse([3.2 * s, 0.4 * s, 4.8 * s, 3.7 * s], fill=(232, 202, 118, 255))
+        d.ellipse([3.7 * s, 1.3 * s, 4.3 * s, 2.8 * s], outline=(180, 140, 66, 255))
+        for k in range(4): d.line([(0.6 + k * 0.7) * s, 0.8 * s, (0.6 + k * 0.7) * s, 3.3 * s], fill=(188, 150, 72, 255))
+        d.line([1.6 * s, 0.4 * s, 1.6 * s, 3.7 * s], fill=(140, 96, 52, 255))
+        return _outline(im), (im.size[0] / 2, im.size[1] - 1)
+    if kind == 'hay_stack':  # a tall stook of sheaves
+        im, d = _canvas(4.4 * s, 5 * s)
+        d.polygon([(2.2 * s, 0.2 * s), (4.2 * s, 4.8 * s), (0.2 * s, 4.8 * s)], fill=(206, 168, 84, 255))
+        for k in range(5): d.line([2.2 * s, 0.4 * s, (0.5 + k * 0.85) * s, 4.8 * s], fill=(176, 138, 62, 255))
+        d.line([0.9 * s, 3.2 * s, 3.5 * s, 3.2 * s], fill=(130, 90, 48, 255), width=max(1, int(s * 0.3)))
+        return _outline(im), (im.size[0] / 2, im.size[1] - 1)
     if kind == 'sacks':
         im, d = _canvas(5 * s, 3.6 * s)
         for k, (x, y) in enumerate(((0, 1), (2.2, 1.2), (1.1, 0))):
