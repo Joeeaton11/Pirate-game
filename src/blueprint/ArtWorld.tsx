@@ -40,7 +40,7 @@ const ROUTES = WORLD_WALKS.map((pts) => {
   for (let i = 1; i < pts.length; i++) seg.push(seg[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
   return { pts, seg, len: seg[seg.length - 1] };
 });
-const FOLK_H = 8.5;
+const FOLK_H = 11.5; // same height as the town walkers (TownLife WALKER_HEIGHT), a touch shorter than Scally
 
 function along(r: (typeof ROUTES)[number], d: number) {
   let i = 1;
