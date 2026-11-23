@@ -59,7 +59,7 @@ import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } fr
 import { ArtSprites } from '../blueprint/ArtSprites';
 import { ArtLife } from '../blueprint/ArtLife';
 import { ArtInspector } from '../blueprint/ArtInspector';
-import { footingAt, FullMap, Interact, lockedShortcutRects, nearestInteract, ShortcutSprites, Townsfolk, WeatherMood } from '../blueprint/ArtWorld';
+import { footingAt, FullMap, NameBoards, Interact, lockedShortcutRects, nearestInteract, ShortcutSprites, Townsfolk, WeatherMood } from '../blueprint/ArtWorld';
 import { WORLD_SHORTCUTS } from '../blueprint/artWorld.generated';
 import { LIFE_SHORE } from '../blueprint/artLife.generated';
 import { addTimeOffset, CYCLE_SECONDS } from '../town/DayNight';
@@ -3234,6 +3234,7 @@ export default function MapScreen({ navigation }: Props) {
                 {!overview && <ArtLife origin={ISLANDS.tortuga_cove.position} cam={camCoarse} player={player} />}
                 <ShortcutSprites origin={ISLANDS.tortuga_cove.position} unlocked={unlockedShortcuts} />
                 {!overview && <Townsfolk origin={ISLANDS.tortuga_cove.position} cam={camCoarse} />}
+                {!overview && <NameBoards origin={ISLANDS.tortuga_cove.position} player={player} />}
               </View>
             )}
             {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} visible={planLayers} />}

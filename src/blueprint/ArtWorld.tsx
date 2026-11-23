@@ -11,6 +11,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { NPC_SPRITES } from '../data/npcSprites';
+import { BUILDINGS } from '../data/buildings';
+import { UI_NAMEPLATE_BOARD } from '../data/uiSprites';
+import { NAMEPLATE_LETTER_GAP_FRACTION, NAMEPLATE_SPACE_FRACTION, nameplateChars } from '../data/bitmapNameplateFont';
+import { BP_DOORS } from './tortugaBlueprint.generated';
 import { OBJ_ASSETS, OBJ_SLOTS } from './artObjects.generated';
 import { WORLD_BRIDGE_FISHING, WORLD_FISHERS, WORLD_SHORTCUTS, WORLD_SPANS, WORLD_STEPS, WORLD_WALKS, WORLD_WORK } from './artWorld.generated';
 import { BP_DISTRICT_CENTRES } from './tortugaGameplay.generated';
@@ -177,6 +181,51 @@ export function footingAt(rel: { x: number; y: number }): { bridge: 'wood' | 'st
   const steps = WORLD_STEPS.some(([x, y, r]) => Math.hypot(rel.x - x, rel.y - y) < r);
   return { bridge, steps };
 }
+
+// ---------------------------------------------------------------- name boards
+// A carved board with the building's name over its door, shown only when Scally is close (the hanging
+// trade sign beside the door tells you what it is from further off). Names come from the game's
+// building list, so they are always spelt right and can change without repainting anything.
+const NAMED_DOORS = BP_DOORS.map((d) => ({ ...d, name: BUILDINGS.find((b) => b.id === d.id)?.name })).filter((d) => !!d.name) as {
+  id: string; x: number; y: number; name: string;
+}[];
+const BOARD_NEAR = 22; // world units
+const GLYPH_H = 1.55;
+export const NameBoards = React.memo(function NameBoards({ origin, player }: { origin: { x: number; y: number }; player: { x: number; y: number } }) {
+  const rx = player.x - origin.x;
+  const ry = player.y - origin.y;
+  return (
+    <>
+      {NAMED_DOORS.filter((d) => Math.abs(d.x - rx) < BOARD_NEAR && Math.abs(d.y - ry) < BOARD_NEAR && Math.hypot(d.x - rx, d.y - ry) < BOARD_NEAR).map((d) => {
+        const chars = nameplateChars(d.name);
+        // laid out at 10x and scaled down: inside the zoomed world, sizes under one unit round off on web
+        const K = 10;
+        const gh = GLYPH_H * K;
+        const gap = gh * NAMEPLATE_LETTER_GAP_FRACTION;
+        const textW = chars.reduce((a, c) => a + (c === 'space' ? gh * NAMEPLATE_SPACE_FRACTION : gh * c.aspect + gap), 0);
+        const w = Math.round(textW + 24);
+        const h = Math.round(gh + 13);
+        let x = 12;
+        const glyphs = chars.map((c, i) => {
+          if (c === 'space') { x += gh * NAMEPLATE_SPACE_FRACTION; return null; }
+          const gw = gh * c.aspect;
+          const el = <Image key={i} source={c.source} resizeMode="stretch" style={{ position: 'absolute', left: Math.round(x), top: Math.round((h - gh) / 2), width: Math.round(gw), height: Math.round(gh) }} />;
+          x += gw + gap;
+          return el;
+        });
+        const cx = origin.x + d.x;
+        const cy = origin.y + d.y - 8.5 - h / K / 2;
+        return (
+          <View key={d.id} pointerEvents="none"
+            style={{ position: 'absolute', left: cx - w / 2, top: cy - h / 2, width: w, height: h, transform: [{ scale: 1 / K }] }}>
+            <Image source={UI_NAMEPLATE_BOARD} resizeMode="stretch" style={{ position: 'absolute', left: 0, top: 0, width: w, height: h }} />
+            {glyphs}
+          </View>
+        );
+      })}
+    </>
+  );
+});
 
 // ---------------------------------------------------------------- shortcuts
 export function ShortcutSprites({ origin, unlocked }: { origin: { x: number; y: number }; unlocked: string[] }) {
