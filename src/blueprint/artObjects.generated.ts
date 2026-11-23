@@ -32,7 +32,7 @@ export const OBJ_ASSETS: Record<string, { src: ImageSourcePropType; aspect: numb
   board_ruins_of_the_old_landing: { src: require('../../assets/sprites/plan_art/obj/board_ruins_of_the_old_landing.png'), aspect: 0.179 },
   board_the_high_woods: { src: require('../../assets/sprites/plan_art/obj/board_the_high_woods.png'), aspect: 0.261 },
   boat_0: { src: require('../../assets/sprites/plan_art/obj/boat_0.png'), aspect: 0.447 },
-  bollard_0: { src: require('../../assets/sprites/plan_art/obj/bollard_0.png'), aspect: 0.889, code: require('../../assets/sprites/plan_art/obj/bollard_0__code.png'), codeAspect: 0.889 },
+  bollard_0: { src: require('../../assets/sprites/plan_art/obj/bollard_0.png'), aspect: 0.880, code: require('../../assets/sprites/plan_art/obj/bollard_0__code.png'), codeAspect: 0.889 },
   bollard_1: { src: require('../../assets/sprites/plan_art/obj/bollard_1.png'), aspect: 0.889 },
   bollard_2: { src: require('../../assets/sprites/plan_art/obj/bollard_2.png'), aspect: 0.889 },
   buoy_0: { src: require('../../assets/sprites/plan_art/obj/buoy_0.png'), aspect: 0.889 },

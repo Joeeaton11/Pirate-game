@@ -32,5 +32,8 @@ if oy < 0:  # taller than the code one: shrink to fit the frame
     im = im.resize((int(im.size[0] * k), int(im.size[1] * k)), Image.LANCZOS)
     ox = int(round((l + rr) / 2 * f - im.size[0] / 2)); oy = int(round(bb * f)) - im.size[1]
 canvas.alpha_composite(im, (max(0, ox), max(0, oy)))
+# no bigger than 1.5x the 16 px/unit reference: plenty for the game, and keeps the web bundle small
+cap = 1.5 * R.size[0] / canvas.size[0]
+if cap < 1: canvas = canvas.resize((max(1, int(canvas.size[0] * cap)), max(1, int(canvas.size[1] * cap))), Image.LANCZOS)
 canvas.save(out)
 print(out, canvas.size, 'ref', R.size)
