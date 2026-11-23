@@ -1,1 +1,15 @@
-{"buildings": {}, "props": {}, "trees": {}, "deleted_trees": []}
+{
+ "buildings": {
+  "tortuga_netmenders_shed": [
+   0,
+   -2.5
+  ],
+  "Cottage@-351,-98": [
+   -28,
+   4
+  ]
+ },
+ "props": {},
+ "trees": {},
+ "deleted_trees": []
+}

@@ -44,7 +44,25 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 | `town_0` | Basse-Terre tortuga_fishermens_guildhall — market, footprint 20×57 | 21 | 1× | drawn in code | 1 |
 | `town_1` | Basse-Terre tortuga_quayside_trading_post — shop, footprint 17.2×55.5 | 18 | 1× | drawn in code | 1 |
 | `town_10` | Basse-Terre house — warehouse, footprint 18×12.5 | 21 | 1× | drawn in code | 1 |
+| `town_100` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_101` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_102` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_103` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_104` | Basse-Terre house — home, footprint 12×13 | 13 | 1× | drawn in code | 1 |
+| `town_105` | Basse-Terre house — home, footprint 12×11.8 | 13 | 1× | drawn in code | 1 |
+| `town_106` | Basse-Terre house — home, footprint 12×13 | 13 | 1× | drawn in code | 1 |
+| `town_107` | Basse-Terre house — home, footprint 12×11.8 | 13 | 1× | drawn in code | 1 |
+| `town_108` | Basse-Terre house — home, footprint 12×13 | 13 | 1× | drawn in code | 1 |
+| `town_109` | Basse-Terre house — home, footprint 12×11.8 | 13 | 1× | drawn in code | 1 |
 | `town_11` | Basse-Terre tortuga_careening_shed — civic, footprint 26×25.2 | 29 | 1× | drawn in code | 1 |
+| `town_110` | Basse-Terre house — home, footprint 12×12 | 15 | 1× | drawn in code | 1 |
+| `town_111` | Basse-Terre house — home, footprint 12×12 | 15 | 1× | drawn in code | 1 |
+| `town_112` | Basse-Terre house — home, footprint 12×12 | 15 | 1× | drawn in code | 1 |
+| `town_113` | Basse-Terre house — home, footprint 12×12 | 15 | 1× | drawn in code | 1 |
+| `town_114` | Basse-Terre house — home, footprint 12×12 | 15 | 1× | drawn in code | 1 |
+| `town_115` | Basse-Terre house — home, footprint 12×12 | 15 | 1× | drawn in code | 1 |
+| `town_116` | Basse-Terre house — home, footprint 12×12 | 15 | 1× | drawn in code | 1 |
+| `town_117` | Basse-Terre house — home, footprint 12×12 | 15 | 1× | drawn in code | 1 |
 | `town_12` | Basse-Terre tortuga_brine_barrel — tavern, footprint 42×31.5 | 45 | 1× | drawn in code | 1 |
 | `town_13` | Basse-Terre tortuga_cockpit — tavern, footprint 19.6×49 | 20 | 1× | drawn in code | 1 |
 | `town_14` | Basse-Terre tortuga_crews_lodge — manor, footprint 16.7×49.7 | 17 | 1× | drawn in code | 1 |
@@ -84,11 +102,63 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 | `town_45` | Basse-Terre house — warehouse, footprint 18×17 | 19 | 1× | drawn in code | 1 |
 | `town_46` | Basse-Terre house — warehouse, footprint 20.5×13.5 | 21 | 1× | drawn in code | 1 |
 | `town_47` | Basse-Terre house — warehouse, footprint 20.5×14.2 | 21 | 1× | drawn in code | 1 |
+| `town_48` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
+| `town_49` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
 | `town_5` | Basse-Terre tortuga_customs — civic, footprint 64×44.2 | 67 | 1× | drawn in code | 1 |
+| `town_50` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
+| `town_51` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
+| `town_52` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
+| `town_53` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
+| `town_54` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
+| `town_55` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
+| `town_56` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_57` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_58` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_59` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
 | `town_6` | Basse-Terre tortuga_fishmonger — market, footprint 52×34 | 55 | 1× | drawn in code | 1 |
+| `town_60` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_61` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_62` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_63` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_64` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_65` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_66` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_67` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_68` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_69` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
 | `town_7` | Basse-Terre house — warehouse, footprint 34×16.5 | 37 | 1× | drawn in code | 1 |
+| `town_70` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_71` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_72` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_73` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_74` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_75` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_76` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_77` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_78` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_79` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
 | `town_8` | Basse-Terre house — warehouse, footprint 27×17.2 | 30 | 1× | drawn in code | 1 |
+| `town_80` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_81` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_82` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_83` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_84` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_85` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_86` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_87` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_88` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_89` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
 | `town_9` | Basse-Terre house — warehouse, footprint 20×18 | 23 | 1× | drawn in code | 1 |
+| `town_90` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_91` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_92` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_93` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_94` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_95` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_96` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
+| `town_97` | Basse-Terre house — home, footprint 12×13.4 | 13 | 1× | drawn in code | 1 |
+| `town_98` | Basse-Terre house — home, footprint 12×14 | 13 | 1× | drawn in code | 1 |
+| `town_99` | Basse-Terre house — home, footprint 12×12.8 | 13 | 1× | drawn in code | 1 |
 
 ## Homes, huts and outbuildings
 
@@ -143,9 +213,9 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 
 | Asset id | What | Size on map (units wide) | Used | Status | Priority |
 |---|---|---|---|---|---|
-| `tree_jungle_2` | Jungle tree (variant 2) | 11 | 114× | **missing** | 1 |
+| `tree_jungle_2` | Jungle tree (variant 2) | 11 | 113× | **missing** | 1 |
 | `tree_jungle_3` | Jungle tree (variant 3) | 11 | 109× | **missing** | 1 |
-| `tree_jungle_1` | Jungle tree (variant 1) | 11 | 100× | **missing** | 1 |
+| `tree_jungle_1` | Jungle tree (variant 1) | 11 | 101× | **missing** | 1 |
 | `tree_tree_1` | Broadleaf tree (variant 1) | 13 | 81× | **missing** | 1 |
 | `tree_tree_2` | Broadleaf tree (variant 2) | 13 | 60× | **missing** | 1 |
 | `tree_tree_3` | Broadleaf tree (variant 3) | 13 | 59× | **missing** | 1 |

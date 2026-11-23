@@ -478,7 +478,7 @@ for _b in BUILDINGS:
     ww, wh = 8, max(8, ph - 4)
     placed = None
     for sgn in (1, -1):
-        cx, cy = px + sgn * (pw / 2 + ww / 2), py - 2
+        cx, cy = px + sgn * (pw / 2 + ww / 2 + 3.5), py - 2  # a small gap: the cottage's eaves never cover the wing
         g = _box(cx - ww / 2, cy - wh / 2, cx + ww / 2, cy + wh / 2)
         clash = g.intersects(_roads_g) or any(g.intersects(_box(b[3] - b[5] / 2 - 0.5, b[4] - b[6] / 2 - 0.5, b[3] + b[5] / 2 + 0.5, b[4] + b[6] / 2 + 0.5))
                                               for b in _others if b is not _par)

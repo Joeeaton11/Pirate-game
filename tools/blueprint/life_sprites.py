@@ -112,6 +112,7 @@ def build(root, P, dress_props, coast, beach, no_foam=None):
         nx, ny = ty / n, -tx / n
         if coast.contains(Point(a.x + nx * 2, a.y + ny * 2)): nx, ny = -nx, -ny
         if no_foam is not None and no_foam.contains(a): continue
+        if beach is not None and beach.distance(a) > 1.5: continue  # foam washes on beaches, not over the coastal rocks
         shore.append((a.x, a.y, nx, ny))
     ts.append('/** Shore foam: [x, y, outward nx, ny] every few units round the island. */')
     ts.append('export const LIFE_SHORE: [number, number, number, number][] = [' + ', '.join(f'[{x:.1f}, {y:.1f}, {nx:.2f}, {ny:.2f}]' for x, y, nx, ny in shore) + '];')

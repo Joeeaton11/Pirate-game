@@ -480,6 +480,27 @@ def pirate(S, kind, seed):
 def critter(S, kind, seed):
     """Dressing sprites: sacks, pots, rope, flowers, grass, stones, logs, shells, boats and animals."""
     rng = random.Random(seed); s = S
+    if kind in ('planter', 'planter_palm'):  # a raised stone bed on the cobbles, planted up
+        im, d = _canvas(7 * s, (7.5 if kind == 'planter_palm' else 4.4) * s)
+        H = im.size[1]
+        d.rectangle([0.3 * s, H - 2.6 * s, 6.7 * s, H - 0.3 * s], fill=(150, 142, 128, 255))
+        for k in range(6): d.line([(0.3 + k * 1.1) * s, H - 2.6 * s, (0.3 + k * 1.1) * s, H - 0.3 * s], fill=(118, 110, 98, 255))
+        d.rectangle([0.3 * s, H - 2.6 * s, 6.7 * s, H - 2.1 * s], fill=(186, 178, 160, 255))  # lit coping
+        d.rectangle([0.8 * s, H - 3.2 * s, 6.2 * s, H - 2.5 * s], fill=(92, 64, 40, 255))  # soil
+        rr = random.Random(seed)
+        for _ in range(14):
+            x = rr.uniform(0.9, 6.1) * s; y = H - rr.uniform(2.7, 3.9) * s
+            d.ellipse([x - 0.6 * s, y - 0.6 * s, x + 0.6 * s, y + 0.5 * s], fill=rr.choice([(70, 132, 56, 255), (96, 156, 64, 255), (58, 112, 50, 255)]))
+        for _ in range(6):
+            x = rr.uniform(1.0, 6.0) * s; y = H - rr.uniform(3.0, 4.1) * s
+            d.ellipse([x - 0.3 * s, y - 0.3 * s, x + 0.3 * s, y + 0.3 * s], fill=rr.choice([(230, 80, 90, 255), (250, 210, 80, 255), (240, 240, 230, 255), (200, 90, 200, 255)]))
+        if kind == 'planter_palm':
+            d.line([3.5 * s, H - 3.0 * s, 3.8 * s, 1.6 * s], fill=(122, 86, 52, 255), width=max(1, int(0.5 * s)))
+            for a in range(0, 360, 45):
+                import math as _m
+                ex, ey = 3.8 * s + _m.cos(_m.radians(a)) * 2.8 * s, 1.6 * s + _m.sin(_m.radians(a)) * 1.3 * s
+                d.line([3.8 * s, 1.6 * s, ex, ey], fill=(64, 140, 60, 255), width=max(1, int(0.45 * s)))
+        return _outline(im), (im.size[0] / 2, H - 1)
     if kind == 'hay_bale':  # a round bale of straw, lying on its side
         im, d = _canvas(5 * s, 3.8 * s)
         d.rounded_rectangle([0.2 * s, 0.4 * s, 4.8 * s, 3.7 * s], radius=s * 1.4, fill=(214, 178, 92, 255))

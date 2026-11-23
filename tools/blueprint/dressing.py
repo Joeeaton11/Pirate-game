@@ -12,7 +12,7 @@ from shapely.prepared import prep
 FRONT_CLUTTER = ['barrels', 'crates', 'sacks', 'flowerpot', 'potted_palm', 'barrel', 'crates', 'bench', 'lamp', 'wanted_poster', 'rum_barrels', 'flowerpot', 'potted_palm']
 QUAY_CARGO = ['cargo', 'barrels', 'crates', 'sacks', 'nets', 'barrels', 'crates', 'rope_coil', 'barrel', 'lobster_pot', 'crab_trap_stack', 'rope_coil', 'rum_barrels', 'anchor', 'powder_keg']
 GRASS_DECOR = ['flowers', 'flowers', 'flowers', 'tall_grass', 'tall_grass', 'tall_grass', 'stone']
-SOLID_KINDS = {'hay_bale', 'hay_stack', 'cannon', 'rum_cart', 'cannonballs', 'figurehead', 'ship_bell', 'crab_trap_stack', 'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
+SOLID_KINDS = {'planter', 'planter_palm', 'hay_bale', 'hay_stack', 'cannon', 'rum_cart', 'cannonballs', 'figurehead', 'ship_bell', 'crab_trap_stack', 'stall', 'canopy_never', 'loot_crates', 'tent', 'dead_tree', 'lean_to', 'rubble_stones', 'barrels', 'crates', 'cargo', 'cart', 'stall', 'well', 'barrel', 'sacks', 'rowboat_beached', 'log', 'potted_palm'}
 
 
 TOWN_WALLS = box(0, 0, 0, 0)
@@ -64,7 +64,16 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
 
     # 2. the squares: stalls round the edge, lamps at the corners
     for name, l, r, t, b in P.PLAZAS:
-        if name in ('Duelling Ground', 'Old Landing Square'): continue
+        if name == 'Duelling Ground':  # a ring for a fight: torches at the corners, benches for the crowd
+            for x in (l + 1, r - 1):
+                for y in (t + 1, b - 1): put('lamp', x, y, 2)
+            for x in [l + 6 + k * 6 for k in range(int((r - l - 8) / 6))]:
+                put('bench', x, t + 1.2, 3); put('bench', x, b - 0.8, 3)
+            put('skull_post', l + 2.5, (t + b) / 2, 3); put('wanted_poster', r - 2.5, (t + b) / 2, 3)
+            continue
+        if name == 'Old Landing Square':
+            put('well', (l + r) / 2, (t + b) / 2, 3); put('lamp', l + 1, t + 1, 2); put('lamp', r - 1, t + 1, 2)
+            continue
         for x in (l + 1, r - 1):
             for y in (t + 1, b - 1): put('lamp', x, y, 2)
         for k in range(int((r - l) / 9)):
@@ -203,19 +212,22 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
 
     # 10. planted town gardens: palms, flower beds and greenery inside the walls, like the target
     gdn = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('garden', [])])
+    _g0 = len(out); _gp = 0
     for poly in getattr(gdn, 'geoms', [gdn]):
+        _gp += 1
         if poly.area < 40: continue
-        inner = poly.buffer(-4.0, join_style=2).difference(bl_all.buffer(3.0)).difference(st.buffer(3.0)).difference(TOWN_WALLS.buffer(4))
+        inner = poly.buffer(-2.2, join_style=2).difference(bl_all.buffer(2.0)).difference(st.buffer(2.0)).difference(TOWN_WALLS.buffer(4))
         if inner.is_empty: continue
         ip = prep(inner); l, t, r, b = inner.bounds
-        n = max(1, int(inner.area / 55))
-        for _ in range(n * 10):
+        n = max(3, int(inner.area / 16))  # back yards as busy as the target's: trees, beds, a washing line, a woodpile
+        for _ in range(n * 12):
             if n <= 0: break
             x, y = rng.uniform(l, r), rng.uniform(t, b)
             if ip.contains(Point(x, y)):
-                k = rng.choice(['palm', 'palm', 'flowers', 'flowers', 'tall_grass', 'flowers'])
-                if put(k, x, y, 3.2 if k != 'palm' else 6): n -= 1
+                k = rng.choice(['palm', 'palm', 'palm', 'tree', 'tree', 'flowers', 'flowers', 'tall_grass', 'washing', 'woodpile', 'water_butt', 'flowerpot', 'chicken'])
+                if put(k, x, y, 3.0 if k not in ('palm', 'tree') else 4.2): n -= 1
 
+    print('  town gardens', _gp, 'planted', len(out) - _g0)
     # 11. soften the town's edge: a broken band of palms, shrubs and flowers just outside it
     edge = town_box.buffer(7).difference(town_box.buffer(1)).difference(ways.buffer(2)).intersection(coast.buffer(-3))
     ep = prep(edge); l, t, r, b = edge.bounds
@@ -259,6 +271,37 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     for name, l2, r2, t2, b2 in P.PLAZAS:
         if name in ('Duelling Ground', 'Old Landing Square'): continue
         put('lantern_string', (l2 + r2) / 2, t2 + 1, 3); put('wanted_poster', l2 + 2.5, (t2 + b2) / 2, 3)
+
+    # 13. fill the open: wherever the town's cobbles or a wharf leave a wide empty patch, put a small
+    #     group there (planted beds, a well, a stall with crates, benches and a lamp on the cobbles;
+    #     stacked cargo on the wharves), like the busy target picture. Groups keep a clear way round them.
+    def gap_at(p):
+        d = min((p.distance(q) for q in taken), default=99)
+        return min(d, bl_all.distance(p))
+    wood_p = prep(wood.buffer(-2.5)) if not wood.is_empty else None
+    open_town = st.buffer(-2.5).difference(bl_all.buffer(3.5))
+    otp = prep(open_town)
+    road_lines = prep(unary_union([LineString(pts).buffer(max(2.6, w / 2 + 0.6)) for n, k, w, pts in P.ROADS]))
+    l, t, r, b = town_box.bounds
+    cells = [(x, y) for y in [t + 1.5 + 3 * j for j in range(int((b - t) / 3))] for x in [l + 1.5 + 3 * i for i in range(int((r - l) / 3))]]
+    rng.shuffle(cells)
+    groups = 0
+    TOWN_GROUPS = [['planter_palm'], ['planter', 'bench'], ['well', 'flowerpot'], ['stall', 'crates', 'barrels'], ['planter_palm', 'lamp'],
+                   ['statue'], ['cart', 'sacks'], ['planter', 'planter']]
+    CARGO_GROUPS = [['cargo', 'crates', 'barrels'], ['barrels', 'barrel', 'rope_coil'], ['crates', 'sacks', 'crates'], ['nets', 'lobster_pot'],
+                    ['rum_barrels', 'powder_keg'], ['cargo', 'cargo'], ['crab_trap_stack', 'rope_coil']]
+    for x, y in cells:
+        p = Point(x, y)
+        if road_lines.contains(p): continue
+        on_wharf = wood_p is not None and wood_p.contains(p)
+        if not (on_wharf or otp.contains(p)): continue
+        if gap_at(p) < (6.5 if on_wharf else 11.0): continue
+        grp = rng.choice(CARGO_GROUPS if on_wharf else TOWN_GROUPS)
+        for i, k in enumerate(grp):
+            ox, oy = [(0, 0), (2.6, 0.6), (-2.4, 0.8), (0.4, 2.4)][i]
+            out.append((k, round(x + ox, 1), round(y + oy, 1))); taken.append(Point(x + ox, y + oy))
+        groups += 1
+    print('  open-space groups', groups)
 
     # 9. a carved name board at each district label
     for x, y, text, size in P.LABELS:

@@ -364,6 +364,54 @@ for k in range(1, _ng + 1):
 _n2 += _n3
 print('  ground clean-up: fragment cells absorbed', _n1 + _n2)
 
+# infill: the painted town left wide open cobbled yards between its terraces. Fill the biggest of them
+# with extra terraced houses (no doors: they are scenery) so the streets close in like the target
+# picture, always leaving a proper street round each new row, every door's forecourt and the roads clear.
+_street = cls == 0
+_keep_open = unary_union([LineString(pts).buffer(w / 2 + 5) for n_, k_, w, pts in P.ROADS] +
+                         [Point(x, y).buffer(9) for _, x, y in doors] +
+                         [box(l - 6, t - 6, r + 6, b + 9) for l, r, t, b in town_bldgs] +
+                         [box(l - 4, t - 4, r + 4, b + 4) for _, l, r, t, b in P.PLAZAS])
+_infill = []
+for _w, _d in ((36, 14), (24, 13), (12, 12)):
+    for _j in range(0, ny):
+        for _i in range(0, nx):
+            l, t = TOWN[0] + _i * CELL, TOWN[2] + _j * CELL
+            r, b = l + _w, t + _d
+            i1, j1 = int(math.ceil((r - TOWN[0]) / CELL)), int(math.ceil((b - TOWN[2]) / CELL))
+            # the row and a street at least 6 wide on every side must all be open cobbles today
+            mi0, mj0, mi1, mj1 = _i - 3, _j - 3, i1 + 4, j1 + 4
+            if mi0 < 0 or mj0 < 0 or mi1 > nx or mj1 > ny: continue
+            if not _street[mj0:mj1, mi0:mi1].all(): continue
+            g = box(l, t, r, b)
+            if _keep_open.intersects(g.buffer(1)): continue
+            _infill.append((l, r, t, b)); _keep_open = _keep_open.union(box(l - 6, t - 6, r + 6, b + 9))
+            _street[mj0:mj1, mi0:mi1] = False
+# the wharves: the biggest stretches of open planking get dockside warehouses and sheds
+_wood = cls == 1
+_wh = []
+for _w, _d in ((26, 13), (18, 11)):
+    for _j in range(0, ny):
+        for _i in range(0, nx):
+            l, t = TOWN[0] + _i * CELL, TOWN[2] + _j * CELL
+            r, b = l + _w, t + _d
+            i1, j1 = int(math.ceil((r - TOWN[0]) / CELL)), int(math.ceil((b - TOWN[2]) / CELL))
+            mi0, mj0, mi1, mj1 = _i - 4, _j - 4, i1 + 5, j1 + 5
+            if mi0 < 0 or mj0 < 0 or mi1 > nx or mj1 > ny: continue
+            if not _wood[mj0:mj1, mi0:mi1].all(): continue
+            g = box(l, t, r, b)
+            if _keep_open.intersects(g.buffer(1)): continue
+            _wh.append((l, r, t, b)); _keep_open = _keep_open.union(box(l - 8, t - 8, r + 8, b + 10))
+            _wood[mj0:mj1, mi0:mi1] = False
+town_bldgs.extend([(round(l, 1), round(r, 1), round(t, 1), round(b, 1)) for l, r, t, b in _wh])
+print('  wharf sheds', len(_wh))
+for l, r, t, b in _infill:  # split each row into houses 7-10 wide, staggered like the rest
+    n = max(1, int(round((r - l) / 12)))
+    for k in range(n):
+        a, c = l + (r - l) * k / n, l + (r - l) * (k + 1) / n
+        town_bldgs.append((round(a, 1), round(c, 1), round(t + (0, 1.2, 0.6)[k % 3], 1), round(b, 1)))
+print('  town infill rows', len(_infill))
+
 def merge(mask):
     """Greedy rectangles covering a boolean grid (row runs merged downwards)."""
     mask = mask.copy(); out = []
@@ -438,6 +486,8 @@ dressing.TOWN_WALLS = unary_union([box(l, t - 1, r, b + 1) for l, r, t, b, gaps 
 dress_props = dressing.dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_rects, town_bldgs, doors, dock_geoms)
 for k_, x_, y_ in dress_props:
     if k_ in dressing.SOLID_KINDS: burn(Point(x_, y_).buffer(0.9), 'dress:' + k_)
+for k_, x_, y_ in P.PROPS:  # posts you would otherwise walk straight through (and end up drawn over your face)
+    if k_ in ('scarecrow', 'statue', 'mermaid_statue', 'signpost'): burn(Point(x_, y_).buffer(0.8), 'prop:' + k_)
 print('  dressing', len(dress_props))
 import life_sprites
 life_sprites.ROOFS[:] = [(b[3] - b[5] / 2 - 1, b[4] - b[6] / 2 - b[6] * 0.9, b[3] + b[5] / 2 + 1, b[4] + b[6] / 2 + 1.5) for b in P.BUILDINGS] + \

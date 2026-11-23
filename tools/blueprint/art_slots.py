@@ -122,10 +122,11 @@ def build(root, P, trees, town_box, town=None):
         for n, (l, r, t, b) in enumerate(town_bldgs):
             ids = [i for i, x, y in town_doors if l - 1 <= x <= r + 1 and abs(y - b) < 8]
             bid = next((i for i in ids if i), None)
-            kind = KIND.get(types.get(bid, ''), 'home') if bid else ('home' if ids else 'warehouse')
+            small = (r - l) < 15  # the town's infill houses (scenery, no door of their own to enter)
+            kind = KIND.get(types.get(bid, ''), 'home') if bid else ('home' if ids or small else 'warehouse')
             w, h = r - l, b - t
-            sp = specs.spec_for((bid, 'Town house', kind, (l + r) / 2, (t + b) / 2, w, h, 'S' if ids else None), n + 300)
-            sp['door'] = bool(ids)
+            sp = specs.spec_for((bid, 'Town house', kind, (l + r) / 2, (t + b) / 2, w, h, 'S' if ids or small else None), n + 300)
+            sp['door'] = bool(ids) or small
             # terraced: a neighbour wall to wall on either side means no eave overhang or side shadow
             if any(abs(l2 - r) < 1.5 or abs(r2 - l) < 1.5 for l2, r2, t2, b2 in town_bldgs if (l2, r2, t2, b2) != (l, r, t, b) and abs(b2 - b) < 4):
                 sp['tight'] = True
