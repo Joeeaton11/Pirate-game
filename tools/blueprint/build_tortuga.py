@@ -373,7 +373,8 @@ _keep_open = unary_union([LineString(pts).buffer(w / 2 + 5) for n_, k_, w, pts i
                          [box(l - 6, t - 6, r + 6, b + 9) for l, r, t, b in town_bldgs] +
                          [box(l - 4, t - 4, r + 4, b + 4) for _, l, r, t, b in P.PLAZAS])
 _infill = []
-for _w, _d in ((36, 14), (24, 13), (12, 12)):
+INFILL = set()  # the scenery houses added here: drawn as homes with a door, but no way in
+for _w, _d in ((40, 17), (28, 16), (15, 15)):
     for _j in range(0, ny):
         for _i in range(0, nx):
             l, t = TOWN[0] + _i * CELL, TOWN[2] + _j * CELL
@@ -387,6 +388,23 @@ for _w, _d in ((36, 14), (24, 13), (12, 12)):
             if _keep_open.intersects(g.buffer(1)): continue
             _infill.append((l, r, t, b)); _keep_open = _keep_open.union(box(l - 6, t - 6, r + 6, b + 9))
             _street[mj0:mj1, mi0:mi1] = False
+# slips: the solid wharves get berths of open water cut into their seaward edge, so they read as piers
+# on pilings with water between them (like the target), not one great plank floor
+_slips = 0
+for _j in range(1, ny):
+    for _i in range(0, nx, 1):
+        if not (cls[_j, _i] == 1 and cls[_j - 1, _i] == 2): continue      # a wood cell with open water to its north
+        sw, sd = 4, 11                                                     # 8 units wide, 22 deep (in cells)
+        if _i + sw + 3 > nx or _j + sd + 4 > ny or _i - 3 < 0: continue
+        blk_ = cls[_j:_j + sd + 4, _i - 3:_i + sw + 3]
+        if not (blk_ == 1).all(): continue                                 # planking all round it, with room to spare
+        if not (cls[_j - 1, _i:_i + sw] == 2).all(): continue
+        l, t = TOWN[0] + _i * CELL, TOWN[2] + _j * CELL
+        g = box(l, t, l + sw * CELL, t + sd * CELL)
+        if _keep_open.intersects(g.buffer(2)): continue
+        cls[_j:_j + sd, _i:_i + sw] = 2; _slips += 1
+        _keep_open = _keep_open.union(box(l - 14, t - 2, l + sw * CELL + 14, t + sd * CELL + 4))
+print('  wharf slips', _slips)
 # the wharves: the biggest stretches of open planking get dockside warehouses and sheds
 _wood = cls == 1
 _wh = []
@@ -406,10 +424,11 @@ for _w, _d in ((26, 13), (18, 11)):
 town_bldgs.extend([(round(l, 1), round(r, 1), round(t, 1), round(b, 1)) for l, r, t, b in _wh])
 print('  wharf sheds', len(_wh))
 for l, r, t, b in _infill:  # split each row into houses 7-10 wide, staggered like the rest
-    n = max(1, int(round((r - l) / 12)))
+    n = max(1, int(round((r - l) / 14)))
     for k in range(n):
         a, c = l + (r - l) * k / n, l + (r - l) * (k + 1) / n
         town_bldgs.append((round(a, 1), round(c, 1), round(t + (0, 1.2, 0.6)[k % 3], 1), round(b, 1)))
+        INFILL.add(town_bldgs[-1])
 print('  town infill rows', len(_infill))
 
 def merge(mask):
@@ -434,6 +453,7 @@ for c, name in enumerate(['street', 'wood', 'water', 'garden', 'sand']):
 
 # ---------------------------------------------------------------- building sprites (needed for the town's walk solids)
 import art_slots
+art_slots.INFILL = INFILL
 _assets, _drawn_b, _stats = art_slots.build(ROOT, P, trees, town_box, (town_bldgs, doors))
 print('art slots', _stats)
 
@@ -478,6 +498,39 @@ for tcx, tcy, trx, try_ in P.TERRACES:
                         pr = rl.project(mid); a_ = rl.interpolate(max(0, pr - 1)); b_ = rl.interpolate(min(rl.length, pr + 1))
                         best = (dd, math.atan2(b_.y - a_.y, b_.x - a_.x), w_)
                 terrace_stairs.append((list(piece.coords), best[1], best[2]))
+# the quay wall: the wharves stand a level above the town streets, behind a stone retaining wall facing
+# the town, with flights of steps every so often and wherever a road comes down to the water
+_wood_u = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('wood', [])]).buffer(0.01)
+_st_u = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('street', [])]).buffer(0.01)
+_seam = _wood_u.boundary.intersection(_st_u.buffer(0.6))
+_road_c = unary_union([LineString(pts).buffer(w / 2 + 1.2) for n_, k_, w, pts in P.ROADS])
+from shapely.ops import linemerge as _lm
+_seam = _lm([g for g in getattr(_seam, 'geoms', [_seam]) if g.geom_type == 'LineString']) if not _seam.is_empty else _seam
+_qw = _qs = 0
+for seg in getattr(_seam, 'geoms', [_seam]):
+    if seg.is_empty or seg.geom_type != 'LineString' or seg.length < 6: continue
+    (x0_, y0_), (x1_, y1_) = seg.coords[0], seg.coords[-1]
+    if abs(y1_ - y0_) > abs(x1_ - x0_) * 0.3: continue                      # east-west runs only: the face looks south
+    m = seg.interpolate(0.5, normalized=True)
+    if not (_wood_u.contains(Point(m.x, m.y - 2)) and _st_u.contains(Point(m.x, m.y + 2))): continue  # wharf north, street south
+    gaps = [p_ for p_ in (seg.intersection(_road_c),) if not p_.is_empty]
+    span = []
+    _tb = unary_union([box(l - 0.5, t - 1, r + 0.5, b + 1) for l, r, t, b in town_bldgs])
+    _last = -99
+    for d_ in range(6, int(seg.length) - 5, 2):                            # a flight every 20+ units, landing on open street
+        if d_ - _last < 22: continue
+        c = seg.interpolate(d_)
+        if _tb.intersects(box(c.x - 4.5, c.y - 1, c.x + 4.5, c.y + 8)) or _road_c.intersects(box(c.x - 6, c.y - 1, c.x + 6, c.y + 2)): continue
+        span.append(LineString([(c.x - 4, c.y), (c.x + 4, c.y)])); _last = d_
+    for g in getattr(seg.intersection(_road_c), 'geoms', [seg.intersection(_road_c)]):
+        if g.geom_type == 'LineString' and g.length > 1: span.append(g)
+    cut = unary_union([sp.buffer(0.2, cap_style=2) for sp in span]) if span else None
+    wall = seg.difference(cut) if cut is not None else seg
+    for piece in getattr(wall, 'geoms', [wall]):
+        if piece.geom_type == 'LineString' and piece.length > 1.5: terrace_walls.append(list(piece.coords)); _qw += 1
+    for sp in span:
+        terrace_stairs.append((list(sp.coords), math.pi / 2, max(4, sp.length))); _qs += 1
+print('  quay wall pieces', _qw, 'flights', _qs)
 for tw in terrace_walls: burn(LineString(tw).buffer(1.2), 'terrace')
 extra_terraces = (terrace_walls, terrace_stairs)
 # set dressing: clutter, cargo, boats, animals, flowers and name boards (art only; bulky ones are solid)

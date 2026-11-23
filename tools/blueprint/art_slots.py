@@ -12,6 +12,9 @@ from PIL import Image
 SPR = 'assets/sprites'
 
 # Asset id -> stand-in file (relative to assets/sprites). None = no stand-in yet (the coloured base shows).
+INFILL = set()
+
+
 def _first(pattern):
     hits = sorted(glob.glob(f'{ROOT}/{SPR}/{pattern}'))
     return os.path.relpath(hits[0], f'{ROOT}/{SPR}') if hits else None
@@ -122,7 +125,7 @@ def build(root, P, trees, town_box, town=None):
         for n, (l, r, t, b) in enumerate(town_bldgs):
             ids = [i for i, x, y in town_doors if l - 1 <= x <= r + 1 and abs(y - b) < 8]
             bid = next((i for i in ids if i), None)
-            small = (r - l) < 15  # the town's infill houses (scenery, no door of their own to enter)
+            small = (l, r, t, b) in INFILL  # the town's infill houses (scenery, no door of their own to enter)
             kind = KIND.get(types.get(bid, ''), 'home') if bid else ('home' if ids or small else 'warehouse')
             w, h = r - l, b - t
             sp = specs.spec_for((bid, 'Town house', kind, (l + r) / 2, (t + b) / 2, w, h, 'S' if ids or small else None), n + 300)
