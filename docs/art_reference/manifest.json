@@ -1,6 +1,6 @@
 {
  "progress": {
-  "done": 0,
+  "done": 6,
   "total": 332
  },
  "items": [
@@ -4590,10 +4590,10 @@
     ]
    ],
    "ref": "docs/art_reference/obj/palm_0.png",
-   "painted": false,
+   "painted": true,
    "score": 478.6,
    "priority": 1,
-   "status": "code placeholder",
+   "status": "painted",
    "guide": "docs/art_reference/guides/objects/palm_0.png"
   },
   {
@@ -6902,10 +6902,10 @@
     ]
    ],
    "ref": "docs/art_reference/obj/barrels_0.png",
-   "painted": false,
+   "painted": true,
    "score": 150,
    "priority": 1,
-   "status": "code placeholder",
+   "status": "painted",
    "guide": "docs/art_reference/guides/objects/barrels_0.png"
   },
   {
@@ -7192,10 +7192,10 @@
     ]
    ],
    "ref": "docs/art_reference/obj/crates_0.png",
-   "painted": false,
+   "painted": true,
    "score": 132,
    "priority": 1,
-   "status": "code placeholder",
+   "status": "painted",
    "guide": "docs/art_reference/guides/objects/crates_0.png"
   },
   {
@@ -8602,10 +8602,10 @@
     ]
    ],
    "ref": "docs/art_reference/obj/bollard_0.png",
-   "painted": false,
+   "painted": true,
    "score": 83.4,
    "priority": 1,
-   "status": "code placeholder",
+   "status": "painted",
    "guide": "docs/art_reference/guides/objects/bollard_0.png"
   },
   {
@@ -10040,10 +10040,10 @@
     ]
    ],
    "ref": "docs/art_reference/obj/tree_0.png",
-   "painted": false,
+   "painted": true,
    "score": 58.8,
    "priority": 1,
-   "status": "code placeholder",
+   "status": "painted",
    "guide": "docs/art_reference/guides/objects/tree_0.png"
   },
   {
@@ -14502,10 +14502,10 @@
    "windows": 2,
    "chimneys": 1,
    "ref": "docs/art_reference/buildings/home_cottage_18x16_3.png",
-   "painted": false,
+   "painted": true,
    "score": 8,
    "priority": 1,
-   "status": "code placeholder",
+   "status": "painted",
    "guide": "docs/art_reference/guides/buildings/home_cottage_18x16_3.png"
   },
   {
