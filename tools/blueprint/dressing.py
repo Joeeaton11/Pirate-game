@@ -347,13 +347,13 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     items += [('planter_palm', c.x + dx, fy - 1) for dx in (-22, 22)]
     # the market: stalls in loose clusters round the fountain, each with its goods, with clear ways
     # between them in from every street (High Street from the south and north, the rows east and west)
-    stalls = [(sl + 12, st_ + 14), (sl + 12, st_ + 27), (sl + 24, st_ + 40),          # west cluster
-              (sr - 14, st_ + 15), (sr - 14, st_ + 28), (sr - 26, st_ + 41),          # east cluster
-              (sl + 22, sb - 5), (sl + 34, sb - 5), (sr - 30, sb - 5), (sr - 42, sb - 5)]  # south, with a gap for High Street
+    stalls = [(sl + 14, st_ + 16), (sl + 14, st_ + 34),                                 # west pair
+              (sr - 16, st_ + 17), (sr - 16, st_ + 35),                                 # east pair
+              (sl + 24, sb - 5), (sr - 36, sb - 5)]                                     # south, either side of High Street
     for i, (x, y) in enumerate(stalls):
         if not sq.buffer(-2.5).contains(Point(x, y)): continue
         items.append(('stall', x, y))
-        items.append((['crates', 'barrels', 'sacks', 'flowerpot', 'cart'][i % 5], x + 4.8, y + 0.4))
+        items.append((['crates', 'barrels', 'sacks', 'flowerpot', 'cart'][i % 5], x + 10.5, y + 0.4))
     items += [('lamp', x, y) for (x, y) in list(sq.buffer(-3, join_style=2).exterior.coords)[:-1]]
     items += [('notice', c.x - 6, st_ + 5), ('wanted_poster', c.x + 6, st_ + 5)]
     for k, x, y in items:

@@ -221,8 +221,12 @@ export const SquareLife = React.memo(function SquareLife({ origin, cam, player }
   };
   // bunting: strung corner to corner round the square, and across it on market day
   const L = WORLD_SQUARE.lamps;
-  const pairs: [number[], number[]][] = L.map((p, i) => [p, L[(i + 1) % L.length]] as [number[], number[]]);
-  if (market && L.length >= 4) pairs.push([L[0], L[2]], [L[1], L[3]]);
+  // one strand along the tavern side of the square; on market day a second along the far side
+  const byY = [...L].sort((a, b) => a[1] - b[1]);
+  const north = byY.slice(0, 2).sort((a, b) => a[0] - b[0]);
+  const south = byY.slice(-2).sort((a, b) => a[0] - b[0]);
+  const pairs: [number[], number[]][] = L.length >= 4 ? [[north[0], north[1]]] : [];
+  if (market && L.length >= 4) pairs.push([south[0], south[1]]);
   pairs.forEach(([a, b], i) => {
     const ax = a[0], ay = a[1] - 7, bx = b[0], by = b[1] - 7;
     const len = Math.hypot(bx - ax, by - ay);
@@ -234,21 +238,21 @@ export const SquareLife = React.memo(function SquareLife({ origin, cam, player }
   const stalls = [...WORLD_SQUARE.stalls];
   if (market) {
     const [fx, fy] = WORLD_SQUARE.fountain;
-    for (const [dx, dy] of [[-30, 14], [30, 14], [-34, -12], [34, -12]]) stalls.push([fx + dx, fy + dy]);
+    for (const [dx, dy] of [[-28, 16], [28, 16]]) stalls.push([fx + dx, fy + dy]);
     const stall = OBJ_ASSETS['stall_0'];
     stalls.slice(WORLD_SQUARE.stalls.length).forEach(([x, y], i) => {
       if (!stall) return;
-      const w = 9;
+      const w = 18;
       const h = w * stall.aspect;
       out.push(<Image key={`ms${i}`} source={stall.src} resizeMode="stretch" style={{ position: 'absolute', left: ox + x - w / 2, top: oy + y - h, width: w, height: h }} />);
     });
   }
-  stalls.forEach(([x, y], i) => person(`tr${i}`, TRADERS[i % TRADERS.length], x + 1.5, y - 3.2, Math.sin(t * 1.6 + i) * 0.15));
+  stalls.forEach(([x, y], i) => person(`tr${i}`, TRADERS[i % TRADERS.length], x + 2, y - 6, Math.sin(t * 1.6 + i) * 0.15));
   const shoppers = market ? 9 : 4;
   for (let k = 0; k < shoppers; k++) {
     const s0 = stalls[(Math.floor(t / 9 + k * 1.7) + k) % stalls.length];
     if (!s0) continue;
-    person(`sh${k}`, FOLK_IDS[(k + 2) % FOLK_IDS.length], s0[0] + (k % 2 ? -2.5 : 2.5), s0[1] + 4.5, 0);
+    person(`sh${k}`, FOLK_IDS[(k + 2) % FOLK_IDS.length], s0[0] + (k % 2 ? -4 : 4), s0[1] + 5, 0);
   }
   // the fountain: splashes where the water falls, and a town crier beside it with a tip when you're near
   const [fx, fy] = WORLD_SQUARE.fountain;

@@ -148,6 +148,7 @@ def prop(S, kind, seed):
         return _outline(im), (3 * s, 3.8 * s)
     if kind in ('stall',):
         # a full market stall: striped awning on posts over a counter piled with goods, crates beside
+        s = s * 1.6  # big enough to read as a proper stall beside a person (about 18 paces wide)
         im, d = _canvas(11 * s, 8 * s)
         cols = rng.choice([((176, 64, 52), (236, 222, 196)), ((52, 110, 160), (236, 222, 196)), ((70, 140, 70), (236, 222, 196))])
         for x in (1.0, 9.6): d.rectangle([x * s, 2.4 * s, (x + 0.45) * s, 7.6 * s], fill=WOOD_LO)
