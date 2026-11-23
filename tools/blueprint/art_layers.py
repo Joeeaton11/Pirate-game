@@ -374,9 +374,11 @@ def road_stairs(d, T, pts, ang, w):
 def plot_pad(d, T, l, t, r, b, rng):
     """The beaten ground a building stands on: packed earth with a stone kerb, so on the ground
     alone every path visibly leads to a plot."""
-    d.rectangle([*T(l - 0.4, t), *T(r + 0.4, b + 1.4)], fill=(150, 140, 100, 255), outline=(112, 104, 72, 255))
-    for _ in range(int((r - l) * (b - t) / 3)):
-        X, Y = T(rng.uniform(l - 0.3, r + 0.3), rng.uniform(t, b + 1.3))
+    # only the strip of trodden earth in front of the door shows; the rest sits under the building
+    t = b - 0.6
+    d.rectangle([*T(l + 0.8, t), *T(r - 0.8, b + 1.0)], fill=(150, 140, 100, 255))
+    for _ in range(int((r - l) * 2)):
+        X, Y = T(rng.uniform(l + 0.9, r - 0.9), rng.uniform(t, b + 0.9))
         d.point((X, Y), fill=rng.choice([(128, 118, 84, 255), (176, 162, 120, 255), (104, 140, 70, 255)]))
 
 
@@ -413,7 +415,7 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
         xs = [l] + [v for g in sorted(gaps) for v in g] + [r]
         for a, c in zip(xs[0::2], xs[1::2]): retaining(d, T, [(a, yt), (c, yt)], rng)
         for g0, g1 in gaps: stairs(d, T, [(g0, yt), (g1, yt)], rng)
-    for l, t, r, b in PLOTS: plot_pad(d, T, l, t, r, b, rng)
+    # (no plot pads: a doorstep marks each door, and a pad shows wherever a painted building is narrower)
     for pts in STONES:  # stepping stones across the water: flat, lit tops, a ring of foam
         ln = LineString(pts)
         for k in range(1, 7):
@@ -812,8 +814,14 @@ SKIP_PROPS = {'spring', 'lookout', 'x_mark', 'bottle', 'grave_marker', 'tavern_s
 def props(P, footprints=()):
     im, T = new_layer()
     sh = ImageDraw.Draw(im)
-    for l, t, r, b in footprints:  # drop shadow of every building, cast to the lower right
-        sh.polygon([T(r + 1, t), T(r + 6, t + 3), T(r + 6, b + 3.2), T(l + 4, b + 3.2), T(l + 1, b + 1.4)], fill=(14, 30, 12, 100))
+    # each building's shadow: a soft band along the foot of its front wall, cast a little to the lower
+    # right. Never a box round the plot: a painted building narrower than its plot would show the box.
+    shl = Image.new('RGBA', im.size, (0, 0, 0, 0)); sd = ImageDraw.Draw(shl)
+    for l, t, r, b in footprints:
+        sd.polygon([T(l + 1.5, b - 0.2), T(r + 0.2, b - 0.2), T(r + 1.6, b + 1.3), T(l + 2.6, b + 1.3)], fill=(14, 30, 12, 110))
+    from PIL import ImageFilter
+    im.alpha_composite(shl.filter(ImageFilter.GaussianBlur(0.5 * S)))
+    sh = ImageDraw.Draw(im)
     for k, x, y in sorted(P.PROPS, key=lambda p: p[2]):
         if k in SKIP_PROPS or k in ANIM_KINDS: continue
         got = pp.get(S, k, 0)
