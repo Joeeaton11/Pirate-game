@@ -93,10 +93,10 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
     # 3. quays and docks: cargo, nets, rope, cranes
     wood = unary_union([box(l, t, r, b) for l, r, t, b in town_rects.get('wood', [])] + [g for *_, g in dock_geoms])
     if not wood.is_empty:
-        wp = prep(wood.buffer(-1.2).difference(wood.buffer(-4.5))); l, t, r, b = wood.bounds  # cargo along the quay edges, a clear way down the middle
+        wp = prep(wood.buffer(-1.2).difference(wood.buffer(-3.2))); l, t, r, b = wood.bounds  # cargo along the quay edges, a clear way down the middle
         for _ in range(9000):
             x, y = rng.uniform(l, r), rng.uniform(t, b)
-            if wp.contains(Point(x, y)): put(rng.choice(QUAY_CARGO), x, y, 3.0)
+            if wp.contains(Point(x, y)): put(rng.choice(QUAY_CARGO), x, y, 11.0)  # sparse: the boardwalks are for walking (2026-11-24)
         for g in getattr(wood, 'geoms', [wood]):
             if g.area > 1200: put('crane', g.centroid.x, g.bounds[1] + 3, 8)
 
@@ -241,23 +241,23 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         sea_side = prep(unary_union([coast.difference(tw)]).buffer(-0.5)) if not tw.is_empty else prep(coast)
         for g in getattr(wood, 'geoms', [wood]):
             ring = g.exterior
-            for i in range(int(ring.length / 12)):
-                p = ring.interpolate(i * 12 + rng.uniform(0, 1.5))
+            for i in range(int(ring.length / 18)):  # spaced out (user, 2026-11-24: boardwalks too cluttered)
+                p = ring.interpolate(i * 18 + rng.uniform(0, 1.5))
                 q = ring.interpolate(i * 12 + 0.5); nx, ny = q.y - p.y, -(q.x - p.x); L = math.hypot(nx, ny) or 1
                 if g.contains(Point(p.x + nx / L, p.y + ny / L)): nx, ny = -nx, -ny
                 out_ = Point(p.x + nx / L * 2.5, p.y + ny / L * 2.5)
                 if lw.intersects(out_): continue          # only where the deck meets open water
-                ix, iy = p.x - nx / L * 4.5, p.y - ny / L * 4.5
+                ix, iy = p.x - nx / L * 1.8, p.y - ny / L * 1.8  # hard on the deck edge, out of the way
                 if g.area < 400: continue
-                if i % 3 == 1 and g.area > 400:
+                if i % 5 == 1 and g.area > 3000:
                     if put('cannon', ix - nx / L * 1.2, iy - ny / L * 1.2, 5): put('cannonballs', ix - nx / L * 3 + 2, iy - ny / L * 3, 2.5)
                 else: put('bollard', ix, iy, 2.2)
-            if g.area > 900:
+            if g.area > 6000:
                 c = g.centroid
                 for k_ in ('ship_bell', 'figurehead', 'ship_wheel', 'spyglass'):
                     for _ in range(20):
                         x, y = rng.uniform(g.bounds[0], g.bounds[2]), rng.uniform(g.bounds[1], g.bounds[3])
-                        if g.buffer(-2).contains(Point(x, y)) and put(k_, x, y, 4): break
+                        if g.buffer(-2).contains(Point(x, y)) and not g.buffer(-5).contains(Point(x, y)) and put(k_, x, y, 4): break
     # beaches: hammocks, skull posts, a half-dug chest, parrot perches
     l, t, r, b = beach.bounds
     inner_c = prep(coast.buffer(-2.5))
@@ -279,6 +279,8 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         d = min((p.distance(q) for q in taken), default=99)
         return min(d, bl_all.distance(p))
     wood_p = prep(wood.buffer(-2.5)) if not wood.is_empty else None
+    wide_deck = prep(wood.buffer(-8).buffer(8.5)) if not wood.is_empty else None
+    deck_core = prep(wood.buffer(-5.5)) if not wood.is_empty else None
     open_town = st.buffer(-2.5).difference(bl_all.buffer(3.5))
     otp = prep(open_town)
     road_lines = prep(unary_union([LineString(pts).buffer(max(2.6, w / 2 + 0.6)) for n, k, w, pts in P.ROADS]))
@@ -295,7 +297,9 @@ def dress(P, coast, beach, zone_geoms, ways, bldg_geoms, water, town_box, town_r
         if road_lines.contains(p): continue
         on_wharf = wood_p is not None and wood_p.contains(p)
         if not on_wharf: continue  # the town is laid out street by street now: only the wharves get cargo groups
-        if gap_at(p) < (6.5 if on_wharf else 11.0): continue
+        # cargo only along the edges of wide wharves: narrow piers and the middle of every deck stay clear
+        if not wide_deck.contains(p) or deck_core.contains(p): continue
+        if gap_at(p) < (14.0 if on_wharf else 11.0): continue
         grp = rng.choice(CARGO_GROUPS if on_wharf else TOWN_GROUPS)
         for i, k in enumerate(grp):
             ox, oy = [(0, 0), (2.6, 0.6), (-2.4, 0.8), (0.4, 2.4)][i]
