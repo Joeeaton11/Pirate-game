@@ -6,7 +6,7 @@ STANDINS (or dropping new files in), never re-placing anything.
 Writes src/blueprint/tortugaArtSlots.generated.ts and docs/ART_LIST_TORTUGA.md (the master art list).
 """
 import shutil
-import glob, json, os
+import glob, json, os, random
 from PIL import Image
 
 SPR = 'assets/sprites'
@@ -133,6 +133,12 @@ def build(root, P, trees, town_box, town=None):
             w, h = r - l, b - t
             sp = specs.spec_for((bid, 'Town house', kind, (l + r) / 2, (t + b) / 2, w, h, 'S' if ids or small else None), n + 300)
             sp['door'] = bool(ids) or small
+            import town_plan as _tp2
+            _run = _tp2.TERRACES.get((l, r, t, b)) if not bid else None
+            if _run:  # a terrace: one roof line, one height, one roof material; each house its own colour
+                _rr = random.Random(_run * 7919)
+                sp.update(massing='ridge', terrace=True, tight=True, storeys=_rr.choice([1, 2, 2]),
+                          roof=_rr.choice(['tile', 'tile_dark', 'slate', 'tile_orange']), roof_h=None, chimney=True)
             # terraced: a neighbour wall to wall on either side means no eave overhang or side shadow
             if any(abs(l2 - r) < 1.5 or abs(r2 - l) < 1.5 for l2, r2, t2, b2 in town_bldgs if (l2, r2, t2, b2) != (l, r, t, b) and abs(b2 - b) < 4):
                 sp['tight'] = True

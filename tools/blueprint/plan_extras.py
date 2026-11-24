@@ -13,6 +13,7 @@ import math
 # ---- Ruins of the Old Landing: roofless houses on two overgrown streets, a ruined chapel with its
 # broken bell tower by the Forgotten Graves, the tumbled town wall and gatehouse, the rotten quay.
 EXTRA_BUILDINGS = [
+    (None, 'Mission Ruin', 'ruin', -164, 190, 24, 18, None),
     (None, 'Ruined House', 'ruin', -46, 434, 16, 13, None),
     (None, 'Ruined House', 'ruin', -24, 434, 14, 12, None),
     (None, 'Ruined House', 'ruin', -2, 432, 16, 13, None),
@@ -29,6 +30,9 @@ EXTRA_BUILDINGS = [
 ]
 
 EXTRA_ROADS = [
+    ('Mission Path', 'path', 4, [(-20, 206), (-70, 214), (-120, 204), (-160, 214)]),
+    ("Smugglers' Path", 'path', 3, [(150, 224), (142, 206), (138, 192)]),
+    ("Hermit's Path", 'path', 3, [(60, 262), (56, 290), (66, 318)]),
     ('Old Landing Street', 'ruinlane', 5, [(-66, 450), (-30, 452), (10, 450), (54, 444)]),
     ('Chapel Lane', 'ruinlane', 4, [(10, 450), (40, 432), (72, 426)]),
     ('Mill Track', 'path', 4, [(-232, -58), (-222, -20), (-214, 26), (-196, 26)]),
@@ -45,6 +49,8 @@ ROAD_REPLACE = {
 }
 
 EXTRA_ZONES = [
+    # La Ringot orchard beside the farm (2026-11-24)
+    ('orchard', [(196, 196), (226, 196), (226, 250), (196, 250)]),
     ('orchard', [(-134, 48), (-56, 48), (-56, 96), (-134, 96)]),
     ('quarry', [(-236, -222), (-198, -222), (-198, -188), (-236, -188)]),
 ]
@@ -60,7 +66,8 @@ EXTRA_LABELS = [
 ]
 
 # Orchard: fruit trees in rows.
-ORCHARD_TREES = [(x, y, 'tree') for x in range(-126, -58, 10) for y in range(56, 94, 12)]
+ORCHARD_TREES = [(x, y, 'tree') for x in range(-126, -58, 10) for y in range(56, 94, 12)] + \
+                [(x, y, 'tree') for x in range(202, 224, 9) for y in range(203, 248, 11)]
 
 EXTRA_PROPS2 = [
     # Wreck of the Bonne Espérance, hard on the reef shoal.
@@ -76,6 +83,13 @@ EXTRA_PROPS2 = [
     ('crane', -200, -214), ('rubble', -228, -196), ('cart', -190, -190), ('rubble', -212, -192),
     ('cart', -60, 100), ('haystack', -140, 100), ('bench', -150, 232), ('bench', -170, 266), ('signpost', -150, 300),
     ('gibbet', -240, -390), ('signpost', -256, -378),
+    # The heart of the island (2026-11-24): a smugglers' camp in the east woods off the Hollow Trail...
+    ('tent', 128, 172), ('tent', 146, 168), ('campfire', 138, 182), ('crates', 120, 184), ('barrels', 154, 182),
+    ('lean_to', 160, 172), ('rum_barrels', 112, 176), ('skull_post', 132, 194),
+    # ...the ruined mission in the west woods, at the end of Mission Path...
+    ('rubble', -190, 186), ('ruin_wall', -192, 200), ('ruin_wall', -138, 186), ('rubble', -142, 204), ('dry_well', -182, 212),
+    # ...and the Hermit's Pool on the Blackwood ridge
+    ('rubble', 70, 330), ('campfire', 86, 336), ('signpost', 52, 300),
     # Dead ends finished off.
     ('boat', -556, -50), ('bench', 424, -262),
 ]
@@ -100,7 +114,6 @@ NEW_LANES = [
 TERRACES = [
     (500, -30, 70, 64),     # the High Woods plateau
     (-240, -430, 30, 46),   # Lighthouse Head
-    (368, -372, 40, 30),    # the fort's crag
     (-40, 230, 92, 56),     # Blackwood ridge
     (-445, 320, 34, 32),    # grotto cliffs
 ]

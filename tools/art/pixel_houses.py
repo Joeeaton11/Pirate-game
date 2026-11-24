@@ -466,7 +466,7 @@ def building(s):
         gable_h = int(WW * 0.3); depth = int(max(5.0, d * 0.6) * PPU)
         roof_h = gable_h + depth + 3
     else:
-        roof_h = int(max(4.6, d * 0.5) * PPU) + (6 if st > 1 else 0)
+        roof_h = s.get('roof_h') or int(max(4.6, d * 0.5) * PPU) + (6 if st > 1 else 0)
     extra = int(4 * PPU) if s.get('chimney_tall') else 10
     H = extra + roof_h + wall_h + 6
     p = Pix(W + 2, H, rng_seed)
@@ -576,7 +576,7 @@ def building(s):
             gable_roof(p, x0, x1, y_eave, gable_h, depth, rk, 'plaster' if not wall.startswith(('stone', 'planks')) else ('stone' if wall.startswith('stone') else wall),
                        wall == 'timber' or s.get('timber_gable', False), s.get('shutters'), s.get('lit', False))
         else:
-            roof(p, 0, W - 1, y_roof, y_eave, rk)
+            roof(p, 0, W - 1, y_roof, y_eave, rk, hip=not s.get('terrace'))  # a terrace's roofs run on into each other
             p.line([(0, y_eave), (0, y_roof), (W - 1, y_roof), (W - 1, y_eave)], OUTLINE[:3] + (255,))
             if s.get('gable') or (st > 1 and w >= 22 and rk.startswith('tile')):
                 front_gable(p, cx, y_eave, y_roof + max(2, roof_h // 4), min(int(WW * 0.42), int(11 * PPU)), 'plaster' if wall != 'stone' else 'stone', rk, s.get('shutters'), s.get('lit', False))

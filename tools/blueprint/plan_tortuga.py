@@ -18,7 +18,11 @@ ZONES = [
     # Mangrove swamp round Contrebandiers' Cove (wet, walkable, slow-looking).
     ('swamp', [(-600, -100), (-548, -118), (-506, -96), (-500, -48), (-520, -4), (-575, 0), (-600, -30)]),
     # La Ringot Fields (tilled strips) and the wild sugarcane by the river.
-    ('fields', [(250, 196), (330, 196), (330, 294), (250, 294)]),
+    # four hedged fields with a cart track between them (2026-11-24)
+    ('fields', [(250, 196), (287, 196), (287, 242), (250, 242)]),
+    ('fields', [(293, 196), (330, 196), (330, 242), (293, 242)]),
+    ('fields', [(250, 248), (287, 248), (287, 294), (250, 294)]),
+    ('fields', [(293, 248), (330, 248), (330, 294), (293, 294)]),
     ('sugarcane', [(336, 178), (398, 178), (384, 226), (364, 270), (356, 300), (336, 300)]),
     # Rocky ground: the lighthouse headland, the grotto cliffs, the fort's crag.
     ('rock', [(-272, -470), (-245, -505), (-205, -500), (-222, -440), (-246, -410), (-274, -420)]),
@@ -98,10 +102,10 @@ PLAZAS = [
 # Doors sit at the middle of the door side. id = a game building (enterable); None = a home.
 BUILDINGS = [
     # Cayonne, the west village.
-    ('tortuga_counting_house', 'Counting House', 'civic', -345, -72, 24, 18, 'S'),
+    ('tortuga_counting_house', 'Counting House', 'civic', -349, -72, 24, 18, 'S'),
     ('tortuga_apothecary', 'Apothecary', 'shop', -316, -72, 22, 17, 'S'),
     ('tortuga_almshouse', 'Almshouse', 'civic', -345, 3, 20, 18, 'N'),
-    ('tortuga_tailor', 'Tailor', 'shop', -316, 3, 22, 17, 'N'),
+    ('tortuga_tailor', 'Tailor', 'shop', -312, 3, 22, 17, 'N'),
     ('tortuga_vendue_house', 'Vendue House', 'market', -396, -52, 26, 20, 'S'),
     ('tortuga_powder_magazine', 'Powder Magazine', 'warehouse', -400, -6, 30, 22, 'N'),
     ('tortuga_gunsmith', 'Gunsmith', 'shop', -310, -110, 22, 17, 'W'),
@@ -177,7 +181,6 @@ BUILDINGS = [
     (None, 'Cottage', 'home', 404, -88, 18, 16, 'N'),
     (None, 'Cottage', 'home', 348, -170, 18, 16, 'E'),
     (None, 'Cottage', 'home', 196, 120, 18, 16, 'S'),
-    (None, 'Cottage', 'home', 244, 184, 18, 16, 'N'),
 ]
 
 # ---- Props: (kind, x, y). Signposts at junctions, wells in squares, cargo by warehouses.

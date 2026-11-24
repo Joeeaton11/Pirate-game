@@ -42,7 +42,30 @@ STREETS = [
     ("Sexton's Yard", 'street', 3.4, [(-100, -32), (-96, 14)]),
     ("Dyer's Yard", 'street', 3.4, [(200, -30), (204, 12)]),
 ]
+# Bend the long cross streets (2026-11-24): from the air the town read as a grid; real harbour towns'
+# streets follow the hill in long curves. Each cross street sags or bows by a few units along its length.
+_BEND = {"Chandlers' Row": 7, 'Ropewalk': -8, "Tanners' Row": 6, 'Salt Row': -7, 'Chapel Lane': 9}
+def _bent(name, pts):
+    a = _BEND.get(name)
+    if not a: return pts
+    x0, x1 = pts[0][0], pts[-1][0]
+    return [(x, y + (0 if i in (0, len(pts) - 1) else a * math.sin(math.pi * (x - x0) / (x1 - x0)))) for i, (x, y) in enumerate(pts)]
+_orig = {n: LineString(p) for n, k, w, p in STREETS if n in _BEND}
+def _follow(n, p):
+    # an alley meeting a bent street moves its end with the street, so it still joins it
+    if n in _BEND: return _bent(n, p)
+    out = []
+    for x, y in p:
+        for sn, ln in _orig.items():
+            if ln.distance(Point(x, y)) < 4:
+                x0_, x1_ = ln.coords[0][0], ln.coords[-1][0]
+                y += _BEND[sn] * math.sin(math.pi * min(1, max(0, (x - x0_) / (x1_ - x0_))))
+                break
+        out.append((x, y))
+    return out
+STREETS = [(n, k, w, _follow(n, p)) for n, k, w, p in STREETS]
 STEPPED = {"Cat Steps", "Chapel Steps", "Kipper Ginnel", "Widow's Walk"}  # alleys that climb in flights of steps
+TERRACES = {}  # house box -> terrace run number: wall-to-wall rows built as one, under one roof line
 YARDS = []  # filled by layout(): paved yards and gaps, drawn as cobbles with the streets
 SQUARE = Polygon([(4, -128), (100, -132), (110, -84), (92, -70), (2, -74)])  # the market square
 
@@ -86,6 +109,7 @@ def layout(cls, TOWN, CELL, types, seed=7):
     """cls: the painted town's cells (0 street, 1 wood, 2 water, 3 garden, 4 sand). Rewrites the land
     (0/3) as street or garden and returns (cls, houses [(l, r, t, b)], doors [(id, x, y)], scenery set)."""
     rng = random.Random(seed)
+    TERRACES.clear()
     ny, nx = cls.shape
     land = (cls == 0) | (cls == 3)
     sg = {n: LineString(p).buffer(w / 2, cap_style=2, join_style=1) for n, k, w, p in STREETS}
@@ -157,18 +181,37 @@ def layout(cls, TOWN, CELL, types, seed=7):
         xs = [p[0] for p in pts]; lo, hi = min(xs), max(xs)
         if hi - lo < 10: continue
         x = lo
+        run, run_left, run_d, run_b = None, 0, None, None
         while x < hi - 10:
             w, d = size_at(rng, front_base(name, x, x + 14) or 0)
-            if rng.random() < 0.1: w, d = rng.choice([22, 24, 26]), rng.choice([16, 17, 18])  # a merchant's house or a store
+            big = rng.random() < 0.1
+            if big: w, d = rng.choice([22, 24, 26]), rng.choice([16, 17, 18])  # a merchant's house or a store
+            if run is not None and not big: d = run_d                          # a terrace keeps one depth
             b = front_base(name, x, x + w)
-            if b is not None and fits(x, b - d, x + w, b, d):
-                add(x, b - d, x + w, b, d); x += w
+            if run is not None and not big and b is not None and abs(b - run_b) < 3: b = run_b  # and one street line
+            ok = b is not None and fits(x, b - d, x + w, b, d)
+            if not ok and run is not None and not big:
+                for w2 in (w - 2, w - 3, w - 4, 10):   # squeeze a narrower house in rather than break the row
+                    if w2 < 9: continue
+                    if fits(x, run_b - d, x + w2, run_b, d): w, b, ok = w2, run_b, True; break
+            if ok:
+                add(x, b - d, x + w, b, d)
+                if big:
+                    run = None
+                else:
+                    if run is None:  # start a terrace: 3 to 6 houses built as one, wall to wall
+                        run, run_left, run_d, run_b = len(set(TERRACES.values())) + 1, rng.randint(3, 6), d, b
+                    TERRACES[houses[-1]] = run; run_left -= 1
+                x += w
+                if run is not None and run_left > 0 and not big: continue      # no gaps inside a terrace
+                run = None
                 g = rng.random()
-                # less of a suburb (2026-11-24): more slots and yards, now and then a real break in the row
-                if g < 0.2: x += rng.uniform(2.0, 4.0)        # a slot between houses (drawn as an alley)
-                elif g < 0.32: x += rng.uniform(7, 12)        # a yard
-                elif g < 0.38: x += rng.uniform(16, 24)       # an open plot: a garden or a gap in the row
+                # between terraces: an alley slot, a yard, or now and then an open plot
+                if g < 0.45: x += rng.uniform(2.0, 4.0)
+                elif g < 0.75: x += rng.uniform(7, 12)
+                elif g < 0.88: x += rng.uniform(16, 24)
             else:
+                run = None
                 x += 1.0
 
     # 2b. the other side of each street: a row standing back to it, its roofs lining the street
@@ -177,6 +220,7 @@ def layout(cls, TOWN, CELL, types, seed=7):
         g = sg[name]
         xs = [p[0] for p in pts]; lo, hi = min(xs), max(xs)
         x = lo
+        prev2 = None
         while x < hi - 10:
             w, d = size_at(rng, (pts[0][1] + pts[-1][1]) / 2 + 20)
             ys = []
@@ -186,7 +230,10 @@ def layout(cls, TOWN, CELL, types, seed=7):
                 ys.append(cut.bounds[3])
             if ys:
                 b = max(ys) + ROOF * d + 0.4
+                if prev2 and abs(prev2[0] - x) < 0.6 and abs(prev2[1] - b) < 3 and fits(x, prev2[1] - prev2[2], x + w, prev2[1], prev2[2]):
+                    b, d = prev2[1], prev2[2]        # carry the row on as a terrace: same line, same depth
                 if fits(x, b - d, x + w, b, d):
+                    prev2 = (x + w, b, d)
                     g2 = rng.random()
                     add(x, b - d, x + w, b, d); x += w + (rng.uniform(2, 4) if g2 < 0.2 else rng.uniform(8, 18) if g2 < 0.34 else 0); continue
             x += 1.0
@@ -219,6 +266,30 @@ def layout(cls, TOWN, CELL, types, seed=7):
         add(x, y - d, x + w, y, d); courts += 1
         if courts >= 9: break
 
+    # terraces: any row of plain houses standing wall to wall on one street line is built as one
+    TERRACES.clear()
+    named = {(round(l, 1), round(r, 1)) for _, x, y in doors for (l, r, t, b) in houses if l - 1 <= x <= r + 1 and abs(y - b) < 8}
+    # close the small slots between plain neighbours on one street line so they join into a terrace
+    # (a row may step up or down a little with the hill); real alleys are the streets, not these slots
+    def _plain(h): return (h[0], h[1]) not in named
+    order = sorted(range(len(houses)), key=lambda i: (round(houses[i][3] / 8), houses[i][0]))
+    for a_, b_ in zip(order, order[1:]):
+        A, B = houses[a_], houses[b_]
+        if _plain(A) and _plain(B) and abs(A[3] - B[3]) < 3.2 and 0 <= B[0] - A[1] <= 8.5 and rng.random() < 0.85 \
+                and not st_p.intersects(box(A[1] - 0.1, A[2], B[0] + 0.1, A[3] - 0.4)):
+            nA = (A[0], B[0], A[2], A[3])
+            if A in scenery: scenery.discard(A); scenery.add(nA)
+            houses[a_] = nA
+    plain = sorted([h for h in houses if _plain(h)], key=lambda h: (round(h[3] / 8), h[0]))
+    runs, cur = [], []
+    for h in plain:
+        if cur and abs(h[3] - cur[-1][3]) < 3.2 and abs(h[0] - cur[-1][1]) < 0.6: cur.append(h)
+        else:
+            if len(cur) >= 2: runs.append(cur)
+            cur = [h]
+    if len(cur) >= 2: runs.append(cur)
+    for k, run in enumerate(runs):
+        for h in run: TERRACES[h] = k + 1
     # paved yards: a cobbled yard in front of every house that faces a garden, and the narrow gaps
     # between neighbouring houses, so the town reads as a stone port with gardens behind, not a suburb
     yards = []
@@ -240,5 +311,5 @@ def layout(cls, TOWN, CELL, types, seed=7):
         for i in range(nx):
             if not land[j, i]: continue
             out[j, i] = 0 if sp.contains(Point(l0 + (i + .5) * CELL, t0 + (j + .5) * CELL)) else 3
-    print('  town plan: named', len(doors), 'houses', len(houses), 'courts', courts)
+    print('  town plan: named', len(doors), 'houses', len(houses), 'courts', courts, 'terraces', len(runs), 'in terraces', len(TERRACES))
     return out, houses, doors, scenery
