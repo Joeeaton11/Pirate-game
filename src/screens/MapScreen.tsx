@@ -181,6 +181,9 @@ import {
   merchantShipSpriteSource,
   oppositeHeading,
   shipSpriteSource,
+  SHIP_3D_FRAMES,
+  SHIP_3D_STEPS,
+  ship3dIndex,
   turnBankSource,
   turnDirectionFor,
 } from '../data/shipSprites';
@@ -352,7 +355,7 @@ const SHALLOWS_SPEED_FACTOR = 0.45;
 const SHIP_MAX_SPEED = 46; // world units per second (~1.5 hull lengths); was SEA_SPEED 150 flat out
 const SHIP_ACCEL = 30; // units/s² while the drag asks for more speed
 const SHIP_DECEL = 18; // units/s² when easing off / gliding after release
-const SHIP_TURN_RATE = 1.15; // radians/s at full speed; slower when nearly stopped
+const SHIP_TURN_RATE = 1.8; // radians/s at full speed; slower when nearly stopped
 const SHIP_BANK_MAX = 5; // degrees of lean in a hard turn
 const WAKE_LIFE_MS = 2000;
 const SEA_ZOOM_FACTOR = 0.62; // camera pulled back while aboard
@@ -1253,6 +1256,8 @@ export default function MapScreen({ navigation }: Props) {
   const shipHeadingRef = useRef(shipHeading);
   shipHeadingRef.current = shipHeading;
   const shipMotionRef = useRef({ angle: 0, speed: 0, bank: 0, tick: 0 });
+  const [shipFrame, setShipFrame] = useState(0); // which of the 16 3D views is drawn
+  const shipFrameRef = useRef(0);
   const shipBankAnim = useRef(new Animated.Value(0)).current;
   const shipBankRotate = shipBankAnim.interpolate({ inputRange: [-10, 10], outputRange: ['-10deg', '10deg'] });
   // Foam left on the water behind her: world points that spread out and fade (drawn as pixel puffs).
@@ -1261,7 +1266,7 @@ export default function MapScreen({ navigation }: Props) {
     () =>
       blackPearlBoarded
         ? null
-        : { x: blackPearlPosition.x, y: blackPearlPosition.y, size: SHIP_SPRITE_SIZE / ZOOM, source: shipSpriteSource('e') },
+        : { x: blackPearlPosition.x, y: blackPearlPosition.y, size: SHIP_SPRITE_SIZE / ZOOM, source: SHIP_3D_FRAMES[0] },
     [blackPearlBoarded, blackPearlPosition.x, blackPearlPosition.y]
   );
   const blackPearlPositionRef = useRef(blackPearlPosition);
@@ -1626,8 +1631,9 @@ export default function MapScreen({ navigation }: Props) {
     // and sails straight off the berth (otherwise he stood on the pier, the ship vanished, and the
     // pier rail kept him from ever reaching open water — 2026-11-24).
     const berth = { ...blackPearlPositionRef.current };
-    const hv = SHIP_HEADING_VECTOR[shipHeadingRef.current];
-    shipMotionRef.current = { angle: Math.atan2(hv.y, hv.x), speed: 0, bank: 0, tick: 0 };
+    shipMotionRef.current = { angle: 0, speed: 0, bank: 0, tick: 0 }; // she lies bow-east at her berth
+    shipFrameRef.current = 0;
+    setShipFrame(0);
     wakeRef.current = [];
     playerRef.current = berth;
     setPlayer(berth);
@@ -2086,6 +2092,15 @@ export default function MapScreen({ navigation }: Props) {
         if (h !== shipHeadingRef.current) {
           shipHeadingRef.current = h;
           setShipHeading(h);
+        }
+        // 3D view: step to the next of the 16 only once the bow is well past the halfway point
+        const stepA = (Math.PI * 2) / SHIP_3D_STEPS;
+        const curA = shipFrameRef.current * stepA;
+        const offA = Math.abs(Math.atan2(Math.sin(m.angle - curA), Math.cos(m.angle - curA)));
+        if (offA > stepA * 0.62) {
+          const fi = ship3dIndex(m.angle);
+          shipFrameRef.current = fi;
+          setShipFrame(fi);
         }
         // foam: a puff at the stern every few ticks while she has way on
         const now = Date.now();
@@ -3784,7 +3799,7 @@ export default function MapScreen({ navigation }: Props) {
                 triggers a flourish in) that direction. 0-size and non-interactive — exists purely
                 to force an early decode. See the "ghosting" fix note below. */}
             <View style={styles.preloadFrames} pointerEvents="none">
-              {[...ALL_SCALLY_MAP_FRAMES, ...CHEEKY_V2_ALL].map((frameSource, i) => (
+              {[...ALL_SCALLY_MAP_FRAMES, ...CHEEKY_V2_ALL, ...SHIP_3D_FRAMES].map((frameSource, i) => (
                 <RNImage key={i} source={frameSource} style={styles.preloadFrame} />
               ))}
             </View>
@@ -3935,7 +3950,7 @@ export default function MapScreen({ navigation }: Props) {
                       });
                     })()}
                     <Animated.Image
-                      source={shipSpriteSource(shipHeading) /* the 2026-11-24 pixel-art Black Pearl: one frame per heading */}
+                      source={SHIP_3D_FRAMES[shipFrame] /* the 2026-11-24 3D Black Pearl: 16 views */}
                       resizeMode="contain"
                       style={[
                         styles.shipSprite,

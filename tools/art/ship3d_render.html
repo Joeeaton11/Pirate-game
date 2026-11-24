@@ -1,0 +1,28 @@
+<!doctype html><html><body style="margin:0;background:transparent">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const S=768;
+const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+r.setSize(S,S);r.setClearColor(0x000000,0);r.outputColorSpace=THREE.SRGBColorSpace;
+document.body.appendChild(r.domElement);
+const scene=new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xfff4e6,0x5a4630,1.6));
+const sun=new THREE.DirectionalLight(0xffe6c4,3.4);sun.position.set(-1.2,2.0,-0.7);scene.add(sun);
+const el=(parseFloat(new URLSearchParams(location.search).get('el')||'40'))*Math.PI/180;
+const cam=new THREE.OrthographicCamera(-1,1,1,-1,0.01,100);
+cam.position.set(0,Math.sin(el)*10,Math.cos(el)*10);cam.lookAt(0,0,0);
+const holder=new THREE.Group();scene.add(holder);
+window.ready=false;
+new GLTFLoader().load('ship.glb',g=>{
+  const m=g.scene;const box=new THREE.Box3().setFromObject(m);const c=box.getCenter(new THREE.Vector3());const sz=box.getSize(new THREE.Vector3());
+  m.position.sub(c);const k=1.6/Math.max(sz.x,sz.y,sz.z);const inner=new THREE.Group();inner.add(m);inner.scale.setScalar(k);
+  window.dims=[sz.x,sz.y,sz.z];holder.add(inner);window.inner=inner;window.ready=true;
+});
+window.shot=(yawDeg,baseYaw)=>{ // yawDeg: game heading angle (0=east, 90=south)
+  window.inner.rotation.y=(baseYaw||0)*Math.PI/180;
+  holder.rotation.y=-yawDeg*Math.PI/180;
+  r.render(scene,cam);return r.domElement.toDataURL('image/png');
+};
+</script></body></html>

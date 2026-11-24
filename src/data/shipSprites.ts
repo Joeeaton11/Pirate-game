@@ -206,3 +206,31 @@ export const SHIP_APPROACH_RADIUS = 130;
  * pier's dock posts, which would show up as phantom jetty timbers on a beach landing that has no
  * real pier there. A beach/coastline landing keeps the simpler instant cut instead. */
 export const SHIP_FURL_RADIUS = 55;
+
+/** The 3D Black Pearl (2026-11-24): a Tripo model rendered from the world camera at 16 headings and
+ * pixelated onto the 6 px/unit grid (tools/art/ship3d_render.html + tools/art/pack_ship3d.py).
+ * Index 0 = bow pointing east, then clockwise in 22.5° steps (4 = south, 8 = west, 12 = north). */
+export const SHIP_3D_FRAMES = [
+  require('../../assets/sprites/ship/px6_3d/ship_00.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_01.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_02.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_03.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_04.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_05.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_06.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_07.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_08.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_09.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_10.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_11.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_12.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_13.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_14.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_15.png'),
+];
+export const SHIP_3D_STEPS = SHIP_3D_FRAMES.length;
+/** Nearest 3D frame for a heading angle in radians (0 = east, screen y down, so clockwise). */
+export function ship3dIndex(angle: number): number {
+  const step = (Math.PI * 2) / SHIP_3D_STEPS;
+  return ((Math.round(angle / step) % SHIP_3D_STEPS) + SHIP_3D_STEPS) % SHIP_3D_STEPS;
+}

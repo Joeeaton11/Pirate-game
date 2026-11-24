@@ -14,7 +14,7 @@ for i, ang in enumerate(ANGS):
     c = Image.new('RGBA', (S, S), (0, 0, 0, 0)); c.alpha_composite(sm, ((S - sm.size[0]) // 2, (S - sm.size[1]) // 2 + 2))
     q = np.asarray(c).astype(float)
     warm = np.clip((q[..., 0] - q[..., 2] - 4) / 20, 0, 1)[..., None]  # lift the timber, keep the sails black
-    q[..., :3] = np.clip(q[..., :3] * (1 - warm) + 255 * ((q[..., :3] / 255) ** 0.75) * 1.1 * warm, 0, 255)
+    q[..., :3] = np.clip(q[..., :3] * (1 - warm) + 255 * ((q[..., :3] / 255) ** 0.9) * 1.0 * warm, 0, 255)
     c = Image.fromarray(q.astype(np.uint8), 'RGBA')
     al = c.getchannel('A').point(lambda v: 255 if v > 110 else 0)
     p = c.convert('RGB').quantize(64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert('RGBA'); p.putalpha(al)
