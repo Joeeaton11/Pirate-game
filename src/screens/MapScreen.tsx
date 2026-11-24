@@ -1240,6 +1240,12 @@ export default function MapScreen({ navigation }: Props) {
   blackPearlBoardedRef.current = blackPearlBoarded;
   const shipHeadingRef = useRef(shipHeading);
   shipHeadingRef.current = shipHeading;
+  // Straight north/south shows a side profile (user's call, 2026-11-24): she keeps whichever side
+  // she last showed, so sailing up or down the screen never flips her to a bow/stern view.
+  const shipSideRef = useRef<'e' | 'w'>('e');
+  if (shipHeading.includes('e')) shipSideRef.current = 'e';
+  else if (shipHeading.includes('w')) shipSideRef.current = 'w';
+  const shipDrawHeading: ShipHeading = shipHeading === 'n' || shipHeading === 's' ? shipSideRef.current : shipHeading;
   const mooredShip = useMemo(
     () =>
       blackPearlBoarded
@@ -3814,7 +3820,7 @@ export default function MapScreen({ navigation }: Props) {
                       </>
                     )}
                     <Animated.Image
-                      source={shipSpriteSource(shipHeading) /* the 2026-11-24 pixel-art Black Pearl: one frame per heading */}
+                      source={shipSpriteSource(shipDrawHeading) /* the 2026-11-24 pixel-art Black Pearl: one frame per heading */}
                       resizeMode="contain"
                       style={[
                         styles.shipSprite,
