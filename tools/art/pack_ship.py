@@ -11,6 +11,16 @@ for d in 'n ne e se s sw w nw'.split():
   a[...,0]=np.where(fix,r-sp*.6,r);a[...,2]=np.where(fix,b-sp*.6,b)
   im=Image.fromarray(np.dstack([np.clip(a,0,255),alpha*255]).astype(np.uint8),'RGBA')
   ims[d]=im.crop(im.getbbox())
+# SE came out of the painter warmer (brown sails): match its colours to E's (user, 2026-11-24)
+def match(src,ref):
+  s=np.asarray(src).astype(float);r=np.asarray(ref).astype(float)
+  ms=s[...,3]>200;mr=r[...,3]>200
+  for c in range(3):
+    sv=s[...,c][ms];rv=np.sort(r[...,c][mr])
+    ranks=np.argsort(np.argsort(sv))/(len(sv)-1)
+    s[...,c][ms]=rv[(ranks*(len(rv)-1)).astype(int)]
+  return Image.fromarray(np.clip(s,0,255).astype(np.uint8),'RGBA')
+ims['se']=match(ims['se'],ims['e'])
 f=0.26  # fixed scale: the first side-on paint had a 40-unit hull (2026-11-24)
 print('scale',f,{d:(round(i.size[0]*f),round(i.size[1]*f)) for d,i in ims.items()})
 for d,im in ims.items():
@@ -22,6 +32,11 @@ for d,im in ims.items():
   # lighten the warm timber (not the black sails) so she reads against the harbour (user, 2026-11-24)
   q=q.astype(float);warm=np.clip((q[...,0]-q[...,2]-6)/20,0,1)[...,None]
   q[...,:3]=np.clip(q[...,:3]*(1-warm)+255*((q[...,:3]/255)**0.7)*1.12*warm,0,255)
+  # even out the timber between views: every view's woodwork averages the same brightness
+  wm=(warm[...,0]>0.5)&(q[...,3]>110)
+  if wm.any():
+    k=82.0/q[wm][:,:3].mean()
+    q[...,:3]=np.clip(q[...,:3]*(1-warm)+q[...,:3]*k*warm,0,255)
   c=Image.fromarray(q.astype(np.uint8),'RGBA')
   al=c.getchannel('A').point(lambda v:255 if v>110 else 0)
   p=c.convert('RGB').quantize(64,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGBA');p.putalpha(al)
