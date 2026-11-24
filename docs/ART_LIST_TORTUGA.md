@@ -90,8 +90,7 @@ Status: **drawn in code** = a polished code-drawn sprite fills the slot now (gen
 | `town_14` | Basse-Terre tortuga_tavern — tavern, footprint 26×17 | 27 | 1× | drawn in code | 1 |
 | `town_140` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
 | `town_141` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
-| `town_142` | Basse-Terre house — warehouse, footprint 26×13 | 29 | 1× | drawn in code | 1 |
-| `town_143` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
+| `town_142` | Basse-Terre house — warehouse, footprint 18×11 | 21 | 1× | drawn in code | 1 |
 | `town_15` | Basse-Terre tortuga_shop — shop, footprint 16×14 | 17 | 1× | drawn in code | 1 |
 | `town_16` | Basse-Terre tortuga_crews_lodge — manor, footprint 20×15 | 23 | 1× | drawn in code | 1 |
 | `town_17` | Basse-Terre tortuga_boarding_house — tavern, footprint 26×17 | 29 | 1× | drawn in code | 1 |

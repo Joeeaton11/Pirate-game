@@ -257,23 +257,23 @@ POIS = [
 # These also become the game's walkable boardwalks (src/data/harbor.ts reads them).
 DOCKS = [
     # North-west: the careening wharf along the lighthouse headland, and the West Pier into the bay.
-    ('Careening Wharf', 'quay', 8, [(-252, -322), (-247, -432)]),
+    ('Careening Wharf', 'quay', 8, [(-250, -322), (-250, -432)]),
     ('West Pier', 'pier', 7, [(-248, -378), (-184, -378)]),
     ('West Pier Head', 'pier', 7, [(-184, -402), (-184, -354)]),
     ('Lighthouse Steps', 'jetty', 5, [(-222, -484), (-202, -498)]),
     # South: the South Jetty off the graves' cove, with its two heads.
-    ('South Jetty', 'pier', 7, [(150, 390), (179, 450)]),
-    ('South Jetty East Head', 'pier', 6, [(179, 450), (208, 468)]),
-    ('South Jetty South Head', 'pier', 6, [(179, 450), (166, 504)]),
+    ('South Jetty', 'pier', 7, [(165, 390), (165, 456)]),
+    ('South Jetty East Head', 'pier', 6, [(165, 456), (200, 456)]),
+    ('South Jetty South Head', 'pier', 6, [(165, 456), (132, 456)]),
     # Small landings round the coast.
-    ('Old Landing Jetty', 'jetty', 5, [(-40, 486), (-36, 516)]),
-    ('Turtle Cove Jetty', 'jetty', 5, [(-212, 444), (-208, 474)]),
+    ('Old Landing Jetty', 'jetty', 5, [(-38, 486), (-38, 516)]),
+    ('Turtle Cove Jetty', 'jetty', 5, [(-210, 444), (-210, 474)]),
     ("Shipyard Slipway", 'slip', 10, [(470, -188), (494, -220)]),
 ]
 # The offshore rubble breakwater sheltering the harbour mouth (not walkable).
 BREAKWATER = [(-273, -555), (46, -447), (351, -505)]
 # Boats tied up at the docks (x, y, heading degrees) — outlines only.
-MOORED = [(-176, -414, 90), (-200, -366, 0), (196, 476, 30), (158, 506, -80), (-28, 520, 80), (-200, 480, 85)]
+MOORED = [(-176, -414, 90), (-200, -366, 0), (190, 466, 0), (142, 466, 0), (-28, 520, 80), (-200, 480, 85)]
 
 # ---- Height: hills as (x, y, peak height in metres, radius x, radius y). Summed into a height
 # field for contour lines; coast where the land is high becomes cliff.

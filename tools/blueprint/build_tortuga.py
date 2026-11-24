@@ -409,6 +409,24 @@ _keep_open = unary_union([LineString(pts).buffer(w / 2 + 5) for n_, k_, w, pts i
                          [Point(x, y).buffer(9) for _, x, y in doors] +
                          [box(l - 6, t - 6, r + 6, b + 9) for l, r, t, b in town_bldgs] +
                          [box(l - 4, t - 4, r + 4, b + 4) for _, l, r, t, b in P.PLAZAS])
+# the harbour, squared up (2026-11-24, user: docks and wharves should be straight): the painted
+# map left ragged, blobby planking; real wharves were built in straight runs on pilings. Lay the
+# whole harbour out again as clean rectangles: one long quay, a straight west wharf, the Long Pier
+# and the Middle Pier as T-shaped piers, and a square east wharf. Everything else in the basin is water.
+def _cells(l, r, t, b):
+    return (slice(max(0, int(round((t - TOWN[2]) / CELL))), max(0, int(round((b - TOWN[2]) / CELL)))),
+            slice(max(0, int(round((l - TOWN[0]) / CELL))), max(0, int(round((r - TOWN[0]) / CELL)))))
+cls[_cells(-100, 258, -455, -287)] = 2
+for _r in [(-100, 258, -317, -287),   # the quay, the full length of the harbour
+           (-100, -82, -455, -317),   # west wharf along the beach
+           (-18, -4, -388, -317),     # Long Pier stem
+           (-56, 34, -403, -388),     # Long Pier T-head
+           (70, 84, -372, -317),      # Middle Pier stem
+           (58, 122, -386, -372),     # Middle Pier head
+           (196, 258, -373, -317)]:   # east wharf
+    cls[_cells(*_r)] = 1
+_bw = cls[_cells(-150, -100, -455, -287)]
+_bw[_bw == 1] = 4  # stray planking poking out over the beach becomes sand again
 # slips: the solid wharves get berths of open water cut into their seaward edge, so they read as piers
 # on pilings with water between them (like the target), not one great plank floor
 _slips = 0
