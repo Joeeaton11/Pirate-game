@@ -346,6 +346,15 @@ function streetTilePositions(
 const SEA_SPEED = 150; // world units per second
 /** The Black Pearl slows to this share of her speed in the blueprint's shallows. */
 const SHALLOWS_SPEED_FACTOR = 0.45;
+// Sailing feel (2026-11-24, user: "too fast and jolty"): the Black Pearl has weight. She gathers way
+// over about a second, glides to a stop when you let go, and swings round to the drag direction at
+// a limited rate — always moving the way her bow points — instead of snapping to it.
+const SHIP_MAX_SPEED = 66; // world units per second (~1.5 hull lengths); was SEA_SPEED 150 flat out
+const SHIP_ACCEL = 55; // units/s² while the drag asks for more speed
+const SHIP_DECEL = 30; // units/s² when easing off / gliding after release
+const SHIP_TURN_RATE = 1.7; // radians/s at full speed; slower when nearly stopped
+const SHIP_BANK_MAX = 5; // degrees of lean in a hard turn
+const WAKE_LIFE_MS = 1700;
 function inPoly(x: number, y: number, pts: [number, number][]) {
   let inside = false;
   for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
@@ -650,6 +659,8 @@ const DEADZONE = 12; // px of drag before movement starts
 const STOP_DEADZONE = 4;
 const MAX_DRAG = 70; // px of drag for full speed
 const ENCOUNTER_TICK_MS = 1400;
+/** Dev/test: `?calm=1` turns off random encounters so sailing and walking can be tried uninterrupted. */
+const CALM_SEAS = typeof window !== 'undefined' && !!window.location && new URLSearchParams(window.location.search).get('calm') === '1';
 
 /** Shared circle-vs-circle obstacle collision with axis-separated sliding: if the full move is
  * blocked, retry the X-only and Y-only projections before giving up, so both the player and
@@ -1240,6 +1251,11 @@ export default function MapScreen({ navigation }: Props) {
   blackPearlBoardedRef.current = blackPearlBoarded;
   const shipHeadingRef = useRef(shipHeading);
   shipHeadingRef.current = shipHeading;
+  const shipMotionRef = useRef({ angle: 0, speed: 0, bank: 0, tick: 0 });
+  const shipBankAnim = useRef(new Animated.Value(0)).current;
+  const shipBankRotate = shipBankAnim.interpolate({ inputRange: [-10, 10], outputRange: ['-10deg', '10deg'] });
+  // Foam left on the water behind her: world points that spread out and fade (drawn as pixel puffs).
+  const wakeRef = useRef<{ x: number; y: number; born: number; a: number; v: number }[]>([]);
   const mooredShip = useMemo(
     () =>
       blackPearlBoarded
@@ -1393,7 +1409,7 @@ export default function MapScreen({ navigation }: Props) {
         // 4-way hysteresis system or its mid-turn pivot-flash workaround (see scallySprites.ts).
         const dir = headingFromVector(e.translationX, e.translationY);
         setFacingDir(dir);
-        setShipHeading(dir);
+        if (!blackPearlBoardedRef.current) setShipHeading(dir); // aboard, her heading follows her bow (movement tick)
         setDragIntensity(clampedDist / MAX_DRAG);
       } else {
         // Real movement stops here exactly as before, at DEADZONE — no gameplay change. Only the
@@ -1595,6 +1611,9 @@ export default function MapScreen({ navigation }: Props) {
     // and sails straight off the berth (otherwise he stood on the pier, the ship vanished, and the
     // pier rail kept him from ever reaching open water — 2026-11-24).
     const berth = { ...blackPearlPositionRef.current };
+    const hv = SHIP_HEADING_VECTOR[shipHeadingRef.current];
+    shipMotionRef.current = { angle: Math.atan2(hv.y, hv.x), speed: 0, bank: 0, tick: 0 };
+    wakeRef.current = [];
     playerRef.current = berth;
     setPlayer(berth);
     // Two-stage depart: the "DEPART DOCK" pose (furled sail, still shows the pier under her) for a
@@ -2024,7 +2043,53 @@ export default function MapScreen({ navigation }: Props) {
       setCam(next);
     };
     const interval = setInterval(() => {
-      const direction = directionRef.current;
+      let direction = directionRef.current;
+      if (blackPearlBoardedRef.current && !islandAtPoint(playerRef.current)) {
+        // Under sail: steer the bow toward the drag, carry momentum, move along the bow.
+        const m = shipMotionRef.current;
+        const dt = TICK_MS / 1000;
+        const shallowNow = isShallow(playerRef.current);
+        const want = direction ? Math.min(1, Math.hypot(direction.x, direction.y)) : 0;
+        const top = SHIP_MAX_SPEED * want * (shallowNow ? SHALLOWS_SPEED_FACTOR : 1);
+        m.speed += clamp(top - m.speed, -SHIP_DECEL * dt, SHIP_ACCEL * dt);
+        const prevAngle = m.angle;
+        if (direction && want > 0) {
+          let diff = Math.atan2(direction.y, direction.x) - m.angle;
+          diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+          const rate = SHIP_TURN_RATE * (0.35 + 0.65 * Math.min(1, m.speed / SHIP_MAX_SPEED));
+          m.angle += clamp(diff, -rate * dt, rate * dt);
+        }
+        const turned = Math.atan2(Math.sin(m.angle - prevAngle), Math.cos(m.angle - prevAngle)) / dt;
+        const bankTarget = clamp(turned * 6 * Math.min(1, m.speed / 25), -SHIP_BANK_MAX, SHIP_BANK_MAX);
+        m.bank += (bankTarget - m.bank) * 0.08;
+        shipBankAnim.setValue(m.bank);
+        const h = headingFromVector(Math.cos(m.angle), Math.sin(m.angle));
+        if (h !== shipHeadingRef.current) {
+          shipHeadingRef.current = h;
+          setShipHeading(h);
+        }
+        // foam: a puff at the stern every few ticks while she has way on
+        const now = Date.now();
+        wakeRef.current = wakeRef.current.filter((w) => now - w.born < WAKE_LIFE_MS);
+        m.tick = 0;
+        if (m.speed > 5 && m.tick === 0) {
+          const c = Math.cos(m.angle), sn = Math.sin(m.angle);
+          wakeRef.current.push({
+            x: playerRef.current.x - c * 17 + (Math.random() - 0.5) * 1.2,
+            y: playerRef.current.y + 9 - sn * 17 * 0.5 + (Math.random() - 0.5) * 1.2,
+            born: now,
+            a: m.angle,
+            v: m.speed / SHIP_MAX_SPEED,
+          });
+        }
+        if (m.speed < 0.4 && !direction) {
+          m.speed = 0;
+          easeCamera();
+          return;
+        }
+        const k = m.speed / (SEA_SPEED * (shallowNow ? SHALLOWS_SPEED_FACTOR : 1));
+        direction = { x: Math.cos(m.angle) * k, y: Math.sin(m.angle) * k };
+      }
       if (!direction) {
         easeCamera();
         return;
@@ -2529,7 +2594,7 @@ export default function MapScreen({ navigation }: Props) {
       }
 
       const now = Date.now();
-      if (now - lastEncounterCheckRef.current > ENCOUNTER_TICK_MS) {
+      if (!CALM_SEAS && now - lastEncounterCheckRef.current > ENCOUNTER_TICK_MS) {
         lastEncounterCheckRef.current = now;
         const isSafe = nextIsland?.isSafeZone;
         if (!isSafe) {
@@ -2566,20 +2631,20 @@ export default function MapScreen({ navigation }: Props) {
   // with the other effects since it needs `currentIsland`, computed fresh each render just above —
   // keyed on its id (a stable primitive) rather than the object itself, which is a new reference
   // every render and would restart the loop on every tick.
-  const isDriftingAtSea = blackPearlBoarded && !isMoving && !currentIsland;
+  const isDriftingAtSea = blackPearlBoarded && !currentIsland; // a slow swell under her, sailing or still (2026-11-24)
   useEffect(() => {
     if (isDriftingAtSea) {
       shipIdleLoopRef.current = Animated.loop(
         Animated.sequence([
           Animated.timing(shipIdleSway, {
-            toValue: -3,
-            duration: 900,
+            toValue: -2,
+            duration: 1400,
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
           Animated.timing(shipIdleSway, {
-            toValue: 3,
-            duration: 900,
+            toValue: 2,
+            duration: 1400,
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
@@ -3806,26 +3871,46 @@ export default function MapScreen({ navigation }: Props) {
                 });
                 return (
                   <View style={styles.shipWrap}>
-                    {isMoving && !shipDeparting && (
-                      <>
-                        <RNImage
-                          source={wakeTier}
-                          resizeMode="contain"
-                          style={[styles.shipWake, wakeLayer(0.35, 0.85)]}
-                        />
-                        <RNImage
-                          source={wakeTier}
-                          resizeMode="contain"
-                          style={[styles.shipWake, wakeLayer(0.7, 0.4)]}
-                        />
-                      </>
-                    )}
+                    {(() => {
+                      // Foam trail: each stern puff spreads into a V either side of her track and fades.
+                      const now = Date.now();
+                      const px = (u: number) => Math.round(u * 6) / 6 * ZOOM; // snap to the 6-px art grid
+                      return wakeRef.current.flatMap((w, i) => {
+                        const age = (now - w.born) / WAKE_LIFE_MS;
+                        if (age >= 1) return [];
+                        // a churned white patch right at the stern that thins into two foam arms (a V)
+                        const spread = (0.8 + age * 10) * (0.55 + 0.45 * w.v);
+                        const nx = -Math.sin(w.a), ny = Math.cos(w.a) * 0.5;
+                        const op = 0.85 * (1 - age) * (1 - age) * (0.45 + 0.55 * w.v);
+                        const size = age < 0.25 ? 2 : age < 0.6 ? 1.5 : 1;
+                        const pts = [
+                          { x: w.x + nx * spread, y: w.y + ny * spread },
+                          { x: w.x - nx * spread, y: w.y - ny * spread },
+                        ];
+                        if (age < 0.4) pts.push({ x: w.x, y: w.y });
+                        return pts.map((q, j) => (
+                          <View
+                            key={`wk${w.born}-${j}`}
+                            pointerEvents="none"
+                            style={{
+                              position: 'absolute',
+                              left: SHIP_SPRITE_SIZE / 2 + px(q.x - player.x) - px(size) / 2,
+                              top: SHIP_SPRITE_H / 2 + px(q.y - player.y) - px(size) / 2,
+                              width: px(size),
+                              height: px(size),
+                              backgroundColor: j === 2 ? 'rgba(255,255,255,1)' : 'rgba(226,246,250,1)',
+                              opacity: j === 2 ? op * 0.8 : op,
+                            }}
+                          />
+                        ));
+                      });
+                    })()}
                     <Animated.Image
                       source={shipSpriteSource(shipHeading) /* the 2026-11-24 pixel-art Black Pearl: one frame per heading */}
                       resizeMode="contain"
                       style={[
                         styles.shipSprite,
-                        { transform: [{ translateY: Animated.add(walkBounce, shipIdleSway) }, { rotate: shipTurnBank === 'left' ? '-4deg' : shipTurnBank === 'right' ? '4deg' : shipStopSkid ? '2deg' : '0deg' }] },
+                        { transform: [{ translateY: shipIdleSway }, { rotate: shipBankRotate }] },
                       ]}
                     />
                   </View>
