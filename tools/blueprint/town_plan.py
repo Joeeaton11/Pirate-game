@@ -65,7 +65,7 @@ HOMES = {
     'tortuga_timber_yard': ("EDGE", 0), 'tortuga_warehouse': ("EDGE", 140),
 }
 SIZE = {'tavern': (26, 17), 'shop': (16, 14), 'market': (18, 14), 'warehouse': (22, 16), 'customs': (20, 15),
-        'smithy': (18, 14), 'manor': (20, 15), 'chapel': (20, 18)}
+        'smithy': (18, 14), 'manor': (20, 15), 'chapel': (26, 22)}  # the chapel stands out: the town's landmark
 ROOF = 1.45  # a sprite rises about this many depths above its footprint's base
 
 
@@ -159,12 +159,15 @@ def layout(cls, TOWN, CELL, types, seed=7):
         x = lo
         while x < hi - 10:
             w, d = size_at(rng, front_base(name, x, x + 14) or 0)
+            if rng.random() < 0.1: w, d = rng.choice([22, 24, 26]), rng.choice([16, 17, 18])  # a merchant's house or a store
             b = front_base(name, x, x + w)
             if b is not None and fits(x, b - d, x + w, b, d):
                 add(x, b - d, x + w, b, d); x += w
                 g = rng.random()
-                if g < 0.12: x += rng.uniform(2.0, 3.5)       # a slot between houses (drawn as an alley)
-                elif g < 0.16: x += rng.uniform(6, 9)         # a yard
+                # less of a suburb (2026-11-24): more slots and yards, now and then a real break in the row
+                if g < 0.2: x += rng.uniform(2.0, 4.0)        # a slot between houses (drawn as an alley)
+                elif g < 0.32: x += rng.uniform(7, 12)        # a yard
+                elif g < 0.38: x += rng.uniform(16, 24)       # an open plot: a garden or a gap in the row
             else:
                 x += 1.0
 
@@ -184,7 +187,8 @@ def layout(cls, TOWN, CELL, types, seed=7):
             if ys:
                 b = max(ys) + ROOF * d + 0.4
                 if fits(x, b - d, x + w, b, d):
-                    add(x, b - d, x + w, b, d); x += w + (rng.uniform(2, 3.5) if rng.random() < 0.12 else 0); continue
+                    g2 = rng.random()
+                    add(x, b - d, x + w, b, d); x += w + (rng.uniform(2, 4) if g2 < 0.2 else rng.uniform(8, 18) if g2 < 0.34 else 0); continue
             x += 1.0
 
     # 3. houses stepping down the winding lanes and alleys, on both sides, gable end to the lane
@@ -213,7 +217,7 @@ def layout(cls, TOWN, CELL, types, seed=7):
         # it needs a yard in front and must sit clear of the street fronts' back gardens
         if not fits(x - 3, y - d - 3, x + w + 3, y + 5, d + 3): continue
         add(x, y - d, x + w, y, d); courts += 1
-        if courts >= 18: break
+        if courts >= 9: break
 
     # paved yards: a cobbled yard in front of every house that faces a garden, and the narrow gaps
     # between neighbouring houses, so the town reads as a stone port with gardens behind, not a suburb

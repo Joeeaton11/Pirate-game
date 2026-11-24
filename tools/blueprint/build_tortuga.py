@@ -102,10 +102,14 @@ for t, g in zone_geoms:
     if t in P.HEDGED: bounds_hedge.append(g.exterior)
     if t in P.WALLED: bounds_wall.append(LineString(g.exterior.coords))
     if t in getattr(P, 'FENCED', []): bounds_fence.append(LineString(g.exterior.coords))
-fl, ft, fr, fb = P.FORT_WALLS
-fort_ring = box(fl, ft, fr, fb).intersection(coast.buffer(-3))
-bounds_wall.append(LineString(fort_ring.exterior.coords))
-gaps = unary_union([LineString(pts).buffer(w / 2 + 3, cap_style=2) for n, k, w, pts in P.ROADS] + [box(l, t, r, b_) for _, l, r, t, b_ in P.PLAZAS])
+_trace = Polygon(P.FORT_TRACE)
+_bast = [Polygon([(x - 11, y), (x, y - 11), (x + 11, y), (x, y + 11)]) for x, y in P.FORT_BASTIONS]
+fort_area = unary_union([_trace] + _bast).intersection(coast.buffer(-3))
+fort_area = max(getattr(fort_area, 'geoms', [fort_area]), key=lambda g: g.area)
+fort_line = LineString(fort_area.exterior.coords)
+gaps = unary_union([LineString(pts).buffer(w / 2 + 3, cap_style=2) for n, k, w, pts in P.ROADS] + [box(l, t, r, b_) for _, l, r, t, b_ in P.PLAZAS]
+                   + [box(*g) for g in P.FORT_GATES])
+fort_wall = fort_line.difference(gaps)
 def cut(lines): return unary_union([ln for ln in lines]).difference(gaps).difference(unary_union([g for g in bldg_geoms]).buffer(0.5))
 fence_geom, hedge_geom, wall_geom = cut(bounds_fence), cut(bounds_hedge), cut(bounds_wall)
 
@@ -131,7 +135,7 @@ for name, _, _, pts in P.ROADS:
 
 # ---------------------------------------------------------------- trees (blue-noise per zone)
 rng = random.Random(4)
-blocked_for_trees = unary_union([ways.buffer(5), unary_union(bldg_geoms).buffer(7), water.buffer(4),
+blocked_for_trees = unary_union([fort_area.buffer(2), ways.buffer(5), unary_union(bldg_geoms).buffer(7), water.buffer(4),
                                  town_box.buffer(6), Point(-290, 202).buffer(26)] + [g for t, g in zone_geoms if t in ('fields', 'graveyard', 'garden', 'sugarcane', 'paddock', 'allotment', 'pen', 'orchard', 'quarry')])
 trees = []
 def scatter(area, spacing, kind, keep=1.0):
@@ -425,6 +429,8 @@ for _r in [(-100, 258, -317, -287),   # the quay, the full length of the harbour
            (58, 122, -386, -372),     # Middle Pier head
            (196, 258, -373, -317)]:   # east wharf
     cls[_cells(*_r)] = 1
+cls[_cells(258, 300, -455, -373)] = 2          # the old planking by the fort becomes water...
+cls[_cells(262, 300, -400, -392)] = 1          # ...with the fort's own jetty running out from its water gate
 _bw = cls[_cells(-150, -100, -455, -287)]
 _bw[_bw == 1] = 4  # stray planking poking out over the beach becomes sand again
 # slips: the solid wharves get berths of open water cut into their seaward edge, so they read as piers
@@ -442,7 +448,8 @@ for _j in range(1, ny):
         g = box(l, t, l + sw * CELL, t + sd * CELL)
         if _keep_open.intersects(g.buffer(2)): continue
         cls[_j:_j + sd, _i:_i + sw] = 2; _slips += 1
-        _keep_open = _keep_open.union(box(l - 14, t - 2, l + sw * CELL + 14, t + sd * CELL + 4))
+        _gap = random.Random(_i * 31 + _j).uniform(26, 46)  # fewer berths, unevenly spaced
+        _keep_open = _keep_open.union(box(l - _gap, t - 2, l + sw * CELL + _gap, t + sd * CELL + 4))
 print('  wharf slips', _slips)
 # the wharves: the biggest stretches of open planking get dockside warehouses and sheds
 _wood = cls == 1
@@ -505,7 +512,7 @@ for g, b in zip(bldg_geoms, P.BUILDINGS):
 burn(water.buffer(1.2), 'water')  # the whole river and its muddy bank: Scally's feet stop at the edge, not mid-stream
 for x, y, k in trees:
     burn(Point(x, y).buffer(2.6 if k == 'rock' else 1.6), 'tree')  # trunks and boulders, not the crowns
-for g_, wdt in ((fence_geom, 0.7), (hedge_geom, 1.1), (wall_geom, 1.1)):
+for g_, wdt in ((fence_geom, 0.7), (hedge_geom, 1.1), (wall_geom, 1.1), (fort_wall, 2.4)):
     if not g_.is_empty: burn(g_.buffer(wdt), 'fence/hedge/wall')
 # terraces: retaining walls along the south half of each high-ground ellipse, cut where roads climb
 _road_cut = unary_union([LineString(pts).buffer(w / 2 + 1.5) for n_, k_, w, pts in P.ROADS if k_ != 'secret'])
@@ -918,6 +925,7 @@ extra.update({'contours': contours, 'contour_labels': clabels, 'cliffs': ''.join
               'districts_disc': districts, 'danger': danger, 'shallows': shallows, 'triggers': trig})
 # ---- boundaries and wildlife for the drawing; crab and gull spots for the game
 extra['fence'], extra['hedge'], extra['wall'] = fence_geom, hedge_geom, wall_geom
+extra['fort_area'], extra['fort_wall'] = fort_area, fort_wall
 extra['town_walls'] = town_walls
 wild = [(k, Polygon(p).buffer(0)) for k, p in P.WILDLIFE]
 extra['wildlife'] = wild
@@ -1088,12 +1096,12 @@ class _PP: pass
 _P2 = _PP(); _P2.__dict__.update({k: getattr(P, k) for k in dir(P) if not k.startswith('__')})
 _P2.PROPS = list(P.PROPS)
 import art_layers
-_avoid = unary_union([box(l, t - 3, r, b + 3) for l, r, t, b, gaps in town_walls] + [LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), town_box.buffer(4), dock_area.buffer(2)]
+_avoid = unary_union([box(l, t - 3, r, b + 3) for l, r, t, b, gaps in town_walls] + [LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [fort_area.buffer(3), ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), town_box.buffer(4), dock_area.buffer(2)]
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock')])
 _no_rocks = unary_union([dock_area.buffer(6), town_box.buffer(2)] + [LineString(pts).buffer(w / 2 + 3) for n_, k_, w, pts in P.ROADS])
 _fp = [(b[3] - b[5] / 2, b[4] - b[6] / 2, b[3] + b[5] / 2, b[4] + b[6] / 2) for b in P.BUILDINGS]
 _town_open = unary_union([box(l, t, r, b) for k_ in ('street', 'wood', 'water', 'sand') for l, r, t, b in town_rects.get(k_, [])] + [box(l, t, r, b) for l, r, t, b in blocks])
-_avoid = unary_union([box(l, t - 3, r, b + 3) for l, r, t, b, gaps in town_walls] + [LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), _town_open.buffer(1.5), dock_area.buffer(2)]
+_avoid = unary_union([box(l, t - 3, r, b + 3) for l, r, t, b, gaps in town_walls] + [LineString(tw).buffer(2.5) for tw in terrace_walls] + [g_.buffer(1.8) for g_ in (fence_geom, hedge_geom, wall_geom) if not g_.is_empty] + [fort_area.buffer(3), ways.buffer(2), unary_union(bldg_geoms).buffer(3), water.buffer(2), _town_open.buffer(1.5), dock_area.buffer(2)]
                      + [g for t_, g in zone_geoms if t_ in ('fields', 'sugarcane', 'allotment', 'paddock', 'pen', 'graveyard', 'rock', 'quarry', 'orchard')])
 art_layers.STONES[:] = STONES
 art_layers.build('/tmp/plan_art_full.png', coast, beach, zone_geoms, water, P, trees, bridges, dock_geoms, breakwater, extra, _avoid, _no_rocks, _fp, town_rects, town_walls)

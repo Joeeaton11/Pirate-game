@@ -14,10 +14,11 @@
 <text x="-238" y="-261.4" font-family="Arial, Helvetica, sans-serif" font-size="1.48" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">WEST POINT SHACK</text>
 <text x="-278" y="-329.6" font-family="Arial, Helvetica, sans-serif" font-size="1.02" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">THE SIGNAL POST</text>
 <text x="-224" y="-473.6" font-family="Arial, Helvetica, sans-serif" font-size="1.09" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">THE LIGHTHOUSE</text>
-<text x="364" y="-349" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">FORT DE ROCHER</text>
-<text x="394" y="-329.5" font-family="Arial, Helvetica, sans-serif" font-size="1.22" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">BARRACKS</text>
-<text x="354" y="-316.8" font-family="Arial, Helvetica, sans-serif" font-size="0.42" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">GATE TOWER</text>
-<text x="374" y="-316.8" font-family="Arial, Helvetica, sans-serif" font-size="0.42" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">GATE TOWER</text>
+<text x="328" y="-361" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">FORT DE ROCHER</text>
+<text x="326" y="-331" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">BARRACKS</text>
+<text x="393" y="-333.8" font-family="Arial, Helvetica, sans-serif" font-size="0.58" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">POWDER STORE</text>
+<text x="354" y="-319.8" font-family="Arial, Helvetica, sans-serif" font-size="0.56" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">GATE TOWER</text>
+<text x="374" y="-319.8" font-family="Arial, Helvetica, sans-serif" font-size="0.56" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">GATE TOWER</text>
 <text x="500" y="-35.6" font-family="Arial, Helvetica, sans-serif" font-size="0.99" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">LOOKOUT</text>
 <text x="468" y="-175" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">THE SHIPYARD</text>
 <text x="464" y="-137" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.1">SHIPWRIGHT</text>
@@ -77,10 +78,10 @@
 <text x="238" y="-46.3" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">THE MENAGERIE</text>
 <text x="270" y="-45.2" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">THE TANNERY</text>
 <text x="18" y="-44.2" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">THE COOPER</text>
-<text x="176" y="-40.4" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">THE SEXTON</text>
+<text x="176" y="-40.9" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">THE SEXTON</text>
 <text x="-28" y="-44.2" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">THE SAILMAKER</text>
-<text x="120" y="-38.2" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">CHAPELLE NOTRE-DAME</text>
-<text x="-80" y="-41.9" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">OVERFLOW WAREHOUSE</text>
+<text x="120" y="-38.9" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">CHAPELLE NOTRE-DAME</text>
+<text x="-80" y="-37.9" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">OVERFLOW WAREHOUSE</text>
 <text x="0" y="29" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">THE TIMBER YARD</text>
 <text x="140" y="29" font-family="Arial, Helvetica, sans-serif" font-size="2.0" font-weight="bold" fill="#2b2a27" text-anchor="middle" letter-spacing="0.15">SMUGGLERS</text>
 </svg>

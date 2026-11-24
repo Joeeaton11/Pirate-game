@@ -23,7 +23,7 @@ ZONES = [
     # Rocky ground: the lighthouse headland, the grotto cliffs, the fort's crag.
     ('rock', [(-272, -470), (-245, -505), (-205, -500), (-222, -440), (-246, -410), (-274, -420)]),
     ('rock', [(-470, 300), (-430, 300), (-405, 340), (-440, 370), (-472, 340)]),
-    ('rock', [(318, -430), (405, -360), (412, -330), (340, -326), (320, -380)]),
+    ('rock', [(306, -432), (322, -424), (314, -412), (300, -416)]),  # only the crag's tip now: the fort covers the rest
     # The burners' wood west of the Hollow (charcoal clearing cut out of it by the builder).
     ('forest', [(-356, 146), (-300, 136), (-274, 150), (-278, 228), (-320, 250), (-358, 222)]),
     # Fontaine farmstead paddock in the meadows.
@@ -84,13 +84,13 @@ ROADS = [
     ('Yard Lane', 'lane', 5, [(444, -153), (481, -153)]),
     ('Rope Bridge', 'path', 3, [(432, -70), (472, -40)]),
     ("Smugglers' Trail", 'secret', 3, [(-4, 222), (-80, 262), (-170, 282), (-262, 300), (-340, 312), (-406, 322)]),
+    ('Fort Parade', 'lane', 6, [(364, -321), (364, -343), (334, -343)]),
 ]
 
 # Plazas (cobbled open ground): (name, l, r, t, b)
 PLAZAS = [
     ('Cayonne Square', -362, -300, -60, -10),
     ('Crossroads Green', -256, -216, 348, 376),
-    ('Fort Yard', 346, 384, -336, -320),
     ('Rocher Green', 380, 404, -250, -230),
 ]
 
@@ -115,10 +115,11 @@ BUILDINGS = [
     ('tortuga_signal_post', 'Signal Post', 'civic', -278, -330, 14, 12, 'E'),
     ('tortuga_lighthouse_tower', 'Lighthouse', 'landmark', -224, -474, 14, 14, 'S'),
     # East: fort, shipyard, manor, watchtower.
-    ('tortuga_fort', 'Fort de Rocher', 'fort', 364, -350, 44, 28, 'S'),
-    (None, 'Barracks', 'civic', 394, -330, 10, 16, 'W'),
-    (None, 'Gate Tower', 'fort', 354, -317, 6, 6, None),
-    (None, 'Gate Tower', 'fort', 374, -317, 6, 6, None),
+    ('tortuga_fort', 'Fort de Rocher', 'fort', 328, -362, 36, 22, 'S'),
+    (None, 'Barracks', 'civic', 326, -332, 26, 9, 'E'),
+    (None, 'Powder Store', 'fort', 393, -334, 8, 7, 'W'),
+    (None, 'Gate Tower', 'fort', 354, -320, 7, 7, None),
+    (None, 'Gate Tower', 'fort', 374, -320, 7, 7, None),
     (None, 'Lookout', 'shed', 500, -36, 8, 8, 'S'),
     ('tortuga_shipyard', 'The Shipyard', 'warehouse', 468, -176, 30, 22, 'W'),
     ('tortuga_shipwrights_slip', "Shipwright's Slip", 'warehouse', 464, -138, 24, 18, 'W'),
@@ -196,7 +197,11 @@ PROPS = [
     ('cave', -416, 318), ('wreck', -452, 290), ('marked_palm', -354, 394), ('campfire', -2, 228),
     ('still', 486, 128),
     # Fort battery facing the harbour.
-    ('cannon', 346, -362), ('cannon', 382, -362), ('cannon', 352, -374), ('cannon', 376, -374),
+    # the sea wall's guns, facing out over the harbour mouth
+    ('cannon', 326, -406), ('cannon', 340, -394), ('cannon', 354, -382), ('cannon', 368, -370), ('cannon', 382, -358),
+    ('cannon', 396, -346), ('cannon', 408, -334), ('cannon', 312, -330),
+    ('cannonballs', 334, -398), ('cannonballs', 362, -374), ('cannonballs', 390, -350),
+    ('barrels', 400, -328), ('well', 352, -350), ('crates', 312, -344),
     # Busier docks: crane, cargo, bollards and nets on the town wharf; nets at the jetties.
     ('crane', 160, -297), ('cargo', 118, -296), ('cargo', 205, -296), ('cargo', 40, -299), ('nets', 232, -298), ('nets', -205, -372),
     ('bollard', -40, -305), ('bollard', 0, -305), ('bollard', 60, -305), ('bollard', 120, -297), ('bollard', 180, -297), ('bollard', 240, -297),
@@ -328,7 +333,12 @@ TOWN_STREETS = [
 # ---- Boundaries: fences round cottage yards (behind and to the sides; front open), hedges round
 # the fields, stone walls round the graveyard, the manor garden and the fort. Gaps are cut wherever
 # a road or path meets them, so every gate lines up with the way in.
-FORT_WALLS = (334, -376, 402, -318)   # l, t, r, b — clipped to the coast; gate where the Fort Road enters
+# The fort (2026-11-24): a bastioned trace filling the crag, its sea wall following the shore, arrow
+# bastions at the landward corners, the gate where the Fort Road comes in and a water gate onto the
+# fort's own jetty in the harbour.
+FORT_TRACE = [(304, -412), (328, -428), (432, -330), (432, -322), (304, -322)]  # the sea wall follows the shore
+FORT_BASTIONS = [(304, -412), (304, -322), (414, -322)]
+FORT_GATES = [(298, -402, 312, -392)]   # l, t, r, b: the water gate onto the jetty
 HEDGED = ['fields', 'sugarcane', 'paddock']
 WALLED = ['graveyard', 'garden']
 

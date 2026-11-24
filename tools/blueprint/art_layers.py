@@ -458,6 +458,73 @@ def walls(fence, hedge, wall, terraces=None, town_walls=()):
 
 
 
+def fort(area, wall):
+    """Fort de Rocher (2026-11-24): a flagstoned parade ground inside a thick bastioned curtain wall:
+    a wall-walk along the top with merlons on the outer edge, a tall dressed-stone face wherever the
+    wall looks south toward the camera, and a round tower on every corner of the trace."""
+    im, T = new_layer(); d = ImageDraw.Draw(im); rng = random.Random(21)
+    if area is None or area.is_empty: return im
+    from shapely.geometry import Polygon as _Pg, Point as _Pt
+    inner = area.buffer(-2.2)
+    # parade ground: big flagstones, lit and shadowed so it reads as dressed stone, not cobbles
+    minx, miny, maxx, maxy = inner.bounds
+    y = miny
+    while y < maxy:
+        x = minx + (rng.random() * 1.2 if int(y) % 2 else 0)
+        while x < maxx:
+            w = rng.uniform(2.2, 3.4)
+            if inner.contains(_Pt(x + w / 2, y + 1.1)):
+                c = rng.choice([(168, 160, 146), (160, 152, 138), (176, 168, 154), (152, 146, 134)])
+                X0_, Y0_ = T(x, y); X1_, Y1_ = T(x + w, y + 2.2)
+                d.rectangle([X0_, Y0_, X1_ - 1, Y1_ - 1], fill=c + (255,), outline=(104, 98, 88, 255))
+                d.line([X0_ + 1, Y0_ + 1, X1_ - 2, Y0_ + 1], fill=(198, 190, 176, 255))
+            x += w
+        y += 2.2
+    segs = [ln for ln in getattr(wall, 'geoms', [wall]) if ln.geom_type == 'LineString' and ln.length > 0.5]
+    # the outer face, seen from the south: only where the wall's outside looks toward the camera
+    for ln in segs:
+        cs = list(ln.coords)
+        for (x0, y0), (x1, y1) in zip(cs, cs[1:]):
+            mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+            L = math.hypot(x1 - x0, y1 - y0) or 1
+            nx, ny = (y1 - y0) / L, -(x1 - x0) / L
+            if area.contains(_Pt(mx + nx * 3, my + ny * 3)): nx, ny = -nx, -ny   # point the normal outward
+            if ny > 0.25:
+                retaining(d, T, [(x0 + nx * 2.2, y0 + ny * 2.2), (x1 + nx * 2.2, y1 + ny * 2.2)], rng, height=FACE * 1.4)
+    # the wall-walk: a thick band of stone with a darker outer edge and merlons along it
+    for ln in segs:
+        band = ln.buffer(2.2, cap_style=2, join_style=2)
+        for g in getattr(band, 'geoms', [band]):
+            d.polygon([T(*c) for c in g.exterior.coords], fill=(150, 142, 128, 255), outline=(62, 58, 52, 255))
+        cs = [T(*c) for c in ln.coords]
+        d.line(cs, fill=(176, 168, 152, 255), width=int(1.6 * S))
+        for i in range(int(ln.length / 1.6) + 1):
+            p = ln.interpolate(i * 1.6)
+            q = ln.interpolate(min(ln.length, i * 1.6 + 0.3))
+            L = math.hypot(q.x - p.x, q.y - p.y) or 1
+            nx, ny = (q.y - p.y) / L, -(q.x - p.x) / L
+            if area.contains(_Pt(p.x + nx * 3, p.y + ny * 3)): nx, ny = -nx, -ny
+            if i % 2 == 0:
+                X, Y = T(p.x + nx * 1.6, p.y + ny * 1.6)
+                d.rectangle([X - 3, Y - 5, X + 3, Y + 1], fill=(184, 176, 160, 255), outline=(60, 56, 50, 255))
+    # round towers on the corners of the trace
+    ext = list(area.exterior.coords)[:-1]
+    for i, (x, y) in enumerate(ext):
+        ax, ay = ext[i - 1]; bx, by = ext[(i + 1) % len(ext)]
+        a1 = math.atan2(ay - y, ax - x); a2 = math.atan2(by - y, bx - x)
+        turn = abs((a1 - a2 + math.pi) % (2 * math.pi) - math.pi)
+        if turn > 2.6: continue  # not really a corner
+        X, Y = T(x, y); r = 3.4 * S
+        d.ellipse([X - r, Y - r * 0.3, X + r, Y + r * 1.3], fill=(70, 64, 56, 255))          # its face
+        d.ellipse([X - r, Y - r, X + r, Y + r * 0.6], fill=(156, 148, 134, 255), outline=(60, 56, 50, 255))
+        d.ellipse([X - r * 0.65, Y - r * 0.75, X + r * 0.65, Y + r * 0.35], fill=(128, 120, 108, 255))
+        for k in range(8):
+            t = k / 8 * 2 * math.pi
+            mx, my = X + math.cos(t) * r * 0.85, Y - r * 0.2 + math.sin(t) * r * 0.75
+            d.rectangle([mx - 3, my - 4, mx + 3, my + 1], fill=(184, 176, 160, 255), outline=(60, 56, 50, 255))
+    return im
+
+
 def bridge(im, d, T, gp, name, kind, w, pts, rng):
     """A proper river bridge: stone abutments on both banks, a deck a little wider than the road,
     rails with posts on both sides, and its shadow on the water. Lanes and main roads get a stone
@@ -898,6 +965,7 @@ def build(out_path, coast, beach, zones, water, P, trees, bridges, dock_geoms, b
              ('03_rivers', lambda: rivers(water)),
              ('04_roads', lambda: roads(P)),
              ('05_walls', lambda: walls(extra.get('fence'), extra.get('hedge'), extra.get('wall'), extra.get('terraces'), town_walls)),
+             ('05b_fort', lambda: fort(extra.get('fort_area'), extra.get('fort_wall'))),
              ('06_docks', lambda: docks(P, dock_geoms, breakwater, bridges)),
              ('07_cliffs', lambda: cliffs(coast, zones, no_rocks)),
              ('08_plants', lambda: plants(trees, coast, zones, avoid)),
