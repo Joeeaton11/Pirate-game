@@ -2109,8 +2109,8 @@ export default function MapScreen({ navigation }: Props) {
         if (m.speed > 5 && m.tick === 0) {
           const c = Math.cos(m.angle), sn = Math.sin(m.angle);
           wakeRef.current.push({
-            x: playerRef.current.x - c * 17 + (Math.random() - 0.5) * 1.2,
-            y: playerRef.current.y + 9 - sn * 17 * 0.5 + (Math.random() - 0.5) * 1.2,
+            x: playerRef.current.x - c * 18 + (Math.random() - 0.5) * 1.2,
+            y: playerRef.current.y + 4 - sn * 18 * 0.5 + (Math.random() - 0.5) * 1.2,
             born: now,
             a: m.angle,
             v: m.speed / SHIP_MAX_SPEED,
@@ -3916,38 +3916,74 @@ export default function MapScreen({ navigation }: Props) {
                 return (
                   <View style={styles.shipWrap}>
                     {(() => {
-                      // Foam trail: each stern puff spreads into a V either side of her track and fades.
+                      // Wake (2026-11-24): white churn boiling at the stern that opens into two foam
+                      // arms (a Kelvin V) and fades through pale turquoise into the sea; a bow wave
+                      // curling off both sides of the bow; foam scales with her speed. Pixel squares
+                      // on the 6 px art grid, opacity in hard steps like hand-drawn pixel foam.
                       const now = Date.now();
-                      const px = (u: number) => Math.round(u * 6) / 6 * ZOOM; // snap to the 6-px art grid
-                      return wakeRef.current.flatMap((w, i) => {
-                        const age = (now - w.born) / WAKE_LIFE_MS;
-                        if (age >= 1) return [];
-                        // a churned white patch right at the stern that thins into two foam arms (a V)
-                        const spread = (0.8 + age * 10) * (0.55 + 0.45 * w.v);
-                        const nx = -Math.sin(w.a), ny = Math.cos(w.a) * 0.5;
-                        const op = 0.85 * (1 - age) * (1 - age) * (0.45 + 0.55 * w.v);
-                        const size = age < 0.25 ? 2 : age < 0.6 ? 1.5 : 1;
-                        const pts = [
-                          { x: w.x + nx * spread, y: w.y + ny * spread },
-                          { x: w.x - nx * spread, y: w.y - ny * spread },
-                        ];
-                        if (age < 0.4) pts.push({ x: w.x, y: w.y });
-                        return pts.map((q, j) => (
+                      const px = (u: number) => Math.round(u * 6) / 6 * ZOOM;
+                      const step = (o: number) => (o > 0.7 ? 0.9 : o > 0.45 ? 0.65 : o > 0.22 ? 0.4 : o > 0.08 ? 0.2 : 0);
+                      const out: React.ReactNode[] = [];
+                      const dot = (key: string, x: number, y: number, size: number, op: number, col: string) => {
+                        const o = step(op);
+                        if (!o) return;
+                        out.push(
                           <View
-                            key={`wk${w.born}-${j}`}
+                            key={key}
                             pointerEvents="none"
                             style={{
                               position: 'absolute',
-                              left: SHIP_SPRITE_SIZE / 2 + px(q.x - player.x) - px(size) / 2,
-                              top: SHIP_SPRITE_H / 2 + px(q.y - player.y) - px(size) / 2,
+                              left: SHIP_SPRITE_SIZE / 2 + px(x - player.x) - px(size) / 2,
+                              top: SHIP_SPRITE_H / 2 + px(y - player.y) - px(size) / 2,
                               width: px(size),
                               height: px(size),
-                              backgroundColor: j === 2 ? 'rgba(255,255,255,1)' : 'rgba(226,246,250,1)',
-                              opacity: j === 2 ? op * 0.8 : op,
+                              backgroundColor: col,
+                              opacity: o,
                             }}
                           />
-                        ));
-                      });
+                        );
+                      };
+                      for (const w of wakeRef.current) {
+                        const age = (now - w.born) / WAKE_LIFE_MS;
+                        if (age >= 1) continue;
+                        const nx = -Math.sin(w.a), ny = Math.cos(w.a) * 0.5;
+                        const fx = Math.cos(w.a), fy = Math.sin(w.a) * 0.5;
+                        const k = `wk${w.born}`;
+                        // churn: a tight white boil right behind the stern
+                        if (age < 0.3) {
+                          const j = (w.born % 7) / 7 - 0.5;
+                          dot(k + 'c0', w.x + nx * j, w.y + ny * j, 2.2 - age * 3, (1 - age / 0.3) * w.v + 0.15, '#ffffff');
+                          dot(k + 'c1', w.x - nx * (1.6 + j), w.y - ny * (1.6 + j), 1.3, (0.8 - age * 2) * w.v, '#f2fdff');
+                          dot(k + 'c2', w.x + nx * (1.6 - j), w.y + ny * (1.6 - j), 1.3, (0.8 - age * 2) * w.v, '#f2fdff');
+                        }
+                        // the two arms of the V, each a short crest of two puffs
+                        const spread = (1.4 + age * 11) * (0.6 + 0.4 * w.v);
+                        const fade = (1 - age) * (1 - age) * (0.5 + 0.5 * w.v);
+                        const col = age < 0.35 ? '#ffffff' : age < 0.65 ? '#dff7f7' : '#a9e3e6';
+                        const size = age < 0.4 ? 1.5 : 1;
+                        for (const side of [1, -1]) {
+                          const bx = w.x + nx * spread * side, by = w.y + ny * spread * side;
+                          dot(`${k}a${side}`, bx, by, size, fade, col);
+                          if (age > 0.15) dot(`${k}b${side}`, bx + fx * 0.9 - nx * side * 0.6, by + fy * 0.9 - ny * side * 0.6, 1, fade * 0.7, col);
+                        }
+                      }
+                      // bow wave: foam curling off both sides of the bow while she has way on
+                      const m = shipMotionRef.current;
+                      const v = Math.min(1, m.speed / SHIP_MAX_SPEED);
+                      if (v > 0.12) {
+                        const c = Math.cos(m.angle), sn = Math.sin(m.angle);
+                        const nx = -sn, ny = c * 0.5;
+                        const bowX = player.x + c * 17, bowY = player.y + 4 + sn * 17 * 0.5;
+                        const flick = Math.floor(now / 140) % 2;
+                        for (const side of [1, -1]) {
+                          for (let i = 0; i < 3; i++) {
+                            const back = i * 2.2, out_ = 1.2 + i * (1.1 + v);
+                            dot(`bw${side}${i}`, bowX - c * back + nx * out_ * side, bowY - sn * 0.5 * back + ny * out_ * side,
+                              i === 0 ? 1.5 : 1, v * (1 - i * 0.28) * (flick === i % 2 ? 1 : 0.75), i === 0 ? '#ffffff' : '#e6fafa');
+                          }
+                        }
+                      }
+                      return out;
                     })()}
                     <Animated.Image
                       source={SHIP_3D_FRAMES[shipFrame] /* the 2026-11-24 3D Black Pearl: 16 views */}

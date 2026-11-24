@@ -15,8 +15,16 @@ for i, ang in enumerate(ANGS):
     q = np.asarray(c).astype(float)
     warm = np.clip((q[..., 0] - q[..., 2] - 4) / 20, 0, 1)[..., None]  # lift the timber, keep the sails black
     q[..., :3] = np.clip(q[..., :3] * (1 - warm) + 255 * ((q[..., :3] / 255) ** 0.9) * 1.0 * warm, 0, 255)
+    # crisper, more hand-made look: a touch more contrast, then only 24 colours (2026-11-24)
+    q[..., :3] = np.clip((q[..., :3] - 128) * 1.15 + 128 + 6, 0, 255)
     c = Image.fromarray(q.astype(np.uint8), 'RGBA')
     al = c.getchannel('A').point(lambda v: 255 if v > 110 else 0)
-    p = c.convert('RGB').quantize(64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert('RGBA'); p.putalpha(al)
+    p = c.convert('RGB').quantize(24, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert('RGBA'); p.putalpha(al)
+    # one-pixel dark outline round the whole ship, like the rest of the island's pixel art
+    A = np.asarray(al) > 0
+    ring = np.zeros_like(A)
+    ring[1:, :] |= A[:-1, :]; ring[:-1, :] |= A[1:, :]; ring[:, 1:] |= A[:, :-1]; ring[:, :-1] |= A[:, 1:]
+    ring &= ~A
+    P = np.asarray(p).copy(); P[ring] = (24, 18, 14, 255); p = Image.fromarray(P, 'RGBA')
     p.resize((S * 3, S * 3), Image.NEAREST).save(f'{dst}/ship_{i:02d}.png')
 print('scale', f)
