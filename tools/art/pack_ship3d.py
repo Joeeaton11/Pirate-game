@@ -21,10 +21,19 @@ for i, ang in enumerate(ANGS):
     al = c.getchannel('A').point(lambda v: 255 if v > 110 else 0)
     p = c.convert('RGB').quantize(24, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert('RGBA'); p.putalpha(al)
     # one-pixel dark outline round the whole ship, like the rest of the island's pixel art
-    A = np.asarray(al) > 0
+    A0 = np.asarray(al) > 0
+    # outline only the solid parts (hull, sails), never the thin rigging lines: open the mask first
+    def erode(M):
+        E = M.copy(); E[1:, :] &= M[:-1, :]; E[:-1, :] &= M[1:, :]; E[:, 1:] &= M[:, :-1]; E[:, :-1] &= M[:, 1:]; return E
+    def dilate(M):
+        D = M.copy(); D[1:, :] |= M[:-1, :]; D[:-1, :] |= M[1:, :]; D[:, 1:] |= M[:, :-1]; D[:, :-1] |= M[:, 1:]; return D
+    A = dilate(erode(A0))
     ring = np.zeros_like(A)
     ring[1:, :] |= A[:-1, :]; ring[:-1, :] |= A[1:, :]; ring[:, 1:] |= A[:, :-1]; ring[:, :-1] |= A[:, 1:]
-    ring &= ~A
-    P = np.asarray(p).copy(); P[ring] = (24, 18, 14, 255); p = Image.fromarray(P, 'RGBA')
+    ring &= ~A0
+    P = np.asarray(p).copy(); P[ring] = (24, 18, 14, 255)
+    thin = A0 & ~A  # rigging: dark tarred rope, not pale lines
+    P[thin, :3] = (P[thin, :3].astype(float) * 0.45 + np.array([40, 30, 22]) * 0.55).astype(np.uint8)
+    p = Image.fromarray(P, 'RGBA')
     p.resize((S * 3, S * 3), Image.NEAREST).save(f'{dst}/ship_{i:02d}.png')
 print('scale', f)
