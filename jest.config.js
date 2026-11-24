@@ -9,5 +9,6 @@ module.exports = {
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {}],
+    '\\.(png|jpg)$': '<rootDir>/jest/fileTransform.js',
   },
 };

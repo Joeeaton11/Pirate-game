@@ -1,7 +1,8 @@
+import { START_DISTRICTS } from '../blueprint/planGameplay';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { BLACK_PEARL_ISLAND_ID, BLACK_PEARL_START_OFFSET } from '../data/blackPearl';
+import { BLACK_PEARL_ISLAND_ID, BLACK_PEARL_OLD_START_OFFSET, BLACK_PEARL_START_OFFSET } from '../data/blackPearl';
 import { BUILDINGS } from '../data/buildings';
 import { CREW_TEMPLATES } from '../data/crew';
 import { ISLANDS } from '../data/islands';
@@ -90,6 +91,21 @@ interface GameState {
   blackPearlBoarded: boolean;
   blackPearlPosition: { x: number; y: number };
   foundTreasureIds: string[];
+  /** Tortuga districts the player has walked into (blueprint discovery fog). */
+  discoveredDistricts: string[];
+  /** District errands handed in (blueprint ERRANDS). */
+  completedErrands: string[];
+  /** Rowboat taxi between Tortuga's jetties (an errand reward). */
+  ferryUnlocked: boolean;
+  /** Buried treasure already dug up, and carved skulls found (Tortuga). */
+  dugSpots: string[];
+  foundSkulls: string[];
+  /** Shortcuts on Tortuga opened from their far side (a fallen log, a rope ladder). */
+  unlockedShortcuts: string[];
+  /** Messages in bottles already read. */
+  readBottles: string[];
+  /** Dig-spot clues already read (so the journal and tracker can show them). */
+  seenClues: string[];
   currentBlackfinStageId: string | null;
   completedBlackfinStageIds: string[];
   currentGraceStageId: string | null;
@@ -157,6 +173,20 @@ interface GameState {
   captureBlackPearl: () => void;
   boardBlackPearl: () => void;
   disembarkBlackPearl: (position: { x: number; y: number }) => void;
+  discoverDistrict: (name: string) => void;
+  /** Hand over `amount` of a resource for an errand; returns false if you don't have enough. */
+  completeErrand: (id: string, resourceId: string, amount: number, gold: number) => boolean;
+  unlockFerry: () => void;
+  /** Dig up a buried treasure (once): adds its gold. */
+  digSpot: (id: string, gold: number) => boolean;
+  findSkull: (district: string) => boolean;
+  unlockShortcut: (id: string) => boolean;
+  readBottle: (id: string) => boolean;
+  seeClue: (id: string) => void;
+  /** Pay for something with gold; false if you can't afford it. */
+  spendGold: (amount: number) => boolean;
+  /** Turn resources into another at a fixed rate (e.g. 3 sugarcane -> 1 rum); false if short. */
+  convertResource: (from: string, fromAmount: number, to: string, toAmount: number) => boolean;
 }
 
 const STARTER_TEMPLATE_ID = 'deckhand_swordsman';
@@ -192,6 +222,14 @@ type InitialState = Pick<
   | 'blackPearlBoarded'
   | 'blackPearlPosition'
   | 'foundTreasureIds'
+  | 'discoveredDistricts'
+  | 'completedErrands'
+  | 'ferryUnlocked'
+  | 'dugSpots'
+  | 'foundSkulls'
+  | 'unlockedShortcuts'
+  | 'readBottles'
+  | 'seenClues'
   | 'currentBlackfinStageId'
   | 'completedBlackfinStageIds'
   | 'currentGraceStageId'
@@ -233,11 +271,35 @@ function createInitialState(): InitialState {
       y: ISLANDS[BLACK_PEARL_ISLAND_ID].position.y + BLACK_PEARL_START_OFFSET.y,
     },
     foundTreasureIds: [],
+    discoveredDistricts: START_DISTRICTS,
+    completedErrands: [],
+    ferryUnlocked: false,
+    dugSpots: [],
+    foundSkulls: [],
+    unlockedShortcuts: [],
+    readBottles: [],
+    seenClues: [],
     currentBlackfinStageId: null,
     completedBlackfinStageIds: [],
     currentGraceStageId: null,
     completedGraceStageIds: [],
   };
+}
+
+// Web playtest: `?reset=1` wipes the save before it loads (a fresh start), then drops the flag
+// from the address so a reload doesn't wipe it again.
+if (typeof window !== 'undefined' && window.location && window.localStorage) {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('reset') === '1') {
+      window.localStorage.removeItem('pirate-game-storage');
+      q.delete('reset');
+      const rest = q.toString();
+      window.history.replaceState(null, '', window.location.pathname + (rest ? '?' + rest : '') + window.location.hash);
+    }
+  } catch {
+    // storage blocked: nothing to reset
+  }
 }
 
 export const useGameStore = create<GameState>()(
@@ -481,6 +543,53 @@ export const useGameStore = create<GameState>()(
       boardBlackPearl: () => set({ blackPearlBoarded: true }),
 
       disembarkBlackPearl: (position) => set({ blackPearlBoarded: false, blackPearlPosition: position }),
+      unlockFerry: () => set({ ferryUnlocked: true }),
+      digSpot: (id, gold) => {
+        if (get().dugSpots.includes(id)) return false;
+        set({ dugSpots: [...get().dugSpots, id], gold: get().gold + gold });
+        return true;
+      },
+      seeClue: (id) => {
+        if (!get().seenClues.includes(id)) set({ seenClues: [...get().seenClues, id] });
+      },
+      readBottle: (id) => {
+        if (get().readBottles.includes(id)) return false;
+        set({ readBottles: [...get().readBottles, id] });
+        return true;
+      },
+      unlockShortcut: (id) => {
+        if ((get().unlockedShortcuts ?? []).includes(id)) return false;
+        set({ unlockedShortcuts: [...(get().unlockedShortcuts ?? []), id] });
+        return true;
+      },
+      findSkull: (district) => {
+        if (get().foundSkulls.includes(district)) return false;
+        set({ foundSkulls: [...get().foundSkulls, district] });
+        return true;
+      },
+      spendGold: (amount) => {
+        if (get().gold < amount) return false;
+        set({ gold: get().gold - amount });
+        return true;
+      },
+      convertResource: (from, fromAmount, to, toAmount) => {
+        const r = get().resources;
+        if ((r[from] ?? 0) < fromAmount) return false;
+        set({ resources: { ...r, [from]: (r[from] ?? 0) - fromAmount, [to]: (r[to] ?? 0) + toAmount } });
+        return true;
+      },
+      completeErrand: (id, resourceId, amount, gold) => {
+        const state = get();
+        if (state.completedErrands.includes(id) || (state.resources[resourceId] ?? 0) < amount) return false;
+        set({
+          completedErrands: [...state.completedErrands, id],
+          resources: { ...state.resources, [resourceId]: (state.resources[resourceId] ?? 0) - amount },
+          gold: state.gold + gold,
+        });
+        return true;
+      },
+      discoverDistrict: (name) =>
+        set((state) => (state.discoveredDistricts.includes(name) ? state : { discoveredDistricts: [...state.discoveredDistricts, name] })),
 
       markSeen: (templateId) =>
         set((state) =>
@@ -806,10 +915,29 @@ export const useGameStore = create<GameState>()(
         blackPearlBoarded: state.blackPearlBoarded,
         blackPearlPosition: state.blackPearlPosition,
         foundTreasureIds: state.foundTreasureIds,
+        discoveredDistricts: state.discoveredDistricts,
+        completedErrands: state.completedErrands,
+        ferryUnlocked: state.ferryUnlocked,
+        dugSpots: state.dugSpots,
+        foundSkulls: state.foundSkulls,
+        unlockedShortcuts: state.unlockedShortcuts,
+        readBottles: state.readBottles,
+        seenClues: state.seenClues,
         completedBlackfinStageIds: state.completedBlackfinStageIds,
         completedGraceStageIds: state.completedGraceStageIds,
       }),
       onRehydrateStorage: () => (state) => {
+        // Saves from before the mooring moved still park her at the old west pier.
+        if (state && !state.blackPearlBoarded) {
+          const c = ISLANDS[BLACK_PEARL_ISLAND_ID].position;
+          const p = state.blackPearlPosition;
+          const old = { x: c.x + BLACK_PEARL_OLD_START_OFFSET.x, y: c.y + BLACK_PEARL_OLD_START_OFFSET.y };
+          if (!p || Math.hypot(p.x - old.x, p.y - old.y) < 1) {
+            useGameStore.setState({
+              blackPearlPosition: { x: c.x + BLACK_PEARL_START_OFFSET.x, y: c.y + BLACK_PEARL_START_OFFSET.y },
+            });
+          }
+        }
         state?.setHasHydrated(true);
       },
     }

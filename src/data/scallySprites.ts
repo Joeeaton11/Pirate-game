@@ -1,3 +1,7 @@
+// v2 SPRITES (2026-11-16): walk/run/idle in all 8 directions plus wave/celebrate/attack/hurt, made
+// from one locked pose per direction animated as AI video and cut to pixel frames on one shared
+// 112x128 canvas (tools/sprites/video_to_frames.py). W/SW/NW are mirrors of E/SE/NE. Older notes
+// below describe the art this replaced.
 // Captain Scally's on-map sprite art. Sliced from the production sprite sheet the user supplied
 // (assets/brand/scally_sprite_sheet_source.png, "Scallywags" style guide) into per-frame
 // transparent PNGs under assets/sprites/scally/ — see GAME_DESIGN.md for the art-overhaul note.
@@ -44,120 +48,88 @@ export type FacingDirection = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
 /** Every direction now has exactly 12 real frames (see header note) — no more per-direction
  * variance, so this is both the shared upper bound for MapScreen's walk-frame counter and each
  * direction's own real length. */
-export const WALK_FRAME_COUNT = 12;
+export const WALK_FRAME_COUNT = 8;
 
 const WALK_SOURCES: Record<FacingDirection, any[]> = {
   s: [
-    require('../../assets/sprites/scally/walk_s_0.png'),
-    require('../../assets/sprites/scally/walk_s_1.png'),
-    require('../../assets/sprites/scally/walk_s_2.png'),
-    require('../../assets/sprites/scally/walk_s_3.png'),
-    require('../../assets/sprites/scally/walk_s_4.png'),
-    require('../../assets/sprites/scally/walk_s_5.png'),
-    require('../../assets/sprites/scally/walk_s_6.png'),
-    require('../../assets/sprites/scally/walk_s_7.png'),
-    require('../../assets/sprites/scally/walk_s_8.png'),
-    require('../../assets/sprites/scally/walk_s_9.png'),
-    require('../../assets/sprites/scally/walk_s_10.png'),
-    require('../../assets/sprites/scally/walk_s_11.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_s_0.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_s_1.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_s_2.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_s_3.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_s_4.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_s_5.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_s_6.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_s_7.png'),
   ],
   se: [
-    require('../../assets/sprites/scally/walk_se_0.png'),
-    require('../../assets/sprites/scally/walk_se_1.png'),
-    require('../../assets/sprites/scally/walk_se_2.png'),
-    require('../../assets/sprites/scally/walk_se_3.png'),
-    require('../../assets/sprites/scally/walk_se_4.png'),
-    require('../../assets/sprites/scally/walk_se_5.png'),
-    require('../../assets/sprites/scally/walk_se_6.png'),
-    require('../../assets/sprites/scally/walk_se_7.png'),
-    require('../../assets/sprites/scally/walk_se_8.png'),
-    require('../../assets/sprites/scally/walk_se_9.png'),
-    require('../../assets/sprites/scally/walk_se_10.png'),
-    require('../../assets/sprites/scally/walk_se_11.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_se_0.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_se_1.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_se_2.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_se_3.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_se_4.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_se_5.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_se_6.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_se_7.png'),
   ],
   e: [
-    require('../../assets/sprites/scally/walk_e_0.png'),
-    require('../../assets/sprites/scally/walk_e_1.png'),
-    require('../../assets/sprites/scally/walk_e_2.png'),
-    require('../../assets/sprites/scally/walk_e_3.png'),
-    require('../../assets/sprites/scally/walk_e_4.png'),
-    require('../../assets/sprites/scally/walk_e_5.png'),
-    require('../../assets/sprites/scally/walk_e_6.png'),
-    require('../../assets/sprites/scally/walk_e_7.png'),
-    require('../../assets/sprites/scally/walk_e_8.png'),
-    require('../../assets/sprites/scally/walk_e_9.png'),
-    require('../../assets/sprites/scally/walk_e_10.png'),
-    require('../../assets/sprites/scally/walk_e_11.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_e_0.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_e_1.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_e_2.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_e_3.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_e_4.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_e_5.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_e_6.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_e_7.png'),
   ],
   ne: [
-    require('../../assets/sprites/scally/walk_ne_0.png'),
-    require('../../assets/sprites/scally/walk_ne_1.png'),
-    require('../../assets/sprites/scally/walk_ne_2.png'),
-    require('../../assets/sprites/scally/walk_ne_3.png'),
-    require('../../assets/sprites/scally/walk_ne_4.png'),
-    require('../../assets/sprites/scally/walk_ne_5.png'),
-    require('../../assets/sprites/scally/walk_ne_6.png'),
-    require('../../assets/sprites/scally/walk_ne_7.png'),
-    require('../../assets/sprites/scally/walk_ne_8.png'),
-    require('../../assets/sprites/scally/walk_ne_9.png'),
-    require('../../assets/sprites/scally/walk_ne_10.png'),
-    require('../../assets/sprites/scally/walk_ne_11.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_ne_0.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_ne_1.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_ne_2.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_ne_3.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_ne_4.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_ne_5.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_ne_6.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_ne_7.png'),
   ],
   n: [
-    require('../../assets/sprites/scally/walk_n_0.png'),
-    require('../../assets/sprites/scally/walk_n_1.png'),
-    require('../../assets/sprites/scally/walk_n_2.png'),
-    require('../../assets/sprites/scally/walk_n_3.png'),
-    require('../../assets/sprites/scally/walk_n_4.png'),
-    require('../../assets/sprites/scally/walk_n_5.png'),
-    require('../../assets/sprites/scally/walk_n_6.png'),
-    require('../../assets/sprites/scally/walk_n_7.png'),
-    require('../../assets/sprites/scally/walk_n_8.png'),
-    require('../../assets/sprites/scally/walk_n_9.png'),
-    require('../../assets/sprites/scally/walk_n_10.png'),
-    require('../../assets/sprites/scally/walk_n_11.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_n_0.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_n_1.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_n_2.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_n_3.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_n_4.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_n_5.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_n_6.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_n_7.png'),
   ],
   nw: [
-    require('../../assets/sprites/scally/walk_nw_0.png'),
-    require('../../assets/sprites/scally/walk_nw_1.png'),
-    require('../../assets/sprites/scally/walk_nw_2.png'),
-    require('../../assets/sprites/scally/walk_nw_3.png'),
-    require('../../assets/sprites/scally/walk_nw_4.png'),
-    require('../../assets/sprites/scally/walk_nw_5.png'),
-    require('../../assets/sprites/scally/walk_nw_6.png'),
-    require('../../assets/sprites/scally/walk_nw_7.png'),
-    require('../../assets/sprites/scally/walk_nw_8.png'),
-    require('../../assets/sprites/scally/walk_nw_9.png'),
-    require('../../assets/sprites/scally/walk_nw_10.png'),
-    require('../../assets/sprites/scally/walk_nw_11.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_nw_0.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_nw_1.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_nw_2.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_nw_3.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_nw_4.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_nw_5.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_nw_6.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_nw_7.png'),
   ],
   w: [
-    require('../../assets/sprites/scally/walk_w_0.png'),
-    require('../../assets/sprites/scally/walk_w_1.png'),
-    require('../../assets/sprites/scally/walk_w_2.png'),
-    require('../../assets/sprites/scally/walk_w_3.png'),
-    require('../../assets/sprites/scally/walk_w_4.png'),
-    require('../../assets/sprites/scally/walk_w_5.png'),
-    require('../../assets/sprites/scally/walk_w_6.png'),
-    require('../../assets/sprites/scally/walk_w_7.png'),
-    require('../../assets/sprites/scally/walk_w_8.png'),
-    require('../../assets/sprites/scally/walk_w_9.png'),
-    require('../../assets/sprites/scally/walk_w_10.png'),
-    require('../../assets/sprites/scally/walk_w_11.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_w_0.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_w_1.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_w_2.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_w_3.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_w_4.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_w_5.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_w_6.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_w_7.png'),
   ],
   sw: [
-    require('../../assets/sprites/scally/walk_sw_0.png'),
-    require('../../assets/sprites/scally/walk_sw_1.png'),
-    require('../../assets/sprites/scally/walk_sw_2.png'),
-    require('../../assets/sprites/scally/walk_sw_3.png'),
-    require('../../assets/sprites/scally/walk_sw_4.png'),
-    require('../../assets/sprites/scally/walk_sw_5.png'),
-    require('../../assets/sprites/scally/walk_sw_6.png'),
-    require('../../assets/sprites/scally/walk_sw_7.png'),
-    require('../../assets/sprites/scally/walk_sw_8.png'),
-    require('../../assets/sprites/scally/walk_sw_9.png'),
-    require('../../assets/sprites/scally/walk_sw_10.png'),
-    require('../../assets/sprites/scally/walk_sw_11.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_sw_0.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_sw_1.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_sw_2.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_sw_3.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_sw_4.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_sw_5.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_sw_6.png'),
+    require('../../assets/sprites/scally/v2/px6/walk_sw_7.png'),
   ],
 };
 
@@ -175,7 +147,7 @@ const WALK_SOURCES: Record<FacingDirection, any[]> = {
 // idle-frame count this cycle can hit (7 for south, 3 for the cardinals, 1 for the diagonals' static
 // hold) so no direction's modulo is ever truncated again, however many frames a future idle upgrade
 // adds — this is a wrap bound only, not a "the idle loop has N frames" claim.
-export const IDLE_FRAME_COUNT = 21;
+export const IDLE_FRAME_COUNT = 8;
 
 // Wired a third time, 2026-08-15 — this time by actually fixing the thing the first two attempts'
 // revert notes said was the real blocker instead of retrying the same swap. `isMoving` used to flip
@@ -205,28 +177,44 @@ export const IDLE_FRAME_COUNT = 21;
 // upgrade them to.
 const IDLE_SOURCES: Record<FacingDirection, any[]> = {
   s: [
-    require('../../assets/sprites/scally/idle_breathing_0.png'),
-    require('../../assets/sprites/scally/idle_breathing_1.png'),
-    require('../../assets/sprites/scally/idle_breathing_2.png'),
-    require('../../assets/sprites/scally/idle_breathing_3.png'),
-    require('../../assets/sprites/scally/idle_breathing_4.png'),
-    require('../../assets/sprites/scally/idle_breathing_5.png'),
-    require('../../assets/sprites/scally/idle_breathing_6.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_s_0.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_s_1.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_s_2.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_s_3.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_s_4.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_s_5.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_s_6.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_s_7.png'),
   ],
   e: [
-    require('../../assets/sprites/scally/idle_e_0.png'),
-    require('../../assets/sprites/scally/idle_e_1.png'),
-    require('../../assets/sprites/scally/idle_e_2.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_e_0.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_e_1.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_e_2.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_e_3.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_e_4.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_e_5.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_e_6.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_e_7.png'),
   ],
   n: [
-    require('../../assets/sprites/scally/idle_n_0.png'),
-    require('../../assets/sprites/scally/idle_n_1.png'),
-    require('../../assets/sprites/scally/idle_n_2.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_n_0.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_n_1.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_n_2.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_n_3.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_n_4.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_n_5.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_n_6.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_n_7.png'),
   ],
   w: [
-    require('../../assets/sprites/scally/idle_w_0.png'),
-    require('../../assets/sprites/scally/idle_w_1.png'),
-    require('../../assets/sprites/scally/idle_w_2.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_w_0.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_w_1.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_w_2.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_w_3.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_w_4.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_w_5.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_w_6.png'),
+    require('../../assets/sprites/scally/v2/px6/idle_w_7.png'),
   ],
   se: [WALK_SOURCES.se[0]],
   ne: [WALK_SOURCES.ne[0]],
@@ -458,6 +446,29 @@ export const FACE_WINK = SCALLY_FACES[3];
 export const FACE_HAPPY = SCALLY_FACES[4];
 export const FACE_LAUGH = SCALLY_FACES[5];
 
+// --- Faces with Cheeky on the shoulder (locked design, see scally/reference/CHARACTER_LOCK.md) ---
+// Once Cheeky has joined (Black Pearl captured), the header badge swaps each solo face for its
+// "with Cheeky" twin. Mapped by mood, not by file index: the cheeky set was generated as
+// grin / smirk / determined / laughing / shocked / victory cheer (LAUGH = defeating a rival lord).
+const CHEEKY_FACE_GRIN = require('../../assets/sprites/scally/face_cheeky_0.png');
+const CHEEKY_FACE_SMIRK = require('../../assets/sprites/scally/face_cheeky_1.png');
+const CHEEKY_FACE_DETERMINED = require('../../assets/sprites/scally/face_cheeky_2.png');
+const CHEEKY_FACE_LAUGHING = require('../../assets/sprites/scally/face_cheeky_3.png');
+const CHEEKY_FACE_SHOCKED = require('../../assets/sprites/scally/face_cheeky_4.png');
+const CHEEKY_FACE_CHEER = require('../../assets/sprites/scally/face_cheeky_5.png');
+const WITH_CHEEKY = new Map<number, number>([
+  [FACE_NEUTRAL, CHEEKY_FACE_GRIN],
+  [FACE_DETERMINED, CHEEKY_FACE_DETERMINED],
+  [FACE_HURT, CHEEKY_FACE_SHOCKED],
+  [FACE_WINK, CHEEKY_FACE_SMIRK],
+  [FACE_HAPPY, CHEEKY_FACE_LAUGHING],
+  [FACE_LAUGH, CHEEKY_FACE_CHEER],
+]);
+/** The captain's portrait, swapped for the Cheeky-on-shoulder version once Cheeky is with him. */
+export function captainPortrait(face: number, cheekyWithHim: boolean): number {
+  return cheekyWithHim ? (WITH_CHEEKY.get(face) ?? face) : face;
+}
+
 // --- Run cycle (side view) -----------------------------------------------------------------------
 // Re-wired 2026-08-15. The original swap read as a pop (bigger stride + the existing walkBounce
 // animation exaggerating the jump between the two poses); rather than a hard instant swap,
@@ -466,20 +477,109 @@ export const FACE_LAUGH = SCALLY_FACES[5];
 // matching stride position instead of resetting to frame 0, and (b) dampens walkBounce's amplitude
 // specifically while running, since the run pose's own bigger stride already reads as more motion
 // without the added bounce stacking on top of it.
-export const RUN_FRAME_COUNT = 5;
-/** Exported (not just `runSpriteSource`) so MapScreen can pre-mount all 5 run frames at once — see
- * the "ghosting" fix note on MapScreen's player-sprite render. */
-export const RUN_SOURCES = [
-  require('../../assets/sprites/scally/run_0.png'),
-  require('../../assets/sprites/scally/run_1.png'),
-  require('../../assets/sprites/scally/run_2.png'),
-  require('../../assets/sprites/scally/run_3.png'),
-  require('../../assets/sprites/scally/run_4.png'),
+export const RUN_FRAME_COUNT = 8;
+/** 8-directional run cycle (v2, 2026-11-16). */
+export const RUN_SOURCES_BY_DIR: Record<FacingDirection, any[]> = {
+  s: [
+    require('../../assets/sprites/scally/v2/px6/run_s_0.png'),
+    require('../../assets/sprites/scally/v2/px6/run_s_1.png'),
+    require('../../assets/sprites/scally/v2/px6/run_s_2.png'),
+    require('../../assets/sprites/scally/v2/px6/run_s_3.png'),
+    require('../../assets/sprites/scally/v2/px6/run_s_4.png'),
+    require('../../assets/sprites/scally/v2/px6/run_s_5.png'),
+    require('../../assets/sprites/scally/v2/px6/run_s_6.png'),
+    require('../../assets/sprites/scally/v2/px6/run_s_7.png'),
+  ],
+  se: [
+    require('../../assets/sprites/scally/v2/px6/run_se_0.png'),
+    require('../../assets/sprites/scally/v2/px6/run_se_1.png'),
+    require('../../assets/sprites/scally/v2/px6/run_se_2.png'),
+    require('../../assets/sprites/scally/v2/px6/run_se_3.png'),
+    require('../../assets/sprites/scally/v2/px6/run_se_4.png'),
+    require('../../assets/sprites/scally/v2/px6/run_se_5.png'),
+    require('../../assets/sprites/scally/v2/px6/run_se_6.png'),
+    require('../../assets/sprites/scally/v2/px6/run_se_7.png'),
+  ],
+  e: [
+    require('../../assets/sprites/scally/v2/px6/run_e_0.png'),
+    require('../../assets/sprites/scally/v2/px6/run_e_1.png'),
+    require('../../assets/sprites/scally/v2/px6/run_e_2.png'),
+    require('../../assets/sprites/scally/v2/px6/run_e_3.png'),
+    require('../../assets/sprites/scally/v2/px6/run_e_4.png'),
+    require('../../assets/sprites/scally/v2/px6/run_e_5.png'),
+    require('../../assets/sprites/scally/v2/px6/run_e_6.png'),
+    require('../../assets/sprites/scally/v2/px6/run_e_7.png'),
+  ],
+  ne: [
+    require('../../assets/sprites/scally/v2/px6/run_ne_0.png'),
+    require('../../assets/sprites/scally/v2/px6/run_ne_1.png'),
+    require('../../assets/sprites/scally/v2/px6/run_ne_2.png'),
+    require('../../assets/sprites/scally/v2/px6/run_ne_3.png'),
+    require('../../assets/sprites/scally/v2/px6/run_ne_4.png'),
+    require('../../assets/sprites/scally/v2/px6/run_ne_5.png'),
+    require('../../assets/sprites/scally/v2/px6/run_ne_6.png'),
+    require('../../assets/sprites/scally/v2/px6/run_ne_7.png'),
+  ],
+  n: [
+    require('../../assets/sprites/scally/v2/px6/run_n_0.png'),
+    require('../../assets/sprites/scally/v2/px6/run_n_1.png'),
+    require('../../assets/sprites/scally/v2/px6/run_n_2.png'),
+    require('../../assets/sprites/scally/v2/px6/run_n_3.png'),
+    require('../../assets/sprites/scally/v2/px6/run_n_4.png'),
+    require('../../assets/sprites/scally/v2/px6/run_n_5.png'),
+    require('../../assets/sprites/scally/v2/px6/run_n_6.png'),
+    require('../../assets/sprites/scally/v2/px6/run_n_7.png'),
+  ],
+  nw: [
+    require('../../assets/sprites/scally/v2/px6/run_nw_0.png'),
+    require('../../assets/sprites/scally/v2/px6/run_nw_1.png'),
+    require('../../assets/sprites/scally/v2/px6/run_nw_2.png'),
+    require('../../assets/sprites/scally/v2/px6/run_nw_3.png'),
+    require('../../assets/sprites/scally/v2/px6/run_nw_4.png'),
+    require('../../assets/sprites/scally/v2/px6/run_nw_5.png'),
+    require('../../assets/sprites/scally/v2/px6/run_nw_6.png'),
+    require('../../assets/sprites/scally/v2/px6/run_nw_7.png'),
+  ],
+  w: [
+    require('../../assets/sprites/scally/v2/px6/run_w_0.png'),
+    require('../../assets/sprites/scally/v2/px6/run_w_1.png'),
+    require('../../assets/sprites/scally/v2/px6/run_w_2.png'),
+    require('../../assets/sprites/scally/v2/px6/run_w_3.png'),
+    require('../../assets/sprites/scally/v2/px6/run_w_4.png'),
+    require('../../assets/sprites/scally/v2/px6/run_w_5.png'),
+    require('../../assets/sprites/scally/v2/px6/run_w_6.png'),
+    require('../../assets/sprites/scally/v2/px6/run_w_7.png'),
+  ],
+  sw: [
+    require('../../assets/sprites/scally/v2/px6/run_sw_0.png'),
+    require('../../assets/sprites/scally/v2/px6/run_sw_1.png'),
+    require('../../assets/sprites/scally/v2/px6/run_sw_2.png'),
+    require('../../assets/sprites/scally/v2/px6/run_sw_3.png'),
+    require('../../assets/sprites/scally/v2/px6/run_sw_4.png'),
+    require('../../assets/sprites/scally/v2/px6/run_sw_5.png'),
+    require('../../assets/sprites/scally/v2/px6/run_sw_6.png'),
+    require('../../assets/sprites/scally/v2/px6/run_sw_7.png'),
+  ],
+};
+/** Mirror of the south run — used when Scally last faced left, so running down the screen leans
+ * the way he was heading instead of always towards the right. */
+export const RUN_S_MIRRORED: any[] = [
+  require('../../assets/sprites/scally/v2/px6/run_sm_0.png'),
+  require('../../assets/sprites/scally/v2/px6/run_sm_1.png'),
+  require('../../assets/sprites/scally/v2/px6/run_sm_2.png'),
+  require('../../assets/sprites/scally/v2/px6/run_sm_3.png'),
+  require('../../assets/sprites/scally/v2/px6/run_sm_4.png'),
+  require('../../assets/sprites/scally/v2/px6/run_sm_5.png'),
+  require('../../assets/sprites/scally/v2/px6/run_sm_6.png'),
+  require('../../assets/sprites/scally/v2/px6/run_sm_7.png'),
 ];
-export function runSpriteSource(frameIndex: number) {
-  return RUN_SOURCES[frameIndex % RUN_SOURCES.length];
+/** Kept for older callers: the east run. */
+export const RUN_SOURCES = RUN_SOURCES_BY_DIR.e;
+export function runSpriteSource(frameIndex: number, direction: FacingDirection = 'e') {
+  const f = RUN_SOURCES_BY_DIR[direction];
+  return f[frameIndex % f.length];
 }
-/** Heat level (0-1) at/above which a moving, side-facing Scally sprints instead of walks. */
+/** Heat level (0-1) at/above which a moving Scally sprints instead of walks. */
 export const RUN_HEAT_THRESHOLD = 0.6;
 
 // --- Special / Interact poses ---------------------------------------------------------------------
@@ -490,6 +590,52 @@ export const RUN_HEAT_THRESHOLD = 0.6;
 // revert removed it only as cleanup alongside the render it briefly overrode, not because it caused
 // the bug itself).
 export const POSE_ATTACK = require('../../assets/sprites/scally/attack.png');
+/** v2 one-shot animations (2026-11-16): each plays once through, ANIM_FRAME_MS per frame. */
+export const ANIM_FRAME_MS = 110;
+export const WAVE_FRAMES = [
+    require('../../assets/sprites/scally/v2/px6/wave_0.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_1.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_2.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_3.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_4.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_5.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_6.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_7.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_8.png'),
+    require('../../assets/sprites/scally/v2/px6/wave_9.png'),
+  ];
+export const CELEBRATE_FRAMES = [
+    require('../../assets/sprites/scally/v2/px6/celebrate_0.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_1.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_2.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_3.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_4.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_5.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_6.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_7.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_8.png'),
+    require('../../assets/sprites/scally/v2/px6/celebrate_9.png'),
+  ];
+export const ATTACK_FRAMES = [
+    require('../../assets/sprites/scally/v2/px6/attack_0.png'),
+    require('../../assets/sprites/scally/v2/px6/attack_1.png'),
+    require('../../assets/sprites/scally/v2/px6/attack_2.png'),
+    require('../../assets/sprites/scally/v2/px6/attack_3.png'),
+    require('../../assets/sprites/scally/v2/px6/attack_4.png'),
+    require('../../assets/sprites/scally/v2/px6/attack_5.png'),
+    require('../../assets/sprites/scally/v2/px6/attack_6.png'),
+    require('../../assets/sprites/scally/v2/px6/attack_7.png'),
+  ];
+export const HURT_FRAMES = [
+    require('../../assets/sprites/scally/v2/px6/hurt_0.png'),
+    require('../../assets/sprites/scally/v2/px6/hurt_1.png'),
+    require('../../assets/sprites/scally/v2/px6/hurt_2.png'),
+    require('../../assets/sprites/scally/v2/px6/hurt_3.png'),
+    require('../../assets/sprites/scally/v2/px6/hurt_4.png'),
+    require('../../assets/sprites/scally/v2/px6/hurt_5.png'),
+    require('../../assets/sprites/scally/v2/px6/hurt_6.png'),
+    require('../../assets/sprites/scally/v2/px6/hurt_7.png'),
+  ];
 export const POSE_SWORD_READY = require('../../assets/sprites/scally/sword_ready.png');
 /** How long the attack flash holds right as a forced duel triggers, before the screen cuts to
  * Encounter. */
@@ -522,7 +668,12 @@ export const POSE_POINT = require('../../assets/sprites/scally/point.png');
 export const ALL_SCALLY_MAP_FRAMES: any[] = [
   ...(Object.values(WALK_SOURCES) as any[][]).flat(),
   ...(Object.values(IDLE_SOURCES) as any[][]).flat(),
-  ...RUN_SOURCES,
+  ...(Object.values(RUN_SOURCES_BY_DIR) as any[][]).flat(),
+  ...RUN_S_MIRRORED,
+  ...WAVE_FRAMES,
+  ...CELEBRATE_FRAMES,
+  ...ATTACK_FRAMES,
+  ...HURT_FRAMES,
   ...IDLE_FLOURISHES.flatMap((f) => f.frames),
   EMOTE_WAVE,
   EMOTE_VICTORY,

@@ -211,7 +211,12 @@ export const ISLANDS: Record<string, Island> = {
 };
 
 export const ISLAND_LIST = Object.values(ISLANDS);
-export const START_POSITION = { ...ISLANDS.tortuga_cove.position };
+// Tortuga Cove art pass v2 (2026-11-14): the island centre now falls inside The Tannery's
+// footprint, so spawn on the open north side of the new town square instead.
+export const START_POSITION = {
+  x: ISLANDS.tortuga_cove.position.x + 30,
+  y: ISLANDS.tortuga_cove.position.y - 100,
+};
 
 /** Wild encounters rolled while sailing open water, away from any island. */
 export const SEA_ENCOUNTER_CHANCE = 0.05;
@@ -273,7 +278,7 @@ export function islandAtPoint(point: { x: number; y: number }): Island | null {
     const island = ISLANDS[segment.islandId];
     const from = { x: island.position.x + segment.from.x, y: island.position.y + segment.from.y };
     const to = { x: island.position.x + segment.to.x, y: island.position.y + segment.to.y };
-    if (distToSegment(point, from, to) <= PIER_WALK_RADIUS) {
+    if (distToSegment(point, from, to) <= (segment.halfWidth ?? PIER_WALK_RADIUS)) {
       return island;
     }
   }

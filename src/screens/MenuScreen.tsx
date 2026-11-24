@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CREW_TEMPLATE_LIST } from '../data/crew';
@@ -9,6 +9,8 @@ import { CAPTAIN_NAME, COMPANION_NAME } from '../data/protagonist';
 import { TREASURE_LIST } from '../data/treasures';
 import { RootStackParamList } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
+import { ISLANDS } from '../data/islands';
+import { BLACK_PEARL_START_OFFSET } from '../data/blackPearl';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Menu'>;
 
@@ -17,6 +19,27 @@ export default function MenuScreen({ navigation }: Props) {
   const recruitedTemplateIds = useGameStore((s) => s.recruitedTemplateIds);
   const defeatedLordIds = useGameStore((s) => s.defeatedLordIds);
   const foundTreasureIds = useGameStore((s) => s.foundTreasureIds);
+  const blackPearlCaptured = useGameStore((s) => s.blackPearlCaptured);
+  const blackPearlBoarded = useGameStore((s) => s.blackPearlBoarded);
+  const disembarkBlackPearl = useGameStore((s) => s.disembarkBlackPearl);
+  const debugResetSave = useGameStore((s) => s.debugResetSave);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [shipCalled, setShipCalled] = useState(false);
+
+  function callShipHome() {
+    const o = ISLANDS.tortuga_cove.position;
+    disembarkBlackPearl({ x: o.x + BLACK_PEARL_START_OFFSET.x, y: o.y + BLACK_PEARL_START_OFFSET.y });
+    setShipCalled(true);
+  }
+
+  function resetGame() {
+    if (!confirmReset) {
+      setConfirmReset(true);
+      return;
+    }
+    debugResetSave();
+    navigation.reset({ index: 0, routes: [{ name: 'Map' }] });
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -68,6 +91,26 @@ export default function MenuScreen({ navigation }: Props) {
             </Text>
           </View>
           <Text style={styles.chevron}>▸</Text>
+        </Pressable>
+
+        {blackPearlCaptured && !blackPearlBoarded && (
+          <Pressable style={styles.row} onPress={callShipHome}>
+            <Text style={styles.rowEmoji}>🚢</Text>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowTitle}>Call the Black Pearl home</Text>
+              <Text style={styles.rowSubtext}>
+                {shipCalled ? 'She is back at the end of the Long Pier' : 'Sends her back to her berth at Tortuga'}
+              </Text>
+            </View>
+          </Pressable>
+        )}
+
+        <Pressable style={styles.row} onPress={resetGame}>
+          <Text style={styles.rowEmoji}>↺</Text>
+          <View style={styles.rowInfo}>
+            <Text style={styles.rowTitle}>{confirmReset ? 'Tap again to start over' : 'Start a new game'}</Text>
+            <Text style={styles.rowSubtext}>Wipes this save and begins again on Tortuga</Text>
+          </View>
         </Pressable>
       </View>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>

@@ -246,7 +246,7 @@ export const TREASURE_SITES: TreasureSite[] = [
   {
     id: 'site_buried_doubloons',
     islandId: 'tortuga_cove',
-    offset: { x: -403, y: 58 },
+    offset: { x: -403, y: 76 }, // art pass v2: nudged out of a re-spaced house's footprint
     treasureId: 'buried_doubloons',
     requiresItemId: 'treasure_map',
   },

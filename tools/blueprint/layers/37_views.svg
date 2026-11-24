@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-620 -580 1240 1120" width="1240" height="1120">
+<circle cx="500" cy="-40" r="28" fill="#16a085" fill-opacity="0.05" stroke="#16a085" stroke-width="0.4" stroke-dasharray="2 2"/>
+<path d="M497 -40Q500 -43 503 -40Q500 -37 497 -40Z" fill="none" stroke="#16a085" stroke-width="0.5" /><circle cx="500" cy="-40" r="1" fill="#16a085"/>
+<text x="500" y="-45" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#16a085" text-anchor="middle">The Lookout</text>
+<circle cx="-224" cy="-466" r="28" fill="#16a085" fill-opacity="0.05" stroke="#16a085" stroke-width="0.4" stroke-dasharray="2 2"/>
+<path d="M-227 -466Q-224 -469 -221 -466Q-224 -463 -227 -466Z" fill="none" stroke="#16a085" stroke-width="0.5" /><circle cx="-224" cy="-466" r="1" fill="#16a085"/>
+<text x="-224" y="-471" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#16a085" text-anchor="middle">Lighthouse gallery</text>
+<circle cx="556" cy="0" r="28" fill="#16a085" fill-opacity="0.05" stroke="#16a085" stroke-width="0.4" stroke-dasharray="2 2"/>
+<path d="M553 0Q556 -3 559 0Q556 3 553 0Z" fill="none" stroke="#16a085" stroke-width="0.5" /><circle cx="556" cy="0" r="1" fill="#16a085"/>
+<text x="556" y="-5" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#16a085" text-anchor="middle">Old Watchtower</text>
+<circle cx="-40" cy="236" r="28" fill="#16a085" fill-opacity="0.05" stroke="#16a085" stroke-width="0.4" stroke-dasharray="2 2"/>
+<path d="M-43 236Q-40 233 -37 236Q-40 239 -43 236Z" fill="none" stroke="#16a085" stroke-width="0.5" /><circle cx="-40" cy="236" r="1" fill="#16a085"/>
+<text x="-40" y="231" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#16a085" text-anchor="middle">Blackwood Knoll</text>
+<circle cx="364" cy="-366" r="28" fill="#16a085" fill-opacity="0.05" stroke="#16a085" stroke-width="0.4" stroke-dasharray="2 2"/>
+<path d="M361 -366Q364 -369 367 -366Q364 -363 361 -366Z" fill="none" stroke="#16a085" stroke-width="0.5" /><circle cx="364" cy="-366" r="1" fill="#16a085"/>
+<text x="364" y="-371" font-family="Arial, Helvetica, sans-serif" font-size="2.6" font-weight="bold" fill="#16a085" text-anchor="middle">Fort ramparts</text>
+</svg>

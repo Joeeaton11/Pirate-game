@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-620 -580 1240 1120" width="1240" height="1120">
+<path d="M452 -30L472 -60" fill="none" stroke="#a04000" stroke-width="0.6" />
+<path d="M455.0 -36.0h2M459.0 -42.0h2M463.0 -48.0h2M467.0 -54.0h2" fill="none" stroke="#a04000" stroke-width="0.4" />
+<text x="452" y="-32.5" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#a04000" text-anchor="middle">rope</text>
+<path d="M-250 -300L-236 -270" fill="none" stroke="#a04000" stroke-width="0.6" />
+<path d="M-248.2 -294.0h2M-245.4 -288.0h2M-242.6 -282.0h2M-239.8 -276.0h2" fill="none" stroke="#a04000" stroke-width="0.4" />
+<text x="-250" y="-302.5" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#a04000" text-anchor="middle">rope</text>
+<path d="M-262 300L-262 318" fill="none" stroke="#a04000" stroke-width="0.6" stroke-dasharray="0.6 1"/>
+<text x="-262" y="297.5" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#a04000" text-anchor="middle">gap</text>
+<path d="M232 160L250 140" fill="none" stroke="#a04000" stroke-width="0.6" stroke-dasharray="0.6 1"/>
+<text x="232" y="157.5" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#a04000" text-anchor="middle">gap</text>
+<path d="M-372 358L-392 340" fill="none" stroke="#a04000" stroke-width="0.6" />
+<path d="M-377.0 354.4h2M-381.0 350.8h2M-385.0 347.2h2M-389.0 343.6h2" fill="none" stroke="#a04000" stroke-width="0.4" />
+<text x="-372" y="355.5" font-family="Arial, Helvetica, sans-serif" font-size="2.2" font-weight="bold" fill="#a04000" text-anchor="middle">climb</text>
+</svg>

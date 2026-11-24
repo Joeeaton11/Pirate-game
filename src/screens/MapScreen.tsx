@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -12,6 +12,7 @@ import {
   StyleSheet,
   Text,
   View,
+  ScrollView,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -33,6 +34,56 @@ import {
   BLACK_PEARL_FLAG_EMOJI,
 } from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
+import { buildTownScene } from '../town/townScene';
+import { TownLife } from '../town/TownLife';
+import { BlueprintLayer, DEFAULT_PLAN_LAYERS, DiscoveryFog, EditOverlay, PLAN_LAYERS, PLAN_PAPER, PlanIslands, PlanWorld } from '../blueprint/BlueprintLayer';
+import {
+  ADDABLE,
+  addItem,
+  deleteItem,
+  dragStart,
+  dragTo,
+  EMPTY_EDITS,
+  EditItem,
+  editCount,
+  exportEdits,
+  findItem,
+  hitTest,
+  loadEdits,
+  PlanEdits,
+  resizeItem,
+  saveEdits,
+} from '../blueprint/planEditing';
+import { BP_DOORS, BP_LAMPS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
+import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
+import { ArtSprites } from '../blueprint/ArtSprites';
+import { ArtLife } from '../blueprint/ArtLife';
+import { ArtInspector } from '../blueprint/ArtInspector';
+import { footingAt, FullMap, NameBoards, SquareLife, Interact, lockedShortcutRects, nearestInteract, ShortcutSprites, Townsfolk, WeatherMood } from '../blueprint/ArtWorld';
+import { WORLD_SHORTCUTS } from '../blueprint/artWorld.generated';
+import { LIFE_SHORE } from '../blueprint/artLife.generated';
+import { addTimeOffset, CYCLE_SECONDS } from '../town/DayNight';
+import { ART_WINDOWS } from '../blueprint/tortugaArtSlots.generated';
+import { ArtTiles } from '../blueprint/ArtTiles';
+import { autoTarget, JournalPanel, TrackerArrow, TrackTarget, targetDone } from '../town/Journal';
+import {
+  BP_BOTTLES,
+  BP_DIGS,
+  BP_DISTRICT_CENTRES,
+  BP_ERRANDS,
+  BP_FERRY,
+  BP_HAZARDS,
+  BP_MUD,
+  BP_NOTICES,
+  BP_SIGNPOSTS,
+  BP_SKULLS,
+  BP_VIEWPOINTS,
+} from '../blueprint/tortugaGameplay.generated';
+import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
+import { DayNight } from '../town/DayNight';
+import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
+import { TORTUGA_TOWN_ASSETS } from '../town/tortugaTownAssets';
+import { TORTUGA_TOWN_LAYOUT } from '../town/tortugaTownLayout';
 import { CREW_TEMPLATES } from '../data/crew';
 import {
   ISLAND_LIST,
@@ -45,6 +96,16 @@ import {
   islandAtPoint,
 } from '../data/islands';
 import { HOUSES, houseWorldPosition, housesForIsland } from '../data/houses';
+import {
+  TORTUGA_V2_ASPECT,
+  TORTUGA_V2_BACKDROP,
+  TORTUGA_V2_BUILDING_SPRITES,
+  TORTUGA_V2_HOUSES,
+  TORTUGA_V2_HOUSE_SPRITES,
+  TORTUGA_V2_PROPS,
+  TORTUGA_V2_PROP_SPRITES,
+  TORTUGA_V2_STRUCTURES,
+} from '../data/tortugaV2';
 import { LANDMARKS, landmarkWorldPosition } from '../data/landmarks';
 import { PROPS, propWorldPosition } from '../data/props';
 import { SCENERY, sceneryWorldPosition } from '../data/scenery';
@@ -64,6 +125,7 @@ import {
   FACE_LAUGH,
   FACE_NEUTRAL,
   FACE_WINK,
+  captainPortrait,
   FacingDirection,
   ICON_EXCLAIM,
   ICON_MAP,
@@ -77,14 +139,30 @@ import {
   POSE_SWORD_READY,
   RUN_FRAME_COUNT,
   RUN_HEAT_THRESHOLD,
-  RUN_SOURCES,
+  RUN_SOURCES_BY_DIR,
+  RUN_S_MIRRORED,
+  ANIM_FRAME_MS,
+  WAVE_FRAMES,
+  CELEBRATE_FRAMES,
+  ATTACK_FRAMES,
   SCALLY_PORTRAIT,
   VICTORY_ANIMATION_MS,
   WALK_FRAME_COUNT,
   WAVE_ANIMATION_MS,
   scallySpriteFrames,
 } from '../data/scallySprites';
-import { MONKEY_IDLE, MONKEY_WINK, MONKEY_WINK_HOLD_MS, MONKEY_WINK_INTERVAL_MS } from '../data/monkeySprites';
+import {
+  CHEEKY_WALK_FRAMES,
+  CHEEKY_HOP,
+  CHEEKY_IDLE,
+  CHEEKY_CELEBRATE,
+  SCALLY_CHEEKY_CLIMB,
+  CHEEKY_V2_ALL,
+  MONKEY_IDLE,
+  MONKEY_WINK,
+  MONKEY_WINK_HOLD_MS,
+  MONKEY_WINK_INTERVAL_MS,
+} from '../data/monkeySprites';
 import {
   ACCELERATE_ANIMATION_MS,
   DEPART_ANIMATION_MS,
@@ -160,18 +238,32 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 // Pokémon-style close camera: the world renders at ZOOM x its native scale (buildings, houses,
 // streets, everything inside the `world` container), while the player token — rendered as a
 // separate fixed element always centered on screen — is sized to match by hand below.
-const ZOOM = 5;
+const ZOOM = 7;
 // In real Pokémon a character is ~1 tile and a building is ~5-7 tiles — the character is small
 // next to structures. PLAYER_SIZE previously scaled at the same native size as a building (40 vs
 // 44), which is why zooming alone never got there: zoom scales everything in lockstep, so a
 // player already sized like a building stayed sized like a building at any zoom level. Fixed by
 // giving the player a genuinely small native footprint before the same ZOOM is applied to it.
-const PLAYER_SIZE = 12 * ZOOM;
+// 2026-11-14: player shrunk 12 -> 8.5 native while ZOOM went 5 -> 7, so Scally stays ~60px on
+// screen but buildings/props render 1.4x larger around him (doors now taller than he is).
+const PLAYER_SIZE = 8.5 * ZOOM;
 const BUILDING_SIZE = 44;
+// Cheeky follows Captain Scally on foot. Story-wise he's aboard the guarded Black Pearl until it's
+// captured (see showMonkeyOnDeck); CHEEKY_ALWAYS_FOLLOW skips that gate so he can be play-tested
+// from the start. Set it back to false once the follow behaviour is signed off.
+const CHEEKY_ALWAYS_FOLLOW = true;
+/** How long Scally stands still before Cheeky climbs onto his shoulder. */
+const SHOULDER_CLIMB_DELAY_MS = 6000;
+const CHEEKY_SIZE = 9.5; // world units (Scally is ~12 tall in his v2 frames)
+const CHEEKY_TRAIL = 8; // world units of path Cheeky stays behind Scally
+const CHEEKY_MAX_CRUMBS = 120;
 // The Black Pearl under sail reads as a ship, not a person, so she gets a footprint closer to the
 // docked marker's (BUILDING_SIZE * 1.8) than to Captain Scally's own on-foot sprite.
-const SHIP_SPRITE_SIZE = 80;
-const SHIP_WAKE_SIZE = 46;
+// The pixel-art Black Pearl (2026-11-24): about 40 world units long and 36 tall at the locked 6 px/unit
+// scale, roughly three and a half times Scally's height, so she reads as a real ship beside the town.
+const SHIP_SPRITE_SIZE = 44 * ZOOM; // square 44-unit canvas, hull 40 long side-on (2026-11-24 repaint)
+const SHIP_SPRITE_H = 44 * ZOOM;
+const SHIP_WAKE_SIZE = 46 * 3.2;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 // Real house art (2026-08-13 art pass) reads better with more room than the 26px emoji box —
 // same reasoning as buildings getting BUILDING_SIZE*1.7 when they have real sprite art.
@@ -191,6 +283,8 @@ const EDGE_ICON_MARGIN = EDGE_ICON_SIZE / 2 + 8;
 const MINIMAP_SIZE = 130; // on-screen diameter, px
 const MINIMAP_RADIUS = 450; // world units shown in every direction from the player
 const MINIMAP_WORLD_PER_PX = (MINIMAP_RADIUS * 2) / MINIMAP_SIZE;
+/** Tortuga's own map for the radar (generated by tools/blueprint/art_spec.py, 1 px per world unit). */
+const TORTUGA_MINIMAP = require('../../assets/sprites/tortuga_town/minimap.png');
 // Scenery emoji that read as "forest" for the minimap's dark-green tree-mass fill — 🌿 (scrub) and
 // 🪨/🪦 (rocks/graves) are dressing for the ruins/abandoned zones, not woodland.
 const FOREST_EMOJI = new Set(['🌴', '🌲', '🌳']);
@@ -250,6 +344,46 @@ function streetTilePositions(
 // Slowed from 260 — full sea speed made sailing feel uncontrollable, especially threading the
 // harbor mouth/piers right after boarding the Black Pearl.
 const SEA_SPEED = 150; // world units per second
+/** The Black Pearl slows to this share of her speed in the blueprint's shallows. */
+const SHALLOWS_SPEED_FACTOR = 0.45;
+// Sailing feel (2026-11-24, user: "too fast and jolty"): the Black Pearl has weight. She gathers way
+// over about a second, glides to a stop when you let go, and swings round to the drag direction at
+// a limited rate — always moving the way her bow points — instead of snapping to it.
+const SHIP_MAX_SPEED = 46; // world units per second (~1.5 hull lengths); was SEA_SPEED 150 flat out
+const SHIP_ACCEL = 30; // units/s² while the drag asks for more speed
+const SHIP_DECEL = 18; // units/s² when easing off / gliding after release
+const SHIP_TURN_RATE = 1.15; // radians/s at full speed; slower when nearly stopped
+const SHIP_BANK_MAX = 5; // degrees of lean in a hard turn
+const WAKE_LIFE_MS = 2000;
+const SEA_ZOOM_FACTOR = 0.62; // camera pulled back while aboard
+function inPoly(x: number, y: number, pts: [number, number][]) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i];
+    const [xj, yj] = pts[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+/** Tortuga's mud (the swamp) and wasp nests slow you down on foot. */
+function hazardSpeedFactor(p: { x: number; y: number }) {
+  const o = ISLANDS.tortuga_cove.position;
+  const x = p.x - o.x;
+  const y = p.y - o.y;
+  if (BP_MUD.some((poly) => inPoly(x, y, poly))) return 0.55;
+  if (BP_HAZARDS.some((h) => h.kind === 'wasps' && Math.hypot(x - h.x, y - h.y) <= h.r)) return 0.7;
+  return 1;
+}
+/** Stride length per animation frame (world units) — 8 frames make one full two-step cycle. */
+// Measured from the frames: in walk_e a planted boot travels ~10 sprite px per frame, and one sprite
+// px is ~0.115 world units (128px canvas drawn 14.7 units tall) — so ~1.2 units/frame keeps the
+// planted foot still on the ground. Slightly longer here so he doesn't look like he's pedalling.
+const WALK_UNITS_PER_FRAME = 1.5;
+const RUN_UNITS_PER_FRAME = 2.3;
+/** Never step faster than this (ms per frame), so a fast drag can't blur his legs. */
+const MIN_STRIDE_FRAME_MS = 55;
+/** Drag past this fraction of the joystick and Scally runs instead of walks. */
+const RUN_DRAG_THRESHOLD = 0.62;
 const ON_PATH_SPEED = 45; // world units per second — walking an actual street/path
 // Cutting across open grass/scenery instead of following a street reads as harder going, and
 // nudges players toward the authored street network instead of beelining through decor.
@@ -294,6 +428,185 @@ const SHOW_GARDENS = false;
 // size and dimensions first... Remove all buildings and roads for now" — so buildings, real art or
 // placeholder boxes alike, are off again while the island shape/dock get checked in isolation.
 const SHOW_BUILDINGS = false;
+// Tortuga Cove art pass v2 (2026-11-14): painted terrain backdrop + front-facing, street-facing
+// building/house/prop sprites from src/data/tortugaV2.ts. Independent of the SHOW_* scaffolding
+// layers above, so it can be flipped off on its own to compare against the old layer rebuild.
+const SHOW_TORTUGA_V2 = true;
+const SHOW_OLD_IDLE_FLOURISHES = false;
+
+/** Every Tortuga v2 sprite (buildings, houses, street props) as one list sorted by its ground line
+ * (bottom edge), so nearer things overlap farther ones correctly. Static — built once. Sprites are
+ * bottom-anchored on their footprint's bottom edge and drawn slightly wider than the footprint
+ * (eaves/props overhang), matching how the art pass render was composed. */
+/** Town centre (2026-11-14): data-driven scene from src/town/ (layout + asset registry). Inside the
+ * layout's clear rects the old v2 buildings, houses and props are hidden; every building the new
+ * town places is hidden from its old v2 spot too. */
+const TOWN_SCENE = buildTownScene(TORTUGA_TOWN_LAYOUT, TORTUGA_TOWN_ASSETS, ISLANDS.tortuga_cove.position);
+const inTownDistrict = (x: number, y: number) =>
+  TOWN_SCENE.clear.some((r) => x > r.l && x < r.r && y > r.t && y < r.b);
+const keepOldStructure = (s: { buildingId: string | null; x: number; y: number }) =>
+  !(s.buildingId && TOWN_SCENE.buildingIds.has(s.buildingId)) && !inTownDistrict(s.x, s.y);
+const keepOldProp = (p: { id: string; x: number; y: number }) => !inTownDistrict(p.x, p.y);
+/** Door points (absolute world coords). */
+const TOWN_DOORS = TOWN_SCENE.doors;
+const TOWN_DOOR_RADIUS = 9;
+const TORTUGA_TOWN_SCENE_SPRITES = [...TOWN_SCENE.sprites].sort((a, b) => a.z - b.z).map(renderSceneSprite);
+const TORTUGA_TOWN_GROUND = [...TOWN_SCENE.ground.map(renderGroundTile), ...TOWN_SCENE.decals.map(renderDecal)];
+// The painted town's outer band (EDGE units) is drawn from alpha-feathered strips instead of the
+// hard-edged JPG chunks, so the painting melts into the island art around it rather than ending
+// on a straight seam. Chunks are clipped to the inner rect; strips cover the band.
+const TORTUGA_TOWN_FEATHERED = (() => {
+  const EDGE = 67 / 4.8;
+  const ds = TOWN_SCENE.decals;
+  if (!ds.length) return TORTUGA_TOWN_GROUND;
+  const L = Math.min(...ds.map((d) => d.left));
+  const T = Math.min(...ds.map((d) => d.top));
+  const R = L + 450;
+  const B = T + 2336 / 4.8;
+  const strip = (key: string, src: ImageSourcePropType, left: number, top: number, w: number, h: number) => (
+    <RNImage key={key} source={src} resizeMode="stretch" style={{ position: 'absolute', left, top, width: w, height: h }} />
+  );
+  return [
+    ...TOWN_SCENE.ground.map(renderGroundTile),
+    <View key="town-clip" style={{ position: 'absolute', left: L + EDGE, top: T + EDGE, width: R - L - 2 * EDGE, height: B - T - 2 * EDGE, overflow: 'hidden' }}>
+      {ds.map((d) => renderDecal({ ...d, left: d.left - L - EDGE, top: d.top - T - EDGE }))}
+    </View>,
+    strip('edge-t', require('../../assets/sprites/tortuga_town/life/edge_top.png'), L, T, R - L, EDGE),
+    strip('edge-b', require('../../assets/sprites/tortuga_town/life/edge_bottom.png'), L, B - EDGE, R - L, EDGE),
+    strip('edge-l', require('../../assets/sprites/tortuga_town/life/edge_left.png'), L, T + EDGE, EDGE, B - T - 2 * EDGE),
+    strip('edge-r', require('../../assets/sprites/tortuga_town/life/edge_right.png'), R - EDGE, T + EDGE, EDGE, B - T - 2 * EDGE),
+  ];
+})();
+
+/** Solid rectangles (world coords) for every Tortuga v2 building and house, covering the whole
+ * drawn sprite (footprint plus roof). The player token always renders on top of the sprite layer,
+ * so letting him walk "behind" a roof would draw him standing on it — the full sprite is solid
+ * instead. Doors sit on each sprite's bottom edge, well inside ENTER_RADIUS of the building centre. */
+const TORTUGA_V2_SOLID_RECTS = (() => {
+  const o = ISLANDS.tortuga_cove.position;
+  const rects: { l: number; r: number; t: number; b: number }[] = [];
+  const add = (x: number, bottom: number, w: number, h: number) =>
+    rects.push({ l: o.x + x - w / 2 + 1, r: o.x + x + w / 2 - 1, t: o.y + bottom - h + 2, b: o.y + bottom });
+  // These four have doors boxed in by a neighbouring sprite or set too far from their entry point,
+  // so they stay walk-through until the layout is adjusted.
+  const notSolid = new Set(['tortuga_fort', 'tortuga_vendue_house', 'tortuga_coopers_yard', 'tortuga_smithy']);
+  TORTUGA_V2_STRUCTURES.forEach((s) => {
+    if (notSolid.has(s.key) || !keepOldStructure(s)) return;
+    const w = s.w * 1.12;
+    add(s.x, s.y + s.h / 2, w, w * (TORTUGA_V2_ASPECT[s.key] ?? 1));
+  });
+  TORTUGA_V2_HOUSES.forEach((h) => {
+    if (inTownDistrict(h.x, h.y)) return;
+    const w = h.w * 1.02;
+    add(h.x, h.y + h.h / 2, w, w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1));
+  });
+  return rects.concat(TOWN_SCENE.solids);
+})();
+
+/** Blueprint (plan) mode: walk the island's layout plan instead of its art. Solids are the plan's
+ * own buildings, trees and inland water outside the painted town, plus the town's walk map. */
+const BLUEPRINT_SOLID_RECTS = (() => {
+  const o = ISLANDS.tortuga_cove.position;
+  const rects: { l: number; r: number; t: number; b: number }[] = [];
+  for (let i = 0; i < BP_SOLIDS.length; i += 4) {
+    rects.push({ l: o.x + BP_SOLIDS[i], r: o.x + BP_SOLIDS[i + 1], t: o.y + BP_SOLIDS[i + 2], b: o.y + BP_SOLIDS[i + 3] });
+  }
+  // the town's houses, harbour water and walls are in BP_SOLIDS too, matched to what the Art town
+  // draws; the old painted town's blocks no longer line up with it, so they are not used here
+  return rects;
+})();
+/** Debug: add ?solids=1 to the web URL to see every collision box. */
+const SHOW_SOLIDS_DEBUG = typeof window !== 'undefined' && typeof window.location !== 'undefined' && /[?&]solids=1/.test(window.location.search ?? '');
+// the town's doors now come with the plan (BP_DOORS); the old painted town's are kept only for ids the plan lacks
+const BLUEPRINT_DOORS = TOWN_DOORS.filter((d) => !BP_DOORS.some((b) => b.id === d.id)).concat(
+  BP_DOORS.map((d) => ({ id: d.id, x: ISLANDS.tortuga_cove.position.x + d.x, y: ISLANDS.tortuga_cove.position.y + d.y }))
+);
+/** The map shows the architect's plan by default (art is parked for now); `?art=1` on web shows art. */
+/** `?nofog=1` (web review only): hide the discovery fog. */
+const NO_FOG = (() => {
+  try {
+    return typeof window !== 'undefined' && !!window.location && /[?&]nofog=1/.test(window.location.search);
+  } catch {
+    return false;
+  }
+})();
+function startInPlanMode() {
+  try {
+    return !(typeof window !== 'undefined' && !!window.location && /[?&]art=1/.test(window.location.search));
+  } catch {
+    return true;
+  }
+}
+
+/** Playtest helper (web only): `?at=x,y` starts Scally at that spot, in Tortuga-relative world
+ * units (the same coordinates as src/town/tortugaTownLayout.ts) — handy for checking one corner of
+ * the town without walking there. Ignored anywhere else. */
+function devStartPosition(): { x: number; y: number } {
+  try {
+    const q = typeof window !== 'undefined' && window.location ? new URLSearchParams(window.location.search).get('at') : null;
+    const m = q?.match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/);
+    if (m) {
+      const o = ISLANDS.tortuga_cove.position;
+      return { x: o.x + Number(m[1]), y: o.y + Number(m[2]) };
+    }
+  } catch {
+    // not a browser
+  }
+  return START_POSITION;
+}
+
+function slideAroundRects(
+  current: { x: number; y: number },
+  raw: { x: number; y: number },
+  rects: { l: number; r: number; t: number; b: number }[],
+  pad: number
+): { x: number; y: number } {
+  const blocked = (p: { x: number; y: number }) =>
+    rects.some((q) => p.x > q.l - pad && p.x < q.r + pad && p.y > q.t - pad && p.y < q.b + pad);
+  if (!blocked(raw)) return raw;
+  // Already inside one (e.g. an old save spawned there): let the player walk out freely.
+  if (blocked(current)) return raw;
+  const slideX = { x: raw.x, y: current.y };
+  if (!blocked(slideX)) return slideX;
+  const slideY = { x: current.x, y: raw.y };
+  if (!blocked(slideY)) return slideY;
+  return current;
+}
+
+const TORTUGA_V2_SPRITE_LAYER = (() => {
+  const origin = ISLANDS.tortuga_cove.position;
+  // Everything in absolute world coords, depth-sorted by ground line.
+  const items: { z: number; el: React.ReactElement }[] = [];
+  const img = (key: string, source: ImageSourcePropType, x: number, bottom: number, w: number, h: number, flip?: boolean) =>
+    items.push({
+      z: origin.y + bottom,
+      el: (
+        <RNImage
+          key={key}
+          source={source}
+          resizeMode="stretch"
+          style={{ position: 'absolute', left: origin.x + x - w / 2, top: origin.y + bottom - h, width: w, height: h, transform: flip ? [{ scaleX: -1 }] : undefined }}
+        />
+      ),
+    });
+  TORTUGA_V2_STRUCTURES.forEach((s) => {
+    if (!keepOldStructure(s)) return;
+    const w = s.w * 1.12;
+    img(`t2b-${s.key}`, TORTUGA_V2_BUILDING_SPRITES[s.key], s.x, s.y + s.h / 2, w, w * (TORTUGA_V2_ASPECT[s.key] ?? 1));
+  });
+  TORTUGA_V2_HOUSES.forEach((h, i) => {
+    if (inTownDistrict(h.x, h.y)) return;
+    const w = h.w * 1.02;
+    img(`t2h-${i}`, TORTUGA_V2_HOUSE_SPRITES[h.variant], h.x, h.y + h.h / 2, w, w * (TORTUGA_V2_ASPECT[`house:house_${h.variant + 1}`] ?? 1), h.flip);
+  });
+  TORTUGA_V2_PROPS.forEach((p, i) => {
+    if (!keepOldProp(p)) return;
+    img(`t2p-${i}`, TORTUGA_V2_PROP_SPRITES[p.id], p.x, p.y, p.w, p.w * (TORTUGA_V2_ASPECT[`prop:${p.id}`] ?? 1));
+  });
+  TOWN_SCENE.sprites.forEach((sp) => items.push({ z: sp.z, el: renderSceneSprite(sp) }));
+  items.sort((a, b) => a.z - b.z);
+  return items.map((it) => it.el);
+})();
 // Disabled 2026-08-14, same request as SHOW_BUILDINGS above but taken further: "remove everything
 // that isn't the ground" — so the street/road network itself, houses, decorative scenery/props,
 // landmarks, ambient street NPCs, and every interactive map marker (quests, resource/salvage/
@@ -347,6 +660,8 @@ const DEADZONE = 12; // px of drag before movement starts
 const STOP_DEADZONE = 4;
 const MAX_DRAG = 70; // px of drag for full speed
 const ENCOUNTER_TICK_MS = 1400;
+/** Dev/test: `?calm=1` turns off random encounters so sailing and walking can be tried uninterrupted. */
+const CALM_SEAS = typeof window !== 'undefined' && !!window.location && new URLSearchParams(window.location.search).get('calm') === '1';
 
 /** Shared circle-vs-circle obstacle collision with axis-separated sliding: if the full move is
  * blocked, retry the X-only and Y-only projections before giving up, so both the player and
@@ -621,6 +936,8 @@ function initNpcSim(npc: StreetNpc): NpcSimState {
   };
 }
 const TICK_MS = 33;
+/** Share of the player-camera gap closed each tick (~0.3 s to settle). */
+const CAMERA_EASE = 0.16;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -629,7 +946,83 @@ function clamp(value: number, min: number, max: number) {
 export default function MapScreen({ navigation }: Props) {
   const isFocused = useIsFocused();
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
-  const [player, setPlayer] = useState(START_POSITION);
+  const [player, setPlayer] = useState(devStartPosition);
+  const [planMode, setPlanMode] = useState(startInPlanMode);
+  const planModeRef = useRef(planMode);
+  const [planLayers, setPlanLayers] = useState<Record<string, boolean>>(DEFAULT_PLAN_LAYERS);
+  const discoveredDistricts = useGameStore((s) => s.discoveredDistricts);
+  const discoverDistrict = useGameStore((s) => s.discoverDistrict);
+  const discoveredRef = useRef(discoveredDistricts);
+  discoveredRef.current = discoveredDistricts;
+  const cliffToastRef = useRef(false);
+  // District errands: a local in each district wants something gathered.
+  const completedErrands = useGameStore((s) => s.completedErrands);
+  const completeErrand = useGameStore((s) => s.completeErrand);
+  const resourcesHeld = useGameStore((s) => s.resources);
+  const [nearbyErrandId, setNearbyErrandId] = useState<string | null>(null);
+  const nearbyErrandRef = useRef<string | null>(null);
+  const completedErrandsRef = useRef(completedErrands);
+  completedErrandsRef.current = completedErrands;
+  const addResource = useGameStore((s) => s.addResource);
+  const addCrewMember = useGameStore((s) => s.addCrewMember);
+  const unlockFerry = useGameStore((s) => s.unlockFerry);
+  const spendGold = useGameStore((s) => s.spendGold);
+  const ferryUnlocked = useGameStore((s) => s.ferryUnlocked);
+  const ferryUnlockedRef = useRef(ferryUnlocked);
+  ferryUnlockedRef.current = ferryUnlocked;
+  // Rowboat taxi stop the player is standing at, and the last signpost read (so it fires once).
+  const [nearbyFerry, setNearbyFerry] = useState<number | null>(null);
+  const nearbyFerryRef = useRef<number | null>(null);
+  const lastSignpostRef = useRef<number | null>(null);
+  // Trigger spots the player is standing in (so each fires once per visit).
+  const insideSpotsRef = useRef<Set<string>>(new Set());
+  // Whole-island view: zoomed right out over the island Scally is on; movement pauses.
+  const [overview, setOverview] = useState(false);
+  // Ship's journal and the guidance arrow (null = follow the nearest errand automatically).
+  const [showJournal, setShowJournal] = useState(false);
+  const [showInspector, setShowInspector] = useState(
+    () => typeof window !== 'undefined' && typeof window.location !== 'undefined' && /[?&]inspect=1/.test(window.location.search ?? '')
+  );
+  const [tracked, setTracked] = useState<TrackTarget | null>(null);
+  const dugSpots = useGameStore((s) => s.dugSpots);
+  const seenClues = useGameStore((s) => s.seenClues);
+  const foundSkulls = useGameStore((s) => s.foundSkulls);
+  const unlockedShortcuts = useGameStore((s) => s.unlockedShortcuts ?? []);
+  const [showFullMap, setShowFullMap] = useState(false);
+  const searchedRef = useRef<Map<string, number>>(new Map());
+  const readBottles = useGameStore((s) => s.readBottles);
+  const overviewRef = useRef(false);
+  overviewRef.current = overview;
+  // Plan editor: drag buildings, props and trees; edits saved on the device and exportable.
+  const [editMode, setEditMode] = useState(false);
+  const editModeRef = useRef(false);
+  editModeRef.current = editMode;
+  const [edits, setEdits] = useState<PlanEdits>(EMPTY_EDITS);
+  const editsRef = useRef(edits);
+  editsRef.current = edits;
+  const [editSelected, setEditSelected] = useState<string | null>(null);
+  const editDragRef = useRef<{ item: EditItem; start: [number, number] } | null>(null);
+  // On web a tap inside the map's gesture area can deliver onPress twice; editor buttons ignore the echo.
+  const lastEditPressRef = useRef(0);
+  const editPressOnce = () => {
+    const now = Date.now();
+    if (now - lastEditPressRef.current < 300) return false;
+    lastEditPressRef.current = now;
+    return true;
+  };
+  useEffect(() => {
+    loadEdits().then(setEdits);
+  }, []);
+  const inShallowsRef = useRef(false);
+  const [showLayerPanel, setShowLayerPanel] = useState(false);
+  planModeRef.current = planMode;
+  // Camera eases after the player instead of being nailed to them; Scally's screen position is
+  // offset by the gap, so he leads slightly into a walk and the view catches up when he stops.
+  const [cam, setCam] = useState(player);
+  const camRef = useRef(player);
+  const viewIsland = islandAtPoint(player) ?? null;
+  // Rounded camera for things that only need to know roughly where we are (which islands to mount).
+  const camCoarse = useMemo(() => ({ x: Math.round(cam.x / 200) * 200, y: Math.round(cam.y / 200) * 200 }), [Math.round(cam.x / 200), Math.round(cam.y / 200)]);
   const [dragKnob, setDragKnob] = useState<{ x: number; y: number } | null>(null);
   const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number } | null>(null);
   const [zoneLabel, setZoneLabel] = useState('Tortuga Cove');
@@ -707,7 +1100,8 @@ export default function MapScreen({ navigation }: Props) {
   // immediately if isMoving flips true while one is showing, so an emote can never freeze a stride
   // (the actual bug in item 79's first attempt was elsewhere — see scallySprites.ts — but this guard
   // costs nothing and removes any risk of repeating it).
-  const [emoteOverlay, setEmoteOverlay] = useState<{ source: any } | null>(null);
+  const [emoteOverlay, setEmoteOverlay] = useState<{ frames: any[] } | null>(null);
+  const [emoteFrame, setEmoteFrame] = useState(0);
   const emoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // The "prolonged idle" flourish — a full multi-frame animated vignette (juggling coins, reading
   // a map, dozing off, ...), distinct from the single-frame emotes above. Holds which flourish is
@@ -731,7 +1125,62 @@ export default function MapScreen({ navigation }: Props) {
   // Cheeky blinks every so often while perched on the docked, unboarded Black Pearl (see the ship
   // marker render below) — see monkeySprites.ts for why he lives there instead of trailing on foot.
   const [monkeyWinking, setMonkeyWinking] = useState(false);
-  const showMonkeyOnDeck = !blackPearlBoarded && !blackPearlCaptured;
+  const showMonkeyOnDeck = !blackPearlBoarded && !blackPearlCaptured && !CHEEKY_ALWAYS_FOLLOW;
+  const cheekyFollowing = !blackPearlBoarded && (blackPearlCaptured || CHEEKY_ALWAYS_FOLLOW);
+  // Breadcrumb trail of Scally's recent positions; Cheeky sits CHEEKY_TRAIL units back along it,
+  // so he follows the actual route walked (round corners, along streets) instead of cutting across.
+  const cheekyCrumbsRef = useRef<{ x: number; y: number }[]>([]);
+  const cheekyPrevRef = useRef<{ x: number; y: number } | null>(null);
+  const cheekyDirRef = useRef<'e' | 'w' | 's' | 'n'>('e');
+  // Cheeky's own slow clock for his sitting idle loop.
+  const [cheekyTick, setCheekyTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setCheekyTick((t) => (t + 1) % 1200), 300);
+    return () => clearInterval(id);
+  }, []);
+  // After Scally has stood still a while, Cheeky scampers up onto his shoulder and rides there
+  // until Scally moves again ('climbing' plays SCALLY_CHEEKY_CLIMB, 'riding' holds its last frame).
+  const [shoulder, setShoulder] = useState<null | 'climbing' | 'riding'>(null);
+  const [climbFrame, setClimbFrame] = useState(0);
+  const cheeky = (() => {
+    const crumbs = cheekyCrumbsRef.current;
+    const last = crumbs[crumbs.length - 1];
+    const jump = last ? Math.hypot(player.x - last.x, player.y - last.y) : Infinity;
+    if (jump > 40) {
+      // Fresh start or a teleport (building exit, fast travel): drop him just behind Scally.
+      cheekyCrumbsRef.current = [{ x: player.x - 8, y: player.y + 1 }, { x: player.x, y: player.y }];
+    } else if (jump > 0.5) {
+      crumbs.push({ x: player.x, y: player.y });
+      if (crumbs.length > CHEEKY_MAX_CRUMBS) crumbs.shift();
+    }
+    const trail = cheekyCrumbsRef.current;
+    let remaining = CHEEKY_TRAIL;
+    let pos = trail[trail.length - 1];
+    for (let i = trail.length - 1; i > 0; i--) {
+      const a = trail[i];
+      const b = trail[i - 1];
+      const seg = Math.hypot(a.x - b.x, a.y - b.y);
+      if (seg >= remaining) {
+        const t = remaining / seg;
+        pos = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+        remaining = 0;
+        break;
+      }
+      remaining -= seg;
+      pos = b;
+    }
+    const prev = cheekyPrevRef.current;
+    const facingLeft = prev && Math.abs(pos.x - prev.x) > 0.05 ? pos.x < prev.x : player.x < pos.x;
+    if (prev) {
+      const dx = pos.x - prev.x;
+      const dy = pos.y - prev.y;
+      if (Math.hypot(dx, dy) > 0.05) {
+        cheekyDirRef.current = Math.abs(dy) > Math.abs(dx) * 1.3 ? (dy > 0 ? 's' : 'n') : dx < 0 ? 'w' : 'e';
+      }
+    }
+    cheekyPrevRef.current = pos;
+    return { ...pos, facingLeft, dir: cheekyDirRef.current };
+  })();
   useEffect(() => {
     if (!showMonkeyOnDeck) return;
     const id = setInterval(() => {
@@ -781,6 +1230,7 @@ export default function MapScreen({ navigation }: Props) {
   const shipIdleSway = useRef(new Animated.Value(0)).current;
   const shipIdleLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const walkBounce = useRef(new Animated.Value(0)).current;
+  const onStepsRef = useRef(false); // climbing a flight of steps: a little extra lift on each stride
   // Raw, ever-incrementing (wrapped at 60) walk-cycle tick — see the doc comment on the
   // walk/bounce-sync effect below for why this needs to be a ref rather than a plain local counter.
   const walkTickRef = useRef(0);
@@ -802,6 +1252,18 @@ export default function MapScreen({ navigation }: Props) {
   blackPearlBoardedRef.current = blackPearlBoarded;
   const shipHeadingRef = useRef(shipHeading);
   shipHeadingRef.current = shipHeading;
+  const shipMotionRef = useRef({ angle: 0, speed: 0, bank: 0, tick: 0 });
+  const shipBankAnim = useRef(new Animated.Value(0)).current;
+  const shipBankRotate = shipBankAnim.interpolate({ inputRange: [-10, 10], outputRange: ['-10deg', '10deg'] });
+  // Foam left on the water behind her: world points that spread out and fade (drawn as pixel puffs).
+  const wakeRef = useRef<{ x: number; y: number; born: number; a: number; v: number }[]>([]);
+  const mooredShip = useMemo(
+    () =>
+      blackPearlBoarded
+        ? null
+        : { x: blackPearlPosition.x, y: blackPearlPosition.y, size: SHIP_SPRITE_SIZE / ZOOM, source: shipSpriteSource('e') },
+    [blackPearlBoarded, blackPearlPosition.x, blackPearlPosition.y]
+  );
   const blackPearlPositionRef = useRef(blackPearlPosition);
   blackPearlPositionRef.current = blackPearlPosition;
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
@@ -887,11 +1349,45 @@ export default function MapScreen({ navigation }: Props) {
   // never itself reset by a focus change — would immediately act on the moment you came back,
   // reading as the character moving on its own or the joystick responding wrong right after leaving
   // a building/fight/menu.
+  // Whole-island view zooms right out over the current island; otherwise the usual close camera.
+  // At sea the camera pulls back (2026-11-24): the ship reads smaller against open water and her
+  // motion looks calmer on screen. Eased in and out over about a second.
+  const [seaZoom, setSeaZoom] = useState(ZOOM);
+  const seaZoomTarget = blackPearlBoarded ? ZOOM * SEA_ZOOM_FACTOR : ZOOM;
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSeaZoom((z) => {
+        const d = seaZoomTarget - z;
+        if (Math.abs(d) < 0.01) { clearInterval(id); return seaZoomTarget; }
+        return z + d * 0.08;
+      });
+    }, 33);
+    return () => clearInterval(id);
+  }, [seaZoomTarget]);
+  const overviewZoom = viewport.width ? Math.min(viewport.width / 1250, viewport.height / 1130) : 1;
+  const viewZoom = overview ? overviewZoom : seaZoom;
+  const viewCenter = overview ? viewIsland?.position ?? cam : cam;
+  const screenToIsland = (sx: number, sy: number) => {
+    const o = ISLANDS.tortuga_cove.position;
+    return {
+      x: viewCenter.x + (sx - viewport.width / 2) / viewZoom - o.x,
+      y: viewCenter.y + (sy - viewport.height / 2) / viewZoom - o.y,
+    };
+  };
+
   const panGesture = Gesture.Pan()
     .enabled(isFocused)
     .minDistance(0)
     .shouldCancelWhenOutside(false)
     .onBegin((e) => {
+      if (editModeRef.current) {
+        const p = screenToIsland(e.x, e.y);
+        const item = hitTest(editsRef.current, p.x, p.y);
+        editDragRef.current = item ? { item, start: dragStart(editsRef.current, item) } : null;
+        setEditSelected(item ? item.key : null);
+        return;
+      }
+      if (overviewRef.current) return;
       if (dragResetTimeoutRef.current) {
         clearTimeout(dragResetTimeoutRef.current);
         dragResetTimeoutRef.current = null;
@@ -905,6 +1401,14 @@ export default function MapScreen({ navigation }: Props) {
       setDragKnob(center);
     })
     .onUpdate((e) => {
+      if (editModeRef.current) {
+        const d = editDragRef.current;
+        if (d && Math.hypot(e.translationX, e.translationY) > 2) {
+          setEdits(dragTo(editsRef.current, d.item, d.start, e.translationX / viewZoom, e.translationY / viewZoom));
+        }
+        return;
+      }
+      if (overviewRef.current) return;
       const dist = Math.hypot(e.translationX, e.translationY);
       if (dist > DEADZONE) {
         const clampedDist = Math.min(dist, MAX_DRAG);
@@ -920,7 +1424,7 @@ export default function MapScreen({ navigation }: Props) {
         // 4-way hysteresis system or its mid-turn pivot-flash workaround (see scallySprites.ts).
         const dir = headingFromVector(e.translationX, e.translationY);
         setFacingDir(dir);
-        setShipHeading(dir);
+        if (!blackPearlBoardedRef.current) setShipHeading(dir); // aboard, her heading follows her bow (movement tick)
         setDragIntensity(clampedDist / MAX_DRAG);
       } else {
         // Real movement stops here exactly as before, at DEADZONE — no gameplay change. Only the
@@ -941,6 +1445,10 @@ export default function MapScreen({ navigation }: Props) {
       }
     })
     .onFinalize(() => {
+      if (editDragRef.current) {
+        editDragRef.current = null;
+        saveEdits(editsRef.current);
+      }
       clearDrag();
     });
 
@@ -990,15 +1498,12 @@ export default function MapScreen({ navigation }: Props) {
       // attack then sword-ready for a beat each before cutting to the battle screen, instead of an
       // instant cut. Also clears any showing emote outright — a duel starting is a harder interrupt
       // than ordinary movement, so it doesn't wait for the emote's own hold timer to finish.
-      setEmoteOverlay(null);
-      setScallyAttackFlash('attack');
+      setScallyAttackFlash(null);
+      flashEmote(ATTACK_FRAMES, 0);
       setTimeout(() => {
-        setScallyAttackFlash('sword_ready');
-        setTimeout(() => {
-          setScallyAttackFlash(null);
-          fire();
-        }, ATTACK_FLASH_MS);
-      }, ATTACK_FLASH_MS);
+        setEmoteOverlay(null);
+        fire();
+      }, ATTACK_FRAMES.length * ANIM_FRAME_MS + 150);
     }
   }
 
@@ -1089,8 +1594,15 @@ export default function MapScreen({ navigation }: Props) {
     });
   }
 
+  // Toasts that arrive close together are shown together (e.g. a bottle found as a district is discovered).
+  const toastStackRef = useRef<{ at: number; msg: string }>({ at: 0, msg: '' });
   function showResourceToast(message: string, durationMs = 2200) {
-    setResourceToast(message);
+    const nowMs = Date.now();
+    const prev = toastStackRef.current;
+    const combined = nowMs - prev.at < 1500 && prev.msg && prev.msg !== message ? `${message}\n${prev.msg}` : message;
+    toastStackRef.current = { at: nowMs, msg: combined };
+    if (combined !== message) durationMs = Math.max(durationMs, 4500);
+    setResourceToast(combined);
     if (resourceToastTimeoutRef.current) clearTimeout(resourceToastTimeoutRef.current);
     resourceToastTimeoutRef.current = setTimeout(() => setResourceToast(null), durationMs);
   }
@@ -1110,6 +1622,15 @@ export default function MapScreen({ navigation }: Props) {
     directionRef.current = null;
     blackPearlBoardedRef.current = true;
     boardBlackPearl();
+    // Step aboard: the captain moves onto the ship where she lies in the water, so she is drawn
+    // and sails straight off the berth (otherwise he stood on the pier, the ship vanished, and the
+    // pier rail kept him from ever reaching open water — 2026-11-24).
+    const berth = { ...blackPearlPositionRef.current };
+    const hv = SHIP_HEADING_VECTOR[shipHeadingRef.current];
+    shipMotionRef.current = { angle: Math.atan2(hv.y, hv.x), speed: 0, bank: 0, tick: 0 };
+    wakeRef.current = [];
+    playerRef.current = berth;
+    setPlayer(berth);
     // Two-stage depart: the "DEPART DOCK" pose (furled sail, still shows the pier under her) for a
     // beat, then the "Accelerate" pose (full sail, open water, picking up speed) for a second beat,
     // before falling back to normal directional sailing art — reads as pulling off the pier and
@@ -1141,11 +1662,38 @@ export default function MapScreen({ navigation }: Props) {
   // due-west only ('w'/'e', the old 'left'/'right') — RUN_SOURCES is a single side-view pose set
   // with no directional variants, so the other 6 headings (including the 4 new diagonals) keep
   // using the plain walk cycle instead of running sideways at an angle that doesn't match the pose.
+  // Ambient sound: footsteps (planks on piers, cobbles elsewhere), the harbour's surf and gulls
+  // swelling as Scally nears the water, and the open sea while sailing.
+  const tortugaOrigin = ISLANDS.tortuga_cove.position;
+  const relX = player.x - tortugaOrigin.x;
+  const relY = player.y - tortugaOrigin.y;
+  const inTortugaTown = relX > -170 && relX < 320 && relY > -470 && relY < 50;
+  const harbourVolume = blackPearlBoarded
+    ? 0.45
+    : inTortugaTown
+    ? 0.08 + 0.5 * Math.max(0, Math.min(1, (-200 - relY) / 140))
+    : 0.12;
+  // waves and gulls on every shore of Tortuga, not just the harbour
+  let shoreD = 999;
+  if (Math.abs(relX) < 640 && Math.abs(relY) < 600)
+    for (let i = 0; i < LIFE_SHORE.length; i += 3) {
+      const d = Math.abs(LIFE_SHORE[i][0] - relX) + Math.abs(LIFE_SHORE[i][1] - relY);
+      if (d < shoreD) shoreD = d;
+    }
+  const shoreVolume = blackPearlBoarded ? 0 : 0.4 * Math.max(0, Math.min(1, 1 - (shoreD - 10) / 50));
+  useAmbientLoop(SFX.harbour, Math.max(harbourVolume, shoreVolume));
+  useRandomCalls(SFX.gull, Math.max(harbourVolume, shoreVolume) > 0.25, 6, 14, 0.35);
+  // Footsteps follow the blueprint's ground-surface layer: planks, cobbles, or soft ground.
+  const surface = inTortugaTown || relX < 640 ? surfaceAt(player) : 'none';
+  const footing = footingAt({ x: relX, y: relY });
+  const stepKind = footing.bridge === 'wood' || distanceToNearestPier(player) < 4 || surface === 'plank' ? 'wood' : footing.bridge === 'stone' || footing.steps || surface === 'cobble' ? 'cobble' : 'soft';
+  useFootsteps(isMoving && !blackPearlBoarded, stepKind, footing.steps ? 240 : 290, 0.45);
+  onStepsRef.current = footing.steps;
+
   const isRunning =
     isMoving &&
     !!islandAtPoint(player) &&
-    (facingDir === 'w' || facingDir === 'e') &&
-    heat > RUN_HEAT_THRESHOLD * 100;
+    (heat > RUN_HEAT_THRESHOLD * 100 || dragIntensity > RUN_DRAG_THRESHOLD); // big drag = run
 
   // Cycles Captain Scally's sprite through its 12-frame walk cycle while moving, AND bobs him
   // vertically, off the exact same 110ms tick — merged into one effect/interval 2026-08-23 after
@@ -1189,28 +1737,27 @@ export default function MapScreen({ navigation }: Props) {
       Animated.timing(walkBounce, { toValue: 0, duration: 120, useNativeDriver: true }).start();
       return;
     }
-    const bounceAmplitude = isRunning ? -3 : -6;
-    // A ref, not a local variable — this effect re-runs whenever `isRunning` toggles mid-walk (to
-    // pick up the new bounce amplitude), and a local counter would reset to 0 on every one of those
-    // reruns, reintroducing the exact "pops back to frame 0 on a run transition" glitch a previous
-    // fix (see scallySprites.ts's run-cycle comment) deliberately avoided. The ref persists across
-    // reruns so a walk<->run transition always continues from wherever the stride actually was.
+    // v2 (2026-11-16): the frames carry their own body bob, and the stride is tied to how far
+    // Scally actually travels — one frame per STRIDE_UNITS_PER_FRAME world units — so his feet keep
+    // pace with the ground at any drag speed, and stop (no moonwalking) when he's blocked by a wall.
+    walkBounce.setValue(0);
+    const perFrame = isRunning ? RUN_UNITS_PER_FRAME : WALK_UNITS_PER_FRAME;
+    let last = { ...playerRef.current };
+    let acc = 0;
+    let lastStep = 0;
     const id = setInterval(() => {
-      walkTickRef.current = (walkTickRef.current + 1) % 60;
-      const tick = walkTickRef.current;
-      setWalkSpriteFrame(tick);
-      const strideFraction = (tick % WALK_FRAME_COUNT) / WALK_FRAME_COUNT;
-      // 1 - cos ranges 0..2, so this ranges 0..bounceAmplitude — 0 (ground contact) at the start of
-      // each half-stride, full amplitude (mid-stride peak) at the midpoint. The *4*Math.PI (two full
-      // cosine periods across the 12-frame loop) is what gives two dips per loop instead of one.
-      const bounceTarget = (bounceAmplitude * (1 - Math.cos(strideFraction * 4 * Math.PI))) / 2;
-      Animated.timing(walkBounce, {
-        toValue: bounceTarget,
-        duration: 110,
-        easing: Easing.inOut(Easing.quad),
-        useNativeDriver: true,
-      }).start();
-    }, 110);
+      const p = playerRef.current;
+      acc += Math.hypot(p.x - last.x, p.y - last.y);
+      last = { ...p };
+      const now = Date.now();
+      if (acc < perFrame || now - lastStep < MIN_STRIDE_FRAME_MS) return;
+      acc = Math.min(acc - perFrame, perFrame); // don't bank a backlog of steps
+      lastStep = now;
+      walkTickRef.current = (walkTickRef.current + 1) % 120;
+      setWalkSpriteFrame(walkTickRef.current);
+      if (onStepsRef.current) walkBounce.setValue(walkTickRef.current % 2 ? -3 : 0);
+      else walkBounce.setValue(0);
+    }, 33);
     return () => clearInterval(id);
   }, [isMoving, isRunning, walkBounce]);
 
@@ -1233,11 +1780,46 @@ export default function MapScreen({ navigation }: Props) {
     return () => clearInterval(id);
   }, [isMoving]);
 
-  function flashEmote(source: any, holdMs: number) {
+  /** Plays a one-shot animation once through (a single image just holds for holdMs). */
+  function flashEmote(frames: any[], holdMs: number) {
     if (emoteTimeoutRef.current) clearTimeout(emoteTimeoutRef.current);
-    setEmoteOverlay({ source });
-    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), holdMs);
+    setEmoteOverlay({ frames });
+    setEmoteFrame(0);
+    emoteTimeoutRef.current = setTimeout(() => setEmoteOverlay(null), Math.max(holdMs, frames.length * ANIM_FRAME_MS + 250));
   }
+
+  useEffect(() => {
+    if (!emoteOverlay || emoteOverlay.frames.length < 2) return;
+    const id = setInterval(() => setEmoteFrame((f) => Math.min(f + 1, emoteOverlay.frames.length - 1)), ANIM_FRAME_MS);
+    return () => clearInterval(id);
+  }, [emoteOverlay]);
+
+  useEffect(() => {
+    if (isMoving || !cheekyFollowing || emoteOverlay) {
+      setShoulder(null);
+      return;
+    }
+    const start = setTimeout(() => {
+      setFacingDir('s');
+      setClimbFrame(0);
+      setShoulder('climbing');
+    }, SHOULDER_CLIMB_DELAY_MS);
+    return () => clearTimeout(start);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMoving, cheekyFollowing, emoteOverlay]);
+  useEffect(() => {
+    if (shoulder !== 'climbing') return;
+    const id = setInterval(() => {
+      setClimbFrame((f) => {
+        if (f + 1 >= SCALLY_CHEEKY_CLIMB.length - 1) {
+          setShoulder('riding');
+          return SCALLY_CHEEKY_CLIMB.length - 1;
+        }
+        return f + 1;
+      });
+    }, 130);
+    return () => clearInterval(id);
+  }, [shoulder]);
 
   function flashCaptainFace(source: any, holdMs: number) {
     if (captainFaceOverrideTimeoutRef.current) clearTimeout(captainFaceOverrideTimeoutRef.current);
@@ -1250,7 +1832,7 @@ export default function MapScreen({ navigation }: Props) {
   // building shouldn't interrupt the stride to wave at it.
   useEffect(() => {
     if (nearbyBuildingPrompt && !isMoving) {
-      flashEmote(EMOTE_WAVE, WAVE_ANIMATION_MS);
+      flashEmote(WAVE_FRAMES, WAVE_ANIMATION_MS);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once per prompt appearing, not
     // once per render while it's showing.
@@ -1269,7 +1851,7 @@ export default function MapScreen({ navigation }: Props) {
     prevDefeatedLordCountRef.current = defeatedLordIds.length;
     prevCompletedQuestCountRef.current = completedQuestIds.length;
     if (!grew) return;
-    if (!isMoving) flashEmote(EMOTE_VICTORY, VICTORY_ANIMATION_MS);
+    if (!isMoving) flashEmote(CELEBRATE_FRAMES, VICTORY_ANIMATION_MS);
     flashCaptainFace(lordGrew ? FACE_LAUGH : FACE_HAPPY, VICTORY_ANIMATION_MS);
   }, [defeatedLordIds.length, completedQuestIds.length, isMoving]);
 
@@ -1284,6 +1866,8 @@ export default function MapScreen({ navigation }: Props) {
       }
       return;
     }
+    // Old-style flourish art doesn't match the v2 sprites (2026-11-16) — off until redone in v2.
+    if (!SHOW_OLD_IDLE_FLOURISHES) return;
     idleFlourishTimerRef.current = setTimeout(() => {
       const pick = IDLE_FLOURISHES[Math.floor(Math.random() * IDLE_FLOURISHES.length)];
       setIdleFlourish(pick);
@@ -1463,17 +2047,85 @@ export default function MapScreen({ navigation }: Props) {
       }
     }
 
+    const easeCamera = () => {
+      const c = camRef.current;
+      const p = playerRef.current;
+      const gap = Math.hypot(p.x - c.x, p.y - c.y);
+      if (gap < 0.02) return;
+      // Snap on teleports (doors, landfall, dev jumps) instead of sliding across the map.
+      const next = gap > 40 ? p : { x: c.x + (p.x - c.x) * CAMERA_EASE, y: c.y + (p.y - c.y) * CAMERA_EASE };
+      camRef.current = next;
+      setCam(next);
+    };
     const interval = setInterval(() => {
-      const direction = directionRef.current;
-      if (!direction) return;
+      let direction = directionRef.current;
+      if (blackPearlBoardedRef.current && !islandAtPoint(playerRef.current)) {
+        // Under sail: steer the bow toward the drag, carry momentum, move along the bow.
+        const m = shipMotionRef.current;
+        const dt = TICK_MS / 1000;
+        const shallowNow = isShallow(playerRef.current);
+        const want = direction ? Math.min(1, Math.hypot(direction.x, direction.y)) : 0;
+        const top = SHIP_MAX_SPEED * want * (shallowNow ? SHALLOWS_SPEED_FACTOR : 1);
+        m.speed += clamp(top - m.speed, -SHIP_DECEL * dt, SHIP_ACCEL * dt);
+        const prevAngle = m.angle;
+        if (direction && want > 0) {
+          let diff = Math.atan2(direction.y, direction.x) - m.angle;
+          diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+          const rate = SHIP_TURN_RATE * (0.35 + 0.65 * Math.min(1, m.speed / SHIP_MAX_SPEED));
+          m.angle += clamp(diff, -rate * dt, rate * dt);
+        }
+        const turned = Math.atan2(Math.sin(m.angle - prevAngle), Math.cos(m.angle - prevAngle)) / dt;
+        const bankTarget = clamp(turned * 6 * Math.min(1, m.speed / 25), -SHIP_BANK_MAX, SHIP_BANK_MAX);
+        m.bank += (bankTarget - m.bank) * 0.08;
+        shipBankAnim.setValue(m.bank);
+        // Change the drawn view only once her bow is well into the next 45° sector, so a heading
+        // sitting near a boundary never flickers between two views.
+        const curV = SHIP_HEADING_VECTOR[shipHeadingRef.current];
+        const off = Math.abs(Math.atan2(Math.sin(m.angle - Math.atan2(curV.y, curV.x)), Math.cos(m.angle - Math.atan2(curV.y, curV.x))));
+        const h = off > (Math.PI / 8) * 1.3 ? headingFromVector(Math.cos(m.angle), Math.sin(m.angle)) : shipHeadingRef.current;
+        if (h !== shipHeadingRef.current) {
+          shipHeadingRef.current = h;
+          setShipHeading(h);
+        }
+        // foam: a puff at the stern every few ticks while she has way on
+        const now = Date.now();
+        wakeRef.current = wakeRef.current.filter((w) => now - w.born < WAKE_LIFE_MS);
+        m.tick = 0;
+        if (m.speed > 5 && m.tick === 0) {
+          const c = Math.cos(m.angle), sn = Math.sin(m.angle);
+          wakeRef.current.push({
+            x: playerRef.current.x - c * 17 + (Math.random() - 0.5) * 1.2,
+            y: playerRef.current.y + 9 - sn * 17 * 0.5 + (Math.random() - 0.5) * 1.2,
+            born: now,
+            a: m.angle,
+            v: m.speed / SHIP_MAX_SPEED,
+          });
+        }
+        if (m.speed < 0.4 && !direction) {
+          m.speed = 0;
+          easeCamera();
+          return;
+        }
+        const k = m.speed / (SEA_SPEED * (shallowNow ? SHALLOWS_SPEED_FACTOR : 1));
+        direction = { x: Math.cos(m.angle) * k, y: Math.sin(m.angle) * k };
+      }
+      if (!direction) {
+        easeCamera();
+        return;
+      }
 
       const currentIsland = islandAtPoint(playerRef.current);
       const speed = currentIsland
         ? isOnPath(playerRef.current, currentIsland)
           ? ON_PATH_SPEED
-          : OFF_PATH_SPEED
-        : SEA_SPEED;
+          : OFF_PATH_SPEED * (currentIsland.id === 'tortuga_cove' ? hazardSpeedFactor(playerRef.current) : 1)
+        : SEA_SPEED * (isShallow(playerRef.current) ? SHALLOWS_SPEED_FACTOR : 1);
       const dt = TICK_MS / 1000;
+      if (!currentIsland && blackPearlBoardedRef.current) {
+        const shallow = isShallow(playerRef.current);
+        if (shallow && !inShallowsRef.current) showResourceToast('🌊 Shallows — easing off the sails');
+        inShallowsRef.current = shallow;
+      }
 
       const rawX = clamp(playerRef.current.x + direction.x * speed * dt, 0, WORLD_WIDTH);
       const rawY = clamp(playerRef.current.y + direction.y * speed * dt, 0, WORLD_HEIGHT);
@@ -1517,8 +2169,29 @@ export default function MapScreen({ navigation }: Props) {
         buildingObstacles,
         BUILDING_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS
       );
+      if (SHOW_TORTUGA_V2 && currentIsland?.id === 'tortuga_cove') {
+        const locked = lockedShortcutRects(ISLANDS.tortuga_cove.position, useGameStore.getState().unlockedShortcuts ?? []);
+        nextPosition = slideAroundRects(
+          playerRef.current,
+          nextPosition,
+          locked.length ? BLUEPRINT_SOLID_RECTS.concat(locked) : BLUEPRINT_SOLID_RECTS,
+          1.5
+        );
+      } else if (planModeRef.current && currentIsland && PLAN_SOLIDS[currentIsland.id]) {
+        nextPosition = slideAroundRects(playerRef.current, nextPosition, PLAN_SOLIDS[currentIsland.id], 1.5);
+      }
 
       const nextIsland = islandAtPoint(nextPosition);
+
+      // Cliffs (from the blueprint's height layer): the Black Pearl can't put in under them.
+      if (nextIsland && !currentIsland && blackPearlBoardedRef.current && atCliff(nextPosition) && distanceToNearestPier(nextPosition) > 12) {
+        if (!cliffToastRef.current) {
+          cliffToastRef.current = true;
+          showResourceToast('🪨 Cliffs here — find a beach or a jetty to land');
+          setTimeout(() => (cliffToastRef.current = false), 2500);
+        }
+        return;
+      }
 
       if (nextIsland?.id === 'ile_sainte_marie' && !shipUpgradesRef.current.includes('reinforced_hull')) {
         showResourceToast('⛔ Too rough without a Reinforced Hull!');
@@ -1527,6 +2200,126 @@ export default function MapScreen({ navigation }: Props) {
 
       playerRef.current = nextPosition;
       setPlayer(nextPosition);
+      easeCamera();
+      {
+        const o = ISLANDS.tortuga_cove.position;
+        const e = nextIsland?.id === 'tortuga_cove'
+          ? BP_ERRANDS.find(
+              (er) => !completedErrandsRef.current.includes(er.id) && Math.hypot(nextPosition.x - o.x - er.x, nextPosition.y - o.y - er.y) <= 16
+            )
+          : undefined;
+        const id = e ? e.id : null;
+        if (id !== nearbyErrandRef.current) {
+          nearbyErrandRef.current = id;
+          setNearbyErrandId(id);
+        }
+      }
+      if (nextIsland?.id === 'tortuga_cove') {
+        const o = ISLANDS.tortuga_cove.position;
+        const rx = nextPosition.x - o.x;
+        const ry = nextPosition.y - o.y;
+        // Signposts point at districts you haven't found yet: arrow, name and rough distance.
+        const sp = BP_SIGNPOSTS.findIndex(([x, y]) => Math.hypot(rx - x, ry - y) <= 10);
+        if (sp >= 0 && sp !== lastSignpostRef.current) {
+          const [sx, sy] = BP_SIGNPOSTS[sp];
+          const arrows = ['➡️', '↘️', '⬇️', '↙️', '⬅️', '↖️', '⬆️', '↗️'];
+          const unseen = BP_DISTRICT_CENTRES.filter((d) => !discoveredRef.current.includes(d.name))
+            .map((d) => ({ ...d, dist: Math.hypot(d.x - sx, d.y - sy) }))
+            .sort((a, b) => a.dist - b.dist)
+            .slice(0, 3);
+          if (unseen.length) {
+            const lines = unseen.map((d) => {
+              const a = Math.round(Math.atan2(d.y - sy, d.x - sx) / (Math.PI / 4));
+              return `${arrows[(a + 8) % 8]} ${d.name} · ${Math.max(1, Math.round(d.dist / 10)) * 10} paces`;
+            });
+            showResourceToast(`🪧 ${lines.join('\n')}`, 4200);
+          } else {
+            showResourceToast('🪧 Every road on this signpost leads somewhere you know.', 2400);
+          }
+        }
+        if (sp !== lastSignpostRef.current) lastSignpostRef.current = sp >= 0 ? sp : null;
+        // Spots that fire once each time you step into them.
+        const st = useGameStore.getState();
+        const now = new Set<string>();
+        const enter = (id: string, near: boolean, fire: () => void) => {
+          if (!near) return;
+          now.add(id);
+          if (!insideSpotsRef.current.has(id)) fire();
+        };
+        BP_DIGS.forEach((d) => {
+          if (st.dugSpots.includes(d.id)) return;
+          enter(`clue:${d.id}`, Math.hypot(rx - d.lx, ry - d.ly) <= 12, () => {
+            st.seeClue(d.id);
+            showResourceToast(`📜 ${d.landmark}: ${d.clue}`, 4500);
+          });
+          enter(`dig:${d.id}`, Math.hypot(rx - d.x, ry - d.y) <= 4, () => {
+            if (st.digSpot(d.id, d.gold)) showResourceToast(`⛏️ You dig where the clue said… ${d.gold} gold!`, 3200);
+          });
+        });
+        BP_SKULLS.forEach((k) => {
+          if (st.foundSkulls.includes(k.district)) return;
+          enter(`skull:${k.district}`, Math.hypot(rx - k.x, ry - k.y) <= 5, () => {
+            if (st.findSkull(k.district)) showResourceToast(`💀 Carved skull found! ${st.foundSkulls.length + 1} of ${BP_SKULLS.length}`, 3000);
+          });
+        });
+        BP_BOTTLES.forEach((bt, i) =>
+          enter(`bottle:${i}`, Math.hypot(rx - bt.x, ry - bt.y) <= 5, () => {
+            const first = st.readBottle(`bottle_${i}`);
+            showResourceToast(`🍾 ${first ? 'A message in a bottle!' : 'The bottle again:'}\n${bt.text}`, 5000);
+          })
+        );
+        WORLD_SHORTCUTS.forEach((sc) =>
+          enter(`shortcut:${sc.id}`, Math.hypot(rx - sc.b[0], ry - sc.b[1]) <= 5, () => {
+            if (useGameStore.getState().unlockShortcut(sc.id))
+              showResourceToast(sc.kind === 'log' ? '🪵 You push the dead tree over the brook — a shortcut home!' : '🪢 You drop the rope ladder down the wall — a shortcut!', 3400);
+          })
+        );
+        BP_VIEWPOINTS.forEach((v) =>
+          enter(`view:${v.name}`, Math.hypot(rx - v.x, ry - v.y) <= 8, () => {
+            // a scenic moment: the view pulls back to the whole island for a few seconds
+            if (!planModeRef.current) {
+              setOverview(true);
+              setTimeout(() => setOverview(false), 3200);
+            }
+            const fresh = v.districts.filter((d) => !discoveredRef.current.includes(d));
+            fresh.forEach((d) => discoverDistrict(d));
+            discoveredRef.current = [...discoveredRef.current, ...fresh];
+            showResourceToast(
+              fresh.length ? `🔭 From ${v.name} you can see ${fresh.join(', ')}` : `🔭 ${v.name} — a fine view of places you know`,
+              3600
+            );
+          })
+        );
+        BP_NOTICES.forEach((n) =>
+          enter(`notice:${n.district}`, Math.hypot(rx - n.x, ry - n.y) <= 8, () => {
+            const open = BP_ERRANDS.filter((e) => e.district === n.district && !completedErrandsRef.current.includes(e.id));
+            showResourceToast(
+              open.length
+                ? `📋 ${n.district} notice board — WANTED: Captain Scally, 50 gold (artist's likeness unflattering)\n${open.map((e) => `• ${e.person} wants ${e.amount} ${e.resource}`).join('\n')}`
+                : `📋 ${n.district} notice board — WANTED: Captain Scally, 50 gold. Nothing else wanted today.`,
+              3800
+            );
+          })
+        );
+        BP_HAZARDS.forEach((h, i) =>
+          enter(`hazard:${i}`, Math.hypot(rx - h.x, ry - h.y) <= h.r, () =>
+            showResourceToast(h.kind === 'wasps' ? '🐝 Wasps! Slow and steady…' : '🪨 Loose rocks overhead — careful!', 2200)
+          )
+        );
+        insideSpotsRef.current = now;
+        const fi = ferryUnlockedRef.current ? BP_FERRY.findIndex((f) => Math.hypot(rx - f.x, ry - f.y) <= 14) : -1;
+        const fv = fi >= 0 ? fi : null;
+        if (fv !== nearbyFerryRef.current) {
+          nearbyFerryRef.current = fv;
+          setNearbyFerry(fv);
+        }
+      }
+      const district = nextIsland?.id === 'tortuga_cove' ? districtAt(nextPosition) : null;
+      if (district && !discoveredRef.current.includes(district)) {
+        discoveredRef.current = [...discoveredRef.current, district];
+        discoverDistrict(district);
+        showResourceToast(`📍 Discovered: ${district}`, 2600);
+      }
 
       // Swap to the "APPROACH DOCK" loop once she's closing in on land, still under sail — only
       // meaningful while boarded and still at sea (nextIsland null); once ashore the docked marker
@@ -1581,9 +2374,18 @@ export default function MapScreen({ navigation }: Props) {
       // on land/a pier, and without this guard the very next tick (still on that same land) would
       // read as "landfall" and instantly un-board the player before they ever left the dock.
       if (nextIsland && !currentIsland && blackPearlBoardedRef.current) {
+        // She anchors in the water just off the spot where you stepped ashore (not up on the
+        // beach), so she is easy to see and walk back to (2026-11-24).
+        const prev = playerRef.current;
+        const back = Math.hypot(nextPosition.x - prev.x, nextPosition.y - prev.y) || 1;
+        const anchor = {
+          x: prev.x - ((nextPosition.x - prev.x) / back) * 10,
+          y: prev.y - ((nextPosition.y - prev.y) / back) * 10,
+        };
+        const parked = islandAtPoint(anchor) ? prev : anchor;
         blackPearlBoardedRef.current = false;
-        blackPearlPositionRef.current = nextPosition;
-        disembarkBlackPearl(nextPosition);
+        blackPearlPositionRef.current = parked;
+        disembarkBlackPearl(parked);
       }
 
       if (nextIsland) {
@@ -1605,7 +2407,8 @@ export default function MapScreen({ navigation }: Props) {
             return;
           }
         } else if (!blackPearlBoardedRef.current) {
-          const bp = SHOW_MAP_MARKERS ? nearbyBlackPearlPos(nextPosition) : null;
+          // The ship itself is drawn on the map now, so boarding never depends on the hidden marker layer.
+          const bp = nearbyBlackPearlPos(nextPosition);
           if (bp) {
             if (!boardPromptShownRef.current) {
               boardPromptShownRef.current = true;
@@ -1617,12 +2420,30 @@ export default function MapScreen({ navigation }: Props) {
           }
         }
 
-        const nearbyBuilding = SHOW_BUILDINGS
+        let nearbyBuilding = SHOW_BUILDINGS
           ? buildingsForIsland(nextIsland.id).find((building) => {
               const pos = buildingWorldPosition(building, nextIsland.position);
               return Math.hypot(nextPosition.x - pos.x, nextPosition.y - pos.y) <= ENTER_RADIUS;
             })
           : undefined;
+        if (!nearbyBuilding && planModeRef.current && nextIsland.id !== 'tortuga_cove' && PLAN_DOORS[nextIsland.id]) {
+          let best: { id: string; d: number } | null = null;
+          for (const door of PLAN_DOORS[nextIsland.id]) {
+            const d = Math.hypot(nextPosition.x - door.x, nextPosition.y - door.y);
+            if (d <= TOWN_DOOR_RADIUS && (!best || d < best.d)) best = { id: door.id, d };
+          }
+          if (best) nearbyBuilding = BUILDINGS.find((b) => b.id === best!.id);
+        }
+        if (!nearbyBuilding && SHOW_TORTUGA_V2 && nextIsland.id === 'tortuga_cove') {
+          // Town-core terraces: nearest door within reach (doors sit ~28 units apart, so the
+          // nearest-door rule picks the facade Scally is actually standing in front of).
+          let best: { id: string; d: number } | null = null;
+          for (const door of BLUEPRINT_DOORS) {
+            const d = Math.hypot(nextPosition.x - door.x, nextPosition.y - door.y);
+            if (d <= TOWN_DOOR_RADIUS && (!best || d < best.d)) best = { id: door.id, d };
+          }
+          if (best) nearbyBuilding = BUILDINGS.find((b) => b.id === best!.id);
+        }
         if (nearbyBuilding) {
           if (nearbyBuildingPromptIdRef.current !== nearbyBuilding.id) {
             nearbyBuildingPromptIdRef.current = nearbyBuilding.id;
@@ -1697,7 +2518,7 @@ export default function MapScreen({ navigation }: Props) {
         }
 
         // Resource nodes gather passively while walking through — no navigation, no interrupt.
-        const nearbyNode = SHOW_MAP_MARKERS
+        const nearbyNode = SHOW_MAP_MARKERS || nextIsland.id === 'tortuga_cove'
           ? RESOURCE_NODES.find((n) => {
               if (n.islandId !== nextIsland.id) return false;
               const np = resourceNodeWorldPosition(n, nextIsland.position);
@@ -1801,7 +2622,7 @@ export default function MapScreen({ navigation }: Props) {
       }
 
       const now = Date.now();
-      if (now - lastEncounterCheckRef.current > ENCOUNTER_TICK_MS) {
+      if (!CALM_SEAS && now - lastEncounterCheckRef.current > ENCOUNTER_TICK_MS) {
         lastEncounterCheckRef.current = now;
         const isSafe = nextIsland?.isSafeZone;
         if (!isSafe) {
@@ -1838,20 +2659,20 @@ export default function MapScreen({ navigation }: Props) {
   // with the other effects since it needs `currentIsland`, computed fresh each render just above —
   // keyed on its id (a stable primitive) rather than the object itself, which is a new reference
   // every render and would restart the loop on every tick.
-  const isDriftingAtSea = blackPearlBoarded && !isMoving && !currentIsland;
+  const isDriftingAtSea = blackPearlBoarded && !currentIsland; // a slow swell under her, sailing or still (2026-11-24)
   useEffect(() => {
     if (isDriftingAtSea) {
       shipIdleLoopRef.current = Animated.loop(
         Animated.sequence([
           Animated.timing(shipIdleSway, {
-            toValue: -3,
-            duration: 900,
+            toValue: -2,
+            duration: 1400,
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
           Animated.timing(shipIdleSway, {
-            toValue: 3,
-            duration: 900,
+            toValue: 2,
+            duration: 1400,
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
@@ -1993,8 +2814,10 @@ export default function MapScreen({ navigation }: Props) {
   // face set: it reflects state MapScreen actually has, rather than reaching for an expression with
   // no story behind it. `captainFaceOverride` (occasional idle wink, or a happy/laugh flash on a
   // real win — see the effects above) takes priority over the plain heat tier while it's set.
-  const captainFace =
-    captainFaceOverride ?? (heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : FACE_NEUTRAL);
+  const captainFace = captainPortrait(
+    captainFaceOverride ?? (heat > 60 ? FACE_HURT : heat > 25 ? FACE_DETERMINED : FACE_NEUTRAL),
+    blackPearlCaptured || CHEEKY_ALWAYS_FOLLOW,
+  );
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -2053,6 +2876,7 @@ export default function MapScreen({ navigation }: Props) {
           <View
             style={[
               styles.world,
+              planMode && { backgroundColor: PLAN_PAPER },
               {
                 width: WORLD_WIDTH,
                 height: WORLD_HEIGHT,
@@ -2065,17 +2889,19 @@ export default function MapScreen({ navigation }: Props) {
                 transform: [
                   {
                     translateX:
-                      viewport.width / 2 - WORLD_WIDTH / 2 + ZOOM * (WORLD_WIDTH / 2 - player.x),
+                      viewport.width / 2 - WORLD_WIDTH / 2 + viewZoom * (WORLD_WIDTH / 2 - viewCenter.x),
                   },
                   {
                     translateY:
-                      viewport.height / 2 - WORLD_HEIGHT / 2 + ZOOM * (WORLD_HEIGHT / 2 - player.y),
+                      viewport.height / 2 - WORLD_HEIGHT / 2 + viewZoom * (WORLD_HEIGHT / 2 - viewCenter.y),
                   },
-                  { scale: ZOOM },
+                  { scale: viewZoom },
                 ],
               },
             ]}
           >
+            {planMode && <PlanWorld />}
+            {!planMode && (
             <Svg
               width={WORLD_WIDTH}
               height={WORLD_HEIGHT}
@@ -2156,6 +2982,17 @@ export default function MapScreen({ navigation }: Props) {
                   strokeWidth={3}
                 />
               ))}
+
+              {false && (
+                <SvgImage
+                  href={TORTUGA_V2_BACKDROP.source}
+                  x={ISLANDS.tortuga_cove.position.x + TORTUGA_V2_BACKDROP.x}
+                  y={ISLANDS.tortuga_cove.position.y + TORTUGA_V2_BACKDROP.y}
+                  width={TORTUGA_V2_BACKDROP.width}
+                  height={TORTUGA_V2_BACKDROP.height}
+                  preserveAspectRatio="none"
+                />
+              )}
 
               {/* Garden/yard patches, centered on each entity's precomputed HOUSE/BUILDING_GARDEN_
                   OFFSETS rather than its actual position — nudged away from any real path so the
@@ -2267,6 +3104,8 @@ export default function MapScreen({ navigation }: Props) {
 
               {SHOW_DOCK &&
                 PIERS.map((pier, i) => {
+                // Tortuga's docks are painted on the Art map base from the plan.
+                if ((pier.townDrawn && SHOW_TORTUGA_V2) || pier.islandId === 'tortuga_cove') return null;
                 const islandPos = ISLANDS[pier.islandId].position;
                 const x1 = islandPos.x + pier.from.x;
                 const y1 = islandPos.y + pier.from.y;
@@ -2305,6 +3144,7 @@ export default function MapScreen({ navigation }: Props) {
 
               {SHOW_DOCK &&
                 QUAYS.map((quay, i) => {
+                if ((quay.townDrawn && SHOW_TORTUGA_V2) || quay.islandId === 'tortuga_cove') return null;
                 const islandPos = ISLANDS[quay.islandId].position;
                 const x1 = islandPos.x + quay.from.x;
                 const y1 = islandPos.y + quay.from.y;
@@ -2340,6 +3180,7 @@ export default function MapScreen({ navigation }: Props) {
                 );
               })}
             </Svg>
+            )}
 
             {SHOW_HOUSES &&
               HOUSES.map((house, i) => {
@@ -2486,6 +3327,45 @@ export default function MapScreen({ navigation }: Props) {
                 </View>
               );
             })}
+
+            {SHOW_TORTUGA_V2 && !planMode && (
+              <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+                {/* Art mode is painted from the plan: the island base below, the painted town on top. */}
+                <ArtTiles origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
+                {/* The town core is now drawn from the plan too (ground in the tiles, houses as sprites). */}
+                <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} all={overview} />
+                {!overview && <ArtLife origin={ISLANDS.tortuga_cove.position} cam={camCoarse} player={player} />}
+                <ShortcutSprites origin={ISLANDS.tortuga_cove.position} unlocked={unlockedShortcuts} />
+                {!overview && <Townsfolk origin={ISLANDS.tortuga_cove.position} cam={camCoarse} />}
+                {!overview && <SquareLife origin={ISLANDS.tortuga_cove.position} cam={camCoarse} player={player} />}
+                {!overview && <NameBoards origin={ISLANDS.tortuga_cove.position} player={player} />}
+              </View>
+            )}
+            {planMode && <BlueprintLayer origin={ISLANDS.tortuga_cove.position} visible={planLayers} />}
+            {planMode && <PlanIslands cam={camCoarse} visible={planLayers} />}
+            {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
+                the same sailing sprite and size the player gets once aboard. */}
+            <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} doneErrands={completedErrands} />
+            {!editMode && !NO_FOG && <DiscoveryFog origin={ISLANDS.tortuga_cove.position} discovered={discoveredDistricts} />}
+            {planMode && editMode && (
+              <EditOverlay origin={ISLANDS.tortuga_cove.position} edits={edits} selected={editSelected} />
+            )}
+            {overview && (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: player.x - 9 / viewZoom,
+                  top: player.y - 9 / viewZoom,
+                  width: 18 / viewZoom,
+                  height: 18 / viewZoom,
+                  borderRadius: 9 / viewZoom,
+                  backgroundColor: '#e8432e',
+                  borderWidth: 3 / viewZoom,
+                  borderColor: '#fff',
+                }}
+              />
+            )}
 
             {SHOW_LANDMARKS &&
               LANDMARKS.map((landmark) => {
@@ -2840,16 +3720,60 @@ export default function MapScreen({ navigation }: Props) {
                 )}
               </View>
             )}
+
+            {cheekyFollowing && !shoulder && (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: cheeky.x - CHEEKY_SIZE / 2,
+                  // Feet on the same ground line as Scally's (his box is centred on the player).
+                  top: cheeky.y + PLAYER_SIZE / ZOOM / 2 - CHEEKY_SIZE,
+                  width: CHEEKY_SIZE,
+                  height: CHEEKY_SIZE,
+                }}
+              >
+                {/* Same opacity-toggle trick as Scally's own frames (see the "ghosting" note on the
+                    player sprite): every frame stays mounted and decoded, only one is visible. */}
+                {(() => {
+                  const celebrating = emoteOverlay?.frames === CELEBRATE_FRAMES;
+                  const active = celebrating
+                    ? CHEEKY_CELEBRATE
+                    : isMoving
+                    ? CHEEKY_HOP[cheeky.dir]
+                    : CHEEKY_IDLE;
+                  const idx = celebrating
+                    ? Math.min(Math.round((emoteFrame * CHEEKY_CELEBRATE.length) / CELEBRATE_FRAMES.length), CHEEKY_CELEBRATE.length - 1)
+                    : isMoving
+                    ? walkSpriteFrame % active.length
+                    : cheekyTick % active.length;
+                  return CHEEKY_V2_ALL.slice(0, 8 * 4 + CHEEKY_IDLE.length + CHEEKY_CELEBRATE.length).map((src, i) => (
+                    <RNImage
+                      key={`cheeky-${i}`}
+                      source={src}
+                      resizeMode="contain"
+                      style={{
+                        position: 'absolute',
+                        width: CHEEKY_SIZE,
+                        height: CHEEKY_SIZE,
+                        opacity: src === active[idx] ? 1 : 0,
+                      }}
+                    />
+                  ));
+                })()}
+              </View>
+            )}
           </View>
         )}
 
-        {viewport.width > 0 && (
+        {viewport.width > 0 && !overview && (
           <View
             style={[
               styles.player,
               {
-                left: viewport.width / 2 - PLAYER_SIZE / 2,
-                top: viewport.height / 2 - PLAYER_SIZE / 2,
+                left: viewport.width / 2 - PLAYER_SIZE / 2 + (player.x - cam.x) * viewZoom,
+                top: viewport.height / 2 - PLAYER_SIZE / 2 + (player.y - cam.y) * viewZoom,
+                transform: [{ scale: viewZoom / ZOOM }],
               },
             ]}
           >
@@ -2860,7 +3784,7 @@ export default function MapScreen({ navigation }: Props) {
                 triggers a flourish in) that direction. 0-size and non-interactive — exists purely
                 to force an early decode. See the "ghosting" fix note below. */}
             <View style={styles.preloadFrames} pointerEvents="none">
-              {ALL_SCALLY_MAP_FRAMES.map((frameSource, i) => (
+              {[...ALL_SCALLY_MAP_FRAMES, ...CHEEKY_V2_ALL].map((frameSource, i) => (
                 <RNImage key={i} source={frameSource} style={styles.preloadFrame} />
               ))}
             </View>
@@ -2900,17 +3824,27 @@ export default function MapScreen({ navigation }: Props) {
               // (preloading every direction's frames up front so even a fresh direction change never
               // re-triggers a first-time-decode).
               (() => {
-                const activePoseFrames = scallyAttackFlash
+                const activePoseFrames = shoulder
+                  ? SCALLY_CHEEKY_CLIMB
+                  : scallyAttackFlash
                   ? [scallyAttackFlash === 'attack' ? POSE_ATTACK : POSE_SWORD_READY]
                   : emoteOverlay
-                  ? [emoteOverlay.source]
+                  ? emoteOverlay.frames
                   : idleFlourish
                   ? idleFlourish.frames
                   : isRunning
-                  ? RUN_SOURCES
+                  ? facingDir === 's' && !facingRight
+                    ? RUN_S_MIRRORED
+                    : RUN_SOURCES_BY_DIR[facingDir]
                   : scallySpriteFrames(facingDir, isMoving);
-                const activeFrameIndex = scallyAttackFlash || emoteOverlay
+                const activeFrameIndex = shoulder
+                  ? shoulder === 'riding'
+                    ? SCALLY_CHEEKY_CLIMB.length - 1
+                    : climbFrame
+                  : scallyAttackFlash
                   ? 0
+                  : emoteOverlay
+                  ? emoteFrame
                   : idleFlourish
                   ? idleFlourishFrame
                   : isRunning
@@ -2925,6 +3859,7 @@ export default function MapScreen({ navigation }: Props) {
                   <Animated.View
                     style={[styles.playerSprite, { transform: [{ translateY: walkBounce }] }]}
                   >
+                    <View pointerEvents="none" style={styles.playerShadow} />
                     {activePoseFrames.map((frameSource, i) => (
                       <RNImage
                         key={i}
@@ -2965,40 +3900,46 @@ export default function MapScreen({ navigation }: Props) {
                 });
                 return (
                   <View style={styles.shipWrap}>
-                    {isMoving && !shipDeparting && (
-                      <>
-                        <RNImage
-                          source={wakeTier}
-                          resizeMode="contain"
-                          style={[styles.shipWake, wakeLayer(0.35, 0.85)]}
-                        />
-                        <RNImage
-                          source={wakeTier}
-                          resizeMode="contain"
-                          style={[styles.shipWake, wakeLayer(0.7, 0.4)]}
-                        />
-                      </>
-                    )}
+                    {(() => {
+                      // Foam trail: each stern puff spreads into a V either side of her track and fades.
+                      const now = Date.now();
+                      const px = (u: number) => Math.round(u * 6) / 6 * ZOOM; // snap to the 6-px art grid
+                      return wakeRef.current.flatMap((w, i) => {
+                        const age = (now - w.born) / WAKE_LIFE_MS;
+                        if (age >= 1) return [];
+                        // a churned white patch right at the stern that thins into two foam arms (a V)
+                        const spread = (0.8 + age * 10) * (0.55 + 0.45 * w.v);
+                        const nx = -Math.sin(w.a), ny = Math.cos(w.a) * 0.5;
+                        const op = 0.85 * (1 - age) * (1 - age) * (0.45 + 0.55 * w.v);
+                        const size = age < 0.25 ? 2 : age < 0.6 ? 1.5 : 1;
+                        const pts = [
+                          { x: w.x + nx * spread, y: w.y + ny * spread },
+                          { x: w.x - nx * spread, y: w.y - ny * spread },
+                        ];
+                        if (age < 0.4) pts.push({ x: w.x, y: w.y });
+                        return pts.map((q, j) => (
+                          <View
+                            key={`wk${w.born}-${j}`}
+                            pointerEvents="none"
+                            style={{
+                              position: 'absolute',
+                              left: SHIP_SPRITE_SIZE / 2 + px(q.x - player.x) - px(size) / 2,
+                              top: SHIP_SPRITE_H / 2 + px(q.y - player.y) - px(size) / 2,
+                              width: px(size),
+                              height: px(size),
+                              backgroundColor: j === 2 ? 'rgba(255,255,255,1)' : 'rgba(226,246,250,1)',
+                              opacity: j === 2 ? op * 0.8 : op,
+                            }}
+                          />
+                        ));
+                      });
+                    })()}
                     <Animated.Image
-                      source={
-                        shipStopSkid
-                          ? SHIP_STOP_SKID_SPRITE
-                          : shipDeparting
-                          ? SHIP_DEPART_SPRITE
-                          : shipAccelerating
-                          ? SHIP_ACCELERATE_SPRITE
-                          : shipFurling
-                          ? SHIP_DEPART_SPRITE
-                          : shipApproaching
-                          ? SHIP_APPROACH_FRAMES[shipApproachFrame]
-                          : shipTurnBank
-                          ? turnBankSource(shipTurnBank)
-                          : shipSpriteSource(shipHeading)
-                      }
+                      source={shipSpriteSource(shipHeading) /* the 2026-11-24 pixel-art Black Pearl: one frame per heading */}
                       resizeMode="contain"
                       style={[
                         styles.shipSprite,
-                        { transform: [{ translateY: Animated.add(walkBounce, shipIdleSway) }] },
+                        { transform: [{ translateY: shipIdleSway }, { rotate: shipBankRotate }] },
                       ]}
                     />
                   </View>
@@ -3007,6 +3948,41 @@ export default function MapScreen({ navigation }: Props) {
             )}
           </View>
         )}
+
+        {/* Buildings and towers standing in front of Scally, drawn again on top of him so he
+            disappears behind them instead of walking over their roofs. */}
+        {viewport.width > 0 && !planMode && !overview && (
+          <View
+            pointerEvents="none"
+            style={[
+              styles.world,
+              {
+                width: WORLD_WIDTH,
+                height: WORLD_HEIGHT,
+                backgroundColor: 'transparent',
+                transform: [
+                  { translateX: viewport.width / 2 - WORLD_WIDTH / 2 + viewZoom * (WORLD_WIDTH / 2 - viewCenter.x) },
+                  { translateY: viewport.height / 2 - WORLD_HEIGHT / 2 + viewZoom * (WORLD_HEIGHT / 2 - viewCenter.y) },
+                  { scale: viewZoom },
+                ],
+              },
+            ]}
+          >
+            <ArtSprites origin={ISLANDS.tortuga_cove.position} cam={camCoarse} occludeFor={player} />
+            {SHOW_SOLIDS_DEBUG &&
+              BLUEPRINT_SOLID_RECTS.filter((r) => Math.abs(r.l - cam.x) < 160 && Math.abs(r.t - cam.y) < 200).map((r, i) => (
+                <View key={`sd${i}`} style={{ position: 'absolute', left: r.l, top: r.t, width: r.r - r.l, height: r.b - r.t, backgroundColor: 'rgba(255,0,0,0.35)' }} />
+              ))}
+          </View>
+        )}
+
+        {viewport.width > 0 && !planMode && (
+          <DayNight cam={cam} zoom={viewZoom} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : BP_LAMPS} windows={planMode ? undefined : ART_WINDOWS} />
+        )}
+        {viewport.width > 0 && !planMode && SHOW_TORTUGA_V2 && !blackPearlBoarded &&
+          Math.abs(player.x - ISLANDS.tortuga_cove.position.x) < 640 && Math.abs(player.y - ISLANDS.tortuga_cove.position.y) < 600 && (
+            <WeatherMood rel={{ x: player.x - ISLANDS.tortuga_cove.position.x, y: player.y - ISLANDS.tortuga_cove.position.y }} viewport={viewport} />
+          )}
 
         {viewport.width > 0 && merchantShipFlash && (() => {
           const source = merchantShipSpriteSource(merchantShipFlash.templateId, merchantShipFlash.heading);
@@ -3036,9 +4012,16 @@ export default function MapScreen({ navigation }: Props) {
         })()}
 
         {viewport.width > 0 && (() => {
-          const minX = player.x - MINIMAP_RADIUS;
-          const minY = player.y - MINIMAP_RADIUS;
-          const span = MINIMAP_RADIUS * 2;
+          // On Tortuga the radar zooms in and shows the island's own map (streets, paths, docks and
+          // every building) so you can find your way; elsewhere it keeps the wide sea view.
+          const tort = ISLANDS.tortuga_cove.position;
+          const onTortuga =
+            SHOW_TORTUGA_V2 && !planMode && Math.abs(player.x - tort.x) < 640 && Math.abs(player.y - tort.y) < 600;
+          const radius = onTortuga ? 150 : MINIMAP_RADIUS;
+          const wpp = (radius * 2) / MINIMAP_SIZE;
+          const minX = player.x - radius;
+          const minY = player.y - radius;
+          const span = radius * 2;
           // Generous slack beyond the visible circle so items just outside it don't pop in/out
           // right at the edge as the player moves.
           const inView = (x: number, y: number) =>
@@ -3106,8 +4089,8 @@ export default function MapScreen({ navigation }: Props) {
               })
             : [];
 
-          const arrowLen = 12 * MINIMAP_WORLD_PER_PX;
-          const arrowWidth = 8 * MINIMAP_WORLD_PER_PX;
+          const arrowLen = 12 * wpp;
+          const arrowWidth = 8 * wpp;
           const arrowPoints = [
             `${player.x},${player.y - arrowLen}`,
             `${player.x + arrowWidth},${player.y + arrowLen * 0.6}`,
@@ -3115,6 +4098,12 @@ export default function MapScreen({ navigation }: Props) {
           ].join(' ');
 
           return (
+            <>
+            <Pressable
+              style={[styles.miniMap, { borderWidth: 0, backgroundColor: 'transparent', zIndex: 5 }]}
+              onPress={() => onTortuga && setShowFullMap(true)}
+              hitSlop={4}
+            />
             <View pointerEvents="none" style={styles.miniMap}>
               <Svg width={MINIMAP_SIZE} height={MINIMAP_SIZE} viewBox={`${minX} ${minY} ${span} ${span}`}>
                 <Rect x={minX} y={minY} width={span} height={span} fill="#124d73" />
@@ -3129,13 +4118,23 @@ export default function MapScreen({ navigation }: Props) {
                     strokeWidth={20}
                   />
                 ))}
+                {onTortuga && (
+                  <SvgImage
+                    href={TORTUGA_MINIMAP}
+                    x={tort.x - 620}
+                    y={tort.y - 580}
+                    width={1240}
+                    height={1120}
+                    preserveAspectRatio="none"
+                  />
+                )}
                 {/* Overlapping same-color circles with no stroke read as one solid tree mass at
                     this scale, echoing a hand-drawn map's clustered-canopy forest texture. */}
                 {forestProps.map((prop, i) => {
                   const pos = sceneryWorldPosition(prop, ISLANDS[prop.islandId].position);
                   return <Circle key={`forest-${i}`} cx={pos.x} cy={pos.y} r={50} fill="#1b4d32" />;
                 })}
-                {nearStreets.map((street, i) => {
+                {!onTortuga && nearStreets.map((street, i) => {
                   const islandPos = ISLANDS[street.islandId].position;
                   const x1 = islandPos.x + street.from.x;
                   const y1 = islandPos.y + street.from.y;
@@ -3159,7 +4158,7 @@ export default function MapScreen({ navigation }: Props) {
                 {/* Piers/jetties — a distinct warm brown from both street colors above so they
                     read as a separate, wooden feature reaching off the coastline rather than
                     another road. */}
-                {nearPiers.map((pier, i) => {
+                {!onTortuga && nearPiers.map((pier, i) => {
                   const islandPos = ISLANDS[pier.islandId].position;
                   const x1 = islandPos.x + pier.from.x;
                   const y1 = islandPos.y + pier.from.y;
@@ -3205,7 +4204,7 @@ export default function MapScreen({ navigation }: Props) {
                       key={`res-${node.id}`}
                       x={pos.x}
                       y={pos.y}
-                      fontSize={18 * MINIMAP_WORLD_PER_PX}
+                      fontSize={18 * wpp}
                       textAnchor="middle"
                       alignmentBaseline="central"
                     >
@@ -3223,7 +4222,7 @@ export default function MapScreen({ navigation }: Props) {
                       key={`quest-${quest.id}`}
                       x={pos.x}
                       y={pos.y}
-                      fontSize={20 * MINIMAP_WORLD_PER_PX}
+                      fontSize={20 * wpp}
                       textAnchor="middle"
                       alignmentBaseline="central"
                     >
@@ -3233,11 +4232,11 @@ export default function MapScreen({ navigation }: Props) {
                 })}
                 {/* Parked and findable on the radar same as any other blip — hidden while
                     boarded, since at that point the player's own arrow marker is the ship. */}
-                {SHOW_MAP_MARKERS && !blackPearlBoarded && inView(blackPearlPosition.x, blackPearlPosition.y) && (
+                {!blackPearlBoarded && inView(blackPearlPosition.x, blackPearlPosition.y) && (
                   <SvgText
                     x={blackPearlPosition.x}
                     y={blackPearlPosition.y}
-                    fontSize={20 * MINIMAP_WORLD_PER_PX}
+                    fontSize={20 * wpp}
                     textAnchor="middle"
                     alignmentBaseline="central"
                   >
@@ -3248,23 +4247,51 @@ export default function MapScreen({ navigation }: Props) {
                   <Circle
                     cx={mainQuestTarget.x}
                     cy={mainQuestTarget.y}
-                    r={34}
+                    r={onTortuga ? 6 : 34}
                     fill="none"
                     stroke="#ffd166"
-                    strokeWidth={10}
+                    strokeWidth={onTortuga ? 2 : 10}
                   />
                 )}
+                {onTortuga &&
+                  (() => {
+                    // the Journal's current target, clamped to the radar's edge when it is further away
+                    const prog = { completedErrands, dugSpots, seenClues, foundSkulls, readBottles, discoveredDistricts, resources: resourcesHeld, ferryUnlocked };
+                    const rel = { x: player.x - tort.x, y: player.y - tort.y };
+                    const live = tracked && !targetDone(tracked, prog) ? tracked : autoTarget(prog, rel);
+                    if (!live) return null;
+                    let tx = tort.x + live.x;
+                    let ty = tort.y + live.y;
+                    const dx = tx - player.x;
+                    const dy = ty - player.y;
+                    const d = Math.hypot(dx, dy);
+                    const edge = radius * 0.86;
+                    if (d > edge) {
+                      tx = player.x + (dx / d) * edge;
+                      ty = player.y + (dy / d) * edge;
+                    }
+                    const r = 5 * wpp;
+                    return (
+                      <Polygon
+                        points={`${tx},${ty - r} ${tx + r},${ty} ${tx},${ty + r} ${tx - r},${ty}`}
+                        fill="#b061ff"
+                        stroke="#fff"
+                        strokeWidth={1.2 * wpp}
+                      />
+                    );
+                  })()}
                 {/* The player marker is always plotted at the exact viewBox center — the world
                     scrolls under it as `player` changes, it never itself moves on screen. */}
                 <Polygon
                   points={arrowPoints}
                   fill="#ff5252"
                   stroke="#fff"
-                  strokeWidth={4}
+                  strokeWidth={onTortuga ? 1.5 : 4}
                   transform={`rotate(${lastFacingAngleRef.current} ${player.x} ${player.y})`}
                 />
               </Svg>
             </View>
+            </>
           );
         })()}
 
@@ -3287,6 +4314,48 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
+        {!nearbyBuildingPrompt && !planMode && SHOW_TORTUGA_V2 && !blackPearlBoarded && (() => {
+          const o = ISLANDS.tortuga_cove.position;
+          const it = nearestInteract({ x: player.x - o.x, y: player.y - o.y });
+          if (!it) return null;
+          const act = (i: Interact) => {
+            const st = useGameStore.getState();
+            const last = searchedRef.current.get(i.id) ?? 0;
+            const nowS = Date.now() / 1000;
+            if (i.kind === 'barrel') {
+              if (last) return showResourceToast('🛢️ Already searched — just rope and salt fish.', 2000);
+              searchedRef.current.set(i.id, nowS);
+              const r = Math.random();
+              if (r < 0.35) { const g = 1 + Math.floor(Math.random() * 3); st.addGold(g); showResourceToast(`🪙 Tucked between the staves: ${g} gold!`, 2400); }
+              else if (r < 0.5) { st.addResource('rum', 1); showResourceToast('🍶 A forgotten bottle of rum!', 2400); }
+              else showResourceToast('🛢️ Nothing but salted herring and old rope.', 2000);
+            } else if (i.kind === 'palm') {
+              if (last && nowS - last < 120) return showResourceToast('🌴 No more coconuts up there for now.', 2000);
+              searchedRef.current.set(i.id, nowS);
+              if (Math.random() < 0.6) { st.addResource('coconut', 1); showResourceToast('🥥 Thunk! A coconut drops.', 2200); }
+              else showResourceToast('🌴 The fronds rustle. Nothing falls.', 1800);
+            } else if (i.kind === 'bench') {
+              addTimeOffset(CYCLE_SECONDS / 4);
+              showResourceToast('🪑 You sit and watch the island go by… the hours slip past.', 2600);
+            } else if (i.kind === 'well') {
+              if (last) return showResourceToast('🪙 One wish per well, matey.', 2000);
+              searchedRef.current.set(i.id, nowS);
+              if (Math.random() < 0.25) { st.addGold(2); showResourceToast('✨ The well glints back — 2 gold on the bucket!', 2600); }
+              else showResourceToast('🪙 You toss in a wish. Somewhere, a parrot laughs.', 2400);
+            } else {
+              if (last && nowS - last < 45) return showResourceToast('🎣 Nothing biting yet — give it a moment.', 1800);
+              searchedRef.current.set(i.id, nowS);
+              if (Math.random() < 0.6) { st.addResource('fish', 1); showResourceToast('🐟 A fat fish off the bridge!', 2200); }
+              else showResourceToast('🎣 A nibble… and it got away.', 1800);
+            }
+          };
+          return (
+            <Pressable style={styles.buildingPrompt} onPress={() => act(it)}>
+              <Text style={styles.buildingPromptText}>{it.label}</Text>
+            </Pressable>
+          );
+        })()}
+
         {nearbyBuildingPrompt && (
           <Pressable style={styles.buildingPrompt} onPress={confirmEnterBuilding}>
             <Text style={styles.buildingPromptEmoji}>{nearbyBuildingPrompt.emoji}</Text>
@@ -3294,11 +4363,319 @@ export default function MapScreen({ navigation }: Props) {
           </Pressable>
         )}
 
+        {(() => {
+          if (overview || editMode || showJournal || showFullMap || !viewport.width) return null;
+          const o = ISLANDS.tortuga_cove.position;
+          const rel = { x: player.x - o.x, y: player.y - o.y };
+          if (Math.abs(rel.x) > 620 || Math.abs(rel.y) > 580) return null;
+          const progress = {
+            completedErrands,
+            dugSpots,
+            seenClues,
+            foundSkulls,
+            readBottles,
+            discoveredDistricts,
+            resources: resourcesHeld,
+            ferryUnlocked,
+          };
+          const live = tracked && !targetDone(tracked, progress) ? tracked : autoTarget(progress, rel);
+          // A tracked dig points at its landmark until you've read the clue there, then at the spot.
+          const t =
+            live?.kind === 'dig'
+              ? (() => {
+                  const d = BP_DIGS.find((x) => x.id === live.id);
+                  return d && Math.hypot(rel.x - d.lx, rel.y - d.ly) < 14 ? { ...live, x: d.x, y: d.y } : live;
+                })()
+              : live;
+          return <TrackerArrow target={t} rel={rel} centre={{ x: viewport.width / 2, y: viewport.height / 2 }} />;
+        })()}
+        {nearbyErrandId && (() => {
+          const e = BP_ERRANDS.find((er) => er.id === nearbyErrandId);
+          if (!e) return null;
+          const res = RESOURCES[e.resource as keyof typeof RESOURCES];
+          const have = resourcesHeld[e.resource] ?? 0;
+          const enough = have >= e.amount;
+          return (
+            <View style={styles.errandCard}>
+              <Text style={styles.errandWho}>
+                {e.person} · {e.district}
+              </Text>
+              <Text style={styles.errandLine}>"{e.line}"</Text>
+              <Text style={styles.errandNeed}>
+                Wants {e.amount} {res?.emoji} {res?.name} · you have {have} · reward {e.gold} gold
+                {e.reward ? ` + ${e.reward.kind === 'crew' ? 'a new crew member' : e.reward.kind === 'map' ? 'a map piece' : e.reward.kind === 'ferry' ? 'the rowboat taxi' : `${e.reward.value} ${e.reward.kind}`}` : ''}
+              </Text>
+              <Pressable
+                style={[styles.errandButton, !enough && { opacity: 0.45 }]}
+                disabled={!enough}
+                onPress={() => {
+                  if (completeErrand(e.id, e.resource, e.amount, e.gold)) {
+                    const rw = e.reward;
+                    if (rw?.kind === 'ferry') unlockFerry();
+                    else if (rw?.kind === 'crew') addCrewMember(String(rw.value), 3);
+                    else if (rw?.kind === 'map')
+                      String(rw.value)
+                        .split('|')
+                        .forEach((d) => {
+                          if (!discoveredRef.current.includes(d)) {
+                            discoveredRef.current = [...discoveredRef.current, d];
+                            discoverDistrict(d);
+                          }
+                        });
+                    else if (rw) addResource(rw.kind, Number(rw.value));
+                    showResourceToast(`🪙 +${e.gold} gold — ${e.person} thanks you${rw ? `\n🎁 ${rw.text}` : ''}`, rw ? 4200 : 2600);
+                    nearbyErrandRef.current = null;
+                    setNearbyErrandId(null);
+                  }
+                }}
+              >
+                <Text style={styles.errandButtonText}>{enough ? 'Hand over' : `Gather ${e.amount - have} more`}</Text>
+              </Pressable>
+            </View>
+          );
+        })()}
+
+        {nearbyFerry !== null && !nearbyErrandId && (
+          <View style={styles.errandCard}>
+            <Text style={styles.errandWho}>🚣 Rowboat taxi · {BP_FERRY[nearbyFerry].name}</Text>
+            <Text style={styles.errandNeed}>2 gold a trip · you have {gold}</Text>
+            <View style={styles.ferryRow}>
+              {BP_FERRY.map((f, i) =>
+                i === nearbyFerry ? null : (
+                  <Pressable
+                    key={f.name}
+                    style={[styles.ferryStop, gold < 2 && { opacity: 0.45 }]}
+                    disabled={gold < 2}
+                    onPress={() => {
+                      if (!spendGold(2)) return;
+                      const o = ISLANDS.tortuga_cove.position;
+                      const to = { x: o.x + f.x, y: o.y + f.y };
+                      playerRef.current = to;
+                      setPlayer(to);
+                      nearbyFerryRef.current = i;
+                      setNearbyFerry(i);
+                      showResourceToast(`🚣 Rowed to ${f.name}`, 2000);
+                    }}
+                  >
+                    <Text style={styles.ferryStopText}>{f.name}</Text>
+                  </Pressable>
+                )
+              )}
+            </View>
+          </View>
+        )}
+
         {showBoardPrompt && (
           <Pressable style={styles.buildingPrompt} onPress={confirmBoardBlackPearl}>
             <Text style={styles.buildingPromptEmoji}>{BLACK_PEARL_EMOJI}</Text>
             <Text style={styles.buildingPromptText}>Board the Black Pearl?</Text>
           </Pressable>
+        )}
+
+        <Pressable
+          style={styles.planToggle}
+          onPress={() => setPlanMode((m) => !m)}
+          hitSlop={6}
+          accessibilityLabel={planMode ? 'Show the island art' : 'Show the island blueprint'}
+        >
+          <Text style={styles.planToggleText}>{planMode ? '🎨 Art' : '📐 Plan'}</Text>
+        </Pressable>
+        {planMode && (
+          <Pressable style={[styles.planToggle, { top: 106 }]} onPress={() => setShowLayerPanel((v) => !v)} hitSlop={6}>
+            <Text style={styles.planToggleText}>🗂 Layers</Text>
+          </Pressable>
+        )}
+        <Pressable
+          style={[styles.planToggle, { top: planMode ? 144 : 106 }]}
+          onPress={() => {
+            directionRef.current = null;
+            setOverview((v) => !v);
+          }}
+          hitSlop={6}
+        >
+          <Text style={styles.planToggleText}>{overview ? '🔍 Close' : '🗺 Island'}</Text>
+        </Pressable>
+        {planMode && (
+          <Pressable
+            style={[styles.planToggle, { top: 182 }, editMode && { backgroundColor: '#d35400' }]}
+            onPress={() => {
+              directionRef.current = null;
+              setEditMode((v) => !v);
+              setEditSelected(null);
+              setShowLayerPanel(false);
+            }}
+            hitSlop={6}
+          >
+            <Text style={styles.planToggleText}>{editMode ? '✓ Done' : '✏️ Edit'}</Text>
+          </Pressable>
+        )}
+        {!editMode && (
+          <Pressable
+            style={[styles.planToggle, { top: planMode ? 220 : 144 }]}
+            onPress={() => {
+              directionRef.current = null;
+              setShowLayerPanel(false);
+              setShowJournal((v) => !v);
+            }}
+            hitSlop={6}
+          >
+            <Text style={styles.planToggleText}>📖 Journal</Text>
+          </Pressable>
+        )}
+        {!editMode && !planMode && SHOW_TORTUGA_V2 && (
+          <Pressable
+            style={[styles.planToggle, { top: 220 }]}
+            onPress={() => {
+              directionRef.current = null;
+              setShowJournal(false);
+              setShowInspector((v) => !v);
+            }}
+            hitSlop={6}
+          >
+            <Text style={styles.planToggleText}>🔍 Art</Text>
+          </Pressable>
+        )}
+        {showInspector && !planMode && !showJournal && (
+          <ArtInspector origin={ISLANDS.tortuga_cove.position} player={player} onClose={() => setShowInspector(false)} />
+        )}
+        {showJournal && (
+          <JournalPanel
+            progress={{
+              completedErrands,
+              dugSpots,
+              seenClues,
+              foundSkulls,
+              readBottles,
+              discoveredDistricts,
+              resources: resourcesHeld,
+              ferryUnlocked,
+            }}
+            tracked={tracked}
+            onTrack={(t) => {
+              setTracked(t);
+              if (t) setShowJournal(false);
+            }}
+            onClose={() => setShowJournal(false)}
+          />
+        )}
+        {showFullMap && (() => {
+          const o = ISLANDS.tortuga_cove.position;
+          const rel = { x: player.x - o.x, y: player.y - o.y };
+          const prog = { completedErrands, dugSpots, seenClues, foundSkulls, readBottles, discoveredDistricts, resources: resourcesHeld, ferryUnlocked };
+          const live = tracked && !targetDone(tracked, prog) ? tracked : autoTarget(prog, rel);
+          return (
+            <FullMap rel={rel} target={live ? { x: live.x, y: live.y, label: live.label } : null} discovered={discoveredDistricts} viewport={viewport} onClose={() => setShowFullMap(false)} />
+          );
+        })()}
+        {planMode && editMode && (
+          <View style={styles.editBar}>
+            <Text style={styles.editBarText}>
+              Drag to move · tap to select · {editCount(edits)} edits
+            </Text>
+            <View style={styles.editBarButtons}>
+              {Object.entries(ADDABLE).map(([what, d]) => (
+                <Pressable
+                  key={what}
+                  style={styles.editBarButton}
+                  onPress={() => {
+                    if (!editPressOnce()) return;
+                    const o = ISLANDS.tortuga_cove.position;
+                    const r = addItem(editsRef.current, what, playerRef.current.x - o.x, playerRef.current.y - o.y);
+                    setEdits(r.edits);
+                    saveEdits(r.edits);
+                    setEditSelected(r.key);
+                  }}
+                >
+                  <Text style={styles.editBarButtonText}>＋{d.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+            {(() => {
+              const sel = findItem(edits, editSelected);
+              if (!sel) return null;
+              const resizable = sel.kind === 'buildings' || (sel.kind === 'added' && sel.label === 'cottage');
+              const apply = (next: PlanEdits) => {
+                if (!editPressOnce()) return;
+                setEdits(next);
+                saveEdits(next);
+              };
+              return (
+                <View style={styles.editBarButtons}>
+                  <Text style={[styles.editBarText, { alignSelf: 'center' }]}>{sel.label}</Text>
+                  {resizable && (
+                    <Pressable style={styles.editBarButton} onPress={() => apply(resizeItem(editsRef.current, sel, -2))}>
+                      <Text style={styles.editBarButtonText}>− Smaller</Text>
+                    </Pressable>
+                  )}
+                  {resizable && (
+                    <Pressable style={styles.editBarButton} onPress={() => apply(resizeItem(editsRef.current, sel, 2))}>
+                      <Text style={styles.editBarButtonText}>＋ Bigger</Text>
+                    </Pressable>
+                  )}
+                  <Pressable
+                    style={[styles.editBarButton, { backgroundColor: '#c0392b' }]}
+                    onPress={() => {
+                      apply(deleteItem(editsRef.current, sel));
+                      setEditSelected(null);
+                    }}
+                  >
+                    <Text style={styles.editBarButtonText}>🗑 Delete</Text>
+                  </Pressable>
+                </View>
+              );
+            })()}
+            <View style={styles.editBarButtons}>
+              <Pressable
+                style={styles.editBarButton}
+                onPress={async () => showResourceToast(await exportEdits(editsRef.current), 2600)}
+              >
+                <Text style={styles.editBarButtonText}>📋 Copy edits</Text>
+              </Pressable>
+              <Pressable
+                style={styles.editBarButton}
+                onPress={() => {
+                  setEdits(EMPTY_EDITS);
+                  saveEdits(EMPTY_EDITS);
+                  setEditSelected(null);
+                }}
+              >
+                <Text style={styles.editBarButtonText}>↺ Reset</Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+        {planMode && showLayerPanel && (
+          <View style={styles.layerPanel}>
+            <View style={styles.layerPanelHeader}>
+              <Text style={styles.layerPanelTitle}>Plan layers</Text>
+              <Pressable onPress={() => setShowLayerPanel(false)} hitSlop={8}>
+                <Text style={styles.layerPanelClose}>✕</Text>
+              </Pressable>
+            </View>
+            <View style={styles.layerPanelQuick}>
+              <Pressable onPress={() => setPlanLayers(Object.fromEntries(PLAN_LAYERS.map((l) => [l.id, true])))}>
+                <Text style={styles.layerPanelQuickText}>All</Text>
+              </Pressable>
+              <Pressable onPress={() => setPlanLayers(DEFAULT_PLAN_LAYERS)}>
+                <Text style={styles.layerPanelQuickText}>Default</Text>
+              </Pressable>
+              <Pressable onPress={() => setPlanLayers(Object.fromEntries(PLAN_LAYERS.map((l) => [l.id, false])))}>
+                <Text style={styles.layerPanelQuickText}>None</Text>
+              </Pressable>
+            </View>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.layerGrid}>
+              {PLAN_LAYERS.filter((l) => l.id !== 'paper').map((l) => (
+                <Pressable
+                  key={l.id}
+                  style={styles.layerRow}
+                  onPress={() => setPlanLayers((v) => ({ ...v, [l.id]: !v[l.id] }))}
+                >
+                  <Text style={styles.layerCheck}>{planLayers[l.id] ? '☑' : '☐'}</Text>
+                  <Text style={[styles.layerName, !planLayers[l.id] && { opacity: 0.5 }]}>{l.name}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
         )}
 
         {compassAngleDeg !== null && (
@@ -3677,6 +5054,77 @@ const styles = StyleSheet.create({
   compassEmoji: {
     fontSize: 26,
   },
+  planToggle: {
+    position: 'absolute',
+    top: 68,
+    right: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderWidth: 2,
+    borderColor: '#f4e9cd',
+  },
+  errandCard: {
+    position: 'absolute',
+    left: 14,
+    right: 14,
+    bottom: 18,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: 'rgba(36,24,14,0.94)',
+    borderWidth: 2,
+    borderColor: '#c9a227',
+  },
+  errandWho: { color: '#f4e9cd', fontSize: 15, fontWeight: '800' },
+  ferryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  ferryStop: { backgroundColor: '#c9a227', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 },
+  ferryStopText: { color: '#24180e', fontWeight: '800', fontSize: 13 },
+  errandLine: { color: '#f4e9cd', fontSize: 14, fontStyle: 'italic', marginTop: 4 },
+  errandNeed: { color: '#e8c872', fontSize: 13, marginTop: 6 },
+  errandButton: { alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, backgroundColor: '#c9a227' },
+  errandButtonText: { color: '#24180e', fontSize: 14, fontWeight: '800' },
+  editBar: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 16,
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(244,241,230,0.97)',
+    borderWidth: 2,
+    borderColor: '#d35400',
+  },
+  editBarText: { color: '#2b2a27', fontSize: 13, fontWeight: '700', textAlign: 'center' },
+  editBarButtons: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 8 },
+  editBarButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, backgroundColor: '#2b2a27' },
+  editBarButtonText: { color: '#f4e9cd', fontSize: 13, fontWeight: '700' },
+  layerPanel: {
+    position: 'absolute',
+    top: 220,
+    bottom: 16,
+    right: 12,
+    width: 340,
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(244,241,230,0.97)',
+    borderWidth: 2,
+    borderColor: '#2b2a27',
+  },
+  layerPanelHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  layerPanelTitle: { color: '#1f3b5c', fontSize: 15, fontWeight: '800', letterSpacing: 1 },
+  layerPanelClose: { color: '#2b2a27', fontSize: 16, fontWeight: '700' },
+  layerPanelQuick: { flexDirection: 'row', gap: 14, marginBottom: 6 },
+  layerPanelQuickText: { color: '#3b6e9c', fontSize: 13, fontWeight: '700', textDecorationLine: 'underline' },
+  layerGrid: { flexDirection: 'row', flexWrap: 'wrap' },
+  layerRow: { width: '50%', flexDirection: 'row', alignItems: 'center', paddingVertical: 2, paddingRight: 4 },
+  layerCheck: { fontSize: 16, color: '#2b2a27', width: 22 },
+  layerName: { fontSize: 11.5, color: '#2b2a27', flexShrink: 1 },
+  planToggleText: {
+    color: '#f4e9cd',
+    fontSize: 13,
+    fontWeight: '700',
+  },
   edgeIndicator: {
     position: 'absolute',
     width: EDGE_ICON_SIZE,
@@ -3735,9 +5183,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // v2 frames are a 112x128 canvas with the standing figure 108px tall; sized so he stands the
+  // same height as before (the old frames filled ~97% of theirs).
   playerSprite: {
-    width: PLAYER_SIZE * 1.5,
-    height: PLAYER_SIZE * 1.5,
+    width: PLAYER_SIZE * 1.5 * 1.15,
+    height: PLAYER_SIZE * 1.5 * 1.15,
+  },
+  // Soft ground shadow under his boots (feet sit 4px above the bottom of the 128px v2 canvas).
+  playerShadow: {
+    position: 'absolute',
+    left: PLAYER_SIZE * 1.725 * 0.5 - PLAYER_SIZE * 1.725 * 0.21,
+    top: PLAYER_SIZE * 1.725 * (124 / 128) - PLAYER_SIZE * 1.725 * 0.045,
+    width: PLAYER_SIZE * 1.725 * 0.42,
+    height: PLAYER_SIZE * 1.725 * 0.09,
+    borderRadius: PLAYER_SIZE,
+    backgroundColor: 'rgba(30, 18, 8, 0.45)',
   },
   // Each frame in the active walk/idle/run/flourish set overlays the same box, absolutely
   // positioned so they all stack exactly on top of each other — only the active one's `opacity`
@@ -3762,13 +5222,13 @@ const styles = StyleSheet.create({
   },
   shipWrap: {
     width: SHIP_SPRITE_SIZE,
-    height: SHIP_SPRITE_SIZE,
+    height: SHIP_SPRITE_H,
     alignItems: 'center',
     justifyContent: 'center',
   },
   shipSprite: {
     width: SHIP_SPRITE_SIZE,
-    height: SHIP_SPRITE_SIZE,
+    height: SHIP_SPRITE_H,
   },
   shipWake: {
     position: 'absolute',

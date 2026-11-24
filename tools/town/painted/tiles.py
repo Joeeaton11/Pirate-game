@@ -1,0 +1,12 @@
+# Tile grid for the painted town: 1200x896 px each at 4.8 px per world unit (250 x 186.67 units).
+PPU=4.8; TW=250; TH=896/PPU
+COLS=[-150,50]; ROWS=[-455,-305,-155]
+def tile(r,c): return COLS[c],ROWS[r],COLS[c]+TW,ROWS[r]+TH
+DESC={
+(0,0):"open sea at the top; on the left a small rocky headland (Gun Point) with a stone watchtower, a cannon and a black pirate flag, stone steps down to the wharf; a long wooden pier with a T-shaped head reaching out to sea with a pirate sloop and a brigantine moored; along the bottom a busy plank wharf with a wooden cargo crane, crates, barrels, sacks and rope coils, then the top of a stone quay",
+(0,1):"open sea at the top; a wooden customs pier with an L-shaped head and a merchant schooner moored, further right a fish pier with small fishing boats and rowboats; along the bottom the east end of the plank wharf and a fish quay with fish drying racks, fishing nets, fish baskets and a small fish stall, a second cargo crane",
+(1,0):"a raised stone quay with a sea wall and two stone stairways down to a cobbled harbour street (Quay Street); along it a row of three tall narrow harbour office houses and the harbourmaster's office with a small clock tower; below that a lane with a ramshackle grog shop with barrels outside and a crooked row of crew lodging houses; at the bottom the big two-storey Tavern with a hanging sign facing the market square",
+(1,1):"the east side of Quay Street with a large stone customs house with columns and a flag, and a timber fish hall; below it Chandlers' Row: a bakery with bread on display, a general shop, a chandlery with ropes and lanterns hung outside, a tall boarding house, a turtle pen with turtles and a stone powder-and-shot store with barrels of gunpowder",
+(2,0):"a raised market square with a stone fountain, colourful market stalls and steps down to a lower market with a wooden gallows, a well and a pillory; a smithy with an anvil and glowing forge, a careening shed and a timber yard with stacked logs; along the bottom Rope Walk street with a sail-maker's loft, a net loft, a cooper's yard full of barrels and a rope-and-tackle shop",
+(2,1):"a copper-roofed distillery with a big copper still outside, a menagerie with animal cages and a parrot perch, a tannery with hides drying on racks, a small sexton's house, a white chapel with a bell on a small grassy hill reached by stone steps, two big wooden warehouses, a row of grog houses and a little palm garden with benches",
+}

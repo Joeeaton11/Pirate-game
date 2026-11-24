@@ -1,3 +1,14 @@
+# 🔒 MASTER STYLE REFERENCE (locked 2026-11-14)
+
+`assets/brand/style/MASTER_STYLE_harbour.png` is the main art-style influence for the whole game.
+Every environment generation must attach it as an image reference and match it:
+- dense, richly detailed retro pixel art with visible pixel grain (not smooth or painterly, not plain GBA-flat)
+- high top-down three-quarter view: large roofs seen from above, front walls plus a little side wall
+- weathered, lived-in Caribbean pirate port: moss, cracks, crates, barrels, ropes, awnings, palms and plants packed between buildings
+- saturated turquoise water, warm terracotta roofs, sandy cobbles, deep greens; crisp dark outlines
+- no people baked into building art
+One asset per image (see AGENTS.md).
+
 # Tortuga Art Pipeline — Asset Brief
 
 Companion doc to the published artifact (ask in-session for the current link, or check `claude.ai/code/artifacts`).

@@ -13,28 +13,16 @@ export interface Prop {
 }
 
 export const PROPS: Prop[] = [
+  // Tortuga Cove's set-dressing moved to TORTUGA_V2_PROPS (tortugaV2.ts, art pass v2, 2026-11-14).
   // Basse-Terre Square — market stall + lampposts flanking the fountain landmark itself.
-  { islandId: 'tortuga_cove', offset: { x: -16, y: -148 }, spriteId: 'market_stall' },
-  { islandId: 'tortuga_cove', offset: { x: 48, y: -152 }, spriteId: 'lamppost' },
-  { islandId: 'tortuga_cove', offset: { x: -2, y: -115 }, spriteId: 'lamppost' },
 
   // Benches outside the two busiest hero buildings on the quay.
-  { islandId: 'tortuga_cove', offset: { x: 106, y: -90 }, spriteId: 'bench' }, // near The Salty Parrot
-  { islandId: 'tortuga_cove', offset: { x: 188, y: -102 }, spriteId: 'bench' }, // near Harbor Trading Post
 
   // Barrels stacked by the warehouse district.
-  { islandId: 'tortuga_cove', offset: { x: -202, y: -184 }, spriteId: 'barrel' }, // Smugglers' Warehouse
-  { islandId: 'tortuga_cove', offset: { x: -274, y: -23 }, spriteId: 'barrel' }, // Tobacco Warehouse
-  { islandId: 'tortuga_cove', offset: { x: 202, y: 25 }, spriteId: 'barrel' }, // Timber Yard
 
   // Crates by the trading/provisioning buildings.
-  { islandId: 'tortuga_cove', offset: { x: 182, y: -129 }, spriteId: 'crate' }, // Harbor Trading Post
-  { islandId: 'tortuga_cove', offset: { x: -55, y: 16 }, spriteId: 'crate' }, // The Ship's Provisioner
-  { islandId: 'tortuga_cove', offset: { x: 202, y: -159 }, spriteId: 'crate' }, // Dockworkers' Bunkhouse
 
   // Pirate colors flying over the two buildings that answer to no crown.
-  { islandId: 'tortuga_cove', offset: { x: 288, y: -351 }, spriteId: 'flag_skull', fontSize: 26 }, // Fort de Rocher
-  { islandId: 'tortuga_cove', offset: { x: -25, y: -25 }, spriteId: 'flag_skull', fontSize: 20 }, // Le Vasseur's Residence
 ];
 
 export function propsForIsland(islandId: string): Prop[] {
