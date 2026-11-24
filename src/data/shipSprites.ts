@@ -207,9 +207,10 @@ export const SHIP_APPROACH_RADIUS = 130;
  * real pier there. A beach/coastline landing keeps the simpler instant cut instead. */
 export const SHIP_FURL_RADIUS = 55;
 
-/** The 3D Black Pearl (2026-11-24): a Tripo model rendered from the world camera at 16 headings and
+/** The 3D Black Pearl (2026-11-24): a Tripo model rendered from the world camera at 32 headings and
  * pixelated onto the 6 px/unit grid (tools/art/ship3d_render.html + tools/art/pack_ship3d.py).
- * Index 0 = bow pointing east, then clockwise in 22.5° steps (4 = south, 8 = west, 12 = north). */
+ * Index 0 = bow pointing east, then clockwise in 11.25° steps (8 = south, 16 = west, 24 = north).
+ * SHIP_3D_SHADOWS are the matching silhouettes flattened onto the sea, thrown away from the sun. */
 export const SHIP_3D_FRAMES = [
   require('../../assets/sprites/ship/px6_3d/ship_00.png'),
   require('../../assets/sprites/ship/px6_3d/ship_01.png'),
@@ -227,6 +228,56 @@ export const SHIP_3D_FRAMES = [
   require('../../assets/sprites/ship/px6_3d/ship_13.png'),
   require('../../assets/sprites/ship/px6_3d/ship_14.png'),
   require('../../assets/sprites/ship/px6_3d/ship_15.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_16.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_17.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_18.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_19.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_20.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_21.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_22.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_23.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_24.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_25.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_26.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_27.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_28.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_29.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_30.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_31.png'),
+];
+export const SHIP_3D_SHADOWS = [
+  require('../../assets/sprites/ship/px6_3d/ship_00_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_01_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_02_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_03_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_04_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_05_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_06_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_07_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_08_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_09_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_10_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_11_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_12_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_13_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_14_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_15_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_16_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_17_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_18_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_19_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_20_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_21_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_22_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_23_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_24_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_25_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_26_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_27_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_28_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_29_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_30_shadow.png'),
+  require('../../assets/sprites/ship/px6_3d/ship_31_shadow.png'),
 ];
 export const SHIP_3D_STEPS = SHIP_3D_FRAMES.length;
 /** Nearest 3D frame for a heading angle in radians (0 = east, screen y down, so clockwise). */

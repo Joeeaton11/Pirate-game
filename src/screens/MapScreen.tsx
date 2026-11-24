@@ -182,6 +182,7 @@ import {
   oppositeHeading,
   shipSpriteSource,
   SHIP_3D_FRAMES,
+  SHIP_3D_SHADOWS,
   SHIP_3D_STEPS,
   ship3dIndex,
   turnBankSource,
@@ -355,7 +356,7 @@ const SHALLOWS_SPEED_FACTOR = 0.45;
 const SHIP_MAX_SPEED = 46; // world units per second (~1.5 hull lengths); was SEA_SPEED 150 flat out
 const SHIP_ACCEL = 30; // units/s² while the drag asks for more speed
 const SHIP_DECEL = 18; // units/s² when easing off / gliding after release
-const SHIP_TURN_RATE = 1.8; // radians/s at full speed; slower when nearly stopped
+const SHIP_TURN_RATE = 2.4; // radians/s at full speed; slower when nearly stopped
 const SHIP_BANK_MAX = 5; // degrees of lean in a hard turn
 const WAKE_LIFE_MS = 2000;
 const SEA_ZOOM_FACTOR = 0.62; // camera pulled back while aboard
@@ -1259,7 +1260,19 @@ export default function MapScreen({ navigation }: Props) {
   const [shipFrame, setShipFrame] = useState(0); // which of the 16 3D views is drawn
   const shipFrameRef = useRef(0);
   const shipBankAnim = useRef(new Animated.Value(0)).current;
-  const shipBankRotate = shipBankAnim.interpolate({ inputRange: [-10, 10], outputRange: ['-10deg', '10deg'] });
+  // a slow roll on the swell, added to the lean she takes in a turn
+  const shipRollAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shipRollAnim, { toValue: 1.3, duration: 1700, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(shipRollAnim, { toValue: -1.3, duration: 1700, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [shipRollAnim]);
+  const shipBankRotate = Animated.add(shipBankAnim, shipRollAnim).interpolate({ inputRange: [-12, 12], outputRange: ['-12deg', '12deg'] });
   // Foam left on the water behind her: world points that spread out and fade (drawn as pixel puffs).
   const wakeRef = useRef<{ x: number; y: number; born: number; a: number; v: number }[]>([]);
   const mooredShip = useMemo(
@@ -2077,7 +2090,7 @@ export default function MapScreen({ navigation }: Props) {
         if (direction && want > 0) {
           let diff = Math.atan2(direction.y, direction.x) - m.angle;
           diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-          const rate = SHIP_TURN_RATE * (0.35 + 0.65 * Math.min(1, m.speed / SHIP_MAX_SPEED));
+          const rate = SHIP_TURN_RATE * (0.55 + 0.45 * Math.min(1, m.speed / SHIP_MAX_SPEED));
           m.angle += clamp(diff, -rate * dt, rate * dt);
         }
         const turned = Math.atan2(Math.sin(m.angle - prevAngle), Math.cos(m.angle - prevAngle)) / dt;
@@ -2097,7 +2110,7 @@ export default function MapScreen({ navigation }: Props) {
         const stepA = (Math.PI * 2) / SHIP_3D_STEPS;
         const curA = shipFrameRef.current * stepA;
         const offA = Math.abs(Math.atan2(Math.sin(m.angle - curA), Math.cos(m.angle - curA)));
-        if (offA > stepA * 0.62) {
+        if (offA > stepA * 0.58) {
           const fi = ship3dIndex(m.angle);
           shipFrameRef.current = fi;
           setShipFrame(fi);
@@ -3915,6 +3928,11 @@ export default function MapScreen({ navigation }: Props) {
                 });
                 return (
                   <View style={styles.shipWrap}>
+                    <Animated.Image
+                      source={SHIP_3D_SHADOWS[shipFrame]}
+                      resizeMode="contain"
+                      style={[styles.shipSprite, { position: 'absolute', opacity: 0.3, transform: [{ translateY: shipIdleSway }] }]}
+                    />
                     {(() => {
                       // Wake (2026-11-24): white churn boiling at the stern that opens into two foam
                       // arms (a Kelvin V) and fades through pale turquoise into the sea; a bow wave
@@ -3967,19 +3985,25 @@ export default function MapScreen({ navigation }: Props) {
                           if (age > 0.15) dot(`${k}b${side}`, bx + fx * 0.9 - nx * side * 0.6, by + fy * 0.9 - ny * side * 0.6, 1, fade * 0.7, col);
                         }
                       }
-                      // bow wave: foam curling off both sides of the bow while she has way on
-                      const m = shipMotionRef.current;
-                      const v = Math.min(1, m.speed / SHIP_MAX_SPEED);
-                      if (v > 0.12) {
-                        const c = Math.cos(m.angle), sn = Math.sin(m.angle);
-                        const nx = -sn, ny = c * 0.5;
-                        const bowX = player.x + c * 17, bowY = player.y + 4 + sn * 17 * 0.5;
-                        const flick = Math.floor(now / 140) % 2;
-                        for (const side of [1, -1]) {
-                          for (let i = 0; i < 3; i++) {
-                            const back = i * 2.2, out_ = 1.2 + i * (1.1 + v);
-                            dot(`bw${side}${i}`, bowX - c * back + nx * out_ * side, bowY - sn * 0.5 * back + ny * out_ * side,
-                              i === 0 ? 1.5 : 1, v * (1 - i * 0.28) * (flick === i % 2 ? 1 : 0.75), i === 0 ? '#ffffff' : '#e6fafa');
+                      // a faint, long-lived track down the middle of her path (the 'scar' a ship leaves)
+                      for (const w of wakeRef.current) {
+                        const age = (now - w.born) / WAKE_LIFE_MS;
+                        if (age < 0.25 || age >= 1 || w.born % 3 !== 0) continue;
+                        dot(`tr${w.born}`, w.x, w.y, 1, 0.45 * (1 - age) * w.v, '#bfeef0');
+                      }
+                      // wash along her sides amidships while she moves
+                      {
+                        const m = shipMotionRef.current;
+                        const v = Math.min(1, m.speed / SHIP_MAX_SPEED);
+                        if (v > 0.2) {
+                          const c = Math.cos(m.angle), sn = Math.sin(m.angle);
+                          const nx = -sn, ny = c * 0.5;
+                          const flick = Math.floor(now / 160) % 3;
+                          for (const side of [1, -1]) {
+                            for (let i = 0; i < 3; i++) {
+                              const along = -6 + i * 6 + (flick === i ? 1 : 0);
+                              dot(`ws${side}${i}`, player.x + c * along + nx * 5.5 * side, player.y + 4 + sn * 0.5 * along + ny * 5.5 * side, 1, v * 0.55, '#e9fbfb');
+                            }
                           }
                         }
                       }
@@ -3993,6 +4017,44 @@ export default function MapScreen({ navigation }: Props) {
                         { transform: [{ translateY: shipIdleSway }, { rotate: shipBankRotate }] },
                       ]}
                     />
+                    {(() => {
+                      const m = shipMotionRef.current;
+                      const v = Math.min(1, m.speed / SHIP_MAX_SPEED);
+                      if (v <= 0.12) return null;
+                      const now = Date.now();
+                      const px = (u: number) => Math.round(u * 6) / 6 * ZOOM;
+                      const step = (o: number) => (o > 0.7 ? 0.9 : o > 0.45 ? 0.65 : o > 0.22 ? 0.4 : o > 0.08 ? 0.2 : 0);
+                      const c = Math.cos(m.angle), sn = Math.sin(m.angle);
+                      if (sn < -0.3) return null; // heading away: her bow is round the far side of the hull
+                      const nx = -sn, ny = c * 0.5;
+                      const bowX = player.x + c * 18, bowY = player.y + 4 + sn * 18 * 0.5;
+                      const flick = Math.floor(now / 140) % 2;
+                      const out: React.ReactNode[] = [];
+                      for (const side of [1, -1]) {
+                        for (let i = 0; i < 4; i++) {
+                          const back = i * 2.2, out_ = 1.0 + i * (1.0 + v);
+                          const size = i === 0 ? 1.5 : 1;
+                          const o = step(v * (1 - i * 0.22) * (flick === i % 2 ? 1 : 0.75));
+                          if (!o) continue;
+                          out.push(
+                            <View
+                              key={`bw${side}${i}`}
+                              pointerEvents="none"
+                              style={{
+                                position: 'absolute',
+                                left: SHIP_SPRITE_SIZE / 2 + px(bowX - c * back + nx * out_ * side - player.x) - px(size) / 2,
+                                top: SHIP_SPRITE_H / 2 + px(bowY - sn * 0.5 * back + ny * out_ * side - player.y) - px(size) / 2,
+                                width: px(size),
+                                height: px(size),
+                                backgroundColor: i === 0 ? '#ffffff' : '#e6fafa',
+                                opacity: o,
+                              }}
+                            />
+                          );
+                        }
+                      }
+                      return out;
+                    })()}
                   </View>
                 );
               })()
