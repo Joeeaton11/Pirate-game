@@ -1061,6 +1061,7 @@ export default function MapScreen({ navigation }: Props) {
   const capturedCrew = useGameStore((s) => s.capturedCrew);
   const blackPearlCaptured = useGameStore((s) => s.blackPearlCaptured);
   const blackPearlBoarded = useGameStore((s) => s.blackPearlBoarded);
+  const blackPearlFrame = useGameStore((s) => s.blackPearlFrame);
   const blackPearlPosition = useGameStore((s) => s.blackPearlPosition);
   const boardBlackPearl = useGameStore((s) => s.boardBlackPearl);
   const disembarkBlackPearl = useGameStore((s) => s.disembarkBlackPearl);
@@ -1274,13 +1275,19 @@ export default function MapScreen({ navigation }: Props) {
   }, [shipRollAnim]);
   const shipBankRotate = Animated.add(shipBankAnim, shipRollAnim).interpolate({ inputRange: [-12, 12], outputRange: ['-12deg', '12deg'] });
   // Foam left on the water behind her: world points that spread out and fade (drawn as pixel puffs).
-  const wakeRef = useRef<{ x: number; y: number; born: number; a: number; v: number }[]>([]);
+  const wakeRef = useRef<{ x: number; y: number; born: number; a: number; v: number; r: number }[]>([]);
   const mooredShip = useMemo(
     () =>
       blackPearlBoarded
         ? null
-        : { x: blackPearlPosition.x, y: blackPearlPosition.y, size: SHIP_SPRITE_SIZE / ZOOM, source: SHIP_3D_FRAMES[0] },
-    [blackPearlBoarded, blackPearlPosition.x, blackPearlPosition.y]
+        : {
+            x: blackPearlPosition.x,
+            y: blackPearlPosition.y,
+            size: SHIP_SPRITE_SIZE / ZOOM,
+            source: SHIP_3D_FRAMES[blackPearlFrame % SHIP_3D_FRAMES.length],
+            shadow: SHIP_3D_SHADOWS[blackPearlFrame % SHIP_3D_SHADOWS.length],
+          },
+    [blackPearlBoarded, blackPearlPosition.x, blackPearlPosition.y, blackPearlFrame]
   );
   const blackPearlPositionRef = useRef(blackPearlPosition);
   blackPearlPositionRef.current = blackPearlPosition;
@@ -1644,9 +1651,11 @@ export default function MapScreen({ navigation }: Props) {
     // and sails straight off the berth (otherwise he stood on the pier, the ship vanished, and the
     // pier rail kept him from ever reaching open water — 2026-11-24).
     const berth = { ...blackPearlPositionRef.current };
-    shipMotionRef.current = { angle: 0, speed: 0, bank: 0, tick: 0 }; // she lies bow-east at her berth
-    shipFrameRef.current = 0;
-    setShipFrame(0);
+    // she casts off facing the way she lies at anchor
+    const lie = useGameStore.getState().blackPearlFrame % SHIP_3D_STEPS;
+    shipMotionRef.current = { angle: (lie * Math.PI * 2) / SHIP_3D_STEPS, speed: 0, bank: 0, tick: 0 };
+    shipFrameRef.current = lie;
+    setShipFrame(lie);
     wakeRef.current = [];
     playerRef.current = berth;
     setPlayer(berth);
@@ -2127,6 +2136,7 @@ export default function MapScreen({ navigation }: Props) {
             born: now,
             a: m.angle,
             v: m.speed / SHIP_MAX_SPEED,
+            r: Math.random(),
           });
         }
         if (m.speed < 0.4 && !direction) {
@@ -2413,7 +2423,7 @@ export default function MapScreen({ navigation }: Props) {
         const parked = islandAtPoint(anchor) ? prev : anchor;
         blackPearlBoardedRef.current = false;
         blackPearlPositionRef.current = parked;
-        disembarkBlackPearl(parked);
+        disembarkBlackPearl(parked, shipFrameRef.current); // she lies at anchor facing the way she came in
       }
 
       if (nextIsland) {
@@ -3961,28 +3971,44 @@ export default function MapScreen({ navigation }: Props) {
                           />
                         );
                       };
+                      // 1) churned, lighter water: a soft band of pale turquoise that widens behind her
+                      for (const w of wakeRef.current) {
+                        const age = (now - w.born) / WAKE_LIFE_MS;
+                        if (age >= 1 || w.born % 2 !== 0) continue;
+                        const width = (2.5 + age * 8) * (0.6 + 0.4 * w.v);
+                        const nx = -Math.sin(w.a), ny = Math.cos(w.a) * 0.5;
+                        const n = Math.max(1, Math.round(width / 1.5));
+                        for (let q = 0; q < n; q++) {
+                          if ((q + Math.floor(w.born / 66)) % 2) continue; // dithered, like pixel-art water
+                          const off = (q - (n - 1) / 2) * 1.5;
+                          dot(`bd${w.born}-${q}`, w.x + nx * off, w.y + ny * off, 1.5, 0.3 * (1 - age) * w.v, '#6fcbd4');
+                        }
+                      }
+                      // 2) foam: a boil at the stern opening into two ragged arms of the V
                       for (const w of wakeRef.current) {
                         const age = (now - w.born) / WAKE_LIFE_MS;
                         if (age >= 1) continue;
                         const nx = -Math.sin(w.a), ny = Math.cos(w.a) * 0.5;
                         const fx = Math.cos(w.a), fy = Math.sin(w.a) * 0.5;
                         const k = `wk${w.born}`;
-                        // churn: a tight white boil right behind the stern
-                        if (age < 0.3) {
-                          const j = (w.born % 7) / 7 - 0.5;
-                          dot(k + 'c0', w.x + nx * j, w.y + ny * j, 2.2 - age * 3, (1 - age / 0.3) * w.v + 0.15, '#ffffff');
-                          dot(k + 'c1', w.x - nx * (1.6 + j), w.y - ny * (1.6 + j), 1.3, (0.8 - age * 2) * w.v, '#f2fdff');
-                          dot(k + 'c2', w.x + nx * (1.6 - j), w.y + ny * (1.6 - j), 1.3, (0.8 - age * 2) * w.v, '#f2fdff');
+                        const r1 = w.r, r2 = (w.r * 7.13) % 1, r3 = (w.r * 13.7) % 1;
+                        if (age < 0.35) {
+                          const life = 1 - age / 0.35;
+                          dot(k + 'c0', w.x + nx * (r1 - 0.5) * 2, w.y + ny * (r1 - 0.5) * 2, 2 + r2, life * w.v + 0.2, '#ffffff');
+                          dot(k + 'c1', w.x - nx * (1.5 + r2) + fx * (r3 - 0.5), w.y - ny * (1.5 + r2) + fy * (r3 - 0.5), 1 + r3, life * 0.8 * w.v, '#f2fdff');
+                          dot(k + 'c2', w.x + nx * (1.5 + r3) - fx * (r1 - 0.5), w.y + ny * (1.5 + r3) - fy * (r1 - 0.5), 1 + r1, life * 0.8 * w.v, '#f2fdff');
                         }
-                        // the two arms of the V, each a short crest of two puffs
                         const spread = (1.4 + age * 11) * (0.6 + 0.4 * w.v);
-                        const fade = (1 - age) * (1 - age) * (0.5 + 0.5 * w.v);
-                        const col = age < 0.35 ? '#ffffff' : age < 0.65 ? '#dff7f7' : '#a9e3e6';
-                        const size = age < 0.4 ? 1.5 : 1;
+                        const fade = (1 - age) * (1 - age) * (0.55 + 0.45 * w.v);
+                        const col = age < 0.3 ? '#ffffff' : age < 0.6 ? '#e4f8f8' : '#b4e6e8';
                         for (const side of [1, -1]) {
-                          const bx = w.x + nx * spread * side, by = w.y + ny * spread * side;
-                          dot(`${k}a${side}`, bx, by, size, fade, col);
-                          if (age > 0.15) dot(`${k}b${side}`, bx + fx * 0.9 - nx * side * 0.6, by + fy * 0.9 - ny * side * 0.6, 1, fade * 0.7, col);
+                          const jit = (side > 0 ? r2 : r3) - 0.5;
+                          const bx = w.x + nx * (spread + jit) * side, by = w.y + ny * (spread + jit) * side;
+                          dot(`${k}a${side}`, bx, by, age < 0.4 ? 1.5 + (side > 0 ? r1 : r2) * 0.5 : 1, fade, col);
+                          if (age > 0.12 && (side > 0 ? r1 : r3) > 0.35) {
+                            // a second, smaller puff just inside the crest: ragged, not a neat line
+                            dot(`${k}b${side}`, bx - nx * side * (0.8 + r3) + fx * jit, by - ny * side * (0.8 + r3) + fy * jit, 1, fade * 0.6, col);
+                          }
                         }
                       }
                       // a faint, long-lived track down the middle of her path (the 'scar' a ship leaves)

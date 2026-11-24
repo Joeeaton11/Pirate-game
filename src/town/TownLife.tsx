@@ -101,7 +101,7 @@ function useClock() {
 interface Props {
   origin: { x: number; y: number };
   /** The moored Black Pearl's world position, or null while she's being sailed. */
-  ship: { x: number; y: number; size: number; source: ImageSourcePropType } | null;
+  ship: { x: number; y: number; size: number; source: ImageSourcePropType; shadow?: ImageSourcePropType } | null;
   /** Blueprint mode: only the ship and the walkers (no painted-ship bobbing, gulls or glints). */
   plan?: boolean;
   /** Errands already handed in (their askers go home). */
@@ -275,6 +275,20 @@ export const TownLife = React.memo(function TownLife({ origin, ship, plan, doneE
           }}
         />
       ))}
+      {ship?.shadow && (
+        <RNImage
+          source={ship.shadow}
+          resizeMode="contain"
+          style={{
+            position: 'absolute',
+            left: ship.x - ship.size / 2,
+            top: ship.y - ship.size / 2,
+            width: ship.size,
+            height: ship.size,
+            opacity: 0.3,
+          }}
+        />
+      )}
       {ship && (
         <RNImage
           source={ship.source}

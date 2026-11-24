@@ -90,6 +90,8 @@ interface GameState {
   blackPearlCaptured: boolean;
   blackPearlBoarded: boolean;
   blackPearlPosition: { x: number; y: number };
+  /** Which of the 3D ship's 32 views she lies at while anchored (the way she was facing when you landed). */
+  blackPearlFrame: number;
   foundTreasureIds: string[];
   /** Tortuga districts the player has walked into (blueprint discovery fog). */
   discoveredDistricts: string[];
@@ -172,7 +174,7 @@ interface GameState {
   completeOnboarding: () => void;
   captureBlackPearl: () => void;
   boardBlackPearl: () => void;
-  disembarkBlackPearl: (position: { x: number; y: number }) => void;
+  disembarkBlackPearl: (position: { x: number; y: number }, frame?: number) => void;
   discoverDistrict: (name: string) => void;
   /** Hand over `amount` of a resource for an errand; returns false if you don't have enough. */
   completeErrand: (id: string, resourceId: string, amount: number, gold: number) => boolean;
@@ -221,6 +223,7 @@ type InitialState = Pick<
   | 'blackPearlCaptured'
   | 'blackPearlBoarded'
   | 'blackPearlPosition'
+  | 'blackPearlFrame'
   | 'foundTreasureIds'
   | 'discoveredDistricts'
   | 'completedErrands'
@@ -270,6 +273,7 @@ function createInitialState(): InitialState {
       x: ISLANDS[BLACK_PEARL_ISLAND_ID].position.x + BLACK_PEARL_START_OFFSET.x,
       y: ISLANDS[BLACK_PEARL_ISLAND_ID].position.y + BLACK_PEARL_START_OFFSET.y,
     },
+    blackPearlFrame: 0,
     foundTreasureIds: [],
     discoveredDistricts: START_DISTRICTS,
     completedErrands: [],
@@ -542,7 +546,8 @@ export const useGameStore = create<GameState>()(
 
       boardBlackPearl: () => set({ blackPearlBoarded: true }),
 
-      disembarkBlackPearl: (position) => set({ blackPearlBoarded: false, blackPearlPosition: position }),
+      disembarkBlackPearl: (position, frame) =>
+        set((st) => ({ blackPearlBoarded: false, blackPearlPosition: position, blackPearlFrame: frame ?? st.blackPearlFrame })),
       unlockFerry: () => set({ ferryUnlocked: true }),
       digSpot: (id, gold) => {
         if (get().dugSpots.includes(id)) return false;
@@ -914,6 +919,7 @@ export const useGameStore = create<GameState>()(
         blackPearlCaptured: state.blackPearlCaptured,
         blackPearlBoarded: state.blackPearlBoarded,
         blackPearlPosition: state.blackPearlPosition,
+        blackPearlFrame: state.blackPearlFrame,
         foundTreasureIds: state.foundTreasureIds,
         discoveredDistricts: state.discoveredDistricts,
         completedErrands: state.completedErrands,

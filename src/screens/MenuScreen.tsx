@@ -28,7 +28,7 @@ export default function MenuScreen({ navigation }: Props) {
 
   function callShipHome() {
     const o = ISLANDS.tortuga_cove.position;
-    disembarkBlackPearl({ x: o.x + BLACK_PEARL_START_OFFSET.x, y: o.y + BLACK_PEARL_START_OFFSET.y });
+    disembarkBlackPearl({ x: o.x + BLACK_PEARL_START_OFFSET.x, y: o.y + BLACK_PEARL_START_OFFSET.y }, 0);
     setShipCalled(true);
   }
 
