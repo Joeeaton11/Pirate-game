@@ -27,6 +27,9 @@ export const SFX = {
   harbour: require('../../assets/sfx/harbour_loop.wav'),
   murmur: require('../../assets/sfx/tavern_murmur.wav'),
   gull: require('../../assets/sfx/gull.wav'),
+  sea: require('../../assets/sfx/sea_loop.wav'),
+  creak: [require('../../assets/sfx/creak_0.wav'), require('../../assets/sfx/creak_1.wav'), require('../../assets/sfx/creak_2.wav')],
+  flap: require('../../assets/sfx/canvas_flap.wav'),
 };
 
 /** A looping bed at `volume` (0..1); paused when silent. Volume is quantised to avoid churn. */
@@ -103,4 +106,19 @@ export function useRandomCalls(source: AudioSource, active: boolean, minS: numbe
     next();
     return () => clearTimeout(t);
   }, [active, player, minS, maxS, volume]);
+}
+
+/** A one-shot you fire yourself (e.g. a sail flap on a hard turn): returns play(volume). */
+export function useOneShot(source: AudioSource) {
+  const player = useAudioPlayer(source);
+  return (volume = 0.5) => {
+    if (!unlocked) return;
+    try {
+      player.volume = volume;
+      player.seekTo(0);
+      player.play();
+    } catch {
+      // not loaded yet
+    }
+  };
 }

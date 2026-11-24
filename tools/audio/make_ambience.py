@@ -81,3 +81,28 @@ for _ in range(5):
     x[p:p + m] += np.sin(2 * np.pi * rng.uniform(2400, 3600) * tt) * env(m, 0.0005, 0.06) * 0.25
 save('tavern_murmur', loopify(x), 0.5)
 print('ok')
+
+# --- Sailing (2026-11-24) ---------------------------------------------------------------------
+# Open sea under the hull: deep wash plus hull slap every couple of seconds.
+n = 8 * SR; t = np.arange(n) / SR
+wash = lp(rng.normal(size=n), 0.03) * (0.55 + 0.45 * np.sin(2 * np.pi * t / 8.0 * 2) ** 2)
+slap = np.zeros(n)
+for k in range(5):
+    p = int((k * 1.6 + rng.uniform(0, 0.4)) * SR) % (n - 4000); m = 3000
+    slap[p:p + m] += lp(rng.normal(size=m), 0.25) * env(m, 0.004, 0.05) * 1.2
+save('sea_loop', loopify(wash + slap), 0.55)
+# Timber creak: a slow, rubbing groan (resonant, pitch-wobbling), a few variants
+for i in range(3):
+    n = int((0.7 + 0.3 * i) * SR); t = np.arange(n) / SR
+    f0 = 140 + 40 * i + 25 * np.sin(2 * np.pi * (1.3 + i * 0.4) * t)
+    ph = 2 * np.pi * np.cumsum(f0) / SR
+    rub = (np.abs(rng.normal(size=n)) ** 3) * 0.2
+    tone = (np.sin(ph) + 0.5 * np.sin(2 * ph) + 0.25 * np.sin(3 * ph)) * (0.6 + rub)
+    shape = np.sin(np.pi * np.clip(t / t[-1], 0, 1)) ** 1.5
+    save(f'creak_{i}', lp(tone * shape, 0.35), 0.5)
+# Canvas flap: a couple of quick fabric snaps
+n = int(0.45 * SR); x = np.zeros(n)
+for p0, g in ((0, 1.0), (0.12, 0.7), (0.22, 0.45)):
+    p = int(p0 * SR); m = int(0.09 * SR)
+    x[p:p + m] += hp(lp(rng.normal(size=m), 0.5), 0.1) * env(m, 0.002, 0.025) * g
+save('canvas_flap', x, 0.55)

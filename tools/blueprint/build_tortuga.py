@@ -758,6 +758,8 @@ for n, k, w, pts in P.DOCKS:
 out.append('/** Walkable boardwalks outside the painted town (src/data/harbor.ts reads these). */')
 out.append('export const BP_DOCK_SEGMENTS: { from: { x: number; y: number }; to: { x: number; y: number }; halfWidth: number }[] = [\n  ' + ',\n  '.join(segs) + '\n];')
 out.append(f"export const BP_BREAKWATER: [number, number][] = [{', '.join(f'[{x}, {y}]' for m in P.MOLES for x, y in m)}];")
+out.append('/** The breakwater arms one by one (island-relative), drawn 8 units wide: ships cannot sail through them. */')
+out.append(f"export const BP_MOLES: [number, number][][] = [{', '.join('[' + ', '.join(f'[{x}, {y}]' for x, y in m) + ']' for m in P.MOLES)}];")
 out.append('export const BP_SEA_ZONES: { t: string; d: string }[] = [' + ', '.join(f"{{ t: '{t}', d: '{poly_d(g)}' }}" for t, g in sea_zones) + '];')
 out.append('export const BP_POIS: [string, string, number, number][] = [' + ', '.join(f"['{k}', {i!r}, {x:g}, {y:g}]" for k, i, x, y in pois) + '];')
 out.append('/** x, y, kind code (0 jungle, 1 tree, 2 palm, 3 rock, 4 mangrove), packed. */')

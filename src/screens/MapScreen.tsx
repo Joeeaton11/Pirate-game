@@ -54,12 +54,12 @@ import {
   resizeItem,
   saveEdits,
 } from '../blueprint/planEditing';
-import { BP_DOORS, BP_LAMPS, BP_SOLIDS } from '../blueprint/tortugaBlueprint.generated';
+import { BP_DOORS, BP_LAMPS, BP_SOLIDS, BP_MOLES } from '../blueprint/tortugaBlueprint.generated';
 import { atCliff, districtAt, isShallow, PLAN_DOORS, PLAN_SOLIDS, surfaceAt } from '../blueprint/planGameplay';
 import { ArtSprites } from '../blueprint/ArtSprites';
 import { ArtLife } from '../blueprint/ArtLife';
 import { ArtInspector } from '../blueprint/ArtInspector';
-import { footingAt, FullMap, NameBoards, SquareLife, Interact, lockedShortcutRects, nearestInteract, ShortcutSprites, Townsfolk, WeatherMood } from '../blueprint/ArtWorld';
+import { footingAt, FullMap, NameBoards, SquareLife, Interact, lockedShortcutRects, nearestInteract, ShortcutSprites, Townsfolk, WeatherMood, rainAmount } from '../blueprint/ArtWorld';
 import { WORLD_SHORTCUTS } from '../blueprint/artWorld.generated';
 import { LIFE_SHORE } from '../blueprint/artLife.generated';
 import { addTimeOffset, CYCLE_SECONDS } from '../town/DayNight';
@@ -79,7 +79,7 @@ import {
   BP_SKULLS,
   BP_VIEWPOINTS,
 } from '../blueprint/tortugaGameplay.generated';
-import { SFX, useAmbientLoop, useFootsteps, useRandomCalls } from '../audio/ambience';
+import { SFX, useAmbientLoop, useFootsteps, useOneShot, useRandomCalls } from '../audio/ambience';
 import { DayNight } from '../town/DayNight';
 import { renderDecal, renderGroundTile, renderSceneSprite } from '../town/townRender';
 import { TORTUGA_TOWN_ASSETS } from '../town/tortugaTownAssets';
@@ -360,6 +360,23 @@ const SHIP_TURN_RATE = 2.4; // radians/s at full speed; slower when nearly stopp
 const SHIP_BANK_MAX = 5; // degrees of lean in a hard turn
 const WAKE_LIFE_MS = 2000;
 const SEA_ZOOM_FACTOR = 0.62; // camera pulled back while aboard
+/** Is any part of her hull (bow, middle, stern at the waterline) on a breakwater arm? (2026-11-24) */
+function shipOnMole(x: number, y: number, angle: number): boolean {
+  const o = ISLANDS.tortuga_cove.position;
+  const c = Math.cos(angle), sn = Math.sin(angle);
+  const pts = [-15, 0, 15].map((d) => ({ x: x - o.x + c * d, y: y - o.y + 4 + sn * d * 0.5 }));
+  for (const arm of BP_MOLES) {
+    for (let i = 0; i + 1 < arm.length; i++) {
+      const [ax, ay] = arm[i], [bx, by] = arm[i + 1];
+      const vx = bx - ax, vy = by - ay, L2 = vx * vx + vy * vy || 1;
+      for (const p of pts) {
+        const t = Math.max(0, Math.min(1, ((p.x - ax) * vx + (p.y - ay) * vy) / L2));
+        if (Math.hypot(p.x - (ax + vx * t), p.y - (ay + vy * t)) < 6) return true;
+      }
+    }
+  }
+  return false;
+}
 function inPoly(x: number, y: number, pts: [number, number][]) {
   let inside = false;
   for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
@@ -664,6 +681,7 @@ const DEADZONE = 12; // px of drag before movement starts
 const STOP_DEADZONE = 4;
 const MAX_DRAG = 70; // px of drag for full speed
 const ENCOUNTER_TICK_MS = 1400;
+const HOME_WATERS_RADIUS = 720; // world units round Tortuga's centre with no sea fights
 /** Dev/test: `?calm=1` turns off random encounters so sailing and walking can be tried uninterrupted. */
 const CALM_SEAS = typeof window !== 'undefined' && !!window.location && new URLSearchParams(window.location.search).get('calm') === '1';
 
@@ -1258,7 +1276,13 @@ export default function MapScreen({ navigation }: Props) {
   const shipHeadingRef = useRef(shipHeading);
   shipHeadingRef.current = shipHeading;
   const shipMotionRef = useRef({ angle: 0, speed: 0, bank: 0, tick: 0 });
-  const [shipFrame, setShipFrame] = useState(0); // which of the 16 3D views is drawn
+  const [shipFrame, setShipFrame] = useState(0); // which of the 3D views is drawn
+  // Docking: near a pier, quay or shore and slow enough, offer to tie up alongside (2026-11-24)
+  const [tieUpSpot, setTieUpSpot] = useState<{ x: number; y: number } | null>(null);
+  const tieUpRef = useRef<{ x: number; y: number } | null>(null);
+  const tieTickRef = useRef(0);
+  const flapRef = useRef<((v?: number) => void) | null>(null);
+  const lastFlapRef = useRef(0);
   const shipFrameRef = useRef(0);
   const shipBankAnim = useRef(new Animated.Value(0)).current;
   // a slow roll on the swell, added to the lean she takes in a turn
@@ -1273,7 +1297,13 @@ export default function MapScreen({ navigation }: Props) {
     loop.start();
     return () => loop.stop();
   }, [shipRollAnim]);
-  const shipBankRotate = Animated.add(shipBankAnim, shipRollAnim).interpolate({ inputRange: [-12, 12], outputRange: ['-12deg', '12deg'] });
+  const stormy =
+    rainAmount() > 0.05 || (typeof window !== 'undefined' && !!window.location && /[?&]rain=1/.test(window.location.search ?? ''));
+  const rollScale = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    Animated.timing(rollScale, { toValue: stormy ? 2.8 : 1, duration: 2500, useNativeDriver: true }).start();
+  }, [stormy, rollScale]);
+  const shipBankRotate = Animated.add(shipBankAnim, Animated.multiply(shipRollAnim, rollScale)).interpolate({ inputRange: [-12, 12], outputRange: ['-12deg', '12deg'] });
   // Foam left on the water behind her: world points that spread out and fade (drawn as pixel puffs).
   const wakeRef = useRef<{ x: number; y: number; born: number; a: number; v: number; r: number }[]>([]);
   const mooredShip = useMemo(
@@ -1641,6 +1671,24 @@ export default function MapScreen({ navigation }: Props) {
     navigation.navigate('Building');
   }
 
+  function confirmTieUp() {
+    const spot = tieUpRef.current;
+    if (!spot || !blackPearlBoardedRef.current) return;
+    // she drops anchor where she lies, facing the way she is pointing; the captain steps ashore
+    const m = shipMotionRef.current;
+    m.speed = 0;
+    directionRef.current = null;
+    const anchor = { ...playerRef.current };
+    blackPearlBoardedRef.current = false;
+    blackPearlPositionRef.current = anchor;
+    disembarkBlackPearl(anchor, shipFrameRef.current);
+    playerRef.current = spot;
+    setPlayer(spot);
+    tieUpRef.current = null;
+    setTieUpSpot(null);
+    wakeRef.current = [];
+  }
+
   function confirmBoardBlackPearl() {
     boardPromptShownRef.current = false;
     setShowBoardPrompt(false);
@@ -1710,6 +1758,24 @@ export default function MapScreen({ navigation }: Props) {
     }
   const shoreVolume = blackPearlBoarded ? 0 : 0.4 * Math.max(0, Math.min(1, 1 - (shoreD - 10) / 50));
   useAmbientLoop(SFX.harbour, Math.max(harbourVolume, shoreVolume));
+  // Under sail: the sea against the hull (louder with speed), timbers creaking, canvas on hard turns
+  const sailV = blackPearlBoarded ? Math.min(1, shipMotionRef.current.speed / SHIP_MAX_SPEED) : 0;
+  useAmbientLoop(SFX.sea, blackPearlBoarded ? 0.22 + 0.33 * sailV : 0);
+  useRandomCalls(SFX.creak[0], blackPearlBoarded, 3, 7, 0.22);
+  useRandomCalls(SFX.creak[1], blackPearlBoarded, 5, 11, 0.18);
+  useRandomCalls(SFX.creak[2], blackPearlBoarded, 8, 15, 0.16);
+  const playFlap = useOneShot(SFX.flap);
+  // The Black Pearl's stern lanterns light up after dark, sailing or at anchor (island-relative lamps)
+  const shipLanternLamps = (() => {
+    const o = ISLANDS.tortuga_cove.position;
+    const at = blackPearlBoarded ? player : blackPearlPosition;
+    const ang = blackPearlBoarded ? shipMotionRef.current.angle : (blackPearlFrame * Math.PI * 2) / SHIP_3D_STEPS;
+    const sx = at.x - Math.cos(ang) * 16, sy = at.y - 2 - Math.sin(ang) * 16 * 0.5;
+    const lamps: [number, number][] = [...BP_LAMPS];
+    lamps.push([sx - o.x, sy - o.y]); // lit whoever holds her
+    return lamps;
+  })();
+  flapRef.current = playFlap;
   useRandomCalls(SFX.gull, Math.max(harbourVolume, shoreVolume) > 0.25, 6, 14, 0.35);
   // Footsteps follow the blueprint's ground-surface layer: planks, cobbles, or soft ground.
   const surface = inTortugaTown || relX < 640 ? surfaceAt(player) : 'none';
@@ -2103,6 +2169,10 @@ export default function MapScreen({ navigation }: Props) {
           m.angle += clamp(diff, -rate * dt, rate * dt);
         }
         const turned = Math.atan2(Math.sin(m.angle - prevAngle), Math.cos(m.angle - prevAngle)) / dt;
+        if (Math.abs(turned) > 1.4 && m.speed > 15 && Date.now() - lastFlapRef.current > 2500) {
+          lastFlapRef.current = Date.now();
+          flapRef.current?.(0.35);
+        }
         const bankTarget = clamp(turned * 6 * Math.min(1, m.speed / 25), -SHIP_BANK_MAX, SHIP_BANK_MAX);
         m.bank += (bankTarget - m.bank) * 0.08;
         shipBankAnim.setValue(m.bank);
@@ -2124,6 +2194,28 @@ export default function MapScreen({ navigation }: Props) {
           shipFrameRef.current = fi;
           setShipFrame(fi);
         }
+        // docking: look for walkable ground (pier, quay or beach) just off her sides and bow
+        tieTickRef.current = (tieTickRef.current + 1) % 5;
+        if (tieTickRef.current === 0) {
+          let spot: { x: number; y: number } | null = null;
+          if (m.speed < 22) {
+            let best = 1e9;
+            for (let i = 0; i < 16 && !spot; i++) {
+              for (const r of [12, 18, 24]) {
+                const a = (i / 16) * Math.PI * 2;
+                const cand = { x: playerRef.current.x + Math.cos(a) * r, y: playerRef.current.y + 4 + Math.sin(a) * r };
+                if (islandAtPoint(cand) && r < best) {
+                  best = r;
+                  spot = cand;
+                  break;
+                }
+              }
+            }
+          }
+          const had = tieUpRef.current;
+          if (!!had !== !!spot) setTieUpSpot(spot);
+          tieUpRef.current = spot;
+        }
         // foam: a puff at the stern every few ticks while she has way on
         const now = Date.now();
         wakeRef.current = wakeRef.current.filter((w) => now - w.born < WAKE_LIFE_MS);
@@ -2140,6 +2232,14 @@ export default function MapScreen({ navigation }: Props) {
           });
         }
         if (m.speed < 0.4 && !direction) {
+          m.speed = 0;
+          easeCamera();
+          return;
+        }
+        // the breakwater is solid stone: she stops against it (and can turn away or back off)
+        const nxp = playerRef.current.x + Math.cos(m.angle) * m.speed * dt;
+        const nyp = playerRef.current.y + Math.sin(m.angle) * m.speed * dt;
+        if (shipOnMole(nxp, nyp, m.angle) && !shipOnMole(playerRef.current.x, playerRef.current.y, m.angle)) {
           m.speed = 0;
           easeCamera();
           return;
@@ -2662,7 +2762,10 @@ export default function MapScreen({ navigation }: Props) {
       const now = Date.now();
       if (!CALM_SEAS && now - lastEncounterCheckRef.current > ENCOUNTER_TICK_MS) {
         lastEncounterCheckRef.current = now;
-        const isSafe = nextIsland?.isSafeZone;
+        // Tortuga's own waters are safe too: no fights within the harbour and just outside it (2026-11-24)
+        const tort = ISLANDS.tortuga_cove.position;
+        const inHomeWaters = Math.hypot(nextPosition.x - tort.x, (nextPosition.y - tort.y) * 1.15) < HOME_WATERS_RADIUS;
+        const isSafe = nextIsland?.isSafeZone || inHomeWaters;
         if (!isSafe) {
           const navyRoll = Math.random();
           const rivalRoll = Math.random();
@@ -3990,6 +4093,7 @@ export default function MapScreen({ navigation }: Props) {
                         if (age >= 1) continue;
                         const nx = -Math.sin(w.a), ny = Math.cos(w.a) * 0.5;
                         const fx = Math.cos(w.a), fy = Math.sin(w.a) * 0.5;
+                        if (stormy && w.r > 0.62) continue; // rough water breaks the wake up
                         const k = `wk${w.born}`;
                         const r1 = w.r, r2 = (w.r * 7.13) % 1, r3 = (w.r * 13.7) % 1;
                         if (age < 0.35) {
@@ -4043,6 +4147,29 @@ export default function MapScreen({ navigation }: Props) {
                         { transform: [{ translateY: shipIdleSway }, { rotate: shipBankRotate }] },
                       ]}
                     />
+                    {(() => {
+                      // two of her crew pacing the deck (only where the deck is in view: broadside-ish headings)
+                      const m = shipMotionRef.current;
+                      const c = Math.cos(m.angle), sn = Math.sin(m.angle);
+                      if (Math.abs(c) < 0.8) return null; // only near broadside, where her deck is open to view
+                      const t = Date.now() / 1000;
+                      const px = (u: number) => Math.round(u * 6) / 6 * ZOOM;
+                      const hands = [
+                        { ph: 0, shirt: '#8c2a22', span: 6, at: -3 },
+                        { ph: 2.1, shirt: '#e8e0c8', span: 4, at: 7 },
+                      ];
+                      return hands.map((h, i) => {
+                        const d = h.at + Math.sin(t * 0.35 + h.ph) * h.span;
+                        const fx = c * d, fy = 6 + sn * d * 0.5;
+                        const bob = Math.floor(t * 4 + i) % 2 ? 0 : 1 / 6;
+                        return (
+                          <View key={`crew${i}`} pointerEvents="none" style={{ position: 'absolute', left: SHIP_SPRITE_SIZE / 2 + px(fx) - px(1) / 2, top: SHIP_SPRITE_H / 2 + px(fy - 2.5 - bob) }}>
+                            <View style={{ width: px(1), height: px(1), backgroundColor: '#d9a57a' }} />
+                            <View style={{ width: px(1), height: px(1.5), backgroundColor: h.shirt }} />
+                          </View>
+                        );
+                      });
+                    })()}
                     {(() => {
                       const m = shipMotionRef.current;
                       const v = Math.min(1, m.speed / SHIP_MAX_SPEED);
@@ -4116,10 +4243,10 @@ export default function MapScreen({ navigation }: Props) {
         )}
 
         {viewport.width > 0 && !planMode && (
-          <DayNight cam={cam} zoom={viewZoom} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : BP_LAMPS} windows={planMode ? undefined : ART_WINDOWS} />
+          <DayNight cam={cam} zoom={viewZoom} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : shipLanternLamps} windows={planMode ? undefined : ART_WINDOWS} />
         )}
-        {viewport.width > 0 && !planMode && SHOW_TORTUGA_V2 && !blackPearlBoarded &&
-          Math.abs(player.x - ISLANDS.tortuga_cove.position.x) < 640 && Math.abs(player.y - ISLANDS.tortuga_cove.position.y) < 600 && (
+        {viewport.width > 0 && !planMode && SHOW_TORTUGA_V2 &&
+          Math.abs(player.x - ISLANDS.tortuga_cove.position.x) < 900 && Math.abs(player.y - ISLANDS.tortuga_cove.position.y) < 900 && (
             <WeatherMood rel={{ x: player.x - ISLANDS.tortuga_cove.position.x, y: player.y - ISLANDS.tortuga_cove.position.y }} viewport={viewport} />
           )}
 
@@ -4604,6 +4731,12 @@ export default function MapScreen({ navigation }: Props) {
           </View>
         )}
 
+        {tieUpSpot && blackPearlBoarded && (
+          <Pressable style={styles.buildingPrompt} onPress={confirmTieUp}>
+            <Text style={styles.buildingPromptEmoji}>⚓</Text>
+            <Text style={styles.buildingPromptText}>Tie up here?</Text>
+          </Pressable>
+        )}
         {showBoardPrompt && (
           <Pressable style={styles.buildingPrompt} onPress={confirmBoardBlackPearl}>
             <Text style={styles.buildingPromptEmoji}>{BLACK_PEARL_EMOJI}</Text>
