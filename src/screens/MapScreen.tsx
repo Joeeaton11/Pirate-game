@@ -261,8 +261,8 @@ const CHEEKY_MAX_CRUMBS = 120;
 // docked marker's (BUILDING_SIZE * 1.8) than to Captain Scally's own on-foot sprite.
 // The pixel-art Black Pearl (2026-11-24): about 40 world units long and 36 tall at the locked 6 px/unit
 // scale, roughly three and a half times Scally's height, so she reads as a real ship beside the town.
-const SHIP_SPRITE_SIZE = 40 * ZOOM;
-const SHIP_SPRITE_H = 36 * ZOOM;
+const SHIP_SPRITE_SIZE = 44 * ZOOM; // square 44-unit canvas, hull 40 long side-on (2026-11-24 repaint)
+const SHIP_SPRITE_H = 44 * ZOOM;
 const SHIP_WAKE_SIZE = 46 * 3.2;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 // Real house art (2026-08-13 art pass) reads better with more room than the 26px emoji box —
@@ -1240,12 +1240,6 @@ export default function MapScreen({ navigation }: Props) {
   blackPearlBoardedRef.current = blackPearlBoarded;
   const shipHeadingRef = useRef(shipHeading);
   shipHeadingRef.current = shipHeading;
-  // Straight north/south shows a side profile (user's call, 2026-11-24): she keeps whichever side
-  // she last showed, so sailing up or down the screen never flips her to a bow/stern view.
-  const shipSideRef = useRef<'e' | 'w'>('e');
-  if (shipHeading.includes('e')) shipSideRef.current = 'e';
-  else if (shipHeading.includes('w')) shipSideRef.current = 'w';
-  const shipDrawHeading: ShipHeading = shipHeading === 'n' || shipHeading === 's' ? shipSideRef.current : shipHeading;
   const mooredShip = useMemo(
     () =>
       blackPearlBoarded
@@ -3820,7 +3814,7 @@ export default function MapScreen({ navigation }: Props) {
                       </>
                     )}
                     <Animated.Image
-                      source={shipSpriteSource(shipDrawHeading) /* the 2026-11-24 pixel-art Black Pearl: one frame per heading */}
+                      source={shipSpriteSource(shipHeading) /* the 2026-11-24 pixel-art Black Pearl: one frame per heading */}
                       resizeMode="contain"
                       style={[
                         styles.shipSprite,
