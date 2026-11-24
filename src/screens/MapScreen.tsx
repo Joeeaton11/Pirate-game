@@ -259,8 +259,11 @@ const CHEEKY_TRAIL = 8; // world units of path Cheeky stays behind Scally
 const CHEEKY_MAX_CRUMBS = 120;
 // The Black Pearl under sail reads as a ship, not a person, so she gets a footprint closer to the
 // docked marker's (BUILDING_SIZE * 1.8) than to Captain Scally's own on-foot sprite.
-const SHIP_SPRITE_SIZE = 80;
-const SHIP_WAKE_SIZE = 46;
+// The pixel-art Black Pearl (2026-11-24): about 40 world units long and 36 tall at the locked 6 px/unit
+// scale, roughly three and a half times Scally's height, so she reads as a real ship beside the town.
+const SHIP_SPRITE_SIZE = 40 * ZOOM;
+const SHIP_SPRITE_H = 36 * ZOOM;
+const SHIP_WAKE_SIZE = 46 * 3.2;
 const HOUSE_EMOJIS = ['🏠', '🏚️', '🛖'];
 // Real house art (2026-08-13 art pass) reads better with more room than the 26px emoji box —
 // same reasoning as buildings getting BUILDING_SIZE*1.7 when they have real sprite art.
@@ -3811,25 +3814,11 @@ export default function MapScreen({ navigation }: Props) {
                       </>
                     )}
                     <Animated.Image
-                      source={
-                        shipStopSkid
-                          ? SHIP_STOP_SKID_SPRITE
-                          : shipDeparting
-                          ? SHIP_DEPART_SPRITE
-                          : shipAccelerating
-                          ? SHIP_ACCELERATE_SPRITE
-                          : shipFurling
-                          ? SHIP_DEPART_SPRITE
-                          : shipApproaching
-                          ? SHIP_APPROACH_FRAMES[shipApproachFrame]
-                          : shipTurnBank
-                          ? turnBankSource(shipTurnBank)
-                          : shipSpriteSource(shipHeading)
-                      }
+                      source={shipSpriteSource(shipHeading) /* the 2026-11-24 pixel-art Black Pearl: one frame per heading */}
                       resizeMode="contain"
                       style={[
                         styles.shipSprite,
-                        { transform: [{ translateY: Animated.add(walkBounce, shipIdleSway) }] },
+                        { transform: [{ translateY: Animated.add(walkBounce, shipIdleSway) }, { rotate: shipTurnBank === 'left' ? '-4deg' : shipTurnBank === 'right' ? '4deg' : shipStopSkid ? '2deg' : '0deg' }] },
                       ]}
                     />
                   </View>
@@ -5112,13 +5101,13 @@ const styles = StyleSheet.create({
   },
   shipWrap: {
     width: SHIP_SPRITE_SIZE,
-    height: SHIP_SPRITE_SIZE,
+    height: SHIP_SPRITE_H,
     alignItems: 'center',
     justifyContent: 'center',
   },
   shipSprite: {
     width: SHIP_SPRITE_SIZE,
-    height: SHIP_SPRITE_SIZE,
+    height: SHIP_SPRITE_H,
   },
   shipWake: {
     position: 'absolute',

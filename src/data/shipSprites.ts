@@ -9,14 +9,14 @@
 export type ShipHeading = 's' | 'se' | 'e' | 'ne' | 'n' | 'nw' | 'w' | 'sw';
 
 const SHIP_DIRECTION_SOURCES: Record<ShipHeading, any> = {
-  s: require('../../assets/sprites/ship/ship_s.png'),
-  se: require('../../assets/sprites/ship/ship_se.png'),
-  e: require('../../assets/sprites/ship/ship_e.png'),
-  ne: require('../../assets/sprites/ship/ship_ne.png'),
-  n: require('../../assets/sprites/ship/ship_n.png'),
-  nw: require('../../assets/sprites/ship/ship_nw.png'),
-  w: require('../../assets/sprites/ship/ship_w.png'),
-  sw: require('../../assets/sprites/ship/ship_sw.png'),
+  s: require('../../assets/sprites/ship/px6/ship_s.png'),
+  se: require('../../assets/sprites/ship/px6/ship_se.png'),
+  e: require('../../assets/sprites/ship/px6/ship_e.png'),
+  ne: require('../../assets/sprites/ship/px6/ship_ne.png'),
+  n: require('../../assets/sprites/ship/px6/ship_n.png'),
+  nw: require('../../assets/sprites/ship/px6/ship_nw.png'),
+  w: require('../../assets/sprites/ship/px6/ship_w.png'),
+  sw: require('../../assets/sprites/ship/px6/ship_sw.png'),
 };
 
 /** Compass order, clockwise from north — the single source of truth both `headingFromVector` and
@@ -104,7 +104,7 @@ export const STOP_SKID_ANIMATION_MS = 500;
 
 /** Parked at a pier, sails furled — the docked marker shown whenever the Black Pearl isn't
  * boarded (see worldSprites.ts's `blackShip`, which now points at this same art). */
-export const SHIP_DOCKED_SPRITE = require('../../assets/sprites/ship/ship_docked.png');
+export const SHIP_DOCKED_SPRITE = require('../../assets/sprites/ship/px6/ship_e.png');
 
 export const WAKE_SPRITES = {
   small: require('../../assets/sprites/ship/wake_small.png'),

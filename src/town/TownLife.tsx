@@ -282,9 +282,9 @@ export const TownLife = React.memo(function TownLife({ origin, ship, plan, doneE
           style={{
             position: 'absolute',
             left: ship.x - ship.size / 2,
-            top: ship.y - ship.size / 2,
+            top: ship.y - ship.size * 0.45,
             width: ship.size,
-            height: ship.size,
+            height: ship.size * 0.9,
             transform: [{ translateY: harbourSwell(t, 0.8) }],
           }}
         />
