@@ -11,7 +11,7 @@ for d in 'n ne e se s sw w nw'.split():
   a[...,0]=np.where(fix,r-sp*.6,r);a[...,2]=np.where(fix,b-sp*.6,b)
   im=Image.fromarray(np.dstack([np.clip(a,0,255),alpha*255]).astype(np.uint8),'RGBA')
   ims[d]=im.crop(im.getbbox())
-f=40*PPU/ims['e'].size[0]
+f=0.26  # fixed scale: the first side-on paint had a 40-unit hull (2026-11-24)
 print('scale',f,{d:(round(i.size[0]*f),round(i.size[1]*f)) for d,i in ims.items()})
 for d,im in ims.items():
   sm=im.resize((max(1,round(im.size[0]*f)),max(1,round(im.size[1]*f))),Image.LANCZOS)
@@ -19,7 +19,10 @@ for d,im in ims.items():
   q=np.asarray(c).copy();r,g,b=[q[...,i].astype(int) for i in range(3)]
   pink=(r-g>25)&(b-g>25)&(q[...,3]>0)
   q[pink,0]=np.minimum(g[pink]*1.2+20,255);q[pink,1]=g[pink]+10;q[pink,2]=g[pink]
-  c=Image.fromarray(q,'RGBA')
+  # lighten the warm timber (not the black sails) so she reads against the harbour (user, 2026-11-24)
+  q=q.astype(float);warm=np.clip((q[...,0]-q[...,2]-6)/20,0,1)[...,None]
+  q[...,:3]=np.clip(q[...,:3]*(1-warm)+255*((q[...,:3]/255)**0.7)*1.12*warm,0,255)
+  c=Image.fromarray(q.astype(np.uint8),'RGBA')
   al=c.getchannel('A').point(lambda v:255 if v>110 else 0)
   p=c.convert('RGB').quantize(64,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGBA');p.putalpha(al)
   p.resize((S*3,S*3),Image.NEAREST).save(dst+f'ship_{d}.png')
