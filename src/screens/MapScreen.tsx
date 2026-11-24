@@ -1591,6 +1591,12 @@ export default function MapScreen({ navigation }: Props) {
     directionRef.current = null;
     blackPearlBoardedRef.current = true;
     boardBlackPearl();
+    // Step aboard: the captain moves onto the ship where she lies in the water, so she is drawn
+    // and sails straight off the berth (otherwise he stood on the pier, the ship vanished, and the
+    // pier rail kept him from ever reaching open water — 2026-11-24).
+    const berth = { ...blackPearlPositionRef.current };
+    playerRef.current = berth;
+    setPlayer(berth);
     // Two-stage depart: the "DEPART DOCK" pose (furled sail, still shows the pier under her) for a
     // beat, then the "Accelerate" pose (full sail, open water, picking up speed) for a second beat,
     // before falling back to normal directional sailing art — reads as pulling off the pier and
@@ -2308,7 +2314,8 @@ export default function MapScreen({ navigation }: Props) {
             return;
           }
         } else if (!blackPearlBoardedRef.current) {
-          const bp = SHOW_MAP_MARKERS ? nearbyBlackPearlPos(nextPosition) : null;
+          // The ship itself is drawn on the map now, so boarding never depends on the hidden marker layer.
+          const bp = nearbyBlackPearlPos(nextPosition);
           if (bp) {
             if (!boardPromptShownRef.current) {
               boardPromptShownRef.current = true;
