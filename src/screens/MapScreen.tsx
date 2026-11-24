@@ -2374,9 +2374,18 @@ export default function MapScreen({ navigation }: Props) {
       // on land/a pier, and without this guard the very next tick (still on that same land) would
       // read as "landfall" and instantly un-board the player before they ever left the dock.
       if (nextIsland && !currentIsland && blackPearlBoardedRef.current) {
+        // She anchors in the water just off the spot where you stepped ashore (not up on the
+        // beach), so she is easy to see and walk back to (2026-11-24).
+        const prev = playerRef.current;
+        const back = Math.hypot(nextPosition.x - prev.x, nextPosition.y - prev.y) || 1;
+        const anchor = {
+          x: prev.x - ((nextPosition.x - prev.x) / back) * 10,
+          y: prev.y - ((nextPosition.y - prev.y) / back) * 10,
+        };
+        const parked = islandAtPoint(anchor) ? prev : anchor;
         blackPearlBoardedRef.current = false;
-        blackPearlPositionRef.current = nextPosition;
-        disembarkBlackPearl(nextPosition);
+        blackPearlPositionRef.current = parked;
+        disembarkBlackPearl(parked);
       }
 
       if (nextIsland) {
@@ -4223,7 +4232,7 @@ export default function MapScreen({ navigation }: Props) {
                 })}
                 {/* Parked and findable on the radar same as any other blip — hidden while
                     boarded, since at that point the player's own arrow marker is the ship. */}
-                {SHOW_MAP_MARKERS && !blackPearlBoarded && inView(blackPearlPosition.x, blackPearlPosition.y) && (
+                {!blackPearlBoarded && inView(blackPearlPosition.x, blackPearlPosition.y) && (
                   <SvgText
                     x={blackPearlPosition.x}
                     y={blackPearlPosition.y}

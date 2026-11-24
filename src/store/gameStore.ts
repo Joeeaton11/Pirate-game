@@ -286,6 +286,22 @@ function createInitialState(): InitialState {
   };
 }
 
+// Web playtest: `?reset=1` wipes the save before it loads (a fresh start), then drops the flag
+// from the address so a reload doesn't wipe it again.
+if (typeof window !== 'undefined' && window.location && window.localStorage) {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('reset') === '1') {
+      window.localStorage.removeItem('pirate-game-storage');
+      q.delete('reset');
+      const rest = q.toString();
+      window.history.replaceState(null, '', window.location.pathname + (rest ? '?' + rest : '') + window.location.hash);
+    }
+  } catch {
+    // storage blocked: nothing to reset
+  }
+}
+
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
