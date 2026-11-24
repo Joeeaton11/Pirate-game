@@ -20,7 +20,8 @@ def match(src,ref):
     ranks=np.argsort(np.argsort(sv))/(len(sv)-1)
     s[...,c][ms]=rv[(ranks*(len(rv)-1)).astype(int)]
   return Image.fromarray(np.clip(s,0,255).astype(np.uint8),'RGBA')
-ims['se']=match(ims['se'],ims['e'])
+ims['e']=match(ims['e'],ims['w'])
+ims['se']=match(ims['se'],ims['w'])
 f=0.26  # fixed scale: the first side-on paint had a 40-unit hull (2026-11-24)
 print('scale',f,{d:(round(i.size[0]*f),round(i.size[1]*f)) for d,i in ims.items()})
 for d,im in ims.items():

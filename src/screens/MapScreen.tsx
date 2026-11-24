@@ -349,12 +349,13 @@ const SHALLOWS_SPEED_FACTOR = 0.45;
 // Sailing feel (2026-11-24, user: "too fast and jolty"): the Black Pearl has weight. She gathers way
 // over about a second, glides to a stop when you let go, and swings round to the drag direction at
 // a limited rate — always moving the way her bow points — instead of snapping to it.
-const SHIP_MAX_SPEED = 66; // world units per second (~1.5 hull lengths); was SEA_SPEED 150 flat out
-const SHIP_ACCEL = 55; // units/s² while the drag asks for more speed
-const SHIP_DECEL = 30; // units/s² when easing off / gliding after release
-const SHIP_TURN_RATE = 1.7; // radians/s at full speed; slower when nearly stopped
+const SHIP_MAX_SPEED = 46; // world units per second (~1.5 hull lengths); was SEA_SPEED 150 flat out
+const SHIP_ACCEL = 30; // units/s² while the drag asks for more speed
+const SHIP_DECEL = 18; // units/s² when easing off / gliding after release
+const SHIP_TURN_RATE = 1.15; // radians/s at full speed; slower when nearly stopped
 const SHIP_BANK_MAX = 5; // degrees of lean in a hard turn
-const WAKE_LIFE_MS = 1700;
+const WAKE_LIFE_MS = 2000;
+const SEA_ZOOM_FACTOR = 0.62; // camera pulled back while aboard
 function inPoly(x: number, y: number, pts: [number, number][]) {
   let inside = false;
   for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
@@ -1349,8 +1350,22 @@ export default function MapScreen({ navigation }: Props) {
   // reading as the character moving on its own or the joystick responding wrong right after leaving
   // a building/fight/menu.
   // Whole-island view zooms right out over the current island; otherwise the usual close camera.
+  // At sea the camera pulls back (2026-11-24): the ship reads smaller against open water and her
+  // motion looks calmer on screen. Eased in and out over about a second.
+  const [seaZoom, setSeaZoom] = useState(ZOOM);
+  const seaZoomTarget = blackPearlBoarded ? ZOOM * SEA_ZOOM_FACTOR : ZOOM;
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSeaZoom((z) => {
+        const d = seaZoomTarget - z;
+        if (Math.abs(d) < 0.01) { clearInterval(id); return seaZoomTarget; }
+        return z + d * 0.08;
+      });
+    }, 33);
+    return () => clearInterval(id);
+  }, [seaZoomTarget]);
   const overviewZoom = viewport.width ? Math.min(viewport.width / 1250, viewport.height / 1130) : 1;
-  const viewZoom = overview ? overviewZoom : ZOOM;
+  const viewZoom = overview ? overviewZoom : seaZoom;
   const viewCenter = overview ? viewIsland?.position ?? cam : cam;
   const screenToIsland = (sx: number, sy: number) => {
     const o = ISLANDS.tortuga_cove.position;
@@ -2063,7 +2078,11 @@ export default function MapScreen({ navigation }: Props) {
         const bankTarget = clamp(turned * 6 * Math.min(1, m.speed / 25), -SHIP_BANK_MAX, SHIP_BANK_MAX);
         m.bank += (bankTarget - m.bank) * 0.08;
         shipBankAnim.setValue(m.bank);
-        const h = headingFromVector(Math.cos(m.angle), Math.sin(m.angle));
+        // Change the drawn view only once her bow is well into the next 45° sector, so a heading
+        // sitting near a boundary never flickers between two views.
+        const curV = SHIP_HEADING_VECTOR[shipHeadingRef.current];
+        const off = Math.abs(Math.atan2(Math.sin(m.angle - Math.atan2(curV.y, curV.x)), Math.cos(m.angle - Math.atan2(curV.y, curV.x))));
+        const h = off > (Math.PI / 8) * 1.3 ? headingFromVector(Math.cos(m.angle), Math.sin(m.angle)) : shipHeadingRef.current;
         if (h !== shipHeadingRef.current) {
           shipHeadingRef.current = h;
           setShipHeading(h);
@@ -3743,8 +3762,9 @@ export default function MapScreen({ navigation }: Props) {
             style={[
               styles.player,
               {
-                left: viewport.width / 2 - PLAYER_SIZE / 2 + (player.x - cam.x) * ZOOM,
-                top: viewport.height / 2 - PLAYER_SIZE / 2 + (player.y - cam.y) * ZOOM,
+                left: viewport.width / 2 - PLAYER_SIZE / 2 + (player.x - cam.x) * viewZoom,
+                top: viewport.height / 2 - PLAYER_SIZE / 2 + (player.y - cam.y) * viewZoom,
+                transform: [{ scale: viewZoom / ZOOM }],
               },
             ]}
           >
@@ -3948,7 +3968,7 @@ export default function MapScreen({ navigation }: Props) {
         )}
 
         {viewport.width > 0 && !planMode && (
-          <DayNight cam={cam} zoom={ZOOM} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : BP_LAMPS} windows={planMode ? undefined : ART_WINDOWS} />
+          <DayNight cam={cam} zoom={viewZoom} viewport={viewport} origin={ISLANDS.tortuga_cove.position} extraLamps={planMode ? undefined : BP_LAMPS} windows={planMode ? undefined : ART_WINDOWS} />
         )}
         {viewport.width > 0 && !planMode && SHOW_TORTUGA_V2 && !blackPearlBoarded &&
           Math.abs(player.x - ISLANDS.tortuga_cove.position.x) < 640 && Math.abs(player.y - ISLANDS.tortuga_cove.position.y) < 600 && (
