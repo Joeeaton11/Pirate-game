@@ -3,10 +3,12 @@
 shared scale so the side-on hull is 40 units, 24 colours, hard alpha, a dark outline round the solid
 parts, thin dark rigging, a brightened skull, stored 3x nearest. Also writes a matching water shadow
 per heading (ship_XX_shadow.png): the silhouette flattened onto the sea, thrown away from the sun.
-Usage: pack_ship3d.py <renders dir with f_00..f_31.png> <out dir>"""
+Usage: pack_ship3d.py <renders dir with f_00..f_31.png> <out dir> [side-on length in units, default 40] [noskull]"""
 import sys, numpy as np
 from PIL import Image
 src, dst = sys.argv[1], sys.argv[2]
+LENGTH = float(sys.argv[3]) if len(sys.argv) > 3 else 40  # side-on length in world units
+SKULL = 'noskull' not in sys.argv  # only the Black Pearl has a skull to brighten; others have pale sails
 PPU = 6; S = 44 * PPU; N = 32
 
 
@@ -19,7 +21,7 @@ def dilate(M):
 
 
 e = Image.open(f'{src}/f_00.png'); a = np.asarray(e)[..., 3] > 20
-xs = np.where(a.any(0))[0]; f = 40 * PPU / (xs.max() - xs.min() + 1)
+xs = np.where(a.any(0))[0]; f = LENGTH * PPU / (xs.max() - xs.min() + 1)
 for i in range(N):
     im = Image.open(f'{src}/f_{i:02d}.png').convert('RGBA')
     # find the skull at full render size: pale, colourless blobs on the sails (ropes are too thin
@@ -30,7 +32,7 @@ for i in range(N):
     core = pale
     for _ in range(2): core = erode(core)
     for _ in range(4): core = dilate(core)
-    skull = core & pale
+    skull = core & pale if SKULL else np.zeros_like(pale)
     R[skull, :3] = (245, 240, 225)
     im = Image.fromarray(R.astype(np.uint8), 'RGBA')
     W = im.size[0]; sm = im.resize((round(W * f), round(W * f)), Image.LANCZOS)

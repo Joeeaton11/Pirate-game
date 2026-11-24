@@ -15,7 +15,7 @@ const cam=new THREE.OrthographicCamera(-1,1,1,-1,0.01,100);
 cam.position.set(0,Math.sin(el)*10,Math.cos(el)*10);cam.lookAt(0,0,0);
 const holder=new THREE.Group();scene.add(holder);
 window.ready=false;
-new GLTFLoader().load('ship.glb',g=>{
+new GLTFLoader().load(new URLSearchParams(location.search).get('model')||'ship.glb',g=>{
   const m=g.scene;const box=new THREE.Box3().setFromObject(m);const c=box.getCenter(new THREE.Vector3());const sz=box.getSize(new THREE.Vector3());
   m.position.sub(c);const k=1.6/Math.max(sz.x,sz.y,sz.z);const inner=new THREE.Group();inner.add(m);inner.scale.setScalar(k);
   window.dims=[sz.x,sz.y,sz.z];holder.add(inner);window.inner=inner;window.ready=true;

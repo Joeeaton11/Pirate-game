@@ -35,6 +35,7 @@ import {
 } from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
+import { SeaTraffic } from '../town/SeaTraffic';
 import { TownLife } from '../town/TownLife';
 import { BlueprintLayer, DEFAULT_PLAN_LAYERS, DiscoveryFog, EditOverlay, PLAN_LAYERS, PLAN_PAPER, PlanIslands, PlanWorld } from '../blueprint/BlueprintLayer';
 import {
@@ -183,6 +184,9 @@ import {
   shipSpriteSource,
   SHIP_3D_FRAMES,
   SHIP_3D_SHADOWS,
+  SHIP_3D_FULL_FRAMES,
+  SHIP_3D_FULL_SHADOWS,
+  MERCHANT_3D_FRAMES,
   SHIP_3D_STEPS,
   ship3dIndex,
   turnBankSource,
@@ -1281,6 +1285,9 @@ export default function MapScreen({ navigation }: Props) {
   const [tieUpSpot, setTieUpSpot] = useState<{ x: number; y: number } | null>(null);
   const tieUpRef = useRef<{ x: number; y: number } | null>(null);
   const tieTickRef = useRef(0);
+  // full sail: she shakes out her canvas once she's moving well, and shortens sail when slowing
+  const [fullSail, setFullSail] = useState(false);
+  const fullSailRef = useRef(false);
   const flapRef = useRef<((v?: number) => void) | null>(null);
   const lastFlapRef = useRef(0);
   const shipFrameRef = useRef(0);
@@ -2193,6 +2200,12 @@ export default function MapScreen({ navigation }: Props) {
           const fi = ship3dIndex(m.angle);
           shipFrameRef.current = fi;
           setShipFrame(fi);
+        }
+        const wantFull = fullSailRef.current ? m.speed > SHIP_MAX_SPEED * 0.45 : m.speed > SHIP_MAX_SPEED * 0.65;
+        if (wantFull !== fullSailRef.current) {
+          fullSailRef.current = wantFull;
+          setFullSail(wantFull);
+          if (wantFull) flapRef.current?.(0.4);
         }
         // docking: look for walkable ground (pier, quay or beach) just off her sides and bow
         tieTickRef.current = (tieTickRef.current + 1) % 5;
@@ -3487,6 +3500,7 @@ export default function MapScreen({ navigation }: Props) {
             {/* Townsfolk, bobbing ships, gulls, sea glints — and the moored Black Pearl, drawn with
                 the same sailing sprite and size the player gets once aboard. */}
             <TownLife origin={ISLANDS.tortuga_cove.position} ship={mooredShip} plan={planMode} doneErrands={completedErrands} />
+            {!planMode && <SeaTraffic origin={ISLANDS.tortuga_cove.position} cam={camCoarse} />}
             {!editMode && !NO_FOG && <DiscoveryFog origin={ISLANDS.tortuga_cove.position} discovered={discoveredDistricts} />}
             {planMode && editMode && (
               <EditOverlay origin={ISLANDS.tortuga_cove.position} edits={edits} selected={editSelected} />
@@ -3925,7 +3939,7 @@ export default function MapScreen({ navigation }: Props) {
                 triggers a flourish in) that direction. 0-size and non-interactive — exists purely
                 to force an early decode. See the "ghosting" fix note below. */}
             <View style={styles.preloadFrames} pointerEvents="none">
-              {[...ALL_SCALLY_MAP_FRAMES, ...CHEEKY_V2_ALL, ...SHIP_3D_FRAMES].map((frameSource, i) => (
+              {[...ALL_SCALLY_MAP_FRAMES, ...CHEEKY_V2_ALL, ...SHIP_3D_FRAMES, ...SHIP_3D_FULL_FRAMES].map((frameSource, i) => (
                 <RNImage key={i} source={frameSource} style={styles.preloadFrame} />
               ))}
             </View>
@@ -4042,7 +4056,7 @@ export default function MapScreen({ navigation }: Props) {
                 return (
                   <View style={styles.shipWrap}>
                     <Animated.Image
-                      source={SHIP_3D_SHADOWS[shipFrame]}
+                      source={(fullSail ? SHIP_3D_FULL_SHADOWS : SHIP_3D_SHADOWS)[shipFrame]}
                       resizeMode="contain"
                       style={[styles.shipSprite, { position: 'absolute', opacity: 0.3, transform: [{ translateY: shipIdleSway }] }]}
                     />
@@ -4140,7 +4154,7 @@ export default function MapScreen({ navigation }: Props) {
                       return out;
                     })()}
                     <Animated.Image
-                      source={SHIP_3D_FRAMES[shipFrame] /* the 2026-11-24 3D Black Pearl: 16 views */}
+                      source={(fullSail ? SHIP_3D_FULL_FRAMES : SHIP_3D_FRAMES)[shipFrame] /* the 2026-11-24 3D Black Pearl */}
                       resizeMode="contain"
                       style={[
                         styles.shipSprite,
@@ -4251,27 +4265,23 @@ export default function MapScreen({ navigation }: Props) {
           )}
 
         {viewport.width > 0 && merchantShipFlash && (() => {
-          const source = merchantShipSpriteSource(merchantShipFlash.templateId, merchantShipFlash.heading);
-          if (!source) return null;
-          // Offset to one side of the Black Pearl rather than dead-center on top of her — reads as
-          // a real second vessel crossing the path rather than a costume swap on the player's own
-          // ship. The offset direction is perpendicular to her heading so it looks plausible for
-          // any facing instead of always popping in from the same screen edge.
-          const headingVec = SHIP_HEADING_VECTOR[shipHeadingRef.current];
-          const perpX = -headingVec.y;
-          const perpY = headingVec.x;
-          const offset = SHIP_SPRITE_SIZE * 1.1;
+          // The merchant you've intercepted, crossing her path: the 3D-rendered fluyt, facing the
+          // opposite way, alongside the Black Pearl and scaled with the sea camera.
+          const m = shipMotionRef.current;
+          const across = m.angle + Math.PI;
+          const fi = ship3dIndex(across);
+          const k = viewZoom / ZOOM;
+          const perpX = -Math.sin(m.angle);
+          const perpY = Math.cos(m.angle);
+          const offset = SHIP_SPRITE_SIZE * 1.1 * k;
+          const sz = SHIP_SPRITE_SIZE * k;
           return (
             <RNImage
-              source={source}
+              source={MERCHANT_3D_FRAMES[fi]}
               resizeMode="contain"
               style={[
-                styles.shipSprite,
                 styles.merchantShipFlash,
-                {
-                  left: viewport.width / 2 - SHIP_SPRITE_SIZE / 2 + perpX * offset,
-                  top: viewport.height / 2 - SHIP_SPRITE_SIZE / 2 + perpY * offset,
-                },
+                { width: sz, height: sz, left: viewport.width / 2 - sz / 2 + perpX * offset, top: viewport.height / 2 - sz / 2 + perpY * offset },
               ]}
             />
           );
