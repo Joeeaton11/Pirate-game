@@ -36,6 +36,7 @@ import {
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
 import { SeaTraffic } from '../town/SeaTraffic';
+import { isTortugaGround } from '../blueprint/footGround';
 import { TownLife } from '../town/TownLife';
 import { BlueprintLayer, DEFAULT_PLAN_LAYERS, DiscoveryFog, EditOverlay, PLAN_LAYERS, PLAN_PAPER, PlanIslands, PlanWorld } from '../blueprint/BlueprintLayer';
 import {
@@ -94,7 +95,7 @@ import {
   START_POSITION,
   WORLD_HEIGHT,
   WORLD_WIDTH,
-  islandAtPoint,
+  islandAtPoint as islandAtPointRaw,
 } from '../data/islands';
 import { HOUSES, houseWorldPosition, housesForIsland } from '../data/houses';
 import {
@@ -351,6 +352,13 @@ function streetTilePositions(
 }
 // Slowed from 260 — full sea speed made sailing feel uncontrollable, especially threading the
 // harbor mouth/piers right after boarding the Black Pearl.
+/** islandAtPoint, but on Tortuga only where ground is actually drawn: the harbour water is sea,
+ * for your feet and for the ship alike (2026-11-24). */
+function islandAtPoint(p: { x: number; y: number }) {
+  const isl = islandAtPointRaw(p);
+  if (isl && isl.id === 'tortuga_cove' && !isTortugaGround(p.x - isl.position.x, p.y - isl.position.y)) return null;
+  return isl;
+}
 const SEA_SPEED = 150; // world units per second
 /** The Black Pearl slows to this share of her speed in the blueprint's shallows. */
 const SHALLOWS_SPEED_FACTOR = 0.45;
