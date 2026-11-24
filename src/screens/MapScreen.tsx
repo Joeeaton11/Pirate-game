@@ -685,6 +685,7 @@ const DEADZONE = 12; // px of drag before movement starts
 const STOP_DEADZONE = 4;
 const MAX_DRAG = 70; // px of drag for full speed
 const ENCOUNTER_TICK_MS = 1400;
+const BOARD_REACH = 42; // how close you must stand to the anchored ship to board her
 const HOME_WATERS_RADIUS = 720; // world units round Tortuga's centre with no sea fights
 /** Dev/test: `?calm=1` turns off random encounters so sailing and walking can be tried uninterrupted. */
 const CALM_SEAS = typeof window !== 'undefined' && !!window.location && new URLSearchParams(window.location.search).get('calm') === '1';
@@ -1285,6 +1286,11 @@ export default function MapScreen({ navigation }: Props) {
   const [tieUpSpot, setTieUpSpot] = useState<{ x: number; y: number } | null>(null);
   const tieUpRef = useRef<{ x: number; y: number } | null>(null);
   const tieTickRef = useRef(0);
+  const callTickRef = useRef(0);
+  const stuckRef = useRef({ x: 0, y: 0, ms: 0 });
+  const callSpotRef = useRef<{ x: number; y: number } | null>(null);
+  const showCallShipRef = useRef(false);
+  const [showCallShip, setShowCallShip] = useState(false);
   // full sail: she shakes out her canvas once she's moving well, and shortens sail when slowing
   const [fullSail, setFullSail] = useState(false);
   const fullSailRef = useRef(false);
@@ -1676,6 +1682,21 @@ export default function MapScreen({ navigation }: Props) {
     setNearbyBuildingPrompt(null);
     setCurrentBuilding(nearbyBuildingPrompt.id);
     navigation.navigate('Building');
+  }
+
+  function callShipHere() {
+    const spot = callSpotRef.current;
+    if (!spot) return;
+    const o = { x: spot.x - playerRef.current.x, y: spot.y - playerRef.current.y };
+    // she comes in broadside to you, bow pointing along the shore
+    const lie = ship3dIndex(Math.atan2(o.y, o.x) + Math.PI / 2);
+    blackPearlPositionRef.current = spot;
+    disembarkBlackPearl(spot, lie);
+    showCallShipRef.current = false;
+    setShowCallShip(false);
+    // she comes in close and a boat rows you out to her
+    showResourceToast('🚢 The Black Pearl comes about, and a boat rows you out', 2200);
+    confirmBoardBlackPearl();
   }
 
   function confirmTieUp() {
@@ -2253,9 +2274,50 @@ export default function MapScreen({ navigation }: Props) {
         const nxp = playerRef.current.x + Math.cos(m.angle) * m.speed * dt;
         const nyp = playerRef.current.y + Math.sin(m.angle) * m.speed * dt;
         if (shipOnMole(nxp, nyp, m.angle) && !shipOnMole(playerRef.current.x, playerRef.current.y, m.angle)) {
-          m.speed = 0;
+          // try sliding along the stone on one axis before giving up
+          const px0 = playerRef.current.x, py0 = playerRef.current.y;
+          const sx = { x: nxp, y: py0 }, sy = { x: px0, y: nyp };
+          const slide = !shipOnMole(sx.x, sx.y, m.angle) ? sx : !shipOnMole(sy.x, sy.y, m.angle) ? sy : null;
+          // or back her off if you drag away from the bow
+          const back =
+            direction && Math.cos(m.angle) * direction.x + Math.sin(m.angle) * direction.y < -0.2
+              ? { x: px0 - Math.cos(m.angle) * 8 * dt, y: py0 - Math.sin(m.angle) * 8 * dt }
+              : null;
+          const to = slide ?? (back && !shipOnMole(back.x, back.y, m.angle) ? back : null);
+          m.speed = slide ? m.speed * 0.6 : 0;
+          if (to && !islandAtPoint(to)) {
+            playerRef.current = to;
+            setPlayer(to);
+          }
           easeCamera();
           return;
+        }
+        // stuck watch: if she's been asked to sail for two seconds and hasn't got anywhere
+        // (wedged in a corner), ease her out toward the most open water nearby
+        {
+          const st = stuckRef.current;
+          const moved = Math.hypot(playerRef.current.x - st.x, playerRef.current.y - st.y);
+          if (!direction || moved > 3) {
+            st.x = playerRef.current.x; st.y = playerRef.current.y; st.ms = 0;
+          } else {
+            st.ms += TICK_MS;
+            if (st.ms > 2000) {
+              let best: { x: number; y: number } | null = null, bestOpen = -1;
+              for (let i = 0; i < 12; i++) {
+                const a = (i / 12) * Math.PI * 2;
+                const c = { x: playerRef.current.x + Math.cos(a) * 6, y: playerRef.current.y + Math.sin(a) * 6 };
+                if (islandAtPoint(c) || shipOnMole(c.x, c.y, m.angle)) continue;
+                let open = 0;
+                for (const r of [12, 20, 28]) if (!islandAtPoint({ x: c.x + Math.cos(a) * r, y: c.y + Math.sin(a) * r })) open++;
+                if (open > bestOpen) { bestOpen = open; best = c; }
+              }
+              if (best) {
+                const step = { x: playerRef.current.x + (best.x - playerRef.current.x) * 0.15, y: playerRef.current.y + (best.y - playerRef.current.y) * 0.15 };
+                playerRef.current = step;
+                setPlayer(step);
+              }
+            }
+          }
         }
         const k = m.speed / (SEA_SPEED * (shallowNow ? SHALLOWS_SPEED_FACTOR : 1));
         direction = { x: Math.cos(m.angle) * k, y: Math.sin(m.angle) * k };
@@ -2559,7 +2621,10 @@ export default function MapScreen({ navigation }: Props) {
           }
         } else if (!blackPearlBoardedRef.current) {
           // The ship itself is drawn on the map now, so boarding never depends on the hidden marker layer.
-          const bp = nearbyBlackPearlPos(nextPosition);
+          // generous reach: her hull is 40 long and often lies a little off the shore (2026-11-24)
+          const bpos = blackPearlPositionRef.current;
+          const bpD = Math.hypot(nextPosition.x - bpos.x, nextPosition.y - bpos.y);
+          const bp = bpD <= BOARD_REACH;
           if (bp) {
             if (!boardPromptShownRef.current) {
               boardPromptShownRef.current = true;
@@ -2568,6 +2633,30 @@ export default function MapScreen({ navigation }: Props) {
           } else if (boardPromptShownRef.current) {
             boardPromptShownRef.current = false;
             setShowBoardPrompt(false);
+          }
+          // whistle for her: standing on a shore with open water close by, and the ship far off
+          callTickRef.current = (callTickRef.current + 1) % 6;
+          if (callTickRef.current === 0) {
+            let water: { x: number; y: number } | null = null;
+            if (bpD > BOARD_REACH) {
+              for (const r of [24, 32, 42, 55, 70, 90]) {
+                if (water) break;
+                for (let i = 0; i < 16; i++) {
+                  const a = (i / 16) * Math.PI * 2;
+                  const c = { x: nextPosition.x + Math.cos(a) * r, y: nextPosition.y + Math.sin(a) * r };
+                  // enough open water for her hull, not a sliver between piers
+                  if (!islandAtPoint(c) && [0, 2, 4, 6].every((k) => !islandAtPoint({ x: c.x + Math.cos(k * 0.785) * 12, y: c.y + Math.sin(k * 0.785) * 8 }))) {
+                    water = c;
+                    break;
+                  }
+                }
+              }
+            }
+            callSpotRef.current = water;
+            if (!!water !== showCallShipRef.current) {
+              showCallShipRef.current = !!water;
+              setShowCallShip(!!water);
+            }
           }
         }
 
@@ -4745,6 +4834,12 @@ export default function MapScreen({ navigation }: Props) {
           <Pressable style={styles.buildingPrompt} onPress={confirmTieUp}>
             <Text style={styles.buildingPromptEmoji}>⚓</Text>
             <Text style={styles.buildingPromptText}>Tie up here?</Text>
+          </Pressable>
+        )}
+        {showCallShip && !showBoardPrompt && !blackPearlBoarded && blackPearlCaptured && (
+          <Pressable style={styles.buildingPrompt} onPress={callShipHere}>
+            <Text style={styles.buildingPromptEmoji}>🚢</Text>
+            <Text style={styles.buildingPromptText}>Whistle for the Black Pearl</Text>
           </Pressable>
         )}
         {showBoardPrompt && (
