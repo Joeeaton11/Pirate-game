@@ -240,6 +240,13 @@
 <path d="M-150 302v-4M-152 298h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
 <circle cx="-245.6" cy="-390.4" r="1.2" fill="none" stroke="#2b2a27" stroke-width="0.35"/>
 <path d="M-256 -376v-4M-258 -380h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<circle cx="92" cy="-380" r="2" fill="none" stroke="#2b2a27" stroke-width="0.5"/><path d="M92 -380l9 -6" fill="none" stroke="#2b2a27" stroke-width="0.8" /><path d="M101 -386v4" fill="none" stroke="#2b2a27" stroke-width="0.25" />
+<path d="M-30 -307v-5" fill="none" stroke="#2b2a27" stroke-width="0.4" /><circle cx="-30" cy="-312.6" r="1" fill="#f5cba7" stroke="#2b2a27" stroke-width="0.3"/>
+<rect x="-35.6" y="-301.6" width="3.2" height="3.2" fill="none" stroke="#2b2a27" stroke-width="0.3"/>
+<circle cx="14" cy="-300" r="1.2" fill="none" stroke="#2b2a27" stroke-width="0.35"/>
+<path d="M116 -380h8M116 -378h8M116 -376h8M117 -380.5v5M120 -380.5v5M123 -380.5v5" fill="none" stroke="#2b2a27" stroke-width="0.2" />
+<circle cx="60" cy="-378" r="1.6" fill="none" stroke="#a04000" stroke-width="0.35"/><circle cx="60" cy="-378" r="0.8" fill="none" stroke="#a04000" stroke-width="0.3"/>
+<path d="M30 -400.6v5M28.6 -399.6h2.8M27.6 -397a2.4 2.4 0 0 0 4.8 0" fill="none" stroke="#2b2a27" stroke-width="0.45" />
 <circle cx="128" cy="172" r="1.2" fill="none" stroke="#2b2a27" stroke-width="0.35"/>
 <circle cx="146" cy="168" r="1.2" fill="none" stroke="#2b2a27" stroke-width="0.35"/>
 <circle cx="138" cy="182" r="1.8" fill="none" stroke="#2b2a27" stroke-width="0.35"/><circle cx="138" cy="182" r="0.8" fill="#e67e22"/>
@@ -514,6 +521,28 @@
 <rect x="-191.79999999999998" y="-214.1" width="3.2" height="3.2" fill="none" stroke="#2b2a27" stroke-width="0.3"/>
 <path d="M-185.8 -214.0h8M-185.8 -212.5h8M-185.8 -211.0h8" fill="none" stroke="#2b2a27" stroke-width="0.35" />
 <circle cx="-175.5" cy="-204.0" r="1.2" fill="none" stroke="#2b2a27" stroke-width="0.35"/>
+<circle cx="-427.9" cy="175.9" r="1.2" fill="none" stroke="#2b2a27" stroke-width="0.35"/>
+<circle cx="246.8" cy="388.9" r="1.2" fill="none" stroke="#2b2a27" stroke-width="0.35"/>
+<circle cx="545.3" cy="173.4" r="1.2" fill="none" stroke="#2b2a27" stroke-width="0.35"/>
+<path d="M-26.2 276.8v-4M-28.2 272.8h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-76.0 437.0v-4M-78.0 433.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-506.0 -29.0v-4M-508.0 -33.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-426.0 -31.0v-4M-428.0 -35.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-226.0 -61.0v-4M-228.0 -65.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-252.8 -323.0v-4M-254.8 -327.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-215.1 -273.2v-4M-217.1 -277.2h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-327.0 -88.8v-4M-329.0 -92.8h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-327.7 -107.1v-4M-329.7 -111.1h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M156.0 231.0v-4M154.0 227.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M66.0 269.0v-4M64.0 265.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M446.0 -13.0v-4M444.0 -17.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M358.0 -324.0v-4M356.0 -328.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M361.4 -254.89999999999998v-4M359.4 -258.9h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M469.9 -15.3v-4M467.9 -19.3h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-146.0 339.0v-4M-148.0 335.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M-212.0 405.9v-4M-214.0 401.9h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M14.0 417.0v-4M12.0 413.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
+<path d="M156.0 386.0v-4M154.0 382.0h4" fill="none" stroke="#2b2a27" stroke-width="0.4" />
 <path d="M-311.0 -63.6h3.2" fill="none" stroke="#2b2a27" stroke-width="0.35" /><rect x="-310.7" y="-63.3" width="2.6" height="2" fill="none" stroke="#2b2a27" stroke-width="0.3"/>
 <path d="M-307.0 11.4h3.2" fill="none" stroke="#2b2a27" stroke-width="0.35" /><rect x="-306.7" y="11.7" width="2.6" height="2" fill="none" stroke="#2b2a27" stroke-width="0.3"/>
 <path d="M-305.0 -101.6h3.2" fill="none" stroke="#2b2a27" stroke-width="0.35" /><rect x="-304.7" y="-101.3" width="2.6" height="2" fill="none" stroke="#2b2a27" stroke-width="0.3"/>

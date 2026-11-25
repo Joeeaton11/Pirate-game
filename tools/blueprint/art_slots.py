@@ -153,6 +153,17 @@ def build(root, P, trees, town_box, town=None):
                 if sp.get('storeys', 1) > 1: sp['storeys'] = 1
                 else: sp['d'] = max(4, sp['d'] * 0.75)
                 sw = houses.render(sp, f'{root}/{SPR}/{rel}')
+            if bid == 'tortuga_chapel':  # the town's landmark: a tall stone bell tower on the chapel's west end
+                _tp = f'{root}/{SPR}/plan_art/_tower_tmp.png'
+                houses.render({'shape': 'tower', 'w': 6, 'height': 17, 'wall': 'stone', 'flag': '#f1ead8', 'door': False}, _tp)
+                _ch = Image.open(f'{root}/{SPR}/{rel}').convert('RGBA'); _tw = Image.open(_tp).convert('RGBA')
+                _k = _ch.size[0] / (sw * 6)  # stored pixels per art pixel
+                if abs(_k - 1) > 0.05: _tw = _tw.resize((round(_tw.size[0] * _k), round(_tw.size[1] * _k)), Image.NEAREST)
+                _H = max(_ch.size[1], _tw.size[1])
+                _out = Image.new('RGBA', (_ch.size[0], _H), (0, 0, 0, 0))
+                _out.alpha_composite(_ch, (0, _H - _ch.size[1]))
+                _out.alpha_composite(_tw, (0, _H - _tw.size[1]))
+                _out.save(f'{root}/{SPR}/{rel}'); os.remove(_tp)
             _w, _c = houses.features((l + r) / 2, b + 1.2)
             PLACES.setdefault(aid, []).append(((l + r) / 2, b + 1.2)); FEATS[aid] = ([(round(x - (l + r) / 2, 1), round(y - b - 1.2, 1)) for x, y in _w], [(round(x - (l + r) / 2, 1), round(y - b - 1.2, 1)) for x, y in _c])
             painted_over(root, aid, f'{root}/{SPR}/{rel}')

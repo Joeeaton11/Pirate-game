@@ -18,6 +18,13 @@ const VESSELS: Vessel[] = [
   { id: 'navy', loop: { cx: 80, cy: 20, rx: 760, ry: 640, period: 520, phase: 0.55, dir: -1 }, frames: NAVY_3D_FRAMES, shadows: NAVY_3D_SHADOWS },
 ];
 
+/** Merchantmen tied up in the harbour (island-relative, 32-view frame index): at the Middle Pier head
+ * and alongside the Long Pier. Exported so the Black Pearl can't sail through them. */
+export const MOORED_SHIPS: { x: number; y: number; frame: number }[] = [
+  { x: 92, y: -399, frame: 0 },
+  { x: 38, y: -352, frame: 24 },
+];
+
 function at(l: Loop, t: number) {
   const a = ((t / l.period + l.phase) * Math.PI * 2) * l.dir;
   const x = l.cx + l.rx * Math.cos(a), y = l.cy + l.ry * Math.sin(a);
@@ -32,6 +39,15 @@ export const SeaTraffic = React.memo(function SeaTraffic({ origin, cam, range = 
     return () => clearInterval(id);
   }, []);
   const out: React.ReactNode[] = [];
+  for (const [i, m] of MOORED_SHIPS.entries()) {
+    const wx = origin.x + m.x, wy = origin.y + m.y;
+    if (Math.abs(wx - cam.x) > range || Math.abs(wy - cam.y) > range) continue;
+    const bob = Math.sin(t * 1.3 + i * 2) * 0.3;
+    out.push(
+      <Image key={`ms${i}`} source={MERCHANT_3D_SHADOWS[m.frame]} resizeMode="contain" style={{ position: 'absolute', left: wx - SIZE / 2, top: wy - SIZE / 2, width: SIZE, height: SIZE, opacity: 0.3 }} />,
+      <Image key={`mh${i}`} source={MERCHANT_3D_FRAMES[m.frame]} resizeMode="contain" style={{ position: 'absolute', left: wx - SIZE / 2, top: wy - SIZE / 2 + bob, width: SIZE, height: SIZE }} />
+    );
+  }
   for (const v of VESSELS) {
     const p = at(v.loop, t);
     const wx = origin.x + p.x, wy = origin.y + p.y;

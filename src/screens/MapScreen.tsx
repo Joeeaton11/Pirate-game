@@ -35,7 +35,7 @@ import {
 } from '../data/blackPearl';
 import { Building, BUILDINGS, ENTER_RADIUS, buildingWorldPosition, buildingsForIsland } from '../data/buildings';
 import { buildTownScene } from '../town/townScene';
-import { SeaTraffic } from '../town/SeaTraffic';
+import { MOORED_SHIPS, SeaTraffic } from '../town/SeaTraffic';
 import { isTortugaGround } from '../blueprint/footGround';
 import { TownLife } from '../town/TownLife';
 import { BlueprintLayer, DEFAULT_PLAN_LAYERS, DiscoveryFog, EditOverlay, PLAN_LAYERS, PLAN_PAPER, PlanIslands, PlanWorld } from '../blueprint/BlueprintLayer';
@@ -377,6 +377,14 @@ function shipOnMole(x: number, y: number, angle: number): boolean {
   const o = ISLANDS.tortuga_cove.position;
   const c = Math.cos(angle), sn = Math.sin(angle);
   const pts = [-15, 0, 15].map((d) => ({ x: x - o.x + c * d, y: y - o.y + 4 + sn * d * 0.5 }));
+  // the merchantmen tied up in the harbour are solid too
+  for (const m of MOORED_SHIPS) {
+    const mc = Math.cos((m.frame * Math.PI) / 16), ms = Math.sin((m.frame * Math.PI) / 16);
+    for (const p of pts) {
+      const dx = p.x - m.x, dy = p.y - (m.y + 4);
+      if (Math.abs(dx * mc + dy * ms) < 17 && Math.abs(-dx * ms + dy * mc) < 6) return true;
+    }
+  }
   for (const arm of BP_MOLES) {
     for (let i = 0; i + 1 < arm.length; i++) {
       const [ax, ay] = arm[i], [bx, by] = arm[i + 1];

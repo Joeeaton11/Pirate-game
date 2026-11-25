@@ -85,6 +85,19 @@ for _n, _k, _w, _pts in P.ROADS:
         if _seg.geom_type == 'LineString' and _seg.length > 1: BRIDGE_SPANS.append((_n, _k, _w, list(_seg.coords)))
 water = unary_union([lagoon, rivers]).difference(ways)
 sea_zones = [(t, Polygon(p).buffer(0).difference(coast)) for t, p in P.SEA_ZONES]
+# little rocky coves (2026-11-24): two rock headlands either side of a short beach, a boat drawn up on it
+COVE_PROPS = []
+for _cx, _cy in [(-452, 175), (250, 405), (545, 170)]:
+    _b = coast.exterior
+    _d = _b.project(Point(_cx, _cy)); _p0 = _b.interpolate(_d)
+    _p1, _p2 = _b.interpolate(_d - 17), _b.interpolate(_d + 17)
+    _c = coast.centroid
+    for _q in (_p1, _p2):
+        _ix, _iy = _c.x - _q.x, _c.y - _q.y; _L = math.hypot(_ix, _iy) or 1
+        _hx, _hy = _q.x + _ix / _L * 3, _q.y + _iy / _L * 3
+        P.ZONES.append(('rock', [(_hx + 8 * math.cos(a_ * 0.785), _hy + 6 * math.sin(a_ * 0.785)) for a_ in range(8)]))
+    _ix, _iy = _c.x - _p0.x, _c.y - _p0.y; _L = math.hypot(_ix, _iy) or 1
+    COVE_PROPS.append(('rowboat_beached', round(_p0.x + _ix / _L * 6, 1), round(_p0.y + _iy / _L * 6, 1)))
 zone_geoms = [(t, Polygon(p).buffer(0).intersection(coast).difference(town_box)) for t, p in P.ZONES]
 beach = coast.difference(coast.buffer(-14)).difference(town_box)
 
@@ -245,7 +258,22 @@ for b in P.BUILDINGS:
         if key in EDITS.get('deleted_props', []): want -= 1; continue
         dx, dy = EDITS['props'].get(key, [0, 0])
         auto_props.append((k, x + dx, y + dy)); PROPS_ORIG.append((k, x, y)); _pts.append((x, y)); want -= 1
-P.PROPS = list(P.PROPS) + auto_props
+P.PROPS = list(P.PROPS) + auto_props + COVE_PROPS
+# fingerposts at the crossroads (2026-11-24): every junction of two roads outside the town gets a signpost
+_sp = [(x, y) for k, x, y in P.PROPS if k == 'signpost']
+_rl = [(n_, LineString(p_)) for n_, k_, w_, p_ in P.ROADS if k_ in ('main', 'lane', 'path')]
+_blds = unary_union(bldg_geoms).buffer(2)
+for _i in range(len(_rl)):
+    for _j in range(_i + 1, len(_rl)):
+        _x = _rl[_i][1].intersection(_rl[_j][1])
+        for _g in getattr(_x, 'geoms', [_x]):
+            if _g.is_empty or _g.geom_type != 'Point' or town_box.buffer(10).contains(_g): continue
+            if any(math.hypot(_g.x - a, _g.y - b) < 18 for a, b in _sp): continue
+            for _ox, _oy in ((6, 5), (-6, 5), (6, -5), (-6, -5)):
+                _c = Point(_g.x + _ox, _g.y + _oy)
+                if not ways.buffer(1.5).contains(_c) and not _blds.contains(_c) and coast.buffer(-4).contains(_c) and not water.buffer(2).contains(_c):
+                    P.PROPS.append(('signpost', round(_c.x, 1), round(_c.y, 1))); _sp.append((_g.x, _g.y)); break
+print('  fingerposts', len(_sp))
 # a hanging sign beside every tavern and shop door
 for b in P.BUILDINGS:
     bid, label, kind, cx, cy, w, h, side = b
@@ -882,7 +910,7 @@ while t < Lc:
 def U(rs): return unary_union([box(l, t_, r, b) for l, r, t_, b in rs])
 dock_union = unary_union([g for *_, g in dock_geoms])
 surfaces = {
-    'cobble': unary_union([U(town_rects['street'])] + plaza_geoms).simplify(0.4),
+    'cobble': unary_union([U(town_rects['street']), fort_area, breakwater] + plaza_geoms).simplify(0.4),
     'plank': unary_union([U(town_rects['wood']), dock_union, bridges]).simplify(0.4),
     'sand': unary_union([beach, U(town_rects['sand'])]).difference(ways).simplify(0.4),
     'dirt': unary_union(road_geoms).difference(town_box).difference(bridges).simplify(0.4),

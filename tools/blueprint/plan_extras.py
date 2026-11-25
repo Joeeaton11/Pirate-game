@@ -30,6 +30,7 @@ EXTRA_BUILDINGS = [
 ]
 
 EXTRA_ROADS = [
+    ('Hollins Path', 'path', 3, [(-379, -83), (-366, -83), (-356, -92), (-332, -96)]),
     ('Mission Path', 'path', 4, [(-20, 206), (-70, 214), (-120, 204), (-160, 214)]),
     ("Smugglers' Path", 'path', 3, [(150, 224), (142, 206), (138, 192)]),
     ("Hermit's Path", 'path', 3, [(60, 262), (56, 290), (66, 318)]),
@@ -83,6 +84,9 @@ EXTRA_PROPS2 = [
     ('crane', -200, -214), ('rubble', -228, -196), ('cart', -190, -190), ('rubble', -212, -192),
     ('cart', -60, 100), ('haystack', -140, 100), ('bench', -150, 232), ('bench', -170, 266), ('signpost', -150, 300),
     ('gibbet', -240, -390), ('signpost', -256, -378),
+    # The quay (2026-11-24): a harbour crane on the Middle Pier head, the customs post at the root of the Long Pier
+    ('crane', 92, -380), ('notice', -26, -305), ('lantern_post', -30, -310), ('crates', -34, -300), ('barrels', 14, -300),
+    ('nets', 120, -378), ('rope_coil', 60, -378), ('anchor', 30, -398),
     # The heart of the island (2026-11-24): a smugglers' camp in the east woods off the Hollow Trail...
     ('tent', 128, 172), ('tent', 146, 168), ('campfire', 138, 182), ('crates', 120, 184), ('barrels', 154, 182),
     ('lean_to', 160, 172), ('rum_barrels', 112, 176), ('skull_post', 132, 194),

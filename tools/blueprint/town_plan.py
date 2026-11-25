@@ -199,13 +199,15 @@ def layout(cls, TOWN, CELL, types, seed=7):
                 if big:
                     run = None
                 else:
-                    if run is None:  # start a terrace: 3 to 6 houses built as one, wall to wall
-                        run, run_left, run_d, run_b = len(set(TERRACES.values())) + 1, rng.randint(3, 6), d, b
+                    if run is None:  # start a terrace: 3 to 6 houses built as one, wall to wall (longer on the main streets)
+                        main_st = name in ('Front Street', 'High Street', 'High Street (upper)', 'SQUARE')
+                        run, run_left, run_d, run_b = len(set(TERRACES.values())) + 1, rng.randint(5, 9) if main_st else rng.randint(3, 6), d, b
                     TERRACES[houses[-1]] = run; run_left -= 1
                 x += w
                 if run is not None and run_left > 0 and not big: continue      # no gaps inside a terrace
                 run = None
                 g = rng.random()
+                if name in ('Front Street', 'High Street', 'High Street (upper)'): g = 0.9 if g < 0.5 else 0.0  # main streets: barely a break
                 # between terraces: an alley slot, a yard, or now and then an open plot
                 if g < 0.45: x += rng.uniform(2.0, 4.0)
                 elif g < 0.75: x += rng.uniform(7, 12)
@@ -275,7 +277,7 @@ def layout(cls, TOWN, CELL, types, seed=7):
     order = sorted(range(len(houses)), key=lambda i: (round(houses[i][3] / 8), houses[i][0]))
     for a_, b_ in zip(order, order[1:]):
         A, B = houses[a_], houses[b_]
-        if _plain(A) and _plain(B) and abs(A[3] - B[3]) < 3.2 and 0 <= B[0] - A[1] <= 8.5 and rng.random() < 0.85 \
+        if _plain(A) and _plain(B) and abs(A[3] - B[3]) < 3.2 and 0 <= B[0] - A[1] <= (13 if A[3] < -150 else 8.5) and rng.random() < (0.95 if A[3] < -150 else 0.85) \
                 and not st_p.intersects(box(A[1] - 0.1, A[2], B[0] + 0.1, A[3] - 0.4)):
             nA = (A[0], B[0], A[2], A[3])
             if A in scenery: scenery.discard(A); scenery.add(nA)
