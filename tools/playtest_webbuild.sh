@@ -36,9 +36,9 @@ for c,ch in enumerate(chunks):
     name='d'+hashlib.md5(body.encode()).hexdigest()[:8]+'.js'
     open('/home/claude/s/'+name,'w').write(body); tags+='<script src="./'+name+'"></script>'
 open('/home/claude/s/m.js','w').write(src)
-h=open('index.html').read().replace('<script src="/'+js+'" defer>',tags+'<script src="./m.js" defer>').replace('href="/favicon','href="./favicon').replace('<title>Pirate-game</title>','<title>Scallywag Isles — playtest</title>')
+h=open('index.html').read().replace('<script src="/'+js+'" defer>',tags+'<script src="./m.js" defer>').replace('href="/favicon','href="./favicon').replace('<title>Pirate-game</title>','<title>Scallywag Isles — playtest</title><link rel="artifact-thumbnail" href="thumb.png">')
 assert './m.js' in h
-open('/home/claude/s/index.html','w').write(h); shutil.copy('favicon.ico','/home/claude/s/favicon.ico')
+open('/home/claude/s/index.html','w').write(h); shutil.copy('favicon.ico','/home/claude/s/favicon.ico'); shutil.copy('/home/claude/pirate-game/docs/playtest_thumb.png','/home/claude/s/thumb.png')
 files=len(os.listdir('/home/claude/s'))+len(os.listdir('/home/claude/s/a'))-1
 print('inlined',n_inline,'chunks',len(chunks),'files',files,'m.js MB',round(os.path.getsize('/home/claude/s/m.js')/1e6,1),'biggest chunk MB',round(max(os.path.getsize('/home/claude/s/'+f) for f in os.listdir('/home/claude/s') if f.startswith('d'))/1e6,1))
 PY
